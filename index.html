@@ -361,6 +361,17 @@
     }
 
     // ФОТО
+    async function uploadPhotoMobile(day, role, file) {
+        if (!file) return;
+        await uploadPhoto(day, role, file);
+        // Оновлюємо мобільний контейнер
+        const container = document.getElementById(`mobile-photos-${day}-${role}`);
+        if (container) {
+            const photos = await loadPhotos(day, role);
+            renderPhotoContainer(container, photos, day, role, true);
+        }
+    }
+
     async function uploadPhoto(day, role, file) {
         const ext = file.name.split('.').pop();
         const path = `${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
@@ -400,7 +411,7 @@
         } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка видалення'); }
     }
 
-    function renderPhotoContainer(container, photos, day, role) {
+    function renderPhotoContainer(container, photos, day, role, isMobile = false) {
         container.innerHTML = photos.map(p => `
             <div class="relative group">
                 <img src="${p.url}" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">
@@ -480,6 +491,11 @@
                     <div class="${!state.working?'opacity-40 pointer-events-none':''}">
                         ${tasksHtml}
                         <input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1">
+                        ${state.working ? `<label class="cursor-pointer text-xs text-indigo-500 font-semibold flex items-center gap-1 mt-2">
+                            📷 Додати фото
+                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhotoMobile(${d},'${role}',this.files[0])">
+                        </label>
+                        <div id="mobile-photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
                     </div>
                 </div>`;
             });
@@ -495,6 +511,17 @@
 
             card.appendChild(body);
             container.appendChild(card);
+        }
+
+        // Завантажуємо фото для мобільних карток асинхронно
+        for (let d = 1; d <= daysInMonth; d++) {
+            roles.forEach(async role => {
+                if (currentMonthData[d]?.[role]?.working) {
+                    const photos = await loadPhotos(d, role);
+                    const cont = document.getElementById(`mobile-photos-${d}-${role}`);
+                    if (cont && photos.length) renderPhotoContainer(cont, photos, d, role, true);
+                }
+            });
         }
     }
 
