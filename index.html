@@ -14,10 +14,15 @@
         .theme-dark { --bg-app: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bg-card: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border: #334155; --bg-input: #0f172a; --table-header: #111827; }
         .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         .animate-pop { animation: pop-in 0.3s ease forwards; }
+        .animate-slide { animation: slide-down 0.2s ease forwards; }
         .stat-card { transition: all 0.3s ease; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .checkbox-wrap:active { transform: scale(0.92); }
+        .medal-1 { background: linear-gradient(135deg, #ffd700, #ffb300); }
+        .medal-2 { background: linear-gradient(135deg, #c0c0c0, #9e9e9e); }
+        .medal-3 { background: linear-gradient(135deg, #cd7f32, #a0522d); }
+        .comment-bubble { border-left: 3px solid #6366f1; }
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
     </style>
 </head>
@@ -43,7 +48,7 @@
         </div>
     </div>
 
-    <!-- СТАТИСТИКА -->
+    <!-- СТАТИСТИКА + РЕЙТИНГ -->
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
         <div class="no-print mb-4 p-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
             <span class="text-xl">💡</span>
@@ -60,8 +65,10 @@
             </div>
             <div class="ml-auto text-xs text-[var(--text-sub)] font-medium italic">💾 Автозбереження в хмару</div>
         </div>
+
+        <!-- КАРТКИ СТАТИСТИКИ -->
         <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🏆 Моніторинг Суперсил за Місяць:</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-bold text-amber-700">⚡ Електрик</span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800">💤 Заслужений відпочинок</span></div>
@@ -74,6 +81,12 @@
                 <div class="flex items-center justify-between"><span class="font-bold text-blue-700">🔧 Сантехнік</span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span></div>
             </div>
+        </div>
+
+        <!-- РЕЙТИНГ З МЕДАЛЯМИ -->
+        <div class="border-t border-[var(--border)] pt-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🥇 Рейтинг Героїв Місяця:</h3>
+            <div id="rating-board" class="flex flex-col gap-2"></div>
         </div>
     </div>
 
@@ -89,10 +102,11 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[var(--table-header)] border-b border-[var(--border)] text-xs font-bold uppercase tracking-wider">
-                        <th class="p-4 w-32">Дата / День</th>
+                        <th class="p-4 w-36">Дата / День</th>
                         <th class="p-4 border-l border-[var(--border)] text-amber-700">⚡ Електрик</th>
                         <th class="p-4 border-l border-[var(--border)] text-emerald-700">🧹 Двірник</th>
                         <th class="p-4 border-l border-[var(--border)] text-blue-700">🔧 Сантехнік</th>
+                        <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print">💬 Коментар до дня</th>
                     </tr>
                 </thead>
                 <tbody id="calendar-body" class="divide-y divide-[var(--border)] text-sm"></tbody>
@@ -109,6 +123,7 @@
 
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const roles = ['electrician', 'janitor', 'plumber'];
+    const roleNames = { electrician: '⚡ Електрик', janitor: '🧹 Двірник', plumber: '🔧 Сантехнік' };
     const quotes = ["Чистий під'їзд починається не з мітли, а з посмішки! ✨","Електрик вміє вмикати гарний настрій навіть без генератора! ⚡","Наші сантехніки контролюють ситуацію краще, ніж Нептун! 🔱","Сьогодні чудовий день підстригти газон! 📸","Порядок у будинку — спокій у душі. 🏡"];
     const roleTasksConfig = {
         electrician: [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'lamps', label: 'Заміна ламп 💡' }],
@@ -169,6 +184,35 @@
         } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка збереження'); }
     }
 
+    // РЕЙТИНГ
+    function updateRating(counts) {
+        const board = document.getElementById('rating-board');
+        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        const medals = ['🥇', '🥈', '🥉'];
+        const medalColors = ['medal-1 text-yellow-900', 'medal-2 text-gray-800', 'medal-3 text-amber-900'];
+        board.innerHTML = '';
+        sorted.forEach(([role, count], i) => {
+            if (count === 0 && i > 0) return;
+            const div = document.createElement('div');
+            div.className = `animate-slide flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] ${i === 0 && count > 0 ? 'bg-yellow-500/10 border-yellow-400/30' : 'bg-[var(--bg-input)]'}`;
+            const maxCount = sorted[0][1] || 1;
+            const pct = count > 0 ? Math.round((count / maxCount) * 100) : 0;
+            div.innerHTML = `
+                <span class="text-2xl w-8 text-center">${count > 0 ? medals[i] : '💤'}</span>
+                <div class="flex-1">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-sm">${roleNames[role]}</span>
+                        <span class="text-xs font-black ${i===0&&count>0?'text-yellow-600':'text-[var(--text-sub)]'}">${count} змін</span>
+                    </div>
+                    <div class="w-full bg-[var(--border)] rounded-full h-1.5">
+                        <div class="h-1.5 rounded-full transition-all duration-700 ${i===0?'bg-yellow-400':i===1?'bg-gray-400':'bg-amber-600'}" style="width:${pct}%"></div>
+                    </div>
+                    <div class="text-[10px] text-[var(--text-sub)] mt-1">${getWorkerBadge(role, count)}</div>
+                </div>`;
+            board.appendChild(div);
+        });
+    }
+
     // РЕНДЕР
     function renderTable() {
         const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
@@ -177,13 +221,15 @@
             const dateObj = new Date(currentYear, currentMonth, d);
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' } };
+            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
+            if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
             const tr = document.createElement('tr');
             tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''}`;
             const tdDate = document.createElement('td');
             tdDate.className = `p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}`;
             tdDate.innerHTML = `<span class="text-base">${String(d).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">(${dayName})</span>`;
             tr.appendChild(tdDate);
+
             roles.forEach(role => {
                 const state = currentMonthData[d][role];
                 const tdRole = document.createElement('td');
@@ -193,13 +239,24 @@
                 let checkBoxesHtml = '';
                 roleTasksConfig[role].forEach(task => {
                     const isChecked = state.tasks && state.tasks[task.id];
-                    checkBoxesHtml += `<label class="checkbox-wrap flex items-center gap-2 text-xs cursor-pointer select-none"><input type="checkbox" ${!state.working ? 'disabled' : ''} ${isChecked ? 'checked' : ''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow"><span class="${isChecked ? 'font-bold' : 'text-[var(--text-sub)]'}">${task.label}</span></label>`;
+                    checkBoxesHtml += `<label class="flex items-center gap-2 text-xs cursor-pointer select-none"><input type="checkbox" ${!state.working ? 'disabled' : ''} ${isChecked ? 'checked' : ''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow"><span class="${isChecked ? 'font-bold' : 'text-[var(--text-sub)]'}">${task.label}</span></label>`;
                 });
                 let printSummary = [];
                 if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks && state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(state.other); if (!printSummary.length) printSummary.push('Зміна успішна'); } else printSummary.push('—');
-                tdRole.innerHTML = `<div class="flex flex-col gap-2"><div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm transition-all hover:border-gray-400"><span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working ? accentText : 'text-slate-400'}">${state.working ? '⚡ НА ЗМІНІ' : 'ВИХІДНИЙ'}</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${state.working ? 'checked' : ''} onchange="toggleShift(${d},'${role}',event)"><div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div></label></div><div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working ? 'pointer-events-none opacity-40' : ''}">${checkBoxesHtml}<input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition"/></div><div class="hidden print:block text-xs"><div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div><div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div></div></div>`;
+                tdRole.innerHTML = `<div class="flex flex-col gap-2"><div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm"><span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working ? accentText : 'text-slate-400'}">${state.working ? '⚡ НА ЗМІНІ' : 'ВИХІДНИЙ'}</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${state.working ? 'checked' : ''} onchange="toggleShift(${d},'${role}',event)"><div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div></label></div><div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working ? 'pointer-events-none opacity-40' : ''}">${checkBoxesHtml}<input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition"/></div><div class="hidden print:block text-xs"><div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div><div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div></div></div>`;
                 tr.appendChild(tdRole);
             });
+
+            // КОЛОНКА КОМЕНТАРЯ
+            const tdComment = document.createElement('td');
+            tdComment.className = 'p-3 border-l border-[var(--border)] no-print';
+            const hasComment = currentMonthData[d].comment && currentMonthData[d].comment.trim();
+            tdComment.innerHTML = `
+                <div class="flex flex-col gap-1.5">
+                    <textarea rows="2" oninput="updateComment(${d}, this.value)" placeholder="💬 Нотатка до дня..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 shadow transition resize-none">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
+                    ${hasComment ? `<div class="comment-bubble bg-purple-500/5 px-2 py-1 rounded text-[10px] text-purple-700 font-medium">💾 Збережено</div>` : ''}
+                </div>`;
+            tr.appendChild(tdComment);
             tbody.appendChild(tr);
         }
     }
@@ -224,10 +281,17 @@
 
     function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
 
+    function updateComment(day, text) {
+        if (!currentMonthData[day]) return;
+        currentMonthData[day].comment = text;
+        scheduleSave();
+    }
+
     function updateStats() {
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
         Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day][role]?.working) counts[role]++; }); });
         roles.forEach(role => { document.getElementById(`stats-${role}`).innerText = `${counts[role]} змін`; document.getElementById(`badge-${role}`).innerText = getWorkerBadge(role, counts[role]); });
+        updateRating(counts);
     }
 
     function getWorkerBadge(role, count) {
