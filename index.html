@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Журнал Супергероїв ОСББ "Микитська Слобода"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; }
+        .theme-light { --bg-app: linear-gradient(135deg, #e0f2fe 0%, #e2f1e8 100%); --bg-card: #ffffff; --text-main: #0f172a; --text-sub: #475569; --border: #cbd5e1; --bg-input: #f1f5f9; --table-header: #e2e8f0; }
+        .theme-dark { --bg-app: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bg-card: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border: #334155; --bg-input: #0f172a; --table-header: #111827; }
+        .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; }
+        @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
+    </style>
+</head>
+<body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto">
+    <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight">🏡 ОСББ "Микитська Слобода"</h1>
+            <p class="text-sm font-medium text-indigo-600 mt-0.5">☁️ Хмарний журнал супергероїв — Supabase</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+            <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
+            <select id="theme-select" onchange="changeTheme(this.value)" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
+                <option value="theme-light">🎨 Світла</option>
+                <option value="theme-dark">🌙 Темна</option>
+                <option value="theme-amber">🍂 Амбер</option>
+            </select>
+            <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm">🖨️ Друк / PDF</button>
+            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm">🗑️ Скинути місяць</button>
+        </div>
+    </div>
+    <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
+        <div class="no-print mb-4 p-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
+            <span class="text-xl">💡</span>
+            <p id="fun-quote" class="text-xs font-medium italic"></p>
+        </div>
+        <div class="no-print flex flex-wrap lg:flex-nowrap items-center gap-4 mb-6 pb-6 border-b border-[var(--border)] bg-[var(--bg-input)] p-4 rounded-xl">
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-bold">Рік:</label>
+                <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-bold">Місяць:</label>
+                <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
+            </div>
+            <div class="ml-auto text-xs text-[var(--text-sub)] font-medium italic">💾 Автозбереження в хмару</div>
+        </div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🏆 Моніторинг Суперсил за Місяць:</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between"><span class="font-bold text-amber-700">⚡ Електрик</span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800">💤 Заслужений відпочинок</span></div>
+            </div>
+            <div class="p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between"><span class="font-bold text-emerald-700">🧹 Двірник</span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800">💤 Заслужений відпочинок</span></div>
+            </div>
+            <div class="p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between"><span class="font-bold text-blue-700">🔧 Сантехнік</span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl relative">
+        <div id="loading-overlay" class="no-print fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
+            <div class="bg-[var(--bg-card)] p-5 rounded-2xl flex items-center gap-3 border border-[var(--border)] shadow-2xl">
+                <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
+                <p id="loading-text" class="font-bold text-sm">🔄 Зв'язуюсь із хмарою...</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-[var(--table-header)] border-b border-[var(--border)] text-xs font-bold uppercase tracking-wider">
+                        <th class="p-4 w-32">Дата / День</th>
+                        <th class="p-4 border-l border-[var(--border)] text-amber-700">⚡ Електрик</th>
+                        <th class="p-4 border-l border-[var(--border)] text-emerald-700">🧹 Двірник</th>
+                        <th class="p-4 border-l border-[var(--border)] text-blue-700">🔧 Сантехнік</th>
+                    </tr>
+                </thead>
+                <tbody id="calendar-body" class="divide-y divide-[var(--border)] text-sm"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    const SUPABASE_URL = 'https://jpwelaerkkdblpmkueid.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
+    const roles = ['electrician', 'janitor', 'plumber'];
+    const quotes = ["Чистий під'їзд починається не з мітли, а з посмішки! ✨","Електрик вміє вмикати гарний настрій навіть без генератора! ⚡","Наші сантехніки контролюють ситуацію краще, ніж Нептун океани! 🔱","Сьогодні чудовий день для того, щоб підстригти газон! 📸","Порядок у будинку — спокій у душі. 🏡"];
+    const roleTasksConfig = {
+        electrician: [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'lamps', label: 'Заміна ламп 💡' }],
+        plumber: [{ id: 'sewer', label: 'Прочистка каналізації 🪠' }],
+        janitor: [{ id: 'garden', label: 'Садові роботи 🌳' }, { id: 'lawn', label: 'Стрижка газонів ✂️' }, { id: 'bins', label: 'Мийка баків 🗑️' }, { id: 'stairs', label: 'Мийка сходів 🧼' }]
+    };
+    let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
+    const yearSelect = document.getElementById('year-select');
+    const monthSelect = document.getElementById('month-select');
+    const now = new Date();
+    for (let y = 2025; y <= 2030; y++) { const o = document.createElement('option'); o.value = y; o.innerText = y; if (y === now.getFullYear()) o.selected = true; yearSelect.appendChild(o); }
+    monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
+    document.getElementById('fun-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+    function setSyncStatus(type, text) {
+        const el = document.getElementById('sync-status');
+        const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
+        el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`; el.innerText = text;
+    }
+    async function initCalendar() {
+        currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
+        showOverlay(true, '📥 Завантажую дані з хмари...'); setSyncStatus('loading', '⏳ Завантаження...');
+        try {
+            const { data, error } = await db.from('schedule').select('data').eq('month_key', `${currentYear}-${currentMonth}`).single();
+            if (error && error.code !== 'PGRST116') throw error;
+            currentMonthData = data?.data || {};
+        } catch (err) { setSyncStatus('error', '❌ Помилка завантаження'); currentMonthData = {}; }
+        renderTable(); updateStats(); showOverlay(false); setSyncStatus('ok', '✅ Синхронізовано');
+    }
+    function scheduleSave() { setSyncStatus('loading', '💾 Зберігаю...'); clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 800); }
+    async function saveToCloud() {
+        try {
+            const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
+            if (error) throw error; setSyncStatus('ok', '✅ Збережено');
+        } catch (err) { setSyncStatus('error', '❌ Помилка збереження'); }
+    }
+    function renderTable() {
+        const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' } };
+            const tr = document.createElement('tr');
+            tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''}`;
+            const tdDate = document.createElement('td');
+            tdDate.className = `p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}`;
+            tdDate.innerHTML = `<span class="text-base">${String(d).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">(${dayName})</span>`;
+            tr.appendChild(tdDate);
+            roles.forEach(role => {
+                const state = currentMonthData[d][role];
+                const tdRole = document.createElement('td');
+                tdRole.className = `p-3 border-l border-[var(--border)] ${!state.working ? 'opacity-70' : ''}`;
+                const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
+                const accentText = role === 'electrician' ? 'text-amber-600' : role === 'janitor' ? 'text-emerald-600' : 'text-blue-600';
+                let checkBoxesHtml = '';
+                roleTasksConfig[role].forEach(task => {
+                    const isChecked = state.tasks && state.tasks[task.id];
+                    checkBoxesHtml += `<label class="flex items-center gap-2 text-xs cursor-pointer select-none"><input type="checkbox" ${!state.working ? 'disabled' : ''} ${isChecked ? 'checked' : ''} onchange="toggleTask(${d}, '${role}', '${task.id}')" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow"><span class="${isChecked ? 'font-bold' : 'text-[var(--text-sub)]'}">${task.label}</span></label>`;
+                });
+                let printSummary = [];
+                if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks && state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(state.other); if (!printSummary.length) printSummary.push('Зміна успішна'); } else { printSummary.push('—'); }
+                tdRole.innerHTML = `<div class="flex flex-col gap-2"><div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm"><span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working ? accentText : 'text-slate-400'}">${state.working ? '⚡ НА ЗМІНІ' : 'ВИХІДНИЙ'}</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${state.working ? 'checked' : ''} onchange="toggleShift(${d}, '${role}')"><div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div></label></div><div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working ? 'pointer-events-none opacity-40' : ''}">${checkBoxesHtml}<input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition"/></div><div class="hidden print:block text-xs"><div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div><div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div></div></div>`;
+                tr.appendChild(tdRole);
+            });
+            tbody.appendChild(tr);
+        }
+    }
+    function toggleShift(day, role) { currentMonthData[day][role].working = !currentMonthData[day][role].working; if (!currentMonthData[day][role].working) { currentMonthData[day][role].tasks = {}; currentMonthData[day][role].other = ''; } renderTable(); updateStats(); scheduleSave(); }
+    function toggleTask(day, role, taskId) { if (!currentMonthData[day][role].tasks) currentMonthData[day][role].tasks = {}; currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId]; renderTable(); updateStats(); scheduleSave(); }
+    function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
+    function updateStats() {
+        let counts = { electrician: 0, janitor: 0, plumber: 0 };
+        Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day][role]?.working) counts[role]++; }); });
+        roles.forEach(role => { document.getElementById(`stats-${role}`).innerText = `${counts[role]} змін`; document.getElementById(`badge-${role}`).innerText = getWorkerBadge(role, counts[role]); });
+    }
+    function getWorkerBadge(role, count) {
+        if (count === 0) return '💤 Заслужений відпочинок';
+        if (role === 'electrician') return count < 8 ? '🔌 Початківець іскри' : count < 18 ? '⚡ Магістр Струму' : '👑 Володар Блискавок Слободи';
+        if (role === 'janitor') return count < 8 ? '🌱 Чистороб-стажер' : count < 18 ? '🧹 Генерал Мітли та Грабель' : '👑 Охоронець Чистоти';
+        if (role === 'plumber') return count < 8 ? '💧 Водолій' : count < 18 ? '🔧 Гроза Засмічень' : '🔱 Нептун Микитської Слободи';
+    }
+    async function clearCurrentMonth() {
+        if (!confirm('Видалити всі записи за ЦЕЙ місяць з хмари?')) return;
+        showOverlay(true, '🗑️ Видаляю...'); currentMonthData = {};
+        try { await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`); setSyncStatus('ok', '✅ Місяць скинуто'); } catch (err) { setSyncStatus('error', '❌ Помилка'); }
+        renderTable(); updateStats(); showOverlay(false);
+    }
+    function changeTheme(themeName) { document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8'; localStorage.setItem('selected_theme', themeName); }
+    function showOverlay(show, text = '') {
+        const overlay = document.getElementById('loading-overlay');
+        if (show) { overlay.classList.remove('opacity-0','pointer-events-none'); document.getElementById('loading-text').innerText = text; }
+        else { overlay.classList.add('opacity-0','pointer-events-none'); }
+    }
+    const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
+    document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
+    initCalendar();
+</script>
+</body>
+</html>
