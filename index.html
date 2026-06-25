@@ -338,9 +338,35 @@
 
     async function loadPhotos(day, role) {
         try {
-            const { data } = await db.from('photos').select('url').eq('month_key', `${currentYear}-${currentMonth}`).eq('day', day).eq('role', role);
+            const { data } = await db.from('photos').select('id, url').eq('month_key', `${currentYear}-${currentMonth}`).eq('day', day).eq('role', role);
             return data || [];
         } catch { return []; }
+    }
+
+    async function deletePhoto(id, url, day, role) {
+        if (!confirm('Видалити це фото?')) return;
+        try {
+            // Видаляємо з таблиці
+            await db.from('photos').delete().eq('id', id);
+            // Видаляємо з storage
+            const path = url.split('/photos/')[1];
+            if (path) await db.storage.from('photos').remove([path]);
+            setSyncStatus('ok', '🗑️ Фото видалено');
+            // Оновлюємо контейнер
+            const container = document.getElementById(`photos-${day}-${role}`);
+            if (container) {
+                const photos = await loadPhotos(day, role);
+                renderPhotoContainer(container, photos, day, role);
+            }
+        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка видалення'); }
+    }
+
+    function renderPhotoContainer(container, photos, day, role) {
+        container.innerHTML = photos.map(p => `
+            <div class="relative group">
+                <img src="${p.url}" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">
+                <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600">✕</button>
+            </div>`).join('');
     }
 
     function openLightbox(url) {
@@ -423,7 +449,7 @@
                     const photos = await loadPhotos(d, role);
                     const container = document.getElementById(`photos-${d}-${role}`);
                     if (container && photos.length) {
-                        container.innerHTML = photos.map(p => `<img src="${p.url}" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">`).join('');
+                        renderPhotoContainer(container, photos, d, role);
                     }
                 }
             });
