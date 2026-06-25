@@ -2,6 +2,13 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал Супергероїв ОСББ "Микитська Слобода"</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +41,7 @@
         <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
         <div>
             <h1 class="text-2xl font-bold tracking-tight">🏡 ОСББ "Микитська Слобода"</h1>
-            <p class="text-sm font-medium text-indigo-600 mt-0.5">☁️ Хмарний журнал супергероїв — Supabase</p>
+            <p class="text-sm font-medium text-indigo-600 mt-0.5">☁️ Хмарний журнал супергероїв</p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
@@ -63,7 +70,7 @@
                 <label class="text-sm font-bold">Місяць:</label>
                 <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
             </div>
-            <div class="ml-auto text-xs text-[var(--text-sub)] font-medium italic">💾 Автозбереження в хмару</div>
+            
         </div>
 
         <!-- КАРТКИ СТАТИСТИКИ -->
@@ -302,6 +309,9 @@
     }
 
     async function clearCurrentMonth() {
+        const pwd = prompt('🔒 Введіть пароль для скидання місяця:');
+        if (pwd === null) return;
+        if (pwd !== '3333') { alert('❌ Невірний пароль!'); return; }
         if (!confirm('Видалити всі записи за ЦЕЙ місяць з хмари?')) return;
         showOverlay(true, '🗑️ Видаляю...'); currentMonthData = {};
         try { await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`); setSyncStatus('ok', '✅ Місяць скинуто'); }
@@ -319,6 +329,11 @@
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
     initCalendar();
+
+    // PWA Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/Osbb/sw.js").then(() => console.log("SW registered")).catch(console.error);
+    }
 </script>
 </body>
 </html>
