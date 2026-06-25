@@ -53,7 +53,6 @@
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
 
-<!-- LIGHTBOX -->
 <div id="lightbox" class="lightbox no-print" onclick="closeLightbox()">
     <img id="lightbox-img" src="" alt="">
 </div>
@@ -74,6 +73,8 @@
                 <option value="theme-dark">🌙 Темна</option>
                 <option value="theme-amber">🍂 Амбер</option>
             </select>
+            <button onclick="goToToday()" class="text-sm bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">📅 Сьогодні</button>
+            <button onclick="copyPreviousMonth()" class="text-sm bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">📋 Копіювати попередній</button>
             <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">📊 Excel</button>
             <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ PDF</button>
             <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105">🗑️ Скинути</button>
@@ -90,7 +91,7 @@
             <label class="text-sm font-bold">Місяць:</label>
             <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
         </div>
-        <div class="ml-auto no-print flex gap-2">
+        <div class="ml-auto flex gap-2">
             <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📋 Журнал</button>
             <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📊 Графіки</button>
         </div>
@@ -186,7 +187,7 @@
         janitor: [{ id: 'garden', label: 'Садові роботи 🌳' }, { id: 'lawn', label: 'Стрижка газонів ✂️' }, { id: 'bins', label: 'Мийка баків 🗑️' }, { id: 'stairs', label: 'Мийка сходів 🧼' }]
     };
 
-    let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
+    let currentMonthData = {}, currentYear, currentMonth;
     let chartDaily = null, chartPie = null, chartWeekly = null;
     let currentTab = 'journal';
 
@@ -194,6 +195,7 @@
     const monthSelect = document.getElementById('month-select');
     const now = new Date();
 
+    // Ініціалізація селектів
     for (let y = 2025; y <= 2030; y++) { 
         const o = document.createElement('option'); 
         o.value = y; o.innerText = y; 
@@ -208,7 +210,17 @@
     });
     document.getElementById('fun-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
-    // ====================== УНІВЕРСАЛЬНИЙ РЕНДЕР ======================
+    // Debounce
+    function debounce(func, wait) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
+    const debouncedSave = debounce(() => saveToCloud(), 1200);
+
+    // Універсальний рендер дня
     function createDayUI(day, isMobile = false) {
         const dateObj = new Date(currentYear, currentMonth, day);
         const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
@@ -227,8 +239,7 @@
         const workingCount = roles.filter(r => data[r]?.working).length;
 
         if (isMobile) {
-            return `
-            <div class="day-card">
+            return `<div class="day-card">
                 <div class="day-card-header \( {isWeekend ? 'text-red-500' : ''}" onclick="toggleDayCard( \){day})">
                     <div class="flex items-center gap-2">
                         <span>${String(day).padStart(2,'0')} ${dayName.toUpperCase()}</span>
@@ -242,11 +253,9 @@
                 </div>
             </div>`;
         } else {
-            return `
-            <tr class="transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''}">
+            return `<tr class="transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''}">
                 <td class="p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}">
-                    <span class="text-base">${String(day).padStart(2,'0')}</span> 
-                    <span class="text-xs opacity-70 uppercase">(${dayName})</span>
+                    <span class="text-base">\( {String(day).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">( \){dayName})</span>
                 </td>
                 ${roles.map(role => createRoleCellHTML(day, role)).join('')}
                 <td class="p-3 border-l border-[var(--border)] no-print">
@@ -276,8 +285,7 @@
             </label>
             <div id="\( {isMobile ? 'mobile-' : ''}photos- \){day}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : '';
 
-        return `
-        <div class="role-card role-card-${role} mb-2">
+        return `<div class="role-card role-card-${role} mb-2">
             <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-bold \( {accentColor}"> \){roleNames[role]}</span>
                 <label class="relative inline-flex items-center cursor-pointer">
@@ -315,8 +323,7 @@
             if (!printSummary.length) printSummary.push('Зміна успішна');
         } else printSummary.push('—');
 
-        return `
-        <td class="p-3 border-l border-[var(--border)] ${!state.working ? 'opacity-70' : ''}">
+        return `<td class="p-3 border-l border-[var(--border)] ${!state.working ? 'opacity-70' : ''}">
             <div class="flex flex-col gap-2">
                 <div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm">
                     <span class="text-[10px] font-extrabold uppercase tracking-wider \( {state.working?accentText:'text-slate-400'}"> \){state.working?'⚡ НА ЗМІНІ':'ВИХІДНИЙ'}</span>
@@ -376,9 +383,7 @@
                     const photos = await loadPhotos(d, role);
                     const prefix = isMobile ? 'mobile-' : '';
                     const cont = document.getElementById(`\( {prefix}photos- \){d}-${role}`);
-                    if (cont && photos.length) {
-                        renderPhotoContainer(cont, photos, d, role, isMobile);
-                    }
+                    if (cont && photos.length) renderPhotoContainer(cont, photos, d, role, isMobile);
                 }
             }
         }
@@ -393,7 +398,7 @@
         }
     }
 
-    // ====================== ОРИГІНАЛЬНІ ФУНКЦІЇ ======================
+    // === ОРИГІНАЛЬНІ ФУНКЦІЇ (повністю) ===
     function setTab(tab) {
         currentTab = tab;
         document.getElementById('section-journal').classList.toggle('hidden', tab !== 'journal');
@@ -406,11 +411,13 @@
     function fireConfetti(x, y) {
         confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
     }
+
     function fireBigConfetti() {
         confetti({ particleCount: 120, spread: 100, origin: { y: 0.4 } });
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.1, y: 0.5 }, angle: 60 }), 200);
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.9, y: 0.5 }, angle: 120 }), 400);
     }
+
     function animateStatCards() {
         document.querySelectorAll('.stat-card').forEach((el, i) => {
             setTimeout(() => { el.classList.add('animate-pop'); setTimeout(() => el.classList.remove('animate-pop'), 400); }, i * 100);
@@ -441,7 +448,7 @@
         setSyncStatus('loading', '⏳ Завантаження...');
 
         const offline = loadOffline();
-        if (offline) { currentMonthData = offline; renderTable(); renderMobileCards(); updateStats(); }
+        if (offline) { currentMonthData = offline; }
 
         try {
             const { data, error } = await db.from('schedule').select('data').eq('month_key', `\( {currentYear}- \){currentMonth}`).single();
@@ -465,8 +472,7 @@
     function scheduleSave() { 
         setSyncStatus('loading', '💾 Зберігаю...'); 
         saveOffline(); 
-        clearTimeout(saveTimer); 
-        saveTimer = setTimeout(saveToCloud, 800); 
+        debouncedSave();
     }
 
     async function saveToCloud() {
@@ -477,6 +483,34 @@
         } catch (err) { 
             console.error(err); 
             setSyncStatus('error', '❌ Помилка збереження'); 
+        }
+    }
+
+    function goToToday() {
+        yearSelect.value = now.getFullYear();
+        monthSelect.value = now.getMonth();
+        initCalendar();
+    }
+
+    async function copyPreviousMonth() {
+        if (!confirm('Скопіювати всі зміни з попереднього місяця?')) return;
+        const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+        try {
+            const { data } = await db.from('schedule').select('data').eq('month_key', `\( {prevYear}- \){prevMonth}`).single();
+            if (data?.data) {
+                currentMonthData = JSON.parse(JSON.stringify(data.data));
+                saveOffline();
+                await saveToCloud();
+                renderTable(); 
+                renderMobileCards(); 
+                updateStats();
+                alert('✅ Дані успішно скопійовано!');
+            } else {
+                alert('⚠️ Попередній місяць порожній');
+            }
+        } catch (e) {
+            alert('Помилка копіювання');
         }
     }
 
@@ -580,10 +614,7 @@
             await db.from('photos').insert({ month_key: `\( {currentYear}- \){currentMonth}`, day, role, url: urlData.publicUrl });
             setSyncStatus('ok', '✅ Фото збережено');
             renderTable();
-        } catch (err) { 
-            console.error(err); 
-            setSyncStatus('error', '❌ Помилка фото'); 
-        }
+        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка фото'); }
     }
 
     async function loadPhotos(day, role) {
@@ -605,10 +636,7 @@
                 const photos = await loadPhotos(day, role);
                 renderPhotoContainer(container, photos, day, role);
             }
-        } catch (err) { 
-            console.error(err); 
-            setSyncStatus('error', '❌ Помилка видалення'); 
-        }
+        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка видалення'); }
     }
 
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
@@ -623,9 +651,7 @@
         document.getElementById('lightbox-img').src = url;
         document.getElementById('lightbox').classList.add('open');
     }
-    function closeLightbox() { 
-        document.getElementById('lightbox').classList.remove('open'); 
-    }
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
     function toggleShift(day, role, event) {
         currentMonthData[day][role].working = !currentMonthData[day][role].working;
@@ -657,6 +683,7 @@
         currentMonthData[day][role].other = text; 
         scheduleSave(); 
     }
+
     function updateComment(day, text) { 
         if (!currentMonthData[day]) return; 
         currentMonthData[day].comment = text; 
@@ -701,8 +728,7 @@
                     if (state.other) tasks.push(state.other);
                     row.push(tasks.join(', ') || 'Зміна');
                 } else {
-                    row.push('Вихідний'); 
-                    row.push('');
+                    row.push('Вихідний'); row.push('');
                 }
             });
             row.push(currentMonthData[d]?.comment || '');
@@ -751,7 +777,7 @@
         document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8'; 
         localStorage.setItem('selected_theme', themeName); 
     }
-    
+
     function showOverlay(show, text = '') {
         const overlay = document.getElementById('loading-overlay');
         if (show) { 
