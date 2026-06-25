@@ -35,6 +35,20 @@
         .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
         .tab-btn { transition: all 0.2s; }
         .tab-btn.active { background: #6366f1; color: white; }
+        /* MOBILE CARDS */
+        .mobile-day-card { display: none; }
+        @media (max-width: 768px) {
+            .desktop-table { display: none !important; }
+            .mobile-day-card { display: block; }
+        }
+        .role-card { border-radius: 12px; padding: 10px; margin-bottom: 8px; }
+        .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
+        .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
+        .role-card-plumber { background: rgba(59,130,246,0.08); border: 1.5px solid rgba(59,130,246,0.3); }
+        .day-card { border-radius: 16px; overflow: hidden; margin-bottom: 12px; border: 1px solid var(--border); background: var(--bg-card); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .day-card-header { padding: 10px 14px; background: var(--table-header); font-weight: 700; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .day-card-body { padding: 10px 14px; display: none; }
+        .day-card-body.open { display: block; }
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
     </style>
 </head>
@@ -129,7 +143,10 @@
     </div>
 
     <!-- ЖУРНАЛ -->
-    <div id="section-journal" class="print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
+    <!-- MOBILE CARDS -->
+    <div id="mobile-cards" class="mobile-day-card mb-4"></div>
+
+    <div id="section-journal" class="desktop-table print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
         <div id="loading-overlay" class="no-print fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="bg-[var(--bg-card)] p-5 rounded-2xl flex items-center gap-3 border border-[var(--border)] shadow-2xl">
                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
@@ -214,22 +231,44 @@
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`; el.innerText = text;
     }
 
+    // OFFLINE - localStorage як резервна копія
+    const offlineKey = () => `osbb_${currentYear}_${currentMonth}`;
+
+    function saveOffline() {
+        try { localStorage.setItem(offlineKey(), JSON.stringify(currentMonthData)); } catch(e) {}
+    }
+
+    function loadOffline() {
+        try { return JSON.parse(localStorage.getItem(offlineKey()) || 'null'); } catch { return null; }
+    }
+
     // ЗАВАНТАЖЕННЯ
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
-        showOverlay(true, '📥 Завантажую дані з хмари...'); setSyncStatus('loading', '⏳ Завантаження...');
+        showOverlay(true, '📥 Завантажую дані...'); setSyncStatus('loading', '⏳ Завантаження...');
+
+        // Спочатку вантажимо з localStorage (миттєво)
+        const offline = loadOffline();
+        if (offline) { currentMonthData = offline; renderTable(); renderMobileCards(); updateStats(); }
+
         try {
             const { data, error } = await db.from('schedule').select('data').eq('month_key', `${currentYear}-${currentMonth}`).single();
             if (error && error.code !== 'PGRST116') throw error;
-            currentMonthData = data?.data || {};
-        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка'); currentMonthData = {}; }
-        renderTable(); updateStats(); showOverlay(false); setSyncStatus('ok', '✅ Синхронізовано');
+            currentMonthData = data?.data || offline || {};
+            saveOffline();
+            setSyncStatus('ok', '✅ Синхронізовано');
+        } catch (err) {
+            console.error(err);
+            if (offline) { setSyncStatus('error', '📵 Офлайн — дані з кешу'); }
+            else { setSyncStatus('error', '❌ Немає даних і інтернету'); currentMonthData = {}; }
+        }
+        renderTable(); renderMobileCards(); updateStats(); showOverlay(false);
         animateStatCards();
         if (currentTab === 'charts') renderCharts();
     }
 
     // ЗБЕРЕЖЕННЯ
-    function scheduleSave() { setSyncStatus('loading', '💾 Зберігаю...'); clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 800); }
+    function scheduleSave() { setSyncStatus('loading', '💾 Зберігаю...'); saveOffline(); clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 800); }
     async function saveToCloud() {
         try {
             const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
@@ -375,7 +414,91 @@
     }
     function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
-    // РЕНДЕР
+    // МОБІЛЬНИЙ КАРТКОВИЙ ВИГЛЯД
+    function renderMobileCards() {
+        const container = document.getElementById('mobile-cards');
+        if (!container) return;
+        container.innerHTML = '';
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const roleColors = { electrician: 'role-card-electrician', janitor: 'role-card-janitor', plumber: 'role-card-plumber' };
+        const accentColors = { electrician: 'text-amber-600', janitor: 'text-emerald-600', plumber: 'text-blue-600' };
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
+
+            const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
+            const workingCount = roles.filter(r => currentMonthData[d][r]?.working).length;
+
+            const card = document.createElement('div');
+            card.className = 'day-card';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = `day-card-header ${isWeekend ? 'text-red-500' : ''}`;
+            header.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span>${String(d).padStart(2,'0')} ${dayName.toUpperCase()}</span>
+                    ${anyWorking ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingCount} на зміні</span>` : '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>'}
+                </div>
+                <span class="text-xs text-[var(--text-sub)] transition-transform" id="arrow-${d}">▼</span>`;
+            header.onclick = () => {
+                const body = document.getElementById(`card-body-${d}`);
+                const arrow = document.getElementById(`arrow-${d}`);
+                body.classList.toggle('open');
+                arrow.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+            };
+            card.appendChild(header);
+
+            // Body
+            const body = document.createElement('div');
+            body.className = 'day-card-body';
+            body.id = `card-body-${d}`;
+
+            let bodyHtml = '';
+            roles.forEach(role => {
+                const state = currentMonthData[d][role];
+                const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
+                let tasksHtml = roleTasksConfig[role].map(task => {
+                    const isChecked = state.tasks?.[task.id];
+                    return `<label class="flex items-center gap-2 text-xs cursor-pointer mt-1">
+                        <input type="checkbox" ${!state.working?'disabled':''} ${isChecked?'checked':''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded">
+                        <span class="${isChecked?'font-bold':''}">${task.label}</span>
+                    </label>`;
+                }).join('');
+
+                bodyHtml += `<div class="role-card ${roleColors[role]} mb-2">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-bold ${accentColors[role]}">${roleNames[role]}</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} onchange="toggleShift(${d},'${role}',event)">
+                            <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor}"></div>
+                        </label>
+                    </div>
+                    <div class="${!state.working?'opacity-40 pointer-events-none':''}">
+                        ${tasksHtml}
+                        <input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1">
+                    </div>
+                </div>`;
+            });
+
+            bodyHtml += `<textarea rows="2" oninput="updateComment(${d},this.value)" placeholder="💬 Коментар до дня..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1 resize-none">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>`;
+
+            body.innerHTML = bodyHtml;
+
+            // Відкрий поточний день автоматично
+            if (d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
+                body.classList.add('open');
+            }
+
+            card.appendChild(body);
+            container.appendChild(card);
+        }
+    }
+
+    // РЕНДЕР ТАБЛИЦІ (десктоп)
     function renderTable() {
         const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -461,7 +584,7 @@
         currentMonthData[day][role].working = !currentMonthData[day][role].working;
         if (!currentMonthData[day][role].working) { currentMonthData[day][role].tasks = {}; currentMonthData[day][role].other = ''; }
         else if (event) fireConfetti(event.clientX, event.clientY);
-        renderTable(); updateStats(); animateStatCards(); scheduleSave();
+        renderTable(); renderMobileCards(); updateStats(); animateStatCards(); scheduleSave();
     }
     function toggleTask(day, role, taskId, event) {
         if (!currentMonthData[day][role].tasks) currentMonthData[day][role].tasks = {};
@@ -469,7 +592,7 @@
         if (currentMonthData[day][role].tasks[taskId] && event) fireConfetti(event.clientX, event.clientY);
         const allTasks = roleTasksConfig[role];
         if (allTasks.filter(t => currentMonthData[day][role].tasks[t.id]).length === allTasks.length && allTasks.length > 1) setTimeout(fireBigConfetti, 200);
-        renderTable(); updateStats(); scheduleSave();
+        renderTable(); renderMobileCards(); updateStats(); scheduleSave();
     }
     function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
     function updateComment(day, text) { if (!currentMonthData[day]) return; currentMonthData[day].comment = text; scheduleSave(); }
