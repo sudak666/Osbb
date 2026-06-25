@@ -14,6 +14,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; }
@@ -26,14 +28,23 @@
         .animate-slide { animation: slide-down 0.2s ease forwards; }
         .stat-card { transition: all 0.3s ease; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .medal-1 { background: linear-gradient(135deg, #ffd700, #ffb300); }
-        .medal-2 { background: linear-gradient(135deg, #c0c0c0, #9e9e9e); }
-        .medal-3 { background: linear-gradient(135deg, #cd7f32, #a0522d); }
-        .comment-bubble { border-left: 3px solid #6366f1; }
+        .photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid var(--border); transition: transform 0.2s; }
+        .photo-thumb:hover { transform: scale(1.1); }
+        .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        .lightbox.open { display: flex; }
+        .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+        .tab-btn { transition: all 0.2s; }
+        .tab-btn.active { background: #6366f1; color: white; }
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox no-print" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="">
+</div>
+
 <div class="max-w-7xl mx-auto">
 
     <!-- ШАПКА -->
@@ -50,30 +61,34 @@
                 <option value="theme-dark">🌙 Темна</option>
                 <option value="theme-amber">🍂 Амбер</option>
             </select>
-            <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ Друк / PDF</button>
-            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105">🗑️ Скинути місяць</button>
+            <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">📊 Excel</button>
+            <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ PDF</button>
+            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105">🗑️ Скинути</button>
         </div>
     </div>
 
-    <!-- СТАТИСТИКА + РЕЙТИНГ -->
+    <!-- ВИБІР МІСЯЦЯ -->
+    <div class="no-print p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-bold">Рік:</label>
+            <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-bold">Місяць:</label>
+            <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
+        </div>
+        <div class="ml-auto no-print flex gap-2">
+            <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📋 Журнал</button>
+            <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📊 Графіки</button>
+        </div>
+    </div>
+
+    <!-- СТАТИСТИКА -->
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
         <div class="no-print mb-4 p-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
             <span class="text-xl">💡</span>
             <p id="fun-quote" class="text-xs font-medium italic"></p>
         </div>
-        <div class="no-print flex flex-wrap lg:flex-nowrap items-center gap-4 mb-6 pb-6 border-b border-[var(--border)] bg-[var(--bg-input)] p-4 rounded-xl">
-            <div class="flex items-center gap-2">
-                <label class="text-sm font-bold">Рік:</label>
-                <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
-            </div>
-            <div class="flex items-center gap-2">
-                <label class="text-sm font-bold">Місяць:</label>
-                <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
-            </div>
-            
-        </div>
-
-        <!-- КАРТКИ СТАТИСТИКИ -->
         <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🏆 Моніторинг Суперсил за Місяць:</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
@@ -89,16 +104,32 @@
                 <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span></div>
             </div>
         </div>
-
-        <!-- РЕЙТИНГ З МЕДАЛЯМИ -->
         <div class="border-t border-[var(--border)] pt-4">
             <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🥇 Рейтинг Героїв Місяця:</h3>
             <div id="rating-board" class="flex flex-col gap-2"></div>
         </div>
     </div>
 
-    <!-- ТАБЛИЦЯ -->
-    <div class="print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
+    <!-- ГРАФІКИ -->
+    <div id="section-charts" class="hidden mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
+                <h3 class="text-sm font-bold mb-4">📊 Зміни по днях місяця</h3>
+                <canvas id="chart-daily" height="200"></canvas>
+            </div>
+            <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
+                <h3 class="text-sm font-bold mb-4">🥧 Розподіл змін по ролях</h3>
+                <canvas id="chart-pie" height="200"></canvas>
+            </div>
+            <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md lg:col-span-2">
+                <h3 class="text-sm font-bold mb-4">📈 Активність по тижнях</h3>
+                <canvas id="chart-weekly" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЖУРНАЛ -->
+    <div id="section-journal" class="print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
         <div id="loading-overlay" class="no-print fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="bg-[var(--bg-card)] p-5 rounded-2xl flex items-center gap-3 border border-[var(--border)] shadow-2xl">
                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
@@ -113,7 +144,7 @@
                         <th class="p-4 border-l border-[var(--border)] text-amber-700">⚡ Електрик</th>
                         <th class="p-4 border-l border-[var(--border)] text-emerald-700">🧹 Двірник</th>
                         <th class="p-4 border-l border-[var(--border)] text-blue-700">🔧 Сантехнік</th>
-                        <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print">💬 Коментар до дня</th>
+                        <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print">💬 Коментар</th>
                     </tr>
                 </thead>
                 <tbody id="calendar-body" class="divide-y divide-[var(--border)] text-sm"></tbody>
@@ -131,6 +162,7 @@
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const roles = ['electrician', 'janitor', 'plumber'];
     const roleNames = { electrician: '⚡ Електрик', janitor: '🧹 Двірник', plumber: '🔧 Сантехнік' };
+    const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const quotes = ["Чистий під'їзд починається не з мітли, а з посмішки! ✨","Електрик вміє вмикати гарний настрій навіть без генератора! ⚡","Наші сантехніки контролюють ситуацію краще, ніж Нептун! 🔱","Сьогодні чудовий день підстригти газон! 📸","Порядок у будинку — спокій у душі. 🏡"];
     const roleTasksConfig = {
         electrician: [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'lamps', label: 'Заміна ламп 💡' }],
@@ -139,6 +171,9 @@
     };
 
     let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
+    let chartDaily = null, chartPie = null, chartWeekly = null;
+    let currentTab = 'journal';
+
     const yearSelect = document.getElementById('year-select');
     const monthSelect = document.getElementById('month-select');
     const now = new Date();
@@ -147,12 +182,22 @@
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
     document.getElementById('fun-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
+    // TABS
+    function setTab(tab) {
+        currentTab = tab;
+        document.getElementById('section-journal').classList.toggle('hidden', tab !== 'journal');
+        document.getElementById('section-charts').classList.toggle('hidden', tab !== 'charts');
+        document.getElementById('tab-journal').classList.toggle('active', tab === 'journal');
+        document.getElementById('tab-charts').classList.toggle('active', tab === 'charts');
+        if (tab === 'charts') renderCharts();
+    }
+
     // КОНФЕТІ
     function fireConfetti(x, y) {
         confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
     }
     function fireBigConfetti() {
-        confetti({ particleCount: 120, spread: 100, origin: { y: 0.4 }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6'] });
+        confetti({ particleCount: 120, spread: 100, origin: { y: 0.4 } });
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.1, y: 0.5 }, angle: 60 }), 200);
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.9, y: 0.5 }, angle: 120 }), 400);
     }
@@ -177,9 +222,10 @@
             const { data, error } = await db.from('schedule').select('data').eq('month_key', `${currentYear}-${currentMonth}`).single();
             if (error && error.code !== 'PGRST116') throw error;
             currentMonthData = data?.data || {};
-        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка завантаження'); currentMonthData = {}; }
+        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка'); currentMonthData = {}; }
         renderTable(); updateStats(); showOverlay(false); setSyncStatus('ok', '✅ Синхронізовано');
         animateStatCards();
+        if (currentTab === 'charts') renderCharts();
     }
 
     // ЗБЕРЕЖЕННЯ
@@ -191,21 +237,76 @@
         } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка збереження'); }
     }
 
+    // ГРАФІКИ
+    function renderCharts() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const labels = Array.from({length: daysInMonth}, (_, i) => i + 1);
+        const colors = { electrician: '#f59e0b', janitor: '#10b981', plumber: '#3b82f6' };
+
+        // Daily chart
+        const dailyDatasets = roles.map(role => ({
+            label: roleNamesClean[role],
+            data: labels.map(d => currentMonthData[d]?.[role]?.working ? 1 : 0),
+            backgroundColor: colors[role] + '99',
+            borderColor: colors[role],
+            borderWidth: 1,
+            borderRadius: 4
+        }));
+
+        if (chartDaily) chartDaily.destroy();
+        chartDaily = new Chart(document.getElementById('chart-daily'), {
+            type: 'bar',
+            data: { labels, datasets: dailyDatasets },
+            options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { max: 1, ticks: { stepSize: 1 } } } }
+        });
+
+        // Pie chart
+        const totals = roles.map(role => Object.keys(currentMonthData).filter(d => currentMonthData[d]?.[role]?.working).length);
+        if (chartPie) chartPie.destroy();
+        chartPie = new Chart(document.getElementById('chart-pie'), {
+            type: 'doughnut',
+            data: {
+                labels: roles.map(r => roleNamesClean[r]),
+                datasets: [{ data: totals, backgroundColor: ['#f59e0b','#10b981','#3b82f6'], borderWidth: 2 }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Weekly chart
+        const weeks = ['Тиж 1','Тиж 2','Тиж 3','Тиж 4','Тиж 5'];
+        const weeklyDatasets = roles.map(role => ({
+            label: roleNamesClean[role],
+            data: weeks.map((_, wi) => {
+                let count = 0;
+                for (let d = wi*7+1; d <= Math.min((wi+1)*7, daysInMonth); d++) {
+                    if (currentMonthData[d]?.[role]?.working) count++;
+                }
+                return count;
+            }),
+            borderColor: colors[role], backgroundColor: colors[role] + '33',
+            tension: 0.4, fill: true, borderWidth: 2, pointRadius: 4
+        }));
+
+        if (chartWeekly) chartWeekly.destroy();
+        chartWeekly = new Chart(document.getElementById('chart-weekly'), {
+            type: 'line',
+            data: { labels: weeks, datasets: weeklyDatasets },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+    }
+
     // РЕЙТИНГ
     function updateRating(counts) {
         const board = document.getElementById('rating-board');
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
         const medals = ['🥇', '🥈', '🥉'];
-        const medalColors = ['medal-1 text-yellow-900', 'medal-2 text-gray-800', 'medal-3 text-amber-900'];
         board.innerHTML = '';
         sorted.forEach(([role, count], i) => {
-            if (count === 0 && i > 0) return;
             const div = document.createElement('div');
             div.className = `animate-slide flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] ${i === 0 && count > 0 ? 'bg-yellow-500/10 border-yellow-400/30' : 'bg-[var(--bg-input)]'}`;
             const maxCount = sorted[0][1] || 1;
             const pct = count > 0 ? Math.round((count / maxCount) * 100) : 0;
-            div.innerHTML = `
-                <span class="text-2xl w-8 text-center">${count > 0 ? medals[i] : '💤'}</span>
+            div.innerHTML = `<span class="text-2xl w-8 text-center">${count > 0 ? medals[i] : '💤'}</span>
                 <div class="flex-1">
                     <div class="flex justify-between items-center mb-1">
                         <span class="font-bold text-sm">${roleNames[role]}</span>
@@ -220,6 +321,34 @@
         });
     }
 
+    // ФОТО
+    async function uploadPhoto(day, role, file) {
+        const ext = file.name.split('.').pop();
+        const path = `${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
+        setSyncStatus('loading', '📤 Завантажую фото...');
+        try {
+            const { error: upErr } = await db.storage.from('photos').upload(path, file, { upsert: true });
+            if (upErr) throw upErr;
+            const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
+            await db.from('photos').insert({ month_key: `${currentYear}-${currentMonth}`, day, role, url: urlData.publicUrl });
+            setSyncStatus('ok', '✅ Фото збережено');
+            renderTable();
+        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка фото'); }
+    }
+
+    async function loadPhotos(day, role) {
+        try {
+            const { data } = await db.from('photos').select('url').eq('month_key', `${currentYear}-${currentMonth}`).eq('day', day).eq('role', role);
+            return data || [];
+        } catch { return []; }
+    }
+
+    function openLightbox(url) {
+        document.getElementById('lightbox-img').src = url;
+        document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
     // РЕНДЕР
     function renderTable() {
         const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
@@ -230,6 +359,7 @@
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
             if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
+
             const tr = document.createElement('tr');
             tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''}`;
             const tdDate = document.createElement('td');
@@ -246,25 +376,57 @@
                 let checkBoxesHtml = '';
                 roleTasksConfig[role].forEach(task => {
                     const isChecked = state.tasks && state.tasks[task.id];
-                    checkBoxesHtml += `<label class="flex items-center gap-2 text-xs cursor-pointer select-none"><input type="checkbox" ${!state.working ? 'disabled' : ''} ${isChecked ? 'checked' : ''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow"><span class="${isChecked ? 'font-bold' : 'text-[var(--text-sub)]'}">${task.label}</span></label>`;
+                    checkBoxesHtml += `<label class="flex items-center gap-2 text-xs cursor-pointer select-none"><input type="checkbox" ${!state.working?'disabled':''} ${isChecked?'checked':''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow"><span class="${isChecked?'font-bold':'text-[var(--text-sub)]'}">${task.label}</span></label>`;
                 });
                 let printSummary = [];
-                if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks && state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(state.other); if (!printSummary.length) printSummary.push('Зміна успішна'); } else printSummary.push('—');
-                tdRole.innerHTML = `<div class="flex flex-col gap-2"><div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm"><span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working ? accentText : 'text-slate-400'}">${state.working ? '⚡ НА ЗМІНІ' : 'ВИХІДНИЙ'}</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${state.working ? 'checked' : ''} onchange="toggleShift(${d},'${role}',event)"><div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div></label></div><div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working ? 'pointer-events-none opacity-40' : ''}">${checkBoxesHtml}<input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition"/></div><div class="hidden print:block text-xs"><div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div><div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div></div></div>`;
+                if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks&&state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(state.other); if (!printSummary.length) printSummary.push('Зміна успішна'); } else printSummary.push('—');
+
+                tdRole.innerHTML = `<div class="flex flex-col gap-2">
+                    <div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'⚡ НА ЗМІНІ':'ВИХІДНИЙ'}</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} onchange="toggleShift(${d},'${role}',event)">
+                            <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div>
+                        </label>
+                    </div>
+                    <div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
+                        ${checkBoxesHtml}
+                        <input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition"/>
+                        ${state.working ? `<div class="flex items-center gap-2 mt-1">
+                            <label class="cursor-pointer text-xs text-indigo-500 font-semibold hover:text-indigo-700 flex items-center gap-1">
+                                📷 Додати фото
+                                <input type="file" accept="image/*" class="hidden" onchange="uploadPhoto(${d},'${role}',this.files[0])">
+                            </label>
+                        </div>
+                        <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
+                    </div>
+                    <div class="hidden print:block text-xs">
+                        <div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div>
+                        <div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div>
+                    </div>
+                </div>`;
                 tr.appendChild(tdRole);
             });
 
-            // КОЛОНКА КОМЕНТАРЯ
+            // КОМЕНТАР
             const tdComment = document.createElement('td');
             tdComment.className = 'p-3 border-l border-[var(--border)] no-print';
-            const hasComment = currentMonthData[d].comment && currentMonthData[d].comment.trim();
-            tdComment.innerHTML = `
-                <div class="flex flex-col gap-1.5">
-                    <textarea rows="2" oninput="updateComment(${d}, this.value)" placeholder="💬 Нотатка до дня..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 shadow transition resize-none">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
-                    ${hasComment ? `<div class="comment-bubble bg-purple-500/5 px-2 py-1 rounded text-[10px] text-purple-700 font-medium">💾 Збережено</div>` : ''}
-                </div>`;
+            tdComment.innerHTML = `<textarea rows="2" oninput="updateComment(${d},this.value)" placeholder="💬 Нотатка до дня..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 shadow transition resize-none">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>`;
             tr.appendChild(tdComment);
             tbody.appendChild(tr);
+        }
+
+        // Завантаж фото асинхронно
+        for (let d = 1; d <= daysInMonth; d++) {
+            roles.forEach(async role => {
+                if (currentMonthData[d]?.[role]?.working) {
+                    const photos = await loadPhotos(d, role);
+                    const container = document.getElementById(`photos-${d}-${role}`);
+                    if (container && photos.length) {
+                        container.innerHTML = photos.map(p => `<img src="${p.url}" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">`).join('');
+                    }
+                }
+            });
         }
     }
 
@@ -275,24 +437,16 @@
         else if (event) fireConfetti(event.clientX, event.clientY);
         renderTable(); updateStats(); animateStatCards(); scheduleSave();
     }
-
     function toggleTask(day, role, taskId, event) {
         if (!currentMonthData[day][role].tasks) currentMonthData[day][role].tasks = {};
         currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId];
         if (currentMonthData[day][role].tasks[taskId] && event) fireConfetti(event.clientX, event.clientY);
         const allTasks = roleTasksConfig[role];
-        const doneTasks = allTasks.filter(t => currentMonthData[day][role].tasks[t.id]);
-        if (doneTasks.length === allTasks.length && allTasks.length > 1) setTimeout(fireBigConfetti, 200);
+        if (allTasks.filter(t => currentMonthData[day][role].tasks[t.id]).length === allTasks.length && allTasks.length > 1) setTimeout(fireBigConfetti, 200);
         renderTable(); updateStats(); scheduleSave();
     }
-
     function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
-
-    function updateComment(day, text) {
-        if (!currentMonthData[day]) return;
-        currentMonthData[day].comment = text;
-        scheduleSave();
-    }
+    function updateComment(day, text) { if (!currentMonthData[day]) return; currentMonthData[day].comment = text; scheduleSave(); }
 
     function updateStats() {
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
@@ -306,6 +460,47 @@
         if (role === 'electrician') return count < 8 ? '🔌 Початківець іскри' : count < 18 ? '⚡ Магістр Струму' : '👑 Володар Блискавок Слободи';
         if (role === 'janitor') return count < 8 ? '🌱 Чистороб-стажер' : count < 18 ? '🧹 Генерал Мітли та Грабель' : '👑 Охоронець Чистоти';
         if (role === 'plumber') return count < 8 ? '💧 Водолій' : count < 18 ? '🔧 Гроза Засмічень' : '🔱 Нептун Микитської Слободи';
+    }
+
+    // EXCEL ЕКСПОРТ
+    function exportExcel() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const monthName = monthNames[currentMonth];
+        const rows = [['Дата', 'День', 'Електрик', 'Завдання Електрик', 'Двірник', 'Завдання Двірник', 'Сантехнік', 'Завдання Сантехнік', 'Коментар']];
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+            const row = [`${String(d).padStart(2,'0')}.${String(currentMonth+1).padStart(2,'0')}.${currentYear}`, dayName];
+            roles.forEach(role => {
+                const state = currentMonthData[d]?.[role];
+                if (state?.working) {
+                    row.push('✓ На зміні');
+                    const tasks = roleTasksConfig[role].filter(t => state.tasks?.[t.id]).map(t => t.label.replace(/[^\x00-\x7F\u0400-\u04FF\s]/g,'').trim());
+                    if (state.other) tasks.push(state.other);
+                    row.push(tasks.join(', ') || 'Зміна');
+                } else {
+                    row.push('Вихідний'); row.push('');
+                }
+            });
+            row.push(currentMonthData[d]?.comment || '');
+            rows.push(row);
+        }
+
+        // Підсумок
+        rows.push([]);
+        rows.push(['ПІДСУМОК МІСЯЦЯ', `${monthName} ${currentYear}`]);
+        let counts = { electrician: 0, janitor: 0, plumber: 0 };
+        Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day]?.[role]?.working) counts[role]++; }); });
+        rows.push(['Електрик', `${counts.electrician} змін`]);
+        rows.push(['Двірник', `${counts.janitor} змін`]);
+        rows.push(['Сантехнік', `${counts.plumber} змін`]);
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [{ wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 30 }, { wch: 14 }, { wch: 30 }, { wch: 14 }, { wch: 30 }, { wch: 40 }];
+        XLSX.utils.book_append_sheet(wb, ws, `${monthName} ${currentYear}`);
+        XLSX.writeFile(wb, `ОСББ_${monthName}_${currentYear}.xlsx`);
     }
 
     async function clearCurrentMonth() {
@@ -330,9 +525,8 @@
     document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
     initCalendar();
 
-    // PWA Service Worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/Osbb/sw.js").then(() => console.log("SW registered")).catch(console.error);
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/Osbb/sw.js').catch(console.error);
     }
 </script>
 </body>
