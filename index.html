@@ -8,61 +8,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-app);
-            color: var(--text-main);
-            transition: background 0.3s, color 0.3s;
-        }
-        .theme-light {
-            --bg-app: linear-gradient(135deg, #e0f2fe 0%, #e2f1e8 100%); 
-            --bg-card: #ffffff; --text-main: #0f172a; --text-sub: #475569; --border: #cbd5e1; --bg-input: #f1f5f9; --table-header: #e2e8f0;
-        }
-        .theme-dark {
-            --bg-app: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
-            --bg-card: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border: #334155; --bg-input: #0f172a; --table-header: #111827;
-        }
-        .theme-amber {
-            --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); 
-            --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9;
-        }
-        @keyframes pop-in {
-            0% { transform: scale(0.8); opacity: 0; }
-            70% { transform: scale(1.15); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes bounce-check {
-            0%, 100% { transform: scale(1); }
-            30% { transform: scale(1.3) rotate(-5deg); }
-            60% { transform: scale(0.9) rotate(3deg); }
-        }
-        @keyframes slide-in {
-            from { transform: translateY(-8px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; }
+        .theme-light { --bg-app: linear-gradient(135deg, #e0f2fe 0%, #e2f1e8 100%); --bg-card: #ffffff; --text-main: #0f172a; --text-sub: #475569; --border: #cbd5e1; --bg-input: #f1f5f9; --table-header: #e2e8f0; }
+        .theme-dark { --bg-app: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bg-card: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border: #334155; --bg-input: #0f172a; --table-header: #111827; }
+        .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; }
+        @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: pop-in 0.3s ease forwards; }
-        .animate-bounce-check { animation: bounce-check 0.4s ease; }
-        .animate-slide-in { animation: slide-in 0.25s ease forwards; }
-        .row-highlight { transition: background 0.4s ease; }
-        .row-highlight.active { background: rgba(99,102,241,0.08) !important; }
-        .checkbox-wrap { transition: transform 0.15s ease; }
-        .checkbox-wrap:active { transform: scale(0.92); }
-        .shift-toggle { transition: all 0.2s ease; }
-        .shift-toggle:hover { transform: scale(1.03); }
         .stat-card { transition: all 0.3s ease; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-            .no-print { display: none !important; }
-            body { background: white !important; color: black !important; padding: 0 !important; }
-            .print-card { border: none !important; box-shadow: none !important; }
-            table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; }
-        }
+        .checkbox-wrap:active { transform: scale(0.92); }
+        @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
-
 <div class="max-w-7xl mx-auto">
 
     <!-- ШАПКА -->
@@ -79,24 +38,17 @@
                 <option value="theme-dark">🌙 Темна</option>
                 <option value="theme-amber">🍂 Амбер</option>
             </select>
-            <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">
-                🖨️ Друк / PDF
-            </button>
-            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105">
-                🗑️ Скинути місяць
-            </button>
+            <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ Друк / PDF</button>
+            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105">🗑️ Скинути місяць</button>
         </div>
     </div>
 
-    <!-- ДАТА ТА СТАТИСТИКА -->
+    <!-- СТАТИСТИКА -->
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
-
         <div class="no-print mb-4 p-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
             <span class="text-xl">💡</span>
             <p id="fun-quote" class="text-xs font-medium italic"></p>
         </div>
-
-        <!-- ВИБІР МІСЯЦЯ -->
         <div class="no-print flex flex-wrap lg:flex-nowrap items-center gap-4 mb-6 pb-6 border-b border-[var(--border)] bg-[var(--bg-input)] p-4 rounded-xl">
             <div class="flex items-center gap-2">
                 <label class="text-sm font-bold">Рік:</label>
@@ -106,58 +58,33 @@
                 <label class="text-sm font-bold">Місяць:</label>
                 <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
             </div>
-            <div class="ml-auto text-xs text-[var(--text-sub)] font-medium italic">
-                💾 Дані зберігаються автоматично в хмару після кожної зміни
-            </div>
+            <div class="ml-auto text-xs text-[var(--text-sub)] font-medium italic">💾 Автозбереження в хмару</div>
         </div>
-
-        <!-- СТАТИСТИКА -->
         <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🏆 Моніторинг Суперсил за Місяць:</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between transition hover:shadow-lg">
-                <div class="flex items-center justify-between gap-1">
-                    <span class="font-bold text-amber-700">⚡ Електрик</span>
-                    <span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span>
-                </div>
-                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs">
-                    <span class="text-[var(--text-sub)]">Статус:</span>
-                    <span id="badge-electrician" class="font-bold text-amber-800">💤 Заслужений відпочинок</span>
-                </div>
+            <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between"><span class="font-bold text-amber-700">⚡ Електрик</span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800">💤 Заслужений відпочинок</span></div>
             </div>
-            <div class="p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col justify-between transition hover:shadow-lg">
-                <div class="flex items-center justify-between gap-1">
-                    <span class="font-bold text-emerald-700">🧹 Двірник</span>
-                    <span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span>
-                </div>
-                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs">
-                    <span class="text-[var(--text-sub)]">Статус:</span>
-                    <span id="badge-janitor" class="font-bold text-emerald-800">💤 Заслужений відпочинок</span>
-                </div>
+            <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between"><span class="font-bold text-emerald-700">🧹 Двірник</span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800">💤 Заслужений відпочинок</span></div>
             </div>
-            <div class="p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col justify-between transition hover:shadow-lg">
-                <div class="flex items-center justify-between gap-1">
-                    <span class="font-bold text-blue-700">🔧 Сантехнік</span>
-                    <span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span>
-                </div>
-                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs">
-                    <span class="text-[var(--text-sub)]">Статус:</span>
-                    <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span>
-                </div>
+            <div class="stat-card p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between"><span class="font-bold text-blue-700">🔧 Сантехнік</span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span></div>
             </div>
         </div>
     </div>
 
     <!-- ТАБЛИЦЯ -->
-    <div class="print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl relative">
-
-        <!-- Оверлей завантаження -->
+    <div class="print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
         <div id="loading-overlay" class="no-print fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="bg-[var(--bg-card)] p-5 rounded-2xl flex items-center gap-3 border border-[var(--border)] shadow-2xl">
                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
                 <p id="loading-text" class="font-bold text-sm">🔄 Зв'язуюсь із хмарою...</p>
             </div>
         </div>
-
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -175,271 +102,132 @@
 </div>
 
 <script>
-    // ===== SUPABASE =====
     const SUPABASE_URL = 'https://jpwelaerkkdblpmkueid.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
     const { createClient } = supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ===== КОНФІГ =====
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const roles = ['electrician', 'janitor', 'plumber'];
-    const quotes = [
-        "Чистий під'їзд починається не з мітли, а з посмішки! Слава Микитській Слободі! ✨",
-        "Електрик Микитської Слободи вміє вмикати гарний настрій навіть без генератора! ⚡",
-        "Наші сантехніки контролюють ситуацію краще, ніж Нептун океани! 🔱",
-        "Сьогодні чудовий день для того, щоб підстригти газон та зробити селфі біля чистих баків! 📸",
-        "Порядок у будинку — спокій у душі. Робимо Слободу затишною разом! 🏡"
-    ];
+    const quotes = ["Чистий під'їзд починається не з мітли, а з посмішки! ✨","Електрик вміє вмикати гарний настрій навіть без генератора! ⚡","Наші сантехніки контролюють ситуацію краще, ніж Нептун! 🔱","Сьогодні чудовий день підстригти газон! 📸","Порядок у будинку — спокій у душі. 🏡"];
     const roleTasksConfig = {
         electrician: [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'lamps', label: 'Заміна ламп 💡' }],
         plumber: [{ id: 'sewer', label: 'Прочистка каналізації 🪠' }],
         janitor: [{ id: 'garden', label: 'Садові роботи 🌳' }, { id: 'lawn', label: 'Стрижка газонів ✂️' }, { id: 'bins', label: 'Мийка баків 🗑️' }, { id: 'stairs', label: 'Мийка сходів 🧼' }]
     };
 
-    let currentMonthData = {};
-    let currentYear, currentMonth;
-    let saveTimer = null;
-
-    // ===== ІНІЦІАЛІЗАЦІЯ ВИБОРУ ДАТИ =====
+    let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
     const yearSelect = document.getElementById('year-select');
     const monthSelect = document.getElementById('month-select');
     const now = new Date();
 
-    for (let y = 2025; y <= 2030; y++) {
-        const opt = document.createElement('option');
-        opt.value = y; opt.innerText = y;
-        if (y === now.getFullYear()) opt.selected = true;
-        yearSelect.appendChild(opt);
-    }
-    monthNames.forEach((name, idx) => {
-        const opt = document.createElement('option');
-        opt.value = idx; opt.innerText = name;
-        if (idx === now.getMonth()) opt.selected = true;
-        monthSelect.appendChild(opt);
-    });
-
+    for (let y = 2025; y <= 2030; y++) { const o = document.createElement('option'); o.value = y; o.innerText = y; if (y === now.getFullYear()) o.selected = true; yearSelect.appendChild(o); }
+    monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
     document.getElementById('fun-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
-    // ===== СТАТУС =====
-    function setSyncStatus(type, text) {
-        const el = document.getElementById('sync-status');
-        const classes = {
-            loading: 'bg-yellow-100 text-yellow-700',
-            ok: 'bg-green-100 text-green-700',
-            error: 'bg-red-100 text-red-700'
-        };
-        el.className = `text-xs font-semibold px-3 py-1 rounded-full ${classes[type]}`;
-        el.innerText = text;
-    }
-
-    // ===== ЗАВАНТАЖЕННЯ З SUPABASE =====
-    // ===== КОНФЕТІ =====
+    // КОНФЕТІ
     function fireConfetti(x, y) {
-        confetti({
-            particleCount: 40,
-            spread: 60,
-            origin: { x: x / window.innerWidth, y: y / window.innerHeight },
-            colors: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'],
-            scalar: 0.8,
-            gravity: 1.2
-        });
+        confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
     }
-
     function fireBigConfetti() {
         confetti({ particleCount: 120, spread: 100, origin: { y: 0.4 }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6'] });
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.1, y: 0.5 }, angle: 60 }), 200);
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.9, y: 0.5 }, angle: 120 }), 400);
     }
-
     function animateStatCards() {
         document.querySelectorAll('.stat-card').forEach((el, i) => {
             setTimeout(() => { el.classList.add('animate-pop'); setTimeout(() => el.classList.remove('animate-pop'), 400); }, i * 100);
         });
     }
 
-    
-        currentYear = parseInt(yearSelect.value);
-        currentMonth = parseInt(monthSelect.value);
+    // СТАТУС
+    function setSyncStatus(type, text) {
+        const el = document.getElementById('sync-status');
+        const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
+        el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`; el.innerText = text;
+    }
 
-        showOverlay(true, '📥 Завантажую дані з хмари...');
-        setSyncStatus('loading', '⏳ Завантаження...');
-
+    // ЗАВАНТАЖЕННЯ
+    async function initCalendar() {
+        currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
+        showOverlay(true, '📥 Завантажую дані з хмари...'); setSyncStatus('loading', '⏳ Завантаження...');
         try {
-            const { data, error } = await db
-                .from('schedule')
-                .select('data')
-                .eq('month_key', `${currentYear}-${currentMonth}`)
-                .single();
-
+            const { data, error } = await db.from('schedule').select('data').eq('month_key', `${currentYear}-${currentMonth}`).single();
             if (error && error.code !== 'PGRST116') throw error;
-
             currentMonthData = data?.data || {};
-        } catch (err) {
-            console.error(err);
-            setSyncStatus('error', '❌ Помилка завантаження');
-            currentMonthData = {};
-        }
-
-        renderTable();
-        updateStats();
-        showOverlay(false);
-        setSyncStatus('ok', '✅ Синхронізовано');
+        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка завантаження'); currentMonthData = {}; }
+        renderTable(); updateStats(); showOverlay(false); setSyncStatus('ok', '✅ Синхронізовано');
         animateStatCards();
     }
 
-    // ===== ЗБЕРЕЖЕННЯ В SUPABASE (з дебаунсом) =====
-    function scheduleSave() {
-        setSyncStatus('loading', '💾 Зберігаю...');
-        clearTimeout(saveTimer);
-        saveTimer = setTimeout(saveToCloud, 800);
-    }
-
+    // ЗБЕРЕЖЕННЯ
+    function scheduleSave() { setSyncStatus('loading', '💾 Зберігаю...'); clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 800); }
     async function saveToCloud() {
         try {
-            const { error } = await db
-                .from('schedule')
-                .upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
-            if (error) throw error;
-            setSyncStatus('ok', '✅ Збережено');
-        } catch (err) {
-            console.error(err);
-            setSyncStatus('error', '❌ Помилка збереження');
-        }
+            const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
+            if (error) throw error; setSyncStatus('ok', '✅ Збережено');
+        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка збереження'); }
     }
 
-    // ===== РЕНДЕР ТАБЛИЦІ =====
+    // РЕНДЕР
     function renderTable() {
-        const tbody = document.getElementById('calendar-body');
-        tbody.innerHTML = '';
+        const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-
-            if (!currentMonthData[d]) {
-                currentMonthData[d] = {
-                    electrician: { working: false, tasks: {}, other: '' },
-                    janitor: { working: false, tasks: {}, other: '' },
-                    plumber: { working: false, tasks: {}, other: '' }
-                };
-            }
-
+            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' } };
             const tr = document.createElement('tr');
             tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''}`;
-
             const tdDate = document.createElement('td');
             tdDate.className = `p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}`;
             tdDate.innerHTML = `<span class="text-base">${String(d).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">(${dayName})</span>`;
             tr.appendChild(tdDate);
-
             roles.forEach(role => {
                 const state = currentMonthData[d][role];
                 const tdRole = document.createElement('td');
                 tdRole.className = `p-3 border-l border-[var(--border)] ${!state.working ? 'opacity-70' : ''}`;
-
                 const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
                 const accentText = role === 'electrician' ? 'text-amber-600' : role === 'janitor' ? 'text-emerald-600' : 'text-blue-600';
-
                 let checkBoxesHtml = '';
                 roleTasksConfig[role].forEach(task => {
                     const isChecked = state.tasks && state.tasks[task.id];
-                    checkBoxesHtml += `
-                        <label class="checkbox-wrap flex items-center gap-2 text-xs cursor-pointer select-none">
-                            <input type="checkbox" ${!state.working ? 'disabled' : ''} ${isChecked ? 'checked' : ''} onchange="toggleTask(${d}, '${role}', '${task.id}', event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow">
-                            <span class="${isChecked ? 'font-bold' : 'text-[var(--text-sub)]'}">${task.label}</span>
-                        </label>`;
+                    checkBoxesHtml += `<label class="checkbox-wrap flex items-center gap-2 text-xs cursor-pointer select-none"><input type="checkbox" ${!state.working ? 'disabled' : ''} ${isChecked ? 'checked' : ''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow"><span class="${isChecked ? 'font-bold' : 'text-[var(--text-sub)]'}">${task.label}</span></label>`;
                 });
-
                 let printSummary = [];
-                if (state.working) {
-                    roleTasksConfig[role].forEach(task => {
-                        if (state.tasks && state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g, '').trim());
-                    });
-                    if (state.other) printSummary.push(state.other);
-                    if (printSummary.length === 0) printSummary.push('Зміна успішна');
-                } else {
-                    printSummary.push('—');
-                }
-
-                tdRole.innerHTML = `
-                    <div class="flex flex-col gap-2">
-                        <div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm transition-all hover:border-gray-400">
-                            <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working ? accentText : 'text-slate-400'}">${state.working ? '⚡ НА ЗМІНІ' : 'ВИХІДНИЙ'}</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" ${state.working ? 'checked' : ''} onchange="toggleShift(${d}, '${role}', event)">
-                                <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div>
-                            </label>
-                        </div>
-                        <div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working ? 'pointer-events-none opacity-40' : ''}">
-                            ${checkBoxesHtml}
-                            <input type="text" value="${(state.other || '').replace(/"/g, '&quot;')}" ${!state.working ? 'disabled' : ''} oninput="updateOtherTask(${d}, '${role}', this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition" />
-                        </div>
-                        <div class="hidden print:block text-xs">
-                            <div class="font-bold ${state.working ? accentText : 'text-gray-400'} mb-1">${state.working ? '✓ Зміна' : 'Вихідний'}</div>
-                            <div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div>
-                        </div>
-                    </div>`;
+                if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks && state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(state.other); if (!printSummary.length) printSummary.push('Зміна успішна'); } else printSummary.push('—');
+                tdRole.innerHTML = `<div class="flex flex-col gap-2"><div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm transition-all hover:border-gray-400"><span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working ? accentText : 'text-slate-400'}">${state.working ? '⚡ НА ЗМІНІ' : 'ВИХІДНИЙ'}</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${state.working ? 'checked' : ''} onchange="toggleShift(${d},'${role}',event)"><div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div></label></div><div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working ? 'pointer-events-none opacity-40' : ''}">${checkBoxesHtml}<input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition"/></div><div class="hidden print:block text-xs"><div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div><div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div></div></div>`;
                 tr.appendChild(tdRole);
             });
-
             tbody.appendChild(tr);
         }
     }
 
-    // ===== ДІЇ =====
+    // ДІЇ
     function toggleShift(day, role, event) {
         currentMonthData[day][role].working = !currentMonthData[day][role].working;
-        if (!currentMonthData[day][role].working) {
-            currentMonthData[day][role].tasks = {};
-            currentMonthData[day][role].other = '';
-        } else {
-            // Конфеті коли виходить на зміну
-            if (event) fireConfetti(event.clientX, event.clientY);
-        }
-        renderTable();
-        updateStats();
-        animateStatCards();
-        scheduleSave();
+        if (!currentMonthData[day][role].working) { currentMonthData[day][role].tasks = {}; currentMonthData[day][role].other = ''; }
+        else if (event) fireConfetti(event.clientX, event.clientY);
+        renderTable(); updateStats(); animateStatCards(); scheduleSave();
     }
 
     function toggleTask(day, role, taskId, event) {
         if (!currentMonthData[day][role].tasks) currentMonthData[day][role].tasks = {};
         currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId];
-        // Маленьке конфеті при виконанні завдання
-        if (currentMonthData[day][role].tasks[taskId] && event) {
-            fireConfetti(event.clientX, event.clientY);
-        }
-        // Перевіряємо чи всі завдання виконані
+        if (currentMonthData[day][role].tasks[taskId] && event) fireConfetti(event.clientX, event.clientY);
         const allTasks = roleTasksConfig[role];
         const doneTasks = allTasks.filter(t => currentMonthData[day][role].tasks[t.id]);
-        if (doneTasks.length === allTasks.length && allTasks.length > 1) {
-            setTimeout(fireBigConfetti, 200);
-        }
-        renderTable();
-        updateStats();
-        scheduleSave();
+        if (doneTasks.length === allTasks.length && allTasks.length > 1) setTimeout(fireBigConfetti, 200);
+        renderTable(); updateStats(); scheduleSave();
     }
 
-    function updateOtherTask(day, role, text) {
-        currentMonthData[day][role].other = text;
-        scheduleSave();
-    }
+    function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
 
-    // ===== СТАТИСТИКА =====
     function updateStats() {
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
-        Object.keys(currentMonthData).forEach(day => {
-            roles.forEach(role => {
-                if (currentMonthData[day][role]?.working) counts[role]++;
-            });
-        });
-        roles.forEach(role => {
-            document.getElementById(`stats-${role}`).innerText = `${counts[role]} змін`;
-            document.getElementById(`badge-${role}`).innerText = getWorkerBadge(role, counts[role]);
-        });
+        Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day][role]?.working) counts[role]++; }); });
+        roles.forEach(role => { document.getElementById(`stats-${role}`).innerText = `${counts[role]} змін`; document.getElementById(`badge-${role}`).innerText = getWorkerBadge(role, counts[role]); });
     }
 
     function getWorkerBadge(role, count) {
@@ -449,40 +237,23 @@
         if (role === 'plumber') return count < 8 ? '💧 Водолій' : count < 18 ? '🔧 Гроза Засмічень' : '🔱 Нептун Микитської Слободи';
     }
 
-    // ===== СКИДАННЯ МІСЯЦЯ =====
     async function clearCurrentMonth() {
         if (!confirm('Видалити всі записи за ЦЕЙ місяць з хмари?')) return;
-        showOverlay(true, '🗑️ Видаляю...');
-        currentMonthData = {};
-        try {
-            await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`);
-            setSyncStatus('ok', '✅ Місяць скинуто');
-        } catch (err) {
-            setSyncStatus('error', '❌ Помилка видалення');
-        }
-        renderTable();
-        updateStats();
-        showOverlay(false);
+        showOverlay(true, '🗑️ Видаляю...'); currentMonthData = {};
+        try { await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`); setSyncStatus('ok', '✅ Місяць скинуто'); }
+        catch (err) { setSyncStatus('error', '❌ Помилка'); }
+        renderTable(); updateStats(); showOverlay(false);
     }
 
-    // ===== ТЕМА =====
-    function changeTheme(themeName) {
-        document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
-        localStorage.setItem('selected_theme', themeName);
-    }
-
+    function changeTheme(themeName) { document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8'; localStorage.setItem('selected_theme', themeName); }
     function showOverlay(show, text = '') {
         const overlay = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
-        if (show) { overlay.classList.remove('opacity-0', 'pointer-events-none'); loadingText.innerText = text; }
-        else { overlay.classList.add('opacity-0', 'pointer-events-none'); }
+        if (show) { overlay.classList.remove('opacity-0','pointer-events-none'); document.getElementById('loading-text').innerText = text; }
+        else overlay.classList.add('opacity-0','pointer-events-none');
     }
 
-    // ===== СТАРТ =====
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
-    document.getElementById('theme-select').value = savedTheme;
-    changeTheme(savedTheme);
-
+    document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
     initCalendar();
 </script>
 </body>
