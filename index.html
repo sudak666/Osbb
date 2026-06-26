@@ -49,6 +49,9 @@
         .day-card-header { padding: 10px 14px; background: var(--table-header); font-weight: 700; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .day-card-body { padding: 10px 14px; display: none; }
         .day-card-body.open { display: block; }
+        /* swipe hint */
+        .swipe-hint { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.65); color: #fff; padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.9rem; font-weight: 700; pointer-events: none; z-index: 8000; opacity: 0; transition: opacity 0.3s; }
+        .swipe-hint.show { opacity: 1; }
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
 
         /* ===== НОВІ ЕФЕКТИ ===== */
@@ -161,6 +164,9 @@
 <!-- АПЛОДИСМЕНТИ ТОСТ -->
 <div id="applause-toast">🎉 Всі завдання дня виконано! Браво, супергерої! 🏆</div>
 
+<!-- SWIPE HINT -->
+<div id="swipe-hint" class="swipe-hint no-print"></div>
+
 <!-- LIGHTBOX -->
 <div id="lightbox" class="lightbox no-print" onclick="if(event.target===this||event.target.id==='lightbox-img')closeLightbox()">
     <button onclick="lightboxPrev()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">‹</button>
@@ -192,15 +198,16 @@
     </div>
 
     <!-- ВИБІР МІСЯЦЯ -->
-    <div class="no-print p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-4">
+    <div class="no-print p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-3">
+        <button onclick="stepMonth(-1)" title="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-indigo-500/10 transition select-none">‹</button>
         <div class="flex items-center gap-2">
-            <label class="text-sm font-bold">Рік:</label>
-            <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
+            <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         </div>
         <div class="flex items-center gap-2">
-            <label class="text-sm font-bold">Місяць:</label>
-            <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm"></select>
+            <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         </div>
+        <button onclick="stepMonth(1)" title="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-indigo-500/10 transition select-none">›</button>
+        <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-400/30 text-indigo-600 hover:bg-indigo-500/20 transition hidden">📅 Сьогодні</button>
         <div class="ml-auto no-print flex gap-2">
             <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📋 Журнал</button>
             <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📊 Графіки</button>
@@ -420,6 +427,30 @@
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
     document.getElementById('fun-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
+    // НАВІГАЦІЯ МІСЯЦЯМИ
+    function stepMonth(dir) {
+        let m = parseInt(monthSelect.value) + dir;
+        let y = parseInt(yearSelect.value);
+        if (m < 0)  { m = 11; y--; }
+        if (m > 11) { m = 0;  y++; }
+        if (y < 2025 || y > 2030) return;
+        yearSelect.value  = y;
+        monthSelect.value = m;
+        initCalendar();
+    }
+
+    function goToday() {
+        yearSelect.value  = now.getFullYear();
+        monthSelect.value = now.getMonth();
+        initCalendar();
+    }
+
+    function updateTodayBtn() {
+        const isToday = parseInt(yearSelect.value) === now.getFullYear() &&
+                        parseInt(monthSelect.value) === now.getMonth();
+        document.getElementById('btn-today').classList.toggle('hidden', isToday);
+    }
+
     // TABS
     function setTab(tab) {
         currentTab = tab;
@@ -531,17 +562,36 @@
         }
         renderTable(); renderMobileCards(); updateStats(); showOverlay(false);
         animateStatCards();
+        updateTodayBtn();
         if (currentTab === 'charts') renderCharts();
     }
 
     // ЗБЕРЕЖЕННЯ
-    function scheduleSave() { setSyncStatus('loading', '💾 Зберігаю...'); saveOffline(); clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 800); }
+    let pendingRollback = null; // { day, snapshot }
+
+    function scheduleSave(day = null, snapshot = null) {
+        setSyncStatus('loading', '💾 Зберігаю...');
+        saveOffline();
+        clearTimeout(saveTimer);
+        if (day !== null && snapshot !== null) pendingRollback = { day, snapshot };
+        saveTimer = setTimeout(saveToCloud, 1000);
+    }
     async function saveToCloud() {
-        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — збережено локально'); return; }
+        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — збережено локально'); pendingRollback = null; return; }
         try {
             const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
-            if (error) throw error; setSyncStatus('ok', '✅ Збережено');
-        } catch (err) { console.error('save error:', err?.message || JSON.stringify(err)); setSyncStatus('error', '❌ Помилка збереження'); }
+            if (error) throw error;
+            setSyncStatus('ok', '✅ Збережено');
+            pendingRollback = null;
+        } catch (err) {
+            console.error('save error:', err?.message || JSON.stringify(err));
+            if (pendingRollback) {
+                rollbackDay(pendingRollback.day, pendingRollback.snapshot);
+                pendingRollback = null;
+            } else {
+                setSyncStatus('error', '❌ Помилка збереження');
+            }
+        }
     }
 
     // ГРАФІКИ
@@ -980,19 +1030,34 @@
     }
 
     // ДІЇ
+    // Optimistic update helpers
+    function snapshotDay(day) {
+        return JSON.parse(JSON.stringify(currentMonthData[day]));
+    }
+    function rollbackDay(day, snapshot) {
+        currentMonthData[day] = snapshot;
+        saveOffline();
+        renderTable(); renderMobileCards(); updateStats();
+        setSyncStatus('error', '↩️ Відкат — помилка збереження');
+    }
+
     function toggleShift(day, role, event) {
+        const snap = snapshotDay(day);
         currentMonthData[day][role].working = !currentMonthData[day][role].working;
         if (!currentMonthData[day][role].working) { currentMonthData[day][role].tasks = {}; currentMonthData[day][role].other = ''; }
         else if (event) fireConfetti(event.clientX, event.clientY);
-        renderTable(); renderMobileCards(); updateStats(); animateStatCards(); scheduleSave();
+        renderTable(); renderMobileCards(); updateStats(); animateStatCards();
+        scheduleSave(day, snap);
     }
     function toggleTask(day, role, taskId, event) {
+        const snap = snapshotDay(day);
         if (!currentMonthData[day][role].tasks) currentMonthData[day][role].tasks = {};
         currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId];
         if (currentMonthData[day][role].tasks[taskId] && event) fireConfetti(event.clientX, event.clientY);
         const allTasks = roleTasksConfig[role];
         if (allTasks.filter(t => currentMonthData[day][role].tasks[t.id]).length === allTasks.length && allTasks.length > 1) setTimeout(fireBigConfetti, 200);
-        renderTable(); renderMobileCards(); updateStats(); scheduleSave();
+        renderTable(); renderMobileCards(); updateStats();
+        scheduleSave(day, snap);
     }
     function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
     function updateComment(day, text) { if (!currentMonthData[day]) return; currentMonthData[day].comment = text; scheduleSave(); }
@@ -1080,6 +1145,44 @@
         const splash = document.getElementById('intro-splash');
         splash.addEventListener('animationend', () => splash.classList.add('hidden'));
     }, 100);
+
+    // SWIPE між місяцями (горизонтальний свайп поза лайтбоксом)
+    (function() {
+        let sx = 0, sy = 0, moving = false;
+        const hint = document.getElementById('swipe-hint');
+        let hintTimer = null;
+
+        function showHint(text) {
+            hint.textContent = text;
+            hint.classList.add('show');
+            clearTimeout(hintTimer);
+            hintTimer = setTimeout(() => hint.classList.remove('show'), 900);
+        }
+
+        document.addEventListener('touchstart', e => {
+            if (document.getElementById('lightbox').classList.contains('open')) return;
+            sx = e.touches[0].clientX;
+            sy = e.touches[0].clientY;
+            moving = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', e => {
+            if (document.getElementById('lightbox').classList.contains('open')) return;
+            const dx = e.touches[0].clientX - sx;
+            const dy = e.touches[0].clientY - sy;
+            if (!moving && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) moving = true;
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (!moving) return;
+            const dx = e.changedTouches[0].clientX - sx;
+            const dy = e.changedTouches[0].clientY - sy;
+            if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+            if (dx < 0) { showHint('▶ Наступний місяць'); stepMonth(1); }
+            else         { showHint('◀ Попередній місяць'); stepMonth(-1); }
+        }, { passive: true });
+    })();
 
     if ('serviceWorker' in navigator) {
         if (IS_PREVIEW) {
