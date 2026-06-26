@@ -2,6 +2,9 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="mobile-web-app-capable" content="yes">
@@ -10,10 +13,11 @@
     <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Журнал Супергероїв ОСББ "Микитська Слобода"</title>
+    <title>Журнал Супергероїв ОСББ "Микитська Слобода" v4</title>
     <script>
-        // Конфіг Tailwind — вимикає попередження про CDN
-        window.tailwind = { config: {} };
+        // Придушуємо Tailwind CDN warning (тільки це конкретне повідомлення)
+        const _cw = console.warn.bind(console);
+        console.warn = (...a) => { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; _cw(...a); };
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
