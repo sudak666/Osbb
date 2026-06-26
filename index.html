@@ -106,17 +106,22 @@
         }
         #applause-toast.show { transform: translateX(-50%) translateY(0); }
         
-        /* Підсвічування поточного дня на десктопі */
-        .current-day-row {
-            position: relative;
-            background: rgba(99, 102, 241, 0.07) !important;
-            box-shadow: inset 0 0 0 2px rgba(99, 102, 241, 0.4);
+        /* Підсвічування поточного дня на десктопі (Виправлено) */
+        .current-day-row td {
+            background: rgba(99, 102, 241, 0.12) !important;
+            border-top: 2px solid #6366f1 !important;
+            border-bottom: 2px solid #6366f1 !important;
+        }
+        .current-day-row td:first-child {
+            border-left: 2px solid #6366f1 !important;
+        }
+        .current-day-row td:last-child {
+            border-right: 2px solid #6366f1 !important;
         }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
 
-<!-- INTRO SPLASH -->
 <div id="intro-splash">
     <div class="pulse-ring"></div>
     <div class="pulse-ring pulse-ring2"></div>
@@ -125,13 +130,10 @@
     <div class="intro-sub">☁️ Завантаження журналу супергероїв...</div>
 </div>
 
-<!-- АПЛОДИСМЕНТИ ТОСТ -->
 <div id="applause-toast">🎉 Всі завдання дня виконано! Браво, супергерої! 🏆</div>
 
-<!-- SWIPE HINT -->
 <div id="swipe-hint" class="swipe-hint no-print"></div>
 
-<!-- LIGHTBOX -->
 <div id="lightbox" class="lightbox no-print" onclick="if(event.target===this||event.target.id==='lightbox-img')closeLightbox()">
     <button onclick="lightboxPrev()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">‹</button>
     <img id="lightbox-img" src="" alt="">
@@ -141,7 +143,6 @@
 
 <div class="max-w-7xl mx-auto">
 
-    <!-- ШАПКА -->
     <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative overflow-hidden">
         <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
         <div>
@@ -161,7 +162,6 @@
         </div>
     </div>
 
-    <!-- ВИБІР МІСЯЦЯ -->
     <div class="no-print p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-3">
         <button onclick="stepMonth(-1)" title="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-indigo-500/10 transition select-none">‹</button>
         <div class="flex items-center gap-2">
@@ -178,7 +178,6 @@
         </div>
     </div>
 
-    <!-- СТАТИСТИКА -->
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
         <div class="no-print mb-4 p-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
             <span class="text-xl">💡</span>
@@ -200,7 +199,6 @@
             </div>
         </div>
         <div class="border-t border-[var(--border)] pt-4">
-            <!-- ГЕРОЙ МІСЯЦЯ БАНЕР -->
             <div id="hero-banner" class="hidden mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/15 via-amber-300/10 to-yellow-400/15 flex items-center gap-4">
                 <div class="hero-medal text-5xl">🏅</div>
                 <div class="flex-1">
@@ -213,7 +211,6 @@
                     <div class="text-[10px] text-yellow-600 font-bold">змін за місяць</div>
                 </div>
             </div>
-            <!-- НІХТО НЕ ПРАЦЮЄ -->
             <div id="no-heroes-msg" class="hidden mb-4 p-4 rounded-2xl border-2 border-dashed border-slate-300 text-center">
                 <div class="text-3xl mb-1">😴</div>
                 <div class="text-sm font-bold text-slate-500">Всі supermarket на відпочинку</div>
@@ -225,7 +222,6 @@
         </div>
     </div>
 
-    <!-- ГРАФІКИ -->
     <div id="section-charts" class="hidden mb-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
@@ -243,8 +239,6 @@
         </div>
     </div>
 
-    <!-- ЖУРНАЛ -->
-    <!-- MOBILE CARDS -->
     <div id="mobile-cards" class="mobile-day-card mb-4"></div>
 
     <div id="section-journal" class="desktop-table print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
