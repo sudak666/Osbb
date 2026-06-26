@@ -50,9 +50,116 @@
         .day-card-body { padding: 10px 14px; display: none; }
         .day-card-body.open { display: block; }
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
+
+        /* ===== НОВІ ЕФЕКТИ ===== */
+        /* Анімований заголовок */
+        @keyframes title-reveal {
+            0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; }
+            60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; }
+            100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes badge-bounce {
+            0%,100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+        }
+        @keyframes hero-glow {
+            0%,100% { box-shadow: 0 0 18px rgba(251,191,36,0.35), 0 4px 24px rgba(0,0,0,0.1); }
+            50% { box-shadow: 0 0 36px rgba(251,191,36,0.65), 0 8px 36px rgba(0,0,0,0.15); }
+        }
+        @keyframes intro-overlay-fade {
+            0% { opacity:1; } 80% { opacity:1; } 100% { opacity:0; pointer-events:none; }
+        }
+        @keyframes intro-logo-in {
+            0% { opacity:0; transform: scale(0.5) rotate(-8deg); }
+            60% { opacity:1; transform: scale(1.12) rotate(2deg); }
+            100% { opacity:1; transform: scale(1) rotate(0deg); }
+        }
+        @keyframes intro-text-in {
+            0% { opacity:0; transform: translateY(20px); }
+            100% { opacity:1; transform: translateY(0); }
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .animated-title {
+            animation: title-reveal 0.9s cubic-bezier(.22,1,.36,1) forwards;
+            background: linear-gradient(90deg, #6366f1, #f59e0b, #10b981, #6366f1);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: title-reveal 0.9s cubic-bezier(.22,1,.36,1) forwards, shimmer 4s linear 1s infinite;
+        }
+
+        /* Герой місяця */
+        #hero-banner {
+            animation: hero-glow 2.5s ease-in-out infinite;
+        }
+        .hero-medal {
+            animation: badge-bounce 1.8s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        /* Intro splash */
+        #intro-splash {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: intro-overlay-fade 3s ease forwards;
+            animation-delay: 1.5s;
+        }
+        #intro-splash.hidden { display: none; }
+        .intro-logo {
+            font-size: 5rem; line-height:1;
+            animation: intro-logo-in 0.8s cubic-bezier(.22,1,.36,1) forwards;
+        }
+        .intro-name {
+            color: white; font-size: 1.5rem; font-weight: 800; margin-top: 1rem; text-align: center;
+            animation: intro-text-in 0.6s ease forwards; animation-delay: 0.5s; opacity:0;
+        }
+        .intro-sub {
+            color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; text-align:center;
+            animation: intro-text-in 0.6s ease forwards; animation-delay: 0.8s; opacity:0;
+        }
+        .pulse-ring {
+            position: absolute; width: 180px; height: 180px; border-radius: 50%;
+            border: 2px solid rgba(99,102,241,0.5);
+            animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite;
+        }
+        .pulse-ring2 { animation-delay: 0.5s; }
+
+        /* Апплодисменти тост */
+        #applause-toast {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(120px);
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; padding: 1rem 2rem; border-radius: 1.5rem;
+            font-weight: 800; font-size: 1rem; z-index: 9000;
+            box-shadow: 0 10px 40px rgba(16,185,129,0.4);
+            transition: transform 0.5s cubic-bezier(.22,1,.36,1);
+            pointer-events: none;
+        }
+        #applause-toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+
+<!-- INTRO SPLASH -->
+<div id="intro-splash">
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring pulse-ring2"></div>
+    <div class="intro-logo">🏡</div>
+    <div class="intro-name">ОСББ "Микитська Слобода"</div>
+    <div class="intro-sub">☁️ Завантаження журналу супергероїв...</div>
+</div>
+
+<!-- АПЛОДИСМЕНТИ ТОСТ -->
+<div id="applause-toast">🎉 Всі завдання дня виконано! Браво, супергерої! 🏆</div>
 
 <!-- LIGHTBOX -->
 <div id="lightbox" class="lightbox no-print" onclick="closeLightbox()">
@@ -65,7 +172,7 @@
     <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative overflow-hidden">
         <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight">🏡 ОСББ "Микитська Слобода"</h1>
+            <h1 class="text-2xl font-bold tracking-tight animated-title">🏡 ОСББ "Микитська Слобода"</h1>
             <p class="text-sm font-medium text-indigo-600 mt-0.5">☁️ Хмарний журнал супергероїв</p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
@@ -119,6 +226,26 @@
             </div>
         </div>
         <div class="border-t border-[var(--border)] pt-4">
+            <!-- ГЕРОЙ МІСЯЦЯ БАНЕР -->
+            <div id="hero-banner" class="hidden mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/15 via-amber-300/10 to-yellow-400/15 flex items-center gap-4">
+                <div class="hero-medal text-5xl">🏅</div>
+                <div class="flex-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5">⭐ Герой Місяця</div>
+                    <div id="hero-name" class="text-xl font-black text-yellow-700"></div>
+                    <div id="hero-sub" class="text-xs text-amber-600 font-semibold mt-0.5"></div>
+                </div>
+                <div class="text-right hidden sm:block">
+                    <div class="text-3xl font-black text-yellow-500" id="hero-count"></div>
+                    <div class="text-[10px] text-yellow-600 font-bold">змін за місяць</div>
+                </div>
+            </div>
+            <!-- НІХТО НЕ ПРАЦЮЄ -->
+            <div id="no-heroes-msg" class="hidden mb-4 p-4 rounded-2xl border-2 border-dashed border-slate-300 text-center">
+                <div class="text-3xl mb-1">😴</div>
+                <div class="text-sm font-bold text-slate-500">Всі супергерої на відпочинку</div>
+                <div class="text-xs text-slate-400 mt-0.5">Ввімкніть чергування, щоб побачити рейтинг</div>
+            </div>
+
             <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🥇 Рейтинг Героїв Місяця:</h3>
             <div id="rating-board" class="flex flex-col gap-2"></div>
         </div>
@@ -180,7 +307,18 @@
     const roles = ['electrician', 'janitor', 'plumber'];
     const roleNames = { electrician: '⚡ Електрик', janitor: '🧹 Двірник', plumber: '🔧 Сантехнік' };
     const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
-    const quotes = ["Чистий під'їзд починається не з мітли, а з посмішки! ✨","Електрик вміє вмикати гарний настрій навіть без генератора! ⚡","Наші сантехніки контролюють ситуацію краще, ніж Нептун! 🔱","Сьогодні чудовий день підстригти газон! 📸","Порядок у будинку — спокій у душі. 🏡"];
+    const quotes = [
+        "Чистий під'їзд починається не з мітли, а з посмішки! ✨",
+        "Електрик вміє вмикати гарний настрій навіть без генератора! ⚡",
+        "Наші сантехніки контролюють ситуацію краще, ніж Нептун! 🔱",
+        "Сьогодні чудовий день підстригти газон! 🌿",
+        "Порядок у будинку — спокій у душі. 🏡",
+        "Директор каже: «Хто рано встає — тому й мітла дістається нова!» 🧹",
+        "Пам'ятайте: навіть Супермен іноді міняв лампочки! 💡",
+        "Кожна виконана заявка — це крок до ідеального ОСББ! 🏆",
+        "Директор нагадує: «Завдання не виконаються самі... або виконаються?» 🤔",
+        "Якість роботи визначається не тільки мітлою, а й душею! 🌟"
+    ];
     const roleTasksConfig = {
         electrician: [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'lamps', label: 'Заміна ламп 💡' }],
         plumber: [{ id: 'sewer', label: 'Прочистка каналізації 🪠' }],
@@ -217,6 +355,40 @@
         confetti({ particleCount: 120, spread: 100, origin: { y: 0.4 } });
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.1, y: 0.5 }, angle: 60 }), 200);
         setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.9, y: 0.5 }, angle: 120 }), 400);
+        showApplauseToast();
+        playApplause();
+    }
+
+    function showApplauseToast() {
+        const toast = document.getElementById('applause-toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function playApplause() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            // Синтезований звук аплодисментів через шум
+            const duration = 2.5;
+            const buf = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                // Білий шум з амплітудною обгорткою (росте потім затихає)
+                const t = i / ctx.sampleRate;
+                const env = Math.min(t * 3, 1) * Math.exp(-t * 1.2);
+                data[i] = (Math.random() * 2 - 1) * env * 0.4;
+            }
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            // Фільтр для теплішого звуку
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1800;
+            filter.Q.value = 0.5;
+            src.connect(filter);
+            filter.connect(ctx.destination);
+            src.start();
+        } catch(e) { /* тихо ігноруємо якщо браузер блокує */ }
     }
     function animateStatCards() {
         document.querySelectorAll('.stat-card').forEach((el, i) => {
@@ -340,6 +512,23 @@
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
         const medals = ['🥇', '🥈', '🥉'];
         board.innerHTML = '';
+
+        const totalShifts = sorted.reduce((sum, [,c]) => sum + c, 0);
+        const heroBanner = document.getElementById('hero-banner');
+        const noHeroesMsg = document.getElementById('no-heroes-msg');
+
+        if (totalShifts === 0) {
+            heroBanner.classList.add('hidden');
+            noHeroesMsg.classList.remove('hidden');
+        } else {
+            noHeroesMsg.classList.add('hidden');
+            const [topRole, topCount] = sorted[0];
+            heroBanner.classList.remove('hidden');
+            document.getElementById('hero-name').innerText = roleNames[topRole];
+            document.getElementById('hero-count').innerText = topCount;
+            document.getElementById('hero-sub').innerText = getWorkerBadge(topRole, topCount) + ' · Найактивніший цього місяця!';
+        }
+
         sorted.forEach(([role, count], i) => {
             const div = document.createElement('div');
             div.className = `animate-slide flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] ${i === 0 && count > 0 ? 'bg-yellow-500/10 border-yellow-400/30' : 'bg-[var(--bg-input)]'}`;
@@ -700,6 +889,12 @@
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
     initCalendar();
+
+    // Сховати intro splash після анімації
+    setTimeout(() => {
+        const splash = document.getElementById('intro-splash');
+        splash.addEventListener('animationend', () => splash.classList.add('hidden'));
+    }, 100);
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/Osbb/sw.js').catch(console.error);
