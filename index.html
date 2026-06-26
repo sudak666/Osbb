@@ -11,6 +11,10 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал Супергероїв ОСББ "Микитська Слобода"</title>
+    <script>
+        // Конфіг Tailwind — вимикає попередження про CDN
+        window.tailwind = { config: {} };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -312,80 +316,98 @@
     const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
     const IS_PREVIEW = location.hostname.includes('claudeusercontent');
 
-    // Легкий fetch-клієнт Supabase (без supabase-js, без Worker)
+    // Мінімальний Supabase REST клієнт (без supabase-js, без Worker)
     const db = {
-        _h: () => ({ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
-        async _req(method, path, body, extra = {}) {
-            const r = await fetch(SUPABASE_URL + path, { method, headers: { ...this._h(), ...extra }, body: body ? JSON.stringify(body) : undefined });
-            if (!r.ok) { const t = await r.text(); throw new Error(t || r.statusText); }
+        _auth: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY },
+
+        async _fetch(method, url, headers = {}, body = undefined) {
+            const r = await fetch(url, {
+                method,
+                headers: { ...this._auth, ...headers },
+                body
+            });
+            if (!r.ok) {
+                const txt = await r.text();
+                // PGRST116 = 0 rows for .single() — не помилка, повертаємо null
+                if (r.status === 406 || (txt && txt.includes('PGRST116'))) {
+                    return { _pgrst116: true };
+                }
+                throw new Error(txt || r.statusText);
+            }
             const txt = await r.text();
             return txt ? JSON.parse(txt) : null;
         },
+
         storage: {
             from(bucket) {
+                const base = SUPABASE_URL + '/storage/v1/object';
+                const auth = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
                 return {
                     async upload(path, blob, opts = {}) {
-                        const ct = opts.contentType || blob.type || 'application/octet-stream';
-                        const url = SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + path;
-                        const r = await fetch(url, {
+                        const r = await fetch(`${base}/${bucket}/${path}`, {
                             method: 'POST',
-                            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': ct, 'x-upsert': opts.upsert ? 'true' : 'false' },
+                            headers: { ...auth, 'Content-Type': opts.contentType || 'image/jpeg', 'x-upsert': 'true' },
                             body: blob
                         });
-                        if (!r.ok) { const t = await r.text(); throw new Error(t); }
+                        if (!r.ok) throw new Error(await r.text());
                         return {};
                     },
                     getPublicUrl(path) {
-                        return { data: { publicUrl: SUPABASE_URL + '/storage/v1/object/public/photos/' + path } };
+                        return { data: { publicUrl: `${base}/public/${bucket}/${path}` } };
                     },
                     async remove(paths) {
-                        const url = SUPABASE_URL + '/storage/v1/object/photos';
-                        // paths — масив рядків типу "2025-5/1-janitor-12345.jpg"
-                        const r = await fetch(url, { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ prefixes: paths }) });
-                        // не кидаємо помилку якщо файл вже видалено
+                        await fetch(`${base}/${bucket}`, {
+                            method: 'DELETE',
+                            headers: { ...auth, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ prefixes: paths })
+                        }).catch(() => {});
                         return {};
                     }
                 };
             }
         },
+
         from(table) {
             const self = this;
-            const state = { table, filters: [], method: 'GET', body: null, single: false, selectCols: '*' };
+            const s = { filters: [], method: 'GET', body: null, isSingle: false, cols: '*', isUpsert: false };
             const q = {
-                select(cols = '*') { state.selectCols = cols; return q; },
-                eq(col, val) { state.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
-                single() { state.single = true; return q; },
-                insert(data) { state.method = 'POST'; state.body = data; return q; },
-                upsert(data) { state.method = 'POST'; state.body = data; state.upsert = true; return q; },
-                delete() { state.method = 'DELETE'; return q; },
-                async then(resolve, reject) {
+                select(c = '*')    { s.cols = c; return q; },
+                eq(col, val)       { s.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
+                single()           { s.isSingle = true; return q; },
+                insert(data)       { s.method = 'POST'; s.body = data; return q; },
+                upsert(data)       { s.method = 'POST'; s.body = data; s.isUpsert = true; return q; },
+                delete()           { s.method = 'DELETE'; return q; },
+
+                async then(resolve) {
                     try {
-                        let path = '/rest/v1/' + state.table;
-                        const params = [...state.filters];
-                        if (state.method === 'GET') params.push('select=' + state.selectCols);
-                        if (params.length) path += '?' + params.join('&');
+                        // Будуємо URL
+                        const params = [...s.filters];
+                        if (s.method === 'GET') params.push('select=' + s.cols);
+                        const url = SUPABASE_URL + '/rest/v1/' + table
+                            + (params.length ? '?' + params.join('&') : '');
 
-                        const extra = {};
-                        if (state.upsert) extra['Prefer'] = 'resolution=merge-duplicates,return=minimal';
-                        else if (state.method === 'POST') extra['Prefer'] = 'return=minimal';
-                        if (state.single) extra['Accept'] = 'application/vnd.pgrst.object+json';
+                        // Будуємо заголовки БЕЗ конфліктів
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (s.method === 'GET' && s.isSingle) {
+                            // single() — просимо об'єкт, а не масив
+                            headers['Accept'] = 'application/vnd.pgrst.object+json';
+                        }
+                        if (s.isUpsert) {
+                            headers['Prefer'] = 'resolution=merge-duplicates';
+                        }
 
-                        const result = await self._req(state.method, path, state.body, extra);
+                        const body = s.body ? JSON.stringify(s.body) : undefined;
+                        const result = await self._fetch(s.method, url, headers, body);
 
-                        if (state.single) {
+                        if (result?._pgrst116) {
+                            resolve({ data: null, error: { code: 'PGRST116' } });
+                        } else if (s.isSingle) {
                             resolve({ data: result, error: null });
                         } else {
                             resolve({ data: result || [], error: null });
                         }
                     } catch(e) {
-                        // PGRST116 = row not found for .single()
-                        if (e.message && e.message.includes('PGRST116')) {
-                            resolve({ data: null, error: { code: 'PGRST116', message: e.message } });
-                        } else if (e.message && e.message.includes('JSON object requested')) {
-                            resolve({ data: null, error: { code: 'PGRST116', message: e.message } });
-                        } else {
-                            resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message } });
-                        }
+                        resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message } });
                     }
                 }
             };
