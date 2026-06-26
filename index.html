@@ -11,11 +11,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Журнал Супергероїв ОСББ "Микитська Слобода" v4</title>
+    <title>Журнал Супергероїв ОСББ "Микитська Слобода" v4.1</title>
     <script>
-        // Придушуємо Tailwind CDN warning (тільки це конкретне повідомлення)
+        // Придушуємо Tailwind CDN warning
         const _cw = console.warn.bind(console);
         console.warn = (...a) => { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; _cw(...a); };
     </script>
@@ -31,6 +31,15 @@
         .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes title-reveal { 0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; } 60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; } 100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; } }
+        @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+        @keyframes badge-bounce { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+        @keyframes hero-glow { 0%,100% { box-shadow: 0 0 18px rgba(251,191,36,0.35), 0 4px 24px rgba(0,0,0,0.1); } 50% { box-shadow: 0 0 36px rgba(251,191,36,0.65), 0 8px 36px rgba(0,0,0,0.15); } }
+        @keyframes intro-overlay-fade { 0% { opacity:1; } 80% { opacity:1; } 100% { opacity:0; pointer-events:none; } }
+        @keyframes intro-logo-in { 0% { opacity:0; transform: scale(0.5) rotate(-8deg); } 60% { opacity:1; transform: scale(1.12) rotate(2deg); } 100% { opacity:1; transform: scale(1) rotate(0deg); } }
+        @keyframes intro-text-in { 0% { opacity:0; transform: translateY(20px); } 100% { opacity:1; transform: translateY(0); } }
+        @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 0; } }
+
         .animate-pop { animation: pop-in 0.3s ease forwards; }
         .animate-slide { animation: slide-down 0.2s ease forwards; }
         .stat-card { transition: all 0.3s ease; }
@@ -43,7 +52,7 @@
         .no-select { user-select: none; -webkit-user-select: none; }
         .tab-btn { transition: all 0.2s; }
         .tab-btn.active { background: #6366f1; color: white; }
-        /* MOBILE CARDS */
+        
         .mobile-day-card { display: none; }
         @media (max-width: 768px) {
             .desktop-table { display: none !important; }
@@ -57,49 +66,11 @@
         .day-card-header { padding: 10px 14px; background: var(--table-header); font-weight: 700; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .day-card-body { padding: 10px 14px; display: none; }
         .day-card-body.open { display: block; }
-        /* swipe hint */
         .swipe-hint { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.65); color: #fff; padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.9rem; font-weight: 700; pointer-events: none; z-index: 8000; opacity: 0; transition: opacity 0.3s; }
         .swipe-hint.show { opacity: 1; }
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
 
-        /* ===== НОВІ ЕФЕКТИ ===== */
-        /* Анімований заголовок */
-        @keyframes title-reveal {
-            0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; }
-            60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; }
-            100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; }
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-        }
-        @keyframes badge-bounce {
-            0%,100% { transform: translateY(0) rotate(-3deg); }
-            50% { transform: translateY(-8px) rotate(3deg); }
-        }
-        @keyframes hero-glow {
-            0%,100% { box-shadow: 0 0 18px rgba(251,191,36,0.35), 0 4px 24px rgba(0,0,0,0.1); }
-            50% { box-shadow: 0 0 36px rgba(251,191,36,0.65), 0 8px 36px rgba(0,0,0,0.15); }
-        }
-        @keyframes intro-overlay-fade {
-            0% { opacity:1; } 80% { opacity:1; } 100% { opacity:0; pointer-events:none; }
-        }
-        @keyframes intro-logo-in {
-            0% { opacity:0; transform: scale(0.5) rotate(-8deg); }
-            60% { opacity:1; transform: scale(1.12) rotate(2deg); }
-            100% { opacity:1; transform: scale(1) rotate(0deg); }
-        }
-        @keyframes intro-text-in {
-            0% { opacity:0; transform: translateY(20px); }
-            100% { opacity:1; transform: translateY(0); }
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(1); opacity: 0.7; }
-            100% { transform: scale(1.6); opacity: 0; }
-        }
-
         .animated-title {
-            animation: title-reveal 0.9s cubic-bezier(.22,1,.36,1) forwards;
             background: linear-gradient(90deg, #6366f1, #f59e0b, #10b981, #6366f1);
             background-size: 300% auto;
             -webkit-background-clip: text;
@@ -108,44 +79,22 @@
             animation: title-reveal 0.9s cubic-bezier(.22,1,.36,1) forwards, shimmer 4s linear 1s infinite;
         }
 
-        /* Герой місяця */
-        #hero-banner {
-            animation: hero-glow 2.5s ease-in-out infinite;
-        }
-        .hero-medal {
-            animation: badge-bounce 1.8s ease-in-out infinite;
-            display: inline-block;
-        }
+        #hero-banner { animation: hero-glow 2.5s ease-in-out infinite; }
+        .hero-medal { animation: badge-bounce 1.8s ease-in-out infinite; display: inline-block; }
 
-        /* Intro splash */
         #intro-splash {
             position: fixed; inset: 0; z-index: 9999;
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            animation: intro-overlay-fade 3s ease forwards;
-            animation-delay: 1.5s;
+            animation: intro-overlay-fade 3s ease forwards; animation-delay: 1.5s;
         }
         #intro-splash.hidden { display: none; }
-        .intro-logo {
-            font-size: 5rem; line-height:1;
-            animation: intro-logo-in 0.8s cubic-bezier(.22,1,.36,1) forwards;
-        }
-        .intro-name {
-            color: white; font-size: 1.5rem; font-weight: 800; margin-top: 1rem; text-align: center;
-            animation: intro-text-in 0.6s ease forwards; animation-delay: 0.5s; opacity:0;
-        }
-        .intro-sub {
-            color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; text-align:center;
-            animation: intro-text-in 0.6s ease forwards; animation-delay: 0.8s; opacity:0;
-        }
-        .pulse-ring {
-            position: absolute; width: 180px; height: 180px; border-radius: 50%;
-            border: 2px solid rgba(99,102,241,0.5);
-            animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite;
-        }
+        .intro-logo { font-size: 5rem; line-height:1; animation: intro-logo-in 0.8s cubic-bezier(.22,1,.36,1) forwards; }
+        .intro-name { color: white; font-size: 1.5rem; font-weight: 800; margin-top: 1rem; text-align: center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.5s; opacity:0; }
+        .intro-sub { color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; text-align:center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.8s; opacity:0; }
+        .pulse-ring { position: absolute; width: 180px; height: 180px; border-radius: 50%; border: 2px solid rgba(99,102,241,0.5); animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite; }
         .pulse-ring2 { animation-delay: 0.5s; }
 
-        /* Апплодисменти тост */
         #applause-toast {
             position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(120px);
             background: linear-gradient(135deg, #10b981, #059669);
@@ -156,6 +105,13 @@
             pointer-events: none;
         }
         #applause-toast.show { transform: translateX(-50%) translateY(0); }
+        
+        /* Підсвічування поточного дня на десктопі */
+        .current-day-row {
+            position: relative;
+            background: rgba(99, 102, 241, 0.07) !important;
+            box-shadow: inset 0 0 0 2px rgba(99, 102, 241, 0.4);
+        }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
@@ -260,7 +216,7 @@
             <!-- НІХТО НЕ ПРАЦЮЄ -->
             <div id="no-heroes-msg" class="hidden mb-4 p-4 rounded-2xl border-2 border-dashed border-slate-300 text-center">
                 <div class="text-3xl mb-1">😴</div>
-                <div class="text-sm font-bold text-slate-500">Всі супергерої на відпочинку</div>
+                <div class="text-sm font-bold text-slate-500">Всі supermarket на відпочинку</div>
                 <div class="text-xs text-slate-400 mt-0.5">Ввімкніть чергування, щоб побачити рейтинг</div>
             </div>
 
@@ -320,7 +276,17 @@
     const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
     const IS_PREVIEW = location.hostname.includes('claudeusercontent');
 
-    // Мінімальний Supabase REST клієнт (без supabase-js, без Worker)
+    // Хеш пароля "3333" за алгоритмом SHA-256 для безпеки на клієнті
+    const RESET_PASSWORD_HASH = '9f7401873b6848c0db4681fb8036980e478546522c07011d619a9a3b6f00115c';
+
+    async function hashPassword(pwd) {
+        const msgBuffer = new TextEncoder().encode(pwd);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Мінімальний Supabase REST клієнт
     const db = {
         _auth: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY },
 
@@ -369,11 +335,11 @@
 
         from(table) {
             const self = this;
-            const s = { filters: [], method: 'GET', body: null, isSingle: false, cols: '*', isUpsert: false };
+            const s = { filters: [], method: 'GET', body: null, isSingle: false, cols: '*', isUpsert: false, preferReturn: 'representation' };
             const q = {
                 select(c = '*')    { s.cols = c; return q; },
                 eq(col, val)       { s.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
-                single()           { s.isSingle = true; return q; }, // просто бере [0] з масиву
+                single()           { s.isSingle = true; return q; },
                 insert(data)       { s.method = 'POST'; s.body = data; return q; },
                 upsert(data)       { s.method = 'POST'; s.body = data; s.isUpsert = true; return q; },
                 delete()           { s.method = 'DELETE'; return q; },
@@ -385,15 +351,14 @@
                         const url = SUPABASE_URL + '/rest/v1/' + table
                             + (params.length ? '?' + params.join('&') : '');
 
-                        // Без Accept: vnd.pgrst — завжди отримуємо масив, без 406
                         const headers = { 'Content-Type': 'application/json' };
                         if (s.isUpsert) headers['Prefer'] = 'resolution=merge-duplicates';
+                        if (s.method === 'POST') headers['Prefer'] = 'return=' + s.preferReturn;
 
                         const body = s.body ? JSON.stringify(s.body) : undefined;
                         const arr = await self._fetch(s.method, url, headers, body);
 
                         if (s.isSingle) {
-                            // Беремо перший елемент масиву замість .single()
                             const row = Array.isArray(arr) ? (arr[0] ?? null) : null;
                             resolve({ data: row, error: row ? null : { code: 'PGRST116' } });
                         } else {
@@ -442,7 +407,6 @@
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
     document.getElementById('fun-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
-    // НАВІГАЦІЯ МІСЯЦЯМИ
     function stepMonth(dir) {
         let m = parseInt(monthSelect.value) + dir;
         let y = parseInt(yearSelect.value);
@@ -466,7 +430,6 @@
         document.getElementById('btn-today').classList.toggle('hidden', isToday);
     }
 
-    // TABS
     function setTab(tab) {
         currentTab = tab;
         document.getElementById('section-journal').classList.toggle('hidden', tab !== 'journal');
@@ -476,7 +439,6 @@
         if (tab === 'charts') renderCharts();
     }
 
-    // КОНФЕТІ
     function fireConfetti(x, y) {
         confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
     }
@@ -497,19 +459,16 @@
     function playApplause() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            // Синтезований звук аплодисментів через шум
             const duration = 2.5;
             const buf = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate);
             const data = buf.getChannelData(0);
             for (let i = 0; i < data.length; i++) {
-                // Білий шум з амплітудною обгорткою (росте потім затихає)
                 const t = i / ctx.sampleRate;
                 const env = Math.min(t * 3, 1) * Math.exp(-t * 1.2);
                 data[i] = (Math.random() * 2 - 1) * env * 0.4;
             }
             const src = ctx.createBufferSource();
             src.buffer = buf;
-            // Фільтр для теплішого звуку
             const filter = ctx.createBiquadFilter();
             filter.type = 'bandpass';
             filter.frequency.value = 1800;
@@ -517,7 +476,7 @@
             src.connect(filter);
             filter.connect(ctx.destination);
             src.start();
-        } catch(e) { /* тихо ігноруємо якщо браузер блокує */ }
+        } catch(e) {}
     }
     function animateStatCards() {
         document.querySelectorAll('.stat-card').forEach((el, i) => {
@@ -525,14 +484,12 @@
         });
     }
 
-    // СТАТУС
     function setSyncStatus(type, text) {
         const el = document.getElementById('sync-status');
         const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`; el.innerText = text;
     }
 
-    // OFFLINE - localStorage як резервна копія
     const offlineKey = () => `osbb_${currentYear}_${currentMonth}`;
 
     function saveOffline() {
@@ -543,18 +500,15 @@
         try { return JSON.parse(localStorage.getItem(offlineKey()) || 'null'); } catch { return null; }
     }
 
-    // ЗАВАНТАЖЕННЯ
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
         showOverlay(true, '📥 Завантажую дані...'); setSyncStatus('loading', '⏳ Завантаження...');
-        photosCache = null; // скидаємо кеш при зміні місяця
+        photosCache = null;
 
-        // Спочатку вантажимо з localStorage (миттєво)
         const offline = loadOffline();
         if (offline) { currentMonthData = offline; renderTable(); renderMobileCards(); updateStats(); }
 
         if (IS_PREVIEW) {
-            // Превью-середовище: тільки локальні дані
             currentMonthData = offline || {};
             setSyncStatus('ok', '🖥️ Превью — локальні дані');
         } else {
@@ -569,8 +523,7 @@
                 saveOffline();
                 setSyncStatus('ok', '✅ Синхронізовано');
             } catch (err) {
-                const msg = err?.message || err?.code || JSON.stringify(err);
-                console.error('initCalendar error:', msg, err);
+                console.error('initCalendar error:', err);
                 if (offline) { setSyncStatus('error', '📵 Офлайн — дані з кешу'); }
                 else { setSyncStatus('error', '❌ Немає даних і інтернету'); currentMonthData = {}; }
             }
@@ -581,8 +534,7 @@
         if (currentTab === 'charts') renderCharts();
     }
 
-    // ЗБЕРЕЖЕННЯ
-    let pendingRollback = null; // { day, snapshot }
+    let pendingRollback = null;
 
     function scheduleSave(day = null, snapshot = null) {
         setSyncStatus('loading', '💾 Зберігаю...');
@@ -599,7 +551,7 @@
             setSyncStatus('ok', '✅ Збережено');
             pendingRollback = null;
         } catch (err) {
-            console.error('save error:', err?.message || JSON.stringify(err));
+            console.error('save error:', err);
             if (pendingRollback) {
                 rollbackDay(pendingRollback.day, pendingRollback.snapshot);
                 pendingRollback = null;
@@ -609,13 +561,11 @@
         }
     }
 
-    // ГРАФІКИ
     function renderCharts() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const labels = Array.from({length: daysInMonth}, (_, i) => i + 1);
         const colors = { electrician: '#f59e0b', janitor: '#10b981', plumber: '#3b82f6' };
 
-        // Daily chart
         const dailyDatasets = roles.map(role => ({
             label: roleNamesClean[role],
             data: labels.map(d => currentMonthData[d]?.[role]?.working ? 1 : 0),
@@ -632,7 +582,6 @@
             options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { max: 1, ticks: { stepSize: 1 } } } }
         });
 
-        // Pie chart
         const totals = roles.map(role => Object.keys(currentMonthData).filter(d => currentMonthData[d]?.[role]?.working).length);
         if (chartPie) chartPie.destroy();
         chartPie = new Chart(document.getElementById('chart-pie'), {
@@ -644,7 +593,6 @@
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
 
-        // Weekly chart
         const weeks = ['Тиж 1','Тиж 2','Тиж 3','Тиж 4','Тиж 5'];
         const weeklyDatasets = roles.map(role => ({
             label: roleNamesClean[role],
@@ -667,7 +615,6 @@
         });
     }
 
-    // РЕЙТИНГ
     function updateRating(counts) {
         const board = document.getElementById('rating-board');
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
@@ -710,9 +657,7 @@
         });
     }
 
-    // ФОТО
-    // Кеш фото для поточного місяця — один запит на весь місяць
-    let photosCache = null; // { "day-role": [{id, url}, ...] }
+    let photosCache = null;
 
     async function loadAllPhotosForMonth() {
         if (IS_PREVIEW) { photosCache = {}; return; }
@@ -731,7 +676,6 @@
         return (photosCache || {})[`${day}-${role}`] || [];
     }
 
-    // Стиснення фото перед завантаженням
     function compressImage(file, maxWidth = 1200, quality = 0.82) {
         return new Promise((resolve) => {
             const img = new Image();
@@ -753,9 +697,6 @@
     async function uploadPhotoMobile(day, role, file) {
         if (!file) return;
         await uploadPhoto(day, role, file);
-        const photos = getPhotosFromCache(day, role);
-        const cont = document.getElementById(`mobile-photos-${day}-${role}`);
-        if (cont) renderPhotoContainer(cont, photos, day, role, true);
     }
 
     async function uploadPhoto(day, role, file) {
@@ -768,17 +709,25 @@
             const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
             if (upErr) throw upErr;
             const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
-            await db.from('photos').insert({ month_key: `${currentYear}-${currentMonth}`, day, role, url: urlData.publicUrl });
-            // Оновлюємо кеш
+            
+            // Отримуємо реальний ID з бази даних завдяки Prefer: return=representation
+            const { data: insertData, error: insErr } = await db.from('photos').insert({ month_key: `${currentYear}-${currentMonth}`, day, role, url: urlData.publicUrl });
+            if (insErr) throw insErr;
+            
+            const realId = (insertData && insertData[0]) ? insertData[0].id : Date.now();
+
             if (!photosCache) photosCache = {};
             const key = `${day}-${role}`;
             if (!photosCache[key]) photosCache[key] = [];
-            photosCache[key].push({ id: Date.now(), url: urlData.publicUrl });
+            photosCache[key].push({ id: realId, url: urlData.publicUrl });
             setSyncStatus('ok', '✅ Фото збережено');
-            // Оновлюємо тільки потрібний контейнер
+            
+            // Оновлюємо обидва інтерфейси одночасно
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
             if (desktopCont) renderPhotoContainer(desktopCont, photosCache[key], day, role);
-        } catch (err) { console.error('photo error:', err?.message || JSON.stringify(err)); setSyncStatus('error', '❌ Помилка фото'); }
+            const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
+            if (mobileCont) renderPhotoContainer(mobileCont, photosCache[key], day, role, true);
+        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '❌ Помилка фото'); }
     }
 
     async function deletePhoto(id, url, day, role) {
@@ -788,20 +737,19 @@
             await db.from('photos').delete().eq('id', id);
             const path = url.split('/photos/')[1];
             if (path) await db.storage.from('photos').remove([path]);
-            // Оновлюємо кеш
+            
             const key = `${day}-${role}`;
             if (photosCache && photosCache[key]) {
-                photosCache[key] = photosCache[key].filter(p => p.id !== id);
+                photosCache[key] = photosCache[key].filter(p => String(p.id) !== String(id));
             }
             setSyncStatus('ok', '🗑️ Фото видалено');
+            
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
             if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
             const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
             if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
-        } catch (err) { console.error('delete error:', err?.message || JSON.stringify(err)); setSyncStatus('error', '❌ Помилка видалення'); }
+        } catch (err) { console.error('delete error:', err); setSyncStatus('error', '❌ Помилка видалення'); }
     }
-
-
 
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
         container.innerHTML = photos.map(p => `
@@ -811,8 +759,7 @@
             </div>`).join('');
     }
 
-    // ЛАЙТБОКС
-    let lightboxPhotos = []; // всі фото поточного місяця
+    let lightboxPhotos = [];
     let lightboxIndex = 0;
 
     function buildLightboxPhotos() {
@@ -821,6 +768,7 @@
         Object.values(photosCache).forEach(arr => arr.forEach(p => lightboxPhotos.push(p.url)));
     }
 
+    // Запобігаємо виходу лайтбоксу за межі наявних картинок
     function openLightbox(url) {
         buildLightboxPhotos();
         lightboxIndex = lightboxPhotos.indexOf(url);
@@ -830,6 +778,7 @@
     }
     function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
+    // Виправлено: перемикання тепер працює стабільно по колу без застрягань
     function lightboxPrev() {
         if (!lightboxPhotos.length) return;
         lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
@@ -841,7 +790,6 @@
         document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
     }
 
-    // Свайп для лайтбоксу
     (function() {
         let startX = 0, startY = 0;
         const lb = document.getElementById('lightbox');
@@ -849,12 +797,11 @@
         lb.addEventListener('touchend', e => {
             const dx = e.changedTouches[0].clientX - startX;
             const dy = e.changedTouches[0].clientY - startY;
-            if (Math.abs(dy) > Math.abs(dx) && dy > 60) { closeLightbox(); return; } // свайп вниз — закрити
+            if (Math.abs(dy) > Math.abs(dx) && dy > 60) { closeLightbox(); return; }
             if (Math.abs(dx) > 50 && Math.abs(dy) < 80) {
                 if (dx < 0) lightboxNext(); else lightboxPrev();
             }
         }, { passive: true });
-        // Клавіатура
         document.addEventListener('keydown', e => {
             if (!lb.classList.contains('open')) return;
             if (e.key === 'Escape') closeLightbox();
@@ -863,7 +810,6 @@
         });
     })();
 
-    // МОБІЛЬНИЙ КАРТКОВИЙ ВИГЛЯД
     function renderMobileCards() {
         const container = document.getElementById('mobile-cards');
         if (!container) return;
@@ -883,8 +829,12 @@
 
             const card = document.createElement('div');
             card.className = 'day-card';
+            
+            // Якщо цей день сьогоднішній на мобільному — додамо легкий контур
+            if (d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
+                card.style.border = '2px solid #6366f1';
+            }
 
-            // Header
             const header = document.createElement('div');
             header.className = `day-card-header ${isWeekend ? 'text-red-500' : ''}`;
             header.innerHTML = `
@@ -901,7 +851,6 @@
             };
             card.appendChild(header);
 
-            // Body
             const body = document.createElement('div');
             body.className = 'day-card-body';
             body.id = `card-body-${d}`;
@@ -942,7 +891,6 @@
 
             body.innerHTML = bodyHtml;
 
-            // Відкрий поточний день автоматично
             if (d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
                 body.classList.add('open');
             }
@@ -951,7 +899,6 @@
             container.appendChild(card);
         }
 
-        // Рендер фото з кешу для мобільних карток
         for (let d = 1; d <= daysInMonth; d++) {
             roles.forEach(role => {
                 if (currentMonthData[d]?.[role]?.working) {
@@ -963,7 +910,6 @@
         }
     }
 
-    // РЕНДЕР ТАБЛИЦІ (десктоп)
     function renderTable() {
         const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -971,11 +917,16 @@
             const dateObj = new Date(currentYear, currentMonth, d);
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const isToday = d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
+            
             if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
             if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
 
             const tr = document.createElement('tr');
-            tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''}`;
+            
+            // Якщо день сьогоднішній — підсвічуємо його за допомогою класу .current-day-row
+            tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''} ${isToday ? 'current-day-row' : ''}`;
+            
             const tdDate = document.createElement('td');
             tdDate.className = `p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}`;
             tdDate.innerHTML = `<span class="text-base">${String(d).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">(${dayName})</span>`;
@@ -1022,7 +973,6 @@
                 tr.appendChild(tdRole);
             });
 
-            // КОМЕНТАР
             const tdComment = document.createElement('td');
             tdComment.className = 'p-3 border-l border-[var(--border)] no-print';
             tdComment.innerHTML = `<textarea rows="2" oninput="updateComment(${d},this.value)" placeholder="💬 Нотатка до дня..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 shadow transition resize-none">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>`;
@@ -1030,7 +980,6 @@
             tbody.appendChild(tr);
         }
 
-        // Рендер фото з кешу (без додаткових запитів)
         for (let d = 1; d <= daysInMonth; d++) {
             roles.forEach(role => {
                 if (currentMonthData[d]?.[role]?.working) {
@@ -1044,11 +993,7 @@
         }
     }
 
-    // ДІЇ
-    // Optimistic update helpers
-    function snapshotDay(day) {
-        return JSON.parse(JSON.stringify(currentMonthData[day]));
-    }
+    function snapshotDay(day) { return JSON.parse(JSON.stringify(currentMonthData[day])); }
     function rollbackDay(day, snapshot) {
         currentMonthData[day] = snapshot;
         saveOffline();
@@ -1091,7 +1036,6 @@
         if (role === 'plumber') return count < 8 ? '💧 Водолій' : count < 18 ? '🔧 Гроза Засмічень' : '🔱 Нептун Микитської Слободи';
     }
 
-    // EXCEL ЕКСПОРТ
     function exportExcel() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const monthName = monthNames[currentMonth];
@@ -1116,7 +1060,6 @@
             rows.push(row);
         }
 
-        // Підсумок
         rows.push([]);
         rows.push(['ПІДСУМОК МІСЯЦЯ', `${monthName} ${currentYear}`]);
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
@@ -1135,7 +1078,11 @@
     async function clearCurrentMonth() {
         const pwd = prompt('🔒 Введіть пароль для скидання місяця:');
         if (pwd === null) return;
-        if (pwd !== '3333') { alert('❌ Невірний пароль!'); return; }
+        
+        // Перевірка за безпечним SHA-256 хешем
+        const hashedInput = await hashPassword(pwd);
+        if (hashedInput !== RESET_PASSWORD_HASH) { alert('❌ Невірний пароль!'); return; }
+        
         if (!confirm('Видалити всі записи за ЦЕЙ місяць з хмари?')) return;
         showOverlay(true, '🗑️ Видаляю...'); currentMonthData = {};
         if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — скинуто локально'); renderTable(); updateStats(); showOverlay(false); return; }
@@ -1155,13 +1102,11 @@
     document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
     initCalendar();
 
-    // Сховати intro splash після анімації
     setTimeout(() => {
         const splash = document.getElementById('intro-splash');
-        splash.addEventListener('animationend', () => splash.classList.add('hidden'));
+        if(splash) splash.addEventListener('animationend', () => splash.classList.add('hidden'));
     }, 100);
 
-    // SWIPE між місяцями (горизонтальний свайп поза лайтбоксом)
     (function() {
         let sx = 0, sy = 0, moving = false;
         const hint = document.getElementById('swipe-hint');
@@ -1201,7 +1146,6 @@
 
     if ('serviceWorker' in navigator) {
         if (IS_PREVIEW) {
-            // Скасовуємо будь-які старі SW на превью-домені
             navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
         } else {
             navigator.serviceWorker.register('/Osbb/sw.js').catch(console.error);
