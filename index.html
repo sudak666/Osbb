@@ -332,11 +332,7 @@
             });
             if (!r.ok) {
                 const txt = await r.text();
-                // PGRST116 = 0 rows for .single() — не помилка, повертаємо null
-                if (r.status === 406 || (txt && txt.includes('PGRST116'))) {
-                    return { _pgrst116: true };
-                }
-                throw new Error(txt || r.statusText);
+                throw new Error(`${r.status}: ${txt || r.statusText}`);
             }
             const txt = await r.text();
             return txt ? JSON.parse(txt) : null;
@@ -377,38 +373,31 @@
             const q = {
                 select(c = '*')    { s.cols = c; return q; },
                 eq(col, val)       { s.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
-                single()           { s.isSingle = true; return q; },
+                single()           { s.isSingle = true; return q; }, // просто бере [0] з масиву
                 insert(data)       { s.method = 'POST'; s.body = data; return q; },
                 upsert(data)       { s.method = 'POST'; s.body = data; s.isUpsert = true; return q; },
                 delete()           { s.method = 'DELETE'; return q; },
 
                 async then(resolve) {
                     try {
-                        // Будуємо URL
                         const params = [...s.filters];
                         if (s.method === 'GET') params.push('select=' + s.cols);
                         const url = SUPABASE_URL + '/rest/v1/' + table
                             + (params.length ? '?' + params.join('&') : '');
 
-                        // Будуємо заголовки БЕЗ конфліктів
+                        // Без Accept: vnd.pgrst — завжди отримуємо масив, без 406
                         const headers = { 'Content-Type': 'application/json' };
-                        if (s.method === 'GET' && s.isSingle) {
-                            // single() — просимо об'єкт, а не масив
-                            headers['Accept'] = 'application/vnd.pgrst.object+json';
-                        }
-                        if (s.isUpsert) {
-                            headers['Prefer'] = 'resolution=merge-duplicates';
-                        }
+                        if (s.isUpsert) headers['Prefer'] = 'resolution=merge-duplicates';
 
                         const body = s.body ? JSON.stringify(s.body) : undefined;
-                        const result = await self._fetch(s.method, url, headers, body);
+                        const arr = await self._fetch(s.method, url, headers, body);
 
-                        if (result?._pgrst116) {
-                            resolve({ data: null, error: { code: 'PGRST116' } });
-                        } else if (s.isSingle) {
-                            resolve({ data: result, error: null });
+                        if (s.isSingle) {
+                            // Беремо перший елемент масиву замість .single()
+                            const row = Array.isArray(arr) ? (arr[0] ?? null) : null;
+                            resolve({ data: row, error: row ? null : { code: 'PGRST116' } });
                         } else {
-                            resolve({ data: result || [], error: null });
+                            resolve({ data: arr || [], error: null });
                         }
                     } catch(e) {
                         resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message } });
