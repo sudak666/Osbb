@@ -12,7 +12,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал Супергероїв ОСББ "Микитська Слобода"</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -33,6 +32,7 @@
         .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
         .lightbox.open { display: flex; }
         .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+        .no-select { user-select: none; -webkit-user-select: none; }
         .tab-btn { transition: all 0.2s; }
         .tab-btn.active { background: #6366f1; color: white; }
         /* MOBILE CARDS */
@@ -162,8 +162,11 @@
 <div id="applause-toast">🎉 Всі завдання дня виконано! Браво, супергерої! 🏆</div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" class="lightbox no-print" onclick="closeLightbox()">
+<div id="lightbox" class="lightbox no-print" onclick="if(event.target===this||event.target.id==='lightbox-img')closeLightbox()">
+    <button onclick="lightboxPrev()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">‹</button>
     <img id="lightbox-img" src="" alt="">
+    <button onclick="lightboxNext()" class="absolute right-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">›</button>
+    <button onclick="closeLightbox()" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-9 h-9 rounded-full flex items-center justify-center transition z-10">✕</button>
 </div>
 
 <div class="max-w-7xl mx-auto">
@@ -300,8 +303,88 @@
 <script>
     const SUPABASE_URL = 'https://jpwelaerkkdblpmkueid.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const IS_PREVIEW = location.hostname.includes('claudeusercontent');
+
+    // Легкий fetch-клієнт Supabase (без supabase-js, без Worker)
+    const db = {
+        _h: () => ({ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+        async _req(method, path, body, extra = {}) {
+            const r = await fetch(SUPABASE_URL + path, { method, headers: { ...this._h(), ...extra }, body: body ? JSON.stringify(body) : undefined });
+            if (!r.ok) { const t = await r.text(); throw new Error(t || r.statusText); }
+            const txt = await r.text();
+            return txt ? JSON.parse(txt) : null;
+        },
+        storage: {
+            from(bucket) {
+                return {
+                    async upload(path, blob, opts = {}) {
+                        const ct = opts.contentType || blob.type || 'application/octet-stream';
+                        const url = SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + path;
+                        const r = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': ct, 'x-upsert': opts.upsert ? 'true' : 'false' },
+                            body: blob
+                        });
+                        if (!r.ok) { const t = await r.text(); throw new Error(t); }
+                        return {};
+                    },
+                    getPublicUrl(path) {
+                        return { data: { publicUrl: SUPABASE_URL + '/storage/v1/object/public/photos/' + path } };
+                    },
+                    async remove(paths) {
+                        const url = SUPABASE_URL + '/storage/v1/object/photos';
+                        // paths — масив рядків типу "2025-5/1-janitor-12345.jpg"
+                        const r = await fetch(url, { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ prefixes: paths }) });
+                        // не кидаємо помилку якщо файл вже видалено
+                        return {};
+                    }
+                };
+            }
+        },
+        from(table) {
+            const self = this;
+            const state = { table, filters: [], method: 'GET', body: null, single: false, selectCols: '*' };
+            const q = {
+                select(cols = '*') { state.selectCols = cols; return q; },
+                eq(col, val) { state.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
+                single() { state.single = true; return q; },
+                insert(data) { state.method = 'POST'; state.body = data; return q; },
+                upsert(data) { state.method = 'POST'; state.body = data; state.upsert = true; return q; },
+                delete() { state.method = 'DELETE'; return q; },
+                async then(resolve, reject) {
+                    try {
+                        let path = '/rest/v1/' + state.table;
+                        const params = [...state.filters];
+                        if (state.method === 'GET') params.push('select=' + state.selectCols);
+                        if (params.length) path += '?' + params.join('&');
+
+                        const extra = {};
+                        if (state.upsert) extra['Prefer'] = 'resolution=merge-duplicates,return=minimal';
+                        else if (state.method === 'POST') extra['Prefer'] = 'return=minimal';
+                        if (state.single) extra['Accept'] = 'application/vnd.pgrst.object+json';
+
+                        const result = await self._req(state.method, path, state.body, extra);
+
+                        if (state.single) {
+                            resolve({ data: result, error: null });
+                        } else {
+                            resolve({ data: result || [], error: null });
+                        }
+                    } catch(e) {
+                        // PGRST116 = row not found for .single()
+                        if (e.message && e.message.includes('PGRST116')) {
+                            resolve({ data: null, error: { code: 'PGRST116', message: e.message } });
+                        } else if (e.message && e.message.includes('JSON object requested')) {
+                            resolve({ data: null, error: { code: 'PGRST116', message: e.message } });
+                        } else {
+                            resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message } });
+                        }
+                    }
+                }
+            };
+            return q;
+        }
+    };
 
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const roles = ['electrician', 'janitor', 'plumber'];
@@ -418,21 +501,33 @@
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
         showOverlay(true, '📥 Завантажую дані...'); setSyncStatus('loading', '⏳ Завантаження...');
+        photosCache = null; // скидаємо кеш при зміні місяця
 
         // Спочатку вантажимо з localStorage (миттєво)
         const offline = loadOffline();
         if (offline) { currentMonthData = offline; renderTable(); renderMobileCards(); updateStats(); }
 
-        try {
-            const { data, error } = await db.from('schedule').select('data').eq('month_key', `${currentYear}-${currentMonth}`).single();
-            if (error && error.code !== 'PGRST116') throw error;
-            currentMonthData = data?.data || offline || {};
-            saveOffline();
-            setSyncStatus('ok', '✅ Синхронізовано');
-        } catch (err) {
-            console.error(err);
-            if (offline) { setSyncStatus('error', '📵 Офлайн — дані з кешу'); }
-            else { setSyncStatus('error', '❌ Немає даних і інтернету'); currentMonthData = {}; }
+        if (IS_PREVIEW) {
+            // Превью-середовище: тільки локальні дані
+            currentMonthData = offline || {};
+            setSyncStatus('ok', '🖥️ Превью — локальні дані');
+        } else {
+            try {
+                const [scheduleRes] = await Promise.all([
+                    db.from('schedule').select('data').eq('month_key', `${currentYear}-${currentMonth}`).single(),
+                    loadAllPhotosForMonth()
+                ]);
+                const { data, error } = scheduleRes;
+                if (error && error.code !== 'PGRST116') throw error;
+                currentMonthData = data?.data || offline || {};
+                saveOffline();
+                setSyncStatus('ok', '✅ Синхронізовано');
+            } catch (err) {
+                const msg = err?.message || err?.code || JSON.stringify(err);
+                console.error('initCalendar error:', msg, err);
+                if (offline) { setSyncStatus('error', '📵 Офлайн — дані з кешу'); }
+                else { setSyncStatus('error', '❌ Немає даних і інтернету'); currentMonthData = {}; }
+            }
         }
         renderTable(); renderMobileCards(); updateStats(); showOverlay(false);
         animateStatCards();
@@ -442,10 +537,11 @@
     // ЗБЕРЕЖЕННЯ
     function scheduleSave() { setSyncStatus('loading', '💾 Зберігаю...'); saveOffline(); clearTimeout(saveTimer); saveTimer = setTimeout(saveToCloud, 800); }
     async function saveToCloud() {
+        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — збережено локально'); return; }
         try {
             const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
             if (error) throw error; setSyncStatus('ok', '✅ Збережено');
-        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка збереження'); }
+        } catch (err) { console.error('save error:', err?.message || JSON.stringify(err)); setSyncStatus('error', '❌ Помилка збереження'); }
     }
 
     // ГРАФІКИ
@@ -550,55 +646,97 @@
     }
 
     // ФОТО
+    // Кеш фото для поточного місяця — один запит на весь місяць
+    let photosCache = null; // { "day-role": [{id, url}, ...] }
+
+    async function loadAllPhotosForMonth() {
+        if (IS_PREVIEW) { photosCache = {}; return; }
+        try {
+            const { data } = await db.from('photos').select('id, url, day, role').eq('month_key', `${currentYear}-${currentMonth}`);
+            photosCache = {};
+            (data || []).forEach(p => {
+                const key = `${p.day}-${p.role}`;
+                if (!photosCache[key]) photosCache[key] = [];
+                photosCache[key].push({ id: p.id, url: p.url });
+            });
+        } catch { photosCache = {}; }
+    }
+
+    function getPhotosFromCache(day, role) {
+        return (photosCache || {})[`${day}-${role}`] || [];
+    }
+
+    // Стиснення фото перед завантаженням
+    function compressImage(file, maxWidth = 1200, quality = 0.82) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                let w = img.width, h = img.height;
+                if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', quality);
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+            img.src = url;
+        });
+    }
+
     async function uploadPhotoMobile(day, role, file) {
         if (!file) return;
         await uploadPhoto(day, role, file);
-        // Оновлюємо мобільний контейнер
-        const container = document.getElementById(`mobile-photos-${day}-${role}`);
-        if (container) {
-            const photos = await loadPhotos(day, role);
-            renderPhotoContainer(container, photos, day, role, true);
-        }
+        const photos = getPhotosFromCache(day, role);
+        const cont = document.getElementById(`mobile-photos-${day}-${role}`);
+        if (cont) renderPhotoContainer(cont, photos, day, role, true);
     }
 
     async function uploadPhoto(day, role, file) {
-        const ext = file.name.split('.').pop();
-        const path = `${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
-        setSyncStatus('loading', '📤 Завантажую фото...');
+        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — фото не зберігається'); return; }
+        setSyncStatus('loading', '📤 Стискаю та завантажую...');
         try {
-            const { error: upErr } = await db.storage.from('photos').upload(path, file, { upsert: true });
+            const compressed = await compressImage(file);
+            const ext = 'jpg';
+            const path = `${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
+            const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
             if (upErr) throw upErr;
             const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
             await db.from('photos').insert({ month_key: `${currentYear}-${currentMonth}`, day, role, url: urlData.publicUrl });
+            // Оновлюємо кеш
+            if (!photosCache) photosCache = {};
+            const key = `${day}-${role}`;
+            if (!photosCache[key]) photosCache[key] = [];
+            photosCache[key].push({ id: Date.now(), url: urlData.publicUrl });
             setSyncStatus('ok', '✅ Фото збережено');
-            renderTable();
-        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка фото'); }
-    }
-
-    async function loadPhotos(day, role) {
-        try {
-            const { data } = await db.from('photos').select('id, url').eq('month_key', `${currentYear}-${currentMonth}`).eq('day', day).eq('role', role);
-            return data || [];
-        } catch { return []; }
+            // Оновлюємо тільки потрібний контейнер
+            const desktopCont = document.getElementById(`photos-${day}-${role}`);
+            if (desktopCont) renderPhotoContainer(desktopCont, photosCache[key], day, role);
+        } catch (err) { console.error('photo error:', err?.message || JSON.stringify(err)); setSyncStatus('error', '❌ Помилка фото'); }
     }
 
     async function deletePhoto(id, url, day, role) {
         if (!confirm('Видалити це фото?')) return;
+        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью'); return; }
         try {
-            // Видаляємо з таблиці
             await db.from('photos').delete().eq('id', id);
-            // Видаляємо з storage
             const path = url.split('/photos/')[1];
             if (path) await db.storage.from('photos').remove([path]);
-            setSyncStatus('ok', '🗑️ Фото видалено');
-            // Оновлюємо контейнер
-            const container = document.getElementById(`photos-${day}-${role}`);
-            if (container) {
-                const photos = await loadPhotos(day, role);
-                renderPhotoContainer(container, photos, day, role);
+            // Оновлюємо кеш
+            const key = `${day}-${role}`;
+            if (photosCache && photosCache[key]) {
+                photosCache[key] = photosCache[key].filter(p => p.id !== id);
             }
-        } catch (err) { console.error(err); setSyncStatus('error', '❌ Помилка видалення'); }
+            setSyncStatus('ok', '🗑️ Фото видалено');
+            const desktopCont = document.getElementById(`photos-${day}-${role}`);
+            if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
+            const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
+            if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
+        } catch (err) { console.error('delete error:', err?.message || JSON.stringify(err)); setSyncStatus('error', '❌ Помилка видалення'); }
     }
+
+
 
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
         container.innerHTML = photos.map(p => `
@@ -608,11 +746,57 @@
             </div>`).join('');
     }
 
+    // ЛАЙТБОКС
+    let lightboxPhotos = []; // всі фото поточного місяця
+    let lightboxIndex = 0;
+
+    function buildLightboxPhotos() {
+        lightboxPhotos = [];
+        if (!photosCache) return;
+        Object.values(photosCache).forEach(arr => arr.forEach(p => lightboxPhotos.push(p.url)));
+    }
+
     function openLightbox(url) {
+        buildLightboxPhotos();
+        lightboxIndex = lightboxPhotos.indexOf(url);
+        if (lightboxIndex < 0) { lightboxPhotos = [url]; lightboxIndex = 0; }
         document.getElementById('lightbox-img').src = url;
         document.getElementById('lightbox').classList.add('open');
     }
     function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+    function lightboxPrev() {
+        if (!lightboxPhotos.length) return;
+        lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
+    }
+    function lightboxNext() {
+        if (!lightboxPhotos.length) return;
+        lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
+    }
+
+    // Свайп для лайтбоксу
+    (function() {
+        let startX = 0, startY = 0;
+        const lb = document.getElementById('lightbox');
+        lb.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, { passive: true });
+        lb.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - startX;
+            const dy = e.changedTouches[0].clientY - startY;
+            if (Math.abs(dy) > Math.abs(dx) && dy > 60) { closeLightbox(); return; } // свайп вниз — закрити
+            if (Math.abs(dx) > 50 && Math.abs(dy) < 80) {
+                if (dx < 0) lightboxNext(); else lightboxPrev();
+            }
+        }, { passive: true });
+        // Клавіатура
+        document.addEventListener('keydown', e => {
+            if (!lb.classList.contains('open')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') lightboxNext();
+            if (e.key === 'ArrowLeft') lightboxPrev();
+        });
+    })();
 
     // МОБІЛЬНИЙ КАРТКОВИЙ ВИГЛЯД
     function renderMobileCards() {
@@ -702,11 +886,11 @@
             container.appendChild(card);
         }
 
-        // Завантажуємо фото для мобільних карток асинхронно
+        // Рендер фото з кешу для мобільних карток
         for (let d = 1; d <= daysInMonth; d++) {
-            roles.forEach(async role => {
+            roles.forEach(role => {
                 if (currentMonthData[d]?.[role]?.working) {
-                    const photos = await loadPhotos(d, role);
+                    const photos = getPhotosFromCache(d, role);
                     const cont = document.getElementById(`mobile-photos-${d}-${role}`);
                     if (cont && photos.length) renderPhotoContainer(cont, photos, d, role, true);
                 }
@@ -781,11 +965,11 @@
             tbody.appendChild(tr);
         }
 
-        // Завантаж фото асинхронно
+        // Рендер фото з кешу (без додаткових запитів)
         for (let d = 1; d <= daysInMonth; d++) {
-            roles.forEach(async role => {
+            roles.forEach(role => {
                 if (currentMonthData[d]?.[role]?.working) {
-                    const photos = await loadPhotos(d, role);
+                    const photos = getPhotosFromCache(d, role);
                     const container = document.getElementById(`photos-${d}-${role}`);
                     if (container && photos.length) {
                         renderPhotoContainer(container, photos, d, role);
@@ -874,6 +1058,7 @@
         if (pwd !== '3333') { alert('❌ Невірний пароль!'); return; }
         if (!confirm('Видалити всі записи за ЦЕЙ місяць з хмари?')) return;
         showOverlay(true, '🗑️ Видаляю...'); currentMonthData = {};
+        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — скинуто локально'); renderTable(); updateStats(); showOverlay(false); return; }
         try { await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`); setSyncStatus('ok', '✅ Місяць скинуто'); }
         catch (err) { setSyncStatus('error', '❌ Помилка'); }
         renderTable(); updateStats(); showOverlay(false);
@@ -897,7 +1082,12 @@
     }, 100);
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/Osbb/sw.js').catch(console.error);
+        if (IS_PREVIEW) {
+            // Скасовуємо будь-які старі SW на превью-домені
+            navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+        } else {
+            navigator.serviceWorker.register('/Osbb/sw.js').catch(console.error);
+        }
     }
 </script>
 </body>
