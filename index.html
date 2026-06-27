@@ -340,8 +340,11 @@
                             + (params.length ? '?' + params.join('&') : '');
 
                         const headers = { 'Content-Type': 'application/json' };
-                        if (s.isUpsert) headers['Prefer'] = 'resolution=merge-duplicates';
-                        if (s.method === 'POST') headers['Prefer'] = 'return=' + s.preferReturn;
+                        if (s.isUpsert) {
+                            headers['Prefer'] = 'resolution=merge-duplicates,return=' + s.preferReturn;
+                        } else if (s.method === 'POST') {
+                            headers['Prefer'] = 'return=' + s.preferReturn;
+                        }
 
                         const body = s.body ? JSON.stringify(s.body) : undefined;
                         const arr = await self._fetch(s.method, url, headers, body);
