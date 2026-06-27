@@ -440,8 +440,8 @@
     ];
     const roleTasksConfig = {
         electrician: [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'lamps', label: 'Заміна ламп 💡' }],
-        plumber: [{ id: 'sewer', label: 'Прочистка каналізації 🪠' }],
-        janitor: [{ id: 'garden', label: 'Садові роботи 🌳' }, { id: 'lawn', label: 'Стрижка газонів ✂️' }, { id: 'bins', label: 'Мийка баків 🗑️' }, { id: 'stairs', label: 'Мийка сходів 🧼' }]
+        plumber:     [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'sewer', label: 'Прочистка каналізації 🪠' }],
+        janitor:     [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'garden', label: 'Садові роботи 🌳' }, { id: 'lawn', label: 'Стрижка газонів ✂️' }, { id: 'bins', label: 'Мийка баків 🗑️' }, { id: 'stairs', label: 'Мийка сходів 🧼' }]
     };
 
     let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
@@ -881,7 +881,7 @@
             const dateObj = new Date(currentYear, currentMonth, d);
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
+            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
 
             const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
             const workingCount = roles.filter(r => currentMonthData[d][r]?.working).length;
@@ -944,11 +944,21 @@
                     </div>
                     <div class="${!state.working?'opacity-40 pointer-events-none':''}">
                         ${tasksHtml}
-                        <input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1">
-                        ${state.working ? `<label class="cursor-pointer text-xs text-indigo-500 font-semibold flex items-center gap-1 mt-2">
-                            📷 Додати фото
-                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhotoMobile(${d},'${role}',this.files[0])">
-                        </label>
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">📋 Заявок:</span>
+                            <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
+                        </div>
+                        <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1.5 resize-y leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
+                        ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
+                            <label class="cursor-pointer text-xs text-indigo-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 active:bg-indigo-100">
+                                📷 Камера
+                                <input type="file" accept="image/*" capture="environment" class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhotoMobile(${d},'${role}',f))">
+                            </label>
+                            <label class="cursor-pointer text-xs text-purple-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-purple-200 bg-purple-50 active:bg-purple-100">
+                                🖼️ Галерея
+                                <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhotoMobile(${d},'${role}',f))">
+                            </label>
+                        </div>
                         <div id="mobile-photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
                     </div>
                 </div>`;
@@ -993,7 +1003,7 @@
             const isToday  = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const isFuture = !isToday && new Date(currentYear, currentMonth, d) > new Date(todayYear, todayMonth, todayDay);
             
-            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
+            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
             if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
 
             const tr = document.createElement('tr');
@@ -1035,11 +1045,15 @@
                     </div>
                     <div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
                         ${checkBoxesHtml}
-                        <input type="text" value="${(state.other||'').replace(/"/g,'&quot;')}" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition"/>
-                        ${state.working ? `<div class="flex items-center gap-2 mt-1">
-                            <label class="cursor-pointer text-xs text-indigo-500 font-semibold hover:text-indigo-700 flex items-center gap-1">
-                                📷 Додати фото
-                                <input type="file" accept="image/*" class="hidden" onchange="uploadPhoto(${d},'${role}',this.files[0])">
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">📋 Кіл-ть заявок:</span>
+                            <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 text-center font-bold shadow transition">
+                        </div>
+                        <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition resize-y mt-1 leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
+                        ${state.working ? `<div class="flex items-center gap-3 mt-1 flex-wrap">
+                            <label class="cursor-pointer text-xs text-indigo-500 font-semibold hover:text-indigo-700 flex items-center gap-1 px-2 py-1 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition">
+                                📷 Фото / Галерея
+                                <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhoto(${d},'${role}',f))">
                             </label>
                         </div>
                         <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
@@ -1097,6 +1111,10 @@
         if (allTasks.filter(t => currentMonthData[day][role].tasks[t.id]).length === allTasks.length && allTasks.length > 1) setTimeout(fireBigConfetti, 200);
         renderTable(); renderMobileCards(); updateStats();
         scheduleSave(day, snap);
+    }
+    function updateTicketCount(day, role, val) {
+        currentMonthData[day][role].ticketCount = parseInt(val) || 0;
+        scheduleSave();
     }
     function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
     function updateComment(day, text) { if (!currentMonthData[day]) return; currentMonthData[day].comment = text; scheduleSave(); }
