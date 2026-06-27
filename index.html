@@ -169,6 +169,7 @@
         <div class="ml-auto no-print flex gap-2">
             <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📋 Журнал</button>
             <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📊 Графіки</button>
+            <button onclick="setTab('garbage')" id="tab-garbage" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">🗑️ Сміття</button>
         </div>
     </div>
 
@@ -257,6 +258,63 @@
             </table>
         </div>
     </div>
+
+    <!-- ===== СЕКЦІЯ ЖУРНАЛ СМІТТЯ ===== -->
+    <div id="section-garbage" class="hidden mb-6">
+
+        <!-- Статистика зверху -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col items-center justify-center">
+                <div class="text-3xl font-black text-emerald-600" id="g-total-month">0</div>
+                <div class="text-xs font-bold text-emerald-700 mt-1">Баків за місяць</div>
+            </div>
+            <div class="stat-card p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col items-center justify-center">
+                <div class="text-3xl font-black text-blue-600" id="g-total-days">0</div>
+                <div class="text-xs font-bold text-blue-700 mt-1">Вивозів за місяць</div>
+            </div>
+            <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col items-center justify-center col-span-2">
+                <div class="text-xs font-bold text-[var(--text-sub)] mb-2">👷 По працівниках</div>
+                <div id="g-worker-stats" class="w-full text-xs flex flex-col gap-1"></div>
+            </div>
+        </div>
+
+        <!-- Графік по місяцях -->
+        <div class="p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md mb-4">
+            <div class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">📊 Баки по місяцях</div>
+            <div id="g-chart" class="flex items-end justify-between gap-1" style="height:80px"></div>
+        </div>
+
+        <!-- Таблиця -->
+        <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
+            <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
+                <span class="text-sm font-bold">🗑️ Журнал вивозу сміття</span>
+                <div class="flex items-center gap-2">
+                    <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
+                    <button onclick="gClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition">🗑️ Скинути</button>
+                </div>
+            </div>
+
+            <!-- Мобільні картки -->
+            <div id="g-mobile-cards" class="block sm:hidden divide-y divide-[var(--border)]"></div>
+
+            <!-- Десктоп таблиця -->
+            <div class="hidden sm:block overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-[var(--table-header)] border-b border-[var(--border)] text-xs font-bold uppercase tracking-wider">
+                            <th class="p-3 w-28">Дата</th>
+                            <th class="p-3 border-l border-[var(--border)] w-28">Час</th>
+                            <th class="p-3 border-l border-[var(--border)] w-24">Баків</th>
+                            <th class="p-3 border-l border-[var(--border)]">Працівник</th>
+                            <th class="p-3 border-l border-[var(--border)]">Тип сміття</th>
+                        </tr>
+                    </thead>
+                    <tbody id="g-table-body" class="divide-y divide-[var(--border)]"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -429,9 +487,15 @@
         currentTab = tab;
         document.getElementById('section-journal').classList.toggle('hidden', tab !== 'journal');
         document.getElementById('section-charts').classList.toggle('hidden', tab !== 'charts');
+        document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
         document.getElementById('tab-journal').classList.toggle('active', tab === 'journal');
         document.getElementById('tab-charts').classList.toggle('active', tab === 'charts');
+        document.getElementById('tab-garbage').classList.toggle('active', tab === 'garbage');
+        // Мобільні картки показуємо тільки якщо не вкладка сміття
+        const mobileCards = document.getElementById('mobile-cards');
+        if (mobileCards) mobileCards.classList.toggle('hidden', tab === 'garbage');
         if (tab === 'charts') renderCharts();
+        if (tab === 'garbage') gInitTab();
     }
 
     function fireConfetti(x, y) {
@@ -1176,6 +1240,298 @@
             });
         }
     }
+
+    // ==========================================
+    // ЖУРНАЛ ВИВОЗУ СМІТТЯ
+    // Таблиця Supabase: garbage (month_key TEXT PK, data JSONB)
+    // ==========================================
+
+    let gData = {};          // { "1": {time,count,worker,note}, "2": {...}, ... }
+    let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
+    let gSaveTimer = null;
+    let gLoaded = false;
+
+    const gMonths = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
+    const gWorkerNames = {
+        'serhiy':    'Сергій Ш.',
+        'maksym':    'Максим А.',
+        'oleksandr': 'Олександр Б.'
+    };
+    const gNoteLabels = {
+        'plastic': '♻️ Пластик',
+        'glass':   '🍾 Скло',
+        'both':    '♻️+🍾 Пластик+Скло',
+        'mixed':   '🗑️ Змішане'
+    };
+
+    function gKey() { return `${currentYear}-${currentMonth}`; }
+    function gOfflineKey() { return `garbage_${currentYear}_${currentMonth}`; }
+
+    function gSaveOffline() {
+        try { localStorage.setItem(gOfflineKey(), JSON.stringify(gData)); } catch(e) {}
+    }
+    function gLoadOffline() {
+        try { return JSON.parse(localStorage.getItem(gOfflineKey()) || 'null'); } catch { return null; }
+    }
+
+    function gSetStatus(type, text) {
+        const el = document.getElementById('g-sync-status');
+        if (!el) return;
+        const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
+        el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
+        el.innerText = text;
+    }
+
+    async function gInitTab() {
+        gSetStatus('loading', '⏳ Завантаження...');
+        const offline = gLoadOffline();
+        if (offline) { gData = offline; gRender(); }
+
+        if (IS_PREVIEW) {
+            gData = offline || {};
+            gSetStatus('ok', '🖥️ Превью');
+            gRender();
+            return;
+        }
+        try {
+            const res = await db.from('garbage').select('data').eq('month_key', gKey()).single();
+            const { data, error } = res;
+            if (error && error.code !== 'PGRST116') throw error;
+            gData = data?.data || offline || {};
+            gSaveOffline();
+            gSetStatus('ok', '✅ Синхронізовано');
+        } catch(err) {
+            console.error('garbage load error:', err);
+            gSetStatus('error', offline ? '📵 Офлайн — кеш' : '❌ Немає даних');
+            gData = offline || {};
+        }
+        gRender();
+    }
+
+    function gScheduleSave() {
+        gSetStatus('loading', '💾 Зберігаю...');
+        gSaveOffline();
+        clearTimeout(gSaveTimer);
+        gSaveTimer = setTimeout(gSaveCloud, 1200);
+    }
+
+    async function gSaveCloud() {
+        if (IS_PREVIEW) { gSetStatus('ok', '🖥️ Превью — локально'); return; }
+        try {
+            const { error } = await db.from('garbage').upsert({ month_key: gKey(), data: gData });
+            if (error) throw error;
+            gSetStatus('ok', '✅ Збережено');
+        } catch(err) {
+            console.error('garbage save error:', err);
+            gSetStatus('error', '❌ Помилка збереження');
+        }
+    }
+
+    function gUpdateRow(day, field, value) {
+        if (!gData[day]) gData[day] = { time:'', count:'', worker:'', note:'' };
+        gData[day][field] = value;
+        // Авто-час при першому введенні кількості
+        if (field === 'count' && value && !gData[day].time) {
+            const n = new Date();
+            gData[day].time = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+        }
+        gScheduleSave();
+        gRender();
+    }
+
+    function gRender() {
+        gRenderDesktop();
+        gRenderMobile();
+        gRenderStats();
+        gRenderChart();
+    }
+
+    function gRenderDesktop() {
+        const tbody = document.getElementById('g-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const day = String(d).padStart(2,'0');
+            const row = gData[day] || { time:'', count:'', worker:'', note:'' };
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
+            const hasData = parseInt(row.count) > 0;
+            const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+
+            const tr = document.createElement('tr');
+            tr.className = `transition-colors ${isWeekend && !isToday2 ? 'bg-red-500/5' : ''} ${hasData ? 'bg-emerald-500/5' : ''}`;
+            if (isToday2) tr.setAttribute('data-today', '1');
+
+            tr.innerHTML = `
+                <td class="p-3 font-bold border-r border-[var(--border)] ${isWeekend ? 'text-red-500' : ''} text-sm">
+                    ${day} <span class="text-xs opacity-60 uppercase">${dayName}</span>
+                    ${isToday2 ? '<br><span class="text-[10px] font-black text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-full">📅 сьогодні</span>' : ''}
+                </td>
+                <td class="p-2 border-l border-[var(--border)]">
+                    <input type="time" value="${row.time}" onchange="gUpdateRow('${day}','time',this.value)"
+                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
+                </td>
+                <td class="p-2 border-l border-[var(--border)]">
+                    <input type="number" min="0" max="99" value="${row.count||''}" placeholder="0"
+                        onchange="gUpdateRow('${day}','count',this.value)"
+                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold ${hasData ? 'text-emerald-700' : ''}">
+                </td>
+                <td class="p-2 border-l border-[var(--border)]">
+                    <select onchange="gUpdateRow('${day}','worker',this.value)"
+                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                        <option value="">—</option>
+                        ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
+                    </select>
+                </td>
+                <td class="p-2 border-l border-[var(--border)]">
+                    <select onchange="gUpdateRow('${day}','note',this.value)"
+                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                        <option value="">—</option>
+                        ${Object.entries(gNoteLabels).map(([k,v]) => `<option value="${k}" ${row.note===k?'selected':''}>${v}</option>`).join('')}
+                    </select>
+                </td>`;
+            tbody.appendChild(tr);
+        }
+    }
+
+    function gRenderMobile() {
+        const container = document.getElementById('g-mobile-cards');
+        if (!container) return;
+        container.innerHTML = '';
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const day = String(d).padStart(2,'0');
+            const row = gData[day] || { time:'', count:'', worker:'', note:'' };
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
+            const hasData = parseInt(row.count) > 0;
+            const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+
+            const wrap = document.createElement('div');
+            wrap.className = `p-3 ${isToday2 ? 'bg-indigo-500/10' : hasData ? 'bg-emerald-500/5' : ''} ${isWeekend && !isToday2 ? 'bg-red-500/5' : ''}`;
+
+            wrap.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${day} ${dayName.toUpperCase()}
+                        ${isToday2 ? '<span class="text-[10px] font-black text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-full ml-1">📅</span>' : ''}
+                    </span>
+                    ${hasData ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${row.count} баків</span>` : '<span class="text-[10px] text-gray-400">порожньо</span>'}
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">⏰ Час</div>
+                        <input type="time" value="${row.time}" onchange="gUpdateRow('${day}','time',this.value)"
+                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">🗑️ Баків</div>
+                        <input type="number" min="0" max="99" value="${row.count||''}" placeholder="0"
+                            onchange="gUpdateRow('${day}','count',this.value)"
+                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold">
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">👷 Працівник</div>
+                        <select onchange="gUpdateRow('${day}','worker',this.value)"
+                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                            <option value="">—</option>
+                            ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">♻️ Тип</div>
+                        <select onchange="gUpdateRow('${day}','note',this.value)"
+                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                            <option value="">—</option>
+                            ${Object.entries(gNoteLabels).map(([k,v]) => `<option value="${k}" ${row.note===k?'selected':''}>${v}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>`;
+            container.appendChild(wrap);
+        }
+    }
+
+    function gRenderStats() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        let total = 0, days = 0;
+        const workers = {};
+        for (let d = 1; d <= daysInMonth; d++) {
+            const day = String(d).padStart(2,'0');
+            const row = gData[day];
+            if (!row) continue;
+            const cnt = parseInt(row.count) || 0;
+            if (cnt > 0) { total += cnt; days++; }
+            if (row.worker && cnt > 0) workers[row.worker] = (workers[row.worker]||0) + cnt;
+        }
+        const totalEl = document.getElementById('g-total-month');
+        const daysEl = document.getElementById('g-total-days');
+        const workerEl = document.getElementById('g-worker-stats');
+        if (totalEl) totalEl.textContent = total;
+        if (daysEl) daysEl.textContent = days;
+        if (workerEl) {
+            workerEl.innerHTML = Object.keys(workers).length
+                ? Object.entries(workers).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
+                    `<div class="flex justify-between"><span>${gWorkerNames[k]||k}</span><span class="font-bold text-emerald-600">${v} баків</span></div>`
+                  ).join('')
+                : '<div class="text-[var(--text-sub)] text-center">—</div>';
+        }
+    }
+
+    async function gRenderChart() {
+        const container = document.getElementById('g-chart');
+        if (!container) return;
+
+        // Завантажуємо дані по всіх місяцях з локального кешу
+        const monthlyTotals = [];
+        for (let m = 0; m <= 11; m++) {
+            const key = `garbage_${currentYear}_${m}`;
+            let tot = 0;
+            try {
+                const d = JSON.parse(localStorage.getItem(key) || '{}');
+                Object.values(d).forEach(r => tot += parseInt(r.count)||0);
+            } catch(e) {}
+            // Якщо це поточний місяць — беремо актуальні дані
+            if (m === currentMonth) {
+                tot = 0;
+                const dim = new Date(currentYear, currentMonth + 1, 0).getDate();
+                for (let d = 1; d <= dim; d++) {
+                    tot += parseInt(gData[String(d).padStart(2,'0')]?.count)||0;
+                }
+            }
+            monthlyTotals.push(tot);
+        }
+
+        const maxVal = Math.max(...monthlyTotals, 1);
+        container.innerHTML = monthlyTotals.map((val, i) => {
+            const h = Math.max(4, Math.round((val / maxVal) * 68));
+            const isCur = i === currentMonth;
+            return `<div class="flex flex-col items-center gap-1" style="flex:1">
+                <div class="text-[10px] font-bold ${isCur ? 'text-amber-500' : 'text-[var(--text-sub)]'}">${val||''}</div>
+                <div style="height:${h}px;width:100%;border-radius:6px 6px 0 0;background:${isCur ? 'linear-gradient(#fbbf24,#f59e0b)' : 'linear-gradient(#6366f1,#4f46e5)'}"></div>
+                <div class="text-[9px] text-[var(--text-sub)]">${gMonths[i].slice(0,3)}</div>
+            </div>`;
+        }).join('');
+    }
+
+    async function gClearMonth() {
+        const pwd = prompt('🔒 Пароль для скидання:');
+        if (pwd === null) return;
+        const hashedInput = await hashPassword(pwd);
+        if (hashedInput !== RESET_PASSWORD_HASH) { alert('❌ Невірний пароль!'); return; }
+        if (!confirm('Видалити записи про сміття за цей місяць?')) return;
+        gData = {};
+        gSaveOffline();
+        if (!IS_PREVIEW) {
+            try { await db.from('garbage').delete().eq('month_key', gKey()); } catch(e) {}
+        }
+        gSetStatus('ok', '✅ Скинуто');
+        gRender();
+    }
+
 </script>
 </body>
 </html>
