@@ -106,18 +106,12 @@
         }
         #applause-toast.show { transform: translateX(-50%) translateY(0); }
         
-        /* Підсвічування поточного дня на десктопі (Виправлено) */
-        .current-day-row td {
-            background: rgba(99, 102, 241, 0.12) !important;
-            border-top: 2px solid #6366f1 !important;
-            border-bottom: 2px solid #6366f1 !important;
-        }
-        .current-day-row td:first-child {
-            border-left: 2px solid #6366f1 !important;
-        }
-        .current-day-row td:last-child {
-            border-right: 2px solid #6366f1 !important;
-        }
+        /* Підсвічування поточного дня на десктопі */
+        .current-day-row { outline: 2px solid #6366f1; outline-offset: -1px; }
+        .current-day-row td { background: rgba(99, 102, 241, 0.13) !important; }
+        /* Мобільна картка сьогодні */
+        .day-card-today { border: 2.5px solid #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important; }
+        .day-card-today .day-card-header { background: rgba(99,102,241,0.10) !important; }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
@@ -200,9 +194,9 @@
         </div>
         <div class="border-t border-[var(--border)] pt-4">
             <div id="hero-banner" class="hidden mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/15 via-amber-300/10 to-yellow-400/15 flex items-center gap-4">
-                <div class="hero-medal text-5xl">🏅</div>
+                <div class="hero-medal text-5xl">🥇</div>
                 <div class="flex-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5">⭐ Герой Місяця</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5">🏆 Герой Місяця</div>
                     <div id="hero-name" class="text-xl font-black text-yellow-700"></div>
                     <div id="hero-sub" class="text-xs text-amber-600 font-semibold mt-0.5"></div>
                 </div>
@@ -821,20 +815,28 @@
             const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
             const workingCount = roles.filter(r => currentMonthData[d][r]?.working).length;
 
+            const isToday = d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
+            const isFuture = new Date(currentYear, currentMonth, d) > new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
             const card = document.createElement('div');
-            card.className = 'day-card';
-            
-            // Якщо цей день сьогоднішній на мобільному — додамо легкий контур
-            if (d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
-                card.style.border = '2px solid #6366f1';
-            }
+            card.className = 'day-card' + (isToday ? ' day-card-today' : '');
 
             const header = document.createElement('div');
             header.className = `day-card-header ${isWeekend ? 'text-red-500' : ''}`;
+            let statusBadge = '';
+            if (isToday) {
+                statusBadge = '<span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-black">📅 СЬОГОДНІ</span>';
+            } else if (isFuture) {
+                statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold">🔮 Попереду</span>';
+            } else if (anyWorking) {
+                statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingCount} на зміні</span>`;
+            } else {
+                statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
+            }
             header.innerHTML = `
                 <div class="flex items-center gap-2">
                     <span>${String(d).padStart(2,'0')} ${dayName.toUpperCase()}</span>
-                    ${anyWorking ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingCount} на зміні</span>` : '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>'}
+                    ${statusBadge}
                 </div>
                 <span class="text-xs text-[var(--text-sub)] transition-transform" id="arrow-${d}">▼</span>`;
             header.onclick = () => {
@@ -885,8 +887,14 @@
 
             body.innerHTML = bodyHtml;
 
-            if (d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
+            // Сьогоднішній день — відкритий; минулі та майбутні — закриті
+            if (isToday) {
                 body.classList.add('open');
+                // Стрілка теж повертається
+                setTimeout(() => {
+                    const arr = document.getElementById('arrow-' + d);
+                    if (arr) arr.style.transform = 'rotate(180deg)';
+                }, 0);
             }
 
             card.appendChild(body);
@@ -912,18 +920,19 @@
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const isToday = d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
+            const isFuture = new Date(currentYear, currentMonth, d) > new Date(now.getFullYear(), now.getMonth(), now.getDate());
             
             if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
             if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
 
             const tr = document.createElement('tr');
             
-            // Якщо день сьогоднішній — підсвічуємо його за допомогою класу .current-day-row
-            tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend ? 'bg-red-500/[0.04]' : ''} ${isToday ? 'current-day-row' : ''}`;
+            // Якщо день сьогоднішній — підсвічуємо його
+            tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend && !isToday ? 'bg-red-500/[0.04]' : ''} ${isFuture && !isToday ? 'opacity-60' : ''} ${isToday ? 'current-day-row' : ''}`;
             
             const tdDate = document.createElement('td');
             tdDate.className = `p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}`;
-            tdDate.innerHTML = `<span class="text-base">${String(d).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">(${dayName})</span>`;
+            tdDate.innerHTML = `<span class="text-base">${String(d).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">(${dayName})</span>${isToday ? '<br><span class="text-[10px] font-black text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-full">📅 сьогодні</span>' : isFuture ? '<br><span class="text-[10px] text-purple-400 bg-purple-50 px-1.5 py-0.5 rounded-full">🔮 попереду</span>' : ''}`;
             tr.appendChild(tdDate);
 
             roles.forEach(role => {
