@@ -106,12 +106,11 @@
         }
         #applause-toast.show { transform: translateX(-50%) translateY(0); }
         
-        /* Підсвічування поточного дня на десктопі */
-        .current-day-row { outline: 2px solid #6366f1; outline-offset: -1px; }
-        .current-day-row td { background: rgba(99, 102, 241, 0.13) !important; }
+        /* Підсвічування поточного дня на десктопі — через data-атрибут, щоб уникнути конфлікту з Tailwind */
+        tr[data-today="1"] td { background: rgba(99, 102, 241, 0.13) !important; }
         /* Мобільна картка сьогодні */
-        .day-card-today { border: 2.5px solid #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important; }
-        .day-card-today .day-card-header { background: rgba(99,102,241,0.10) !important; }
+        .day-card-today { border: 2.5px solid #6366f1 !important; box-shadow: 0 0 0 4px rgba(99,102,241,0.18) !important; }
+        .day-card-today .day-card-header { background: rgba(99,102,241,0.12) !important; color: #4338ca; }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
@@ -390,6 +389,10 @@
     const yearSelect = document.getElementById('year-select');
     const monthSelect = document.getElementById('month-select');
     const now = new Date();
+    // Явні локальні значення поточного дня — щоб уникнути UTC/local плутанини
+    const todayDay   = now.getDate();
+    const todayMonth = now.getMonth();
+    const todayYear  = now.getFullYear();
 
     for (let y = 2025; y <= 2030; y++) { const o = document.createElement('option'); o.value = y; o.innerText = y; if (y === now.getFullYear()) o.selected = true; yearSelect.appendChild(o); }
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
@@ -413,9 +416,9 @@
     }
 
     function updateTodayBtn() {
-        const isToday = parseInt(yearSelect.value) === now.getFullYear() &&
-                        parseInt(monthSelect.value) === now.getMonth();
-        document.getElementById('btn-today').classList.toggle('hidden', isToday);
+        const onTodayMonth = parseInt(yearSelect.value) === todayYear &&
+                             parseInt(monthSelect.value) === todayMonth;
+        document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
     function setTab(tab) {
@@ -815,8 +818,8 @@
             const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
             const workingCount = roles.filter(r => currentMonthData[d][r]?.working).length;
 
-            const isToday = d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
-            const isFuture = new Date(currentYear, currentMonth, d) > new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const isToday  = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+            const isFuture = !isToday && new Date(currentYear, currentMonth, d) > new Date(todayYear, todayMonth, todayDay);
 
             const card = document.createElement('div');
             card.className = 'day-card' + (isToday ? ' day-card-today' : '');
@@ -919,16 +922,21 @@
             const dateObj = new Date(currentYear, currentMonth, d);
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            const isToday = d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
-            const isFuture = new Date(currentYear, currentMonth, d) > new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const isToday  = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+            const isFuture = !isToday && new Date(currentYear, currentMonth, d) > new Date(todayYear, todayMonth, todayDay);
             
             if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '' }, janitor: { working: false, tasks: {}, other: '' }, plumber: { working: false, tasks: {}, other: '' }, comment: '' };
             if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
 
             const tr = document.createElement('tr');
             
-            // Якщо день сьогоднішній — підсвічуємо його
-            tr.className = `transition-colors hover:bg-indigo-500/5 ${isWeekend && !isToday ? 'bg-red-500/[0.04]' : ''} ${isFuture && !isToday ? 'opacity-60' : ''} ${isToday ? 'current-day-row' : ''}`;
+            // Якщо день сьогоднішній — підсвічуємо через inline style (надійніше ніж CSS класи з Tailwind)
+            tr.className = `transition-colors ${isWeekend && !isToday ? 'bg-red-500/[0.04]' : ''} ${isFuture && !isToday ? 'opacity-60' : ''}`;
+            if (isToday) {
+                tr.style.cssText = 'outline: 2.5px solid #6366f1; outline-offset: -1px; position: relative; z-index: 1;';
+                // Фон через setAttribute для обходу Tailwind-specificity
+                tr.setAttribute('data-today', '1');
+            }
             
             const tdDate = document.createElement('td');
             tdDate.className = `p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}`;
