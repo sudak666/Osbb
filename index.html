@@ -5,6 +5,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <!-- v4.2 cache-bust -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="mobile-web-app-capable" content="yes">
@@ -1159,7 +1160,17 @@
         if (IS_PREVIEW) {
             navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
         } else {
-            navigator.serviceWorker.register('/Osbb/sw.js').catch(console.error);
+            // Примусово скидаємо кеш SW при кожному оновленні сторінки
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => r.unregister());
+            }).then(() => {
+                // Очищаємо всі кеші браузера
+                if ('caches' in window) {
+                    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+                }
+                // Реєструємо SW знову з cache-bust параметром
+                navigator.serviceWorker.register('/Osbb/sw.js?v=' + Date.now()).catch(console.error);
+            });
         }
     }
 </script>
