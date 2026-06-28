@@ -5,13 +5,14 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- v4.2 cache-bust -->
+    <!-- v4.3 cache-bust -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6366f1">
+    <meta name="theme-color" content="#6366f1" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
+    <link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='.9em' font-size='75' x='12'>🏡</text></svg>">
     <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал Супергероїв ОСББ "Микитська Слобода" v4.1</title>
@@ -30,6 +31,7 @@
         .theme-light { --bg-app: linear-gradient(135deg, #e0f2fe 0%, #e2f1e8 100%); --bg-card: #ffffff; --text-main: #0f172a; --text-sub: #475569; --border: #cbd5e1; --bg-input: #f1f5f9; --table-header: #e2e8f0; }
         .theme-dark { --bg-app: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bg-card: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border: #334155; --bg-input: #0f172a; --table-header: #111827; }
         .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; }
+        .theme-osbb { --bg-app: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); --bg-card: #162533; --text-main: #e2f4fb; --text-sub: #7fb3c8; --border: #2a4a5e; --bg-input: #0f1e2b; --table-header: #1a3040; }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes title-reveal { 0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; } 60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; } 100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; } }
@@ -176,11 +178,12 @@
             <p class="text-sm font-medium text-indigo-600 mt-0.5">☁️ Хмарний журнал супергероїв</p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-            <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
+            <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500 flex items-center gap-1.5"><span id="sync-icon">⏳</span><span id="sync-text">Завантаження...</span></span>
             <select id="theme-select" onchange="changeTheme(this.value)" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
                 <option value="theme-light">🎨 Світла</option>
                 <option value="theme-dark">🌙 Темна</option>
                 <option value="theme-amber">🍂 Амбер</option>
+                <option value="theme-osbb">🏡 ОСББ Стайл</option>
             </select>
             <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">📊 Excel</button>
             <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ PDF</button>
@@ -619,8 +622,18 @@
 
     function setSyncStatus(type, text) {
         const el = document.getElementById('sync-status');
+        const iconEl = document.getElementById('sync-icon');
+        const textEl = document.getElementById('sync-text');
         const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
-        el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`; el.innerText = text;
+        const icons = { loading: '⏳', ok: '✅', error: '❌' };
+        el.className = `text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 ${cls[type]}`;
+        if (iconEl) iconEl.textContent = icons[type] || '⏳';
+        if (textEl) textEl.textContent = text;
+        else el.innerText = text;
+        // Оновлюємо favicon динамічно при синхронізації
+        const faviconColors = { loading: '%23f59e0b', ok: '%236366f1', error: '%23ef4444' };
+        const fLink = document.getElementById('favicon-link');
+        if (fLink) fLink.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='${faviconColors[type] || '%236366f1'}'/><text y='.9em' font-size='75' x='12'>🏡</text></svg>`;
     }
 
     const offlineKey = () => `osbb_${currentYear}_${currentMonth}`;
@@ -1261,7 +1274,14 @@
         });
     }
 
-    function changeTheme(themeName) { document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8'; localStorage.setItem('selected_theme', themeName); }
+    function changeTheme(themeName) {
+        document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
+        localStorage.setItem('selected_theme', themeName);
+        // Оновлюємо колір рядка стану браузера/PWA
+        const themeColors = { 'theme-light': '#6366f1', 'theme-dark': '#0f172a', 'theme-amber': '#b45309', 'theme-osbb': '#203a43' };
+        const metaColor = document.getElementById('meta-theme-color');
+        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#6366f1');
+    }
     function showOverlay(show, text = '') {
         const overlay = document.getElementById('loading-overlay');
         if (show) { overlay.classList.remove('opacity-0','pointer-events-none'); document.getElementById('loading-text').innerText = text; }
@@ -1842,11 +1862,10 @@
             if (isToday) setTimeout(() => { const a = document.getElementById(`disp-arrow-${d}`); if(a) a.style.transform='rotate(180deg)'; }, 0);
 
             const dispTasks = [
-                { id: 'journal', label: '📓 Ведення журналу заявок' },
-                { id: 'calls',   label: '📞 Прийом дзвінків' },
-                { id: 'notify',  label: '📢 Розсилка оголошень' },
-                { id: 'doors',   label: '🚪 Контроль домофонів' },
-                { id: 'access',  label: '🔑 Видача перепусток' },
+                { id: 'journal', label: '📓 Журнал' },
+                { id: 'calls',   label: '📞 Дзвінки' },
+                { id: 'doors',   label: '🚪 Домофони' },
+                { id: 'territory', label: '🌿 Прибирання' },
             ];
 
             body.innerHTML = `<div class="px-4 pb-4">
