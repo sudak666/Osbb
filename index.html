@@ -623,9 +623,8 @@
     function setSyncStatus(type, text) {
         const el = document.getElementById('sync-status');
         const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
-        const icons = { loading: '⏳', ok: '✅', error: '❌' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
-        el.innerText = (icons[type] || '') + ' ' + text;
+        el.innerText = text;
         // Оновлюємо колір favicon при синхронізації
         const faviconColors = { loading: '%23f59e0b', ok: '%236366f1', error: '%23ef4444' };
         const fLink = document.getElementById('favicon-link');
