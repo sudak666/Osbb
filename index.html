@@ -1088,91 +1088,134 @@
     function renderTable() {
         const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const isToday  = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const isFuture = !isToday && new Date(currentYear, currentMonth, d) > new Date(todayYear, todayMonth, todayDay);
-            
+
             if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
             if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
 
-            const tr = document.createElement('tr');
-            
-            // Якщо день сьогоднішній — підсвічуємо через inline style (надійніше ніж CSS класи з Tailwind)
-            tr.className = `transition-colors ${isWeekend && !isToday ? 'bg-red-500/[0.04]' : ''} ${isFuture && !isToday ? 'opacity-60' : ''}`;
-            if (isToday) {
-                tr.style.cssText = 'outline: 2.5px solid #6366f1; outline-offset: -1px; position: relative; z-index: 1;';
-                // Фон через setAttribute для обходу Tailwind-specificity
-                tr.setAttribute('data-today', '1');
-            }
-            
-            const tdDate = document.createElement('td');
-            tdDate.className = `p-3 font-medium border-r border-[var(--border)] ${isWeekend ? 'text-red-600 font-bold' : ''}`;
-            tdDate.innerHTML = `<span class="text-base">${String(d).padStart(2,'0')}</span> <span class="text-xs opacity-70 uppercase">(${dayName})</span>${isToday ? '<br><span class="text-[10px] font-black text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-full">📅 сьогодні</span>' : isFuture ? '<br><span class="text-[10px] text-purple-400 bg-purple-50 px-1.5 py-0.5 rounded-full">🔮 попереду</span>' : ''}`;
-            tr.appendChild(tdDate);
+            const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
+            const workingRoles = roles.filter(r => currentMonthData[d][r]?.working);
+            const roleColors = { electrician: 'text-amber-600', janitor: 'text-emerald-600', plumber: 'text-blue-600' };
+            const roleIcons  = { electrician: '⚡', janitor: '🧹', plumber: '🔧' };
 
+            // ── РЯДОК-ЗАГОЛОВОК (завжди видимий) ──
+            const trHead = document.createElement('tr');
+            trHead.style.cursor = 'pointer';
+            trHead.className = `select-none transition-colors hover:bg-[var(--table-header)] border-b border-[var(--border)]
+                ${isWeekend && !isToday ? 'bg-red-500/[0.04]' : ''}
+                ${isFuture && !isToday ? 'opacity-55' : ''}`;
+            if (isToday) trHead.setAttribute('data-today', '1');
+
+            // Бейджі активних ролей для рядка-заголовка
+            const rolesBadges = workingRoles.map(r =>
+                `<span class="text-[10px] font-bold ${roleColors[r]} bg-[var(--bg-input)] px-1.5 py-0.5 rounded-full">${roleIcons[r]}</span>`
+            ).join('');
+
+            let statusBadge = '';
+            if (isToday)       statusBadge = '<span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-black">📅 сьогодні</span>';
+            else if (isFuture) statusBadge = '<span class="text-[10px] text-purple-400 bg-purple-50 px-2 py-0.5 rounded-full">🔮 попереду</span>';
+            else if (anyWorking) statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingRoles.length} на зміні</span>`;
+            else statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
+
+            trHead.innerHTML = `
+                <td class="p-3 border-r border-[var(--border)] w-36" colspan="5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-sm ${isWeekend ? 'text-red-600' : ''}">${String(d).padStart(2,'0')} <span class="text-xs opacity-60 uppercase">${dayName}</span></span>
+                            ${statusBadge}
+                            ${rolesBadges}
+                            ${currentMonthData[d].comment ? '<span class="text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">💬</span>' : ''}
+                        </div>
+                        <span class="text-xs text-[var(--text-sub)] transition-transform duration-200" id="dt-arrow-${d}">▼</span>
+                    </div>
+                </td>`;
+
+            trHead.onclick = () => {
+                const trBody = document.getElementById(`dt-body-${d}`);
+                const arrow  = document.getElementById(`dt-arrow-${d}`);
+                const isOpen = trBody.style.display !== 'none';
+                trBody.style.display = isOpen ? 'none' : 'table-row';
+                arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+            };
+            tbody.appendChild(trHead);
+
+            // ── РЯДОК-ТІЛО (прихований/відкритий) ──
+            const trBody = document.createElement('tr');
+            trBody.id = `dt-body-${d}`;
+            trBody.style.display = isToday ? 'table-row' : 'none';
+            if (isToday) setTimeout(() => { const a = document.getElementById(`dt-arrow-${d}`); if(a) a.style.transform='rotate(180deg)'; }, 0);
+
+            trBody.className = `border-b-2 border-[var(--border)] ${isToday ? '' : ''}`;
+            if (isToday) trBody.setAttribute('data-today', '1');
+
+            // Колонки ролей
+            let rolesTd = '';
             roles.forEach(role => {
                 const state = currentMonthData[d][role];
-                const tdRole = document.createElement('td');
-                tdRole.className = `p-3 border-l border-[var(--border)] ${!state.working ? 'opacity-70' : ''}`;
                 const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
-                const accentText = role === 'electrician' ? 'text-amber-600' : role === 'janitor' ? 'text-emerald-600' : 'text-blue-600';
+                const accentText  = role === 'electrician' ? 'text-amber-600' : role === 'janitor' ? 'text-emerald-600' : 'text-blue-600';
                 let checkBoxesHtml = '';
                 roleTasksConfig[role].forEach(task => {
                     const isChecked = state.tasks && state.tasks[task.id];
-                    checkBoxesHtml += `<label class="flex items-center gap-2 text-xs cursor-pointer select-none"><input type="checkbox" ${!state.working?'disabled':''} ${isChecked?'checked':''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0 shadow"><span class="${isChecked?'font-bold':'text-[var(--text-sub)]'}">${task.label}</span></label>`;
+                    checkBoxesHtml += `<label class="flex items-center gap-2 text-xs cursor-pointer select-none mt-1">
+                        <input type="checkbox" ${!state.working?'disabled':''} ${isChecked?'checked':''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0">
+                        <span class="${isChecked?'font-bold':'text-[var(--text-sub)]'}">${task.label}</span>
+                    </label>`;
                 });
                 let printSummary = [];
-                if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks&&state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(state.other); if (!printSummary.length) printSummary.push('Зміна успішна'); } else printSummary.push('—');
+                if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks&&state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(state.other); if (!printSummary.length) printSummary.push('Зміна'); } else printSummary.push('—');
 
-                tdRole.innerHTML = `<div class="flex flex-col gap-2">
-                    <div class="no-print flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-sm">
-                        <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'⚡ НА ЗМІНІ':'ВИХІДНИЙ'}</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} onchange="toggleShift(${d},'${role}',event)">
-                            <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div>
-                        </label>
-                    </div>
-                    <div class="no-print flex flex-col gap-1.5 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
-                        ${checkBoxesHtml}
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">📋 Кіл-ть заявок:</span>
-                            <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 text-center font-bold shadow transition">
-                        </div>
-                        <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 shadow transition resize-y mt-1 leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
-                        ${state.working ? `<div class="flex items-center gap-3 mt-1 flex-wrap">
-                            <label class="cursor-pointer text-xs text-indigo-500 font-semibold hover:text-indigo-700 flex items-center gap-1 px-2 py-1 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition">
-                                📷 Фото / Галерея
-                                <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhoto(${d},'${role}',f))">
+                rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top ${!state.working?'opacity-60':''}">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 no-print">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'⚡ НА ЗМІНІ':'ВИХІДНИЙ'}</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} onchange="toggleShift(${d},'${role}',event)">
+                                <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div>
                             </label>
                         </div>
-                        <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
+                        <div class="no-print flex flex-col gap-1 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
+                            ${checkBoxesHtml}
+                            <div class="flex items-center gap-2 mt-1.5">
+                                <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">📋 Заявок:</span>
+                                <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 text-center font-bold">
+                            </div>
+                            <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 resize-y mt-1 leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
+                            ${state.working ? `<label class="cursor-pointer text-xs text-indigo-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition w-fit">
+                                📷 Фото
+                                <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhoto(${d},'${role}',f))">
+                            </label>
+                            <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
+                        </div>
+                        <div class="hidden print:block text-xs">
+                            <div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div>
+                            <div class="text-gray-600 italic text-[11px]">${printSummary.join(', ')}</div>
+                        </div>
                     </div>
-                    <div class="hidden print:block text-xs">
-                        <div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div>
-                        <div class="text-gray-700 italic text-[11px]">${printSummary.join(', ')}</div>
-                    </div>
-                </div>`;
-                tr.appendChild(tdRole);
+                </td>`;
             });
 
-            const tdComment = document.createElement('td');
-            tdComment.className = 'p-3 border-l border-[var(--border)] no-print';
-            tdComment.innerHTML = `<textarea rows="4" oninput="updateComment(${d},this.value)" placeholder="💬 Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 shadow transition resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>`;
-            tr.appendChild(tdComment);
-            tbody.appendChild(tr);
+            rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top no-print">
+                <textarea rows="4" oninput="updateComment(${d},this.value)" placeholder="💬 Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
+            </td>`;
+
+            trBody.innerHTML = rolesTd;
+            tbody.appendChild(trBody);
         }
 
+        // Фото після рендеру
         for (let d = 1; d <= daysInMonth; d++) {
             roles.forEach(role => {
                 if (currentMonthData[d]?.[role]?.working) {
                     const photos = getPhotosFromCache(d, role);
                     const container = document.getElementById(`photos-${d}-${role}`);
-                    if (container && photos.length) {
-                        renderPhotoContainer(container, photos, d, role);
-                    }
+                    if (container && photos.length) renderPhotoContainer(container, photos, d, role);
                 }
             });
         }
