@@ -522,6 +522,26 @@
     let chartDaily = null, chartPie = null, chartWeekly = null;
     let currentTab = 'journal';
 
+    // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
+    let gData = {};          // { "1": {time,count,worker,note}, "2": {...}, ... }
+    let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
+    let gSaveTimer = null;
+    let gLoaded = false;
+    let gOpenDays = new Set(); // дні, розгорнуті вручну користувачем (крім сьогодні, яке завжди відкрите за замовчуванням)
+
+    const gMonths = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
+    const gWorkerNames = {
+        'serhiy':    'Сергій Ш.',
+        'maksym':    'Максим А.',
+        'oleksandr': 'Олександр Б.'
+    };
+    const gNoteLabels = {
+        'plastic': '♻️ Пластик',
+        'glass':   '🍾 Скло',
+        'both':    '♻️+🍾 Пластик+Скло',
+        'mixed':   '🗑️ Змішане'
+    };
+
     const yearSelect = document.getElementById('year-select');
     const monthSelect = document.getElementById('month-select');
     const now = new Date();
@@ -1330,7 +1350,6 @@
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
     initCalendar();
-    gInitDashboard();
 
     setTimeout(() => {
         const splash = document.getElementById('intro-splash');
@@ -1399,23 +1418,6 @@
     // Таблиця Supabase: garbage (month_key TEXT PK, data JSONB)
     // ==========================================
 
-    let gData = {};          // { "1": {time,count,worker,note}, "2": {...}, ... }
-    let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
-    let gSaveTimer = null;
-    let gLoaded = false;
-
-    const gMonths = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
-    const gWorkerNames = {
-        'serhiy':    'Сергій Ш.',
-        'maksym':    'Максим А.',
-        'oleksandr': 'Олександр Б.'
-    };
-    const gNoteLabels = {
-        'plastic': '♻️ Пластик',
-        'glass':   '🍾 Скло',
-        'both':    '♻️+🍾 Пластик+Скло',
-        'mixed':   '🗑️ Змішане'
-    };
 
     function gKey() { return `${currentYear}-${currentMonth}`; }
     function gOfflineKey() { return `garbage_${currentYear}_${currentMonth}`; }
@@ -1548,8 +1550,6 @@
               ).join('')
             : '<div class="text-[var(--text-sub)] col-span-full text-center">Даних ще немає</div>';
     }
-
-    let gOpenDays = new Set(); // дні, розгорнуті вручну користувачем (крім сьогодні, яке завжди відкрите за замовчуванням)
 
     function gToggleDay(day) {
         if (gOpenDays.has(day)) gOpenDays.delete(day); else gOpenDays.add(day);
