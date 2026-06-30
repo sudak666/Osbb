@@ -5,17 +5,17 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- v4.3 cache-bust -->
+    <!-- cache-bust -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6366f1" id="meta-theme-color">
+    <meta name="theme-color" content="#34c759" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
-    <link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='.9em' font-size='75' x='12'>🏡</text></svg>">
+    <link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2334c759'/><text y='.9em' font-size='75' x='12'>🏡</text></svg>">
     <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Журнал Супергероїв ОСББ "Микитська Слобода" v4.1</title>
+    <title>Журнал ОСББ "Микитська Слобода"</title>
     <script>
         // Придушуємо Tailwind CDN warning
         const _cw = console.warn.bind(console);
@@ -27,11 +27,11 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; }
-        .theme-light { --bg-app: linear-gradient(135deg, #e0f2fe 0%, #e2f1e8 100%); --bg-card: #ffffff; --text-main: #0f172a; --text-sub: #475569; --border: #cbd5e1; --bg-input: #f1f5f9; --table-header: #e2e8f0; }
-        .theme-dark { --bg-app: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bg-card: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border: #334155; --bg-input: #0f172a; --table-header: #111827; }
-        .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; }
-        .theme-osbb { --bg-app: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); --bg-card: #162533; --text-main: #e2f4fb; --text-sub: #7fb3c8; --border: #2a4a5e; --bg-input: #0f1e2b; --table-header: #1a3040; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; }
+        .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #34c759; --accent-dark: #248a3d; }
+        .theme-dark { --bg-app: #000000; --bg-card: #1c1c1e; --text-main: #f5f5f7; --text-sub: #98989d; --border: #38383a; --bg-input: #2c2c2e; --table-header: #2c2c2e; --accent: #30d158; --accent-dark: #248a3d; }
+        .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; --accent: #34c759; --accent-dark: #248a3d; }
+        .theme-osbb { --bg-app: linear-gradient(135deg, #062017 0%, #0a3324 50%, #0f4630 100%); --bg-card: #0e2a1e; --text-main: #eafff1; --text-sub: #7fc89a; --border: #1d4a36; --bg-input: #0a1f16; --table-header: #123626; --accent: #34c759; --accent-dark: #1f7a3d; }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes title-reveal { 0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; } 60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; } 100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; } }
@@ -54,12 +54,25 @@
         .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
         .no-select { user-select: none; -webkit-user-select: none; }
         .tab-btn { transition: all 0.2s; }
-        .tab-btn.active { background: #6366f1; color: white; }
+        .tab-btn.active { background: #34c759; color: white; }
+
+        /* iOS-style polish */
+        .rounded-2xl { border-radius: 18px !important; }
+        .rounded-xl { border-radius: 14px !important; }
+        button, select, input { -webkit-tap-highlight-color: transparent; }
+        button.tab-btn, button[onclick] { transition: transform 0.15s ease, opacity 0.15s ease; }
+        button.tab-btn:active, button[onclick]:active { transform: scale(0.96); opacity: 0.85; }
+        .shadow-md, .shadow-xl, .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; }
+        select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2334c759' stroke-width='2'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 12px; padding-right: 28px !important; }
         
         .mobile-day-card { display: none; }
         @media (max-width: 768px) {
             .desktop-table { display: none !important; }
             .mobile-day-card { display: block; }
+        }
+        @media (min-width: 769px) {
+            select { font-size: 1rem; }
+            select option { font-size: 1.05rem; }
         }
         .role-card { border-radius: 12px; padding: 10px; margin-bottom: 8px; }
         .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
@@ -74,7 +87,7 @@
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
 
         .animated-title {
-            background: linear-gradient(90deg, #6366f1, #f59e0b, #10b981, #6366f1);
+            background: linear-gradient(90deg, #34c759, #f59e0b, #10b981, #34c759);
             background-size: 300% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -95,9 +108,9 @@
         .intro-logo { font-size: 5rem; line-height:1; animation: intro-logo-in 0.8s cubic-bezier(.22,1,.36,1) forwards; }
         .intro-name { color: white; font-size: 1.5rem; font-weight: 800; margin-top: 1rem; text-align: center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.5s; opacity:0; }
         .intro-sub { color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; text-align:center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.8s; opacity:0; }
-        .pulse-ring { position: absolute; width: 180px; height: 180px; border-radius: 50%; border: 2px solid rgba(99,102,241,0.5); animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite; }
+        .pulse-ring { position: absolute; width: 180px; height: 180px; border-radius: 50%; border: 2px solid rgba(52,199,89,0.5); animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite; }
         .pin-mb-btn { background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.15); border-radius:12px; padding:14px; font-size:1.2rem; font-weight:700; color:#fff; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; }
-        .pin-mb-btn:active { background:rgba(99,102,241,0.4); transform:scale(0.94); }
+        .pin-mb-btn:active { background:rgba(52,199,89,0.4); transform:scale(0.94); }
         .pulse-ring2 { animation-delay: 0.5s; }
 
         #applause-toast {
@@ -112,10 +125,10 @@
         #applause-toast.show { transform: translateX(-50%) translateY(0); }
         
         /* Підсвічування поточного дня на десктопі — через data-атрибут, щоб уникнути конфлікту з Tailwind */
-        tr[data-today="1"] td { background: rgba(99, 102, 241, 0.13) !important; }
+        tr[data-today="1"] td { background: rgba(52, 199, 89, 0.13) !important; }
         /* Мобільна картка сьогодні */
-        .day-card-today { border: 2.5px solid #6366f1 !important; box-shadow: 0 0 0 4px rgba(99,102,241,0.18) !important; }
-        .day-card-today .day-card-header { background: rgba(99,102,241,0.12) !important; color: #4338ca; }
+        .day-card-today { border: 2.5px solid #34c759 !important; box-shadow: 0 0 0 4px rgba(52,199,89,0.18) !important; }
+        .day-card-today .day-card-header { background: rgba(52,199,89,0.12) !important; color: #1f7a3d; }
     </style>
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
@@ -132,7 +145,7 @@
 
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(15,10,40,0.6);backdrop-filter:blur(6px);z-index:9500;align-items:center;justify-content:center;">
-    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 60px rgba(99,102,241,0.4);border:1px solid rgba(255,255,255,0.12);">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 60px rgba(52,199,89,0.4);border:1px solid rgba(255,255,255,0.12);">
         <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon">🔒</div>
         <div style="color:#fff;font-size:1rem;font-weight:800;margin-bottom:4px;" id="pin-modal-title">Пароль для скидання</div>
         <div style="color:#94a3b8;font-size:0.75rem;margin-bottom:20px;" id="pin-modal-sub">Введіть 4-значний PIN</div>
@@ -175,7 +188,7 @@
         <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
         <div>
             <h1 class="text-2xl font-bold tracking-tight animated-title">🏡 ОСББ "Микитська Слобода"</h1>
-            <p class="text-sm font-medium text-indigo-600 mt-0.5">☁️ Хмарний журнал супергероїв</p>
+            <p class="text-sm font-medium text-emerald-600 mt-0.5">☁️ Хмарний журнал супергероїв</p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
@@ -186,21 +199,21 @@
                 <option value="theme-osbb">🏡 ОСББ Стайл</option>
             </select>
             <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">📊 Excel</button>
-            <button onclick="window.print()" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ PDF</button>
+            <button onclick="window.print()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ PDF</button>
             <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105">🗑️ Скинути</button>
         </div>
     </div>
 
     <div class="no-print p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-3">
-        <button onclick="stepMonth(-1)" title="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-indigo-500/10 transition select-none">‹</button>
+        <button onclick="stepMonth(-1)" title="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">‹</button>
         <div class="flex items-center gap-2">
             <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         </div>
         <div class="flex items-center gap-2">
             <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         </div>
-        <button onclick="stepMonth(1)" title="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-indigo-500/10 transition select-none">›</button>
-        <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-400/30 text-indigo-600 hover:bg-indigo-500/20 transition hidden">📅 Сьогодні</button>
+        <button onclick="stepMonth(1)" title="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
+        <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">📅 Сьогодні</button>
         <div class="ml-auto no-print flex gap-2">
             <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📋 Журнал</button>
             <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📊 Графіки</button>
@@ -210,7 +223,7 @@
     </div>
 
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
-        <div class="no-print mb-4 p-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
+        <div class="no-print mb-4 p-3 bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
             <span class="text-xl">💡</span>
             <p id="fun-quote" class="text-xs font-medium italic"></p>
         </div>
@@ -228,6 +241,15 @@
                 <div class="flex items-center justify-between"><span class="font-bold text-blue-700">🔧 Сантехнік</span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span></div>
             </div>
+        </div>
+
+        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🗑️ Сміття за Місяць:</h3>
+        <div class="stat-card p-4 rounded-xl bg-emerald-500/5 border-2 border-emerald-500/20 shadow-sm mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-bold text-emerald-700">🗑️ Всього баків</span>
+                <span id="dash-garbage-total" class="text-xl font-black text-emerald-600">0</span>
+            </div>
+            <div id="dash-garbage-breakdown" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 pt-2 border-t border-emerald-500/20 text-xs"></div>
         </div>
         <div class="border-t border-[var(--border)] pt-4">
             <div id="hero-banner" class="hidden mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/15 via-amber-300/10 to-yellow-400/15 flex items-center gap-4">
@@ -299,7 +321,7 @@
     <div id="section-garbage" class="hidden mb-6">
 
         <!-- Статистика зверху -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+        <div class="grid grid-cols-2 gap-4 mb-4">
             <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col items-center justify-center">
                 <div class="text-3xl font-black text-emerald-600" id="g-total-month">0</div>
                 <div class="text-xs font-bold text-emerald-700 mt-1">Баків за місяць</div>
@@ -307,10 +329,6 @@
             <div class="stat-card p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col items-center justify-center">
                 <div class="text-3xl font-black text-blue-600" id="g-total-days">0</div>
                 <div class="text-xs font-bold text-blue-700 mt-1">Вивозів за місяць</div>
-            </div>
-            <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col items-center justify-center col-span-2">
-                <div class="text-xs font-bold text-[var(--text-sub)] mb-2">👷 По працівниках</div>
-                <div id="g-worker-stats" class="w-full text-xs flex flex-col gap-1"></div>
             </div>
         </div>
 
@@ -320,7 +338,7 @@
             <div id="g-chart" class="flex items-end justify-between gap-1" style="height:80px"></div>
         </div>
 
-        <!-- Таблиця -->
+        <!-- Список днів (згорнуто, окрім сьогодні) -->
         <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
                 <span class="text-sm font-bold">🗑️ Журнал вивозу сміття</span>
@@ -330,24 +348,7 @@
                 </div>
             </div>
 
-            <!-- Мобільні картки -->
-            <div id="g-mobile-cards" class="block sm:hidden divide-y divide-[var(--border)]"></div>
-
-            <!-- Десктоп таблиця -->
-            <div class="hidden sm:block overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-[var(--table-header)] border-b border-[var(--border)] text-xs font-bold uppercase tracking-wider">
-                            <th class="p-3 w-28">Дата</th>
-                            <th class="p-3 border-l border-[var(--border)] w-28">Час</th>
-                            <th class="p-3 border-l border-[var(--border)] w-24">Баків</th>
-                            <th class="p-3 border-l border-[var(--border)]">Працівник</th>
-                            <th class="p-3 border-l border-[var(--border)]">Тип сміття</th>
-                        </tr>
-                    </thead>
-                    <tbody id="g-table-body" class="divide-y divide-[var(--border)]"></tbody>
-                </table>
-            </div>
+            <div id="g-days-list" class="divide-y divide-[var(--border)]"></div>
         </div>
     </div>
 
@@ -359,9 +360,9 @@
                 <div class="text-3xl font-black text-purple-600" id="disp-total-shifts">0</div>
                 <div class="text-xs font-bold text-purple-700 mt-1">Змін за місяць</div>
             </div>
-            <div class="stat-card p-4 rounded-xl bg-indigo-500/10 border-2 border-indigo-500/30 shadow-sm flex flex-col items-center justify-center">
-                <div class="text-3xl font-black text-indigo-600" id="disp-total-calls">0</div>
-                <div class="text-xs font-bold text-indigo-700 mt-1">Дзвінків за місяць</div>
+            <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col items-center justify-center">
+                <div class="text-3xl font-black text-emerald-600" id="disp-total-calls">0</div>
+                <div class="text-xs font-bold text-emerald-700 mt-1">Дзвінків за місяць</div>
             </div>
             <div class="stat-card p-4 rounded-xl bg-rose-500/10 border-2 border-rose-500/30 shadow-sm flex flex-col items-center justify-center">
                 <div class="text-3xl font-black text-rose-600" id="disp-total-tickets">0</div>
@@ -378,7 +379,6 @@
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-bold">📞 Журнал Диспетчера</span>
-                    <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">Нова роль v4.3</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="disp-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
@@ -394,7 +394,7 @@
 <script>
     const SUPABASE_URL = 'https://jpwelaerkkdblpmkueid.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
-    const IS_PREVIEW = location.hostname.includes('claudeusercontent');
+    const IS_PREVIEW = location.hostname.includes('claudeusercontent') || location.hostname.includes('claude.site') || window.self !== window.top;
 
     // Хеш пароля "3333" за алгоритмом SHA-256 для безпеки на клієнті
     const RESET_PASSWORD_HASH = '9f7401873b6848c0db4681fb8036980e478546522c07011d619a9a3b6f00115c';
@@ -488,7 +488,7 @@
                             resolve({ data: arr || [], error: null });
                         }
                     } catch(e) {
-                        resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message } });
+                        resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message || String(e) } });
                     }
                 }
             };
@@ -626,9 +626,9 @@
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
         el.innerText = text;
         // Оновлюємо колір favicon при синхронізації
-        const faviconColors = { loading: '%23f59e0b', ok: '%236366f1', error: '%23ef4444' };
+        const faviconColors = { loading: '%23f59e0b', ok: '%2334c759', error: '%23ef4444' };
         const fLink = document.getElementById('favicon-link');
-        if (fLink) fLink.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='${faviconColors[type] || '%236366f1'}'/><text y='.9em' font-size='75' x='12'>🏡</text></svg>`;
+        if (fLink) fLink.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='${faviconColors[type] || '%2334c759'}'/><text y='.9em' font-size='75' x='12'>🏡</text></svg>`;
     }
 
     const offlineKey = () => `osbb_${currentYear}_${currentMonth}`;
@@ -664,7 +664,7 @@
                 saveOffline();
                 setSyncStatus('ok', '✅ Синхронізовано');
             } catch (err) {
-                console.error('initCalendar error:', err);
+                if (err && err.code !== 'FETCH_ERROR') console.error('initCalendar error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
                 if (offline) { setSyncStatus('error', '📵 Офлайн — дані з кешу'); }
                 else { setSyncStatus('error', '❌ Немає даних і інтернету'); currentMonthData = {}; }
             }
@@ -675,6 +675,7 @@
         if (currentTab === 'charts') renderCharts();
         if (currentTab === 'garbage') gInitTab();
         if (currentTab === 'dispatcher') dispInitTab();
+        gInitDashboard();
     }
 
     let pendingRollback = null;
@@ -980,7 +981,7 @@
             header.className = `day-card-header ${isWeekend ? 'text-red-500' : ''}`;
             let statusBadge = '';
             if (isToday) {
-                statusBadge = '<span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-black">📅 СЬОГОДНІ</span>';
+                statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black">📅 СЬОГОДНІ</span>';
             } else if (isFuture) {
                 statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold">🔮 Попереду</span>';
             } else if (anyWorking) {
@@ -1034,7 +1035,7 @@
                         </div>
                         <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1.5 resize-y leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
                         ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
-                            <label class="cursor-pointer text-xs text-indigo-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 active:bg-indigo-100">
+                            <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
                                 📷 Камера
                                 <input type="file" accept="image/*" capture="environment" class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhotoMobile(${d},'${role}',f))">
                             </label>
@@ -1113,7 +1114,7 @@
             ).join('');
 
             let statusBadge = '';
-            if (isToday)       statusBadge = '<span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-black">📅 сьогодні</span>';
+            if (isToday)       statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black">📅 сьогодні</span>';
             else if (isFuture) statusBadge = '<span class="text-[10px] text-purple-400 bg-purple-50 px-2 py-0.5 rounded-full">🔮 попереду</span>';
             else if (anyWorking) statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingRoles.length} на зміні</span>`;
             else statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
@@ -1179,10 +1180,10 @@
                             ${checkBoxesHtml}
                             <div class="flex items-center gap-2 mt-1.5">
                                 <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">📋 Заявок:</span>
-                                <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 text-center font-bold">
+                                <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
                             </div>
-                            <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-indigo-300 resize-y mt-1 leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
-                            ${state.working ? `<label class="cursor-pointer text-xs text-indigo-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition w-fit">
+                            <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 resize-y mt-1 leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
+                            ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
                                 📷 Фото
                                 <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhoto(${d},'${role}',f))">
                             </label>
@@ -1316,9 +1317,9 @@
         document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
         localStorage.setItem('selected_theme', themeName);
         // Оновлюємо колір рядка стану браузера/PWA
-        const themeColors = { 'theme-light': '#6366f1', 'theme-dark': '#0f172a', 'theme-amber': '#b45309', 'theme-osbb': '#203a43' };
+        const themeColors = { 'theme-light': '#34c759', 'theme-dark': '#000000', 'theme-amber': '#b45309', 'theme-osbb': '#0a3324' };
         const metaColor = document.getElementById('meta-theme-color');
-        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#6366f1');
+        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#34c759');
     }
     function showOverlay(show, text = '') {
         const overlay = document.getElementById('loading-overlay');
@@ -1329,6 +1330,7 @@
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
     initCalendar();
+    gInitDashboard();
 
     setTimeout(() => {
         const splash = document.getElementById('intro-splash');
@@ -1373,21 +1375,23 @@
     })();
 
     if ('serviceWorker' in navigator) {
-        if (IS_PREVIEW) {
-            navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
-        } else {
-            // Примусово скидаємо кеш SW при кожному оновленні сторінки
-            navigator.serviceWorker.getRegistrations().then(regs => {
-                regs.forEach(r => r.unregister());
-            }).then(() => {
-                // Очищаємо всі кеші браузера
-                if ('caches' in window) {
-                    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-                }
-                // Реєструємо SW знову з cache-bust параметром
-                navigator.serviceWorker.register('/Osbb/sw.js?v=' + Date.now()).catch(console.error);
-            });
-        }
+        try {
+            if (IS_PREVIEW) {
+                navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+            } else {
+                // Примусово скидаємо кеш SW при кожному оновленні сторінки
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    regs.forEach(r => r.unregister());
+                }).then(() => {
+                    // Очищаємо всі кеші браузера
+                    if ('caches' in window) {
+                        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+                    }
+                    // Реєструємо SW знову з cache-bust параметром
+                    navigator.serviceWorker.register('/Osbb/sw.js?v=' + Date.now()).catch(() => {});
+                }).catch(() => {});
+            }
+        } catch(e) {}
     }
 
     // ==========================================
@@ -1450,10 +1454,11 @@
             gSaveOffline();
             gSetStatus('ok', '✅ Синхронізовано');
         } catch(err) {
-            console.error('garbage load error:', err);
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
             gSetStatus('error', offline ? '📵 Офлайн — кеш' : '❌ Немає даних');
             gData = offline || {};
         }
+        gLoaded = true;
         gRender();
     }
 
@@ -1471,7 +1476,7 @@
             if (error) throw error;
             gSetStatus('ok', '✅ Збережено');
         } catch(err) {
-            console.error('garbage save error:', err);
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage save error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
             gSetStatus('error', '❌ Помилка збереження');
         }
     }
@@ -1489,65 +1494,70 @@
     }
 
     function gRender() {
-        gRenderDesktop();
-        gRenderMobile();
+        gRenderDaysList();
         gRenderStats();
         gRenderChart();
+        dashGarbageRender();
     }
 
-    function gRenderDesktop() {
-        const tbody = document.getElementById('g-table-body');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    // Незалежне завантаження даних сміття для дашборду (без перемикання вкладки)
+    async function gInitDashboard() {
+        const offline = gLoadOffline();
+        if (offline && !gLoaded) { gData = offline; dashGarbageRender(); }
+        if (currentTab === 'garbage') return; // вже завантажується через gInitTab
+        if (IS_PREVIEW) {
+            if (!gLoaded) gData = offline || {};
+            dashGarbageRender();
+            return;
+        }
+        try {
+            const res = await db.from('garbage').select('data').eq('month_key', gKey()).single();
+            const { data, error } = res;
+            if (error && error.code !== 'PGRST116') throw error;
+            gData = data?.data || offline || {};
+            gSaveOffline();
+        } catch (err) {
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage dashboard load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
+            gData = offline || {};
+        }
+        dashGarbageRender();
+    }
 
+    function dashGarbageRender() {
+        const totalEl = document.getElementById('dash-garbage-total');
+        const breakdownEl = document.getElementById('dash-garbage-breakdown');
+        if (!totalEl || !breakdownEl) return;
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        let total = 0;
+        const byType = {};
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
-            const row = gData[day] || { time:'', count:'', worker:'', note:'' };
-            const dateObj = new Date(currentYear, currentMonth, d);
-            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
-            const hasData = parseInt(row.count) > 0;
-            const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-
-            const tr = document.createElement('tr');
-            tr.className = `transition-colors ${isWeekend && !isToday2 ? 'bg-red-500/5' : ''} ${hasData ? 'bg-emerald-500/5' : ''}`;
-            if (isToday2) tr.setAttribute('data-today', '1');
-
-            tr.innerHTML = `
-                <td class="p-3 font-bold border-r border-[var(--border)] ${isWeekend ? 'text-red-500' : ''} text-sm">
-                    ${day} <span class="text-xs opacity-60 uppercase">${dayName}</span>
-                    ${isToday2 ? '<br><span class="text-[10px] font-black text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-full">📅 сьогодні</span>' : ''}
-                </td>
-                <td class="p-2 border-l border-[var(--border)]">
-                    <input type="time" value="${row.time}" onchange="gUpdateRow('${day}','time',this.value)"
-                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
-                </td>
-                <td class="p-2 border-l border-[var(--border)]">
-                    <input type="number" min="0" max="99" value="${row.count||''}" placeholder="0"
-                        onchange="gUpdateRow('${day}','count',this.value)"
-                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold ${hasData ? 'text-emerald-700' : ''}">
-                </td>
-                <td class="p-2 border-l border-[var(--border)]">
-                    <select onchange="gUpdateRow('${day}','worker',this.value)"
-                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
-                        <option value="">—</option>
-                        ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
-                    </select>
-                </td>
-                <td class="p-2 border-l border-[var(--border)]">
-                    <select onchange="gUpdateRow('${day}','note',this.value)"
-                        class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
-                        <option value="">—</option>
-                        ${Object.entries(gNoteLabels).map(([k,v]) => `<option value="${k}" ${row.note===k?'selected':''}>${v}</option>`).join('')}
-                    </select>
-                </td>`;
-            tbody.appendChild(tr);
+            const row = gData[day];
+            if (!row) continue;
+            const cnt = parseInt(row.count) || 0;
+            if (cnt <= 0) continue;
+            total += cnt;
+            const type = row.note || 'unspecified';
+            byType[type] = (byType[type] || 0) + cnt;
         }
+        totalEl.textContent = total;
+        const labels = { ...gNoteLabels, unspecified: '❔ Не вказано' };
+        breakdownEl.innerHTML = Object.keys(byType).length
+            ? Object.entries(byType).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
+                `<div class="flex items-center justify-between p-2 rounded-lg bg-[var(--bg-input)]"><span>${labels[k]||k}</span><span class="font-bold text-emerald-600">${v}</span></div>`
+              ).join('')
+            : '<div class="text-[var(--text-sub)] col-span-full text-center">Даних ще немає</div>';
     }
 
-    function gRenderMobile() {
-        const container = document.getElementById('g-mobile-cards');
+    let gOpenDays = new Set(); // дні, розгорнуті вручну користувачем (крім сьогодні, яке завжди відкрите за замовчуванням)
+
+    function gToggleDay(day) {
+        if (gOpenDays.has(day)) gOpenDays.delete(day); else gOpenDays.add(day);
+        gRenderDaysList();
+    }
+
+    function gRenderDaysList() {
+        const container = document.getElementById('g-days-list');
         if (!container) return;
         container.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -1560,44 +1570,50 @@
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const hasData = parseInt(row.count) > 0;
             const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+            const isOpen = isToday2 ? !gOpenDays.has('CLOSED_' + day) : gOpenDays.has(day);
 
             const wrap = document.createElement('div');
-            wrap.className = `p-3 ${isToday2 ? 'bg-indigo-500/10' : hasData ? 'bg-emerald-500/5' : ''} ${isWeekend && !isToday2 ? 'bg-red-500/5' : ''}`;
+            wrap.className = `${isToday2 ? 'bg-emerald-500/5' : ''} ${isWeekend && !isToday2 ? 'bg-red-500/5' : ''}`;
 
             wrap.innerHTML = `
-                <div class="flex items-center justify-between mb-2">
-                    <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${day} ${dayName.toUpperCase()}
-                        ${isToday2 ? '<span class="text-[10px] font-black text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-full ml-1">📅</span>' : ''}
+                <div class="flex items-center justify-between p-3 cursor-pointer select-none" onclick="gToggleDay('${isToday2 ? 'CLOSED_' + day : day}')">
+                    <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${day} <span class="text-xs opacity-60 uppercase">${dayName}</span>
+                        ${isToday2 ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full ml-1">📅 сьогодні</span>' : ''}
                     </span>
-                    ${hasData ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${row.count} баків</span>` : '<span class="text-[10px] text-gray-400">порожньо</span>'}
+                    <div class="flex items-center gap-2">
+                        ${hasData ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${row.count} баків</span>` : '<span class="text-[10px] text-gray-400">порожньо</span>'}
+                        <span class="text-xs opacity-50 transition-transform" style="display:inline-block; transform: rotate(${isOpen ? '180deg' : '0deg'})">▾</span>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">⏰ Час</div>
-                        <input type="time" value="${row.time}" onchange="gUpdateRow('${day}','time',this.value)"
-                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
-                    </div>
-                    <div>
-                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">🗑️ Баків</div>
-                        <input type="number" min="0" max="99" value="${row.count||''}" placeholder="0"
-                            onchange="gUpdateRow('${day}','count',this.value)"
-                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold">
-                    </div>
-                    <div>
-                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">👷 Працівник</div>
-                        <select onchange="gUpdateRow('${day}','worker',this.value)"
-                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
-                            <option value="">—</option>
-                            ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div>
-                        <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">♻️ Тип</div>
-                        <select onchange="gUpdateRow('${day}','note',this.value)"
-                            class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
-                            <option value="">—</option>
-                            ${Object.entries(gNoteLabels).map(([k,v]) => `<option value="${k}" ${row.note===k?'selected':''}>${v}</option>`).join('')}
-                        </select>
+                <div class="px-3 pb-3 ${isOpen ? '' : 'hidden'}">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">⏰ Час</div>
+                            <input type="time" value="${row.time}" onchange="gUpdateRow('${day}','time',this.value)"
+                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">🗑️ Баків</div>
+                            <input type="number" min="0" max="99" value="${row.count||''}" placeholder="0"
+                                onchange="gUpdateRow('${day}','count',this.value)"
+                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold ${hasData ? 'text-emerald-700' : ''}">
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">👷 Працівник</div>
+                            <select onchange="gUpdateRow('${day}','worker',this.value)"
+                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                                <option value="">—</option>
+                                ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">♻️ Тип</div>
+                            <select onchange="gUpdateRow('${day}','note',this.value)"
+                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                                <option value="">—</option>
+                                ${Object.entries(gNoteLabels).map(([k,v]) => `<option value="${k}" ${row.note===k?'selected':''}>${v}</option>`).join('')}
+                            </select>
+                        </div>
                     </div>
                 </div>`;
             container.appendChild(wrap);
@@ -1607,27 +1623,17 @@
     function gRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         let total = 0, days = 0;
-        const workers = {};
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
             const row = gData[day];
             if (!row) continue;
             const cnt = parseInt(row.count) || 0;
             if (cnt > 0) { total += cnt; days++; }
-            if (row.worker && cnt > 0) workers[row.worker] = (workers[row.worker]||0) + cnt;
         }
         const totalEl = document.getElementById('g-total-month');
         const daysEl = document.getElementById('g-total-days');
-        const workerEl = document.getElementById('g-worker-stats');
         if (totalEl) totalEl.textContent = total;
         if (daysEl) daysEl.textContent = days;
-        if (workerEl) {
-            workerEl.innerHTML = Object.keys(workers).length
-                ? Object.entries(workers).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
-                    `<div class="flex justify-between"><span>${gWorkerNames[k]||k}</span><span class="font-bold text-emerald-600">${v} баків</span></div>`
-                  ).join('')
-                : '<div class="text-[var(--text-sub)] text-center">—</div>';
-        }
     }
 
     async function gRenderChart() {
@@ -1660,7 +1666,7 @@
             const isCur = i === currentMonth;
             return `<div class="flex flex-col items-center gap-1" style="flex:1">
                 <div class="text-[10px] font-bold ${isCur ? 'text-amber-500' : 'text-[var(--text-sub)]'}">${val||''}</div>
-                <div style="height:${h}px;width:100%;border-radius:6px 6px 0 0;background:${isCur ? 'linear-gradient(#fbbf24,#f59e0b)' : 'linear-gradient(#6366f1,#4f46e5)'}"></div>
+                <div style="height:${h}px;width:100%;border-radius:6px 6px 0 0;background:${isCur ? 'linear-gradient(#fbbf24,#f59e0b)' : 'linear-gradient(#34c759,#28a745)'}"></div>
                 <div class="text-[9px] text-[var(--text-sub)]">${gMonths[i].slice(0,3)}</div>
             </div>`;
         }).join('');
@@ -1867,13 +1873,13 @@
             const row = dispGetDay(d);
 
             let statusBadge = '';
-            if (isToday) statusBadge = '<span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-black">📅 СЬОГОДНІ</span>';
+            if (isToday) statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black">📅 СЬОГОДНІ</span>';
             else if (isFuture) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold">🔮 Попереду</span>';
             else if (row.working) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">📞 На зміні</span>';
             else statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
 
             const card = document.createElement('div');
-            card.className = `border-b border-[var(--border)] last:border-0 ${isToday ? 'bg-indigo-500/5' : ''} ${isWeekend && !isToday ? 'bg-red-500/[0.03]' : ''}`;
+            card.className = `border-b border-[var(--border)] last:border-0 ${isToday ? 'bg-emerald-500/5' : ''} ${isWeekend && !isToday ? 'bg-red-500/[0.03]' : ''}`;
 
             const header = document.createElement('div');
             header.className = 'px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[var(--table-header)] transition select-none';
@@ -1881,7 +1887,7 @@
                 <div class="flex items-center gap-2">
                     <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${String(d).padStart(2,'0')} ${dayName.toUpperCase()}</span>
                     ${statusBadge}
-                    ${row.calls ? `<span class="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-full font-bold">📞 ${row.calls}</span>` : ''}
+                    ${row.calls ? `<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold">📞 ${row.calls}</span>` : ''}
                     ${row.tickets ? `<span class="text-[10px] bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-full font-bold">📋 ${row.tickets}</span>` : ''}
                 </div>
                 <span class="text-xs text-[var(--text-sub)] transition-transform" id="disp-arrow-${d}">▼</span>`;
