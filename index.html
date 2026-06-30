@@ -276,8 +276,12 @@
         <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🗑️ Сміття за Місяць:</h3>
         <div class="stat-card p-4 rounded-xl bg-emerald-500/5 border-2 border-emerald-500/20 shadow-sm mb-6">
             <div class="flex items-center justify-between mb-2">
-                <span class="font-bold text-emerald-700">🗑️ Всього баків</span>
+                <span class="font-bold text-emerald-700">🗑️ Всього вивезено</span>
                 <span id="dash-garbage-total" class="text-xl font-black text-emerald-600">0</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 mb-2">
+                <span class="font-bold text-emerald-700 text-sm">🗑️ Саме баків</span>
+                <span id="dash-garbage-bins" class="text-lg font-black text-emerald-600">0</span>
             </div>
             <div id="dash-garbage-breakdown" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 pt-2 border-t border-emerald-500/20 text-xs"></div>
         </div>
@@ -1506,6 +1510,33 @@
     function gKey() { return `${currentYear}-${currentMonth}`; }
     function gOfflineKey() { return `garbage_${currentYear}_${currentMonth}`; }
 
+    // Міграція старого формату записів сміття { count, note, worker, time }
+    // у новий формат { types: { plastic, glass, bins }, worker, time }.
+    // Повертає { data, migrated } — migrated=true, якщо хоч один запис був перетворений.
+    function gMigrateOldData(data) {
+        if (!data) return { data, migrated: false };
+        let migrated = false;
+        const out = { ...data };
+        Object.keys(out).forEach(day => {
+            const row = out[day];
+            if (!row || row.types) return; // вже новий формат
+            if (row.count === undefined && row.note === undefined) return; // нічого мігрувати
+
+            const cnt = parseInt(row.count) || 0;
+            const types = {};
+            if (cnt > 0) {
+                if (row.note === 'plastic') types.plastic = cnt;
+                else if (row.note === 'glass') types.glass = cnt;
+                else if (row.note === 'both') { types.plastic = cnt; types.glass = cnt; }
+                else types.bins = cnt; // 'mixed' або відсутній тип — рахуємо як баки
+            }
+            out[day] = { time: row.time || '', worker: row.worker || '', types };
+            migrated = true;
+        });
+        return { data: out, migrated };
+    }
+
+
     function gSaveOffline() {
         try { localStorage.setItem(gOfflineKey(), JSON.stringify(gData)); } catch(e) {}
     }
@@ -1523,7 +1554,8 @@
 
     async function gInitTab() {
         gSetStatus('loading', '⏳ Завантаження...');
-        const offline = gLoadOffline();
+        const offlineMig = gMigrateOldData(gLoadOffline());
+        const offline = offlineMig.data;
         if (offline) { gData = offline; gRender(); }
 
         if (IS_PREVIEW) {
@@ -1536,8 +1568,11 @@
             const res = await db.from('garbage').select('data').eq('month_key', gKey()).single();
             const { data, error } = res;
             if (error && error.code !== 'PGRST116') throw error;
-            gData = data?.data || offline || {};
+            const cloudMig = gMigrateOldData(data?.data);
+            gData = cloudMig.data || offline || {};
             gSaveOffline();
+            // Якщо дані щойно мігровано зі старого формату — одразу зберігаємо новий формат у хмару
+            if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
             gSetStatus('ok', '✅ Синхронізовано');
         } catch(err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
@@ -1600,7 +1635,8 @@
 
     // Незалежне завантаження даних сміття для дашборду (без перемикання вкладки)
     async function gInitDashboard() {
-        const offline = gLoadOffline();
+        const offlineMig = gMigrateOldData(gLoadOffline());
+        const offline = offlineMig.data;
         if (offline && !gLoaded) { gData = offline; dashGarbageRender(); }
         if (currentTab === 'garbage') return; // вже завантажується через gInitTab
         if (IS_PREVIEW) {
@@ -1612,8 +1648,10 @@
             const res = await db.from('garbage').select('data').eq('month_key', gKey()).single();
             const { data, error } = res;
             if (error && error.code !== 'PGRST116') throw error;
-            gData = data?.data || offline || {};
+            const cloudMig = gMigrateOldData(data?.data);
+            gData = cloudMig.data || offline || {};
             gSaveOffline();
+            if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
         } catch (err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage dashboard load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
             gData = offline || {};
@@ -1623,6 +1661,7 @@
 
     function dashGarbageRender() {
         const totalEl = document.getElementById('dash-garbage-total');
+        const binsEl = document.getElementById('dash-garbage-bins');
         const breakdownEl = document.getElementById('dash-garbage-breakdown');
         if (!totalEl || !breakdownEl) return;
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -1640,11 +1679,15 @@
             });
         }
         totalEl.textContent = total;
-        breakdownEl.innerHTML = Object.keys(byType).length
-            ? Object.entries(byType).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
+        if (binsEl) binsEl.textContent = byType.bins || 0;
+        // Решта типів (без баків, бо вони вже показані окремо вище)
+        const restTypes = { ...byType };
+        delete restTypes.bins;
+        breakdownEl.innerHTML = Object.keys(restTypes).length
+            ? Object.entries(restTypes).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
                 `<div class="flex items-center justify-between p-2 rounded-lg bg-[var(--bg-input)]"><span>${gTypeLabels[k]||k}</span><span class="font-bold text-emerald-600">${v}</span></div>`
               ).join('')
-            : '<div class="text-[var(--text-sub)] col-span-full text-center">Даних ще немає</div>';
+            : '<div class="text-[var(--text-sub)] col-span-full text-center">Інших типів немає</div>';
     }
 
     function gToggleDay(day) {
