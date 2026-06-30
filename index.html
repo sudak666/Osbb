@@ -133,6 +133,36 @@
 </head>
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
 
+<!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
+<div id="app-lock-screen" style="position:fixed;inset:0;background:linear-gradient(135deg,#062017,#0a3324 60%,#0f4630);z-index:99999;display:flex;align-items:center;justify-content:center;">
+    <div style="width:300px;text-align:center;">
+        <div style="font-size:3rem;margin-bottom:10px;">🏡</div>
+        <div style="color:#fff;font-size:1.1rem;font-weight:800;margin-bottom:2px;">ОСББ "Микитська Слобода"</div>
+        <div style="color:#7fc89a;font-size:0.8rem;font-weight:500;margin-bottom:24px;" id="lock-modal-icon-sub">🔒 Введіть PIN для входу</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;">
+            <div id="lock-d0" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
+            <div id="lock-d1" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
+            <div id="lock-d2" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
+            <div id="lock-d3" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
+        </div>
+        <div id="lock-err" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+            <button onclick="lockPress('1')" class="pin-mb-btn">1</button>
+            <button onclick="lockPress('2')" class="pin-mb-btn">2</button>
+            <button onclick="lockPress('3')" class="pin-mb-btn">3</button>
+            <button onclick="lockPress('4')" class="pin-mb-btn">4</button>
+            <button onclick="lockPress('5')" class="pin-mb-btn">5</button>
+            <button onclick="lockPress('6')" class="pin-mb-btn">6</button>
+            <button onclick="lockPress('7')" class="pin-mb-btn">7</button>
+            <button onclick="lockPress('8')" class="pin-mb-btn">8</button>
+            <button onclick="lockPress('9')" class="pin-mb-btn">9</button>
+            <div></div>
+            <button onclick="lockPress('0')" class="pin-mb-btn">0</button>
+            <button onclick="lockDel()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;">⌫</button>
+        </div>
+    </div>
+</div>
+
 <div id="intro-splash">
     <div class="pulse-ring"></div>
     <div class="pulse-ring pulse-ring2"></div>
@@ -406,6 +436,60 @@
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    // ==========================================
+    // ЕКРАН БЛОКУВАННЯ ВХОДУ (PIN 3535)
+    // ==========================================
+    const APP_LOCK_HASH = 'deb2676eeef1cf8fc35f1e58cd860a000ac231550a915589dc66159806fc4a4a'; // SHA-256("3535")
+    let lockBuf = '';
+
+    function lockUpdateDots() {
+        for (let i = 0; i < 4; i++) {
+            const dot = document.getElementById('lock-d' + i);
+            if (!dot) continue;
+            dot.style.background = i < lockBuf.length ? '#34c759' : 'rgba(255,255,255,0.2)';
+            dot.style.transform = i < lockBuf.length ? 'scale(1.2)' : 'scale(1)';
+        }
+    }
+
+    function lockDel() {
+        if (lockBuf.length > 0) lockBuf = lockBuf.slice(0, -1);
+        const err = document.getElementById('lock-err');
+        if (err) err.textContent = '';
+        lockUpdateDots();
+    }
+
+    async function lockPress(digit) {
+        if (lockBuf.length >= 4) return;
+        lockBuf += digit;
+        lockUpdateDots();
+        if (lockBuf.length === 4) {
+            const hashedInput = await hashPassword(lockBuf);
+            if (hashedInput === APP_LOCK_HASH) {
+                const screen = document.getElementById('app-lock-screen');
+                if (screen) {
+                    screen.style.transition = 'opacity 0.35s ease';
+                    screen.style.opacity = '0';
+                    setTimeout(() => { screen.style.display = 'none'; }, 350);
+                }
+                lockBuf = '';
+            } else {
+                const err = document.getElementById('lock-err');
+                if (err) err.textContent = '❌ Невірний PIN, спробуйте ще';
+                lockBuf = '';
+                lockUpdateDots();
+                // Тряска
+                const box = document.querySelector('#app-lock-screen > div');
+                if (box) {
+                    box.style.animation = 'none';
+                    box.style.transform = 'translateX(-8px)';
+                    setTimeout(() => box.style.transform = 'translateX(8px)', 80);
+                    setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
+                    setTimeout(() => box.style.transform = 'translateX(0)', 240);
+                }
+            }
+        }
+    }
+
     // Мінімальний Supabase REST клієнт
     const db = {
         _auth: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY },
@@ -523,7 +607,7 @@
     let currentTab = 'journal';
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
-    let gData = {};          // { "1": {time,count,worker,note}, "2": {...}, ... }
+    let gData = {};          // { "1": {time,worker,types:{plastic:N,glass:N,bins:N}}, "2": {...}, ... }
     let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
     let gSaveTimer = null;
     let gLoaded = false;
@@ -535,11 +619,11 @@
         'maksym':    'Максим А.',
         'oleksandr': 'Олександр Б.'
     };
-    const gNoteLabels = {
+    // Типи сміття — тепер незалежні один від одного, в один день можна вказати кілька з власною кількістю
+    const gTypeLabels = {
         'plastic': '♻️ Пластик',
         'glass':   '🍾 Скло',
-        'both':    '♻️+🍾 Пластик+Скло',
-        'mixed':   '🗑️ Змішане'
+        'bins':    '🗑️ Баки'
     };
 
     const yearSelect = document.getElementById('year-select');
@@ -1484,10 +1568,22 @@
     }
 
     function gUpdateRow(day, field, value) {
-        if (!gData[day]) gData[day] = { time:'', count:'', worker:'', note:'' };
+        if (!gData[day]) gData[day] = { time:'', worker:'', types:{} };
+        if (!gData[day].types) gData[day].types = {};
         gData[day][field] = value;
+        gScheduleSave();
+        gRender();
+    }
+
+    // Оновлення кількості для конкретного типу сміття за день (пластик/скло/баки незалежно)
+    function gUpdateType(day, type, value) {
+        if (!gData[day]) gData[day] = { time:'', worker:'', types:{} };
+        if (!gData[day].types) gData[day].types = {};
+        const num = parseInt(value) || 0;
+        if (num > 0) gData[day].types[type] = num;
+        else delete gData[day].types[type];
         // Авто-час при першому введенні кількості
-        if (field === 'count' && value && !gData[day].time) {
+        if (num > 0 && !gData[day].time) {
             const n = new Date();
             gData[day].time = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
         }
@@ -1535,18 +1631,18 @@
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
             const row = gData[day];
-            if (!row) continue;
-            const cnt = parseInt(row.count) || 0;
-            if (cnt <= 0) continue;
-            total += cnt;
-            const type = row.note || 'unspecified';
-            byType[type] = (byType[type] || 0) + cnt;
+            if (!row || !row.types) continue;
+            Object.entries(row.types).forEach(([type, cnt]) => {
+                const n = parseInt(cnt) || 0;
+                if (n <= 0) return;
+                total += n;
+                byType[type] = (byType[type] || 0) + n;
+            });
         }
         totalEl.textContent = total;
-        const labels = { ...gNoteLabels, unspecified: '❔ Не вказано' };
         breakdownEl.innerHTML = Object.keys(byType).length
             ? Object.entries(byType).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
-                `<div class="flex items-center justify-between p-2 rounded-lg bg-[var(--bg-input)]"><span>${labels[k]||k}</span><span class="font-bold text-emerald-600">${v}</span></div>`
+                `<div class="flex items-center justify-between p-2 rounded-lg bg-[var(--bg-input)]"><span>${gTypeLabels[k]||k}</span><span class="font-bold text-emerald-600">${v}</span></div>`
               ).join('')
             : '<div class="text-[var(--text-sub)] col-span-full text-center">Даних ще немає</div>';
     }
@@ -1564,11 +1660,13 @@
 
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
-            const row = gData[day] || { time:'', count:'', worker:'', note:'' };
+            const row = gData[day] || { time:'', worker:'', types:{} };
+            const types = row.types || {};
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
-            const hasData = parseInt(row.count) > 0;
+            const dayTotal = Object.values(types).reduce((s, v) => s + (parseInt(v) || 0), 0);
+            const hasData = dayTotal > 0;
             const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const isOpen = isToday2 ? !gOpenDays.has('CLOSED_' + day) : gOpenDays.has(day);
 
@@ -1581,22 +1679,16 @@
                         ${isToday2 ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full ml-1">📅 сьогодні</span>' : ''}
                     </span>
                     <div class="flex items-center gap-2">
-                        ${hasData ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${row.count} баків</span>` : '<span class="text-[10px] text-gray-400">порожньо</span>'}
+                        ${hasData ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${dayTotal} баків</span>` : '<span class="text-[10px] text-gray-400">порожньо</span>'}
                         <span class="text-xs opacity-50 transition-transform" style="display:inline-block; transform: rotate(${isOpen ? '180deg' : '0deg'})">▾</span>
                     </div>
                 </div>
                 <div class="px-3 pb-3 ${isOpen ? '' : 'hidden'}">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">⏰ Час</div>
-                            <input type="time" value="${row.time}" onchange="gUpdateRow('${day}','time',this.value)"
+                            <input type="time" value="${row.time||''}" onchange="gUpdateRow('${day}','time',this.value)"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">🗑️ Баків</div>
-                            <input type="number" min="0" max="99" value="${row.count||''}" placeholder="0"
-                                onchange="gUpdateRow('${day}','count',this.value)"
-                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold ${hasData ? 'text-emerald-700' : ''}">
                         </div>
                         <div>
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">👷 Працівник</div>
@@ -1606,14 +1698,26 @@
                                 ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
                             </select>
                         </div>
-                        <div>
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">♻️ Тип</div>
-                            <select onchange="gUpdateRow('${day}','note',this.value)"
-                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
-                                <option value="">—</option>
-                                ${Object.entries(gNoteLabels).map(([k,v]) => `<option value="${k}" ${row.note===k?'selected':''}>${v}</option>`).join('')}
-                            </select>
-                        </div>
+                    </div>
+                    <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">♻️ Типи сміття (можна декілька одразу)</div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${Object.entries(gTypeLabels).map(([k,label]) => {
+                            const checked = (parseInt(types[k]) || 0) > 0;
+                            const val = types[k] || '';
+                            return `
+                            <div class="flex flex-col gap-1 p-2 rounded-lg border ${checked ? 'border-emerald-400 bg-emerald-500/5' : 'border-[var(--border)]'}">
+                                <label class="flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
+                                    <input type="checkbox" ${checked?'checked':''}
+                                        onchange="gUpdateType('${day}','${k}', this.checked ? (document.getElementById('g-cnt-${day}-${k}').value || 1) : 0); gRenderDaysList();"
+                                        class="accent-emerald-500">
+                                    ${label}
+                                </label>
+                                <input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${val}"
+                                    onchange="gUpdateType('${day}','${k}', this.value)"
+                                    ${checked ? '' : 'disabled'}
+                                    class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">
+                            </div>`;
+                        }).join('')}
                     </div>
                 </div>`;
             container.appendChild(wrap);
@@ -1626,9 +1730,9 @@
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
             const row = gData[day];
-            if (!row) continue;
-            const cnt = parseInt(row.count) || 0;
-            if (cnt > 0) { total += cnt; days++; }
+            if (!row || !row.types) continue;
+            const dayTotal = Object.values(row.types).reduce((s,v) => s + (parseInt(v)||0), 0);
+            if (dayTotal > 0) { total += dayTotal; days++; }
         }
         const totalEl = document.getElementById('g-total-month');
         const daysEl = document.getElementById('g-total-days');
@@ -1640,6 +1744,11 @@
         const container = document.getElementById('g-chart');
         if (!container) return;
 
+        function sumTypes(types) {
+            if (!types) return 0;
+            return Object.values(types).reduce((s,v) => s + (parseInt(v)||0), 0);
+        }
+
         // Завантажуємо дані по всіх місяцях з локального кешу
         const monthlyTotals = [];
         for (let m = 0; m <= 11; m++) {
@@ -1647,14 +1756,14 @@
             let tot = 0;
             try {
                 const d = JSON.parse(localStorage.getItem(key) || '{}');
-                Object.values(d).forEach(r => tot += parseInt(r.count)||0);
+                Object.values(d).forEach(r => tot += sumTypes(r.types));
             } catch(e) {}
             // Якщо це поточний місяць — беремо актуальні дані
             if (m === currentMonth) {
                 tot = 0;
                 const dim = new Date(currentYear, currentMonth + 1, 0).getDate();
                 for (let d = 1; d <= dim; d++) {
-                    tot += parseInt(gData[String(d).padStart(2,'0')]?.count)||0;
+                    tot += sumTypes(gData[String(d).padStart(2,'0')]?.types);
                 }
             }
             monthlyTotals.push(tot);
