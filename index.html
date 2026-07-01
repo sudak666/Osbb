@@ -1198,7 +1198,7 @@
                             <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
                             <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
-                        <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1.5 resize-y leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
+                        ${renderOtherField(d, role, state, 'm')}
                         ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
                             <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
                                 Камера
@@ -1351,7 +1351,7 @@
                                 <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
                                 <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
                             </div>
-                            <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 resize-y mt-1 leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
+                            ${renderOtherField(d, role, state, 'd')}
                             ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
                                 📷 Фото
                                 <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhoto(${d},'${role}',f))">
@@ -1417,6 +1417,29 @@
         scheduleSave();
     }
     function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
+
+    function renderOtherField(d, role, state, prefix) {
+        const val = state.other || '';
+        const escaped = val.replace(/</g, '&lt;');
+        const needsToggle = val.length > 60 || (val.match(/\n/g) || []).length >= 2;
+        const id = `other-${prefix}-${d}-${role}`;
+        const extraClass = prefix === 'd' ? 'focus:ring-1 focus:ring-emerald-300 mt-1' : 'mt-1.5';
+        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed ${extraClass}">${escaped}</textarea>
+            ${needsToggle ? `<button type="button" onclick="toggleOtherExpand('${id}', this)" class="no-print text-[10px] font-semibold text-emerald-600 hover:underline mt-0.5">Показати все ▾</button>` : ''}`;
+    }
+
+    function toggleOtherExpand(id, btn) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const expanded = el.classList.toggle('expanded');
+        if (expanded) {
+            el.rows = Math.max(8, el.value.split('\n').length + 1);
+            btn.textContent = 'Згорнути ▴';
+        } else {
+            el.rows = 3;
+            btn.textContent = 'Показати все ▾';
+        }
+    }
     function updateComment(day, text) { if (!currentMonthData[day]) return; currentMonthData[day].comment = text; scheduleSave(); }
 
     function updateStats() {
