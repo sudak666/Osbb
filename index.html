@@ -72,14 +72,17 @@
         select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2334c759' stroke-width='2'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 12px; padding-right: 28px !important; }
         
         .mobile-day-card { display: none; }
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
             .desktop-table { display: none !important; }
             .mobile-day-card { display: block; }
-            body { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+            body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+            #desktop-tabs { display: none !important; }
+            #bottom-nav { display: flex !important; }
         }
-        @media (min-width: 769px) {
+        @media (min-width: 641px) {
             select { font-size: 1rem; }
             select option { font-size: 1.05rem; }
+            #bottom-nav { display: none !important; }
         }
         .mob-tab { transition: color 0.15s, background 0.15s; -webkit-tap-highlight-color: transparent; }
         .mob-tab.mob-active { color: #34c759; }
@@ -141,7 +144,7 @@
         .day-card-today .day-card-header { background: rgba(52,199,89,0.12) !important; color: #1f7a3d; }
     </style>
 </head>
-<body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+<body class="theme-light min-h-screen">
 
 <!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
 <div id="app-lock-screen" style="position:fixed;inset:0;background:#1c1c1e;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
@@ -233,21 +236,21 @@
     <button onclick="closeLightbox()" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-9 h-9 rounded-full flex items-center justify-center transition z-10">✕</button>
 </div>
 
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative overflow-hidden">
         <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight animated-title"><span class="inline-flex items-center gap-2"><i data-lucide="home" class="w-6 h-6 text-emerald-500"></i> ОСББ "Микитська Слобода"</span></h1>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight animated-title"><span class="inline-flex items-center gap-2"><i data-lucide="home" class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500"></i> ОСББ "Микитська Слобода"</span></h1>
             <p class="text-sm font-medium text-emerald-600 mt-0.5"><span class="inline-flex items-center gap-1.5"><i data-lucide="cloud" class="w-3.5 h-3.5 text-emerald-400"></i> Хмарний журнал супергероїв</span></p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
             <select id="theme-select" onchange="changeTheme(this.value)" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
-                <option value="theme-light">☀️ Світла</option>
-                <option value="theme-dark">🌑 Темна</option>
-                <option value="theme-amber">🟤 Амбер</option>
-                <option value="theme-osbb">🏡 ОСББ Стайл</option>
+                <option value="theme-light">Світла</option>
+                <option value="theme-dark">Темна</option>
+                <option value="theme-amber">Амбер</option>
+                <option value="theme-osbb">ОСББ Стайл</option>
             </select>
             <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="file-spreadsheet" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Excel</span></button>
             <button onclick="window.print()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="printer" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> PDF</span></button>
@@ -267,7 +270,7 @@
             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
         <!-- Таби — тільки на десктопі в цьому рядку -->
-        <div class="ml-auto hidden sm:flex gap-1.5">
+        <div id="desktop-tabs" class="ml-auto flex gap-1.5">
             <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Журнал
             </button>
@@ -287,7 +290,7 @@
     </div>
 
     <!-- BOTTOM NAV — тільки на мобілці -->
-    <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] flex no-print" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div id="bottom-nav" class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] no-print" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
         <button onclick="setTab('journal')" id="tab-journal-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
             <i data-lucide="clipboard-list" class="w-5 h-5"></i> Журнал
         </button>
@@ -1454,15 +1457,17 @@
     function updateStats() {
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
         Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day][role]?.working) counts[role]++; }); });
-        roles.forEach(role => { document.getElementById(`stats-${role}`).innerText = `${counts[role]} змін`; document.getElementById(`badge-${role}`).innerText = getWorkerBadge(role, counts[role]); });
+        roles.forEach(role => { document.getElementById(`stats-${role}`).innerText = `${counts[role]} змін`; document.getElementById(`badge-${role}`).innerHTML = getWorkerBadge(role, counts[role]); });
+        if (window.lucide) lucide.createIcons();
         updateRating(counts);
     }
 
     function getWorkerBadge(role, count) {
-        if (count === 0) return 'Заслужений відпочинок';
-        if (role === 'electrician') return count < 8 ? 'Початківець іскри' : count < 18 ? 'Магістр Струму' : 'Володар Блискавок Слободи';
-        if (role === 'janitor') return count < 8 ? 'Чистороб-стажер' : count < 18 ? 'Генерал Мітли та Грабель' : 'Охоронець Чистоти';
-        if (role === 'plumber') return count < 8 ? 'Водолій' : count < 18 ? 'Гроза Засмічень' : 'Нептун Микитської Слободи';
+        const ic = (name, color) => `<i data-lucide="${name}" style="width:12px;height:12px;stroke:${color};display:inline-block;vertical-align:middle;margin-right:3px;"></i>`;
+        if (count === 0) return ic('moon','#94a3b8') + 'Заслужений відпочинок';
+        if (role === 'electrician') return count < 8 ? ic('zap','#f59e0b')+'Початківець іскри' : count < 18 ? ic('zap','#f59e0b')+'Магістр Струму' : ic('crown','#f59e0b')+'Володар Блискавок Слободи';
+        if (role === 'janitor') return count < 8 ? ic('leaf','#34c759')+'Чистороб-стажер' : count < 18 ? ic('wind','#34c759')+'Генерал Мітли та Грабель' : ic('shield','#34c759')+'Охоронець Чистоти';
+        if (role === 'plumber') return count < 8 ? ic('droplets','#3b82f6')+'Водолій' : count < 18 ? ic('wrench','#3b82f6')+'Гроза Засмічень' : ic('anchor','#3b82f6')+'Нептун Микитської Слободи';
     }
 
     function exportExcel() {
