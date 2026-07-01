@@ -176,14 +176,7 @@
             <button onclick="lockPress('9')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">9</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">WXYZ</span></span></button>
             <div></div>
             <button onclick="lockPress('0')" class="pin-mb-btn"><span style="font-size:1.5rem;font-weight:300;">0</span></button>
-            <!-- Delete — SVG backspace, без бордера -->
-            <button onclick="lockDel()" style="width:80px;height:80px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;" onmousedown="this.style.background='rgba(255,255,255,0.08)'" onmouseup="this.style.background='transparent'" ontouchstart="this.style.background='rgba(255,255,255,0.08)'" ontouchend="this.style.background='transparent'">
-                <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
-                    <path d="M10 1H26C26.6 1 27 1.4 27 2V20C27 20.6 26.6 21 26 21H10C9.6 21 9.3 20.8 9.1 20.5L1.5 11L9.1 1.5C9.3 1.2 9.6 1 10 1Z" stroke="rgba(255,255,255,0.75)" stroke-width="1.8" fill="rgba(255,255,255,0.06)"/>
-                    <line x1="17" y1="7" x2="23" y2="15" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="23" y1="7" x2="17" y2="15" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
+            <button onclick="lockDel()" style="width:80px;height:80px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;color:rgba(255,255,255,0.85);font-size:0.75rem;font-weight:400;letter-spacing:0.01em;" onmousedown="this.style.opacity='0.5'" onmouseup="this.style.opacity='1'" ontouchstart="this.style.opacity='0.5'" ontouchend="this.style.opacity='1'">Видалити</button>
         </div>
     </div>
 </div>
