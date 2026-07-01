@@ -25,15 +25,12 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         html { overflow-x: hidden; }
         .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #34c759; --accent-dark: #248a3d; }
         .theme-dark { --bg-app: #000000; --bg-card: #1c1c1e; --text-main: #f5f5f7; --text-sub: #98989d; --border: #38383a; --bg-input: #2c2c2e; --table-header: #2c2c2e; --accent: #30d158; --accent-dark: #248a3d; }
-        .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; --accent: #34c759; --accent-dark: #248a3d; }
-        .theme-osbb { --bg-app: linear-gradient(135deg, #062017 0%, #0a3324 50%, #0f4630 100%); --bg-card: #0e2a1e; --text-main: #eafff1; --text-sub: #7fc89a; --border: #1d4a36; --bg-input: #0a1f16; --table-header: #123626; --accent: #34c759; --accent-dark: #1f7a3d; }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes title-reveal { 0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; } 60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; } 100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; } }
@@ -60,7 +57,6 @@
         .tab-btn.active svg { stroke: white; }
         .tab-btn svg { stroke: currentColor; }
         .ic { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; }
-        .ic-sm { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; }
 
         /* iOS-style polish */
         .rounded-2xl { border-radius: 18px !important; }
@@ -125,17 +121,6 @@
         .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:300; color:#fff; cursor:pointer; transition:background .12s ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
         .pin-mb-btn:active { background:rgba(255,255,255,0.22); }
         .pulse-ring2 { animation-delay: 0.5s; }
-
-        #applause-toast {
-            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(120px);
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white; padding: 1rem 2rem; border-radius: 1.5rem;
-            font-weight: 800; font-size: 1rem; z-index: 9000;
-            box-shadow: 0 10px 40px rgba(16,185,129,0.4);
-            transition: transform 0.5s cubic-bezier(.22,1,.36,1);
-            pointer-events: none;
-        }
-        #applause-toast.show { transform: translateX(-50%) translateY(0); }
         
         /* Підсвічування поточного дня на десктопі — через data-атрибут, щоб уникнути конфлікту з Tailwind */
         tr[data-today="1"] td { background: rgba(52, 199, 89, 0.13) !important; }
@@ -189,7 +174,6 @@
     <div class="intro-sub"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg> Завантаження...</span></div>
 </div>
 
-<div id="applause-toast"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Всі завдання виконано! Браво!</span></div>
 
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(15,10,40,0.6);backdrop-filter:blur(6px);z-index:9500;align-items:center;justify-content:center;">
@@ -243,8 +227,6 @@
             <select id="theme-select" onchange="changeTheme(this.value)" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
                 <option value="theme-light">Світла</option>
                 <option value="theme-dark">Темна</option>
-                <option value="theme-amber">Амбер</option>
-                <option value="theme-osbb">ОСББ Стайл</option>
             </select>
             <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg> Excel</span></button>
             <button onclick="window.print()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</span></button>
@@ -362,7 +344,7 @@
     <div id="section-charts" class="hidden mb-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
-                <h3 class="text-sm font-bold mb-4">📊 Зміни по днях місяця</h3>
+                <h3 class="text-sm font-bold mb-4">Зміни по днях місяця</h3>
                 <canvas id="chart-daily" height="200"></canvas>
             </div>
             <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
@@ -418,14 +400,14 @@
 
         <!-- Графік по місяцях -->
         <div class="p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md mb-4">
-            <div class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">📊 Баки по місяцях</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">Баки по місяцях</div>
             <div id="g-chart" class="flex items-end justify-between gap-1" style="height:80px"></div>
         </div>
 
         <!-- Список днів (згорнуто, окрім сьогодні) -->
         <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
-                <span class="text-sm font-bold">🗑️ Журнал вивозу сміття</span>
+                <span class="text-sm font-bold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Журнал вивозу сміття</span>
                 <div class="flex items-center gap-2">
                     <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
                     <button onclick="gClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
@@ -556,7 +538,7 @@
                 lockBuf = '';
             } else {
                 const err = document.getElementById('lock-err');
-                if (err) err.textContent = '❌ Невірний PIN, спробуйте ще';
+                if (err) err.textContent = 'Невірний PIN, спробуйте ще';
                 lockBuf = '';
                 lockUpdateDots();
                 // Тряска
@@ -770,47 +752,10 @@
         if (tab === 'garbage') gInitTab();
         if (tab === 'dispatcher') dispInitTab();
         if (tab === 'chat') chatInitTab();
-        if (window.lucide) lucide.createIcons();
     }
 
     function fireConfetti(x, y) {
         confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
-    }
-    function fireBigConfetti() {
-        confetti({ particleCount: 120, spread: 100, origin: { y: 0.4 } });
-        setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.1, y: 0.5 }, angle: 60 }), 200);
-        setTimeout(() => confetti({ particleCount: 80, spread: 80, origin: { x: 0.9, y: 0.5 }, angle: 120 }), 400);
-        showApplauseToast();
-        playApplause();
-    }
-
-    function showApplauseToast() {
-        const toast = document.getElementById('applause-toast');
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
-    }
-
-    function playApplause() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const duration = 2.5;
-            const buf = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate);
-            const data = buf.getChannelData(0);
-            for (let i = 0; i < data.length; i++) {
-                const t = i / ctx.sampleRate;
-                const env = Math.min(t * 3, 1) * Math.exp(-t * 1.2);
-                data[i] = (Math.random() * 2 - 1) * env * 0.4;
-            }
-            const src = ctx.createBufferSource();
-            src.buffer = buf;
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.value = 1800;
-            filter.Q.value = 0.5;
-            src.connect(filter);
-            filter.connect(ctx.destination);
-            src.start();
-        } catch(e) {}
     }
     function animateStatCards() {
         document.querySelectorAll('.stat-card').forEach((el, i) => {
@@ -822,7 +767,7 @@
         const el = document.getElementById('sync-status');
         const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
-        el.innerHTML = text; if(window.lucide) lucide.createIcons();
+        el.innerHTML = text;
         // Оновлюємо колір favicon при синхронізації
         const faviconColors = { loading: '%23f59e0b', ok: '%2334c759', error: '%23ef4444' };
         const fLink = document.getElementById('favicon-link');
@@ -841,7 +786,7 @@
 
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
-        showOverlay(true, '📥 Завантажую дані...'); setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
+        showOverlay(true, 'Завантажую дані...'); setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
         photosCache = null;
 
         const offline = loadOffline();
@@ -879,7 +824,7 @@
     let pendingRollback = null;
 
     function scheduleSave(day = null, snapshot = null) {
-        setSyncStatus('loading', '💾 Зберігаю...');
+        setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
         saveOffline();
         clearTimeout(saveTimer);
         if (day !== null && snapshot !== null) pendingRollback = { day, snapshot };
@@ -960,7 +905,7 @@
     function updateRating(counts) {
         const board = document.getElementById('rating-board');
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-        const medals = ['🥇', '🥈', '🥉'];
+        const medals = ['1', '2', '3'];
         board.innerHTML = '';
 
         const totalShifts = sorted.reduce((sum, [,c]) => sum + c, 0);
@@ -985,9 +930,9 @@
             const maxCount = sorted[0][1] || 1;
             const pct = count > 0 ? Math.round((count / maxCount) * 100) : 0;
             const medalIcons = [
-                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);align-items:center;justify-content:center;"><i data-lucide="award" style="width:16px;height:16px;stroke:#fff;"></i></span>`,
-                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1d5db,#9ca3af);align-items:center;justify-content:center;"><i data-lucide="award" style="width:16px;height:16px;stroke:#fff;"></i></span>`,
-                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d97706,#b45309);align-items:center;justify-content:center;"><i data-lucide="award" style="width:16px;height:16px;stroke:#fff;"></i></span>`,
+                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>`,
+                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1d5db,#9ca3af);align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>`,
+                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d97706,#b45309);align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>`,
             ];
             div.innerHTML = `<span class="w-8 flex justify-center">${count > 0 ? medalIcons[i] : ''}</span>
                 <div class="flex-1">
@@ -1002,7 +947,6 @@
                 </div>`;
             board.appendChild(div);
         });
-        if (window.lucide) lucide.createIcons();
     }
 
     let photosCache = null;
@@ -1049,7 +993,7 @@
 
     async function uploadPhoto(day, role, file) {
         if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
-        setSyncStatus('loading', '📤 Стискаю та завантажую...');
+        setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Завантажую...</span>');
         try {
             const compressed = await compressImage(file);
             const ext = 'jpg';
@@ -1240,11 +1184,11 @@
                         <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1.5 resize-y leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
                         ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
                             <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
-                                📷 Камера
+                                Камера
                                 <input type="file" accept="image/*" capture="environment" class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhotoMobile(${d},'${role}',f))">
                             </label>
                             <label class="cursor-pointer text-xs text-purple-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-purple-200 bg-purple-50 active:bg-purple-100">
-                                🖼️ Галерея
+                                Галерея
                                 <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhotoMobile(${d},'${role}',f))">
                             </label>
                         </div>
@@ -1254,7 +1198,7 @@
             });
 
             bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
-                <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">💬 Коментар до дня:</div>
+                <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
                 <textarea rows="4" oninput="updateComment(${d},this.value)" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
             </div>`;
 
@@ -1330,7 +1274,7 @@
                             <span class="font-bold text-sm ${isWeekend ? 'text-red-600' : ''}">${String(d).padStart(2,'0')} <span class="text-xs opacity-60 uppercase">${dayName}</span></span>
                             ${statusBadge}
                             ${rolesBadges}
-                            ${currentMonthData[d].comment ? '<span class="text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">💬</span>' : ''}
+                            ${currentMonthData[d].comment ? '<span class="text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full"></span>' : ''}
                         </div>
                         <span class="text-xs text-[var(--text-sub)] transition-transform duration-200" id="dt-arrow-${d}">▼</span>
                     </div>
@@ -1402,7 +1346,7 @@
             });
 
             rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top no-print">
-                <textarea rows="4" oninput="updateComment(${d},this.value)" placeholder="💬 Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
+                <textarea rows="4" oninput="updateComment(${d},this.value)" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
             </td>`;
 
             trBody.innerHTML = `<td class="border-r border-[var(--border)]"></td>` + rolesTd;
@@ -1443,7 +1387,7 @@
         currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId];
         if (currentMonthData[day][role].tasks[taskId] && event) fireConfetti(event.clientX, event.clientY);
         const allTasks = roleTasksConfig[role];
-        if (allTasks.filter(t => currentMonthData[day][role].tasks[t.id]).length === allTasks.length && allTasks.length > 1) setTimeout(fireBigConfetti, 200);
+        
         renderTable(); renderMobileCards(); updateStats();
         scheduleSave(day, snap);
     }
@@ -1458,12 +1402,10 @@
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
         Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day][role]?.working) counts[role]++; }); });
         roles.forEach(role => { document.getElementById(`stats-${role}`).innerText = `${counts[role]} змін`; document.getElementById(`badge-${role}`).innerHTML = getWorkerBadge(role, counts[role]); });
-        if (window.lucide) lucide.createIcons();
         updateRating(counts);
     }
 
     function getWorkerBadge(role, count) {
-        const ic = (name, color) => `<i data-lucide="${name}" style="width:12px;height:12px;stroke:${color};display:inline-block;vertical-align:middle;margin-right:3px;"></i>`;
         if (count === 0) return ic('moon','#94a3b8') + 'Заслужений відпочинок';
         if (role === 'electrician') return count < 8 ? ic('zap','#f59e0b')+'Початківець іскри' : count < 18 ? ic('zap','#f59e0b')+'Магістр Струму' : ic('crown','#f59e0b')+'Володар Блискавок Слободи';
         if (role === 'janitor') return count < 8 ? ic('leaf','#34c759')+'Чистороб-стажер' : count < 18 ? ic('wind','#34c759')+'Генерал Мітли та Грабель' : ic('shield','#34c759')+'Охоронець Чистоти';
@@ -1523,7 +1465,7 @@
         document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
         localStorage.setItem('selected_theme', themeName);
         // Оновлюємо колір рядка стану браузера/PWA
-        const themeColors = { 'theme-light': '#34c759', 'theme-dark': '#000000', 'theme-amber': '#b45309', 'theme-osbb': '#0a3324' };
+        const themeColors = { 'theme-light': '#34c759', 'theme-dark': '#000000' };
         const metaColor = document.getElementById('meta-theme-color');
         if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#34c759');
     }
@@ -1650,7 +1592,7 @@
         if (!el) return;
         const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
-        el.innerHTML = text; if(window.lucide) lucide.createIcons();
+        el.innerHTML = text;
     }
 
     async function gInitTab() {
@@ -1981,12 +1923,12 @@
         if (pinModalBuf.length === 4) {
             const hashedInput = await hashPassword(pinModalBuf);
             if (hashedInput === RESET_PASSWORD_HASH) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><i data-lucide="check-circle" style="width:22px;height:22px;stroke:#34c759;"></i></span>'; if(window.lucide) lucide.createIcons();
+                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 document.getElementById('pin-modal').style.display = 'none';
                 pinModalBuf = '';
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(); }
             } else {
-                document.getElementById('pin-err').textContent = '❌ Невірний PIN, спробуйте ще';
+                document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
                 document.getElementById('pin-modal-icon').textContent = '🔐';
                 pinModalBuf = '';
                 pinUpdateDots();
@@ -2023,7 +1965,7 @@
         if (!el) return;
         const cls = { loading:'bg-yellow-100 text-yellow-700', ok:'bg-green-100 text-green-700', error:'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
-        el.innerHTML = text; if(window.lucide) lucide.createIcons();
+        el.innerHTML = text;
     }
 
     async function dispInitTab() {
@@ -2200,7 +2142,7 @@
                         </div>
                         <!-- Коментар дня (розширений) -->
                         <div class="mt-3">
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">💬 Коментар / події дня:</div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар / події дня:</div>
                             <textarea rows="4" oninput="dispUpdate(${d},'comment',this.value)"
                                 placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
                                 class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed">${(row.comment||'').replace(/</g,'&lt;')}</textarea>
@@ -2239,7 +2181,6 @@
         if (currentTab === 'dispatcher') await dispInitTab();
         if (currentTab === 'chat') await chatInitTab();
         if (btn) { btn.style.animation = ''; btn.disabled = false; }
-        if (window.lucide) lucide.createIcons();
     }
 
     // ==========================================
@@ -2264,7 +2205,7 @@
         if (!el) return;
         const styles = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${styles[type] || styles.ok}`;
-        el.innerHTML = text; if(window.lucide) lucide.createIcons();
+        el.innerHTML = text;
     }
 
     function chatRender() {
@@ -2272,10 +2213,9 @@
         if (!container) return;
         if (!chatMessages.length) {
             container.innerHTML = `<div class="flex flex-col items-center justify-center h-40 gap-2 text-[var(--text-sub)]">
-                <i data-lucide="message-circle" class="w-10 h-10 opacity-20"></i>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 <span class="text-sm">Повідомлень ще немає. Напишіть першим!</span>
             </div>`;
-            if (window.lucide) lucide.createIcons();
             return;
         }
         container.innerHTML = chatMessages.map(msg => {
@@ -2360,9 +2300,9 @@
 
     // Ініціалізація Lucide іконок після завантаження DOM
     document.addEventListener('DOMContentLoaded', () => {
-        if (window.lucide) lucide.createIcons();
     });
-    setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 300);
+    setTimeout(() => {
+ }, 300);
 
     // CSS для спін-анімації кнопки refresh
     const styleEl = document.createElement('style');
