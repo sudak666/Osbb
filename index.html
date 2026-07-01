@@ -2305,7 +2305,7 @@
             if (error) throw error;
             chatMessages = data || [];
             chatSaveOffline();
-            chatSetStatus('ok', `✅ ${chatMessages.length} повідомлень`);
+            chatSetStatus('ok', `<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 17.01"/></svg>${chatMessages.length} повідомлень</span>`);
             chatRender();
         } catch(e) {
             if (e && e.code !== 'FETCH_ERROR') console.error('chat load error:', e.message || e);
