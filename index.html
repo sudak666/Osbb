@@ -1549,23 +1549,11 @@
         }, { passive: true });
     })();
 
+    // Повністю розреєструвати SW та очистити всі кеші
     if ('serviceWorker' in navigator) {
         try {
-            if (IS_PREVIEW) {
-                navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
-            } else {
-                // Примусово скидаємо кеш SW при кожному оновленні сторінки
-                navigator.serviceWorker.getRegistrations().then(regs => {
-                    regs.forEach(r => r.unregister());
-                }).then(() => {
-                    // Очищаємо всі кеші браузера
-                    if ('caches' in window) {
-                        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-                    }
-                    // Реєструємо SW знову з cache-bust параметром
-                    navigator.serviceWorker.register('/Osbb/sw.js?v=' + Date.now()).catch(() => {});
-                }).catch(() => {});
-            }
+            navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+            if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
         } catch(e) {}
     }
 
