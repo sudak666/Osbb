@@ -5,7 +5,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- cache-bust -->
+    <!-- cache-bust-1782911442951928473 -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#34c759" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
@@ -222,7 +222,7 @@
             <button onclick="pinModalPress('9')" class="pin-mb-btn">9</button>
             <button onclick="pinModalCancel()" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:12px;padding:14px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;">Скас.</button>
             <button onclick="pinModalPress('0')" class="pin-mb-btn">0</button>
-            <button onclick="pinModalDel()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;">⌫</button>
+            <button onclick="pinModalDel()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;"><svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
     </div>
 </div>
@@ -245,7 +245,7 @@
             <p class="text-sm font-medium text-emerald-600 mt-0.5"><span class="inline-flex items-center gap-1.5"><i data-lucide="cloud" class="w-3.5 h-3.5 text-emerald-400"></i> Хмарний журнал супергероїв</span></p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-            <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
+            <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="loader" style="width:13px;height:13px;"></i> Завантаження...</span></span>
             <select id="theme-select" onchange="changeTheme(this.value)" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
                 <option value="theme-light">Світла</option>
                 <option value="theme-dark">Темна</option>
@@ -433,7 +433,7 @@
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
                 <span class="text-sm font-bold">🗑️ Журнал вивозу сміття</span>
                 <div class="flex items-center gap-2">
-                    <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
+                    <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><i data-lucide="loader" style="width:13px;height:13px;"></i></span>
                     <button onclick="gClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="rotate-ccw" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Скинути</span></button>
                 </div>
             </div>
@@ -471,7 +471,7 @@
                     <span class="text-sm font-bold"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="phone-call" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Журнал Диспетчера</span></span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span id="disp-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
+                    <span id="disp-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><i data-lucide="loader" style="width:13px;height:13px;"></i></span>
                     <button onclick="dispClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="rotate-ccw" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Скинути</span></button>
                 </div>
             </div>
@@ -486,7 +486,7 @@
                 <span class="text-sm font-bold flex items-center gap-2">
                     <i data-lucide="message-circle" class="w-4 h-4 text-emerald-500"></i> Чат ОСББ
                 </span>
-                <span id="chat-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
+                <span id="chat-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><i data-lucide="loader" style="width:13px;height:13px;"></i></span>
             </div>
             <!-- Повідомлення -->
             <div id="chat-messages" class="flex flex-col gap-2 p-4 overflow-y-auto" style="min-height:300px;max-height:60vh;"></div>
@@ -828,7 +828,7 @@
         const el = document.getElementById('sync-status');
         const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
-        el.innerText = text;
+        el.innerHTML = text; if(window.lucide) lucide.createIcons();
         // Оновлюємо колір favicon при синхронізації
         const faviconColors = { loading: '%23f59e0b', ok: '%2334c759', error: '%23ef4444' };
         const fLink = document.getElementById('favicon-link');
@@ -847,7 +847,7 @@
 
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
-        showOverlay(true, '📥 Завантажую дані...'); setSyncStatus('loading', '⏳ Завантаження...');
+        showOverlay(true, '📥 Завантажую дані...'); setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="loader" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Завантаження...</span>');
         photosCache = null;
 
         const offline = loadOffline();
@@ -855,7 +855,7 @@
 
         if (IS_PREVIEW) {
             currentMonthData = offline || {};
-            setSyncStatus('ok', '🖥️ Превью — локальні дані');
+            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>');
         } else {
             try {
                 const [scheduleRes] = await Promise.all([
@@ -866,11 +866,11 @@
                 if (error && error.code !== 'PGRST116') throw error;
                 currentMonthData = data?.data || offline || {};
                 saveOffline();
-                setSyncStatus('ok', '✅ Синхронізовано');
+                setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Синхронізовано</span>');
             } catch (err) {
                 if (err && err.code !== 'FETCH_ERROR') console.error('initCalendar error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-                if (offline) { setSyncStatus('error', '📵 Офлайн — дані з кешу'); }
-                else { setSyncStatus('error', '❌ Немає даних і інтернету'); currentMonthData = {}; }
+                if (offline) { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="wifi-off" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Офлайн</span>'); }
+                else { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Немає даних</span>'); currentMonthData = {}; }
             }
         }
         renderTable(); renderMobileCards(); updateStats(); showOverlay(false);
@@ -892,11 +892,11 @@
         saveTimer = setTimeout(saveToCloud, 1000);
     }
     async function saveToCloud() {
-        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — збережено локально'); pendingRollback = null; return; }
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>'); pendingRollback = null; return; }
         try {
             const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
             if (error) throw error;
-            setSyncStatus('ok', '✅ Збережено');
+            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Збережено</span>');
             pendingRollback = null;
         } catch (err) {
             console.error('save error:', err);
@@ -904,7 +904,7 @@
                 rollbackDay(pendingRollback.day, pendingRollback.snapshot);
                 pendingRollback = null;
             } else {
-                setSyncStatus('error', '❌ Помилка збереження');
+                setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Помилка</span>');
             }
         }
     }
@@ -1054,7 +1054,7 @@
     }
 
     async function uploadPhoto(day, role, file) {
-        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — фото не зберігається'); return; }
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>'); return; }
         setSyncStatus('loading', '📤 Стискаю та завантажую...');
         try {
             const compressed = await compressImage(file);
@@ -1074,19 +1074,19 @@
             const key = `${day}-${role}`;
             if (!photosCache[key]) photosCache[key] = [];
             photosCache[key].push({ id: realId, url: urlData.publicUrl });
-            setSyncStatus('ok', '✅ Фото збережено');
+            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="image" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Фото збережено</span>');
             
             // Оновлюємо обидва інтерфейси одночасно
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
             if (desktopCont) renderPhotoContainer(desktopCont, photosCache[key], day, role);
             const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
             if (mobileCont) renderPhotoContainer(mobileCont, photosCache[key], day, role, true);
-        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '❌ Помилка фото'); }
+        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Помилка фото</span>'); }
     }
 
     async function deletePhoto(id, url, day, role) {
         if (!confirm('Видалити це фото?')) return;
-        if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью'); return; }
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>'); return; }
         try {
             await db.from('photos').delete().eq('id', id);
             const path = url.split('/photos/')[1];
@@ -1096,13 +1096,13 @@
             if (photosCache && photosCache[key]) {
                 photosCache[key] = photosCache[key].filter(p => String(p.id) !== String(id));
             }
-            setSyncStatus('ok', '🗑️ Фото видалено');
+            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="trash-2" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Фото видалено</span>');
             
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
             if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
             const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
             if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
-        } catch (err) { console.error('delete error:', err); setSyncStatus('error', '❌ Помилка видалення'); }
+        } catch (err) { console.error('delete error:', err); setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Помилка видалення</span>'); }
     }
 
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
@@ -1518,9 +1518,9 @@
     async function clearCurrentMonth() {
         showPinModal('🗑️ Скидання журналу', 'PIN для очищення місяця', async () => {
             showOverlay(true, '🗑️ Видаляю...'); currentMonthData = {};
-            if (IS_PREVIEW) { setSyncStatus('ok', '🖥️ Превью — скинуто локально'); renderTable(); updateStats(); showOverlay(false); return; }
-            try { await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`); setSyncStatus('ok', '✅ Місяць скинуто'); }
-            catch (err) { setSyncStatus('error', '❌ Помилка'); }
+            if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>'); renderTable(); updateStats(); showOverlay(false); return; }
+            try { await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`); setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Місяць скинуто</span>'); }
+            catch (err) { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Помилка</span>'); }
             renderTable(); updateStats(); showOverlay(false);
         });
     }
@@ -1656,18 +1656,18 @@
         if (!el) return;
         const cls = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
-        el.innerText = text;
+        el.innerHTML = text; if(window.lucide) lucide.createIcons();
     }
 
     async function gInitTab() {
-        gSetStatus('loading', '⏳ Завантаження...');
+        gSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="loader" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Завантаження...</span>');
         const offlineMig = gMigrateOldData(gLoadOffline());
         const offline = offlineMig.data;
         if (offline) { gData = offline; gRender(); }
 
         if (IS_PREVIEW) {
             gData = offline || {};
-            gSetStatus('ok', '🖥️ Превью');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>');
             gRender();
             return;
         }
@@ -1680,10 +1680,10 @@
             gSaveOffline();
             // Якщо дані щойно мігровано зі старого формату — одразу зберігаємо новий формат у хмару
             if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
-            gSetStatus('ok', '✅ Синхронізовано');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Синхронізовано</span>');
         } catch(err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', offline ? '📵 Офлайн — кеш' : '❌ Немає даних');
+            gSetStatus('error', offline ? '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="wifi-off" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Офлайн</span>' : '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Немає даних</span>');
             gData = offline || {};
         }
         gLoaded = true;
@@ -1698,14 +1698,14 @@
     }
 
     async function gSaveCloud() {
-        if (IS_PREVIEW) { gSetStatus('ok', '🖥️ Превью — локально'); return; }
+        if (IS_PREVIEW) { gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Превью</span>'); return; }
         try {
             const { error } = await db.from('garbage').upsert({ month_key: gKey(), data: gData });
             if (error) throw error;
-            gSetStatus('ok', '✅ Збережено');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Збережено</span>');
         } catch(err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage save error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', '❌ Помилка збереження');
+            gSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Помилка</span>');
         }
     }
 
@@ -1938,7 +1938,7 @@
             if (!IS_PREVIEW) {
                 try { await db.from('garbage').delete().eq('month_key', gKey()); } catch(e) {}
             }
-            gSetStatus('ok', '✅ Скинуто');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Скинуто</span>');
             gRender();
         });
     }
@@ -1987,7 +1987,7 @@
         if (pinModalBuf.length === 4) {
             const hashedInput = await hashPassword(pinModalBuf);
             if (hashedInput === RESET_PASSWORD_HASH) {
-                document.getElementById('pin-modal-icon').textContent = '✅';
+                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><i data-lucide="check-circle" style="width:22px;height:22px;stroke:#34c759;"></i></span>'; if(window.lucide) lucide.createIcons();
                 document.getElementById('pin-modal').style.display = 'none';
                 pinModalBuf = '';
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(); }
@@ -2029,17 +2029,17 @@
         if (!el) return;
         const cls = { loading:'bg-yellow-100 text-yellow-700', ok:'bg-green-100 text-green-700', error:'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${cls[type]}`;
-        el.innerText = text;
+        el.innerHTML = text; if(window.lucide) lucide.createIcons();
     }
 
     async function dispInitTab() {
-        dispSetStatus('loading', '⏳ Завантаження...');
+        dispSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="loader" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Завантаження...</span>');
         const offline = dispLoadOffline();
         if (offline) { dispData = offline; dispRender(); }
 
         if (IS_PREVIEW) {
             dispData = offline || {};
-            dispSetStatus('ok', '🖥️ Превью');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>');
             dispRender();
             return;
         }
@@ -2049,10 +2049,10 @@
             if (error && error.code !== 'PGRST116') throw error;
             dispData = data?.data || offline || {};
             dispSaveOffline();
-            dispSetStatus('ok', '✅ Синхронізовано');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Синхронізовано</span>');
         } catch(err) {
             console.error('dispatcher load error:', err);
-            dispSetStatus('error', offline ? '📵 Офлайн — кеш' : '❌ Немає даних');
+            dispSetStatus('error', offline ? '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="wifi-off" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Офлайн</span>' : '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Немає даних</span>');
             dispData = offline || {};
         }
         dispRender();
@@ -2066,14 +2066,14 @@
     }
 
     async function dispSaveCloud() {
-        if (IS_PREVIEW) { dispSetStatus('ok', '🖥️ Превью — локально'); return; }
+        if (IS_PREVIEW) { dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i> Превью</span>'); return; }
         try {
             const { error } = await db.from('dispatcher').upsert({ month_key: dispKey(), data: dispData });
             if (error) throw error;
-            dispSetStatus('ok', '✅ Збережено');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Збережено</span>');
         } catch(err) {
             console.error('dispatcher save error:', err);
-            dispSetStatus('error', '❌ Помилка збереження');
+            dispSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Помилка</span>');
         }
     }
 
@@ -2228,7 +2228,7 @@
             if (!IS_PREVIEW) {
                 try { await db.from('dispatcher').delete().eq('month_key', dispKey()); } catch(e) {}
             }
-            dispSetStatus('ok', '✅ Скинуто');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Скинуто</span>');
             dispRender();
         });
     }
@@ -2270,7 +2270,7 @@
         if (!el) return;
         const styles = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
         el.className = `text-xs font-semibold px-3 py-1 rounded-full ${styles[type] || styles.ok}`;
-        el.textContent = text;
+        el.innerHTML = text; if(window.lucide) lucide.createIcons();
     }
 
     function chatRender() {
@@ -2304,10 +2304,10 @@
     }
 
     async function chatInitTab() {
-        chatSetStatus('loading', '⏳');
+        chatSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="loader" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;"></i></span>');
         chatMessages = chatLoadOffline();
         chatRender();
-        if (IS_PREVIEW) { chatSetStatus('ok', '🖥️ Превью'); return; }
+        if (IS_PREVIEW) { chatSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="monitor" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Превью</span>'); return; }
         try {
             const res = await db.from('chat').select('id,author,text,created_at').order('created_at', { ascending: true }).limit(200);
             const { data, error } = res;
@@ -2318,7 +2318,7 @@
             chatRender();
         } catch(e) {
             if (e && e.code !== 'FETCH_ERROR') console.error('chat load error:', e.message || e);
-            chatSetStatus('error', '📵 Офлайн');
+            chatSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="wifi-off" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Офлайн</span>');
         }
         // Авто-оновлення чату кожні 15 секунд поки вкладка активна
         clearInterval(chatPollTimer);
@@ -2352,7 +2352,7 @@
             await chatInitTab();
         } catch(e) {
             if (e && e.code !== 'FETCH_ERROR') console.error('chat send error:', e.message || e);
-            chatSetStatus('error', '❌ Помилка надсилання');
+            chatSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="x-circle" style="width:13px;height:13px;stroke:currentColor;flex-shrink:0;"></i>Помилка</span>');
         }
         inputEl.disabled = false;
         inputEl.focus();
