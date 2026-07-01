@@ -711,8 +711,8 @@
     };
     // Типи сміття — тепер незалежні один від одного, в один день можна вказати кілька з власною кількістю
     const gTypeLabels = {
-        'plastic': '♻️ Пластик',
-        'glass':   '🍾 Скло',
+        'plastic': 'Пластик',
+        'glass':   'Скло',
         'bins':    'Баки'
     };
 
@@ -1849,7 +1849,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">♻️ Типи сміття (можна декілька одразу)</div>
+                    <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Типи сміття (можна декілька одразу)</div>
                     <div class="grid grid-cols-3 gap-2">
                         ${Object.entries(gTypeLabels).map(([k,label]) => {
                             const checked = (parseInt(types[k]) || 0) > 0;
