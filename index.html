@@ -1418,10 +1418,23 @@
     }
 
     function getWorkerBadge(role, count) {
-        if (count === 0) return ic('moon','#94a3b8') + 'Заслужений відпочинок';
-        if (role === 'electrician') return count < 8 ? ic('zap','#f59e0b')+'Початківець іскри' : count < 18 ? ic('zap','#f59e0b')+'Магістр Струму' : ic('crown','#f59e0b')+'Володар Блискавок Слободи';
-        if (role === 'janitor') return count < 8 ? ic('leaf','#34c759')+'Чистороб-стажер' : count < 18 ? ic('wind','#34c759')+'Генерал Мітли та Грабель' : ic('shield','#34c759')+'Охоронець Чистоти';
-        if (role === 'plumber') return count < 8 ? ic('droplets','#3b82f6')+'Водолій' : count < 18 ? ic('wrench','#3b82f6')+'Гроза Засмічень' : ic('anchor','#3b82f6')+'Нептун Микитської Слободи';
+        function svg(path, color) {
+            return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;">${path}</svg>`;
+        }
+        const moon    = svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',                                                                                   '#94a3b8');
+        const zap     = svg('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',                                                                                     '#f59e0b');
+        const crown   = svg('<path d="M2 4l3 12h14l3-12-6 4.5L12 2 8 8.5 2 4z"/><line x1="2" y1="20" x2="22" y2="20"/>',                                                   '#f59e0b');
+        const leaf    = svg('<path d="M2 22c0-9.4 7.6-17 17-17h3l-3.5 3.5A12 12 0 0 1 5 22H2z"/>',                                                                          '#34c759');
+        const wind    = svg('<path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>',                                   '#34c759');
+        const shield  = svg('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',                                                                                      '#34c759');
+        const drops   = svg('<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>',  '#3b82f6');
+        const wrench  = svg('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>','#3b82f6');
+        const anchor  = svg('<circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="23"/><path d="M5 15H2a10 10 0 0 0 20 0h-3"/>',                                 '#3b82f6');
+
+        if (count === 0) return moon + 'Заслужений відпочинок';
+        if (role === 'electrician') return count < 8 ? zap+'Початківець іскри' : count < 18 ? zap+'Магістр Струму' : crown+'Володар Блискавок Слободи';
+        if (role === 'janitor')     return count < 8 ? leaf+'Чистороб-стажер'  : count < 18 ? wind+'Генерал Мітли та Грабель' : shield+'Охоронець Чистоти';
+        if (role === 'plumber')     return count < 8 ? drops+'Водолій'         : count < 18 ? wrench+'Гроза Засмічень' : anchor+'Нептун Микитської Слободи';
     }
 
     function exportExcel() {
