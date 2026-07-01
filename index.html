@@ -114,8 +114,8 @@
         .intro-name { color: white; font-size: 1.5rem; font-weight: 800; margin-top: 1rem; text-align: center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.5s; opacity:0; }
         .intro-sub { color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; text-align:center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.8s; opacity:0; }
         .pulse-ring { position: absolute; width: 180px; height: 180px; border-radius: 50%; border: 2px solid rgba(52,199,89,0.5); animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite; }
-        .pin-mb-btn { background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.15); border-radius:50%; width:64px; height:64px; font-size:1.3rem; font-weight:700; color:#fff; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; margin: 0 auto; }
-        .pin-mb-btn:active { background:rgba(52,199,89,0.4); transform:scale(0.94); }
+        .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:300; color:#fff; cursor:pointer; transition:background .12s ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
+        .pin-mb-btn:active { background:rgba(255,255,255,0.22); }
         .pulse-ring2 { animation-delay: 0.5s; }
 
         #applause-toast {
@@ -139,31 +139,42 @@
 <body class="theme-light min-h-screen py-6 px-4 sm:px-6 lg:px-8">
 
 <!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
-<div id="app-lock-screen" style="position:fixed;inset:0;background:linear-gradient(135deg,#062017,#0a3324 60%,#0f4630);z-index:99999;display:flex;align-items:center;justify-content:center;">
-    <div style="width:300px;text-align:center;">
-        <div style="font-size:3rem;margin-bottom:10px;">🏡</div>
-        <div style="color:#fff;font-size:1.1rem;font-weight:800;margin-bottom:2px;">ОСББ "Микитська Слобода"</div>
-        <div style="color:#7fc89a;font-size:0.8rem;font-weight:500;margin-bottom:24px;" id="lock-modal-icon-sub">🔒 Введіть PIN для входу</div>
-        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;">
-            <div id="lock-d0" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
-            <div id="lock-d1" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
-            <div id="lock-d2" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
-            <div id="lock-d3" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
+<div id="app-lock-screen" style="position:fixed;inset:0;background:#1c1c1e;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
+    <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;padding:0 24px;">
+        <!-- Лого -->
+        <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#34c759,#248a3d);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin-bottom:16px;box-shadow:0 8px 24px rgba(52,199,89,0.35);">🏡</div>
+        <div style="color:#fff;font-size:1.15rem;font-weight:700;margin-bottom:4px;letter-spacing:-0.3px;">ОСББ "Микитська Слобода"</div>
+        <div style="color:#98989d;font-size:0.8rem;margin-bottom:36px;">Введіть PIN для входу</div>
+
+        <!-- Крапки -->
+        <div style="display:flex;gap:16px;margin-bottom:8px;">
+            <div id="lock-d0" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
+            <div id="lock-d1" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
+            <div id="lock-d2" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
+            <div id="lock-d3" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
         </div>
-        <div id="lock-err" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
-        <div style="display:grid;grid-template-columns:repeat(3,72px);gap:12px;justify-content:center;">
-            <button onclick="lockPress('1')" class="pin-mb-btn">1</button>
-            <button onclick="lockPress('2')" class="pin-mb-btn">2</button>
-            <button onclick="lockPress('3')" class="pin-mb-btn">3</button>
-            <button onclick="lockPress('4')" class="pin-mb-btn">4</button>
-            <button onclick="lockPress('5')" class="pin-mb-btn">5</button>
-            <button onclick="lockPress('6')" class="pin-mb-btn">6</button>
-            <button onclick="lockPress('7')" class="pin-mb-btn">7</button>
-            <button onclick="lockPress('8')" class="pin-mb-btn">8</button>
-            <button onclick="lockPress('9')" class="pin-mb-btn">9</button>
+        <div id="lock-err" style="color:#ff453a;font-size:0.72rem;min-height:20px;margin-bottom:28px;text-align:center;"></div>
+
+        <!-- Клавіатура — 3 колонки по 80px -->
+        <div style="display:grid;grid-template-columns:repeat(3,80px);grid-template-rows:repeat(4,80px);gap:8px;">
+            <button onclick="lockPress('1')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">1</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);height:8px;"> </span></span></button>
+            <button onclick="lockPress('2')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">2</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">ABC</span></span></button>
+            <button onclick="lockPress('3')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">3</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">DEF</span></span></button>
+            <button onclick="lockPress('4')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">4</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">GHI</span></span></button>
+            <button onclick="lockPress('5')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">5</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">JKL</span></span></button>
+            <button onclick="lockPress('6')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">6</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">MNO</span></span></button>
+            <button onclick="lockPress('7')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">7</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">PQRS</span></span></button>
+            <button onclick="lockPress('8')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">8</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">TUV</span></span></button>
+            <button onclick="lockPress('9')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">9</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">WXYZ</span></span></button>
             <div></div>
-            <button onclick="lockPress('0')" class="pin-mb-btn">0</button>
-            <button onclick="lockDel()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:64px;height:64px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;">⌫</button>
+            <button onclick="lockPress('0')" class="pin-mb-btn"><span style="font-size:1.5rem;font-weight:300;">0</span></button>
+            <!-- Delete — SVG backspace, без бордера -->
+            <button onclick="lockDel()" style="width:80px;height:80px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;" onmousedown="this.style.background='rgba(255,255,255,0.08)'" onmouseup="this.style.background='transparent'" ontouchstart="this.style.background='rgba(255,255,255,0.08)'" ontouchend="this.style.background='transparent'">
+                <svg width="26" height="20" viewBox="0 0 26 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.5 1H24C24.55 1 25 1.45 25 2V18C25 18.55 24.55 19 24 19H9.5C9.18 19 8.88 18.85 8.69 18.59L1 10L8.69 1.41C8.88 1.15 9.18 1 9.5 1Z" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" fill="none"/>
+                    <path d="M19 6.5L14 13.5M14 6.5L19 13.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </button>
         </div>
     </div>
 </div>
@@ -222,8 +233,8 @@
     <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative overflow-hidden">
         <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight animated-title">🏡 ОСББ "Микитська Слобода"</h1>
-            <p class="text-sm font-medium text-emerald-600 mt-0.5">☁️ Хмарний журнал супергероїв</p>
+            <h1 class="text-2xl font-bold tracking-tight animated-title"><span class="inline-flex items-center gap-2"><i data-lucide="home" class="w-6 h-6 text-emerald-500"></i> ОСББ "Микитська Слобода"</span></h1>
+            <p class="text-sm font-medium text-emerald-600 mt-0.5"><span class="inline-flex items-center gap-1.5"><i data-lucide="cloud" class="w-3.5 h-3.5 text-emerald-400"></i> Хмарний журнал супергероїв</span></p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
@@ -275,42 +286,42 @@
 
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
         <div class="no-print mb-4 p-3 bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
-            <span class="text-xl">💡</span>
+            <span class="w-7 h-7 rounded-full bg-amber-400/20 flex items-center justify-center shrink-0"><i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i></span>
             <p id="fun-quote" class="text-xs font-medium italic"></p>
         </div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🏆 Моніторинг Суперсил за Місяць:</h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i> Моніторинг Суперсил за Місяць:</span></h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-bold text-amber-700">⚡ Електрик</span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
+                <div class="flex items-center justify-between"><span class="font-bold text-amber-700"><span class="inline-flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Електрик</span></span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800">💤 Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-bold text-emerald-700">🧹 Двірник</span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
+                <div class="flex items-center justify-between"><span class="font-bold text-emerald-700"><span class="inline-flex items-center gap-1.5"><i data-lucide="wind" class="w-3.5 h-3.5"></i> Двірник</span></span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800">💤 Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-bold text-blue-700">🔧 Сантехнік</span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
+                <div class="flex items-center justify-between"><span class="font-bold text-blue-700"><span class="inline-flex items-center gap-1.5"><i data-lucide="wrench" class="w-3.5 h-3.5"></i> Сантехнік</span></span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span></div>
             </div>
         </div>
 
-        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🗑️ Сміття за Місяць:</h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Сміття за Місяць:</span></h3>
         <div class="stat-card p-4 rounded-xl bg-emerald-500/5 border-2 border-emerald-500/20 shadow-sm mb-6">
-            <div class="flex items-center justify-between mb-2">
-                <span class="font-bold text-emerald-700">🗑️ Всього вивезено</span>
-                <span id="dash-garbage-total" class="text-xl font-black text-emerald-600">0</span>
+            <!-- Головний показник — Баки -->
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-0.5"><span class="inline-flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Баків вивезено</span></div>
+                    <div class="text-xs text-[var(--text-sub)]">Всього за місяць: <span id="dash-garbage-total" class="font-bold text-[var(--text-main)]">0</span></div>
+                </div>
+                <span id="dash-garbage-bins" class="text-4xl font-black text-emerald-500">0</span>
             </div>
-            <div class="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 mb-2">
-                <span class="font-bold text-emerald-700 text-sm">🗑️ Баків</span>
-                <span id="dash-garbage-bins" class="text-lg font-black text-emerald-600">0</span>
-            </div>
-            <div id="dash-garbage-breakdown" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 pt-2 border-t border-emerald-500/20 text-xs"></div>
+            <div id="dash-garbage-breakdown" class="flex flex-wrap gap-2 pt-2 border-t border-emerald-500/20 text-xs"></div>
         </div>
         <div class="border-t border-[var(--border)] pt-4">
             <div id="hero-banner" class="hidden mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/15 via-amber-300/10 to-yellow-400/15 flex items-center gap-4">
                 <div class="hero-medal text-5xl">🥇</div>
                 <div class="flex-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5">🏆 Герой Місяця</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5"><span class="inline-flex items-center gap-1"><i data-lucide="award" class="w-3 h-3"></i> Герой Місяця</span></div>
                     <div id="hero-name" class="text-xl font-black text-yellow-700"></div>
                     <div id="hero-sub" class="text-xs text-amber-600 font-semibold mt-0.5"></div>
                 </div>
@@ -325,7 +336,7 @@
                 <div class="text-xs text-slate-400 mt-0.5">Ввімкніть чергування, щоб побачити рейтинг</div>
             </div>
 
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3">🥇 Рейтинг Героїв Місяця:</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5 text-amber-500"></i> Рейтинг Героїв Місяця:</span></h3>
             <div id="rating-board" class="flex flex-col gap-2"></div>
         </div>
     </div>
@@ -361,9 +372,9 @@
                 <thead>
                     <tr class="bg-[var(--table-header)] border-b border-[var(--border)] text-xs font-bold uppercase tracking-wider">
                         <th class="p-4 w-36">Дата / День</th>
-                        <th class="p-4 border-l border-[var(--border)] text-amber-700">⚡ Електрик</th>
-                        <th class="p-4 border-l border-[var(--border)] text-emerald-700">🧹 Двірник</th>
-                        <th class="p-4 border-l border-[var(--border)] text-blue-700">🔧 Сантехнік</th>
+                        <th class="p-4 border-l border-[var(--border)] text-amber-700"><span class="inline-flex items-center gap-1"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Електрик</span></th>
+                        <th class="p-4 border-l border-[var(--border)] text-emerald-700"><span class="inline-flex items-center gap-1"><i data-lucide="wind" class="w-3.5 h-3.5"></i> Двірник</span></th>
+                        <th class="p-4 border-l border-[var(--border)] text-blue-700"><span class="inline-flex items-center gap-1"><i data-lucide="wrench" class="w-3.5 h-3.5"></i> Сантехнік</span></th>
                         <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print">💬 Коментар</th>
                     </tr>
                 </thead>
@@ -596,6 +607,8 @@
             const q = {
                 select(c = '*')    { s.cols = c; return q; },
                 eq(col, val)       { s.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
+                order(col, opts)   { s.filters.push(`order=${col}.${opts?.ascending === false ? 'desc' : 'asc'}`); return q; },
+                limit(n)           { s.filters.push(`limit=${n}`); return q; },
                 single()           { s.isSingle = true; return q; },
                 insert(data)       { s.method = 'POST'; s.body = data; return q; },
                 upsert(data)       { s.method = 'POST'; s.body = data; s.isUpsert = true; return q; },
@@ -1737,9 +1750,9 @@
         delete restTypes.bins;
         breakdownEl.innerHTML = Object.keys(restTypes).length
             ? Object.entries(restTypes).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
-                `<div class="flex items-center justify-between p-2 rounded-lg bg-[var(--bg-input)]"><span>${gTypeLabels[k]||k}</span><span class="font-bold text-emerald-600">${v}</span></div>`
+                `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">${gTypeLabels[k]||k} <span class="font-black">${v}</span></span>`
               ).join('')
-            : '<div class="text-[var(--text-sub)] col-span-full text-center">Інших типів немає</div>';
+            : '<span class="text-[var(--text-sub)]">Інших типів немає</span>';
     }
 
     function gToggleDay(day) {
