@@ -980,9 +980,9 @@
             noHeroesMsg.classList.add('hidden');
             const [topRole, topCount] = sorted[0];
             heroBanner.classList.remove('hidden');
-            document.getElementById('hero-name').innerText = roleNames[topRole];
+            document.getElementById('hero-name').innerHTML = roleNamesClean[topRole];
             document.getElementById('hero-count').innerText = topCount;
-            document.getElementById('hero-sub').innerText = getWorkerBadge(topRole, topCount) + ' · Найактивніший цього місяця!';
+            document.getElementById('hero-sub').innerHTML = getWorkerBadge(topRole, topCount) + ' · Найактивніший цього місяця!';
         }
 
         sorted.forEach(([role, count], i) => {
@@ -990,10 +990,15 @@
             div.className = `animate-slide flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] ${i === 0 && count > 0 ? 'bg-yellow-500/10 border-yellow-400/30' : 'bg-[var(--bg-input)]'}`;
             const maxCount = sorted[0][1] || 1;
             const pct = count > 0 ? Math.round((count / maxCount) * 100) : 0;
-            div.innerHTML = `<span class="text-2xl w-8 text-center">${count > 0 ? medals[i] : ''}</span>
+            const medalIcons = [
+                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);align-items:center;justify-content:center;"><i data-lucide="award" style="width:16px;height:16px;stroke:#fff;"></i></span>`,
+                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1d5db,#9ca3af);align-items:center;justify-content:center;"><i data-lucide="award" style="width:16px;height:16px;stroke:#fff;"></i></span>`,
+                `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d97706,#b45309);align-items:center;justify-content:center;"><i data-lucide="award" style="width:16px;height:16px;stroke:#fff;"></i></span>`,
+            ];
+            div.innerHTML = `<span class="w-8 flex justify-center">${count > 0 ? medalIcons[i] : ''}</span>
                 <div class="flex-1">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-sm">${roleNames[role]}</span>
+                        <span class="font-bold text-sm">${roleNamesClean[role]}</span>
                         <span class="text-xs font-black ${i===0&&count>0?'text-yellow-600':'text-[var(--text-sub)]'}">${count} змін</span>
                     </div>
                     <div class="w-full bg-[var(--border)] rounded-full h-1.5">
@@ -1003,6 +1008,7 @@
                 </div>`;
             board.appendChild(div);
         });
+        if (window.lucide) lucide.createIcons();
     }
 
     let photosCache = null;
