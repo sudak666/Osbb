@@ -1424,7 +1424,7 @@
         const needsToggle = val.length > 60 || (val.match(/\n/g) || []).length >= 2;
         const id = `other-${prefix}-${d}-${role}`;
         const extraClass = prefix === 'd' ? 'focus:ring-1 focus:ring-emerald-300 mt-1' : 'mt-1.5';
-        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed ${extraClass}">${escaped}</textarea>
+        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-none leading-relaxed ${extraClass}">${escaped}</textarea>
             ${needsToggle ? `<button type="button" onclick="toggleOtherExpand('${id}', this)" class="no-print text-[10px] font-semibold text-emerald-600 hover:underline mt-0.5">Показати все ▾</button>` : ''}`;
     }
 
@@ -1433,9 +1433,11 @@
         if (!el) return;
         const expanded = el.classList.toggle('expanded');
         if (expanded) {
-            el.rows = Math.max(8, el.value.split('\n').length + 1);
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
             btn.textContent = 'Згорнути ▴';
         } else {
+            el.style.height = '';
             el.rows = 3;
             btn.textContent = 'Показати все ▾';
         }
