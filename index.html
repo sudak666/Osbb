@@ -83,6 +83,10 @@
         .mob-tab { transition: color 0.15s, background 0.15s; -webkit-tap-highlight-color: transparent; }
         .mob-tab.mob-active { color: #34c759; }
         .mob-tab.mob-active i { stroke: #34c759; }
+        /* Кастомний чекбокс */
+        .custom-cb { width:20px;height:20px;border-radius:6px;border:2px solid #d1d5db;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer; }
+        .custom-cb:hover { border-color:#34c759; background:rgba(52,199,89,0.08); }
+        .custom-cb.checked { border-color:#34c759; background:#34c759; }
         .role-card { border-radius: 12px; padding: 10px; margin-bottom: 8px; }
         .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
         .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
@@ -1161,9 +1165,13 @@
                 const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
                 let tasksHtml = roleTasksConfig[role].map(task => {
                     const isChecked = state.tasks?.[task.id];
-                    return `<label class="flex items-center gap-2 text-xs cursor-pointer mt-1">
-                        <input type="checkbox" ${!state.working?'disabled':''} ${isChecked?'checked':''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded">
-                        <span class="${isChecked?'font-bold':''}">${task.label}</span>
+                    const disabled = !state.working;
+                    return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
+                        <span onclick="if(!${disabled}) toggleTask(${d},'${role}','${task.id}',{target:{checked:${!isChecked}}})"
+                            style="width:20px;height:20px;border-radius:6px;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
+                            ${isChecked?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+                        </span>
+                        <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
                 }).join('');
 
@@ -1262,8 +1270,8 @@
             ).join('');
 
             let statusBadge = '';
-            if (isToday)       statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black">📅 сьогодні</span>';
-            else if (isFuture) statusBadge = '<span class="text-[10px] text-purple-400 bg-purple-50 px-2 py-0.5 rounded-full">🔮 попереду</span>';
+            if (isToday)       statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black">сьогодні</span>';
+            else if (isFuture) statusBadge = '<span class="text-[10px] text-purple-400 bg-purple-50 px-2 py-0.5 rounded-full">попереду</span>';
             else if (anyWorking) statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingRoles.length} на зміні</span>`;
             else statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
 
@@ -1271,7 +1279,7 @@
                 <td class="p-3 border-r border-[var(--border)] w-36" colspan="5">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-sm ${isWeekend ? 'text-red-600' : ''}">${String(d).padStart(2,'0')} <span class="text-xs opacity-60 uppercase">${dayName}</span></span>
+                            <span class="font-bold text-base sm:text-lg ${isWeekend ? 'text-red-600' : ''}">${String(d).padStart(2,'0')} <span class="text-xs sm:text-sm opacity-60 uppercase">${dayName}</span></span>
                             ${statusBadge}
                             ${rolesBadges}
                             ${currentMonthData[d].comment ? '<span class="text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full"></span>' : ''}
@@ -1307,9 +1315,13 @@
                 let checkBoxesHtml = '';
                 roleTasksConfig[role].forEach(task => {
                     const isChecked = state.tasks && state.tasks[task.id];
-                    checkBoxesHtml += `<label class="flex items-center gap-2 text-xs cursor-pointer select-none mt-1">
-                        <input type="checkbox" ${!state.working?'disabled':''} ${isChecked?'checked':''} onchange="toggleTask(${d},'${role}','${task.id}',event)" class="w-4 h-4 rounded border-gray-400 focus:ring-0">
-                        <span class="${isChecked?'font-bold':'text-[var(--text-sub)]'}">${task.label}</span>
+                    const disabled = !state.working;
+                    checkBoxesHtml += `<label class="flex items-center gap-2 text-sm cursor-pointer select-none mt-1.5 ${disabled?'pointer-events-none opacity-40':''}">
+                        <span onclick="if(!${disabled}) toggleTask(${d},'${role}','${task.id}',{target:{checked:${!isChecked}}})"
+                            style="width:20px;height:20px;border-radius:6px;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
+                            ${isChecked?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+                        </span>
+                        <span class="${isChecked?'font-semibold text-[var(--text-main)]':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
                 });
                 let printSummary = [];
@@ -2120,9 +2132,12 @@
                     <!-- Завдання -->
                     <div class="${!row.working ? 'opacity-40 pointer-events-none' : ''}">
                         <div class="mb-2">${dispTasks.map(t => `
-                            <label class="flex items-center gap-2 text-xs cursor-pointer mt-1.5">
-                                <input type="checkbox" ${row.tasks?.[t.id]?'checked':''} onchange="dispToggleTask(${d},'${t.id}',this.checked)" class="w-4 h-4 rounded">
-                                <span class="${row.tasks?.[t.id]?'font-bold':''}">${t.label}</span>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
+                                <span onclick="dispToggleTask(${d},'${t.id}',${!row.tasks?.[t.id]})"
+                                    style="width:20px;height:20px;border-radius:6px;border:2px solid ${row.tasks?.[t.id]?'#34c759':'#d1d5db'};background:${row.tasks?.[t.id]?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
+                                    ${row.tasks?.[t.id]?'<svg width=\\"11\\" height=\\"9\\" viewBox=\\"0 0 11 9\\" fill=\\"none\\"><path d=\\"M1 4L4 7.5L10 1\\" stroke=\\"white\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"/></svg>':''}
+                                </span>
+                                <span class="${row.tasks?.[t.id]?'font-semibold':'text-[var(--text-sub)]'}">${t.label}</span>
                             </label>`).join('')}
                         </div>
                         <!-- Дзвінки та заявки -->
