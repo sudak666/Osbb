@@ -28,7 +28,8 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        html { overflow-x: hidden; }
         .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #34c759; --accent-dark: #248a3d; }
         .theme-dark { --bg-app: #000000; --bg-card: #1c1c1e; --text-main: #f5f5f7; --text-sub: #98989d; --border: #38383a; --bg-input: #2c2c2e; --table-header: #2c2c2e; --accent: #30d158; --accent-dark: #248a3d; }
         .theme-amber { --bg-app: linear-gradient(135deg, #fdf6e3 0%, #f5e6c4 100%); --bg-card: #eee8d5; --text-main: #586e75; --text-sub: #839496; --border: #d5c8a4; --bg-input: #fdf6e3; --table-header: #e0d7b9; --accent: #34c759; --accent-dark: #248a3d; }
@@ -74,11 +75,15 @@
         @media (max-width: 768px) {
             .desktop-table { display: none !important; }
             .mobile-day-card { display: block; }
+            body { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
         }
         @media (min-width: 769px) {
             select { font-size: 1rem; }
             select option { font-size: 1.05rem; }
         }
+        .mob-tab { transition: color 0.15s, background 0.15s; -webkit-tap-highlight-color: transparent; }
+        .mob-tab.mob-active { color: #34c759; }
+        .mob-tab.mob-active i { stroke: #34c759; }
         .role-card { border-radius: 12px; padding: 10px; margin-bottom: 8px; }
         .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
         .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
@@ -184,15 +189,15 @@
     <div class="pulse-ring pulse-ring2"></div>
     <div class="intro-logo">🏡</div>
     <div class="intro-name">ОСББ "Микитська Слобода"</div>
-    <div class="intro-sub">☁️ Завантаження журналу супергероїв...</div>
+    <div class="intro-sub"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="cloud" style="width:14px;height:14px;stroke:#34c759;display:inline-block;vertical-align:middle;"></i> Завантаження...</span></div>
 </div>
 
-<div id="applause-toast">🎉 Всі завдання дня виконано! Браво, супергерої! 🏆</div>
+<div id="applause-toast"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="star" style="width:14px;height:14px;stroke:#fff;display:inline-block;vertical-align:middle;"></i> Всі завдання виконано! Браво!</span></div>
 
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(15,10,40,0.6);backdrop-filter:blur(6px);z-index:9500;align-items:center;justify-content:center;">
     <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 60px rgba(52,199,89,0.4);border:1px solid rgba(255,255,255,0.12);">
-        <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon">🔒</div>
+        <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon"><span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.15);align-items:center;justify-content:center;"><i data-lucide="lock" style="width:20px;height:20px;stroke:#34c759;display:inline-block;vertical-align:middle;"></i></span></div>
         <div style="color:#fff;font-size:1rem;font-weight:800;margin-bottom:4px;" id="pin-modal-title">Пароль для скидання</div>
         <div style="color:#94a3b8;font-size:0.75rem;margin-bottom:20px;" id="pin-modal-sub">Введіть 4-значний PIN</div>
         <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;">
@@ -239,25 +244,21 @@
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳ Завантаження...</span>
             <select id="theme-select" onchange="changeTheme(this.value)" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
-                <option value="theme-light">🎨 Світла</option>
-                <option value="theme-dark">🌙 Темна</option>
-                <option value="theme-amber">🍂 Амбер</option>
+                <option value="theme-light">☀️ Світла</option>
+                <option value="theme-dark">🌑 Темна</option>
+                <option value="theme-amber">🟤 Амбер</option>
                 <option value="theme-osbb">🏡 ОСББ Стайл</option>
             </select>
-            <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">📊 Excel</button>
-            <button onclick="window.print()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105">🖨️ PDF</button>
-            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105">🗑️ Скинути</button>
+            <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="file-spreadsheet" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Excel</span></button>
+            <button onclick="window.print()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="printer" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> PDF</span></button>
+            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="rotate-ccw" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Скинути</span></button>
         </div>
     </div>
 
-    <div class="no-print p-4 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-3">
+    <div class="no-print p-3 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-2">
         <button onclick="stepMonth(-1)" title="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">‹</button>
-        <div class="flex items-center gap-2">
-            <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
-        </div>
-        <div class="flex items-center gap-2">
-            <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
-        </div>
+        <select id="year-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
+        <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         <button onclick="stepMonth(1)" title="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
         <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">
             <span class="flex items-center gap-1"><i data-lucide="calendar-check" class="w-3.5 h-3.5"></i> Сьогодні</span>
@@ -265,7 +266,8 @@
         <button onclick="refreshData()" title="Оновити дані" class="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 text-emerald-600 transition" id="btn-refresh">
             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
-        <div class="ml-auto no-print flex gap-1.5">
+        <!-- Таби — тільки на десктопі в цьому рядку -->
+        <div class="ml-auto hidden sm:flex gap-1.5">
             <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Журнал
             </button>
@@ -284,6 +286,25 @@
         </div>
     </div>
 
+    <!-- BOTTOM NAV — тільки на мобілці -->
+    <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] flex no-print" style="padding-bottom: env(safe-area-inset-bottom);">
+        <button onclick="setTab('journal')" id="tab-journal-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
+            <i data-lucide="clipboard-list" class="w-5 h-5"></i> Журнал
+        </button>
+        <button onclick="setTab('charts')" id="tab-charts-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+            <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Графіки
+        </button>
+        <button onclick="setTab('garbage')" id="tab-garbage-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+            <i data-lucide="trash-2" class="w-5 h-5"></i> Сміття
+        </button>
+        <button onclick="setTab('dispatcher')" id="tab-dispatcher-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+            <i data-lucide="phone" class="w-5 h-5"></i> Диспетчер
+        </button>
+        <button onclick="setTab('chat')" id="tab-chat-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+            <i data-lucide="message-circle" class="w-5 h-5"></i> Чат
+        </button>
+    </div>
+
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
         <div class="no-print mb-4 p-3 bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
             <span class="w-7 h-7 rounded-full bg-amber-400/20 flex items-center justify-center shrink-0"><i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i></span>
@@ -293,15 +314,15 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-bold text-amber-700"><span class="inline-flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Електрик</span></span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800">💤 Заслужений відпочинок</span></div>
+                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800"><i data-lucide="moon" style="width:12px;height:12px;stroke:#94a3b8;display:inline-block;vertical-align:middle;"></i> Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-bold text-emerald-700"><span class="inline-flex items-center gap-1.5"><i data-lucide="wind" class="w-3.5 h-3.5"></i> Двірник</span></span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800">💤 Заслужений відпочинок</span></div>
+                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800"><i data-lucide="moon" style="width:12px;height:12px;stroke:#94a3b8;display:inline-block;vertical-align:middle;"></i> Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-bold text-blue-700"><span class="inline-flex items-center gap-1.5"><i data-lucide="wrench" class="w-3.5 h-3.5"></i> Сантехнік</span></span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800">💤 Заслужений відпочинок</span></div>
+                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800"><i data-lucide="moon" style="width:12px;height:12px;stroke:#94a3b8;display:inline-block;vertical-align:middle;"></i> Заслужений відпочинок</span></div>
             </div>
         </div>
 
@@ -319,7 +340,7 @@
         </div>
         <div class="border-t border-[var(--border)] pt-4">
             <div id="hero-banner" class="hidden mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/15 via-amber-300/10 to-yellow-400/15 flex items-center gap-4">
-                <div class="hero-medal text-5xl">🥇</div>
+                <div class="hero-medal" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(251,191,36,0.4);"><i data-lucide="award" style="width:28px;height:28px;stroke:#fff;display:inline-block;vertical-align:middle;"></i></div>
                 <div class="flex-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5"><span class="inline-flex items-center gap-1"><i data-lucide="award" class="w-3 h-3"></i> Герой Місяця</span></div>
                     <div id="hero-name" class="text-xl font-black text-yellow-700"></div>
@@ -331,7 +352,7 @@
                 </div>
             </div>
             <div id="no-heroes-msg" class="hidden mb-4 p-4 rounded-2xl border-2 border-dashed border-slate-300 text-center">
-                <div class="text-3xl mb-1">😴</div>
+                <div style="width:48px;height:48px;border-radius:50%;background:rgba(148,163,184,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;"><i data-lucide="moon" style="width:22px;height:22px;stroke:#94a3b8;display:inline-block;vertical-align:middle;"></i></div>
                 <div class="text-sm font-bold text-slate-500">Герої ще не заступили на зміну</div>
                 <div class="text-xs text-slate-400 mt-0.5">Ввімкніть чергування, щоб побачити рейтинг</div>
             </div>
@@ -348,11 +369,11 @@
                 <canvas id="chart-daily" height="200"></canvas>
             </div>
             <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
-                <h3 class="text-sm font-bold mb-4">🥧 Розподіл змін по ролях</h3>
+                <h3 class="text-sm font-bold mb-4"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="pie-chart" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Розподіл змін по ролях</span></h3>
                 <canvas id="chart-pie" height="200"></canvas>
             </div>
             <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md lg:col-span-2">
-                <h3 class="text-sm font-bold mb-4">📈 Активність по тижнях</h3>
+                <h3 class="text-sm font-bold mb-4"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="trending-up" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Активність по тижнях</span></h3>
                 <canvas id="chart-weekly" height="120"></canvas>
             </div>
         </div>
@@ -364,7 +385,7 @@
         <div id="loading-overlay" class="no-print fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="bg-[var(--bg-card)] p-5 rounded-2xl flex items-center gap-3 border border-[var(--border)] shadow-2xl">
                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
-                <p id="loading-text" class="font-bold text-sm">🔄 Зв'язуюсь із хмарою...</p>
+                <p id="loading-text" class="font-bold text-sm"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="loader" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Зв'язуюсь із хмарою...</span></p>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -375,7 +396,7 @@
                         <th class="p-4 border-l border-[var(--border)] text-amber-700"><span class="inline-flex items-center gap-1"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Електрик</span></th>
                         <th class="p-4 border-l border-[var(--border)] text-emerald-700"><span class="inline-flex items-center gap-1"><i data-lucide="wind" class="w-3.5 h-3.5"></i> Двірник</span></th>
                         <th class="p-4 border-l border-[var(--border)] text-blue-700"><span class="inline-flex items-center gap-1"><i data-lucide="wrench" class="w-3.5 h-3.5"></i> Сантехнік</span></th>
-                        <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print">💬 Коментар</th>
+                        <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print"><span style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="message-square" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Коментар</span></th>
                     </tr>
                 </thead>
                 <tbody id="calendar-body" class="divide-y divide-[var(--border)] text-sm"></tbody>
@@ -410,7 +431,7 @@
                 <span class="text-sm font-bold">🗑️ Журнал вивозу сміття</span>
                 <div class="flex items-center gap-2">
                     <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
-                    <button onclick="gClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition">🗑️ Скинути</button>
+                    <button onclick="gClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="rotate-ccw" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Скинути</span></button>
                 </div>
             </div>
 
@@ -444,11 +465,11 @@
         <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold">📞 Журнал Диспетчера</span>
+                    <span class="text-sm font-bold"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="phone-call" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Журнал Диспетчера</span></span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="disp-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
-                    <button onclick="dispClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition">🗑️ Скинути</button>
+                    <button onclick="dispClearMonth()" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="rotate-ccw" style="width:14px;height:14px;stroke:;display:inline-block;vertical-align:middle;"></i> Скинути</span></button>
                 </div>
             </div>
             <div id="disp-cards" class="divide-y divide-[var(--border)]"></div>
@@ -648,7 +669,7 @@
 
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const roles = ['electrician', 'janitor', 'plumber'];
-    const roleNames = { electrician: '⚡ Електрик', janitor: '🧹 Двірник', plumber: '🔧 Сантехнік' };
+    const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const quotes = [
         "Чистий під'їзд починається не з мітли, а з посмішки! ✨",
@@ -663,9 +684,9 @@
         "Якість роботи визначається не тільки мітлою, а й душею! 🌟"
     ];
     const roleTasksConfig = {
-        electrician: [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'lamps', label: 'Заміна ламп 💡' }],
-        plumber:     [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'sewer', label: 'Прочистка каналізації 🪠' }],
-        janitor:     [{ id: 'tasks', label: 'Виконані заявки 📑' }, { id: 'garden', label: 'Садові роботи 🌳' }, { id: 'lawn', label: 'Стрижка газонів ✂️' }, { id: 'bins', label: 'Мийка баків 🗑️' }, { id: 'stairs', label: 'Мийка сходів 🧼' }]
+        electrician: [{ id: 'tasks', label: 'Виконані заявки' }, { id: 'lamps', label: 'Заміна ламп' }],
+        plumber:     [{ id: 'tasks', label: 'Виконані заявки' }, { id: 'sewer', label: 'Прочистка каналізації' }],
+        janitor:     [{ id: 'tasks', label: 'Виконані заявки' }, { id: 'garden', label: 'Садові роботи' }, { id: 'lawn', label: 'Стрижка газонів' }, { id: 'bins', label: 'Мийка баків' }, { id: 'stairs', label: 'Мийка сходів' }]
     };
 
     let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
@@ -734,11 +755,18 @@
         document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
         document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
         document.getElementById('section-chat').classList.toggle('hidden', tab !== 'chat');
-        document.getElementById('tab-journal').classList.toggle('active', tab === 'journal');
-        document.getElementById('tab-charts').classList.toggle('active', tab === 'charts');
-        document.getElementById('tab-garbage').classList.toggle('active', tab === 'garbage');
-        document.getElementById('tab-dispatcher').classList.toggle('active', tab === 'dispatcher');
-        document.getElementById('tab-chat').classList.toggle('active', tab === 'chat');
+
+        // Десктоп таби
+        ['journal','charts','garbage','dispatcher','chat'].forEach(t => {
+            const el = document.getElementById('tab-' + t);
+            if (el) el.classList.toggle('active', t === tab);
+        });
+        // Мобільний bottom nav
+        ['journal','charts','garbage','dispatcher','chat'].forEach(t => {
+            const el = document.getElementById('tab-' + t + '-m');
+            if (el) el.classList.toggle('mob-active', t === tab);
+        });
+
         const mobileCards = document.getElementById('mobile-cards');
         if (mobileCards) mobileCards.classList.toggle('hidden', tab !== 'journal');
         if (tab === 'charts') renderCharts();
@@ -959,7 +987,7 @@
             div.className = `animate-slide flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] ${i === 0 && count > 0 ? 'bg-yellow-500/10 border-yellow-400/30' : 'bg-[var(--bg-input)]'}`;
             const maxCount = sorted[0][1] || 1;
             const pct = count > 0 ? Math.round((count / maxCount) * 100) : 0;
-            div.innerHTML = `<span class="text-2xl w-8 text-center">${count > 0 ? medals[i] : '💤'}</span>
+            div.innerHTML = `<span class="text-2xl w-8 text-center">${count > 0 ? medals[i] : ''}</span>
                 <div class="flex-1">
                     <div class="flex justify-between items-center mb-1">
                         <span class="font-bold text-sm">${roleNames[role]}</span>
@@ -1203,7 +1231,7 @@
                     <div class="${!state.working?'opacity-40 pointer-events-none':''}">
                         ${tasksHtml}
                         <div class="flex items-center gap-2 mt-1.5">
-                            <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">📋 Заявок:</span>
+                            <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
                             <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
                         <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-1.5 resize-y leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
@@ -1271,7 +1299,7 @@
             const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
             const workingRoles = roles.filter(r => currentMonthData[d][r]?.working);
             const roleColors = { electrician: 'text-amber-600', janitor: 'text-emerald-600', plumber: 'text-blue-600' };
-            const roleIcons  = { electrician: '⚡', janitor: '🧹', plumber: '🔧' };
+            const roleIcons  = { electrician: '', janitor: '', plumber: '' };
 
             // ── РЯДОК-ЗАГОЛОВОК (завжди видимий) ──
             const trHead = document.createElement('tr');
@@ -1343,7 +1371,7 @@
                 rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top ${!state.working?'opacity-60':''}">
                     <div class="flex flex-col gap-2">
                         <div class="flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 no-print">
-                            <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'⚡ НА ЗМІНІ':'ВИХІДНИЙ'}</span>
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'НА ЗМІНІ':'ВИХІДНИЙ'}</span>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} onchange="toggleShift(${d},'${role}',event)">
                                 <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div>
@@ -1352,7 +1380,7 @@
                         <div class="no-print flex flex-col gap-1 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
                             ${checkBoxesHtml}
                             <div class="flex items-center gap-2 mt-1.5">
-                                <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">📋 Заявок:</span>
+                                <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
                                 <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
                             </div>
                             <textarea rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="✍️ Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 resize-y mt-1 leading-relaxed">${(state.other||'').replace(/</g,'&lt;')}</textarea>
@@ -1431,10 +1459,10 @@
     }
 
     function getWorkerBadge(role, count) {
-        if (count === 0) return '💤 Заслужений відпочинок';
-        if (role === 'electrician') return count < 8 ? '🔌 Початківець іскри' : count < 18 ? '⚡ Магістр Струму' : '👑 Володар Блискавок Слободи';
-        if (role === 'janitor') return count < 8 ? '🌱 Чистороб-стажер' : count < 18 ? '🧹 Генерал Мітли та Грабель' : '👑 Охоронець Чистоти';
-        if (role === 'plumber') return count < 8 ? '💧 Водолій' : count < 18 ? '🔧 Гроза Засмічень' : '🔱 Нептун Микитської Слободи';
+        if (count === 0) return 'Заслужений відпочинок';
+        if (role === 'electrician') return count < 8 ? 'Початківець іскри' : count < 18 ? 'Магістр Струму' : 'Володар Блискавок Слободи';
+        if (role === 'janitor') return count < 8 ? 'Чистороб-стажер' : count < 18 ? 'Генерал Мітли та Грабель' : 'Охоронець Чистоти';
+        if (role === 'plumber') return count < 8 ? 'Водолій' : count < 18 ? 'Гроза Засмічень' : 'Нептун Микитської Слободи';
     }
 
     function exportExcel() {
@@ -1502,6 +1530,9 @@
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
+    // Встановити mob-active для початкового табу (журнал)
+    const initMobTab = document.getElementById('tab-journal-m');
+    if (initMobTab) initMobTab.classList.add('mob-active');
     initCalendar();
 
     setTimeout(() => {
@@ -1852,26 +1883,26 @@
         const container = document.getElementById('g-chart');
         if (!container) return;
 
-        function sumTypes(types) {
+        function getBins(types) {
             if (!types) return 0;
-            return Object.values(types).reduce((s,v) => s + (parseInt(v)||0), 0);
+            return parseInt(types.bins) || 0;
         }
 
-        // Завантажуємо дані по всіх місяцях з локального кешу
+        // Завантажуємо дані по всіх місяцях з локального кешу — тільки баки
         const monthlyTotals = [];
         for (let m = 0; m <= 11; m++) {
             const key = `garbage_${currentYear}_${m}`;
             let tot = 0;
             try {
                 const d = JSON.parse(localStorage.getItem(key) || '{}');
-                Object.values(d).forEach(r => tot += sumTypes(r.types));
+                Object.values(d).forEach(r => tot += getBins(r.types));
             } catch(e) {}
             // Якщо це поточний місяць — беремо актуальні дані
             if (m === currentMonth) {
                 tot = 0;
                 const dim = new Date(currentYear, currentMonth + 1, 0).getDate();
                 for (let d = 1; d <= dim; d++) {
-                    tot += sumTypes(gData[String(d).padStart(2,'0')]?.types);
+                    tot += getBins(gData[String(d).padStart(2,'0')]?.types);
                 }
             }
             monthlyTotals.push(tot);
@@ -2105,7 +2136,7 @@
                     <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${String(d).padStart(2,'0')} ${dayName.toUpperCase()}</span>
                     ${statusBadge}
                     ${row.calls ? `<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold">📞 ${row.calls}</span>` : ''}
-                    ${row.tickets ? `<span class="text-[10px] bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-full font-bold">📋 ${row.tickets}</span>` : ''}
+                    ${row.tickets ? `<span class="text-[10px] bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-full font-bold">${row.tickets}</span>` : ''}
                 </div>
                 <span class="text-xs text-[var(--text-sub)] transition-transform" id="disp-arrow-${d}">▼</span>`;
             header.onclick = () => {
@@ -2126,7 +2157,7 @@
                 { id: 'journal', label: '📓 Журнал' },
                 { id: 'calls',   label: '📞 Дзвінки' },
                 { id: 'doors',   label: '🚪 Домофони' },
-                { id: 'territory', label: '🌿 Прибирання' },
+                { id: 'territory', label: 'Прибирання' },
             ];
 
             body.innerHTML = `<div class="px-4 pb-4">
@@ -2156,7 +2187,7 @@
                                     class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                             </div>
                             <div>
-                                <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">📋 Заявок:</div>
+                                <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Заявок:</div>
                                 <input type="number" min="0" max="999" value="${row.tickets||''}" placeholder="0"
                                     oninput="dispUpdate(${d},'tickets',this.value)"
                                     class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
