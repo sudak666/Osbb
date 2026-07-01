@@ -25,6 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; }
@@ -55,6 +56,10 @@
         .no-select { user-select: none; -webkit-user-select: none; }
         .tab-btn { transition: all 0.2s; }
         .tab-btn.active { background: #34c759; color: white; }
+        .tab-btn.active svg { stroke: white; }
+        .tab-btn svg { stroke: currentColor; }
+        .ic { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; }
+        .ic-sm { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; }
 
         /* iOS-style polish */
         .rounded-2xl { border-radius: 18px !important; }
@@ -109,7 +114,7 @@
         .intro-name { color: white; font-size: 1.5rem; font-weight: 800; margin-top: 1rem; text-align: center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.5s; opacity:0; }
         .intro-sub { color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; text-align:center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.8s; opacity:0; }
         .pulse-ring { position: absolute; width: 180px; height: 180px; border-radius: 50%; border: 2px solid rgba(52,199,89,0.5); animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite; }
-        .pin-mb-btn { background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.15); border-radius:12px; padding:14px; font-size:1.2rem; font-weight:700; color:#fff; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; }
+        .pin-mb-btn { background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.15); border-radius:50%; width:64px; height:64px; font-size:1.3rem; font-weight:700; color:#fff; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; margin: 0 auto; }
         .pin-mb-btn:active { background:rgba(52,199,89,0.4); transform:scale(0.94); }
         .pulse-ring2 { animation-delay: 0.5s; }
 
@@ -146,7 +151,7 @@
             <div id="lock-d3" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
         </div>
         <div id="lock-err" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(3,72px);gap:12px;justify-content:center;">
             <button onclick="lockPress('1')" class="pin-mb-btn">1</button>
             <button onclick="lockPress('2')" class="pin-mb-btn">2</button>
             <button onclick="lockPress('3')" class="pin-mb-btn">3</button>
@@ -158,7 +163,7 @@
             <button onclick="lockPress('9')" class="pin-mb-btn">9</button>
             <div></div>
             <button onclick="lockPress('0')" class="pin-mb-btn">0</button>
-            <button onclick="lockDel()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;">⌫</button>
+            <button onclick="lockDel()" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:64px;height:64px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;">⌫</button>
         </div>
     </div>
 </div>
@@ -243,12 +248,28 @@
             <select id="month-select" onchange="initCalendar()" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         </div>
         <button onclick="stepMonth(1)" title="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
-        <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">📅 Сьогодні</button>
-        <div class="ml-auto no-print flex gap-2">
-            <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📋 Журнал</button>
-            <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📊 Графіки</button>
-            <button onclick="setTab('garbage')" id="tab-garbage" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">🗑️ Сміття</button>
-            <button onclick="setTab('dispatcher')" id="tab-dispatcher" class="tab-btn text-xs font-bold px-4 py-2 rounded-xl border border-[var(--border)]">📞 Диспетчер</button>
+        <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">
+            <span class="flex items-center gap-1"><i data-lucide="calendar-check" class="w-3.5 h-3.5"></i> Сьогодні</span>
+        </button>
+        <button onclick="refreshData()" title="Оновити дані" class="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 text-emerald-600 transition" id="btn-refresh">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+        <div class="ml-auto no-print flex gap-1.5">
+            <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Журнал
+            </button>
+            <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Графіки
+            </button>
+            <button onclick="setTab('garbage')" id="tab-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Сміття
+            </button>
+            <button onclick="setTab('dispatcher')" id="tab-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+                <i data-lucide="phone" class="w-3.5 h-3.5"></i> Диспетчер
+            </button>
+            <button onclick="setTab('chat')" id="tab-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Чат
+            </button>
         </div>
     </div>
 
@@ -280,7 +301,7 @@
                 <span id="dash-garbage-total" class="text-xl font-black text-emerald-600">0</span>
             </div>
             <div class="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 mb-2">
-                <span class="font-bold text-emerald-700 text-sm">🗑️ Саме баків</span>
+                <span class="font-bold text-emerald-700 text-sm">🗑️ Баків</span>
                 <span id="dash-garbage-bins" class="text-lg font-black text-emerald-600">0</span>
             </div>
             <div id="dash-garbage-breakdown" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 pt-2 border-t border-emerald-500/20 text-xs"></div>
@@ -420,6 +441,34 @@
                 </div>
             </div>
             <div id="disp-cards" class="divide-y divide-[var(--border)]"></div>
+        </div>
+    </div>
+
+    <!-- ===== СЕКЦІЯ ЧАТ ===== -->
+    <div id="section-chat" class="hidden mb-6">
+        <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
+            <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex items-center justify-between gap-3">
+                <span class="text-sm font-bold flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-emerald-500"></i> Чат ОСББ
+                </span>
+                <span id="chat-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500">⏳</span>
+            </div>
+            <!-- Повідомлення -->
+            <div id="chat-messages" class="flex flex-col gap-2 p-4 overflow-y-auto" style="min-height:300px;max-height:60vh;"></div>
+            <!-- Поле введення -->
+            <div class="p-3 border-t border-[var(--border)] flex gap-2 items-end">
+                <div class="flex-1">
+                    <input id="chat-author" type="text" placeholder="Ваше ім'я..." maxlength="30"
+                        class="w-full text-xs p-2 rounded-xl border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 mb-1.5">
+                    <textarea id="chat-input" rows="2" placeholder="Напишіть повідомлення..." maxlength="500"
+                        class="w-full text-sm p-2 rounded-xl border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
+                        onkeydown="if(event.ctrlKey&&event.key==='Enter')chatSend()"></textarea>
+                </div>
+                <button onclick="chatSend()" class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition shrink-0 mb-0.5">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="px-4 pb-2 text-[10px] text-[var(--text-sub)]">Ctrl+Enter для надсилання</div>
         </div>
     </div>
 
@@ -671,16 +720,19 @@
         document.getElementById('section-charts').classList.toggle('hidden', tab !== 'charts');
         document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
         document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
+        document.getElementById('section-chat').classList.toggle('hidden', tab !== 'chat');
         document.getElementById('tab-journal').classList.toggle('active', tab === 'journal');
         document.getElementById('tab-charts').classList.toggle('active', tab === 'charts');
         document.getElementById('tab-garbage').classList.toggle('active', tab === 'garbage');
         document.getElementById('tab-dispatcher').classList.toggle('active', tab === 'dispatcher');
-        // Мобільні картки показуємо тільки якщо журнал
+        document.getElementById('tab-chat').classList.toggle('active', tab === 'chat');
         const mobileCards = document.getElementById('mobile-cards');
         if (mobileCards) mobileCards.classList.toggle('hidden', tab !== 'journal');
         if (tab === 'charts') renderCharts();
         if (tab === 'garbage') gInitTab();
         if (tab === 'dispatcher') dispInitTab();
+        if (tab === 'chat') chatInitTab();
+        if (window.lucide) lucide.createIcons();
     }
 
     function fireConfetti(x, y) {
@@ -2125,5 +2177,147 @@
             dispRender();
         });
     }
+
+    // ==========================================
+    // ОНОВИТИ ДАНІ (примусовий refresh)
+    // ==========================================
+    async function refreshData() {
+        const btn = document.getElementById('btn-refresh');
+        if (btn) { btn.style.animation = 'spin 0.6s linear'; btn.disabled = true; }
+        gLoaded = false;
+        await initCalendar();
+        if (currentTab === 'garbage') await gInitTab();
+        if (currentTab === 'dispatcher') await dispInitTab();
+        if (currentTab === 'chat') await chatInitTab();
+        if (btn) { btn.style.animation = ''; btn.disabled = false; }
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // ==========================================
+    // ЧАТ ОСББ
+    // Таблиця Supabase: chat (id SERIAL PK, author TEXT, text TEXT, created_at TIMESTAMPTZ)
+    // ==========================================
+    let chatMessages = [];
+    let chatPollTimer = null;
+
+    function chatKey() { return 'chat_cache'; }
+
+    function chatSaveOffline() {
+        try { localStorage.setItem(chatKey(), JSON.stringify(chatMessages.slice(-100))); } catch(e) {}
+    }
+
+    function chatLoadOffline() {
+        try { return JSON.parse(localStorage.getItem(chatKey()) || '[]'); } catch(e) { return []; }
+    }
+
+    function chatSetStatus(type, text) {
+        const el = document.getElementById('chat-sync-status');
+        if (!el) return;
+        const styles = { loading: 'bg-yellow-100 text-yellow-700', ok: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700' };
+        el.className = `text-xs font-semibold px-3 py-1 rounded-full ${styles[type] || styles.ok}`;
+        el.textContent = text;
+    }
+
+    function chatRender() {
+        const container = document.getElementById('chat-messages');
+        if (!container) return;
+        if (!chatMessages.length) {
+            container.innerHTML = `<div class="flex flex-col items-center justify-center h-40 gap-2 text-[var(--text-sub)]">
+                <i data-lucide="message-circle" class="w-10 h-10 opacity-20"></i>
+                <span class="text-sm">Повідомлень ще немає. Напишіть першим!</span>
+            </div>`;
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
+        container.innerHTML = chatMessages.map(msg => {
+            const d = new Date(msg.created_at);
+            const time = d.toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+            const initials = (msg.author || '?').slice(0,2).toUpperCase();
+            const color = ['bg-emerald-500','bg-blue-500','bg-purple-500','bg-amber-500','bg-red-500','bg-teal-500'][Math.abs(msg.author.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
+            return `<div class="flex items-start gap-2.5">
+                <div class="w-8 h-8 rounded-full ${color} flex items-center justify-center text-white text-xs font-bold shrink-0">${initials}</div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2 mb-0.5">
+                        <span class="text-xs font-bold">${msg.author || 'Анонім'}</span>
+                        <span class="text-[10px] text-[var(--text-sub)]">${time}</span>
+                    </div>
+                    <div class="text-sm bg-[var(--bg-input)] rounded-2xl rounded-tl-sm px-3 py-2 break-words">${msg.text.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
+                </div>
+            </div>`;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    async function chatInitTab() {
+        chatSetStatus('loading', '⏳');
+        chatMessages = chatLoadOffline();
+        chatRender();
+        if (IS_PREVIEW) { chatSetStatus('ok', '🖥️ Превью'); return; }
+        try {
+            const res = await db.from('chat').select('id,author,text,created_at').order('created_at', { ascending: true }).limit(200);
+            const { data, error } = res;
+            if (error) throw error;
+            chatMessages = data || [];
+            chatSaveOffline();
+            chatSetStatus('ok', `✅ ${chatMessages.length} повідомлень`);
+            chatRender();
+        } catch(e) {
+            if (e && e.code !== 'FETCH_ERROR') console.error('chat load error:', e.message || e);
+            chatSetStatus('error', '📵 Офлайн');
+        }
+        // Авто-оновлення чату кожні 15 секунд поки вкладка активна
+        clearInterval(chatPollTimer);
+        chatPollTimer = setInterval(() => {
+            if (currentTab === 'chat' && !IS_PREVIEW) chatInitTab();
+        }, 15000);
+    }
+
+    async function chatSend() {
+        const authorEl = document.getElementById('chat-author');
+        const inputEl = document.getElementById('chat-input');
+        if (!authorEl || !inputEl) return;
+        const author = (authorEl.value || '').trim() || 'Анонім';
+        const text = (inputEl.value || '').trim();
+        if (!text) { inputEl.focus(); return; }
+        // Зберегти ім'я
+        try { localStorage.setItem('chat_author', author); } catch(e) {}
+
+        if (IS_PREVIEW) {
+            chatMessages.push({ id: Date.now(), author, text, created_at: new Date().toISOString() });
+            chatRender();
+            inputEl.value = '';
+            return;
+        }
+        inputEl.disabled = true;
+        try {
+            const res = await db.from('chat').insert([{ author, text }]);
+            const { error } = res;
+            if (error) throw error;
+            inputEl.value = '';
+            await chatInitTab();
+        } catch(e) {
+            if (e && e.code !== 'FETCH_ERROR') console.error('chat send error:', e.message || e);
+            chatSetStatus('error', '❌ Помилка надсилання');
+        }
+        inputEl.disabled = false;
+        inputEl.focus();
+    }
+
+    // Відновити збережене ім'я автора
+    try {
+        const savedAuthor = localStorage.getItem('chat_author');
+        if (savedAuthor) { const el = document.getElementById('chat-author'); if (el) el.value = savedAuthor; }
+    } catch(e) {}
+
+    // Ініціалізація Lucide іконок після завантаження DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) lucide.createIcons();
+    });
+    setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 300);
+
+    // CSS для спін-анімації кнопки refresh
+    const styleEl = document.createElement('style');
+    styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+    document.head.appendChild(styleEl);
 
 </script>
