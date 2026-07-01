@@ -170,6 +170,10 @@
     </div>
 </div>
 
+
+<!-- iOS TOAST -->
+<div id="ios-toast" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,32,0.92);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;pointer-events:none;opacity:0;transition:all 0.3s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,0.3);" id="ios-toast"></div>
+
 <div id="intro-splash">
     <div class="pulse-ring"></div>
     <div class="pulse-ring pulse-ring2"></div>
@@ -227,6 +231,7 @@
             <p class="text-sm font-medium text-emerald-600 mt-0.5"><span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg> Хмарний журнал супергероїв</span></p>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+            <span id="network-badge" style="display:none;" class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-600 flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
             <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span></span>
             <select id="theme-select" onchange="changeTheme(this.value)" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
                 <option value="theme-light">Світла</option>
@@ -319,7 +324,11 @@
                 </div>
                 <span id="dash-garbage-bins" class="text-4xl font-black text-emerald-500">0</span>
             </div>
-            <div id="dash-garbage-breakdown" class="flex flex-wrap gap-2 pt-2 border-t border-emerald-500/20 text-xs"></div>
+            <div class="flex items-center justify-between mb-2 pt-2 border-t border-emerald-500/20 text-xs text-[var(--text-sub)]">
+                <span>Середнє за 3 міс:</span>
+                <span id="dash-garbage-avg" class="font-bold text-emerald-600">—</span>
+            </div>
+            <div id="dash-garbage-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
         </div>
         <div class="border-t border-[var(--border)] pt-4">
             <div id="hero-banner" class="hidden mb-4 p-4 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/15 via-amber-300/10 to-yellow-400/15 flex items-center gap-4">
@@ -473,7 +482,7 @@
             <!-- Поле введення -->
             <div class="p-3 border-t border-[var(--border)] flex gap-2 items-end">
                 <div class="flex-1">
-                    <input id="chat-author" type="text" placeholder="Ваше ім'я..." maxlength="30"
+                    <input id="chat-author" type="text" placeholder="Ваше ім'я..." maxlength="30" readonly onclick="this.removeAttribute('readonly')"
                         class="w-full text-xs p-2 rounded-xl border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 mb-1.5">
                     <textarea id="chat-input" rows="2" placeholder="Напишіть повідомлення..." maxlength="500"
                         class="w-full text-sm p-2 rounded-xl border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
@@ -1050,7 +1059,7 @@
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
         container.innerHTML = photos.map(p => `
             <div class="relative group">
-                <img src="${p.url}" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">
+                <img src="${p.url}" loading="lazy" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">
                 <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600">✕</button>
             </div>`).join('');
     }
@@ -1640,7 +1649,7 @@
     }
 
     function gScheduleSave() {
-        gSetStatus('loading', '💾 Зберігаю...');
+        gSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
         gSaveOffline();
         clearTimeout(gSaveTimer);
         gSaveTimer = setTimeout(gSaveCloud, 1200);
@@ -1719,12 +1728,13 @@
         const totalEl = document.getElementById('dash-garbage-total');
         const binsEl = document.getElementById('dash-garbage-bins');
         const breakdownEl = document.getElementById('dash-garbage-breakdown');
+        const avgEl = document.getElementById('dash-garbage-avg');
         if (!totalEl || !breakdownEl) return;
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         let total = 0;
         const byType = {};
         for (let d = 1; d <= daysInMonth; d++) {
-            const day = String(d).padStart(2,'0');
+            const day = String(d).padStart(2,'00');
             const row = gData[day];
             if (!row || !row.types) continue;
             Object.entries(row.types).forEach(([type, cnt]) => {
@@ -1736,7 +1746,25 @@
         }
         totalEl.textContent = total;
         if (binsEl) binsEl.textContent = byType.bins || 0;
-        // Решта типів (без баків, бо вони вже показані окремо вище)
+
+        // Середнє за останні 3 місяці (з localStorage)
+        if (avgEl) {
+            let sum3 = 0, count3 = 0;
+            for (let offset = 1; offset <= 3; offset++) {
+                let m = currentMonth - offset;
+                let y = currentYear;
+                if (m < 0) { m += 12; y--; }
+                try {
+                    const d = JSON.parse(localStorage.getItem(`garbage_${y}_${m}`) || '{}');
+                    let monthBins = 0;
+                    Object.values(d).forEach(r => { if (r.types) monthBins += parseInt(r.types.bins)||0; });
+                    if (monthBins > 0) { sum3 += monthBins; count3++; }
+                } catch(e) {}
+            }
+            avgEl.textContent = count3 > 0 ? Math.round(sum3 / count3) : '—';
+        }
+
+        // Решта типів (без баків)
         const restTypes = { ...byType };
         delete restTypes.bins;
         breakdownEl.innerHTML = Object.keys(restTypes).length
@@ -2008,7 +2036,7 @@
     }
 
     function dispScheduleSave() {
-        dispSetStatus('loading', '💾 Зберігаю...');
+        dispSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
         dispSaveOffline();
         clearTimeout(dispSaveTimer);
         dispSaveTimer = setTimeout(dispSaveCloud, 1200);
@@ -2197,6 +2225,7 @@
         if (currentTab === 'dispatcher') await dispInitTab();
         if (currentTab === 'chat') await chatInitTab();
         if (btn) { btn.style.animation = ''; btn.disabled = false; }
+        showToast('Дані оновлено');
     }
 
     // ==========================================
@@ -2234,22 +2263,34 @@
             </div>`;
             return;
         }
+        const myName = (document.getElementById('chat-author')?.value || '').trim();
         container.innerHTML = chatMessages.map(msg => {
             const d = new Date(msg.created_at);
             const time = d.toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
             const initials = (msg.author || '?').slice(0,2).toUpperCase();
-            const color = ['bg-emerald-500','bg-blue-500','bg-purple-500','bg-amber-500','bg-red-500','bg-teal-500'][Math.abs(msg.author.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
-            return `<div class="flex items-start gap-2.5">
+            const colors = ['bg-emerald-500','bg-blue-500','bg-purple-500','bg-amber-500','bg-red-500','bg-teal-500'];
+            const color = colors[Math.abs((msg.author||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
+            const isMine = myName && msg.author === myName;
+            const deleteBtn = isMine
+                ? `<button onclick="chatDelete(${msg.id})" title="Видалити" style="opacity:0;transition:opacity .15s;margin-left:4px;" class="chat-del-btn text-red-400 hover:text-red-600 text-xs px-1 rounded">✕</button>`
+                : '';
+            return `<div class="flex items-start gap-2.5 group" style="${isMine?'flex-direction:row-reverse;':''}">
                 <div class="w-8 h-8 rounded-full ${color} flex items-center justify-center text-white text-xs font-bold shrink-0">${initials}</div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-baseline gap-2 mb-0.5">
+                <div class="flex-1 min-w-0" style="${isMine?'align-items:flex-end;display:flex;flex-direction:column;':''}">
+                    <div class="flex items-baseline gap-2 mb-0.5 ${isMine?'flex-row-reverse':''}">
                         <span class="text-xs font-bold">${msg.author || 'Анонім'}</span>
                         <span class="text-[10px] text-[var(--text-sub)]">${time}</span>
+                        ${deleteBtn}
                     </div>
-                    <div class="text-sm bg-[var(--bg-input)] rounded-2xl rounded-tl-sm px-3 py-2 break-words">${msg.text.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
+                    <div class="text-sm rounded-2xl px-3 py-2 break-words max-w-xs ${isMine?'bg-emerald-500 text-white rounded-tr-sm':'bg-[var(--bg-input)] rounded-tl-sm'}">${msg.text.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
                 </div>
             </div>`;
         }).join('');
+        // Показувати кнопку видалення при hover
+        container.querySelectorAll('.chat-del-btn').forEach(btn => {
+            btn.closest('.group').addEventListener('mouseenter', () => btn.style.opacity = '1');
+            btn.closest('.group').addEventListener('mouseleave', () => btn.style.opacity = '0');
+        });
         container.scrollTop = container.scrollHeight;
     }
 
@@ -2314,11 +2355,95 @@
         if (savedAuthor) { const el = document.getElementById('chat-author'); if (el) el.value = savedAuthor; }
     } catch(e) {}
 
-    // Ініціалізація Lucide іконок після завантаження DOM
-    document.addEventListener('DOMContentLoaded', () => {
-    });
-    setTimeout(() => {
- }, 300);
+    // ============================================================
+    // iOS TOAST повідомлення
+    // ============================================================
+    let toastTimer = null;
+    function showToast(msg, icon = '✓', duration = 2500) {
+        const el = document.getElementById('ios-toast');
+        if (!el) return;
+        el.innerHTML = `<span style="width:18px;height:18px;border-radius:50%;background:rgba(52,199,89,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;">${icon}</span>${msg}`;
+        el.style.opacity = '1';
+        el.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(-50%) translateY(20px)';
+        }, duration);
+    }
+
+    // Виклик toast при збереженні — перехопити setSyncStatus 'ok'
+    const _origSetSyncStatus = setSyncStatus;
+    setSyncStatus = function(type, text) {
+        _origSetSyncStatus(type, text);
+        if (type === 'ok' && text.includes('Синхронізовано')) showToast('Збережено', '✓');
+    };
+
+    // ============================================================
+    // ONLINE / OFFLINE ІНДИКАТОР
+    // ============================================================
+    function updateNetworkBadge() {
+        const badge = document.getElementById('network-badge');
+        if (!badge) return;
+        if (navigator.onLine) {
+            badge.style.display = 'none';
+        } else {
+            badge.style.display = 'flex';
+        }
+    }
+    window.addEventListener('online',  () => { updateNetworkBadge(); showToast('Мережа відновлена', '✓'); });
+    window.addEventListener('offline', () => { updateNetworkBadge(); showToast('Немає мережі — працюємо офлайн', '⚠', 4000); });
+    updateNetworkBadge();
+
+    // ============================================================
+    // AUTO-LOCK — блокування через 30 хвилин бездіяльності
+    // ============================================================
+    const AUTO_LOCK_MS = 30 * 60 * 1000; // 30 хвилин
+    let autoLockTimer = null;
+
+    function resetAutoLock() {
+        clearTimeout(autoLockTimer);
+        autoLockTimer = setTimeout(triggerAutoLock, AUTO_LOCK_MS);
+    }
+
+    function triggerAutoLock() {
+        lockBuf = '';
+        lockUpdateDots();
+        const screen = document.getElementById('app-lock-screen');
+        if (screen) {
+            screen.style.transition = 'none';
+            screen.style.opacity = '1';
+            screen.style.display = 'flex';
+        }
+        const err = document.getElementById('lock-err');
+        if (err) err.textContent = '';
+    }
+
+    // Скидати таймер на будь-яку активність користувача
+    ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
+        document.addEventListener(evt, resetAutoLock, { passive: true })
+    );
+    resetAutoLock(); // Запустити таймер
+
+    // ============================================================
+    // ВИДАЛЕННЯ ПОВІДОМЛЕНЬ ЧАТУ (свої)
+    // ============================================================
+    async function chatDelete(id) {
+        if (IS_PREVIEW) {
+            chatMessages = chatMessages.filter(m => m.id !== id);
+            chatRender();
+            return;
+        }
+        try {
+            await db.from('chat').delete().eq('id', id);
+            chatMessages = chatMessages.filter(m => m.id !== id);
+            chatSaveOffline();
+            chatRender();
+            showToast('Повідомлення видалено', '🗑');
+        } catch(e) {
+            showToast('Помилка видалення', '✕');
+        }
+    }
 
     // CSS для спін-анімації кнопки refresh
     const styleEl = document.createElement('style');
