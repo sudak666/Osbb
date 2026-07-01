@@ -2292,7 +2292,8 @@
         container.innerHTML = chatMessages.map(msg => {
             const d = new Date(msg.created_at);
             const time = d.toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-            const initials = (msg.author || '?').slice(0,2).toUpperCase();
+            const authorEscaped = (msg.author || 'Анонім').replace(/</g, '&lt;');
+            const initials = (msg.author || '?').slice(0,2).toUpperCase().replace(/</g, '&lt;');
             const colors = ['bg-emerald-500','bg-blue-500','bg-purple-500','bg-amber-500','bg-red-500','bg-teal-500'];
             const color = colors[Math.abs((msg.author||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
             const isMine = myName && msg.author === myName;
@@ -2303,7 +2304,7 @@
                 <div class="w-8 h-8 rounded-full ${color} flex items-center justify-center text-white text-xs font-bold shrink-0">${initials}</div>
                 <div class="flex-1 min-w-0" style="${isMine?'align-items:flex-end;display:flex;flex-direction:column;':''}">
                     <div class="flex items-baseline gap-2 mb-0.5 ${isMine?'flex-row-reverse':''}">
-                        <span class="text-xs font-bold">${msg.author || 'Анонім'}</span>
+                        <span class="text-xs font-bold">${authorEscaped}</span>
                         <span class="text-[10px] text-[var(--text-sub)]">${time}</span>
                         ${deleteBtn}
                     </div>
