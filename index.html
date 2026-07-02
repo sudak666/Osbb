@@ -84,9 +84,11 @@
         .mob-tab.mob-active { color: #34c759; }
         .mob-tab.mob-active i { stroke: #34c759; }
         /* Кастомний чекбокс */
-        .custom-cb { width:20px;height:20px;border-radius:6px;border:2px solid #d1d5db;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer; }
+        .custom-cb { width:20px;height:20px;border-radius:50%;border:2px solid #d1d5db;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer; }
         .custom-cb:hover { border-color:#34c759; background:rgba(52,199,89,0.08); }
         .custom-cb.checked { border-color:#34c759; background:#34c759; }
+        .round-checkbox { appearance:none; -webkit-appearance:none; width:18px; height:18px; border-radius:50%; border:2px solid #d1d5db; background:transparent; cursor:pointer; transition:all .15s; flex-shrink:0; vertical-align:middle; }
+        .round-checkbox:checked { background:#34c759; border-color:#34c759; }
         .role-card { border-radius: 12px; padding: 10px; margin-bottom: 8px; }
         .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
         .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
@@ -1177,8 +1179,7 @@
                     const disabled = !state.working;
                     return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
                         <span onclick="if(!${disabled}) toggleTask(${d},'${role}','${task.id}',{target:{checked:${!isChecked}}})"
-                            style="width:20px;height:20px;border-radius:6px;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
-                            ${isChecked?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+                            style="width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
                         </span>
                         <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
@@ -1327,8 +1328,7 @@
                     const disabled = !state.working;
                     checkBoxesHtml += `<label class="flex items-center gap-2 text-sm cursor-pointer select-none mt-1.5 ${disabled?'pointer-events-none opacity-40':''}">
                         <span onclick="if(!${disabled}) toggleTask(${d},'${role}','${task.id}',{target:{checked:${!isChecked}}})"
-                            style="width:20px;height:20px;border-radius:6px;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
-                            ${isChecked?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+                            style="width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
                         </span>
                         <span class="${isChecked?'font-semibold text-[var(--text-main)]':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
@@ -1861,7 +1861,7 @@
                                 <label class="flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
                                     <input type="checkbox" ${checked?'checked':''}
                                         onchange="gUpdateType('${day}','${k}', this.checked ? (document.getElementById('g-cnt-${day}-${k}').value || 1) : 0); gRenderDaysList();"
-                                        class="accent-emerald-500">
+                                        class="round-checkbox">
                                     ${label}
                                 </label>
                                 <input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${val}"
@@ -2190,8 +2190,7 @@
                         <div class="mb-2">${dispTasks.map(t => `
                             <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
                                 <span onclick="dispToggleTask(${d},'${t.id}',${!row.tasks?.[t.id]})"
-                                    style="width:20px;height:20px;border-radius:6px;border:2px solid ${row.tasks?.[t.id]?'#34c759':'#d1d5db'};background:${row.tasks?.[t.id]?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
-                                    ${row.tasks?.[t.id]?'<svg width=\\"11\\" height=\\"9\\" viewBox=\\"0 0 11 9\\" fill=\\"none\\"><path d=\\"M1 4L4 7.5L10 1\\" stroke=\\"white\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"/></svg>':''}
+                                    style="width:20px;height:20px;border-radius:50%;border:2px solid ${row.tasks?.[t.id]?'#34c759':'#d1d5db'};background:${row.tasks?.[t.id]?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
                                 </span>
                                 <span class="${row.tasks?.[t.id]?'font-semibold':'text-[var(--text-sub)]'}">${t.label}</span>
                             </label>`).join('')}
