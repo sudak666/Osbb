@@ -505,20 +505,11 @@
     const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
     const IS_PREVIEW = location.hostname.includes('claudeusercontent') || location.hostname.includes('claude.site') || window.self !== window.top;
 
-    // Хеш пароля "3333" за алгоритмом SHA-256 для безпеки на клієнті
-    const RESET_PASSWORD_HASH = '9f7401873b6848c0db4681fb8036980e478546522c07011d619a9a3b6f00115c';
-
-    async function hashPassword(pwd) {
-        const msgBuffer = new TextEncoder().encode(pwd);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
     // ==========================================
-    // ЕКРАН БЛОКУВАННЯ ВХОДУ (PIN 3535)
+    // ЕКРАН БЛОКУВАННЯ ВХОДУ
+    // PIN перевіряється на сервері (Supabase RPC verify_lock_pin),
+    // сам код нікому не відомий на клієнті
     // ==========================================
-    const APP_LOCK_HASH = 'deb2676eeef1cf8fc35f1e58cd860a000ac231550a915589dc66159806fc4a4a'; // SHA-256("3535")
     let lockBuf = '';
 
     function lockUpdateDots() {
@@ -542,8 +533,10 @@
         lockBuf += digit;
         lockUpdateDots();
         if (lockBuf.length === 4) {
-            const hashedInput = await hashPassword(lockBuf);
-            if (hashedInput === APP_LOCK_HASH) {
+            const attempt = lockBuf;
+            let ok = false;
+            try { ok = await db.rpc('verify_lock_pin', { attempt }); } catch (e) { ok = false; }
+            if (ok) {
                 const screen = document.getElementById('app-lock-screen');
                 if (screen) {
                     screen.style.transition = 'opacity 0.35s ease';
@@ -585,6 +578,11 @@
             }
             const txt = await r.text();
             return txt ? JSON.parse(txt) : null;
+        },
+
+        async rpc(fn, params = {}) {
+            const url = SUPABASE_URL + '/rest/v1/rpc/' + fn;
+            return this._fetch('POST', url, { 'Content-Type': 'application/json' }, JSON.stringify(params));
         },
 
         storage: {
@@ -1989,8 +1987,10 @@
         pinModalBuf += digit;
         pinUpdateDots();
         if (pinModalBuf.length === 4) {
-            const hashedInput = await hashPassword(pinModalBuf);
-            if (hashedInput === RESET_PASSWORD_HASH) {
+            const attempt = pinModalBuf;
+            let ok = false;
+            try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
+            if (ok) {
                 document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 document.getElementById('pin-modal').style.display = 'none';
                 pinModalBuf = '';
@@ -2482,3 +2482,4 @@
     document.head.appendChild(styleEl);
 
 </script>
+
