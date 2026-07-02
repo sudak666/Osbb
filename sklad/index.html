@@ -636,6 +636,35 @@ async function checkPin(attempt){
   </div>
 </div>
 
+<!-- PIN CONFIRM MODAL (для будь-якого видалення) -->
+<div class="modal-bg" id="delPinModal" onclick="delPinModalCancel(event)">
+  <div class="modal" style="width:320px;text-align:center;background:#1C1C1E;">
+    <h3 id="delPinTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px;">PIN для видалення</h3>
+    <p style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;">Підтвердіть дію PIN-кодом</p>
+    <div class="auth-dots">
+      <div class="auth-dot" id="dp0"></div>
+      <div class="auth-dot" id="dp1"></div>
+      <div class="auth-dot" id="dp2"></div>
+      <div class="auth-dot" id="dp3"></div>
+    </div>
+    <div id="delPinErr" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
+    <div class="pin-keys">
+      <button class="pin-key" onclick="deletePinPress('1')">1</button>
+      <button class="pin-key" onclick="deletePinPress('2')">2</button>
+      <button class="pin-key" onclick="deletePinPress('3')">3</button>
+      <button class="pin-key" onclick="deletePinPress('4')">4</button>
+      <button class="pin-key" onclick="deletePinPress('5')">5</button>
+      <button class="pin-key" onclick="deletePinPress('6')">6</button>
+      <button class="pin-key" onclick="deletePinPress('7')">7</button>
+      <button class="pin-key" onclick="deletePinPress('8')">8</button>
+      <button class="pin-key" onclick="deletePinPress('9')">9</button>
+      <button class="pin-key" onclick="deletePinPress('C')"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" onclick="deletePinPress('0')">0</button>
+      <button class="pin-key" onclick="deletePinPress('DEL')"><span class="ms" style="font-size:20px;">backspace</span></button>
+    </div>
+  </div>
+</div>
+
 <!-- AUDIT CONFIRM MODAL -->
 <div class="modal-bg" id="auditModal" onclick="closeModal('auditModal',event)">
   <div class="modal" style="width:420px;">
@@ -1317,19 +1346,18 @@ function openDeleteLog(id){
 }
 async function confirmDeleteLog(){
   if(!deleteLogId) return;
-  const l=allLogs.find(x=>x.id===deleteLogId);
-  if(!l) return closeModal('delLogModal');
-  const item=allItems.find(i=>i.id===l.item_id);
-  if(item){
-    const newQ=Math.round((item.quantity+l.quantity)*100)/100;
-    await db.from('inventory_items').update({quantity:newQ}).eq('id',item.id);
-  }
-  const {error}=await db.from('inventory_logs').delete().eq('id',deleteLogId);
-  if(error) return toast('Помилка: '+error.message,'error');
-  toast('Запис видалено, товар повернуто на склад','success');
+  const id=deleteLogId;
   closeModal('delLogModal');
-  deleteLogId=null;
-  await loadItems();await loadLogs();
+  showDeletePinModal('PIN для видалення запису', async (pin)=>{
+    const {data,error}=await db.rpc('delete_inventory_log',{p_log_id:id,attempt:pin});
+    if(error) return {ok:false,reason:'network'};
+    if(data && data.ok){
+      toast('Запис видалено, товар повернуто на склад','success');
+      deleteLogId=null;
+      await loadItems();await loadLogs();
+    }
+    return data || {ok:false};
+  });
 }
 function openEditLog(id){
   const l=allLogs.find(x=>x.id===id);
@@ -1423,20 +1451,18 @@ function openDeleteReceipt(id){
 }
 async function confirmDeleteReceipt(){
   if(!deleteReceiptId) return;
-  const r=allReceipts.find(x=>x.id===deleteReceiptId);
-  if(!r) return closeModal('delReceiptModal');
-  const item=allItems.find(i=>i.id===r.item_id);
-  if(item){
-    const newQ=Math.round((item.quantity-r.quantity)*100)/100;
-    if(newQ<0) return toast('Видалення призведе до від\'ємного залишку','error');
-    await db.from('inventory_items').update({quantity:newQ}).eq('id',item.id);
-  }
-  const {error}=await db.from('inventory_receipts').delete().eq('id',deleteReceiptId);
-  if(error) return toast('Помилка: '+error.message,'error');
-  toast('Прихід видалено, залишок скориговано','success');
+  const id=deleteReceiptId;
   closeModal('delReceiptModal');
-  deleteReceiptId=null;
-  await loadItems();await loadReceipts();
+  showDeletePinModal('PIN для видалення приходу', async (pin)=>{
+    const {data,error}=await db.rpc('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
+    if(error) return {ok:false,reason:'network'};
+    if(data && data.ok){
+      toast('Прихід видалено, залишок скориговано','success');
+      deleteReceiptId=null;
+      await loadItems();await loadReceipts();
+    }
+    return data || {ok:false};
+  });
 }
 function openEditReceipt(id){
   const r=allReceipts.find(x=>x.id===id);
@@ -1555,11 +1581,18 @@ function openDelete(id){
 }
 async function confirmDelete(){
   if(!deleteItemId) return;
-  const {error}=await db.from('inventory_items').delete().eq('id',deleteItemId);
-  if(error) return toast('Помилка: '+error.message,'error');
-  toast('Товар видалено','info');
-  closeModal('delModal');deleteItemId=null;
-  await loadItems();
+  const id=deleteItemId;
+  closeModal('delModal');
+  showDeletePinModal('PIN для видалення товару', async (pin)=>{
+    const {data,error}=await db.rpc('delete_inventory_item',{p_item_id:id,attempt:pin});
+    if(error) return {ok:false,reason:'network'};
+    if(data && data.ok){
+      toast('Товар видалено','info');
+      deleteItemId=null;
+      await loadItems();
+    }
+    return data || {ok:false};
+  });
 }
 
 // ===== PHOTO =====
@@ -1816,6 +1849,62 @@ function closeModal(id,e){
   document.getElementById(id).classList.remove('open');
 }
 
+// ===== PIN ПРИ ВИДАЛЕННІ =====
+// Видалення товару/запису/приходу тепер вимагає повторного вводу того ж
+// PIN, що й на вході — сама перевірка й видалення відбуваються в одній
+// RPC на сервері (delete_inventory_item/log/receipt), а не напряму
+// анонімним ключем, щоб бот з ключем зі сторінки не міг видаляти дані.
+let deletePinBuf = '';
+let deletePinAction = null;
+
+function showDeletePinModal(title, action) {
+  deletePinBuf = '';
+  deletePinAction = action;
+  document.getElementById('delPinTitle').textContent = title;
+  document.getElementById('delPinErr').textContent = '';
+  updateDeletePinDots();
+  document.getElementById('delPinModal').classList.add('open');
+}
+function delPinModalCancel(e) {
+  if (e && e.target !== document.getElementById('delPinModal')) return;
+  document.getElementById('delPinModal').classList.remove('open');
+  deletePinBuf = ''; deletePinAction = null;
+  updateDeletePinDots();
+  document.getElementById('delPinErr').textContent = '';
+}
+function updateDeletePinDots() {
+  for (let i = 0; i < 4; i++) document.getElementById('dp' + i).classList.toggle('filled', i < deletePinBuf.length);
+}
+async function deletePinPress(k) {
+  if (k === 'C') { deletePinBuf = ''; }
+  else if (k === 'DEL') { deletePinBuf = deletePinBuf.slice(0, -1); }
+  else if (deletePinBuf.length < 4) { deletePinBuf += k; }
+  updateDeletePinDots();
+  document.getElementById('delPinErr').textContent = '';
+  if (deletePinBuf.length === 4) {
+    const pin = deletePinBuf;
+    const action = deletePinAction;
+    deletePinBuf = '';
+    updateDeletePinDots();
+    if (!action) return;
+    const result = await action(pin);
+    if (result && result.ok) {
+      document.getElementById('delPinModal').classList.remove('open');
+      deletePinAction = null;
+    } else {
+      const reason = result && result.reason;
+      const msg = reason === 'negative_stock' ? 'Видалення призведе до від\'ємного залишку'
+                : reason === 'not_found' ? 'Запис не знайдено'
+                : reason === 'network' ? 'Помилка мережі, спробуйте ще'
+                : 'Невірний PIN, спробуйте ще';
+      document.getElementById('delPinErr').textContent = msg;
+      if (reason && reason !== 'bad_pin') {
+        setTimeout(() => { document.getElementById('delPinModal').classList.remove('open'); deletePinAction = null; }, 1600);
+      }
+    }
+  }
+}
+
 // ===== TOAST =====
 let toastT;
 function escapeHtml(s){
@@ -1880,3 +1969,4 @@ if('serviceWorker' in navigator){
 </script>
 </body>
 </html>
+
