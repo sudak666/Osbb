@@ -1520,10 +1520,14 @@
     }
 
     async function clearCurrentMonth() {
-        showPinModal('Скидання журналу', 'PIN для очищення місяця', async () => {
+        showPinModal('Скидання журналу', 'PIN для очищення місяця', async (pin) => {
             showOverlay(true, 'Видаляю...'); currentMonthData = {};
             if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); renderTable(); updateStats(); showOverlay(false); return; }
-            try { await db.from('schedule').delete().eq('month_key', `${currentYear}-${currentMonth}`); setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Місяць скинуто</span>'); }
+            try {
+                const ok = await db.rpc('reset_month', { table_name: 'schedule', p_month_key: `${currentYear}-${currentMonth}`, attempt: pin });
+                if (ok) setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Місяць скинуто</span>');
+                else setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка</span>');
+            }
             catch (err) { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка</span>'); }
             renderTable(); updateStats(); showOverlay(false);
         }, true);
@@ -1943,11 +1947,11 @@
     }
 
     async function gClearMonth() {
-        showPinModal('Скидання сміття', 'PIN для очищення місяця', async () => {
+        showPinModal('Скидання сміття', 'PIN для очищення місяця', async (pin) => {
             gData = {};
             gSaveOffline();
             if (!IS_PREVIEW) {
-                try { await db.from('garbage').delete().eq('month_key', gKey()); } catch(e) {}
+                try { await db.rpc('reset_month', { table_name: 'garbage', p_month_key: gKey(), attempt: pin }); } catch(e) {}
             }
             gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Скинуто</span>');
             gRender();
@@ -2005,7 +2009,10 @@
                 document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 document.getElementById('pin-modal').style.display = 'none';
                 pinModalBuf = '';
-                if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(); }
+                // PIN передаємо в callback: серверна reset_month() перевіряє
+                // його ще раз перед видаленням, а не покладається лише на
+                // клієнтську перевірку тут.
+                if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
             } else {
                 document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
                 document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
@@ -2239,11 +2246,11 @@
     }
 
     async function dispClearMonth() {
-        showPinModal('Скидання диспетчера', 'PIN для очищення місяця', async () => {
+        showPinModal('Скидання диспетчера', 'PIN для очищення місяця', async (pin) => {
             dispData = {};
             dispSaveOffline();
             if (!IS_PREVIEW) {
-                try { await db.from('dispatcher').delete().eq('month_key', dispKey()); } catch(e) {}
+                try { await db.rpc('reset_month', { table_name: 'dispatcher', p_month_key: dispKey(), attempt: pin }); } catch(e) {}
             }
             dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Скинуто</span>');
             dispRender();
@@ -2493,4 +2500,5 @@
     document.head.appendChild(styleEl);
 
 </script>
+
 
