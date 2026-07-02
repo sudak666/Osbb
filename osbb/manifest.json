@@ -1,0 +1,23 @@
+{
+  "name": "ОСББ Журнал Супергероїв",
+  "short_name": "ОСББ Журнал",
+  "description": "Хмарний журнал чергувань ОСББ \"Микитська Слобода\"",
+  "start_url": "/Osbb/osbb/",
+  "scope": "/Osbb/osbb/",
+  "display": "standalone",
+  "background_color": "#6366f1",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

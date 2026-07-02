@@ -1,0 +1,41 @@
+{
+  "name": "Склад ОСББ — Микитська Слобода",
+  "short_name": "Склад ОСББ",
+  "description": "Журнал складу ОСББ Микитська Слобода",
+  "start_url": "/Osbb/sklad/",
+  "scope": "/Osbb/sklad/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1e1b4b",
+  "theme_color": "#312e81",
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Видача товару",
+      "short_name": "Видача",
+      "url": "/Osbb/sklad/#issue",
+      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Додати товар",
+      "short_name": "Додати",
+      "url": "/Osbb/sklad/#add",
+      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
+    }
+  ]
+}
