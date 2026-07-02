@@ -195,10 +195,11 @@
         unlockShell();
     }
 
-    // На випадок старих встановлених PWA-іконок з активним service worker
-    // попередньої версії застосунку — знімаємо його, щоб не заважав оновленням.
+    // Реєструємо власний service worker shell-оболонки — без нього Chrome
+    // на Android не пропонує "Встановити застосунок" (одна з вимог
+    // installability, окрім валідного manifest.json).
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+        navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 </script>
 
