@@ -2016,7 +2016,13 @@
     // ==========================================
     let dispData = {};
     let dispSaveTimer = null;
+    let dispOpenDays = new Set(); // дні, розгорнуті вручну користувачем (крім сьогодні, яке завжди відкрите за замовчуванням)
     const dispWorkerName = 'Диспетчер';
+
+    function dispToggleDay(key) {
+        if (dispOpenDays.has(key)) dispOpenDays.delete(key); else dispOpenDays.add(key);
+        dispRender();
+    }
 
     function dispKey() { return `${currentYear}-${currentMonth}`; }
     function dispOfflineKey() { return `dispatcher_${currentYear}_${currentMonth}`; }
@@ -2104,7 +2110,7 @@
         if (!day.tasks) day.tasks = {};
         day.tasks[taskId] = val;
         dispScheduleSave();
-        dispUpdateStats();
+        dispRender();
     }
 
     function dispUpdateStats() {
@@ -2134,6 +2140,7 @@
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const isFuture = !isToday && dateObj > new Date(todayYear, todayMonth, todayDay);
             const row = dispGetDay(d);
+            const isOpen = isToday ? !dispOpenDays.has('CLOSED_' + d) : dispOpenDays.has(d);
 
             let statusBadge = '';
             if (isToday) statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>СЬОГОДНІ</span>';
@@ -2153,20 +2160,13 @@
                     ${row.calls ? `<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>${row.calls}</span>` : ''}
                     ${row.tickets ? `<span class="text-[10px] bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-full font-bold">${row.tickets}</span>` : ''}
                 </div>
-                <span class="text-xs text-[var(--text-sub)] transition-transform" id="disp-arrow-${d}">▼</span>`;
-            header.onclick = () => {
-                const body = document.getElementById(`disp-body-${d}`);
-                const arrow = document.getElementById(`disp-arrow-${d}`);
-                const isOpen = body.style.display !== 'none';
-                body.style.display = isOpen ? 'none' : 'block';
-                arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
-            };
+                <span class="text-xs text-[var(--text-sub)] transition-transform" id="disp-arrow-${d}" style="${isOpen ? 'transform:rotate(180deg)' : ''}">▼</span>`;
+            header.onclick = () => dispToggleDay(isToday ? 'CLOSED_' + d : d);
             card.appendChild(header);
 
             const body = document.createElement('div');
             body.id = `disp-body-${d}`;
-            body.style.display = isToday ? 'block' : 'none';
-            if (isToday) setTimeout(() => { const a = document.getElementById(`disp-arrow-${d}`); if(a) a.style.transform='rotate(180deg)'; }, 0);
+            body.style.display = isOpen ? 'block' : 'none';
 
             const dispTasks = [
                 { id: 'journal', label: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:3px;"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="13" y2="18"/></svg>Журнал' },
