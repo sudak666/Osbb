@@ -36,7 +36,7 @@
     .ios-segmented-control {
         display: flex;
         width: 100%;
-        background: rgba(116, 116, 128, 0.24); /* Нативний колір підкладки iOS матеріалу */
+        background: rgba(116, 116, 128, 0.24); /* Нативна підкладка iOS */
         border-radius: 9px;
         padding: 2px;
         gap: 2px;
@@ -47,7 +47,7 @@
         align-items: center; 
         justify-content: center; 
         gap: 6px; 
-        padding: 8px 12px; 
+        padding: 8px 8px; 
         border-radius: 7px; 
         border: none; 
         background: transparent; 
@@ -56,9 +56,11 @@
         font-weight: 600; 
         cursor: pointer; 
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-        -webkit-tap-highlight-color: transparent; 
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+        text-decoration: none; /* Для тегу <a> */
     }
-    /* Активний таб із фірмовим зеленим кольором та м'якою нативною тінню */
+    /* Активний таб із зеленим кольором Apple та м'якою тінню */
     .shell-tab-btn.active { 
         background: #34c759; 
         color: #fff; 
@@ -119,6 +121,14 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Склад
             </button>
+            <a href="https://www.deyecloud.com/station/new-main?t=1783238196915&id=61184357" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="shell-tab-btn"
+               id="shell-tab-deye">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Deye ↗
+            </a>
         </div>
     </div>
     <div id="shell-frames">
@@ -208,7 +218,7 @@
 
     function loadTab(name) {
         const frame = document.getElementById('frame-' + name);
-        if (!loadedTabs[name]) {
+        if (frame && !loadedTabs[name]) {
             frame.src = TAB_SRC[name];
             loadedTabs[name] = true;
         }
@@ -217,9 +227,12 @@
     function switchTab(name) {
         loadTab(name);
         document.querySelectorAll('.shell-tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('shell-tab-' + name).classList.add('active');
+        const targetTab = document.getElementById('shell-tab-' + name);
+        if (targetTab) targetTab.classList.add('active');
+        
         document.querySelectorAll('#shell-frames iframe').forEach(f => f.classList.remove('active'));
-        document.getElementById('frame-' + name).classList.add('active');
+        const targetFrame = document.getElementById('frame-' + name);
+        if (targetFrame) targetFrame.classList.add('active');
     }
 
     if (sessionStorage.getItem('auth') === 'ok') {
