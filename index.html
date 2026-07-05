@@ -19,7 +19,7 @@
     html, body { height: 100%; margin: 0; overflow: hidden; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif; background: #000; -webkit-font-smoothing: antialiased; }
 
-    /* ЕКРАН БЛОКУВАННЯ (та сама розмітка/стиль, що й у розділі "Журнал") */
+    /* ЕКРАН БЛОКУВАННЯ */
     .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:300; color:#fff; cursor:pointer; transition:background .12s ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
     .pin-mb-btn:active { background:rgba(255,255,255,0.22); }
 
@@ -35,7 +35,6 @@
 </head>
 <body>
 
-<!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
 <div id="app-lock-screen" style="position:fixed;inset:0;background:#1c1c1e;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
     <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;padding:0 24px;">
         <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#34c759,#248a3d);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(52,199,89,0.35);"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
@@ -67,7 +66,6 @@
     </div>
 </div>
 
-<!-- ОСНОВНА ОБОЛОНКА: панель вкладок + iframe розділів -->
 <div id="shell-main">
     <div id="shell-tabs">
         <button class="shell-tab-btn active" id="shell-tab-journal" onclick="switchTab('journal')">
@@ -78,6 +76,14 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             Склад
         </button>
+        <a href="https://www.deyecloud.com/station/new-main?t=1783238196915&id=61184357" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="shell-tab-btn" 
+           style="text-decoration: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+            Deye Cloud ↗
+        </a>
     </div>
     <div id="shell-frames">
         <iframe id="frame-journal" title="Журнал ОСББ"></iframe>
@@ -104,13 +110,6 @@
         return txt ? JSON.parse(txt) : null;
     }
 
-    // ==========================================
-    // ЕКРАН БЛОКУВАННЯ ВХОДУ
-    // PIN перевіряється на сервері (Supabase RPC verify_lock_pin, той самий,
-    // що й у розділі "Журнал"), сам код нікому не відомий на клієнті.
-    // Після успішного входу тут же і в обох iframe-розділах (спільний
-    // sessionStorage в межах одного origin) PIN повторно не питається.
-    // ==========================================
     let lockBuf = '';
 
     function unlockShell() {
@@ -165,9 +164,6 @@
         }
     }
 
-    // ==========================================
-    // ВКЛАДКИ
-    // ==========================================
     const TAB_SRC = {
         journal: 'osbb/index.html?embed=1',
         sklad: 'sklad/index.html?embed=1'
@@ -185,19 +181,17 @@
     function switchTab(name) {
         loadTab(name);
         document.querySelectorAll('.shell-tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('shell-tab-' + name).classList.add('active');
+        const activeTab = document.getElementById('shell-tab-' + name);
+        if (activeTab) activeTab.classList.add('active');
         document.querySelectorAll('#shell-frames iframe').forEach(f => f.classList.remove('active'));
-        document.getElementById('frame-' + name).classList.add('active');
+        const activeFrame = document.getElementById('frame-' + name);
+        if (activeFrame) activeFrame.classList.add('active');
     }
 
-    // Якщо PIN вже введено цього сеансу — не питаємо повторно
     if (sessionStorage.getItem('auth') === 'ok') {
         unlockShell();
     }
 
-    // Реєструємо власний service worker shell-оболонки — без нього Chrome
-    // на Android не пропонує "Встановити застосунок" (одна з вимог
-    // installability, окрім валідного manifest.json).
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
     }
