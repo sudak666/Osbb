@@ -6,29 +6,119 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#34c759">
+<meta name="theme-color" content="#1c1c1e">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ОСББ">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2334c759'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='%2334c759'/></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2334c759'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='6' fill='white'/><rect x='43' y='64' width='14' height='20' rx='3' fill='%2334c759'/></svg>">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>ОСББ "Микитська Слобода"</title>
 <style>
-    html, body { height: 100%; margin: 0; overflow: hidden; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif; background: #000; -webkit-font-smoothing: antialiased; }
+    /* Базові системні налаштування iOS */
+    html, body { height: 100%; margin: 0; overflow: hidden; background: #000; }
+    body { 
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif; 
+        -webkit-font-smoothing: antialiased; 
+        -moz-osx-font-smoothing: grayscale;
+        color: #fff;
+        user-select: none;
+    }
 
-    /* ЕКРАН БЛОКУВАННЯ */
-    .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:300; color:#fff; cursor:pointer; transition:background .12s ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
-    .pin-mb-btn:active { background:rgba(255,255,255,0.22); }
+    /* ЕКРАН БЛОКУВАННЯ (iOS Passcode Style) */
+    #app-lock-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .lock-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 290px;
+    }
+    .app-icon-squircle {
+        width: 68px;
+        height: 68px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #34c759, #248a3d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(52, 199, 89, 0.3);
+    }
+    .lock-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .lock-subtitle { color: #8e8e93; font-size: 0.82rem; margin-bottom: 32px; }
 
-    /* SHELL: панель вкладок у стилі iOS Segmented Control */
-    #shell-main { display:none; flex-direction:column; height:100%; }
+    /* Індикатор крапок пароля */
+    .pin-dots-wrapper { display: flex; gap: 20px; margin-bottom: 12px; min-height: 14px; }
+    .pin-dot { 
+        width: 12px; 
+        height: 12px; 
+        border-radius: 50%; 
+        border: 1.5px solid rgba(255, 255, 255, 0.4);
+        background: transparent;
+        transition: background 0.12s ease, border-color 0.12s, transform 0.12s;
+        box-sizing: border-box;
+    }
+    .pin-dot.filled { background: #fff; border-color: #fff; transform: scale(1.1); }
+    .lock-error-text { color: #ff453a; font-size: 0.78rem; min-height: 18px; margin-bottom: 24px; text-align: center; font-weight: 500; }
+
+    /* Кругла цифрова клавіатура iPhone */
+    .pin-keyboard { display: grid; grid-template-columns: repeat(3, 76px); gap: 16px 20px; justify-content: center; }
+    .pin-btn { 
+        background: rgba(255, 255, 255, 0.08); 
+        border: none;
+        border-radius: 50%; 
+        width: 76px; 
+        height: 76px; 
+        font-size: 1.9rem; 
+        font-weight: 400; 
+        color: #fff; 
+        cursor: pointer; 
+        transition: background 0.1s ease; 
+        -webkit-tap-highlight-color: transparent; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+    }
+    .pin-btn:active { background: rgba(255, 255, 255, 0.22); }
+    .pin-text-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+        color: #aeaeb2;
+        font-size: 0.85rem;
+        font-weight: 400;
+    }
+    .pin-text-btn:active { color: #fff; }
+
+    /* Вібрація крапок при помилці (iOS Shake) */
+    .shake { animation: ios-dot-shake 0.35s ease-in-out; }
+    @keyframes ios-dot-shake {
+        0%, 100% { transform: translateX(0); }
+        15%, 45%, 75% { transform: translateX(-8px); }
+        30%, 60%, 90% { transform: translateX(8px); }
+    }
+
+    /* ОСНОВНА ОБОЛОНКА (iOS Segmented Control) */
+    #shell-main { display: none; flex-direction: column; height: 100%; }
     #shell-tabs { 
         display: flex; 
-        padding: 8px 16px; 
-        padding-top: calc(12px + env(safe-area-inset-top)); 
+        padding: 10px 16px; 
+        padding-top: calc(10px + env(safe-area-inset-top)); 
         background: #1c1c1e; 
         border-bottom: 1px solid #2c2c2e; 
         flex-shrink: 0; 
@@ -36,8 +126,8 @@
     .ios-segmented-control {
         display: flex;
         width: 100%;
-        background: rgba(116, 116, 128, 0.24); /* Нативна підкладка iOS */
-        border-radius: 9px;
+        background: rgba(116, 116, 128, 0.22);
+        border-radius: 10px; /* Повністю закруглений контейнер без гострих кутів */
         padding: 2px;
         gap: 2px;
     }
@@ -46,9 +136,9 @@
         display: flex; 
         align-items: center; 
         justify-content: center; 
-        gap: 6px; 
-        padding: 8px 8px; 
-        border-radius: 7px; 
+        gap: 5px; 
+        padding: 8px 4px; 
+        border-radius: 8px; /* Округлі внутрішні сегменти */
         border: none; 
         background: transparent; 
         color: #98989d; 
@@ -56,56 +146,58 @@
         font-weight: 600; 
         cursor: pointer; 
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-        -webkit-tap-highlight-color: transparent;
+        -webkit-tap-highlight-color: transparent; 
         box-sizing: border-box;
-        text-decoration: none; /* Для тегу <a> */
+        text-decoration: none;
     }
-    /* Активний таб із зеленим кольором Apple та м'якою тінню */
+    /* Активний сегмент із фірмовою тінню Apple */
     .shell-tab-btn.active { 
         background: #34c759; 
         color: #fff; 
         box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.24), 0px 1px 2px rgba(0, 0, 0, 0.12);
     }
-    /* Пружний тактильний відгук при натисканні */
     .shell-tab-btn:active {
         transform: scale(0.97);
         opacity: 0.85;
     }
 
-    #shell-frames { position:relative; flex:1; min-height:0; }
-    #shell-frames iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:none; background:#fff; }
-    #shell-frames iframe.active { display:block; }
+    /* Контейнер для фреймів */
+    #shell-frames { position: relative; flex: 1; min-height: 0; background: #fff; }
+    #shell-frames iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; background: #fff; }
+    #shell-frames iframe.active { display: block; }
 </style>
 </head>
 <body>
 
-<div id="app-lock-screen" style="position:fixed;inset:0;background:#1c1c1e;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
-    <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;padding:0 24px;">
-        <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#34c759,#248a3d);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(52,199,89,0.35);"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
-        <div style="color:#fff;font-size:1.15rem;font-weight:700;margin-bottom:4px;letter-spacing:-0.3px;">ОСББ "Микитська Слобода"</div>
-        <div style="color:#98989d;font-size:0.8rem;margin-bottom:36px;">Введіть PIN для входу</div>
-
-        <div style="display:flex;gap:16px;margin-bottom:8px;">
-            <div id="lock-d0" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
-            <div id="lock-d1" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
-            <div id="lock-d2" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
-            <div id="lock-d3" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
+<div id="app-lock-screen">
+    <div class="lock-container">
+        <div class="app-icon-squircle">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg>
         </div>
-        <div id="lock-err" style="color:#ff453a;font-size:0.72rem;min-height:20px;margin-bottom:28px;text-align:center;"></div>
+        <div class="lock-title">ОСББ "Микитська Слобода"</div>
+        <div class="lock-subtitle">Введіть PIN для входу</div>
 
-        <div style="display:grid;grid-template-columns:repeat(3,80px);grid-template-rows:repeat(4,80px);gap:8px;">
-            <button onclick="lockPress('1')" class="pin-mb-btn">1</button>
-            <button onclick="lockPress('2')" class="pin-mb-btn">2</button>
-            <button onclick="lockPress('3')" class="pin-mb-btn">3</button>
-            <button onclick="lockPress('4')" class="pin-mb-btn">4</button>
-            <button onclick="lockPress('5')" class="pin-mb-btn">5</button>
-            <button onclick="lockPress('6')" class="pin-mb-btn">6</button>
-            <button onclick="lockPress('7')" class="pin-mb-btn">7</button>
-            <button onclick="lockPress('8')" class="pin-mb-btn">8</button>
-            <button onclick="lockPress('9')" class="pin-mb-btn">9</button>
+        <div class="pin-dots-wrapper" id="lock-dots-container">
+            <div id="lock-d0" class="pin-dot"></div>
+            <div id="lock-d1" class="pin-dot"></div>
+            <div id="lock-d2" class="pin-dot"></div>
+            <div id="lock-d3" class="pin-dot"></div>
+        </div>
+        <div id="lock-err" class="lock-error-text"></div>
+
+        <div class="pin-keyboard">
+            <button onclick="lockPress('1')" class="pin-btn">1</button>
+            <button onclick="lockPress('2')" class="pin-btn">2</button>
+            <button onclick="lockPress('3')" class="pin-btn">3</button>
+            <button onclick="lockPress('4')" class="pin-btn">4</button>
+            <button onclick="lockPress('5')" class="pin-btn">5</button>
+            <button onclick="lockPress('6')" class="pin-btn">6</button>
+            <button onclick="lockPress('7')" class="pin-btn">7</button>
+            <button onclick="lockPress('8')" class="pin-btn">8</button>
+            <button onclick="lockPress('9')" class="pin-btn">9</button>
             <div></div>
-            <button onclick="lockPress('0')" class="pin-mb-btn">0</button>
-            <button onclick="lockDel()" style="width:80px;height:80px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;color:rgba(255,255,255,0.85);font-size:0.75rem;font-weight:400;">Видалити</button>
+            <button onclick="lockPress('0')" class="pin-btn">0</button>
+            <button onclick="lockDel()" class="pin-text-btn">Видалити</button>
         </div>
     </div>
 </div>
@@ -114,11 +206,11 @@
     <div id="shell-tabs">
         <div class="ios-segmented-control">
             <button class="shell-tab-btn active" id="shell-tab-journal" onclick="switchTab('journal')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
                 Журнал
             </button>
             <button class="shell-tab-btn" id="shell-tab-sklad" onclick="switchTab('sklad')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Склад
             </button>
             <a href="https://www.deyecloud.com/station/new-main?t=1783238196915&id=61184357" 
@@ -126,7 +218,7 @@
                rel="noopener noreferrer" 
                class="shell-tab-btn"
                id="shell-tab-deye">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 Deye ↗
             </a>
         </div>
@@ -169,8 +261,11 @@
         for (let i = 0; i < 4; i++) {
             const dot = document.getElementById('lock-d' + i);
             if (!dot) continue;
-            dot.style.background = i < lockBuf.length ? '#34c759' : 'rgba(255,255,255,0.2)';
-            dot.style.transform = i < lockBuf.length ? 'scale(1.2)' : 'scale(1)';
+            if (i < lockBuf.length) {
+                dot.classList.add('filled');
+            } else {
+                dot.classList.remove('filled');
+            }
         }
     }
 
@@ -185,10 +280,12 @@
         if (lockBuf.length >= 4) return;
         lockBuf += digit;
         lockUpdateDots();
+        
         if (lockBuf.length === 4) {
             const attempt = lockBuf;
             let ok = false;
             try { ok = await rpc('verify_lock_pin', { attempt }); } catch (e) { ok = false; }
+            
             if (ok) {
                 sessionStorage.setItem('auth', 'ok');
                 lockBuf = '';
@@ -198,13 +295,14 @@
                 if (err) err.textContent = 'Невірний PIN, спробуйте ще';
                 lockBuf = '';
                 lockUpdateDots();
-                const box = document.querySelector('#app-lock-screen > div');
-                if (box) {
-                    box.style.animation = 'none';
-                    box.style.transform = 'translateX(-8px)';
-                    setTimeout(() => box.style.transform = 'translateX(8px)', 80);
-                    setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
-                    setTimeout(() => box.style.transform = 'translateX(0)', 240);
+                
+                // Нативний ефект трясіння крапок пароля при помилці
+                const dotsContainer = document.getElementById('lock-dots-container');
+                if (dotsContainer) {
+                    dotsContainer.classList.remove('shake');
+                    void dotsContainer.offsetWidth; // Тригер перемальовування
+                    dotsContainer.classList.add('shake');
+                    setTimeout(() => dotsContainer.classList.remove('shake'), 350);
                 }
             }
         }
