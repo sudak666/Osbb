@@ -353,6 +353,13 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 </div>
 
 <script>
+// Ховаємо екран авторизації якнайшвидше (одразу після його розмітки), щоб при
+// вбудовуванні в shell (PIN уже підтверджено на його рівні) цей екран не встигав
+// промайнути, поки браузер парсить решту сторінки.
+if (sessionStorage.getItem('auth') === 'ok') {
+  const earlyAuthScreen = document.getElementById('authScreen');
+  if (earlyAuthScreen) earlyAuthScreen.style.display = 'none';
+}
 // PIN перевіряється на сервері (Supabase RPC verify_pin), сам код нікому не відомий на клієнті
 let pinEntered='';
 let pinBusy=false;
