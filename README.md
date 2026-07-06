@@ -13,6 +13,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | SQL-скрипти для PIN-перевірки та посилення RLS для журналу. |
 | `sklad/supabase/*.sql` | SQL-скрипти для PIN-перевірки складу. |
+| `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
 
 ## Як працює авторизація
 
@@ -42,6 +43,20 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 4. Склад: `sklad/supabase/setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 
 Перед production-використанням замініть прикладові PIN-и у SQL-файлах на реальні значення. Після виконання SQL перевірте PIN-вхід, скидання місяця, видалення фото/чату та видалення складських записів.
+
+## Telegram-сповіщення про рух товару (Склад)
+
+`sklad/index.html` викликає Supabase Edge Function `notify-telegram` при додаванні нового товару, приході (поповненні) та видачі. Токен бота ніколи не потрапляє в клієнтський код — він зберігається як секрет на сервері.
+
+Налаштування (один раз, у проєкті складу `vkwkyhjjjmcpmiakxohw`):
+
+```bash
+supabase functions deploy notify-telegram --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
+supabase secrets set TELEGRAM_BOT_TOKEN=ваш_токен_від_BotFather --project-ref vkwkyhjjjmcpmiakxohw
+supabase secrets set TELEGRAM_CHAT_ID=ваш_chat_id --project-ref vkwkyhjjjmcpmiakxohw
+```
+
+`--no-verify-jwt` потрібен тому, що клієнт авторизується новим форматом ключів Supabase (`sb_publishable_...`), який не є JWT. Після деплою перевірте, що додавання/прихід/видача товару в Складі надсилають повідомлення у ваш Telegram-чат.
 
 ## Автоматичні smoke-перевірки
 

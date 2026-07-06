@@ -18,6 +18,13 @@ const checks = [
   ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],
   ['sklad/index.html', 'deleteLightboxPhoto', 'sklad lightbox has delete handler'],
   ['sklad/index.html', "scopePath.startsWith('/Osbb/sklad/')", 'sklad SW cleanup is scoped'],
+  ['sklad/index.html', 'function notifyTelegram', 'sklad has Telegram notify helper'],
+  ['sklad/index.html', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
+  ['sklad/index.html', "notifyTelegram('📦 Прихід:", 'sklad notifies on receipt'],
+  ['sklad/index.html', "notifyTelegram('📤 Видача:", 'sklad notifies on issue'],
+
+  ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
+  ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
 
   ['supabase/setup_pin_auth.sql', 'app_pin_attempts', 'OSBB PIN attempts table exists'],
   ['supabase/setup_pin_auth.sql', 'locked_until', 'OSBB PIN lockout is present'],

@@ -1265,6 +1265,7 @@ async function issueItem(itemId,qty,person,note){
   const {error:e2}=await db.from('inventory_logs').insert([{item_id:itemId,item_name:item.name,quantity:qty,issued_to:person,note:note||null}]);
   if(e1||e2) return toast('Помилка: '+(e1?.message||e2?.message),'error');
   toast('Видано: '+qty+' '+item.unit+' → '+person,'success');
+  notifyTelegram('📤 Видача: '+item.name+' −'+qty+' '+item.unit+' → '+person+(note?' ('+note+')':''));
   await loadItems();
 }
 async function loadRecentIssues(){
@@ -1537,6 +1538,7 @@ async function doRefill(){
     toast('Залишок оновлено, але прихід не збережено','error');
   }
   toast('Поповнено +'+qty+' '+item.unit,'success');
+  notifyTelegram('📦 Прихід: '+item.name+' +'+qty+' '+item.unit+(supplier?' від '+supplier:'')+(note?' ('+note+')':''));
   document.getElementById('refillQtyI').value='';
   document.getElementById('refillSupplierI').value='';
   document.getElementById('refillNoteI').value='';
@@ -1566,6 +1568,7 @@ async function doAddNew(){
     }catch(e){console.warn('receipt insert failed',e);}
   }
   toast('"'+name+'" додано!','success');
+  notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit);
   ['newName','newUnit','newQty'].forEach(k=>document.getElementById(k).value='');
   await loadItems();populateSels();renderAddLow();
 }
@@ -1947,6 +1950,22 @@ function toast(msg,type=''){
   el.innerHTML=msIcon(toastIcons[t]||'info','16px')+' '+escapeHtml(msg);
   el.className='show '+t;
   clearTimeout(toastT);toastT=setTimeout(()=>el.className='',3200);
+}
+
+// Надсилає текст у Telegram через Supabase Edge Function (токен бота лишається
+// секретом на сервері, ніколи не потрапляє у клієнтський код). Не блокує UI —
+// помилка мережі просто логується в консоль, дію користувача не переривається.
+const TELEGRAM_NOTIFY_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notify-telegram';
+function notifyTelegram(text){
+  fetch(TELEGRAM_NOTIFY_URL,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9',
+      'Authorization':'Bearer sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9'
+    },
+    body:JSON.stringify({text})
+  }).catch(e=>console.warn('telegram notify failed:',e));
 }
 
 // ===== INIT =====
