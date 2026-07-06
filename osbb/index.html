@@ -21,6 +21,9 @@
         const _cw = console.warn.bind(console);
         console.warn = (...a) => { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; _cw(...a); };
     </script>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://jpwelaerkkdblpmkueid.supabase.co" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
