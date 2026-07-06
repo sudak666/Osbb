@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
+import { readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 
 const checks = [
   ['index.html', 'verify_lock_pin', 'shell PIN uses server RPC'],
@@ -24,7 +26,31 @@ const checks = [
   ['sklad/supabase/setup_pin_auth.sql', 'app_pin_attempts', 'sklad PIN attempts table exists'],
 ];
 
+const ignoredDirs = new Set(['.git', 'node_modules', '.cache', 'dist', 'build']);
+const conflictMarker = /^(<<<<<<<|=======|>>>>>>>) /m;
+
+function* walk(dir) {
+  for (const entry of readdirSync(dir)) {
+    if (ignoredDirs.has(entry)) continue;
+    const path = join(dir, entry);
+    const stat = statSync(path);
+    if (stat.isDirectory()) {
+      yield* walk(path);
+    } else if (stat.isFile()) {
+      yield path;
+    }
+  }
+}
+
 let failed = 0;
+for (const file of walk('.')) {
+  const text = readFileSync(file, 'utf8');
+  if (conflictMarker.test(text)) {
+    failed += 1;
+    console.error(`not ok - unresolved merge conflict marker found in ${file}`);
+  }
+}
+
 for (const [file, needle, label] of checks) {
   const text = readFileSync(file, 'utf8');
   if (text.includes(needle)) {
