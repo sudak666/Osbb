@@ -517,6 +517,8 @@
     // в межах одного origin), повторно не питаємо.
     // ==========================================
     let lockBuf = '';
+    let lockBusy = false;
+    let lockFails = 0;
     if (sessionStorage.getItem('auth') === 'ok') {
         const lockScreen = document.getElementById('app-lock-screen');
         if (lockScreen) lockScreen.style.display = 'none';
@@ -532,6 +534,7 @@
     }
 
     function lockDel() {
+        if (lockBusy) return;
         if (lockBuf.length > 0) lockBuf = lockBuf.slice(0, -1);
         const err = document.getElementById('lock-err');
         if (err) err.textContent = '';
@@ -539,14 +542,17 @@
     }
 
     async function lockPress(digit) {
-        if (lockBuf.length >= 4) return;
+        if (lockBusy || lockBuf.length >= 4) return;
         lockBuf += digit;
         lockUpdateDots();
         if (lockBuf.length === 4) {
             const attempt = lockBuf;
+            lockBusy = true;
             let ok = false;
             try { ok = await db.rpc('verify_lock_pin', { attempt }); } catch (e) { ok = false; }
             if (ok) {
+                lockFails = 0;
+                lockBusy = false;
                 sessionStorage.setItem('auth', 'ok');
                 const screen = document.getElementById('app-lock-screen');
                 if (screen) {
@@ -556,6 +562,7 @@
                 }
                 lockBuf = '';
             } else {
+                lockFails++;
                 const err = document.getElementById('lock-err');
                 if (err) err.textContent = 'Невірний PIN, спробуйте ще';
                 lockBuf = '';
@@ -569,6 +576,12 @@
                     setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
                     setTimeout(() => box.style.transform = 'translateX(0)', 240);
                 }
+                const lockout = Math.min(lockFails * 500, 5000);
+                setTimeout(() => {
+                    lockBusy = false;
+                    const currentErr = document.getElementById('lock-err');
+                    if (currentErr) currentErr.textContent = '';
+                }, lockout);
             }
         }
     }
@@ -1596,11 +1609,21 @@
         }, { passive: true });
     })();
 
-    // Повністю розреєструвати SW та очистити всі кеші
+    // Розреєструвати тільки SW журналу і не чіпати shell/склад.
     if ('serviceWorker' in navigator) {
         try {
-            navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
-            if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => {
+                    const scopePath = new URL(r.scope).pathname;
+                    if (scopePath.startsWith('/Osbb/osbb/')) r.unregister();
+                });
+            }).catch(() => {});
+            if ('caches' in window) {
+                caches.keys().then(keys => keys
+                    .filter(k => k.startsWith('osbb-journal'))
+                    .forEach(k => caches.delete(k))
+                ).catch(() => {});
+            }
         } catch(e) {}
     }
 
