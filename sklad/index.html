@@ -1647,10 +1647,18 @@ async function uploadPhoto(){
   img2.src=URL.createObjectURL(file);
 }
 async function deletePhoto(){
-  const {error}=await db.from('inventory_items').update({photo_url:null}).eq('id',photoItemId);
-  if(error) return toast('Помилка: '+error.message,'error');
-  toast('Фото видалено','info');
-  closeModal('photoModal');await loadItems();
+  if(!photoItemId) return;
+  showDeletePinModal('PIN для видалення фото', async (pin)=>{
+    const {data:pinOk,error:pinErr}=await db.rpc('verify_pin',{attempt:pin});
+    if(pinErr) return {ok:false,reason:'network'};
+    if(pinOk!==true) return {ok:false,reason:'bad_pin'};
+
+    const {error}=await db.from('inventory_items').update({photo_url:null}).eq('id',photoItemId);
+    if(error){toast('Помилка: '+error.message,'error');return {ok:false,reason:'network'};}
+    toast('Фото видалено','info');
+    closeModal('photoModal');await loadItems();
+    return {ok:true};
+  });
 }
 let lightboxPhotoItemId=null;
 function openLightbox(url,itemId=null){
