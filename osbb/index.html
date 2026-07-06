@@ -1609,11 +1609,21 @@
         }, { passive: true });
     })();
 
-    // Повністю розреєструвати SW та очистити всі кеші
+    // Розреєструвати тільки SW журналу і не чіпати shell/склад.
     if ('serviceWorker' in navigator) {
         try {
-            navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
-            if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => {
+                    const scopePath = new URL(r.scope).pathname;
+                    if (scopePath.startsWith('/Osbb/osbb/')) r.unregister();
+                });
+            }).catch(() => {});
+            if ('caches' in window) {
+                caches.keys().then(keys => keys
+                    .filter(k => k.startsWith('osbb-journal'))
+                    .forEach(k => caches.delete(k))
+                ).catch(() => {});
+            }
         } catch(e) {}
     }
 

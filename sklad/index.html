@@ -1959,12 +1959,20 @@ loadItems().then(()=>loadLogs());
 
 
 <script>
-// Вимикаємо SW повністю — він заважав оновленням
+// Вимикаємо тільки SW складу — він заважав оновленням, але shell не чіпаємо
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>{
-    regs.forEach(r=>r.unregister());
+    regs.forEach(r=>{
+      const scopePath=new URL(r.scope).pathname;
+      if(scopePath.startsWith('/Osbb/sklad/')) r.unregister();
+    });
   });
-  caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
+  if('caches' in window){
+    caches.keys().then(keys=>keys
+      .filter(k=>k.startsWith('sklad-'))
+      .forEach(k=>caches.delete(k))
+    );
+  }
 }
 </script>
 </body>
