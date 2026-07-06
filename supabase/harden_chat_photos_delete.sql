@@ -8,6 +8,7 @@
 
 -- Лишаємо читання/створення/оновлення доступними для застосунку, але
 -- прибираємо пряме видалення через REST/JS SDK.
+alter table chat enable row level security;
 drop policy if exists "allow all" on chat;
 drop policy if exists "anon_all" on chat;
 drop policy if exists "Allow all" on chat;
@@ -44,6 +45,7 @@ grant execute on function delete_chat_message(bigint, text) to anon, authenticat
 -- Звуження видалення фото журналу: самі фото лишаються штатною дією
 -- користувача, але видалення запису з таблиці photos тепер проходить через
 -- PIN-захищений RPC. Клієнт після успішного RPC може прибрати файл зі Storage.
+alter table photos enable row level security;
 drop policy if exists "allow all" on photos;
 drop policy if exists "anon_all" on photos;
 drop policy if exists "Allow all" on photos;
