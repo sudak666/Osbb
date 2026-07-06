@@ -759,8 +759,9 @@ async function checkPin(attempt){
 </div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" onclick="this.classList.remove('open')">
-  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lbDelBtn" onclick="deleteLightboxPhoto(event)" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" onclick="event.stopPropagation()">
 </div>
 
 <!-- BARCODE ADD MODAL -->
@@ -1151,7 +1152,7 @@ function renderItems(){
   tb.innerHTML=items.map((item,idx)=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
     const photoCell=item.photo_url
-      ? `<img src="${item.photo_url}" class="photo-thumb" onclick="openLightbox('${item.photo_url}')" title="Переглянути">`
+      ? `<img src="${item.photo_url}" class="photo-thumb" onclick="openLightbox('${item.photo_url}',${item.id})" title="Переглянути">`
       : `<div class="photo-ph" onclick="openPhotoModal(${item.id})" title="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
     return `<tr>
       <td style="color:#a5b4fc;font-size:12px;">${idx+1}</td>
@@ -1174,7 +1175,7 @@ function renderItems(){
   if(mc) mc.innerHTML=items.map(item=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
     const photo=item.photo_url
-      ? `<img src="${item.photo_url}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" onclick="openLightbox('${item.photo_url}')">`
+      ? `<img src="${item.photo_url}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" onclick="openLightbox('${item.photo_url}',${item.id})">`
       : '';
     return `<div class="m-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
@@ -1605,7 +1606,7 @@ function openPhotoModal(id){
   const cur=document.getElementById('photoCurrent');
   const delBtn=document.getElementById('delPhotoBtn');
   if(item.photo_url){
-    cur.innerHTML=`<img src="${item.photo_url}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" onclick="openLightbox('${item.photo_url}')">`;
+    cur.innerHTML=`<img src="${item.photo_url}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" onclick="openLightbox('${item.photo_url}',${item.id})">`;
     delBtn.style.display='inline-flex';
   } else {
     cur.innerHTML='<div style="text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;">Фото ще не додано</div>';
@@ -1651,9 +1652,24 @@ async function deletePhoto(){
   toast('Фото видалено','info');
   closeModal('photoModal');await loadItems();
 }
-function openLightbox(url){
+let lightboxPhotoItemId=null;
+function openLightbox(url,itemId=null){
+  lightboxPhotoItemId=itemId||photoItemId||null;
   document.getElementById('lbImg').src=url;
+  document.getElementById('lbDelBtn').style.display=lightboxPhotoItemId?'inline-flex':'none';
   document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  lightboxPhotoItemId=null;
+}
+async function deleteLightboxPhoto(e){
+  e.stopPropagation();
+  if(!lightboxPhotoItemId) return;
+  if(!confirm('Видалити фото?')) return;
+  photoItemId=lightboxPhotoItemId;
+  closeLightbox();
+  await deletePhoto();
 }
 
 // ===== STATS =====
