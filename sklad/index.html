@@ -418,12 +418,7 @@ async function checkPin(attempt){
     <div class="ni" data-page="receipts" onclick="nav('receipts',this)"><span class="ni-icon"><span class="ms">move_to_inbox</span></span><span class="nav-label">Прихід</span></div>
     <div class="ni" data-page="stats" onclick="nav('stats',this)"><span class="ni-icon"><span class="ms">bar_chart</span></span><span class="nav-label">Статистика</span></div>
   </nav>
-  <div class="sb-bottom" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-    <span>ОСББ «Микитська Слобода»</span>
-    <button onclick="toggleTheme()" title="Змінити тему" style="background:none;border:none;cursor:pointer;color:var(--ios-label3);display:flex;align-items:center;padding:4px;border-radius:8px;flex-shrink:0;">
-      <span class="ms" id="themeToggleIcon" style="font-size:18px;">dark_mode</span>
-    </button>
-  </div>
+  <div class="sb-bottom">ОСББ «Микитська Слобода»</div>
 </div>
 
 <div class="main">
@@ -433,6 +428,7 @@ async function checkPin(attempt){
       <span id="lastUpdate" style="font-size:11px;color:#a5b4fc;display:none;" class="topbar-right-excel"></span>
       <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" title="Графік"><span class="ms" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" title="Сканер"><span class="ms" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" title="Прихід товару"><span class="ms" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
       <button class="btn btn-ghost btn-sm" onclick="refreshAll()" style="white-space:nowrap;"><span class="ms" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding:6px 10px;" title="Змінити тему"><span class="ms" id="themeToggleIcon" style="font-size:20px;">dark_mode</span></button>
     </div>
   </div>
 
