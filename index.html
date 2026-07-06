@@ -205,6 +205,14 @@
         </div>
     </div>
 </div>
+<script>
+    // Ховаємо екран блокування якнайшвидше, щоб при поверненні в межах уже
+    // авторизованої сесії він не встигав промайнути, поки парситься решта сторінки.
+    if (sessionStorage.getItem('auth') === 'ok') {
+        const earlyLockScreen = document.getElementById('app-lock-screen');
+        if (earlyLockScreen) earlyLockScreen.style.display = 'none';
+    }
+</script>
 
 <div id="shell-main">
     <div id="shell-tabs">

@@ -183,6 +183,16 @@
         </div>
     </div>
 </div>
+<script>
+    // Ховаємо екран блокування якнайшвидше (одразу після його розмітки), не чекаючи
+    // основного <script> в кінці сторінки — інакше під час завантаження вбудованого
+    // журналу (shell вже підтвердив PIN) цей екран встигає промайнути на екрані,
+    // поки браузер парсить решту сторінки.
+    if (sessionStorage.getItem('auth') === 'ok') {
+        const earlyLockScreen = document.getElementById('app-lock-screen');
+        if (earlyLockScreen) earlyLockScreen.style.display = 'none';
+    }
+</script>
 
 
 <!-- iOS TOAST -->
