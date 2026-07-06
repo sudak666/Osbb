@@ -33,7 +33,7 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         html { overflow-x: hidden; }
         .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #34c759; --accent-dark: #248a3d; --glass-card: rgba(255,255,255,0.86); --glass-nav: rgba(255,255,255,0.78); --soft-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        .theme-dark { --bg-app: #000000; --bg-card: #1c1c1e; --text-main: #f5f5f7; --text-sub: #98989d; --border: #38383a; --bg-input: #2c2c2e; --table-header: #2c2c2e; --accent: #30d158; --accent-dark: #248a3d; --glass-card: rgba(28,28,30,0.86); --glass-nav: rgba(28,28,30,0.78); --soft-shadow: 0 10px 30px rgba(0,0,0,0.28); }
+        .theme-dark { --bg-app: #121214; --bg-card: #1e1e21; --text-main: #ececed; --text-sub: #9a9a9e; --border: #333336; --bg-input: #29292c; --table-header: #29292c; --accent: #30d158; --accent-dark: #248a3d; --glass-card: rgba(30,30,33,0.86); --glass-nav: rgba(30,30,33,0.78); --soft-shadow: 0 10px 30px rgba(0,0,0,0.22); }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes title-reveal { 0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; } 60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; } 100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; } }
@@ -63,7 +63,7 @@
 
         /* iOS-style polish */
         body { background: radial-gradient(circle at top left, rgba(52,199,89,0.12), transparent 30rem), var(--bg-app); }
-        body.theme-dark { background: radial-gradient(circle at top left, rgba(48,209,88,0.16), transparent 28rem), #000; }
+        body.theme-dark { background: radial-gradient(circle at top left, rgba(48,209,88,0.12), transparent 28rem), #121214; }
         #desktop-tabs, #bottom-nav { background: var(--glass-nav) !important; backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); border-color: var(--border) !important; }
         .day-card, .role-card, .mobile-day-card, .stat-card, #hero-banner { border-radius: 22px !important; box-shadow: var(--soft-shadow); }
         .day-card, .mobile-day-card { background: var(--glass-card) !important; backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px); border-color: rgba(255,255,255,0.55) !important; }
@@ -1102,7 +1102,7 @@
         container.innerHTML = photos.map(p => `
             <div class="relative group">
                 <img src="${p.url}" loading="lazy" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">
-                <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" class="absolute top-1 right-1 bg-red-500 text-white rounded-full text-[10px] font-semibold px-2 py-1 shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600">Видалити</button>
+                <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" title="Видалити фото" class="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>`).join('');
     }
 
