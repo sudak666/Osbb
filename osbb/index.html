@@ -1090,7 +1090,7 @@
         container.innerHTML = photos.map(p => `
             <div class="relative group">
                 <img src="${p.url}" loading="lazy" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">
-                <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600">✕</button>
+                <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" class="absolute top-1 right-1 bg-red-500 text-white rounded-full text-[10px] font-semibold px-2 py-1 shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600">Видалити</button>
             </div>`).join('');
     }
 
@@ -2346,7 +2346,7 @@
             const color = colors[Math.abs((msg.author||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
             const isMine = myName && msg.author === myName;
             const deleteBtn = isMine
-                ? `<button onclick="chatDelete(${msg.id})" title="Видалити" style="opacity:0;transition:opacity .15s;margin-left:4px;" class="chat-del-btn text-red-400 hover:text-red-600 text-xs px-1 rounded">✕</button>`
+                ? `<button onclick="chatDelete(${msg.id})" title="Видалити" style="margin-left:4px;" class="chat-del-btn text-red-500 hover:text-red-700 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-50 hover:bg-red-100">Видалити</button>`
                 : '';
             return `<div class="flex items-start gap-2.5 group" style="${isMine?'flex-direction:row-reverse;':''}">
                 <div class="w-8 h-8 rounded-full ${color} flex items-center justify-center text-white text-xs font-bold shrink-0">${initials}</div>
