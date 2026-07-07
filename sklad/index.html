@@ -1710,7 +1710,6 @@ function closeLightbox(){
 async function deleteLightboxPhoto(e){
   e.stopPropagation();
   if(!lightboxPhotoItemId) return;
-  if(!confirm('Видалити фото?')) return;
   photoItemId=lightboxPhotoItemId;
   closeLightbox();
   await deletePhoto();
