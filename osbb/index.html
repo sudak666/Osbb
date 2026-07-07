@@ -140,6 +140,20 @@
         /* Мобільна картка сьогодні */
         .day-card-today { border: 2.5px solid #34c759 !important; box-shadow: 0 0 0 4px rgba(52,199,89,0.18) !important; }
         .day-card-today .day-card-header { background: rgba(52,199,89,0.12) !important; color: #1f7a3d; }
+
+        /* Кастомний випадний список — заміна нативного <select>, у якого браузер
+           сам малює квадратне спливаюче меню, що не піддається стилізації. */
+        .custom-select-wrap { position: relative; display: inline-flex; }
+        .custom-select-btn { display: inline-flex; align-items: center; cursor: pointer; white-space: nowrap; }
+        .custom-select-panel {
+            position: absolute; top: calc(100% + 6px); left: 0; min-width: 100%; z-index: 40;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.16); padding: 6px; max-height: 260px; overflow-y: auto;
+        }
+        .custom-select-panel.hidden { display: none; }
+        .custom-select-option { padding: 8px 12px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--text-main); transition: background .12s; }
+        .custom-select-option:hover { background: var(--bg-input); }
+        .custom-select-option.active { background: #34c759; color: #fff; }
     </style>
 </head>
 <body class="theme-light min-h-screen">
@@ -243,8 +257,7 @@
 
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
-    <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-emerald-400 to-blue-500"></div>
+    <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative">
         <div>
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight animated-title"><span class="inline-flex items-center gap-2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ОСББ "Микитська Слобода"</span></h1>
         </div>
@@ -731,6 +744,79 @@
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
     document.getElementById('fun-quote').innerHTML = quotes[Math.floor(Math.random() * quotes.length)];
 
+    // Замінюємо нативний <select> (квадратне системне спливаюче меню, яке не
+    // стилізується) на кастомний заокруглений випадний список. Сам <select>
+    // лишається в DOM (прихований) — існуючий код (.value, onchange) працює
+    // без змін, бо клік по кастомній опції виставляє select.value і породжує
+    // справжню подію 'change'.
+    function enhanceSelect(select) {
+        if (!select || select.dataset.enhanced) return;
+        select.dataset.enhanced = '1';
+        const btnClass = select.className;
+        select.style.display = 'none';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'custom-select-wrap';
+        select.parentNode.insertBefore(wrap, select);
+        wrap.appendChild(select);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = btnClass + ' custom-select-btn';
+        btn.innerHTML = '<span class="custom-select-label"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>';
+        wrap.appendChild(btn);
+
+        const panel = document.createElement('div');
+        panel.className = 'custom-select-panel hidden';
+        wrap.appendChild(panel);
+
+        function renderOptions() {
+            panel.innerHTML = '';
+            Array.from(select.options).forEach(opt => {
+                const item = document.createElement('div');
+                item.className = 'custom-select-option' + (opt.value === select.value ? ' active' : '');
+                item.textContent = opt.textContent;
+                item.onclick = () => {
+                    select.value = opt.value;
+                    select.dispatchEvent(new Event('change'));
+                    syncLabel();
+                    closePanel();
+                };
+                panel.appendChild(item);
+            });
+        }
+        function syncLabel() {
+            const selectedOpt = select.options[select.selectedIndex];
+            btn.querySelector('.custom-select-label').textContent = selectedOpt ? selectedOpt.textContent : '';
+            panel.querySelectorAll('.custom-select-option').forEach((el, i) => {
+                el.classList.toggle('active', select.options[i] && select.options[i].value === select.value);
+            });
+        }
+        function openPanel() {
+            document.querySelectorAll('.custom-select-panel').forEach(p => { if (p !== panel) p.classList.add('hidden'); });
+            renderOptions();
+            panel.classList.remove('hidden');
+        }
+        function closePanel() { panel.classList.add('hidden'); }
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (panel.classList.contains('hidden')) openPanel(); else closePanel();
+        });
+        panel.addEventListener('click', (e) => e.stopPropagation());
+        document.addEventListener('click', closePanel);
+
+        select._syncCustomLabel = syncLabel;
+        renderOptions();
+        syncLabel();
+    }
+    function refreshEnhancedSelect(select) {
+        if (select && select._syncCustomLabel) select._syncCustomLabel();
+    }
+    enhanceSelect(yearSelect);
+    enhanceSelect(monthSelect);
+    enhanceSelect(document.getElementById('theme-select'));
+
     function stepMonth(dir) {
         let m = parseInt(monthSelect.value) + dir;
         let y = parseInt(yearSelect.value);
@@ -739,12 +825,16 @@
         if (y < 2025 || y > 2030) return;
         yearSelect.value  = y;
         monthSelect.value = m;
+        refreshEnhancedSelect(yearSelect);
+        refreshEnhancedSelect(monthSelect);
         initCalendar();
     }
 
     function goToday() {
         yearSelect.value  = now.getFullYear();
         monthSelect.value = now.getMonth();
+        refreshEnhancedSelect(yearSelect);
+        refreshEnhancedSelect(monthSelect);
         initCalendar();
     }
 
@@ -1003,7 +1093,6 @@
     }
 
     async function deletePhoto(id, url, day, role) {
-        if (!confirm('Видалити це фото?')) return;
         if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
         showPinModal('Видалення фото', 'PIN для видалення фото', async (pin) => {
             try {
@@ -1509,7 +1598,9 @@
     }
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
-    document.getElementById('theme-select').value = savedTheme; changeTheme(savedTheme);
+    document.getElementById('theme-select').value = savedTheme;
+    refreshEnhancedSelect(document.getElementById('theme-select'));
+    changeTheme(savedTheme);
     // Встановити mob-active для початкового табу (журнал)
     const initMobTab = document.getElementById('tab-journal-m');
     if (initMobTab) initMobTab.classList.add('mob-active');
