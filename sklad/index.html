@@ -1175,7 +1175,7 @@ async function loadReceipts(){
   allReceipts=data||[];
   renderReceipts();
 }
-async function refreshAll(){await loadItems();await loadLogs();toast('Дані оновлено','success');}
+async function refreshAll(){await loadItems();await loadLogs();await loadReceipts();toast('Дані оновлено','success');}
 
 // ===== ALERTS =====
 function checkAlerts(){
@@ -1233,7 +1233,10 @@ function toggleInStock(btn){
   renderItems();
 }
 
-// ===== HIDE / SHOW ONLY INTERNAL-USE TOGGLES (хознужди, не входять у баланс) =====
+// ===== Фільтри внутрішнього використання (хознужди) =====
+// Два режими: приховати внутрішні товари (hideInternal) або показати лише
+// внутрішні (onlyInternal). Режими взаємовиключні — увімкнення одного
+// автоматично вимикає інший (див. toggleHideInternal/toggleOnlyInternal).
 let hideInternal=false;
 let onlyInternal=false;
 function resetInternalPill(id,color){

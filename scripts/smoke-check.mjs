@@ -49,8 +49,12 @@ function* walk(dir) {
   }
 }
 
+const allFiles = [...walk('.')];
+
 let failed = 0;
-for (const file of walk('.')) {
+let passed = 0;
+
+for (const file of allFiles) {
   const text = readFileSync(file, 'utf8');
   if (conflictMarker.test(text)) {
     failed += 1;
@@ -61,6 +65,7 @@ for (const file of walk('.')) {
 for (const [file, needle, label] of checks) {
   const text = readFileSync(file, 'utf8');
   if (text.includes(needle)) {
+    passed += 1;
     console.log(`ok - ${label}`);
   } else {
     failed += 1;
@@ -68,8 +73,52 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// sklad refreshAll() must reload every top-level collection it shows (items,
+// logs, receipts) — easy to silently regress when a new page/collection is
+// added and this function isn't updated to match.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const m = text.match(/async function refreshAll\(\)\s*\{([^}]*)\}/);
+  const label = 'sklad refreshAll() reloads items, logs and receipts';
+  if (!m) {
+    failed += 1;
+    console.error(`not ok - ${label} (refreshAll() function not found)`);
+  } else {
+    const missing = ['loadItems()', 'loadLogs()', 'loadReceipts()'].filter(call => !m[1].includes(call));
+    if (missing.length) {
+      failed += 1;
+      console.error(`not ok - ${label} (missing call(s): ${missing.join(', ')})`);
+    } else {
+      passed += 1;
+      console.log(`ok - ${label}`);
+    }
+  }
+}
+
+// Every *.sql filename mentioned in the docs/UI must actually exist in the
+// repo — catches stale references like a UI hint pointing at a script that
+// was never committed.
+{
+  const sqlFilesOnDisk = new Set(allFiles.filter(f => f.endsWith('.sql')).map(f => f.split('/').pop()));
+  const sqlMentionRe = /\b[\w-]+\.sql\b/g;
+  for (const src of ['README.md', 'index.html', 'osbb/index.html', 'sklad/index.html']) {
+    const text = readFileSync(src, 'utf8');
+    const mentioned = new Set(text.match(sqlMentionRe) || []);
+    for (const name of mentioned) {
+      const label = `${src} references existing SQL file ${name}`;
+      if (sqlFilesOnDisk.has(name)) {
+        passed += 1;
+        console.log(`ok - ${label}`);
+      } else {
+        failed += 1;
+        console.error(`not ok - ${label} (no such file in the repo)`);
+      }
+    }
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
 }
-console.log(`\n${checks.length} smoke checks passed.`);
+console.log(`\n${passed} smoke checks passed.`);
