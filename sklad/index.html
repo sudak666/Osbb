@@ -159,6 +159,8 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .btn-ghost:hover{background:#E5E5EA;}
 .btn-excel{background:var(--ios-green);color:#fff;}
 .btn-sm{padding:7px 14px;font-size:13px;border-radius:10px;}
+.btn-warning{background:var(--ios-orange);color:#fff;box-shadow:0 2px 8px rgba(255,149,0,.3);}
+.btn-warning:active{transform:scale(.97);}
 
 /* PILLS */
 .pill{padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;border:none;color:var(--ios-label3);background:rgba(116,116,128,.10);transition:all .15s;}
@@ -488,6 +490,7 @@ async function checkPin(attempt){
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button class="pill" id="inStockPill" onclick="toggleInStock(this)" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
+        <button class="pill" id="hideInternalPill" onclick="toggleHideInternal(this)" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="catPills" class="pills-wrap">
         <button class="pill active" onclick="filterCat(this,'')">Всі</button>
@@ -588,6 +591,10 @@ async function checkPin(attempt){
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" onblur="if(/^\d+([.,]\d+)?$/.test(this.value.trim())) toast('Одиниця має бути словом, не числом!','error');"></div>
             </div>
             <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;padding:10px 12px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:12px;">
+              <input type="checkbox" id="newInternal" style="width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;">
+              <span style="font-weight:600;color:var(--ios-label2);font-size:12.5px;line-height:1.4;">Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
+            </label>
             <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doAddNew()"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
           </div>
         </div>
@@ -662,6 +669,19 @@ async function checkPin(attempt){
 
   <!-- STATS -->
   <div id="page-stats" class="page">
+    <div class="card" style="padding:18px 22px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">account_balance</span>Баланс складу</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div id="bal-total" style="font-size:26px;font-weight:800;color:var(--brand);">0</div>
+          <div style="font-size:12px;color:var(--ios-label3);">позицій на балансі</div>
+        </div>
+        <div>
+          <div id="bal-internal" style="font-size:26px;font-weight:800;color:var(--ios-orange);">0</div>
+          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">home_repair_service</span> внутрішнього використання (не входять у баланс)</div>
+        </div>
+      </div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
       <div class="card" style="padding:18px;"><div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">bar_chart</span>По категоріях</div><div id="statCats" style="display:flex;flex-direction:column;gap:12px;"></div></div>
       <div class="card" style="padding:18px;overflow:hidden;"><div style="font-size:11px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;color:#ef4444;">warning</span>Потребують поповнення</div><div id="statLow" style="overflow:hidden;"></div></div>
@@ -1211,6 +1231,35 @@ function toggleInStock(btn){
   renderItems();
 }
 
+// ===== HIDE INTERNAL-USE TOGGLE (хознужди, не входять у баланс) =====
+let hideInternal=false;
+function toggleHideInternal(btn){
+  hideInternal=!hideInternal;
+  if(hideInternal){
+    btn.classList.add('active');
+    btn.style.background='var(--ios-orange)';
+    btn.style.color='#fff';
+  } else {
+    btn.classList.remove('active');
+    btn.style.background='';
+    btn.style.color='var(--ios-orange)';
+  }
+  renderItems();
+}
+
+// Позначає/знімає позначку "внутрішнє використання" (хознужди) для товару.
+// Такі товари лишаються на складі, але виключаються з балансу видаткових товарів.
+function toggleInternal(id,val){
+  db.from('inventory_items').update({is_internal:val}).eq('id',id).then(({error})=>{
+    if(error) return toast('Помилка: '+error.message,'error');
+    const item=allItems.find(i=>i.id===id);
+    if(item) item.is_internal=val;
+    renderItems();
+    if(document.getElementById('page-stats').classList.contains('active')) renderStats();
+    toast(val?'Позначено як внутрішнє використання (хознужди)':'Знято позначку "внутрішнє використання"','success');
+  });
+}
+
 // ===== RENDER ITEMS =====
 function renderItems(){
   const s=document.getElementById('searchInp').value.toLowerCase();
@@ -1220,6 +1269,7 @@ function renderItems(){
   else if(stockFilter==='low') items=items.filter(i=>i.quantity>0&&i.quantity<=3);
   else if(stockFilter==='ok') items=items.filter(i=>i.quantity>3);
   if(inStockOnly) items=items.filter(i=>i.quantity>0);
+  if(hideInternal) items=items.filter(i=>!i.is_internal);
   if(s) items=items.filter(i=>i.name.toLowerCase().includes(s));
 
   // Desktop table
@@ -1237,7 +1287,7 @@ function renderItems(){
       : `<div class="photo-ph tip-up" onclick="openPhotoModal(${item.id})" data-tip="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
     return `<tr>
       <td style="color:#a5b4fc;font-size:12px;">${idx+1}</td>
-      <td style="font-weight:600;color:var(--ios-label);max-width:280px;">${item.name}</td>
+      <td style="font-weight:600;color:var(--ios-label);max-width:280px;">${item.name}${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</td>
       <td><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${item.category}</span></td>
       <td style="color:var(--ios-label3);font-size:12px;">${item.unit}</td>
       <td>${photoCell}</td>
@@ -1246,6 +1296,7 @@ function renderItems(){
         <button class="btn btn-primary btn-sm" onclick="openQuick(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
         <button class="btn btn-ghost btn-sm" onclick="openHistory(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
         <button class="btn btn-ghost btn-sm" onclick="openPhotoModal(${item.id})"><span class="ms" style="font-size:16px;">photo_camera</span></button>
+        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" onclick="toggleInternal(${item.id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
         <button class="btn btn-danger btn-sm" onclick="openDelete(${item.id})"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
@@ -1262,7 +1313,7 @@ function renderItems(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
         <div style="flex:1;min-width:0;">
           <div style="font-size:13.5px;font-weight:700;color:var(--ios-label);line-height:1.4;margin-bottom:5px;">${item.name}</div>
-          <span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${item.category}</span>
+          <span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${item.category}</span>${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
           ${photo}
@@ -1276,6 +1327,7 @@ function renderItems(){
         <button class="btn btn-primary" style="flex:1;justify-content:center;padding:9px 8px;font-size:13px;" onclick="openQuick(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
         <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openHistory(${item.id})" data-tip="Історія" aria-label="Історія"><span class="ms" aria-hidden="true" style="font-size:16px;">history</span></button>
         <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openPhotoModal(${item.id})" data-tip="Фото" aria-label="Фото"><span class="ms" aria-hidden="true" style="font-size:16px;">photo_camera</span></button>
+        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} tip-up" style="padding:9px 12px;" onclick="toggleInternal(${item.id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє — клік, щоб повернути в баланс':'Позначити: внутрішнє використання'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
         <button class="btn btn-danger tip-up" style="padding:9px 12px;" onclick="openDelete(${item.id})" data-tip="Видалити" aria-label="Видалити"><span class="ms" aria-hidden="true" style="font-size:16px;">delete</span></button>
       </div>
     </div>`;
@@ -1627,9 +1679,10 @@ async function doAddNew(){
   const category=document.getElementById('newCat').value;
   const unit=document.getElementById('newUnit').value.trim()||'шт';
   const quantity=parseFloat(document.getElementById('newQty').value)||0;
+  const is_internal=document.getElementById('newInternal').checked;
   if(!name) return toast('Введіть назву товару!','error');
   if(/^\d+([.,]\d+)?$/.test(unit)) return toast('"Одиниця" має бути словом (напр. "шт", "уп."), а не числом!','error');
-  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity}]).select().single();
+  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
   // записуємо початковий прихід якщо кількість > 0
   if(quantity>0 && newItem){
@@ -1644,8 +1697,9 @@ async function doAddNew(){
     }catch(e){console.warn('receipt insert failed',e);}
   }
   toast('"'+name+'" додано!','success');
-  notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit);
+  notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty'].forEach(k=>document.getElementById(k).value='');
+  document.getElementById('newInternal').checked=false;
   await loadItems();populateSels();renderAddLow();
 }
 function renderAddLow(){
@@ -1766,6 +1820,9 @@ async function deleteLightboxPhoto(e){
 
 // ===== STATS =====
 function renderStats(){
+  const internalCount=allItems.filter(i=>i.is_internal).length;
+  document.getElementById('bal-total').textContent=allItems.length-internalCount;
+  document.getElementById('bal-internal').textContent=internalCount;
   const cats=[...new Set(allItems.map(i=>i.category))];
   document.getElementById('statCats').innerHTML=cats.map(cat=>{
     const items=allItems.filter(i=>i.category===cat);
@@ -1799,10 +1856,18 @@ function renderStats(){
 // ===== EXCEL =====
 function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');
-  const ws=XLSX.utils.json_to_sheet(allItems.map((i,idx)=>({'№':idx+1,'Назва товару':i.name,'Категорія':i.category,'Залишок':i.quantity,'Одиниця':i.unit})));
-  ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12}];
+  const ws=XLSX.utils.json_to_sheet(allItems.map((i,idx)=>({'№':idx+1,'Назва товару':i.name,'Категорія':i.category,'Залишок':i.quantity,'Одиниця':i.unit,'Внутрішнє використання':i.is_internal?'Так':'Ні'})));
+  ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:20}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Товари');
+  const internalCount=allItems.filter(i=>i.is_internal).length;
+  const wsBalance=XLSX.utils.json_to_sheet([
+    {'Показник':'Позицій на балансі (без внутрішнього використання)','Значення':allItems.length-internalCount},
+    {'Показник':'Позицій внутрішнього використання (хознужди)','Значення':internalCount},
+    {'Показник':'Всього позицій','Значення':allItems.length}
+  ]);
+  wsBalance['!cols']=[{wch:50},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,wsBalance,'Баланс');
   if(allLogs.length){
     const ws2=XLSX.utils.json_to_sheet(allLogs.map(l=>({'Дата':new Date(l.issued_at).toLocaleString('uk-UA'),'Товар':l.item_name,'К-сть':l.quantity,'Кому':l.issued_to||'','Примітка':l.note||''})));
     ws2['!cols']=[{wch:18},{wch:50},{wch:8},{wch:25},{wch:30}];
