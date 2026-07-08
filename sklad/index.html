@@ -169,6 +169,14 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .alert-banner{background:#FFF8E6;border:1px solid #FFE082;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#7A5200;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:16px;}
 .alert-banner:hover{background:#FFF3CC;}
 
+/* TOOLTIP — заміна нативного title, у якого браузер сам малює квадратну підказку */
+[data-tip]{position:relative;}
+[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(28,28,30,.92);color:#fff;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s ease,transform .15s ease;z-index:200;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+.tip-up::after{top:auto;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);}
+.tip-up:hover::after,.tip-up:focus-visible::after{transform:translateX(-50%) translateY(0);}
+@media (hover:none){[data-tip]::after{display:none;}}
+
 /* TOAST */
 #toast{position:fixed;bottom:24px;right:24px;padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.18);max-width:340px;backdrop-filter:blur(10px);}
 #toast.show{transform:translateY(0);opacity:1;}
@@ -460,9 +468,9 @@ async function checkPin(attempt){
     <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
       <span id="lastUpdate" style="font-size:11px;color:#a5b4fc;display:none;" class="topbar-right-excel"></span>
-      <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" title="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" title="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" title="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
+      <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
       <button class="btn btn-ghost btn-sm" onclick="refreshAll()" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
-      <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding:6px 10px;" title="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
     </div>
   </div>
 
@@ -612,8 +620,8 @@ async function checkPin(attempt){
           <div id="auditDate" style="font-size:12px;color:var(--ios-gray);margin-top:2px;"></div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" onclick="auditFillZeros()" title="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
-          <button class="btn btn-ghost btn-sm" onclick="auditFillCurrent()" title="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
+          <button class="btn btn-ghost btn-sm" onclick="auditFillZeros()" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
+          <button class="btn btn-ghost btn-sm" onclick="auditFillCurrent()" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
           <button class="btn btn-primary" onclick="openAuditConfirm()" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
         </div>
       </div>
@@ -1225,8 +1233,8 @@ function renderItems(){
   tb.innerHTML=items.map((item,idx)=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
     const photoCell=item.photo_url
-      ? `<img src="${item.photo_url}" class="photo-thumb" onclick="openLightbox('${item.photo_url}',${item.id})" title="Переглянути">`
-      : `<div class="photo-ph" onclick="openPhotoModal(${item.id})" title="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
+      ? `<img src="${item.photo_url}" class="photo-thumb tip-up" onclick="openLightbox('${item.photo_url}',${item.id})" data-tip="Переглянути">`
+      : `<div class="photo-ph tip-up" onclick="openPhotoModal(${item.id})" data-tip="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
     return `<tr>
       <td style="color:#a5b4fc;font-size:12px;">${idx+1}</td>
       <td style="font-weight:600;color:var(--ios-label);max-width:280px;">${item.name}</td>
@@ -1266,9 +1274,9 @@ function renderItems(){
       </div>
       <div style="display:flex;gap:6px;">
         <button class="btn btn-primary" style="flex:1;justify-content:center;padding:9px 8px;font-size:13px;" onclick="openQuick(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button class="btn btn-ghost" style="padding:9px 12px;" onclick="openHistory(${item.id})" title="Історія"><span class="ms" style="font-size:16px;">history</span></button>
-        <button class="btn btn-ghost" style="padding:9px 12px;" onclick="openPhotoModal(${item.id})" title="Фото"><span class="ms" style="font-size:16px;">photo_camera</span></button>
-        <button class="btn btn-danger" style="padding:9px 12px;" onclick="openDelete(${item.id})" title="Видалити"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openHistory(${item.id})" data-tip="Історія" aria-label="Історія"><span class="ms" aria-hidden="true" style="font-size:16px;">history</span></button>
+        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openPhotoModal(${item.id})" data-tip="Фото" aria-label="Фото"><span class="ms" aria-hidden="true" style="font-size:16px;">photo_camera</span></button>
+        <button class="btn btn-danger tip-up" style="padding:9px 12px;" onclick="openDelete(${item.id})" data-tip="Видалити" aria-label="Видалити"><span class="ms" aria-hidden="true" style="font-size:16px;">delete</span></button>
       </div>
     </div>`;
   }).join('');
