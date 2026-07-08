@@ -471,7 +471,7 @@ async function checkPin(attempt){
     <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
       <span id="lastUpdate" style="font-size:11px;color:#a5b4fc;display:none;" class="topbar-right-excel"></span>
-      <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
+      <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openPriceRefreshModal()" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
       <button class="btn btn-ghost btn-sm" onclick="refreshAll()" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
       <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
     </div>
@@ -507,12 +507,12 @@ async function checkPin(attempt){
     </div>
     <div class="card desktop-table" style="overflow:hidden;">
       <table>
-        <thead><tr><th>#</th><th>Назва товару</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Дії</th></tr></thead>
+        <thead><tr><th>#</th><th>Назва товару</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
         <tbody id="itemsTable">
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
+          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
+          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
+          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
+          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
         </tbody>
       </table>
     </div>
@@ -587,7 +587,7 @@ async function checkPin(attempt){
         <div style="margin-top:32px;padding-top:24px;border-top:1px solid #f0eeff;">
           <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fiber_new</span> Новий товар</h3>
           <div style="display:flex;flex-direction:column;gap:14px;">
-            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27"><button class="btn btn-ghost" onclick="openBarcodeAddScanner()" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
+            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" oninput="renderNewProductMatches()"><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button class="btn btn-ghost" onclick="openBarcodeAddScanner()" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" onblur="if(/^\d+([.,]\d+)?$/.test(this.value.trim())) toast('Одиниця має бути словом, не числом!','error');"></div>
@@ -673,7 +673,7 @@ async function checkPin(attempt){
   <div id="page-stats" class="page">
     <div class="card" style="padding:18px 22px;margin-bottom:16px;">
       <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">account_balance</span>Баланс складу</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
         <div>
           <div id="bal-total" style="font-size:26px;font-weight:800;color:var(--brand);">0</div>
           <div style="font-size:12px;color:var(--ios-label3);">позицій на балансі</div>
@@ -682,13 +682,48 @@ async function checkPin(attempt){
           <div id="bal-internal" style="font-size:26px;font-weight:800;color:var(--ios-orange);">0</div>
           <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">home_repair_service</span> внутрішнього використання (не входять у баланс)</div>
         </div>
+        <div>
+          <div id="bal-value" style="font-size:26px;font-weight:800;color:var(--ios-green);">—</div>
+          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">payments</span> орієнтовна вартість залишку</div>
+        </div>
+        <div>
+          <div id="bal-filtered-value" style="font-size:26px;font-weight:800;color:var(--ios-green);">—</div>
+          <div id="bal-filtered-count" style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">filter_alt</span> за фільтрами вартості</div>
+        </div>
+        <div>
+          <div id="bal-priced" style="font-size:26px;font-weight:800;color:var(--brand);">0</div>
+          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">sell</span> товарів з ціною</div>
+        </div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
       <div class="card" style="padding:18px;"><div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">bar_chart</span>По категоріях</div><div id="statCats" style="display:flex;flex-direction:column;gap:12px;"></div></div>
       <div class="card" style="padding:18px;overflow:hidden;"><div style="font-size:11px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;color:#ef4444;">warning</span>Потребують поповнення</div><div id="statLow" style="overflow:hidden;"></div></div>
     </div>
-    <div class="card" style="padding:22px;"><div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">history</span>Останні видачі</div><div id="statLog"></div></div>
+    <div class="card" style="padding:18px 22px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;margin-bottom:12px;"><span class="ms" style="font-size:16px;">filter_alt</span> Фільтр вартості складу</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;">
+        <div><label>Категорія</label><select class="inp" id="valueCatFilter" onchange="renderStats()"><option value="">Усі категорії</option></select></div>
+        <div><label>Залишок</label><select class="inp" id="valueStockFilter" onchange="renderStats()"><option value="all">Усі товари</option><option value="positive">Є залишок</option><option value="low">Мало (≤3)</option><option value="zero">Закінчились</option><option value="normal">В нормі (&gt;3)</option></select></div>
+        <div><label>Тип</label><select class="inp" id="valueInternalFilter" onchange="renderStats()"><option value="balance">Балансові</option><option value="all">Усі</option><option value="internal">Внутрішні</option></select></div>
+        <div><label>Ціна</label><select class="inp" id="valuePriceFilter" onchange="renderStats()"><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
+      </div>
+      <div id="valueFilterSummary" style="font-size:12px;color:var(--ios-label3);margin-top:10px;line-height:1.45;">Показано баланс без внутрішнього використання.</div>
+    </div>
+    <div class="card" style="padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">sell</span> Інтернет-оцінка цін</div>
+        <div id="priceSummary" style="font-size:12px;color:var(--ios-label3);margin-top:4px;">Ціни не оновлювались</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="openPriceRefreshModal()"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
+        <button class="btn btn-ghost btn-sm" onclick="openManualPriceModal()"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
+      <div class="card" style="padding:18px;overflow:hidden;"><div style="font-size:11px;font-weight:700;color:var(--ios-orange);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">sell</span>Товари без ціни</div><div id="statUnpriced"></div></div>
+      <div class="card" style="padding:22px;"><div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">history</span>Останні видачі</div><div id="statLog"></div></div>
+    </div>
   </div>
 </div>
 
@@ -916,6 +951,35 @@ async function checkPin(attempt){
 </div>
 
 <!-- CHART MODAL -->
+<div class="modal-bg" id="priceModal" onclick="closeModal('priceModal',event)">
+  <div class="modal" style="max-width:560px;">
+    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">travel_explore</span> Підтягнути ціни з інтернету</h3>
+    <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
+      <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
+      <button class="btn btn-primary" onclick="fetchItemPrice()" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
+    </div>
+    <div id="priceResults" style="min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);">Оберіть товар і натисніть “Знайти”.</div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('priceModal')">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="manualPriceModal" onclick="closeModal('manualPriceModal',event)">
+  <div class="modal" style="max-width:460px;">
+    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Ручна ціна</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div><label>Товар</label><select class="inp" id="manualPriceItemSel"><option value="">— Оберіть товар —</option></select></div>
+      <div><label>Ціна за одиницю, грн</label><input class="inp" id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div><label>Джерело / посилання <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('manualPriceModal')">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="saveManualPrice()"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="chartModal" onclick="closeModal('chartModal',event)">
   <div class="modal">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:16px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">bar_chart</span> Залишки по категоріях</h3>
@@ -939,6 +1003,27 @@ const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі',issue:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">output</span>Видача зі складу',log:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">receipt_long</span>Журнал видач',add:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">add_circle</span>Додати / Поповнити',receipts:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">move_to_inbox</span>Прихід товару',audit:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">fact_check</span>Інвентаризація',stats:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">bar_chart</span>Статистика'};
+const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
+function money(v){
+  const n=Number(v);
+  if(!isFinite(n)||n<=0) return '—';
+  return new Intl.NumberFormat('uk-UA',{style:'currency',currency:'UAH',maximumFractionDigits:n>=100?0:2}).format(n);
+}
+function priceValue(item){const n=Number(item?.price_unit);return isFinite(n)&&n>0?n:0;}
+function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
+function priceBadge(item){
+  const id=escapeHtml(String(item?.id||''));
+  const price=priceValue(item);
+  if(!price) return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" onclick="openManualPriceModal('${id}')"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
+  const checked=item.price_checked_at?new Date(item.price_checked_at).toLocaleDateString('uk-UA'):'';
+  const src=item.price_source?escapeHtml(item.price_source):'ціна';
+  const title=[src,checked].filter(Boolean).join(' · ');
+  return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" onclick="openManualPriceModal('${id}')" data-tip="${escapeHtml(title)}">
+    <span style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(price)}</span>
+    <span style="font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;">${src}</span>
+  </button>`;
+}
+
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
 if(sessionStorage.getItem('auth')==='ok') document.getElementById('authScreen').style.display='none';
@@ -1306,7 +1391,7 @@ function renderItems(){
   // Desktop table
   const tb=document.getElementById('itemsTable');
   if(!items.length){
-    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div style="margin-bottom:10px;"><span class="ms" style="font-size:40px;">search_off</span></div>Нічого не знайдено</div></td></tr>';
+    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div style="margin-bottom:10px;"><span class="ms" style="font-size:40px;">search_off</span></div>Нічого не знайдено</div></td></tr>';
     const mc=document.getElementById('mobileCards');
     if(mc) mc.innerHTML='<div class="empty" style="padding:32px;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div>';
     return;
@@ -1323,11 +1408,14 @@ function renderItems(){
       <td style="color:var(--ios-label3);font-size:12px;">${item.unit}</td>
       <td>${photoCell}</td>
       <td><span class="${qc}">${item.quantity}</span> <span style="color:#a5b4fc;font-size:11px;">${item.unit}</span></td>
+      <td>${priceBadge(item)}</td>
       <td><div style="display:flex;gap:6px;">
         <button class="btn btn-primary btn-sm" onclick="openQuick(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
         <button class="btn btn-ghost btn-sm" onclick="openHistory(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
         <button class="btn btn-ghost btn-sm" onclick="openPhotoModal(${item.id})"><span class="ms" style="font-size:16px;">photo_camera</span></button>
         <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" onclick="toggleInternal(${item.id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
+        <button class="btn btn-ghost btn-sm tip-up" onclick="openManualPriceModal(${item.id})" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
+        <button class="btn btn-ghost btn-sm tip-up" onclick="openItemPriceLookup(${item.id})" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
         <button class="btn btn-danger btn-sm" onclick="openDelete(${item.id})"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
@@ -1345,6 +1433,7 @@ function renderItems(){
         <div style="flex:1;min-width:0;">
           <div style="font-size:13.5px;font-weight:700;color:var(--ios-label);line-height:1.4;margin-bottom:5px;">${item.name}</div>
           <span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${item.category}</span>${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}
+          <div style="margin-top:6px;">${priceBadge(item)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
           ${photo}
@@ -1359,6 +1448,8 @@ function renderItems(){
         <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openHistory(${item.id})" data-tip="Історія" aria-label="Історія"><span class="ms" aria-hidden="true" style="font-size:16px;">history</span></button>
         <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openPhotoModal(${item.id})" data-tip="Фото" aria-label="Фото"><span class="ms" aria-hidden="true" style="font-size:16px;">photo_camera</span></button>
         <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} tip-up" style="padding:9px 12px;" onclick="toggleInternal(${item.id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє — клік, щоб повернути в баланс':'Позначити: внутрішнє використання'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
+        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openManualPriceModal(${item.id})" data-tip="Ціна" aria-label="Ціна"><span class="ms" aria-hidden="true" style="font-size:16px;">sell</span></button>
+        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openItemPriceLookup(${item.id})" data-tip="Підтягнути ціну" aria-label="Підтягнути ціну з інтернету"><span class="ms" aria-hidden="true" style="font-size:16px;">travel_explore</span></button>
         <button class="btn btn-danger tip-up" style="padding:9px 12px;" onclick="openDelete(${item.id})" data-tip="Видалити" aria-label="Видалити"><span class="ms" aria-hidden="true" style="font-size:16px;">delete</span></button>
       </div>
     </div>`;
@@ -1705,6 +1796,49 @@ async function doRefill(){
   document.getElementById('refillSel').value='';
   await loadItems();populateSels();renderAddLow();
 }
+function normalizeSearchText(value){return String(value||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();}
+function itemMatchesSearch(item, query){
+  const q=normalizeSearchText(query);
+  if(!q) return true;
+  const hay=normalizeSearchText([item.name,item.category,item.unit,item.price_source].filter(Boolean).join(' '));
+  return q.split(/\s+/).every(part=>hay.includes(part));
+}
+function renderNewProductMatches(){
+  const box=document.getElementById('newNameMatches');
+  const input=document.getElementById('newName');
+  if(!box||!input) return;
+  const q=input.value.trim();
+  if(q.length<2){box.style.display='none';box.innerHTML='';return;}
+  const matches=allItems.filter(i=>itemMatchesSearch(i,q)).slice(0,5);
+  if(!matches.length){
+    box.style.display='block';
+    box.innerHTML='<div style="font-size:12px;color:var(--ios-gray);background:var(--ios-bg);border:1px dashed var(--ios-sep);border-radius:12px;padding:10px;">Схожих товарів не знайдено — можна додавати новий.</div>';
+    return;
+  }
+  box.style.display='block';
+  box.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--brand);margin-bottom:6px;">Схожі товари на складі</div>'+matches.map(i=>`<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;border:1px solid var(--ios-sep);border-radius:12px;background:var(--ios-bg);margin-top:6px;">
+    <div style="min-width:0;flex:1;">
+      <div style="font-size:13px;font-weight:800;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
+      <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')} · ${priceValue(i)?money(priceValue(i)):'без ціни'}</div>
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0;">
+      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" onclick="useExistingItemForRefill('${escapeHtml(String(i.id))}')">Поповнити</button>
+      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" onclick="openManualPriceModal('${escapeHtml(String(i.id))}')">Ціна</button>
+    </div>
+  </div>`).join('');
+}
+function useExistingItemForRefill(id){
+  const sel=document.getElementById('refillSel');
+  if(!sel) return;
+  sel.value=String(id);
+  sel.dispatchEvent(new Event('change'));
+  refreshEnhancedSelect(sel);
+  document.getElementById('refillQtyI')?.focus();
+  const box=document.getElementById('newNameMatches');
+  if(box){box.style.display='none';box.innerHTML='';}
+  toast('Товар знайдено — введіть кількість для поповнення','info');
+}
+
 async function doAddNew(){
   const name=document.getElementById('newName').value.trim();
   const category=document.getElementById('newCat').value;
@@ -1730,6 +1864,8 @@ async function doAddNew(){
   toast('"'+name+'" додано!','success');
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty'].forEach(k=>document.getElementById(k).value='');
+  const matchesBox=document.getElementById('newNameMatches');
+  if(matchesBox){matchesBox.style.display='none';matchesBox.innerHTML='';}
   document.getElementById('newInternal').checked=false;
   await loadItems();populateSels();renderAddLow();
 }
@@ -1850,10 +1986,61 @@ async function deleteLightboxPhoto(e){
 }
 
 // ===== STATS =====
+function syncValueFilterOptions(){
+  const sel=document.getElementById('valueCatFilter');
+  if(!sel) return;
+  const current=sel.value;
+  const cats=[...new Set(allItems.map(i=>i.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uk'));
+  sel.innerHTML='<option value="">Усі категорії</option>'+cats.map(cat=>`<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join('');
+  if(cats.includes(current)) sel.value=current;
+  refreshEnhancedSelect(sel);
+}
+function getValueFilteredItems(){
+  const cat=document.getElementById('valueCatFilter')?.value||'';
+  const stock=document.getElementById('valueStockFilter')?.value||'all';
+  const internal=document.getElementById('valueInternalFilter')?.value||'balance';
+  const price=document.getElementById('valuePriceFilter')?.value||'all';
+  return allItems.filter(i=>{
+    if(cat && i.category!==cat) return false;
+    if(internal==='balance' && i.is_internal) return false;
+    if(internal==='internal' && !i.is_internal) return false;
+    if(stock==='positive' && Number(i.quantity||0)<=0) return false;
+    if(stock==='low' && Number(i.quantity||0)>3) return false;
+    if(stock==='zero' && Number(i.quantity||0)!==0) return false;
+    if(stock==='normal' && Number(i.quantity||0)<=3) return false;
+    if(price==='priced' && !priceValue(i)) return false;
+    if(price==='unpriced' && priceValue(i)) return false;
+    return true;
+  });
+}
 function renderStats(){
+  syncValueFilterOptions();
   const internalCount=allItems.filter(i=>i.is_internal).length;
+  const priced=allItems.filter(i=>priceValue(i)>0);
+  const balanceValue=allItems.filter(i=>!i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
+  const filteredItems=getValueFilteredItems();
+  const filteredValue=filteredItems.reduce((sum,i)=>sum+stockValue(i),0);
+  const filteredPriced=filteredItems.filter(i=>priceValue(i)>0).length;
+  const filteredInStock=filteredItems.filter(i=>Number(i.quantity||0)>0).length;
+  const filteredInternal=filteredItems.filter(i=>i.is_internal).length;
   document.getElementById('bal-total').textContent=allItems.length-internalCount;
   document.getElementById('bal-internal').textContent=internalCount;
+  document.getElementById('bal-value').textContent=balanceValue?money(balanceValue):'—';
+  document.getElementById('bal-priced').textContent=priced.length;
+  const filteredValueEl=document.getElementById('bal-filtered-value');
+  if(filteredValueEl) filteredValueEl.textContent=filteredValue?money(filteredValue):'—';
+  const filteredCountEl=document.getElementById('bal-filtered-count');
+  if(filteredCountEl) filteredCountEl.innerHTML=`<span class="ms" style="font-size:13px;vertical-align:-2px;">filter_alt</span> ${filteredItems.length} поз. · ${filteredInStock} в наявності · ${filteredInternal} внутр.`;
+  const summary=document.getElementById('valueFilterSummary');
+  if(summary){
+    const missing=filteredItems.length-filteredPriced;
+    summary.textContent=`У фільтрі: ${filteredItems.length} позицій, в наявності ${filteredInStock}, внутрішніх ${filteredInternal}, оцінено ${filteredPriced}, без ціни ${missing}. Сума рахується як залишок × ціна за одиницю.`;
+  }
+  const lastPrice=priced.map(i=>i.price_checked_at).filter(Boolean).sort().pop();
+  const priceSummary=document.getElementById('priceSummary');
+  if(priceSummary) priceSummary.textContent=priced.length
+    ? `Оцінено ${priced.length}/${allItems.length} товарів · останнє оновлення: ${lastPrice?new Date(lastPrice).toLocaleString('uk-UA'):'ручне'}`
+    : 'Ціни не оновлювались';
   const cats=[...new Set(allItems.map(i=>i.category))];
   document.getElementById('statCats').innerHTML=cats.map(cat=>{
     const items=allItems.filter(i=>i.category===cat);
@@ -1874,6 +2061,17 @@ function renderStats(){
         <span class="${i.quantity==0?'qty-zero':'qty-low'}" style="flex-shrink:0;white-space:nowrap;">${i.quantity} ${i.unit}</span>
       </div>`).join('')
     : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Всі товари в нормі!</div>';
+  const unpriced=allItems.filter(i=>!priceValue(i)).sort((a,b)=>Number(b.quantity||0)-Number(a.quantity||0));
+  const unpricedBox=document.getElementById('statUnpriced');
+  if(unpricedBox) unpricedBox.innerHTML=unpriced.length
+    ? unpriced.slice(0,12).map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
+        <div style="min-width:0;flex:1;">
+          <div style="font-weight:700;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
+          <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" onclick="openManualPriceModal('${escapeHtml(String(i.id))}')">Ціна</button>
+      </div>`).join('')+(unpriced.length>12?`<div style="font-size:11px;color:var(--ios-gray);margin-top:8px;">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
+    : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
@@ -1883,19 +2081,23 @@ function renderStats(){
     </div>`;
   }).join('')||'<div class="empty" style="padding:16px;">Журнал порожній</div>';
 }
-
 // ===== EXCEL =====
 function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');
-  const ws=XLSX.utils.json_to_sheet(allItems.map((i,idx)=>({'№':idx+1,'Назва товару':i.name,'Категорія':i.category,'Залишок':i.quantity,'Одиниця':i.unit,'Внутрішнє використання':i.is_internal?'Так':'Ні'})));
-  ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:20}];
+  const ws=XLSX.utils.json_to_sheet(allItems.map((i,idx)=>({'№':idx+1,'Назва товару':i.name,'Категорія':i.category,'Залишок':i.quantity,'Одиниця':i.unit,'Ціна за од., грн':priceValue(i)||'','Оцінка залишку, грн':stockValue(i)||'','Джерело ціни':i.price_source||'','Дата ціни':i.price_checked_at?new Date(i.price_checked_at).toLocaleString('uk-UA'):'','Внутрішнє використання':i.is_internal?'Так':'Ні'})));
+  ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:14},{wch:18},{wch:28},{wch:18},{wch:20}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Товари');
   const internalCount=allItems.filter(i=>i.is_internal).length;
+  const balanceValue=allItems.filter(i=>!i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
+  const internalValue=allItems.filter(i=>i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
   const wsBalance=XLSX.utils.json_to_sheet([
     {'Показник':'Позицій на балансі (без внутрішнього використання)','Значення':allItems.length-internalCount},
     {'Показник':'Позицій внутрішнього використання (хознужди)','Значення':internalCount},
-    {'Показник':'Всього позицій','Значення':allItems.length}
+    {'Показник':'Всього позицій','Значення':allItems.length},
+    {'Показник':'Орієнтовна вартість залишку на балансі, грн','Значення':balanceValue},
+    {'Показник':'Орієнтовна вартість внутрішнього використання, грн','Значення':internalValue},
+    {'Показник':'Товарів з ціною','Значення':allItems.filter(i=>priceValue(i)>0).length}
   ]);
   wsBalance['!cols']=[{wch:50},{wch:12}];
   XLSX.utils.book_append_sheet(wb,wsBalance,'Баланс');
@@ -1909,6 +2111,102 @@ function exportExcel(){
   toast('Excel завантажено!','success');
 }
 
+
+// ===== PRICE LOOKUP / BALANCE =====
+function fillPriceSelects(selectedId='', searchText='') {
+  const selectedItem=selectedId?allItems.find(i=>String(i.id)===String(selectedId)):null;
+  const filtered=allItems.filter(i=>itemMatchesSearch(i,searchText));
+  const items=(selectedItem && !filtered.some(i=>String(i.id)===String(selectedId)))?[selectedItem,...filtered]:filtered;
+  const opts=items.map(i=>`<option value="${i.id}">${escapeHtml(i.name)} (${i.quantity} ${escapeHtml(i.unit||'')})</option>`).join('');
+  ['priceItemSel','manualPriceItemSel'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;
+    if(selectedId) el.value=String(selectedId);
+    refreshEnhancedSelect(el);
+  });
+  const results=document.getElementById('priceResults');
+  if(results && searchText && !items.length) results.innerHTML='<div class="empty" style="padding:18px;">За пошуком товарів не знайдено.</div>';
+}
+function openPriceRefreshModal(id='') {
+  fillPriceSelects(id);
+  document.getElementById('priceResults').innerHTML='Оберіть товар і натисніть “Знайти”.';
+  document.getElementById('priceModal').classList.add('open');
+}
+function openItemPriceLookup(id){
+  openPriceRefreshModal(id);
+  setTimeout(fetchItemPrice,0);
+}
+function openManualPriceModal(id='') {
+  fillPriceSelects(id);
+  const item=allItems.find(i=>String(i.id)===String(id));
+  document.getElementById('manualPriceValue').value=item&&priceValue(item)?priceValue(item):'';
+  document.getElementById('manualPriceSource').value=item?.price_source||'';
+  document.getElementById('manualPriceModal').classList.add('open');
+}
+async function saveItemPrice(itemId, price, source='', url='', confidence='manual') {
+  const payload={
+    price_unit:Number(price),
+    price_source:source||'Ручна ціна',
+    price_url:url||null,
+    price_checked_at:new Date().toISOString(),
+    price_confidence:confidence||'manual'
+  };
+  const {error}=await db.from('inventory_items').update(payload).eq('id',itemId);
+  if(error) {
+    if(String(error.message||'').includes('price_unit')) toast('Спочатку виконайте SQL add_price_tracking.sql у базі Складу','error');
+    else toast('Помилка збереження ціни: '+error.message,'error');
+    return false;
+  }
+  const item=allItems.find(i=>String(i.id)===String(itemId));
+  if(item) Object.assign(item,payload);
+  renderItems();updateStats();renderStats();
+  return true;
+}
+async function saveManualPrice(){
+  const id=document.getElementById('manualPriceItemSel').value;
+  const price=parseFloat(document.getElementById('manualPriceValue').value);
+  const source=document.getElementById('manualPriceSource').value.trim();
+  if(!id) return toast('Оберіть товар','error');
+  if(!price||price<=0) return toast('Вкажіть ціну','error');
+  if(await saveItemPrice(id,price,source,'','manual')) { closeModal('manualPriceModal'); toast('Ціну збережено','success'); }
+}
+async function fetchItemPrice(){
+  const id=document.getElementById('priceItemSel').value;
+  const item=allItems.find(i=>String(i.id)===String(id));
+  if(!item) return toast('Оберіть товар','error');
+  const box=document.getElementById('priceResults');
+  box.innerHTML='<div style="text-align:center;padding:22px;color:var(--ios-gray);"><span class="ms" style="font-size:18px;vertical-align:-4px;">sync</span> Шукаю ціни...</div>';
+  try{
+    const res=await fetch(PRICE_LOOKUP_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9','Authorization':'Bearer sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9'},
+      body:JSON.stringify({name:item.name,category:item.category,unit:item.unit})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||'Помилка пошуку');
+    const results=data.results||[];
+    if(!results.length){box.innerHTML='<div class="empty" style="padding:18px;">Ціну не знайдено. Спробуйте ручне введення.</div>';return;}
+    box.innerHTML=results.slice(0,5).map((r,idx)=>`<div style="padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;color:var(--ios-label);font-size:13px;line-height:1.35;">${escapeHtml(r.title||'Товар')}</div>
+        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${r.link?`<a href="${escapeHtml(r.link)}" target="_blank" rel="noopener" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(r.price)}</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="applyFoundPrice('${escapeHtml(String(item.id))}',${Number(r.price)||0},'${escapeHtml(String(r.source||'Інтернет'))}','${escapeHtml(String(r.link||''))}')">Взяти</button>
+      </div>
+    </div>`).join('');
+  }catch(e){
+    box.innerHTML=`<div style="color:var(--ios-red);font-size:13px;line-height:1.5;">${escapeHtml(e.message||String(e))}<br><small>Перевірте деплой Edge Function fetch-item-prices і секрет SERPAPI_KEY / SHOPAPIS_KEY у базі Складу.</small></div>`;
+  }
+}
+async function applyFoundPrice(itemId, price, source, url){
+  if(await saveItemPrice(itemId,price,source,url,'internet')) {
+    closeModal('priceModal');
+    toast('Інтернет-ціну підтверджено','success');
+  }
+}
 
 // ===== SET PERSON (role buttons) =====
 function setPerson(name, btn) {
@@ -2055,6 +2353,8 @@ function enhanceSelect(select){
   if(!select||select.dataset.enhanced) return;
   select.dataset.enhanced='1';
   const btnClass=select.className;
+  const searchable=select.dataset.searchable==='1';
+  let selectSearchTerm='';
   select.style.display='none';
 
   const wrap=document.createElement('div');
@@ -2075,9 +2375,36 @@ function enhanceSelect(select){
   panel.setAttribute('role','listbox');
   wrap.appendChild(panel);
 
+  function optionMatches(opt){
+    if(!searchable||!selectSearchTerm) return true;
+    if(!opt.value) return true;
+    return normalizeSearchText(opt.textContent).includes(normalizeSearchText(selectSearchTerm));
+  }
   function renderOptions(){
     panel.innerHTML='';
-    Array.from(select.options).forEach(opt=>{
+    let searchInput=null;
+    if(searchable){
+      searchInput=document.createElement('input');
+      searchInput.className='inp';
+      searchInput.type='search';
+      searchInput.placeholder=select.dataset.searchPlaceholder||'Пошук...';
+      searchInput.value=selectSearchTerm;
+      searchInput.style.margin='8px';
+      searchInput.style.width='calc(100% - 16px)';
+      searchInput.addEventListener('input',()=>{
+        selectSearchTerm=searchInput.value;
+        renderOptions();
+        const next=panel.querySelector('input[type="search"]');
+        if(next){next.focus();next.setSelectionRange(next.value.length,next.value.length);}
+      });
+      searchInput.addEventListener('keydown',(e)=>{
+        if(e.key==='Escape'){e.preventDefault();closePanel();btn.focus();}
+        if(e.key==='ArrowDown'){e.preventDefault();panel.querySelector('.custom-select-option')?.focus();}
+      });
+      panel.appendChild(searchInput);
+    }
+    const visibleOptions=Array.from(select.options).filter(optionMatches);
+    visibleOptions.forEach(opt=>{
       const item=document.createElement('div');
       item.className='custom-select-option'+(opt.value===select.value?' active':'');
       item.textContent=opt.textContent;
@@ -2087,6 +2414,7 @@ function enhanceSelect(select){
       const choose=()=>{
         select.value=opt.value;
         select.dispatchEvent(new Event('change'));
+        selectSearchTerm='';
         syncLabel();
         closePanel();
         btn.focus();
@@ -2095,18 +2423,31 @@ function enhanceSelect(select){
       item.onkeydown=(e)=>{
         if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}
         else if(e.key==='Escape'){closePanel();btn.focus();}
-        else if(e.key==='ArrowDown'){e.preventDefault();(item.nextElementSibling||panel.firstElementChild)?.focus();}
-        else if(e.key==='ArrowUp'){e.preventDefault();(item.previousElementSibling||panel.lastElementChild)?.focus();}
+        else if(e.key==='ArrowDown'){e.preventDefault();(item.nextElementSibling||panel.querySelector('.custom-select-option'))?.focus();}
+        else if(e.key==='ArrowUp'){
+          e.preventDefault();
+          const prev=item.previousElementSibling;
+          if(prev&&prev.classList.contains('custom-select-option')) prev.focus();
+          else panel.querySelector('input[type="search"]')?.focus();
+        }
       };
       panel.appendChild(item);
     });
+    if(searchable && !visibleOptions.some(o=>o.value)){
+      const empty=document.createElement('div');
+      empty.className='empty';
+      empty.style.padding='12px';
+      empty.textContent='Товар не знайдено';
+      panel.appendChild(empty);
+    }
   }
   function syncLabel(){
     const selectedOpt=select.options[select.selectedIndex];
     btn.querySelector('.custom-select-label').textContent=selectedOpt?selectedOpt.textContent:'';
-    panel.querySelectorAll('.custom-select-option').forEach((el,i)=>{
-      el.classList.toggle('active',select.options[i]&&select.options[i].value===select.value);
-      el.setAttribute('aria-selected',select.options[i]&&select.options[i].value===select.value?'true':'false');
+    panel.querySelectorAll('.custom-select-option').forEach(el=>{
+      const opt=Array.from(select.options).find(o=>o.textContent===el.textContent);
+      el.classList.toggle('active',opt&&opt.value===select.value);
+      el.setAttribute('aria-selected',opt&&opt.value===select.value?'true':'false');
     });
   }
   function openPanel(){
@@ -2114,7 +2455,8 @@ function enhanceSelect(select){
     renderOptions();
     panel.classList.remove('hidden');
     btn.setAttribute('aria-expanded','true');
-    panel.querySelector('.custom-select-option.active')?.focus();
+    if(searchable) panel.querySelector('input[type="search"]')?.focus();
+    else panel.querySelector('.custom-select-option.active')?.focus();
   }
   function closePanel(){panel.classList.add('hidden');btn.setAttribute('aria-expanded','false');}
 
@@ -2125,6 +2467,10 @@ function enhanceSelect(select){
   btn.addEventListener('keydown',(e)=>{
     if((e.key==='ArrowDown'||e.key==='Enter'||e.key===' ')&&panel.classList.contains('hidden')){
       e.preventDefault();
+      openPanel();
+    } else if(searchable && e.key.length===1 && !e.ctrlKey && !e.metaKey && !e.altKey){
+      e.preventDefault();
+      selectSearchTerm=e.key;
       openPanel();
     }
   });
@@ -2248,10 +2594,10 @@ applyTheme(document.body.className || 'theme-light');
 
 // ===== INIT =====
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
-['issueItemSel','refillSel','newCat'].forEach(id=>enhanceSelect(document.getElementById(id)));
+['issueItemSel','refillSel','newCat','priceItemSel','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
-    ['qModal','photoModal','delModal','histModal','chartModal','barcodeAddModal','delLogModal','editLogModal','delReceiptModal','editReceiptModal','auditModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
+    ['qModal','photoModal','delModal','histModal','chartModal','priceModal','manualPriceModal','barcodeAddModal','delLogModal','editLogModal','delReceiptModal','editReceiptModal','auditModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
     document.getElementById('lightbox').classList.remove('open');
     stopQR();stopBarcodeAdd();
   }
