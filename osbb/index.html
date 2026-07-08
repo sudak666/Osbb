@@ -167,6 +167,14 @@
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
         }
+
+        /* TOOLTIP — заміна нативного title, у якого браузер сам малює квадратну підказку */
+        [data-tip] { position: relative; }
+        [data-tip]::after { content: attr(data-tip); position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(-4px); background: rgba(28,28,30,0.92); color: #fff; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 8px; white-space: nowrap; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.15s ease, transform 0.15s ease; z-index: 200; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+        [data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        .tip-up::after { top: auto; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(4px); }
+        .tip-up:hover::after, .tip-up:focus-visible::after { transform: translateX(-50%) translateY(0); }
+        @media (hover: none) { [data-tip]::after { display: none; } }
     </style>
 </head>
 <body class="theme-light min-h-screen">
@@ -298,14 +306,14 @@
     </div>
 
     <div class="no-print p-3 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-2">
-        <button onclick="stepMonth(-1)" title="Попередній місяць" aria-label="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">‹</button>
+        <button onclick="stepMonth(-1)" data-tip="Попередній місяць" aria-label="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">‹</button>
         <select id="year-select" onchange="initCalendar()" aria-label="Рік" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         <select id="month-select" onchange="initCalendar()" aria-label="Місяць" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
-        <button onclick="stepMonth(1)" title="Наступний місяць" aria-label="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
+        <button onclick="stepMonth(1)" data-tip="Наступний місяць" aria-label="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
         <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">
             <span class="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg> Сьогодні</span>
         </button>
-        <button onclick="refreshData()" title="Оновити дані" aria-label="Оновити дані" class="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 text-emerald-600 transition" id="btn-refresh">
+        <button onclick="refreshData()" data-tip="Оновити дані" aria-label="Оновити дані" class="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 text-emerald-600 transition" id="btn-refresh">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         </button>
         <!-- Таби — тільки на десктопі в цьому рядку -->
@@ -1175,8 +1183,8 @@
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
         container.innerHTML = photos.map(p => `
             <div class="relative group">
-                <img src="${p.url}" loading="lazy" class="photo-thumb" onclick="openLightbox('${p.url}')" title="Натисни для збільшення">
-                <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" title="Видалити фото" class="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <img src="${p.url}" loading="lazy" class="photo-thumb tip-up" onclick="openLightbox('${p.url}')" data-tip="Натисни для збільшення">
+                <button onclick="deletePhoto('${p.id}','${p.url}',${day},'${role}')" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>`).join('');
     }
 
