@@ -491,6 +491,7 @@ async function checkPin(attempt){
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button class="pill" id="inStockPill" onclick="toggleInStock(this)" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
         <button class="pill" id="hideInternalPill" onclick="toggleHideInternal(this)" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
+        <button class="pill" id="onlyInternalPill" onclick="toggleOnlyInternal(this)" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="catPills" class="pills-wrap">
         <button class="pill active" onclick="filterCat(this,'')">Всі</button>
@@ -1231,11 +1232,36 @@ function toggleInStock(btn){
   renderItems();
 }
 
-// ===== HIDE INTERNAL-USE TOGGLE (хознужди, не входять у баланс) =====
+// ===== HIDE / SHOW ONLY INTERNAL-USE TOGGLES (хознужди, не входять у баланс) =====
 let hideInternal=false;
+let onlyInternal=false;
+function resetInternalPill(id,color){
+  const btn=document.getElementById(id);
+  if(!btn) return;
+  btn.classList.remove('active');
+  btn.style.background='';
+  btn.style.color=color;
+}
 function toggleHideInternal(btn){
   hideInternal=!hideInternal;
   if(hideInternal){
+    onlyInternal=false;
+    resetInternalPill('onlyInternalPill','var(--ios-orange)');
+    btn.classList.add('active');
+    btn.style.background='var(--ios-orange)';
+    btn.style.color='#fff';
+  } else {
+    btn.classList.remove('active');
+    btn.style.background='';
+    btn.style.color='var(--ios-orange)';
+  }
+  renderItems();
+}
+function toggleOnlyInternal(btn){
+  onlyInternal=!onlyInternal;
+  if(onlyInternal){
+    hideInternal=false;
+    resetInternalPill('hideInternalPill','var(--ios-orange)');
     btn.classList.add('active');
     btn.style.background='var(--ios-orange)';
     btn.style.color='#fff';
@@ -1270,6 +1296,7 @@ function renderItems(){
   else if(stockFilter==='ok') items=items.filter(i=>i.quantity>3);
   if(inStockOnly) items=items.filter(i=>i.quantity>0);
   if(hideInternal) items=items.filter(i=>!i.is_internal);
+  else if(onlyInternal) items=items.filter(i=>i.is_internal);
   if(s) items=items.filter(i=>i.name.toLowerCase().includes(s));
 
   // Desktop table
