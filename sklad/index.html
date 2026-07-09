@@ -105,6 +105,7 @@ nav{margin-top:6px;flex:1;}
 .sync-status.is-syncing{color:var(--brand);}
 .sync-status.is-syncing .ms{animation:spin .9s linear infinite;}
 button[disabled]{opacity:.62;cursor:not-allowed;}
+.btn[aria-busy="true"] .ms{animation:spin .9s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 .page{display:none;padding:24px;}
@@ -559,7 +560,7 @@ async function checkPin(attempt){
           </div>
           <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Електрик',this)">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Сантехнік',this)">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Двірник',this)">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Охорона',this)">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Прибиральниця',this)">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doIssue()"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doIssue(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
         </div>
       </div>
       <div class="card" style="padding:20px;overflow:hidden;max-width:100%;">
@@ -605,7 +606,7 @@ async function checkPin(attempt){
           <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
           <div><label>Постачальник <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
           <div><label>Примітка <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
-          <button class="btn btn-success" style="width:100%;justify-content:center;" onclick="doRefill()"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
+          <button class="btn btn-success" style="width:100%;justify-content:center;" onclick="doRefill(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
         </div>
         <div style="margin-top:32px;padding-top:24px;border-top:1px solid #f0eeff;">
           <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fiber_new</span> Новий товар</h3>
@@ -620,7 +621,7 @@ async function checkPin(attempt){
               <input type="checkbox" id="newInternal" style="width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;">
               <span style="font-weight:600;color:var(--ios-label2);font-size:12.5px;line-height:1.4;">Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
             </label>
-            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doAddNew()"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doAddNew(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
           </div>
         </div>
       </div>
@@ -760,7 +761,7 @@ async function checkPin(attempt){
       <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Електрик',this)">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Сантехнік',this)">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Двірник',this)">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Охорона',this)">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Прибиральниця',this)">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
       <div style="display:flex;gap:10px;margin-top:4px;">
         <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('qModal')">Скасувати</button>
-        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="doQuickIssue()"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="doQuickIssue(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
       </div>
     </div>
   </div>
@@ -1560,6 +1561,21 @@ function findItemForAction(id, actionLabel){
   refreshAll().catch(e=>console.warn('refresh after missing item failed:',e));
   return null;
 }
+function setActionButtonLoading(btn,label){
+  if(!btn) return ()=>{};
+  if(btn.dataset.busy==='1') return null;
+  const previousHtml=btn.innerHTML;
+  btn.dataset.busy='1';
+  btn.disabled=true;
+  btn.setAttribute('aria-busy','true');
+  btn.innerHTML=msIcon('sync','16px')+' '+escapeHtml(label);
+  return ()=>{
+    btn.innerHTML=previousHtml;
+    btn.disabled=false;
+    btn.setAttribute('aria-busy','false');
+    delete btn.dataset.busy;
+  };
+}
 function openQuick(id){
   const item=findItemForAction(id,'видача');
   if(!item) return;
@@ -1571,13 +1587,19 @@ function openQuick(id){
   document.getElementById('qModal').classList.add('open');
   setTimeout(()=>document.getElementById('qmQtyI').focus(),100);
 }
-async function doQuickIssue(){
+async function doQuickIssue(btn){
   const qty=parseFloat(document.getElementById('qmQtyI').value);
   const person=document.getElementById('qmPersonI').value.trim();
   if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
   if(!person) return toast('Вкажіть кому!','error');
-  closeModal('qModal');
-  await issueItem(quickId,qty,person,'');
+  const done=setActionButtonLoading(btn,'Видаю...');
+  if(!done) return;
+  try{
+    const ok=await issueItem(quickId,qty,person,'');
+    if(ok) closeModal('qModal');
+  }finally{
+    done();
+  }
 }
 
 // ===== ISSUE PAGE =====
@@ -1589,7 +1611,7 @@ function onIssueSel(){
   box.style.display='block';
   document.getElementById('issueInfoQty').textContent=item.quantity+' '+item.unit;
 }
-async function doIssue(){
+async function doIssue(btn){
   const id=parseInt(document.getElementById('issueItemSel').value);
   const qty=parseFloat(document.getElementById('issueQtyI').value);
   const person=document.getElementById('issuePersonI').value.trim();
@@ -1597,23 +1619,31 @@ async function doIssue(){
   if(!id) return toast('Оберіть товар!','error');
   if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
   if(!person) return toast('Вкажіть кому!','error');
-  await issueItem(id,qty,person,note);
-  ['issueItemSel','issueQtyI','issuePersonI','issueNoteI'].forEach(k=>document.getElementById(k).value='');
-  refreshEnhancedSelect(document.getElementById('issueItemSel'));
-  document.getElementById('issueInfo').style.display='none';
-  loadRecentIssues();
+  const done=setActionButtonLoading(btn,'Видаю...');
+  if(!done) return;
+  try{
+    const ok=await issueItem(id,qty,person,note);
+    if(!ok) return;
+    ['issueItemSel','issueQtyI','issuePersonI','issueNoteI'].forEach(k=>document.getElementById(k).value='');
+    refreshEnhancedSelect(document.getElementById('issueItemSel'));
+    document.getElementById('issueInfo').style.display='none';
+    loadRecentIssues();
+  }finally{
+    done();
+  }
 }
 async function issueItem(itemId,qty,person,note){
   const item=allItems.find(i=>i.id===itemId);
-  if(!item) return toast('Товар не знайдено!','error');
-  if(item.quantity<qty) return toast('Недостатньо! Залишок: '+item.quantity+' '+item.unit,'error');
+  if(!item){toast('Товар не знайдено!','error');return false;}
+  if(item.quantity<qty){toast('Недостатньо! Залишок: '+item.quantity+' '+item.unit,'error');return false;}
   const newQ=Math.round((item.quantity-qty)*100)/100;
   const {error:e1}=await db.from('inventory_items').update({quantity:newQ}).eq('id',itemId);
   const {error:e2}=await db.from('inventory_logs').insert([{item_id:itemId,item_name:item.name,quantity:qty,issued_to:person,note:note||null}]);
-  if(e1||e2) return toast('Помилка: '+(e1?.message||e2?.message),'error');
+  if(e1||e2){toast('Помилка: '+(e1?.message||e2?.message),'error');return false;}
   toast('Видано: '+qty+' '+item.unit+' → '+person,'success');
   notifyTelegram('📤 Видача: '+item.name+' −'+qty+' '+item.unit+' → '+person+(note?' ('+note+')':''));
   await loadItems();
+  return true;
 }
 async function loadRecentIssues(){
   const {data}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
@@ -1881,7 +1911,7 @@ function onRefillSel(){
   box.style.display='block';
   document.getElementById('refillCur').textContent=item.quantity+' '+item.unit;
 }
-async function doRefill(){
+async function doRefill(btn){
   const id=parseInt(document.getElementById('refillSel').value);
   const qty=parseFloat(document.getElementById('refillQtyI').value);
   const supplier=document.getElementById('refillSupplierI').value.trim();
@@ -1890,6 +1920,9 @@ async function doRefill(){
   if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
   const item=findItemForAction(id,'прихід');
   if(!item) return;
+  const done=setActionButtonLoading(btn,'Поповнюю...');
+  if(!done) return;
+  try{
   const nq=Math.round((item.quantity+qty)*100)/100;
   const {error}=await db.from('inventory_items').update({quantity:nq}).eq('id',id);
   if(error) return toast('Помилка: '+error.message,'error');
@@ -1912,6 +1945,9 @@ async function doRefill(){
   document.getElementById('refillInfo').style.display='none';
   document.getElementById('refillSel').value='';
   await loadItems();populateSels();renderAddLow();
+  }finally{
+    done();
+  }
 }
 function normalizeSearchText(value){return String(value||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();}
 function itemMatchesSearch(item, query){
@@ -1956,7 +1992,7 @@ function useExistingItemForRefill(id){
   toast('Товар знайдено — введіть кількість для поповнення','info');
 }
 
-async function doAddNew(){
+async function doAddNew(btn){
   const name=document.getElementById('newName').value.trim();
   const category=document.getElementById('newCat').value;
   const unit=document.getElementById('newUnit').value.trim()||'шт';
@@ -1964,6 +2000,9 @@ async function doAddNew(){
   const is_internal=document.getElementById('newInternal').checked;
   if(!name) return toast('Введіть назву товару!','error');
   if(/^\d+([.,]\d+)?$/.test(unit)) return toast('"Одиниця" має бути словом (напр. "шт", "уп."), а не числом!','error');
+  const done=setActionButtonLoading(btn,'Додаю...');
+  if(!done) return;
+  try{
   const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
   // записуємо початковий прихід якщо кількість > 0
@@ -1985,6 +2024,9 @@ async function doAddNew(){
   if(matchesBox){matchesBox.style.display='none';matchesBox.innerHTML='';}
   document.getElementById('newInternal').checked=false;
   await loadItems();populateSels();renderAddLow();
+  }finally{
+    done();
+  }
 }
 function renderAddLow(){
   const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity).slice(0,10);
