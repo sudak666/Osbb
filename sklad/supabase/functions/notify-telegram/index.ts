@@ -45,11 +45,21 @@ Deno.serve(async (req) => {
 
   let text = '';
   try {
-    const raw = await req.text();
-    const body = raw ? JSON.parse(raw) : {};
-    text = typeof body?.text === 'string' ? body.text.trim() : '';
+    const raw = (await req.text()).trim();
+    if (raw) {
+      try {
+        const body = JSON.parse(raw);
+        text = typeof body?.text === 'string' ? body.text.trim() : '';
+      } catch {
+        if (raw.startsWith('text=')) {
+          text = decodeURIComponent(raw.slice(5).replace(/\+/g, ' ')).trim();
+        } else {
+          text = raw;
+        }
+      }
+    }
   } catch {
-    return json({ error: 'Invalid JSON body' }, 400);
+    return json({ error: 'Invalid request body' }, 400);
   }
   if (!text) return json({ error: 'text is required' }, 400);
   if (text.length > 4000) text = text.slice(0, 4000);
