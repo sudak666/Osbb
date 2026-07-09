@@ -2852,12 +2852,28 @@ function focusActivePageSearch(){
   input.select?.();
   return true;
 }
+function clearSearchInput(input){
+  if(!input || !input.value) return false;
+  input.value='';
+  const renderById={
+    searchInp:renderItems,
+    logSearch:renderLog,
+    recSearch:renderReceipts,
+    auditSearch:renderAuditList
+  };
+  renderById[input.id]?.();
+  return true;
+}
 document.addEventListener('keydown',e=>{
   if((e.key==='/' || (e.ctrlKey && e.key.toLowerCase()==='k')) && !isTypingTarget(e.target)){
     if(focusActivePageSearch()){
       e.preventDefault();
       return;
     }
+  }
+  if(e.key==='Escape' && clearSearchInput(e.target)){
+    e.preventDefault();
+    return;
   }
   if(e.key==='Escape'){
     ['qModal','photoModal','delModal','histModal','chartModal','priceModal','manualPriceModal','barcodeAddModal','delLogModal','editLogModal','delReceiptModal','editReceiptModal','auditModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
