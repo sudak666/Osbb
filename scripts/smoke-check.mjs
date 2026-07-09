@@ -22,6 +22,16 @@ const checks = [
   ['sklad/index.html', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
   ['sklad/index.html', "notifyTelegram('📦 Прихід:", 'sklad notifies on receipt'],
   ['sklad/index.html', "notifyTelegram('📤 Видача:", 'sklad notifies on issue'],
+  ['sklad/index.html', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
+  ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
+  ['sklad/index.html', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
+  ['sklad/index.html', 'return true;', 'sklad issueItem reports success to callers'],
+  ['sklad/index.html', 'function valuesMatchSearch', 'sklad has normalized multi-field search helper'],
+  ['sklad/index.html', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
+  ['sklad/index.html', 'id="itemsResultSummary"', 'sklad shows item result summary'],
+  ['sklad/index.html', 'function updateItemsResultSummary', 'sklad updates item result summary'],
+  ['sklad/index.html', 'function resetItemFilters', 'sklad can reset item filters'],
+  ['sklad/index.html', 'id="resetItemFiltersBtn"', 'sklad has reset filters button'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
@@ -73,6 +83,59 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Regression guard: the Sklad issue log must not reference variables that are
+// only defined in other renderers (this previously broke the Journal page with
+// `safeCat is not defined`).
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function renderLog()');
+  const end = text.indexOf('// ===== EDIT / DELETE LOG =====');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad renderLog defines safeCat before using it';
+  if (!body || !body.includes('const safeCat=escapeHtml')) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// Regression guard: the Sklad receipts page must define safeUnit in its own
+// renderer before using it in desktop/mobile receipt rows.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function renderReceipts()');
+  const end = text.indexOf('let deleteReceiptId=');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad renderReceipts defines safeUnit before using it';
+  if (!body || !body.includes('const safeUnit=escapeHtml')) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// notify-telegram must accept raw/text payloads because the GitHub Pages client
+// sends best-effort no-cors requests and Windows PowerShell tests often use raw
+// text to avoid JSON quoting issues.
+{
+  const text = readFileSync('sklad/supabase/functions/notify-telegram/index.ts', 'utf8');
+  const label = 'notify-telegram accepts raw text payload fallback';
+  if (text.includes("raw.startsWith('text=')") && text.includes('text = raw;')) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.
@@ -92,6 +155,30 @@ for (const [file, needle, label] of checks) {
       passed += 1;
       console.log(`ok - ${label}`);
     }
+  }
+}
+
+// Action buttons can be clicked from stale DOM after refreshes/deletes. Guarding
+// central item lookup prevents modal handlers from crashing on `item.name` /
+// `item.unit` when a row no longer exists in the latest `allItems` collection.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad item actions guard missing/stale item rows';
+  const required = [
+    'function findItemForAction',
+    "findItemForAction(id,'видача')",
+    "findItemForAction(id,'прихід')",
+    "findItemForAction(id,'видалення')",
+    "findItemForAction(id,'фото')",
+    "findItemForAction(itemId,'історія')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
   }
 }
 
