@@ -584,7 +584,10 @@ async function checkPin(attempt){
         <button class="pill" onclick="filterLogCat(this,'Електрика')"><span class="ms" style="font-size:15px;">bolt</span></button>
         <button class="pill" onclick="filterLogCat(this,'Сантехніка')"><span class="ms" style="font-size:15px;">plumbing</span></button>
       </div>
-      <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." oninput="renderLog()"></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." oninput="renderLog()"></div>
+        <div id="logResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
+      </div>
     </div>
     <div class="card" style="overflow:hidden;">
       <table>
@@ -682,7 +685,10 @@ async function checkPin(attempt){
   <!-- RECEIPTS -->
   <div id="page-receipts" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-      <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." oninput="renderReceipts()"></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." oninput="renderReceipts()"></div>
+        <div id="recResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
+      </div>
     </div>
     <div class="card desktop-table" style="overflow:hidden;margin-bottom:16px;">
       <table>
@@ -1711,6 +1717,12 @@ function filterLogCat(btn,cat){
   document.querySelectorAll('#page-log .pill').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');logCat=cat;renderLog();
 }
+function updateResultSummary(id,count,total,query,extraFilter=''){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const filters=[extraFilter,query?'пошук':''].filter(Boolean);
+  el.textContent=`Показано ${count} із ${total}${filters.length?' · фільтри: '+filters.join(', '):''}`;
+}
 function renderLog(){
   const s=document.getElementById('logSearch').value;
   let logs=allLogs;
@@ -1719,6 +1731,7 @@ function renderLog(){
     const it=allItems.find(i=>i.id===l.item_id);
     return valuesMatchSearch([l.item_name,l.issued_to,l.note,it?.category,it?.unit],s);
   });
+  updateResultSummary('logResultSummary',logs.length,allLogs.length,s,logCat);
   const tb=document.getElementById('logTable');
   const mb=document.getElementById('logMobileList');
   if(!logs.length){
@@ -1840,6 +1853,7 @@ function renderReceipts(){
   const s=document.getElementById('recSearch').value;
   let recs=allReceipts;
   if(s) recs=recs.filter(r=>valuesMatchSearch([r.item_name,r.supplier,r.note],s));
+  updateResultSummary('recResultSummary',recs.length,allReceipts.length,s);
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
   if(!recs.length){

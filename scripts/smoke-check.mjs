@@ -32,6 +32,9 @@ const checks = [
   ['sklad/index.html', 'function updateItemsResultSummary', 'sklad updates item result summary'],
   ['sklad/index.html', 'function resetItemFilters', 'sklad can reset item filters'],
   ['sklad/index.html', 'id="resetItemFiltersBtn"', 'sklad has reset filters button'],
+  ['sklad/index.html', 'id="logResultSummary"', 'sklad shows log result summary'],
+  ['sklad/index.html', 'id="recResultSummary"', 'sklad shows receipt result summary'],
+  ['sklad/index.html', 'function updateResultSummary', 'sklad has reusable result summary helper'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
