@@ -100,6 +100,12 @@ nav{margin-top:6px;flex:1;}
 .main{margin-left:var(--sb);min-height:100vh;}
 .topbar{background:var(--ios-topbar-glass);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-bottom:1px solid var(--ios-sep);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
 .topbar h2{font-weight:700;font-size:17px;color:var(--ios-label);letter-spacing:-.3px;}
+.sync-status{display:none;align-items:center;gap:4px;font-size:11px;color:var(--ios-label3);white-space:nowrap;}
+.sync-status.is-visible{display:inline-flex;}
+.sync-status.is-syncing{color:var(--brand);}
+.sync-status.is-syncing .ms{animation:spin .9s linear infinite;}
+button[disabled]{opacity:.62;cursor:not-allowed;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 .page{display:none;padding:24px;}
 .page.active{display:block;}
@@ -487,9 +493,9 @@ async function checkPin(attempt){
   <div class="topbar">
     <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-      <span id="lastUpdate" style="font-size:11px;color:#a5b4fc;display:none;" class="topbar-right-excel"></span>
+      <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
       <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openPriceRefreshModal()" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
-      <button class="btn btn-ghost btn-sm" onclick="refreshAll()" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
+      <button class="btn btn-ghost btn-sm" id="refreshBtn" onclick="refreshAll()" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
       <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
     </div>
   </div>
@@ -1255,13 +1261,39 @@ async function confirmAudit(){
 }
 
 // ===== LOAD =====
+let refreshBusy=false;
+function setRefreshStatus(state,message){
+  const status=document.getElementById('lastUpdate');
+  if(status){
+    status.classList.add('is-visible');
+    status.classList.toggle('is-syncing',state==='syncing');
+    const icon=state==='syncing'?'sync':'check_circle';
+    status.innerHTML=msIcon(icon,'13px')+' '+escapeHtml(message);
+  }
+  const btn=document.getElementById('refreshBtn');
+  if(btn){
+    btn.disabled=state==='syncing';
+    btn.setAttribute('aria-busy',state==='syncing'?'true':'false');
+  }
+}
+function markDataUpdated(){
+  setRefreshStatus('ready','Оновлено '+new Date().toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));
+}
 async function loadItems(){
-  const {data}=await db.from('inventory_items').select('*').order('category').order('name').limit(500);
+  const {data,error}=await db.from('inventory_items').select('*').order('category').order('name').limit(500);
+  if(error){
+    toast('Товари не завантажились: '+error.message,'error');
+    throw error;
+  }
   if(data){allItems=data;renderItems();updateStats();checkAlerts();}
-  document.getElementById('lastUpdate').textContent='Оновлено: '+new Date().toLocaleTimeString('uk-UA');
+  markDataUpdated();
 }
 async function loadLogs(){
-  const {data}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(100);
+  const {data,error}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(100);
+  if(error){
+    toast('Журнал не завантажився: '+error.message,'error');
+    throw error;
+  }
   if(data){allLogs=data;renderLog();}
 }
 let allReceipts=[];
@@ -1280,7 +1312,28 @@ async function loadReceipts(){
   allReceipts=data||[];
   renderReceipts();
 }
-async function refreshAll(){await loadItems();await loadLogs();await loadReceipts();toast('Дані оновлено','success');}
+async function refreshAll(){
+  if(refreshBusy) return;
+  refreshBusy=true;
+  setRefreshStatus('syncing','Оновлюю...');
+  try{
+    await loadItems();
+    await loadLogs();
+    await loadReceipts();
+    markDataUpdated();
+    toast('Дані оновлено','success');
+  }catch(e){
+    console.warn('refreshAll failed:',e);
+    setRefreshStatus('ready','Помилка оновлення');
+  }finally{
+    refreshBusy=false;
+    const btn=document.getElementById('refreshBtn');
+    if(btn){
+      btn.disabled=false;
+      btn.setAttribute('aria-busy','false');
+    }
+  }
+}
 
 // ===== ALERTS =====
 function checkAlerts(){
@@ -2684,7 +2737,14 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-loadItems().then(()=>loadLogs());
+setRefreshStatus('syncing','Завантаження...');
+loadItems()
+  .then(()=>loadLogs())
+  .then(()=>markDataUpdated())
+  .catch(e=>{
+    console.warn('initial sklad load failed:',e);
+    setRefreshStatus('ready','Помилка завантаження');
+  });
 </script>
 
 <!-- BOTTOM NAV (mobile) -->

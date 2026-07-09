@@ -22,6 +22,8 @@ const checks = [
   ['sklad/index.html', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
   ['sklad/index.html', "notifyTelegram('📦 Прихід:", 'sklad notifies on receipt'],
   ['sklad/index.html', "notifyTelegram('📤 Видача:", 'sklad notifies on issue'],
+  ['sklad/index.html', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
+  ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
