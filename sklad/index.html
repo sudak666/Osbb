@@ -530,6 +530,7 @@ async function checkPin(attempt){
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." oninput="renderItems()"></div>
         <div id="itemsResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
+        <button class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" onclick="resetItemFilters()" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
       </div>
     </div>
     <div class="card desktop-table" style="overflow:hidden;">
@@ -1438,6 +1439,27 @@ function toggleOnlyInternal(btn){
   }
   renderItems();
 }
+function resetItemFilters(){
+  curCat='';
+  stockFilter='';
+  inStockOnly=false;
+  hideInternal=false;
+  onlyInternal=false;
+  const search=document.getElementById('searchInp');
+  if(search) search.value='';
+  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('sc-active'));
+  document.querySelectorAll('#catPills .pill').forEach((b,idx)=>b.classList.toggle('active',idx===0));
+  const inStock=document.getElementById('inStockPill');
+  if(inStock){
+    inStock.classList.remove('active');
+    inStock.style.background='';
+    inStock.style.color='var(--ios-green)';
+  }
+  resetInternalPill('hideInternalPill','var(--ios-orange)');
+  resetInternalPill('onlyInternalPill','var(--ios-orange)');
+  renderItems();
+  toast('Фільтри скинуто','info');
+}
 
 // Позначає/знімає позначку "внутрішнє використання" (хознужди) для товару.
 // Такі товари лишаються на складі, але виключаються з балансу видаткових товарів.
@@ -1458,7 +1480,7 @@ function updateItemsResultSummary(count,total,query){
   if(!el) return;
   const activeFilters=[
     curCat,
-    stockFilter!=='all'?'залишок':'',
+    stockFilter&&stockFilter!=='all'?'залишок':'',
     inStockOnly?'в наявності':'',
     hideInternal?'без внутрішніх':'',
     onlyInternal?'тільки внутрішні':'',
@@ -1466,6 +1488,8 @@ function updateItemsResultSummary(count,total,query){
   ].filter(Boolean);
   const filtersText=activeFilters.length?' · фільтри: '+activeFilters.join(', '):'';
   el.textContent=`Показано ${count} із ${total}${filtersText}`;
+  const resetBtn=document.getElementById('resetItemFiltersBtn');
+  if(resetBtn) resetBtn.style.display=activeFilters.length?'inline-flex':'none';
 }
 function renderItems(){
   const s=document.getElementById('searchInp').value;

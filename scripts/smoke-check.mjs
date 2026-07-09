@@ -30,6 +30,8 @@ const checks = [
   ['sklad/index.html', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
   ['sklad/index.html', 'id="itemsResultSummary"', 'sklad shows item result summary'],
   ['sklad/index.html', 'function updateItemsResultSummary', 'sklad updates item result summary'],
+  ['sklad/index.html', 'function resetItemFilters', 'sklad can reset item filters'],
+  ['sklad/index.html', 'id="resetItemFiltersBtn"', 'sklad has reset filters button'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
