@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="ОСББ">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2334c759'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='6' fill='white'/><rect x='43' y='64' width='14' height='20' rx='3' fill='%2334c759'/></svg>">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ОСББ "Микитська Слобода"</title>
 <style>
     /* Базові системні налаштування iOS */
@@ -174,6 +174,7 @@
     #shell-frames { position: relative; flex: 1; min-height: 0; background: #f2f2f7; }
     #shell-frames iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; background: #fff; }
     #shell-frames iframe.active { display: block; }
+    .shell-lock-btn { flex: 0 0 auto; min-width: 74px; color: #ff3b30; }
 
     /* Видимий фокус лише для клавіатурної навігації (не заважає кліку мишею/тапу) */
     :focus-visible { outline: 2px solid #34c759; outline-offset: 2px; }
@@ -242,6 +243,10 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 Deye ↗
             </a>
+            <button class="shell-tab-btn shell-lock-btn" id="shell-lock-btn" onclick="lockShellNow()" aria-label="Заблокувати застосунок" title="Заблокувати">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Блок
+            </button>
         </div>
     </div>
     <div id="shell-frames">
@@ -277,6 +282,7 @@
         const lockScreen = document.getElementById('app-lock-screen');
         if (lockScreen) lockScreen.style.display = 'none';
         document.getElementById('shell-main').style.display = 'flex';
+        resetIdleLockTimer();
         switchTab('journal');
     }
 
@@ -315,6 +321,7 @@
                 lockFails = 0;
                 lockBusy = false;
                 sessionStorage.setItem('auth', 'ok');
+                resetIdleLockTimer();
                 lockBuf = '';
                 unlockShell();
             } else {
@@ -356,6 +363,26 @@
             loadedTabs[name] = true;
         }
     }
+
+    function lockShellNow() {
+        sessionStorage.removeItem('auth');
+        lockBuf = '';
+        lockBusy = false;
+        lockUpdateDots();
+        const err = document.getElementById('lock-err');
+        if (err) err.textContent = '';
+        document.getElementById('shell-main').style.display = 'none';
+        const lockScreen = document.getElementById('app-lock-screen');
+        if (lockScreen) lockScreen.style.display = 'flex';
+    }
+
+    const IDLE_LOCK_MS = 15 * 60 * 1000;
+    let idleLockTimer = null;
+    function resetIdleLockTimer() {
+        clearTimeout(idleLockTimer);
+        if (sessionStorage.getItem('auth') === 'ok') idleLockTimer = setTimeout(lockShellNow, IDLE_LOCK_MS);
+    }
+    ['pointerdown','keydown','touchstart','visibilitychange'].forEach(evt => document.addEventListener(evt, resetIdleLockTimer, { passive: true }));
 
     function switchTab(name) {
         loadTab(name);
