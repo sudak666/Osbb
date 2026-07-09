@@ -565,6 +565,15 @@
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
     // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
     const IS_EMBEDDED_SHELL = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
+
+    // Повідомляємо shell-оболонку про активність усередині iframe, щоб idle-lock
+    // не блокував застосунок, поки користувач реально працює в модулі.
+    function notifyShellActivity() {
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'osbb:user-activity' }, window.location.origin);
+        }
+    }
+    ['pointerdown','keydown','touchstart'].forEach(evt => document.addEventListener(evt, notifyShellActivity, { passive: true }));
     const IS_PREVIEW = !IS_EMBEDDED_SHELL && (location.hostname.includes('claudeusercontent') || location.hostname.includes('claude.site') || window.self !== window.top);
 
     // ==========================================
