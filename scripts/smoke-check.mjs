@@ -73,6 +73,59 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Regression guard: the Sklad issue log must not reference variables that are
+// only defined in other renderers (this previously broke the Journal page with
+// `safeCat is not defined`).
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function renderLog()');
+  const end = text.indexOf('// ===== EDIT / DELETE LOG =====');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad renderLog defines safeCat before using it';
+  if (!body || !body.includes('const safeCat=escapeHtml')) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// Regression guard: the Sklad receipts page must define safeUnit in its own
+// renderer before using it in desktop/mobile receipt rows.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function renderReceipts()');
+  const end = text.indexOf('let deleteReceiptId=');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad renderReceipts defines safeUnit before using it';
+  if (!body || !body.includes('const safeUnit=escapeHtml')) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// notify-telegram must accept raw/text payloads because the GitHub Pages client
+// sends best-effort no-cors requests and Windows PowerShell tests often use raw
+// text to avoid JSON quoting issues.
+{
+  const text = readFileSync('sklad/supabase/functions/notify-telegram/index.ts', 'utf8');
+  const label = 'notify-telegram accepts raw text payload fallback';
+  if (text.includes("raw.startsWith('text=')") && text.includes('text = raw;')) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.

@@ -76,7 +76,7 @@ supabase secrets set SHOPAPIS_KEY=ваш_shopapis_key --project-ref vkwkyhjjjmcp
 
 ## Telegram-сповіщення про рух товару (Склад)
 
-`sklad/index.html` викликає Supabase Edge Function `notify-telegram` при додаванні нового товару, приході (поповненні) та видачі. Токен бота ніколи не потрапляє в клієнтський код — він зберігається як секрет на сервері.
+`sklad/index.html` викликає Supabase Edge Function `notify-telegram` при додаванні нового товару, приході (поповненні) та видачі. Токен бота ніколи не потрапляє в клієнтський код — він зберігається як секрет на сервері. Після змін у `sklad/supabase/functions/notify-telegram/index.ts` функцію потрібно повторно задеплоїти, інакше GitHub Pages продовжить звертатись до старої серверної версії.
 
 Налаштування (один раз, у проєкті складу `vkwkyhjjjmcpmiakxohw`):
 
@@ -87,6 +87,18 @@ supabase secrets set TELEGRAM_CHAT_ID=ваш_chat_id --project-ref vkwkyhjjjmcpm
 ```
 
 `--no-verify-jwt` потрібен тому, що клієнт авторизується новим форматом ключів Supabase (`sb_publishable_...`), який не є JWT. Після деплою перевірте, що додавання/прихід/видача товару в Складі надсилають повідомлення у ваш Telegram-чат.
+
+Швидка перевірка після деплою з Windows PowerShell:
+
+```powershell
+npx.cmd supabase@latest secrets list --project-ref vkwkyhjjjmcpmiakxohw
+
+curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notify-telegram" `
+  -H "Content-Type: text/plain;charset=UTF-8" `
+  --data-raw "Test Telegram zi skladu OSBB"
+```
+
+У списку secrets мають бути `TELEGRAM_BOT_TOKEN` і `TELEGRAM_CHAT_ID`. Успішний тест повертає `{"ok":true}` і надсилає повідомлення в Telegram.
 
 ## Автоматичні smoke-перевірки
 
