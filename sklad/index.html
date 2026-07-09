@@ -527,7 +527,10 @@ async function checkPin(attempt){
         <button class="pill" onclick="filterCat(this,'Відеоспостереження')"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
         <button class="pill" onclick="filterCat(this,'Інше')"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
       </div>
-      <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." oninput="renderItems()"></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." oninput="renderItems()"></div>
+        <div id="itemsResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
+      </div>
     </div>
     <div class="card desktop-table" style="overflow:hidden;">
       <table>
@@ -1450,6 +1453,20 @@ function toggleInternal(id,val){
 }
 
 // ===== RENDER ITEMS =====
+function updateItemsResultSummary(count,total,query){
+  const el=document.getElementById('itemsResultSummary');
+  if(!el) return;
+  const activeFilters=[
+    curCat,
+    stockFilter!=='all'?'залишок':'',
+    inStockOnly?'в наявності':'',
+    hideInternal?'без внутрішніх':'',
+    onlyInternal?'тільки внутрішні':'',
+    query?'пошук':''
+  ].filter(Boolean);
+  const filtersText=activeFilters.length?' · фільтри: '+activeFilters.join(', '):'';
+  el.textContent=`Показано ${count} із ${total}${filtersText}`;
+}
 function renderItems(){
   const s=document.getElementById('searchInp').value;
   let items=allItems;
@@ -1461,6 +1478,7 @@ function renderItems(){
   if(hideInternal) items=items.filter(i=>!i.is_internal);
   else if(onlyInternal) items=items.filter(i=>i.is_internal);
   if(s) items=items.filter(i=>itemMatchesSearch(i,s));
+  updateItemsResultSummary(items.length,allItems.length,s);
 
   // Desktop table
   const tb=document.getElementById('itemsTable');
