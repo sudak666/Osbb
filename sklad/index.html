@@ -1451,7 +1451,7 @@ function toggleInternal(id,val){
 
 // ===== RENDER ITEMS =====
 function renderItems(){
-  const s=document.getElementById('searchInp').value.toLowerCase();
+  const s=document.getElementById('searchInp').value;
   let items=allItems;
   if(curCat) items=items.filter(i=>i.category===curCat);
   if(stockFilter==='zero') items=items.filter(i=>i.quantity==0);
@@ -1460,7 +1460,7 @@ function renderItems(){
   if(inStockOnly) items=items.filter(i=>i.quantity>0);
   if(hideInternal) items=items.filter(i=>!i.is_internal);
   else if(onlyInternal) items=items.filter(i=>i.is_internal);
-  if(s) items=items.filter(i=>i.name.toLowerCase().includes(s));
+  if(s) items=items.filter(i=>itemMatchesSearch(i,s));
 
   // Desktop table
   const tb=document.getElementById('itemsTable');
@@ -1670,15 +1670,19 @@ function filterLogCat(btn,cat){
   btn.classList.add('active');logCat=cat;renderLog();
 }
 function renderLog(){
-  const s=document.getElementById('logSearch').value.toLowerCase();
+  const s=document.getElementById('logSearch').value;
   let logs=allLogs;
   if(logCat) logs=logs.filter(l=>{const it=allItems.find(i=>i.id===l.item_id);return it&&it.category===logCat;});
-  if(s) logs=logs.filter(l=>l.item_name.toLowerCase().includes(s)||(l.issued_to||'').toLowerCase().includes(s));
+  if(s) logs=logs.filter(l=>{
+    const it=allItems.find(i=>i.id===l.item_id);
+    return valuesMatchSearch([l.item_name,l.issued_to,l.note,it?.category,it?.unit],s);
+  });
   const tb=document.getElementById('logTable');
   const mb=document.getElementById('logMobileList');
   if(!logs.length){
-    tb.innerHTML='<tr><td colspan="6"><div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div></td></tr>';
-    mb.innerHTML='<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div>';
+    const empty=s?'Нічого не знайдено':'Видач ще не було';
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> ${empty}</div></td></tr>`;
+    mb.innerHTML=`<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> ${empty}</div>`;
     return;
   }
   tb.innerHTML=logs.map(l=>{
@@ -1791,14 +1795,15 @@ async function confirmEditLog(){
 
 // ===== RECEIPTS (ПРИХІД) =====
 function renderReceipts(){
-  const s=document.getElementById('recSearch').value.toLowerCase();
+  const s=document.getElementById('recSearch').value;
   let recs=allReceipts;
-  if(s) recs=recs.filter(r=>r.item_name.toLowerCase().includes(s)||(r.supplier||'').toLowerCase().includes(s));
+  if(s) recs=recs.filter(r=>valuesMatchSearch([r.item_name,r.supplier,r.note],s));
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
   if(!recs.length){
-    tb.innerHTML='<tr><td colspan="6"><div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">inbox</span> Приходів ще не було</div></td></tr>';
-    mb.innerHTML='<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">inbox</span> Приходів ще не було</div>';
+    const empty=s?'Нічого не знайдено':'Приходів ще не було';
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">inbox</span> ${empty}</div></td></tr>`;
+    mb.innerHTML=`<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">inbox</span> ${empty}</div>`;
     return;
   }
   tb.innerHTML=recs.map(r=>{
@@ -1950,11 +1955,14 @@ async function doRefill(btn){
   }
 }
 function normalizeSearchText(value){return String(value||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();}
-function itemMatchesSearch(item, query){
+function valuesMatchSearch(values, query){
   const q=normalizeSearchText(query);
   if(!q) return true;
-  const hay=normalizeSearchText([item.name,item.category,item.unit,item.price_source].filter(Boolean).join(' '));
+  const hay=normalizeSearchText(values.filter(Boolean).join(' '));
   return q.split(/\s+/).every(part=>hay.includes(part));
+}
+function itemMatchesSearch(item, query){
+  return valuesMatchSearch([item.name,item.category,item.unit,item.price_source,item.price_url],query);
 }
 function renderNewProductMatches(){
   const box=document.getElementById('newNameMatches');
