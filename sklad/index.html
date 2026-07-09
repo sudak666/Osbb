@@ -1712,12 +1712,16 @@ function renderReceipts(){
     const d=new Date(r.received_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const item=allItems.find(i=>i.id===r.item_id);
+    const safeName=escapeHtml(r.item_name||'—');
+    const safeUnit=escapeHtml(item?.unit||'');
+    const safeSupplier=escapeHtml(r.supplier||'—');
+    const safeNote=escapeHtml(r.note||'—');
     return `<tr>
       <td style="font-size:12px;color:var(--ios-label3);white-space:nowrap;">${dt}</td>
-      <td style="font-weight:600;color:var(--ios-label);">${r.item_name}</td>
+      <td style="font-weight:600;color:var(--ios-label);">${safeName}</td>
       <td style="font-weight:800;color:var(--ios-green);">+${r.quantity} <span style="font-weight:400;color:#a5b4fc;font-size:11px;">${safeUnit}</span></td>
-      <td style="color:var(--ios-label2);">${r.supplier||'—'}</td>
-      <td style="color:var(--ios-gray);font-size:12px;">${r.note||'—'}</td>
+      <td style="color:var(--ios-label2);">${safeSupplier}</td>
+      <td style="color:var(--ios-gray);font-size:12px;">${safeNote}</td>
       <td><div style="display:flex;gap:6px;">
         <button class="btn btn-ghost btn-sm" onclick="openEditReceipt(${r.id})"><span class="ms" style="font-size:16px;">edit</span></button>
         <button class="btn btn-danger btn-sm" onclick="openDeleteReceipt(${r.id})"><span class="ms" style="font-size:16px;">delete</span></button>
@@ -1728,11 +1732,15 @@ function renderReceipts(){
     const d=new Date(r.received_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const item=allItems.find(i=>i.id===r.item_id);
+    const safeName=escapeHtml(r.item_name||'—');
+    const safeUnit=escapeHtml(item?.unit||'');
+    const safeSupplier=escapeHtml(r.supplier||'—');
+    const safeNote=r.note?' · '+escapeHtml(r.note):'';
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--ios-sep);">
       <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ios-green);"><span class="ms" style="font-size:20px;">move_to_inbox</span></div>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.item_name}</div>
-        <div style="font-size:11px;color:#a5b4fc;margin-top:1px;">${r.supplier||'—'} · ${dt}${r.note?' · '+r.note:''}</div>
+        <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
+        <div style="font-size:11px;color:#a5b4fc;margin-top:1px;">${safeSupplier} · ${dt}${safeNote}</div>
       </div>
       <div style="font-weight:800;color:var(--ios-green);font-size:13px;flex-shrink:0;text-align:right;">
         +${r.quantity}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>

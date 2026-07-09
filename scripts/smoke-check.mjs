@@ -92,6 +92,24 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Regression guard: the Sklad receipts page must define safeUnit in its own
+// renderer before using it in desktop/mobile receipt rows.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function renderReceipts()');
+  const end = text.indexOf('let deleteReceiptId=');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad renderReceipts defines safeUnit before using it';
+  if (!body || !body.includes('const safeUnit=escapeHtml')) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.
