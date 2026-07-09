@@ -2625,19 +2625,25 @@ function toast(msg,type=''){
 }
 
 // Надсилає текст у Telegram через Supabase Edge Function (токен бота лишається
-// секретом на сервері, ніколи не потрапляє у клієнтський код). Не блокує UI —
-// помилка мережі просто логується в консоль, дію користувача не переривається.
+// секретом на сервері, ніколи не потрапляє у клієнтський код). Це best-effort
+// сповіщення: складська операція вже збережена, тому мережеві/CORS проблеми
+// Telegram-інтеграції не повинні показувати користувачу червоні помилки в консолі.
 const TELEGRAM_NOTIFY_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notify-telegram';
 function notifyTelegram(text){
+  const payload=JSON.stringify({text});
+  try{
+    if(navigator.sendBeacon){
+      const blob=new Blob([payload],{type:'text/plain;charset=UTF-8'});
+      if(navigator.sendBeacon(TELEGRAM_NOTIFY_URL,blob)) return;
+    }
+  }catch(e){}
   fetch(TELEGRAM_NOTIFY_URL,{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9',
-      'Authorization':'Bearer sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9'
-    },
-    body:JSON.stringify({text})
-  }).catch(e=>console.warn('telegram notify failed:',e));
+    mode:'no-cors',
+    keepalive:true,
+    headers:{'Content-Type':'text/plain;charset=UTF-8'},
+    body:payload
+  }).catch(()=>{});
 }
 
 // ===== ТЕМА (світла/темна) =====

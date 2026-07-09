@@ -76,7 +76,7 @@ supabase secrets set SHOPAPIS_KEY=ваш_shopapis_key --project-ref vkwkyhjjjmcp
 
 ## Telegram-сповіщення про рух товару (Склад)
 
-`sklad/index.html` викликає Supabase Edge Function `notify-telegram` при додаванні нового товару, приході (поповненні) та видачі. Токен бота ніколи не потрапляє в клієнтський код — він зберігається як секрет на сервері.
+`sklad/index.html` викликає Supabase Edge Function `notify-telegram` при додаванні нового товару, приході (поповненні) та видачі. Токен бота ніколи не потрапляє в клієнтський код — він зберігається як секрет на сервері. Після змін у `sklad/supabase/functions/notify-telegram/index.ts` функцію потрібно повторно задеплоїти, інакше GitHub Pages продовжить звертатись до старої серверної версії.
 
 Налаштування (один раз, у проєкті складу `vkwkyhjjjmcpmiakxohw`):
 

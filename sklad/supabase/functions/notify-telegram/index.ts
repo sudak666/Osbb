@@ -45,7 +45,8 @@ Deno.serve(async (req) => {
 
   let text = '';
   try {
-    const body = await req.json();
+    const raw = await req.text();
+    const body = raw ? JSON.parse(raw) : {};
     text = typeof body?.text === 'string' ? body.text.trim() : '';
   } catch {
     return json({ error: 'Invalid JSON body' }, 400);
