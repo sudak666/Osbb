@@ -35,6 +35,8 @@ const checks = [
   ['sklad/index.html', 'id="logResultSummary"', 'sklad shows log result summary'],
   ['sklad/index.html', 'id="recResultSummary"', 'sklad shows receipt result summary'],
   ['sklad/index.html', 'function updateResultSummary', 'sklad has reusable result summary helper'],
+  ['sklad/index.html', 'function focusActivePageSearch', 'sklad has keyboard search focus helper'],
+  ['sklad/index.html', "e.key==='/'", 'sklad supports slash keyboard search shortcut'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],

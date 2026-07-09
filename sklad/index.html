@@ -2835,7 +2835,30 @@ applyTheme(document.body.className || 'theme-light');
 // ===== INIT =====
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
 ['issueItemSel','refillSel','newCat','priceItemSel','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
+function isTypingTarget(el){
+  return !!el && (['INPUT','TEXTAREA','SELECT'].includes(el.tagName) || el.isContentEditable);
+}
+function focusActivePageSearch(){
+  const active=document.querySelector('.page.active');
+  const searchId={
+    'page-items':'searchInp',
+    'page-log':'logSearch',
+    'page-receipts':'recSearch',
+    'page-audit':'auditSearch'
+  }[active?.id];
+  const input=searchId?document.getElementById(searchId):null;
+  if(!input) return false;
+  input.focus();
+  input.select?.();
+  return true;
+}
 document.addEventListener('keydown',e=>{
+  if((e.key==='/' || (e.ctrlKey && e.key.toLowerCase()==='k')) && !isTypingTarget(e.target)){
+    if(focusActivePageSearch()){
+      e.preventDefault();
+      return;
+    }
+  }
   if(e.key==='Escape'){
     ['qModal','photoModal','delModal','histModal','chartModal','priceModal','manualPriceModal','barcodeAddModal','delLogModal','editLogModal','delReceiptModal','editReceiptModal','auditModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
     document.getElementById('lightbox').classList.remove('open');
