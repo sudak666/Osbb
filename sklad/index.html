@@ -1561,10 +1561,12 @@ async function loadRecentIssues(){
   el.innerHTML=data.map(l=>{
     const d=new Date(l.issued_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
+    const safeName=escapeHtml(l.item_name||'—');
+    const safeIssuedTo=escapeHtml(l.issued_to||'—');
     return `<div class="log-row"><div class="log-icon"><span class="ms" style="font-size:18px;">output</span></div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:600;color:var(--ios-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.item_name}</div>
-        <div style="font-size:11px;color:#a5b4fc;">${l.issued_to} · ${dt}</div>
+        <div style="font-size:13px;font-weight:600;color:var(--ios-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
+        <div style="font-size:11px;color:#a5b4fc;">${safeIssuedTo} · ${dt}</div>
       </div>
       <div style="font-size:13px;font-weight:800;color:#6366f1;">−${l.quantity}</div>
     </div>`;
@@ -1927,7 +1929,7 @@ function renderAddLow(){
   const el=document.getElementById('addLowList');
   if(!low.length){el.innerHTML='<div style="font-size:13px;color:#10b981;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Все в нормі!</div>';return;}
   el.innerHTML=low.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
-    <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${i.name}</span>
+    <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name||'—')}</span>
     <span class="${i.quantity==0?'qty-zero':'qty-low'}">${i.quantity}</span>
   </div>`).join('');
 }
@@ -1965,7 +1967,9 @@ function openPhotoModal(id){
   const cur=document.getElementById('photoCurrent');
   const delBtn=document.getElementById('delPhotoBtn');
   if(item.photo_url){
-    cur.innerHTML=`<img src="${item.photo_url}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" onclick="openLightbox('${item.photo_url}',${item.id})">`;
+    const safePhoto=escapeHtml(item.photo_url);
+    const photoArg=jsString(item.photo_url);
+    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" onclick="openLightbox(${photoArg},${item.id})">`;
     delBtn.style.display='inline-flex';
   } else {
     cur.innerHTML='<div style="text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;">Фото ще не додано</div>';
@@ -2110,8 +2114,8 @@ function renderStats(){
   const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity);
   document.getElementById('statLow').innerHTML=low.length
     ? low.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
-        <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">${i.name}</span>
-        <span class="${i.quantity==0?'qty-zero':'qty-low'}" style="flex-shrink:0;white-space:nowrap;">${i.quantity} ${i.unit}</span>
+        <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">${escapeHtml(i.name||'—')}</span>
+        <span class="${i.quantity==0?'qty-zero':'qty-low'}" style="flex-shrink:0;white-space:nowrap;">${i.quantity} ${escapeHtml(i.unit||'')}</span>
       </div>`).join('')
     : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Всі товари в нормі!</div>';
   const unpriced=allItems.filter(i=>!priceValue(i)).sort((a,b)=>Number(b.quantity||0)-Number(a.quantity||0));
@@ -2127,9 +2131,11 @@ function renderStats(){
     : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const safeName=escapeHtml(l.item_name||'—');
+    const safeIssuedTo=escapeHtml(l.issued_to||'—');
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
-      <span style="font-weight:600;color:var(--ios-label);flex:1;min-width:0;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.item_name}</span>
-      <span style="color:var(--ios-label3);margin-right:8px;white-space:nowrap;font-size:12px;">${l.issued_to||'—'}</span>
+      <span style="font-weight:600;color:var(--ios-label);flex:1;min-width:0;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</span>
+      <span style="color:var(--ios-label3);margin-right:8px;white-space:nowrap;font-size:12px;">${safeIssuedTo}</span>
       <span style="color:#a5b4fc;font-size:11px;white-space:nowrap;">${d}</span>
     </div>`;
   }).join('')||'<div class="empty" style="padding:16px;">Журнал порожній</div>';
@@ -2395,7 +2401,7 @@ function renderChart(){
 
 // ===== SELECTS =====
 function populateSels(){
-  const opts=allItems.map(i=>`<option value="${i.id}">${i.name} (${i.quantity} ${i.unit})</option>`).join('');
+  const opts=allItems.map(i=>`<option value="${Number(i.id)}">${escapeHtml(i.name||'—')} (${i.quantity} ${escapeHtml(i.unit||'')})</option>`).join('');
   ['issueItemSel','refillSel'].forEach(k=>{const el=document.getElementById(k);if(el){el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;refreshEnhancedSelect(el);}});
 }
 
