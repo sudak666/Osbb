@@ -342,6 +342,14 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .hist-out{color:var(--ios-red);font-weight:700;}
 .hist-in{color:var(--ios-green);font-weight:700;}
 
+.item-more{position:relative;flex-shrink:0;}
+.item-more summary{list-style:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(116,116,128,.10);color:var(--brand);cursor:pointer;}
+.item-more summary::-webkit-details-marker{display:none;}
+.item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:30;min-width:190px;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 14px 34px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:2px;}
+.item-more-menu button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--ios-label);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;text-align:left;}
+.item-more-menu button:active,.item-more-menu button:hover{background:var(--ios-gray6);}
+.item-more-menu button.danger{color:var(--ios-red);}
+
 /* ===CHART=== */
 #chartModal .modal{width:600px;}
 canvas#stockChart{width:100%!important;max-height:300px;}
@@ -1087,14 +1095,17 @@ function renderAuditList(){
       else{bg='#f0fdf4';border='#86efac';diffHtml=`<span style="color:var(--ios-green);font-size:12px;"><span class="ms" style="font-size:13px;vertical-align:-2px;">check</span> Збігається</span>`;}
     }
     const cat=item.category||'';
+    const safeCat=escapeHtml(cat||'—');
+    const name=escapeHtml(item.name||'');
+    const unit=escapeHtml(item.unit||'');
     const icon=catIconHtml[cat]||catIconHtmlDefault;
     return `<div style="background:${bg};border:1.5px solid ${border};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:all .2s;">
       <div style="font-size:22px;flex-shrink:0;">${icon}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+        <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
         <div style="font-size:11px;color:var(--ios-gray);margin-top:2px;">
-          <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${cat}</span>
-          · За даними: <b>${item.quantity} ${item.unit}</b>
+          <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${safeCat}</span>
+          · За даними: <b>${item.quantity} ${unit}</b>
           ${diffHtml?'· '+diffHtml:''}
         </div>
       </div>
@@ -1108,7 +1119,7 @@ function renderAuditList(){
             style="width:80px;padding:7px 10px;border-radius:10px;border:1.5px solid ${isCounted?border:'var(--ios-sep)'};font-size:15px;font-weight:700;text-align:center;background:var(--ios-card);outline:none;-webkit-appearance:none;"
             oninput="onAuditInput(${item.id},this.value)"
             onfocus="this.select()">
-          <span style="font-size:11px;color:var(--ios-gray);">${item.unit}</span>
+          <span style="font-size:11px;color:var(--ios-gray);">${unit}</span>
         </div>
         ${isCounted?`<button onclick="clearAuditItem(${item.id})" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
       </div>
@@ -1398,25 +1409,30 @@ function renderItems(){
   }
   tb.innerHTML=items.map((item,idx)=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
-    const photoCell=item.photo_url
-      ? `<img src="${item.photo_url}" class="photo-thumb tip-up" onclick="openLightbox('${item.photo_url}',${item.id})" data-tip="Переглянути">`
-      : `<div class="photo-ph tip-up" onclick="openPhotoModal(${item.id})" data-tip="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
+    const id=Number(item.id);
+    const name=escapeHtml(item.name||'');
+    const category=escapeHtml(item.category||'—');
+    const unit=escapeHtml(item.unit||'');
+    const safePhoto=item.photo_url?escapeHtml(item.photo_url):'';
+    const photoCell=safePhoto
+      ? `<img src="${safePhoto}" class="photo-thumb tip-up" onclick="openLightbox('${safePhoto}',${id})" data-tip="Переглянути" alt="Фото товару ${name}">`
+      : `<div class="photo-ph tip-up" onclick="openPhotoModal(${id})" data-tip="Додати фото" role="button" aria-label="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
     return `<tr>
       <td style="color:#a5b4fc;font-size:12px;">${idx+1}</td>
-      <td style="font-weight:600;color:var(--ios-label);max-width:280px;">${item.name}${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</td>
-      <td><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${item.category}</span></td>
-      <td style="color:var(--ios-label3);font-size:12px;">${item.unit}</td>
+      <td style="font-weight:600;color:var(--ios-label);max-width:280px;">${name}${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</td>
+      <td><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span></td>
+      <td style="color:var(--ios-label3);font-size:12px;">${unit}</td>
       <td>${photoCell}</td>
-      <td><span class="${qc}">${item.quantity}</span> <span style="color:#a5b4fc;font-size:11px;">${item.unit}</span></td>
+      <td><span class="${qc}">${item.quantity}</span> <span style="color:#a5b4fc;font-size:11px;">${unit}</span></td>
       <td>${priceBadge(item)}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-primary btn-sm" onclick="openQuick(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button class="btn btn-ghost btn-sm" onclick="openHistory(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
-        <button class="btn btn-ghost btn-sm" onclick="openPhotoModal(${item.id})"><span class="ms" style="font-size:16px;">photo_camera</span></button>
-        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" onclick="toggleInternal(${item.id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
-        <button class="btn btn-ghost btn-sm tip-up" onclick="openManualPriceModal(${item.id})" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
-        <button class="btn btn-ghost btn-sm tip-up" onclick="openItemPriceLookup(${item.id})" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
-        <button class="btn btn-danger btn-sm" onclick="openDelete(${item.id})"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button class="btn btn-primary btn-sm" onclick="openQuick(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
+        <button class="btn btn-ghost btn-sm" onclick="openHistory(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
+        <button class="btn btn-ghost btn-sm" onclick="openPhotoModal(${id})"><span class="ms" style="font-size:16px;">photo_camera</span></button>
+        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" onclick="toggleInternal(${id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
+        <button class="btn btn-ghost btn-sm tip-up" onclick="openManualPriceModal(${id})" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
+        <button class="btn btn-ghost btn-sm tip-up" onclick="openItemPriceLookup(${id})" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
+        <button class="btn btn-danger btn-sm" onclick="openDelete(${id})"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1425,32 +1441,41 @@ function renderItems(){
   const mc=document.getElementById('mobileCards');
   if(mc) mc.innerHTML=items.map(item=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
-    const photo=item.photo_url
-      ? `<img src="${item.photo_url}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" onclick="openLightbox('${item.photo_url}',${item.id})">`
+    const id=Number(item.id);
+    const name=escapeHtml(item.name||'');
+    const category=escapeHtml(item.category||'—');
+    const unit=escapeHtml(item.unit||'');
+    const safePhoto=item.photo_url?escapeHtml(item.photo_url):'';
+    const photo=safePhoto
+      ? `<img src="${safePhoto}" alt="Фото товару ${name}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" onclick="openLightbox('${safePhoto}',${id})">`
       : '';
     return `<div class="m-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:13.5px;font-weight:700;color:var(--ios-label);line-height:1.4;margin-bottom:5px;">${item.name}</div>
-          <span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${item.category}</span>${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}
+          <div style="font-size:13.5px;font-weight:700;color:var(--ios-label);line-height:1.4;margin-bottom:5px;">${name}</div>
+          <span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span>${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}
           <div style="margin-top:6px;">${priceBadge(item)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
           ${photo}
           <div style="text-align:right;">
             <span class="${qc}" style="font-size:22px;">${item.quantity}</span>
-            <div style="font-size:10px;color:#a5b4fc;">${item.unit}</div>
+            <div style="font-size:10px;color:#a5b4fc;">${unit}</div>
           </div>
         </div>
       </div>
-      <div style="display:flex;gap:6px;">
-        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:9px 8px;font-size:13px;" onclick="openQuick(${item.id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openHistory(${item.id})" data-tip="Історія" aria-label="Історія"><span class="ms" aria-hidden="true" style="font-size:16px;">history</span></button>
-        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openPhotoModal(${item.id})" data-tip="Фото" aria-label="Фото"><span class="ms" aria-hidden="true" style="font-size:16px;">photo_camera</span></button>
-        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} tip-up" style="padding:9px 12px;" onclick="toggleInternal(${item.id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє — клік, щоб повернути в баланс':'Позначити: внутрішнє використання'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
-        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openManualPriceModal(${item.id})" data-tip="Ціна" aria-label="Ціна"><span class="ms" aria-hidden="true" style="font-size:16px;">sell</span></button>
-        <button class="btn btn-ghost tip-up" style="padding:9px 12px;" onclick="openItemPriceLookup(${item.id})" data-tip="Підтягнути ціну" aria-label="Підтягнути ціну з інтернету"><span class="ms" aria-hidden="true" style="font-size:16px;">travel_explore</span></button>
-        <button class="btn btn-danger tip-up" style="padding:9px 12px;" onclick="openDelete(${item.id})" data-tip="Видалити" aria-label="Видалити"><span class="ms" aria-hidden="true" style="font-size:16px;">delete</span></button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:10px 10px;font-size:13px;" onclick="openQuick(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
+        <button class="btn btn-ghost" style="padding:10px 12px;" onclick="openHistory(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
+        <details class="item-more"><summary aria-label="Додаткові дії"><span class="ms" aria-hidden="true">more_horiz</span></summary>
+          <div class="item-more-menu">
+            <button onclick="openPhotoModal(${id})"><span class="ms">photo_camera</span> Фото</button>
+            <button onclick="toggleInternal(${id},${!item.is_internal})"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button onclick="openManualPriceModal(${id})"><span class="ms">sell</span> Ручна ціна</button>
+            <button onclick="openItemPriceLookup(${id})"><span class="ms">travel_explore</span> Інтернет-ціна</button>
+            <button class="danger" onclick="openDelete(${id})"><span class="ms">delete</span> Видалити</button>
+          </div>
+        </details>
       </div>
     </div>`;
   }).join('');
@@ -1559,7 +1584,7 @@ function renderLog(){
     const cat=item?item.category:'';
     return `<tr>
       <td style="font-size:12px;color:var(--ios-label3);white-space:nowrap;">${dt}</td>
-      <td style="font-weight:600;color:var(--ios-label);">${l.item_name}${cat?` <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${cat}</span>`:''}</td>
+      <td style="font-weight:600;color:var(--ios-label);">${l.item_name}${cat?` <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${safeCat}</span>`:''}</td>
       <td style="font-weight:800;color:#6366f1;">${l.quantity} <span style="font-weight:400;color:#a5b4fc;font-size:11px;">${item?item.unit:''}</span></td>
       <td style="color:var(--ios-label2);">${l.issued_to||'—'}</td>
       <td style="color:var(--ios-gray);font-size:12px;">${l.note||'—'}</td>
@@ -2295,6 +2320,7 @@ function stopQR(){
 // ===== ITEM HISTORY =====
 async function openHistory(itemId){
   const item=allItems.find(i=>i.id===itemId);
+  const unit=escapeHtml(item.unit||'');
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
   document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Завантаження...</div>';
@@ -2309,10 +2335,10 @@ async function openHistory(itemId){
     const t=new Date(l.issued_at).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     return `<div class="hist-row">
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);">${l.issued_to||'—'}</div>
-        <div style="font-size:11px;color:#a5b4fc;">${d} ${t}${l.note?' · '+l.note:''}</div>
+        <div style="font-weight:600;color:var(--ios-label);">${escapeHtml(l.issued_to||'—')}</div>
+        <div style="font-size:11px;color:#a5b4fc;">${d} ${t}${l.note?' · '+escapeHtml(l.note):''}</div>
       </div>
-      <div class="hist-out">−${l.quantity} ${item.unit}</div>
+      <div class="hist-out">−${l.quantity} ${unit}</div>
     </div>`;
   }).join('');
 }
