@@ -148,6 +148,30 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Action buttons can be clicked from stale DOM after refreshes/deletes. Guarding
+// central item lookup prevents modal handlers from crashing on `item.name` /
+// `item.unit` when a row no longer exists in the latest `allItems` collection.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad item actions guard missing/stale item rows';
+  const required = [
+    'function findItemForAction',
+    "findItemForAction(id,'видача')",
+    "findItemForAction(id,'прихід')",
+    "findItemForAction(id,'видалення')",
+    "findItemForAction(id,'фото')",
+    "findItemForAction(itemId,'історія')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Every *.sql filename mentioned in the docs/UI must actually exist in the
 // repo — catches stale references like a UI hint pointing at a script that
 // was never committed.

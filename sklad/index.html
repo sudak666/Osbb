@@ -1500,8 +1500,16 @@ function updateStats(){
 }
 
 // ===== QUICK MODAL =====
-function openQuick(id){
+function findItemForAction(id, actionLabel){
   const item=allItems.find(i=>i.id===id);
+  if(item) return item;
+  toast(`Товар не знайдено для дії «${actionLabel}». Оновіть список і спробуйте ще раз.`,'error');
+  refreshAll().catch(e=>console.warn('refresh after missing item failed:',e));
+  return null;
+}
+function openQuick(id){
+  const item=findItemForAction(id,'видача');
+  if(!item) return;
   quickId=id;
   document.getElementById('qmName').textContent=item.name;
   document.getElementById('qmQtyShow').textContent=item.quantity+' '+item.unit;
@@ -1827,7 +1835,8 @@ async function doRefill(){
   const note=document.getElementById('refillNoteI').value.trim();
   if(!id) return toast('Оберіть товар!','error');
   if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
-  const item=allItems.find(i=>i.id===id);
+  const item=findItemForAction(id,'прихід');
+  if(!item) return;
   const nq=Math.round((item.quantity+qty)*100)/100;
   const {error}=await db.from('inventory_items').update({quantity:nq}).eq('id',id);
   if(error) return toast('Помилка: '+error.message,'error');
@@ -1936,7 +1945,8 @@ function renderAddLow(){
 
 // ===== DELETE =====
 function openDelete(id){
-  const item=allItems.find(i=>i.id===id);
+  const item=findItemForAction(id,'видалення');
+  if(!item) return;
   deleteItemId=id;
   document.getElementById('delItemName').textContent='«'+item.name+'»';
   document.getElementById('delModal').classList.add('open');
@@ -1959,8 +1969,9 @@ async function confirmDelete(){
 
 // ===== PHOTO =====
 function openPhotoModal(id){
+  const item=findItemForAction(id,'фото');
+  if(!item) return;
   photoItemId=id;
-  const item=allItems.find(i=>i.id===id);
   document.getElementById('photoItemName').textContent=item.name;
   document.getElementById('photoStatus').textContent='';
   document.getElementById('photoFileI').value='';
@@ -2353,7 +2364,8 @@ function stopQR(){
 
 // ===== ITEM HISTORY =====
 async function openHistory(itemId){
-  const item=allItems.find(i=>i.id===itemId);
+  const item=findItemForAction(itemId,'історія');
+  if(!item) return;
   const unit=escapeHtml(item.unit||'');
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
@@ -2720,4 +2732,3 @@ if('serviceWorker' in navigator){
 </script>
 </body>
 </html>
-
