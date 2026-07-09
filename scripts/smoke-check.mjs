@@ -110,6 +110,22 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// notify-telegram must accept raw/text payloads because the GitHub Pages client
+// sends best-effort no-cors requests and Windows PowerShell tests often use raw
+// text to avoid JSON quoting issues.
+{
+  const text = readFileSync('sklad/supabase/functions/notify-telegram/index.ts', 'utf8');
+  const label = 'notify-telegram accepts raw text payload fallback';
+  if (text.includes("raw.startsWith('text=')") && text.includes('text = raw;')) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.

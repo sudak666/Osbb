@@ -88,6 +88,18 @@ supabase secrets set TELEGRAM_CHAT_ID=ваш_chat_id --project-ref vkwkyhjjjmcpm
 
 `--no-verify-jwt` потрібен тому, що клієнт авторизується новим форматом ключів Supabase (`sb_publishable_...`), який не є JWT. Після деплою перевірте, що додавання/прихід/видача товару в Складі надсилають повідомлення у ваш Telegram-чат.
 
+Швидка перевірка після деплою з Windows PowerShell:
+
+```powershell
+npx.cmd supabase@latest secrets list --project-ref vkwkyhjjjmcpmiakxohw
+
+curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notify-telegram" `
+  -H "Content-Type: text/plain;charset=UTF-8" `
+  --data-raw "Test Telegram zi skladu OSBB"
+```
+
+У списку secrets мають бути `TELEGRAM_BOT_TOKEN` і `TELEGRAM_CHAT_ID`. Успішний тест повертає `{"ok":true}` і надсилає повідомлення в Telegram.
+
 ## Автоматичні smoke-перевірки
 
 У репозиторії є легкий smoke-check без залежностей, який перевіряє наявність критичних RPC, PIN-flow, iframe-завантаження модулів і scoped service-worker cleanup:
