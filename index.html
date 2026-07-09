@@ -382,7 +382,15 @@
         clearTimeout(idleLockTimer);
         if (sessionStorage.getItem('auth') === 'ok') idleLockTimer = setTimeout(lockShellNow, IDLE_LOCK_MS);
     }
-    ['pointerdown','keydown','touchstart','visibilitychange'].forEach(evt => document.addEventListener(evt, resetIdleLockTimer, { passive: true }));
+    function handleVisibilityLockTimer() {
+        if (document.visibilityState === 'visible') resetIdleLockTimer();
+    }
+    ['pointerdown','keydown','touchstart'].forEach(evt => document.addEventListener(evt, resetIdleLockTimer, { passive: true }));
+    document.addEventListener('visibilitychange', handleVisibilityLockTimer);
+    window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) return;
+        if (event.data && event.data.type === 'osbb:user-activity') resetIdleLockTimer();
+    });
 
     function switchTab(name) {
         loadTab(name);

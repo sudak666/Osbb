@@ -73,6 +73,25 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Regression guard: the Sklad issue log must not reference variables that are
+// only defined in other renderers (this previously broke the Journal page with
+// `safeCat is not defined`).
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function renderLog()');
+  const end = text.indexOf('// ===== EDIT / DELETE LOG =====');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad renderLog defines safeCat before using it';
+  if (!body || !body.includes('const safeCat=escapeHtml')) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.
