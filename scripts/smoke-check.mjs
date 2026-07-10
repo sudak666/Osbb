@@ -200,6 +200,52 @@ for (const [file, needle, label] of checks) {
 }
 
 
+
+// Sklad static controls should use centralized data-attribute bindings for auth,
+// navigation, topbar actions, stock/category filters, and common search controls.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad static controls use centralized event bindings';
+  const forbidden = [
+    "onclick=\"pinPress('",
+    "onclick=\"nav('",
+    'onkeydown="if(event.key',
+    'onclick="openChartModal()',
+    'onclick="openPriceRefreshModal()',
+    'onclick="openQR()',
+    'onclick="goReceipts()',
+    'onclick="exportExcel()',
+    'onclick="refreshAll()',
+    'onclick="toggleTheme()',
+    'onclick="filterByStock',
+    'onclick="toggleInStock',
+    'onclick="toggleHideInternal',
+    'onclick="toggleOnlyInternal',
+    'onclick="filterCat',
+    'oninput="renderItems()',
+    'onchange="onIssueSel()',
+    'onchange="renderStats()',
+  ];
+  const required = [
+    'function bindSkladStaticControls',
+    'data-auth-pin-key="0"',
+    'data-sklad-action="refresh"',
+    'data-stock-filter="zero"',
+    'data-category-filter="Прибирання"',
+    'data-render-items-input',
+    'data-stats-filter',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad item rows/cards should use delegated data-item-action controls instead of
 // embedding per-row inline handlers for every rendered item action.
 {

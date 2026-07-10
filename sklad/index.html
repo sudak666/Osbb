@@ -389,18 +389,18 @@ canvas#stockChart{width:100%!important;max-height:300px;}
     </div>
     <div class="auth-err" id="authErr"></div>
     <div class="pin-keys">
-      <button class="pin-key" onclick="pinPress('1')">1</button>
-      <button class="pin-key" onclick="pinPress('2')">2</button>
-      <button class="pin-key" onclick="pinPress('3')">3</button>
-      <button class="pin-key" onclick="pinPress('4')">4</button>
-      <button class="pin-key" onclick="pinPress('5')">5</button>
-      <button class="pin-key" onclick="pinPress('6')">6</button>
-      <button class="pin-key" onclick="pinPress('7')">7</button>
-      <button class="pin-key" onclick="pinPress('8')">8</button>
-      <button class="pin-key" onclick="pinPress('9')">9</button>
-      <button class="pin-key" onclick="pinPress('C')"><span class="ms" style="font-size:20px;">close</span></button>
-      <button class="pin-key" onclick="pinPress('0')">0</button>
-      <button class="pin-key" onclick="pinPress('DEL')"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-auth-pin-key="1">1</button>
+      <button class="pin-key" data-auth-pin-key="2">2</button>
+      <button class="pin-key" data-auth-pin-key="3">3</button>
+      <button class="pin-key" data-auth-pin-key="4">4</button>
+      <button class="pin-key" data-auth-pin-key="5">5</button>
+      <button class="pin-key" data-auth-pin-key="6">6</button>
+      <button class="pin-key" data-auth-pin-key="7">7</button>
+      <button class="pin-key" data-auth-pin-key="8">8</button>
+      <button class="pin-key" data-auth-pin-key="9">9</button>
+      <button class="pin-key" data-auth-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-auth-pin-key="0">0</button>
+      <button class="pin-key" data-auth-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
@@ -476,16 +476,16 @@ async function checkPin(attempt){
     <span class="sb-ver">v3.1</span>
   </div>
   <nav>
-    <div class="ni active" data-page="items" onclick="nav('items',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+    <div class="ni active" data-page="items" role="button" tabindex="0">
       <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Товари</span>
       <span class="ni-badge" id="sb-alert" style="display:none">!</span>
     </div>
-    <div class="ni" data-page="issue" onclick="nav('issue',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">output</span></span><span class="nav-label">Видача</span></div>
-    <div class="ni" data-page="log" onclick="nav('log',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">receipt_long</span></span><span class="nav-label">Журнал</span></div>
-    <div class="ni" data-page="add" onclick="nav('add',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">add_circle</span></span><span class="nav-label">Додати</span></div>
-    <div class="ni" data-page="audit" onclick="nav('audit',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">fact_check</span></span><span class="nav-label">Інвентаризація</span></div>
-    <div class="ni" data-page="receipts" onclick="nav('receipts',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">move_to_inbox</span></span><span class="nav-label">Прихід</span></div>
-    <div class="ni" data-page="stats" onclick="nav('stats',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">bar_chart</span></span><span class="nav-label">Статистика</span></div>
+    <div class="ni" data-page="issue" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">output</span></span><span class="nav-label">Видача</span></div>
+    <div class="ni" data-page="log" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">receipt_long</span></span><span class="nav-label">Журнал</span></div>
+    <div class="ni" data-page="add" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">add_circle</span></span><span class="nav-label">Додати</span></div>
+    <div class="ni" data-page="audit" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">fact_check</span></span><span class="nav-label">Інвентаризація</span></div>
+    <div class="ni" data-page="receipts" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">move_to_inbox</span></span><span class="nav-label">Прихід</span></div>
+    <div class="ni" data-page="stats" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">bar_chart</span></span><span class="nav-label">Статистика</span></div>
   </nav>
   <div class="sb-bottom">ОСББ «Микитська Слобода»</div>
 </div>
@@ -495,42 +495,42 @@ async function checkPin(attempt){
     <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
-      <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openPriceRefreshModal()" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
-      <button class="btn btn-ghost btn-sm" id="refreshBtn" onclick="refreshAll()" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
-      <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
+      <button class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="chart" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="price-refresh" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button class="btn btn-ghost btn-sm" data-sklad-action="qr" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" data-sklad-action="receipts" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
+      <button class="btn btn-ghost btn-sm" id="refreshBtn" data-sklad-action="refresh" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
+      <button class="btn btn-ghost btn-sm" data-sklad-action="theme" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
     </div>
   </div>
 
   <!-- ITEMS -->
   <div id="page-items" class="page active">
-    <div id="alertBanner" style="display:none;" onclick="nav('stats',document.querySelector('.ni[data-page=stats]'))">
+    <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
       <div class="alert-banner"><span class="ms" style="font-size:16px;vertical-align:-3px;">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
     </div>
     <div class="g4" style="margin-bottom:22px;">
-      <div class="stat-card sc-purple" onclick="filterByStock('all',this)"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">inventory_2</span></div></div>
-      <div class="stat-card sc-red" onclick="filterByStock('zero',this)"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">production_quantity_limits</span></div></div>
-      <div class="stat-card sc-orange" onclick="filterByStock('low',this)"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">warning</span></div></div>
-      <div class="stat-card sc-green" onclick="filterByStock('ok',this)"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">check_circle</span></div></div>
+      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">inventory_2</span></div></div>
+      <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">production_quantity_limits</span></div></div>
+      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">warning</span></div></div>
+      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">check_circle</span></div></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <button class="pill" id="inStockPill" onclick="toggleInStock(this)" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
-        <button class="pill" id="hideInternalPill" onclick="toggleHideInternal(this)" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
-        <button class="pill" id="onlyInternalPill" onclick="toggleOnlyInternal(this)" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
+        <button class="pill" id="inStockPill" data-filter-toggle="in-stock" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
+        <button class="pill" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
+        <button class="pill" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="catPills" class="pills-wrap">
-        <button class="pill active" onclick="filterCat(this,'')">Всі</button>
-        <button class="pill" onclick="filterCat(this,'Прибирання')"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
-        <button class="pill" onclick="filterCat(this,'Ремонт')"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
-        <button class="pill" onclick="filterCat(this,'Електрика')"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
-        <button class="pill" onclick="filterCat(this,'Сантехніка')"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
-        <button class="pill" onclick="filterCat(this,'Відеоспостереження')"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
-        <button class="pill" onclick="filterCat(this,'Інше')"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
+        <button class="pill active" data-category-filter="">Всі</button>
+        <button class="pill" data-category-filter="Прибирання"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
+        <button class="pill" data-category-filter="Ремонт"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
+        <button class="pill" data-category-filter="Електрика"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
+        <button class="pill" data-category-filter="Сантехніка"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
+        <button class="pill" data-category-filter="Відеоспостереження"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
+        <button class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." oninput="renderItems()"></div>
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
-        <button class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" onclick="resetItemFilters()" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
+        <button class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
       </div>
     </div>
     <div class="card desktop-table" style="overflow:hidden;">
@@ -554,7 +554,7 @@ async function checkPin(attempt){
       <div class="card" style="padding:28px;">
         <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--brand);">output</span>Оформити видачу</h3>
         <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" onchange="onIssueSel()"><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
           <div id="issueInfo" style="display:none;background:#f0f0ff;border-radius:12px;padding:14px;">
             <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--ios-label3);">Залишок:</span><span id="issueInfoQty" style="font-weight:800;color:#6366f1;"></span></div>
           </div>
@@ -742,10 +742,10 @@ async function checkPin(attempt){
     <div class="card" style="padding:18px 22px;margin-bottom:16px;">
       <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;margin-bottom:12px;"><span class="ms" style="font-size:16px;">filter_alt</span> Фільтр вартості складу</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;">
-        <div><label>Категорія</label><select class="inp" id="valueCatFilter" onchange="renderStats()"><option value="">Усі категорії</option></select></div>
-        <div><label>Залишок</label><select class="inp" id="valueStockFilter" onchange="renderStats()"><option value="all">Усі товари</option><option value="positive">Є залишок</option><option value="low">Мало (≤3)</option><option value="zero">Закінчились</option><option value="normal">В нормі (&gt;3)</option></select></div>
-        <div><label>Тип</label><select class="inp" id="valueInternalFilter" onchange="renderStats()"><option value="balance">Балансові</option><option value="all">Усі</option><option value="internal">Внутрішні</option></select></div>
-        <div><label>Ціна</label><select class="inp" id="valuePriceFilter" onchange="renderStats()"><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
+        <div><label>Категорія</label><select class="inp" id="valueCatFilter" data-stats-filter><option value="">Усі категорії</option></select></div>
+        <div><label>Залишок</label><select class="inp" id="valueStockFilter" data-stats-filter><option value="all">Усі товари</option><option value="positive">Є залишок</option><option value="low">Мало (≤3)</option><option value="zero">Закінчились</option><option value="normal">В нормі (&gt;3)</option></select></div>
+        <div><label>Тип</label><select class="inp" id="valueInternalFilter" data-stats-filter><option value="balance">Балансові</option><option value="all">Усі</option><option value="internal">Внутрішні</option></select></div>
+        <div><label>Ціна</label><select class="inp" id="valuePriceFilter" data-stats-filter><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
       </div>
       <div id="valueFilterSummary" style="font-size:12px;color:var(--ios-label3);margin-top:10px;line-height:1.45;">Показано баланс без внутрішнього використання.</div>
     </div>
@@ -755,8 +755,8 @@ async function checkPin(attempt){
         <div id="priceSummary" style="font-size:12px;color:var(--ios-label3);margin-top:4px;">Ціни не оновлювались</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="openPriceRefreshModal()"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
-        <button class="btn btn-ghost btn-sm" onclick="openManualPriceModal()"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
+        <button class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
+        <button class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
@@ -1500,6 +1500,62 @@ function toggleInternal(id,val){
 }
 
 // ===== RENDER ITEMS =====
+
+
+function activateSkladPageTrigger(trigger){
+  const page=trigger.dataset.skladPage||trigger.dataset.page;
+  if(page) nav(page,trigger);
+}
+function handleSkladStaticKeydown(event){
+  if(event.key!=='Enter'&&event.key!==' ') return;
+  const trigger=event.target.closest('[data-sklad-page],[data-page],[data-stock-filter]');
+  if(!trigger) return;
+  event.preventDefault();
+  trigger.click();
+}
+function bindSkladStaticControls(){
+  document.querySelectorAll('[data-auth-pin-key]').forEach(button=>{
+    button.addEventListener('click',()=>pinPress(button.dataset.authPinKey));
+  });
+  document.querySelectorAll('[data-sklad-page], .ni[data-page], .bn-item[data-page]').forEach(trigger=>{
+    trigger.addEventListener('click',()=>activateSkladPageTrigger(trigger));
+    trigger.addEventListener('keydown',handleSkladStaticKeydown);
+  });
+  document.querySelectorAll('[data-stock-filter]').forEach(card=>{
+    card.addEventListener('click',()=>filterByStock(card.dataset.stockFilter,card));
+    card.addEventListener('keydown',handleSkladStaticKeydown);
+  });
+  const actionHandlers={
+    'chart':openChartModal,
+    'price-refresh':openPriceRefreshModal,
+    'manual-price':()=>openManualPriceModal(),
+    'qr':openQR,
+    'receipts':goReceipts,
+    'export-excel':exportExcel,
+    'refresh':refreshAll,
+    'theme':toggleTheme,
+    'reset-item-filters':resetItemFilters,
+  };
+  document.querySelectorAll('[data-sklad-action]').forEach(button=>{
+    const handler=actionHandlers[button.dataset.skladAction];
+    if(handler) button.addEventListener('click',handler);
+  });
+  const filterHandlers={
+    'in-stock':toggleInStock,
+    'hide-internal':toggleHideInternal,
+    'only-internal':toggleOnlyInternal,
+  };
+  document.querySelectorAll('[data-filter-toggle]').forEach(button=>{
+    const handler=filterHandlers[button.dataset.filterToggle];
+    if(handler) button.addEventListener('click',()=>handler(button));
+  });
+  document.querySelectorAll('[data-category-filter]').forEach(button=>{
+    button.addEventListener('click',()=>filterCat(button,button.dataset.categoryFilter));
+  });
+  document.querySelector('[data-render-items-input]')?.addEventListener('input',renderItems);
+  document.querySelector('[data-issue-select]')?.addEventListener('change',onIssueSel);
+  document.querySelectorAll('[data-stats-filter]').forEach(select=>select.addEventListener('change',renderStats));
+}
 
 function handleItemActionClick(event){
   const trigger=event.target.closest('[data-item-action]');
@@ -2973,6 +3029,8 @@ document.addEventListener('keydown',e=>{
 });
 
 bindItemActionDelegation();
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindSkladStaticControls,{once:true});
+else bindSkladStaticControls();
 setRefreshStatus('syncing','Завантаження...');
 loadItems()
   .then(()=>loadLogs())
@@ -2985,24 +3043,24 @@ loadItems()
 
 <!-- BOTTOM NAV (mobile) -->
 <div class="bottom-nav" id="bottomNav">
-  <button class="bn-item active" data-page="items" onclick="nav('items',this)">
+  <button class="bn-item active" data-page="items">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">inventory_2</span></span></div>
     <span class="bn-label">Товари</span>
     <span class="bn-badge" id="bn-alert" style="display:none">!</span>
   </button>
-  <button class="bn-item" data-page="issue" onclick="nav('issue',this)">
+  <button class="bn-item" data-page="issue">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">output</span></span></div>
     <span class="bn-label">Видача</span>
   </button>
-  <button class="bn-item" data-page="log" onclick="nav('log',this)">
+  <button class="bn-item" data-page="log">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">receipt_long</span></span></div>
     <span class="bn-label">Журнал</span>
   </button>
-  <button class="bn-item" data-page="add" onclick="nav('add',this)">
+  <button class="bn-item" data-page="add">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">add_circle</span></span></div>
     <span class="bn-label">Додати</span>
   </button>
-  <button class="bn-item" data-page="audit" onclick="nav('audit',this)">
+  <button class="bn-item" data-page="audit">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">fact_check</span></span></div>
     <span class="bn-label">Інвент.</span>
   </button>
