@@ -624,7 +624,7 @@ async function checkPin(attempt){
             <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button class="btn btn-ghost" data-sklad-action="barcode-add-open" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
-              <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" onblur="if(/^\d+([.,]\d+)?$/.test(this.value.trim())) toast('Одиниця має бути словом, не числом!','error');"></div>
+              <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
             </div>
             <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;padding:10px 12px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:12px;">
@@ -1061,11 +1061,11 @@ function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
 function priceBadge(item){
   const id=escapeHtml(String(item?.id||''));
   const price=priceValue(item);
-  if(!price) return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" onclick="openManualPriceModal('${id}')"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
+  if(!price) return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
   const checked=item.price_checked_at?new Date(item.price_checked_at).toLocaleDateString('uk-UA'):'';
   const src=item.price_source?escapeHtml(item.price_source):'ціна';
   const title=[src,checked].filter(Boolean).join(' · ');
-  return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" onclick="openManualPriceModal('${id}')" data-tip="${escapeHtml(title)}">
+  return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
     <span style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(price)}</span>
     <span style="font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;">${src}</span>
   </button>`;
@@ -1162,11 +1162,10 @@ function renderAuditList(){
             placeholder="?"
             min="0" step="any"
             style="width:80px;padding:7px 10px;border-radius:10px;border:1.5px solid ${isCounted?border:'var(--ios-sep)'};font-size:15px;font-weight:700;text-align:center;background:var(--ios-card);outline:none;-webkit-appearance:none;"
-            oninput="onAuditInput(${item.id},this.value)"
-            onfocus="this.select()">
+            data-audit-input data-item-id="${item.id}">
           <span style="font-size:11px;color:var(--ios-gray);">${unit}</span>
         </div>
-        ${isCounted?`<button onclick="clearAuditItem(${item.id})" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
+        ${isCounted?`<button data-audit-clear data-item-id="${item.id}" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1587,6 +1586,7 @@ function bindSkladStaticControls(){
   document.querySelector('[data-render-audit-input]')?.addEventListener('input',renderAuditList);
   document.querySelector('[data-render-receipts-input]')?.addEventListener('input',renderReceipts);
   document.querySelector('[data-new-product-input]')?.addEventListener('input',renderNewProductMatches);
+  document.querySelector('[data-unit-word-input]')?.addEventListener('blur',(event)=>validateUnitWordInput(event.target));
   document.querySelector('[data-issue-select]')?.addEventListener('change',onIssueSel);
   document.querySelector('[data-refill-select]')?.addEventListener('change',onRefillSel);
   document.querySelectorAll('[data-stats-filter]').forEach(select=>select.addEventListener('change',renderStats));
@@ -1603,6 +1603,10 @@ function bindSkladStaticControls(){
   });
   document.querySelector('[data-lightbox-close]')?.addEventListener('click',closeLightbox);
   document.querySelector('[data-lightbox-stop]')?.addEventListener('click',(event)=>event.stopPropagation());
+}
+
+function validateUnitWordInput(input){
+  if(/^\d+([.,]\d+)?$/.test(input.value.trim())) toast('Одиниця має бути словом, не числом!','error');
 }
 
 function handleItemActionClick(event){
@@ -1638,6 +1642,90 @@ function bindItemActionDelegation(){
     if(!el) return;
     el.addEventListener('click',handleItemActionClick);
     el.addEventListener('keydown',handleItemActionKeydown);
+  });
+}
+
+function bindPriceBadgeActions(){
+  document.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-price-badge-action="manual-price"]');
+    if(!button) return;
+    event.preventDefault();
+    openManualPriceModal(button.dataset.itemId||'');
+  });
+}
+
+function bindAuditListDelegation(){
+  const list=document.getElementById('auditList');
+  if(!list) return;
+  list.addEventListener('input',(event)=>{
+    const input=event.target.closest('[data-audit-input]');
+    if(!input) return;
+    onAuditInput(Number(input.dataset.itemId),input.value);
+  });
+  list.addEventListener('focusin',(event)=>{
+    const input=event.target.closest('[data-audit-input]');
+    if(input) input.select();
+  });
+  list.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-audit-clear]');
+    if(!button) return;
+    event.preventDefault();
+    clearAuditItem(Number(button.dataset.itemId));
+  });
+}
+
+function bindLogActionDelegation(){
+  ['logTable','logMobileList'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('click',(event)=>{
+      const button=event.target.closest('[data-log-action]');
+      if(!button) return;
+      event.preventDefault();
+      const logId=Number(button.dataset.logId);
+      if(!logId) return;
+      if(button.dataset.logAction==='edit') openEditLog(logId);
+      if(button.dataset.logAction==='delete') openDeleteLog(logId);
+    });
+  });
+}
+
+function bindReceiptActionDelegation(){
+  ['recTable','recMobileList'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('click',(event)=>{
+      const button=event.target.closest('[data-receipt-action]');
+      if(!button) return;
+      event.preventDefault();
+      const receiptId=Number(button.dataset.receiptId);
+      if(!receiptId) return;
+      if(button.dataset.receiptAction==='edit') openEditReceipt(receiptId);
+      if(button.dataset.receiptAction==='delete') openDeleteReceipt(receiptId);
+    });
+  });
+}
+
+function bindNewProductMatchActions(){
+  const box=document.getElementById('newNameMatches');
+  if(!box) return;
+  box.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-new-match-action]');
+    if(!button) return;
+    event.preventDefault();
+    const itemId=button.dataset.itemId||'';
+    if(button.dataset.newMatchAction==='refill') useExistingItemForRefill(itemId);
+  });
+}
+
+function bindPhotoCurrentActions(){
+  const box=document.getElementById('photoCurrent');
+  if(!box) return;
+  box.addEventListener('click',(event)=>{
+    const image=event.target.closest('[data-photo-current-lightbox]');
+    if(!image) return;
+    event.preventDefault();
+    openLightbox(image.dataset.photoUrl||'',Number(image.dataset.itemId)||null);
   });
 }
 
@@ -1935,8 +2023,8 @@ function renderLog(){
       <td style="color:var(--ios-label2);">${safeIssuedTo}</td>
       <td style="color:var(--ios-gray);font-size:12px;">${safeNote}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-ghost btn-sm" onclick="openEditLog(${l.id})"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button class="btn btn-danger btn-sm" onclick="openDeleteLog(${l.id})"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">edit</span></button>
+        <button class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1960,8 +2048,8 @@ function renderLog(){
       <div style="font-weight:800;color:#ef4444;font-size:13px;flex-shrink:0;text-align:right;">
         −${l.quantity}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
         <div style="display:flex;gap:4px;margin-top:4px;">
-          <button onclick="openEditLog(${l.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button onclick="openDeleteLog(${l.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button data-log-action="edit" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button data-log-action="delete" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2060,8 +2148,8 @@ function renderReceipts(){
       <td style="color:var(--ios-label2);">${safeSupplier}</td>
       <td style="color:var(--ios-gray);font-size:12px;">${safeNote}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-ghost btn-sm" onclick="openEditReceipt(${r.id})"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button class="btn btn-danger btn-sm" onclick="openDeleteReceipt(${r.id})"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">edit</span></button>
+        <button class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2082,8 +2170,8 @@ function renderReceipts(){
       <div style="font-weight:800;color:var(--ios-green);font-size:13px;flex-shrink:0;text-align:right;">
         +${r.quantity}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
         <div style="display:flex;gap:4px;margin-top:4px;">
-          <button onclick="openEditReceipt(${r.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button onclick="openDeleteReceipt(${r.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button data-receipt-action="edit" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button data-receipt-action="delete" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2232,8 +2320,8 @@ function renderNewProductMatches(){
       <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')} · ${priceValue(i)?money(priceValue(i)):'без ціни'}</div>
     </div>
     <div style="display:flex;gap:6px;flex-shrink:0;">
-      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" onclick="useExistingItemForRefill('${escapeHtml(String(i.id))}')">Поповнити</button>
-      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" onclick="openManualPriceModal('${escapeHtml(String(i.id))}')">Ціна</button>
+      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-new-match-action="refill" data-item-id="${escapeHtml(String(i.id))}">Поповнити</button>
+      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
     </div>
   </div>`).join('');
 }
@@ -2331,8 +2419,7 @@ function openPhotoModal(id){
   const delBtn=document.getElementById('delPhotoBtn');
   if(item.photo_url){
     const safePhoto=escapeHtml(item.photo_url);
-    const photoArg=jsString(item.photo_url);
-    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" onclick="openLightbox(${photoArg},${item.id})">`;
+    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
     delBtn.style.display='inline-flex';
   } else {
     cur.innerHTML='<div style="text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;">Фото ще не додано</div>';
@@ -2489,7 +2576,7 @@ function renderStats(){
           <div style="font-weight:700;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
           <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')}</div>
         </div>
-        <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" onclick="openManualPriceModal('${escapeHtml(String(i.id))}')">Ціна</button>
+        <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
       </div>`).join('')+(unpriced.length>12?`<div style="font-size:11px;color:var(--ios-gray);margin-top:8px;">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
     : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
@@ -3090,6 +3177,12 @@ document.addEventListener('keydown',e=>{
 
 bindItemActionDelegation();
 bindPriceResultActions();
+bindPriceBadgeActions();
+bindAuditListDelegation();
+bindLogActionDelegation();
+bindReceiptActionDelegation();
+bindNewProductMatchActions();
+bindPhotoCurrentActions();
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindSkladStaticControls,{once:true});
 else bindSkladStaticControls();
 setRefreshStatus('syncing','Завантаження...');

@@ -384,6 +384,50 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Sklad dynamic renderers should not emit inline event attributes. Delegated
+// data hooks keep generated markup safer when item names/URLs contain quotes and
+// make refreshed lists keep the same behavior without rebinding every row.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad dynamic renderers avoid inline event attributes';
+  const forbidden = [
+    'onclick="openManualPriceModal',
+    'onclick="openEditLog',
+    'onclick="openDeleteLog',
+    'onclick="openEditReceipt',
+    'onclick="openDeleteReceipt',
+    'onclick="useExistingItemForRefill',
+    'onclick="openLightbox',
+    'oninput="onAuditInput',
+    'onfocus="this.select()',
+    'onblur="if(/',
+  ];
+  const required = [
+    'function bindPriceBadgeActions',
+    'function bindAuditListDelegation',
+    'function bindLogActionDelegation',
+    'function bindReceiptActionDelegation',
+    'function bindNewProductMatchActions',
+    'function bindPhotoCurrentActions',
+    'data-price-badge-action="manual-price"',
+    'data-audit-input',
+    'data-log-action="edit"',
+    'data-receipt-action="delete"',
+    'data-new-match-action="refill"',
+    'data-photo-current-lightbox',
+    'data-unit-word-input',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.
