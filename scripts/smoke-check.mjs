@@ -42,6 +42,8 @@ const checks = [
   ['sklad/index.html', "e.key==='/'", 'sklad supports slash keyboard search shortcut'],
   ['sklad/index.html', 'function clearSearchInput', 'sklad can clear active search with keyboard'],
   ['sklad/index.html', "e.key==='Escape' && clearSearchInput", 'sklad Escape shortcut clears active search first'],
+  ['sklad/index.html', 'function issueDateToTimestamp', 'sklad converts selected issue date'],
+  ['sklad/index.html', "document.getElementById('issueDateI').value", 'sklad issue flow reads selected issue date'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
