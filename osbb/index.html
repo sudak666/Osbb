@@ -224,18 +224,18 @@
 
         <!-- Клавіатура — 3 колонки по 80px -->
         <div style="display:grid;grid-template-columns:repeat(3,80px);grid-template-rows:repeat(4,80px);gap:8px;">
-            <button onclick="lockPress('1')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">1</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);height:8px;"> </span></span></button>
-            <button onclick="lockPress('2')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">2</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">ABC</span></span></button>
-            <button onclick="lockPress('3')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">3</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">DEF</span></span></button>
-            <button onclick="lockPress('4')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">4</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">GHI</span></span></button>
-            <button onclick="lockPress('5')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">5</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">JKL</span></span></button>
-            <button onclick="lockPress('6')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">6</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">MNO</span></span></button>
-            <button onclick="lockPress('7')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">7</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">PQRS</span></span></button>
-            <button onclick="lockPress('8')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">8</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">TUV</span></span></button>
-            <button onclick="lockPress('9')" class="pin-mb-btn"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">9</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">WXYZ</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="1"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">1</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);height:8px;"> </span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="2"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">2</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">ABC</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="3"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">3</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">DEF</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="4"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">4</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">GHI</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="5"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">5</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">JKL</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="6"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">6</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">MNO</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="7"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">7</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">PQRS</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="8"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">8</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">TUV</span></span></button>
+            <button class="pin-mb-btn" data-lock-digit="9"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">9</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">WXYZ</span></span></button>
             <div></div>
-            <button onclick="lockPress('0')" class="pin-mb-btn"><span style="font-size:1.5rem;font-weight:300;">0</span></button>
-            <button onclick="lockDel()" style="width:80px;height:80px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;color:rgba(255,255,255,0.85);font-size:0.75rem;font-weight:400;letter-spacing:0.01em;" onmousedown="this.style.opacity='0.5'" onmouseup="this.style.opacity='1'" ontouchstart="this.style.opacity='0.5'" ontouchend="this.style.opacity='1'">Видалити</button>
+            <button class="pin-mb-btn" data-lock-digit="0"><span style="font-size:1.5rem;font-weight:300;">0</span></button>
+            <button data-lock-delete style="width:80px;height:80px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;color:rgba(255,255,255,0.85);font-size:0.75rem;font-weight:400;letter-spacing:0.01em;">Видалити</button>
         </div>
     </div>
 </div>
@@ -277,18 +277,18 @@
         </div>
         <div id="pin-err" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
-            <button onclick="pinModalPress('1')" class="pin-mb-btn">1</button>
-            <button onclick="pinModalPress('2')" class="pin-mb-btn">2</button>
-            <button onclick="pinModalPress('3')" class="pin-mb-btn">3</button>
-            <button onclick="pinModalPress('4')" class="pin-mb-btn">4</button>
-            <button onclick="pinModalPress('5')" class="pin-mb-btn">5</button>
-            <button onclick="pinModalPress('6')" class="pin-mb-btn">6</button>
-            <button onclick="pinModalPress('7')" class="pin-mb-btn">7</button>
-            <button onclick="pinModalPress('8')" class="pin-mb-btn">8</button>
-            <button onclick="pinModalPress('9')" class="pin-mb-btn">9</button>
-            <button onclick="pinModalCancel()" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
-            <button onclick="pinModalPress('0')" class="pin-mb-btn">0</button>
-            <button onclick="pinModalDel()" aria-label="Видалити цифру" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:80px;height:80px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            <button class="pin-mb-btn" data-pin-modal-digit="1">1</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="2">2</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="3">3</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="4">4</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="5">5</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="6">6</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="7">7</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="8">8</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="9">9</button>
+            <button data-pin-modal-cancel style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
+            <button class="pin-mb-btn" data-pin-modal-digit="0">0</button>
+            <button data-pin-modal-delete aria-label="Видалити цифру" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:80px;height:80px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
     </div>
 </div>
@@ -311,42 +311,42 @@
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <span id="network-badge" style="display:none;" class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-600 flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
             <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span></span>
-            <select id="theme-select" onchange="changeTheme(this.value)" aria-label="Тема оформлення" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
+            <select id="theme-select" data-theme-select aria-label="Тема оформлення" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
                 <option value="theme-light">Світла</option>
                 <option value="theme-dark">Темна</option>
             </select>
-            <button onclick="exportExcel()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg> Excel</span></button>
-            <button onclick="window.print()" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</span></button>
-            <button onclick="clearCurrentMonth()" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
+            <button data-action="export-excel" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg> Excel</span></button>
+            <button data-action="print-page" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</span></button>
+            <button data-action="clear-current-month" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
         </div>
     </div>
 
     <div class="no-print p-3 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md flex flex-wrap items-center gap-2">
-        <button onclick="stepMonth(-1)" data-tip="Попередній місяць" aria-label="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">‹</button>
-        <select id="year-select" onchange="initCalendar()" aria-label="Рік" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
-        <select id="month-select" onchange="initCalendar()" aria-label="Місяць" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
-        <button onclick="stepMonth(1)" data-tip="Наступний місяць" aria-label="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
-        <button onclick="goToday()" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">
+        <button data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">‹</button>
+        <select id="year-select" data-calendar-select aria-label="Рік" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
+        <select id="month-select" data-calendar-select aria-label="Місяць" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
+        <button data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
+        <button data-action="go-today" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">
             <span class="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg> Сьогодні</span>
         </button>
-        <button onclick="refreshData()" data-tip="Оновити дані" aria-label="Оновити дані" class="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 text-emerald-600 transition" id="btn-refresh">
+        <button data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 text-emerald-600 transition" id="btn-refresh">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         </button>
         <!-- Таби — тільки на десктопі в цьому рядку -->
         <div id="desktop-tabs" class="ml-auto flex gap-1.5">
-            <button onclick="setTab('journal')" id="tab-journal" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="journal" id="tab-journal" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
             </button>
-            <button onclick="setTab('charts')" id="tab-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="charts" id="tab-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
             </button>
-            <button onclick="setTab('garbage')" id="tab-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="garbage" id="tab-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
             </button>
-            <button onclick="setTab('dispatcher')" id="tab-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="dispatcher" id="tab-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
             </button>
-            <button onclick="setTab('chat')" id="tab-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="chat" id="tab-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
             </button>
         </div>
@@ -354,19 +354,19 @@
 
     <!-- BOTTOM NAV — тільки на мобілці -->
     <div id="bottom-nav" class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] no-print" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
-        <button onclick="setTab('journal')" id="tab-journal-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
+        <button data-osbb-tab="journal" id="tab-journal-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
         </button>
-        <button onclick="setTab('charts')" id="tab-charts-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="charts" id="tab-charts-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
         </button>
-        <button onclick="setTab('garbage')" id="tab-garbage-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="garbage" id="tab-garbage-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
         </button>
-        <button onclick="setTab('dispatcher')" id="tab-dispatcher-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="dispatcher" id="tab-dispatcher-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
         </button>
-        <button onclick="setTab('chat')" id="tab-chat-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="chat" id="tab-chat-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
         </button>
     </div>
@@ -1683,6 +1683,45 @@
         if (show) { overlay.classList.remove('opacity-0','pointer-events-none'); document.getElementById('loading-text').innerText = text; }
         else overlay.classList.add('opacity-0','pointer-events-none');
     }
+
+
+    function bindOsbbStaticControls() {
+        document.querySelectorAll('[data-lock-digit]').forEach((button) => {
+            button.addEventListener('click', () => lockPress(button.dataset.lockDigit));
+        });
+        document.querySelector('[data-lock-delete]')?.addEventListener('click', lockDel);
+
+        document.querySelectorAll('[data-pin-modal-digit]').forEach((button) => {
+            button.addEventListener('click', () => pinModalPress(button.dataset.pinModalDigit));
+        });
+        document.querySelector('[data-pin-modal-cancel]')?.addEventListener('click', pinModalCancel);
+        document.querySelector('[data-pin-modal-delete]')?.addEventListener('click', pinModalDel);
+
+        document.querySelector('[data-theme-select]')?.addEventListener('change', (event) => changeTheme(event.target.value));
+        document.querySelectorAll('[data-calendar-select]').forEach((select) => {
+            select.addEventListener('change', initCalendar);
+        });
+        document.querySelectorAll('[data-month-step]').forEach((button) => {
+            button.addEventListener('click', () => stepMonth(Number(button.dataset.monthStep)));
+        });
+        document.querySelectorAll('[data-osbb-tab]').forEach((button) => {
+            button.addEventListener('click', () => setTab(button.dataset.osbbTab));
+        });
+
+        const actionHandlers = {
+            'export-excel': exportExcel,
+            'print-page': () => window.print(),
+            'clear-current-month': clearCurrentMonth,
+            'go-today': goToday,
+            'refresh-data': refreshData,
+        };
+        document.querySelectorAll('[data-action]').forEach((button) => {
+            const handler = actionHandlers[button.dataset.action];
+            if (handler) button.addEventListener('click', handler);
+        });
+    }
+
+    bindOsbbStaticControls();
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     document.getElementById('theme-select').value = savedTheme;
