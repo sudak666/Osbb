@@ -879,6 +879,10 @@ async function checkPin(attempt){
         <input type="number" class="inp" id="editLogQty" step="any">
       </div>
       <div>
+        <label>Дата видачі</label>
+        <input type="date" class="inp" id="editLogDate">
+      </div>
+      <div>
         <label>Кому видано</label>
         <input type="text" class="inp" id="editLogPerson">
       </div>
@@ -1856,6 +1860,7 @@ function openEditLog(id){
   const item=allItems.find(i=>i.id===l.item_id);
   document.getElementById('editLogItemName').textContent=`${l.item_name}${item?' · поточний залишок: '+item.quantity+' '+item.unit:''}`;
   document.getElementById('editLogQty').value=l.quantity;
+  document.getElementById('editLogDate').value=dateToInputValue(l.issued_at);
   document.getElementById('editLogPerson').value=l.issued_to||'';
   document.getElementById('editLogNote').value=l.note||'';
   document.getElementById('editLogModal').classList.add('open');
@@ -1865,6 +1870,7 @@ async function confirmEditLog(){
   const l=allLogs.find(x=>x.id===editLogId);
   if(!l) return closeModal('editLogModal');
   const newQty=parseFloat(document.getElementById('editLogQty').value);
+  const issueDate=document.getElementById('editLogDate').value;
   const person=document.getElementById('editLogPerson').value.trim();
   const note=document.getElementById('editLogNote').value.trim();
   if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
@@ -1875,7 +1881,10 @@ async function confirmEditLog(){
     if(adjustedStock<0) return toast('Недостатньо товару на складі для такої кількості','error');
     await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
   }
-  const {error}=await db.from('inventory_logs').update({quantity:newQty,issued_to:person||null,note:note||null}).eq('id',editLogId);
+  const logPatch={quantity:newQty,issued_to:person||null,note:note||null};
+  const issuedAt=dateInputToTimestamp(issueDate);
+  if(issuedAt) logPatch.issued_at=issuedAt;
+  const {error}=await db.from('inventory_logs').update(logPatch).eq('id',editLogId);
   if(error) return toast('Помилка: '+error.message,'error');
   toast('Запис оновлено','success');
   closeModal('editLogModal');
