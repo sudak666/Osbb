@@ -919,6 +919,10 @@ async function checkPin(attempt){
         <input type="number" class="inp" id="editReceiptQty" step="any">
       </div>
       <div>
+        <label>Дата приходу</label>
+        <input type="date" class="inp" id="editReceiptDate">
+      </div>
+      <div>
         <label>Постачальник</label>
         <input type="text" class="inp" id="editReceiptSupplier">
       </div>
@@ -1677,6 +1681,14 @@ function dateInputToTimestamp(dateValue){
   const now=new Date();
   return new Date(year,month-1,day,now.getHours(),now.getMinutes(),now.getSeconds()).toISOString();
 }
+function dateToInputValue(value){
+  const d=value?new Date(value):new Date();
+  if(Number.isNaN(d.getTime())) return new Date().toISOString().slice(0,10);
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 async function doIssue(btn){
   const id=parseInt(document.getElementById('issueItemSel').value);
   const qty=parseFloat(document.getElementById('issueQtyI').value);
@@ -1959,6 +1971,7 @@ function openEditReceipt(id){
   const item=allItems.find(i=>i.id===r.item_id);
   document.getElementById('editReceiptItemName').textContent=`${r.item_name}${item?' · поточний залишок: '+item.quantity+' '+item.unit:''}`;
   document.getElementById('editReceiptQty').value=r.quantity;
+  document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
   document.getElementById('editReceiptSupplier').value=r.supplier||'';
   document.getElementById('editReceiptNote').value=r.note||'';
   document.getElementById('editReceiptModal').classList.add('open');
@@ -1968,6 +1981,7 @@ async function confirmEditReceipt(){
   const r=allReceipts.find(x=>x.id===editReceiptId);
   if(!r) return closeModal('editReceiptModal');
   const newQty=parseFloat(document.getElementById('editReceiptQty').value);
+  const receiptDate=document.getElementById('editReceiptDate').value;
   const supplier=document.getElementById('editReceiptSupplier').value.trim();
   const note=document.getElementById('editReceiptNote').value.trim();
   if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
@@ -1978,7 +1992,10 @@ async function confirmEditReceipt(){
     if(adjustedStock<0) return toast('Це призведе до від\'ємного залишку','error');
     await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
   }
-  const {error}=await db.from('inventory_receipts').update({quantity:newQty,supplier:supplier||null,note:note||null}).eq('id',editReceiptId);
+  const receiptPatch={quantity:newQty,supplier:supplier||null,note:note||null};
+  const receivedAt=dateInputToTimestamp(receiptDate);
+  if(receivedAt) receiptPatch.received_at=receivedAt;
+  const {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
   if(error) return toast('Помилка: '+error.message,'error');
   toast('Прихід оновлено','success');
   closeModal('editReceiptModal');

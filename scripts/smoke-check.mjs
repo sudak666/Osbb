@@ -46,6 +46,8 @@ const checks = [
   ['sklad/index.html', "document.getElementById('issueDateI').value", 'sklad issue flow reads selected issue date'],
   ['sklad/index.html', 'id="refillDateI"', 'sklad refill form has receipt date input'],
   ['sklad/index.html', "document.getElementById('refillDateI').value", 'sklad refill flow reads selected receipt date'],
+  ['sklad/index.html', 'id="editReceiptDate"', 'sklad receipt edit modal has date input'],
+  ['sklad/index.html', 'function dateToInputValue', 'sklad can format dates for date inputs'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
