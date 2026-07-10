@@ -562,9 +562,9 @@ async function checkPin(attempt){
             <div><label>Кількість</label><input type="number" class="inp" id="issueQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата</label><input type="date" class="inp" id="issueDateI"></div>
           </div>
-          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Електрик',this)">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Сантехнік',this)">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Двірник',this)">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Охорона',this)">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Прибиральниця',this)">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
+          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doIssue(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
         </div>
       </div>
       <div class="card" style="padding:20px;overflow:hidden;max-width:100%;">
@@ -578,14 +578,14 @@ async function checkPin(attempt){
   <div id="page-log" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;" class="pills-wrap">
-        <button class="pill active" onclick="filterLogCat(this,'')">Всі</button>
-        <button class="pill" onclick="filterLogCat(this,'Прибирання')"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
-        <button class="pill" onclick="filterLogCat(this,'Ремонт')"><span class="ms" style="font-size:15px;">build</span></button>
-        <button class="pill" onclick="filterLogCat(this,'Електрика')"><span class="ms" style="font-size:15px;">bolt</span></button>
-        <button class="pill" onclick="filterLogCat(this,'Сантехніка')"><span class="ms" style="font-size:15px;">plumbing</span></button>
+        <button class="pill active" data-log-category-filter="">Всі</button>
+        <button class="pill" data-log-category-filter="Прибирання"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
+        <button class="pill" data-log-category-filter="Ремонт"><span class="ms" style="font-size:15px;">build</span></button>
+        <button class="pill" data-log-category-filter="Електрика"><span class="ms" style="font-size:15px;">bolt</span></button>
+        <button class="pill" data-log-category-filter="Сантехніка"><span class="ms" style="font-size:15px;">plumbing</span></button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." oninput="renderLog()"></div>
+        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." data-render-log-input></div>
         <div id="logResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -608,7 +608,7 @@ async function checkPin(attempt){
       <div class="card" style="padding:28px;">
         <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--ios-green);">add_circle</span>Поповнити залишок</h3>
         <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="refillSel" onchange="onRefillSel()"><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select><option value="">— Оберіть товар —</option></select></div>
           <div id="refillInfo" style="display:none;background:#f0fff4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;font-size:13px;color:#166534;">Поточний залишок: <span id="refillCur" style="font-weight:800;"></span></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
@@ -616,12 +616,12 @@ async function checkPin(attempt){
           </div>
           <div><label>Постачальник <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
           <div><label>Примітка <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
-          <button class="btn btn-success" style="width:100%;justify-content:center;" onclick="doRefill(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
+          <button class="btn btn-success" style="width:100%;justify-content:center;" data-sklad-action="refill-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
         </div>
         <div style="margin-top:32px;padding-top:24px;border-top:1px solid #f0eeff;">
           <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fiber_new</span> Новий товар</h3>
           <div style="display:flex;flex-direction:column;gap:14px;">
-            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" oninput="renderNewProductMatches()"><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button class="btn btn-ghost" onclick="openBarcodeAddScanner()" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
+            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button class="btn btn-ghost" data-sklad-action="barcode-add-open" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" onblur="if(/^\d+([.,]\d+)?$/.test(this.value.trim())) toast('Одиниця має бути словом, не числом!','error');"></div>
@@ -631,7 +631,7 @@ async function checkPin(attempt){
               <input type="checkbox" id="newInternal" style="width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;">
               <span style="font-weight:600;color:var(--ios-label2);font-size:12.5px;line-height:1.4;">Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
             </label>
-            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doAddNew(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="add-new-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
           </div>
         </div>
       </div>
@@ -663,13 +663,13 @@ async function checkPin(attempt){
           <div id="auditDate" style="font-size:12px;color:var(--ios-gray);margin-top:2px;"></div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" onclick="auditFillZeros()" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
-          <button class="btn btn-ghost btn-sm" onclick="auditFillCurrent()" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
-          <button class="btn btn-primary" onclick="openAuditConfirm()" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
+          <button class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-zeros" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
+          <button class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-current" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
+          <button class="btn btn-primary" data-sklad-action="audit-confirm-open" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
         </div>
       </div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" placeholder="Пошук товару..." oninput="renderAuditList()"></div>
+        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" placeholder="Пошук товару..." data-render-audit-input></div>
         <div id="auditResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
         <div id="auditStats" style="font-size:12px;color:var(--ios-gray);"></div>
         <div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width:180px;margin-top:0;"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div>
@@ -691,7 +691,7 @@ async function checkPin(attempt){
   <div id="page-receipts" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." oninput="renderReceipts()"></div>
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." data-render-receipts-input></div>
         <div id="recResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -773,7 +773,7 @@ async function checkPin(attempt){
     <p style="font-size:13px;color:var(--ios-label3);margin-bottom:18px;">Залишок: <span id="qmQtyShow" style="font-weight:800;color:#6366f1;"></span></p>
     <div style="display:flex;flex-direction:column;gap:13px;">
       <div><label>Кількість</label><input type="number" class="inp" id="qmQtyI" min="0.1" step="0.1"></div>
-      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Електрик',this)">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Сантехнік',this)">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Двірник',this)">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Охорона',this)">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Прибиральниця',this)">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
+      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
       <div style="display:flex;gap:10px;margin-top:4px;">
         <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('qModal')">Скасувати</button>
         <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="doQuickIssue(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
@@ -1535,10 +1535,17 @@ function bindSkladStaticControls(){
     'refresh':refreshAll,
     'theme':toggleTheme,
     'reset-item-filters':resetItemFilters,
+    'issue-submit':(button)=>doIssue(button),
+    'refill-submit':(button)=>doRefill(button),
+    'add-new-submit':(button)=>doAddNew(button),
+    'barcode-add-open':openBarcodeAddScanner,
+    'audit-fill-zeros':auditFillZeros,
+    'audit-fill-current':auditFillCurrent,
+    'audit-confirm-open':openAuditConfirm,
   };
   document.querySelectorAll('[data-sklad-action]').forEach(button=>{
     const handler=actionHandlers[button.dataset.skladAction];
-    if(handler) button.addEventListener('click',handler);
+    if(handler) button.addEventListener('click',()=>handler(button));
   });
   const filterHandlers={
     'in-stock':toggleInStock,
@@ -1552,8 +1559,19 @@ function bindSkladStaticControls(){
   document.querySelectorAll('[data-category-filter]').forEach(button=>{
     button.addEventListener('click',()=>filterCat(button,button.dataset.categoryFilter));
   });
+  document.querySelectorAll('[data-person-preset]').forEach(button=>{
+    button.addEventListener('click',()=>setPerson(button.dataset.personPreset,button));
+  });
+  document.querySelectorAll('[data-log-category-filter]').forEach(button=>{
+    button.addEventListener('click',()=>filterLogCat(button,button.dataset.logCategoryFilter));
+  });
   document.querySelector('[data-render-items-input]')?.addEventListener('input',renderItems);
+  document.querySelector('[data-render-log-input]')?.addEventListener('input',renderLog);
+  document.querySelector('[data-render-audit-input]')?.addEventListener('input',renderAuditList);
+  document.querySelector('[data-render-receipts-input]')?.addEventListener('input',renderReceipts);
+  document.querySelector('[data-new-product-input]')?.addEventListener('input',renderNewProductMatches);
   document.querySelector('[data-issue-select]')?.addEventListener('change',onIssueSel);
+  document.querySelector('[data-refill-select]')?.addEventListener('change',onRefillSel);
   document.querySelectorAll('[data-stats-filter]').forEach(select=>select.addEventListener('change',renderStats));
 }
 

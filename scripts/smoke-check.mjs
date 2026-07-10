@@ -281,6 +281,48 @@ for (const [file, needle, label] of checks) {
 }
 
 
+
+// Sklad operational forms (issue/refill/add/audit/log search) should be wired by
+// the centralized static control binder rather than inline handlers.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad operational forms use centralized event bindings';
+  const forbidden = [
+    'onclick="setPerson',
+    'onclick="doIssue',
+    'onclick="filterLogCat',
+    'onclick="doRefill',
+    'onclick="openBarcodeAddScanner',
+    'onclick="doAddNew',
+    'onclick="auditFillZeros',
+    'onclick="auditFillCurrent',
+    'onclick="openAuditConfirm',
+    'oninput="renderLog()',
+    'oninput="renderAuditList()',
+    'oninput="renderReceipts()',
+    'oninput="renderNewProductMatches()',
+    'onchange="onRefillSel()',
+  ];
+  const required = [
+    'data-person-preset="Електрик"',
+    'data-sklad-action="issue-submit"',
+    'data-log-category-filter="Ремонт"',
+    'data-refill-select',
+    'data-new-product-input',
+    'data-render-audit-input',
+    'data-render-receipts-input',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Price result actions can contain merchant/source/link text with apostrophes, so
 // they must not be serialized into inline JS argument lists.
 {
