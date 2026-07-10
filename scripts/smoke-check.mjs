@@ -280,6 +280,21 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Price result actions can contain merchant/source/link text with apostrophes, so
+// they must not be serialized into inline JS argument lists.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad price result apply buttons avoid inline JS arguments';
+  if (text.includes('onclick="applyFoundPrice') || !text.includes('function bindPriceResultActions') || !text.includes('data-price-result-action="apply"')) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.

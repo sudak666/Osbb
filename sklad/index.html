@@ -2545,6 +2545,18 @@ async function saveManualPrice(){
   if(!price||price<=0) return toast('Вкажіть ціну','error');
   if(await saveItemPrice(id,price,source,'','manual')) { closeModal('manualPriceModal'); toast('Ціну збережено','success'); }
 }
+
+function bindPriceResultActions(){
+  const box=document.getElementById('priceResults');
+  if(!box) return;
+  box.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-price-result-action="apply"]');
+    if(!button) return;
+    event.preventDefault();
+    applyFoundPrice(button.dataset.itemId,Number(button.dataset.price)||0,button.dataset.source||'Інтернет',button.dataset.url||'');
+  });
+}
+
 async function fetchItemPrice(){
   const id=document.getElementById('priceItemSel').value;
   const item=allItems.find(i=>String(i.id)===String(id));
@@ -2568,7 +2580,7 @@ async function fetchItemPrice(){
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(r.price)}</div>
-        <button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="applyFoundPrice('${escapeHtml(String(item.id))}',${Number(r.price)||0},'${escapeHtml(String(r.source||'Інтернет'))}','${escapeHtml(String(r.link||''))}')">Взяти</button>
+        <button class="btn btn-primary btn-sm" style="margin-top:6px;" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${escapeHtml(String(r.link||''))}">Взяти</button>
       </div>
     </div>`).join('');
   }catch(e){
@@ -3029,6 +3041,7 @@ document.addEventListener('keydown',e=>{
 });
 
 bindItemActionDelegation();
+bindPriceResultActions();
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindSkladStaticControls,{once:true});
 else bindSkladStaticControls();
 setRefreshStatus('syncing','Завантаження...');
