@@ -147,6 +147,49 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// OSBB lightbox, chat, month reset and photo container actions should use
+// central bindings so URLs/messages are not serialized into inline JS calls.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal shell actions use centralized event bindings';
+  const forbidden = [
+    'onclick="lightboxPrev',
+    'onclick="lightboxNext',
+    'onclick="closeLightbox',
+    'onclick="gClearMonth',
+    'onclick="dispClearMonth',
+    'onclick="this.removeAttribute',
+    'onkeydown="if(event.ctrlKey',
+    'onclick="chatSend',
+    'onclick="openLightbox',
+    'onclick="deletePhoto',
+    'onclick="chatDelete',
+  ];
+  const required = [
+    'data-lightbox-backdrop',
+    'data-lightbox-action="prev"',
+    'data-action="garbage-clear-month"',
+    'data-action="dispatcher-clear-month"',
+    'data-action="chat-send"',
+    'data-chat-author',
+    'data-chat-input',
+    'data-photo-action="open"',
+    'data-photo-action="delete"',
+    'data-chat-delete-id',
+    'function bindOsbbPhotoActions',
+    'function bindOsbbChatActions',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Regression guard: the Sklad issue log must not reference variables that are
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).
