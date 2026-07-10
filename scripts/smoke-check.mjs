@@ -34,6 +34,7 @@ const checks = [
   ['sklad/index.html', 'id="resetItemFiltersBtn"', 'sklad has reset filters button'],
   ['sklad/index.html', 'id="logResultSummary"', 'sklad shows log result summary'],
   ['sklad/index.html', 'id="recResultSummary"', 'sklad shows receipt result summary'],
+  ['sklad/index.html', 'id="auditResultSummary"', 'sklad shows audit result summary'],
   ['sklad/index.html', 'function updateResultSummary', 'sklad has reusable result summary helper'],
   ['sklad/index.html', 'function focusActivePageSearch', 'sklad has keyboard search focus helper'],
   ['sklad/index.html', "e.key==='/'", 'sklad supports slash keyboard search shortcut'],
