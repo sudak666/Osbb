@@ -42,8 +42,10 @@ const checks = [
   ['sklad/index.html', "e.key==='/'", 'sklad supports slash keyboard search shortcut'],
   ['sklad/index.html', 'function clearSearchInput', 'sklad can clear active search with keyboard'],
   ['sklad/index.html', "e.key==='Escape' && clearSearchInput", 'sklad Escape shortcut clears active search first'],
-  ['sklad/index.html', 'function issueDateToTimestamp', 'sklad converts selected issue date'],
+  ['sklad/index.html', 'function dateInputToTimestamp', 'sklad converts selected operation dates'],
   ['sklad/index.html', "document.getElementById('issueDateI').value", 'sklad issue flow reads selected issue date'],
+  ['sklad/index.html', 'id="refillDateI"', 'sklad refill form has receipt date input'],
+  ['sklad/index.html', "document.getElementById('refillDateI').value", 'sklad refill flow reads selected receipt date'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],

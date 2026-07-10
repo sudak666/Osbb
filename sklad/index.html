@@ -610,7 +610,10 @@ async function checkPin(attempt){
         <div style="display:flex;flex-direction:column;gap:16px;">
           <div><label>Товар</label><select class="inp" id="refillSel" onchange="onRefillSel()"><option value="">— Оберіть товар —</option></select></div>
           <div id="refillInfo" style="display:none;background:#f0fff4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;font-size:13px;color:#166534;">Поточний залишок: <span id="refillCur" style="font-weight:800;"></span></div>
-          <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
+            <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
+            <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
+          </div>
           <div><label>Постачальник <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
           <div><label>Примітка <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
           <button class="btn btn-success" style="width:100%;justify-content:center;" onclick="doRefill(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
@@ -1667,7 +1670,7 @@ function onIssueSel(){
   box.style.display='block';
   document.getElementById('issueInfoQty').textContent=item.quantity+' '+item.unit;
 }
-function issueDateToTimestamp(dateValue){
+function dateInputToTimestamp(dateValue){
   if(!dateValue) return null;
   const [year,month,day]=dateValue.split('-').map(Number);
   if(!year||!month||!day) return null;
@@ -1703,7 +1706,7 @@ async function issueItem(itemId,qty,person,note,issueDate){
   if(item.quantity<qty){toast('Недостатньо! Залишок: '+item.quantity+' '+item.unit,'error');return false;}
   const newQ=Math.round((item.quantity-qty)*100)/100;
   const logRow={item_id:itemId,item_name:item.name,quantity:qty,issued_to:person,note:note||null};
-  const issuedAt=issueDateToTimestamp(issueDate);
+  const issuedAt=dateInputToTimestamp(issueDate);
   if(issuedAt) logRow.issued_at=issuedAt;
   const {error:e1}=await db.from('inventory_items').update({quantity:newQ}).eq('id',itemId);
   const {error:e2}=await db.from('inventory_logs').insert([logRow]);
@@ -1997,6 +2000,7 @@ async function doRefill(btn){
   const qty=parseFloat(document.getElementById('refillQtyI').value);
   const supplier=document.getElementById('refillSupplierI').value.trim();
   const note=document.getElementById('refillNoteI').value.trim();
+  const receiptDate=document.getElementById('refillDateI').value;
   if(!id) return toast('Оберіть товар!','error');
   if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
   const item=findItemForAction(id,'прихід');
@@ -2009,7 +2013,10 @@ async function doRefill(btn){
   if(error) return toast('Помилка: '+error.message,'error');
   // записуємо прихід в окрему таблицю (не блокуємо основний потік якщо таблиці ще немає)
   try{
-    const {error:recErr}=await db.from('inventory_receipts').insert([{item_id:id,item_name:item.name,quantity:qty,supplier:supplier||null,note:note||null}]);
+    const receiptRow={item_id:id,item_name:item.name,quantity:qty,supplier:supplier||null,note:note||null};
+    const receivedAt=dateInputToTimestamp(receiptDate);
+    if(receivedAt) receiptRow.received_at=receivedAt;
+    const {error:recErr}=await db.from('inventory_receipts').insert([receiptRow]);
     if(recErr){
       console.warn('inventory_receipts insert failed:',recErr.message);
       toast('Залишок оновлено, але прихід не збережено: '+recErr.message,'error');
@@ -2023,6 +2030,7 @@ async function doRefill(btn){
   document.getElementById('refillQtyI').value='';
   document.getElementById('refillSupplierI').value='';
   document.getElementById('refillNoteI').value='';
+  document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
   document.getElementById('refillInfo').style.display='none';
   document.getElementById('refillSel').value='';
   await loadItems();populateSels();renderAddLow();
@@ -2854,6 +2862,7 @@ applyTheme(document.body.className || 'theme-light');
 
 // ===== INIT =====
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
+document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
 ['issueItemSel','refillSel','newCat','priceItemSel','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
 function isTypingTarget(el){
   return !!el && (['INPUT','TEXTAREA','SELECT'].includes(el.tagName) || el.isContentEditable);
