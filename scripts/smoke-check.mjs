@@ -323,6 +323,53 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Sklad modal controls should use data attributes and the central binder, including
+// destructive confirmation PIN keys and lightbox controls.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad modal controls use centralized event bindings';
+  const forbidden = [
+    'onclick="closeModal',
+    'onclick="delPinModalCancel',
+    'onclick="deletePinPress',
+    'onclick="doQuickIssue',
+    'onchange="uploadPhoto()',
+    'onclick="deletePhoto()',
+    'onclick="confirmDelete()',
+    'onclick="confirmAudit()',
+    'onclick="confirmDeleteLog()',
+    'onclick="confirmEditLog()',
+    'onclick="confirmDeleteReceipt()',
+    'onclick="confirmEditReceipt()',
+    'onclick="searchInGoogle()',
+    'onclick="resetBarcodeScanner()',
+    'onclick="searchManualBarcode()',
+    'onclick="fetchItemPrice()',
+    'onclick="saveManualPrice()',
+    'onclick="deleteLightboxPhoto',
+    'onclick="event.stopPropagation()',
+  ];
+  const required = [
+    'data-modal-backdrop="qModal"',
+    'data-modal-close="photoModal"',
+    'data-delete-pin-key="DEL"',
+    'data-photo-file',
+    'data-sklad-action="quick-issue-submit"',
+    'data-sklad-action="manual-price-save"',
+    'data-lightbox-close',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Price result actions can contain merchant/source/link text with apostrophes, so
 // they must not be serialized into inline JS argument lists.
 {

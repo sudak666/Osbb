@@ -767,7 +767,7 @@ async function checkPin(attempt){
 </div>
 
 <!-- QUICK MODAL -->
-<div class="modal-bg" id="qModal" onclick="closeModal('qModal',event)">
+<div class="modal-bg" id="qModal" data-modal-backdrop="qModal">
   <div class="modal">
     <h3 id="qmName" style="font-size:15px;line-height:1.4;margin-bottom:4px;"></h3>
     <p style="font-size:13px;color:var(--ios-label3);margin-bottom:18px;">Залишок: <span id="qmQtyShow" style="font-weight:800;color:#6366f1;"></span></p>
@@ -775,46 +775,46 @@ async function checkPin(attempt){
       <div><label>Кількість</label><input type="number" class="inp" id="qmQtyI" min="0.1" step="0.1"></div>
       <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
       <div style="display:flex;gap:10px;margin-top:4px;">
-        <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('qModal')">Скасувати</button>
-        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="doQuickIssue(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
+        <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="qModal">Скасувати</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="quick-issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- PHOTO MODAL -->
-<div class="modal-bg" id="photoModal" onclick="closeModal('photoModal',event)">
+<div class="modal-bg" id="photoModal" data-modal-backdrop="photoModal">
   <div class="modal" style="width:420px;">
     <h3 id="photoItemName" style="font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);"></h3>
     <div id="photoCurrent" style="margin-bottom:14px;"></div>
     <div style="border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;">
       <div style="font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">photo_camera</span> Завантажити нове фото</div>
-      <input type="file" id="photoFileI" accept="image/*" style="display:none;" onchange="uploadPhoto()">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('photoFileI').click()">Обрати файл</button>
+      <input type="file" id="photoFileI" accept="image/*" style="display:none;" data-photo-file>
+      <button class="btn btn-ghost btn-sm" data-sklad-action="photo-file-select">Обрати файл</button>
       <div id="photoStatus" style="font-size:12px;color:#a5b4fc;margin-top:8px;"></div>
     </div>
     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn btn-danger btn-sm" id="delPhotoBtn" onclick="deletePhoto()" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('photoModal')">Закрити</button>
+      <button class="btn btn-danger btn-sm" id="delPhotoBtn" data-sklad-action="photo-delete" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+      <button class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE MODAL -->
-<div class="modal-bg" id="delModal" onclick="closeModal('delModal',event)">
+<div class="modal-bg" id="delModal" data-modal-backdrop="delModal">
   <div class="modal" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити товар?</h3>
     <p id="delItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('delModal')">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="confirmDelete()"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delModal">Скасувати</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- PIN CONFIRM MODAL (для будь-якого видалення) -->
-<div class="modal-bg" id="delPinModal" onclick="delPinModalCancel(event)">
+<div class="modal-bg" id="delPinModal" data-delete-pin-cancel>
   <div class="modal" style="width:320px;text-align:center;background:#1C1C1E;">
     <h3 id="delPinTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px;">PIN для видалення</h3>
     <p style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;">Підтвердіть дію PIN-кодом</p>
@@ -826,50 +826,50 @@ async function checkPin(attempt){
     </div>
     <div id="delPinErr" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
     <div class="pin-keys">
-      <button class="pin-key" onclick="deletePinPress('1')">1</button>
-      <button class="pin-key" onclick="deletePinPress('2')">2</button>
-      <button class="pin-key" onclick="deletePinPress('3')">3</button>
-      <button class="pin-key" onclick="deletePinPress('4')">4</button>
-      <button class="pin-key" onclick="deletePinPress('5')">5</button>
-      <button class="pin-key" onclick="deletePinPress('6')">6</button>
-      <button class="pin-key" onclick="deletePinPress('7')">7</button>
-      <button class="pin-key" onclick="deletePinPress('8')">8</button>
-      <button class="pin-key" onclick="deletePinPress('9')">9</button>
-      <button class="pin-key" onclick="deletePinPress('C')"><span class="ms" style="font-size:20px;">close</span></button>
-      <button class="pin-key" onclick="deletePinPress('0')">0</button>
-      <button class="pin-key" onclick="deletePinPress('DEL')"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-delete-pin-key="1">1</button>
+      <button class="pin-key" data-delete-pin-key="2">2</button>
+      <button class="pin-key" data-delete-pin-key="3">3</button>
+      <button class="pin-key" data-delete-pin-key="4">4</button>
+      <button class="pin-key" data-delete-pin-key="5">5</button>
+      <button class="pin-key" data-delete-pin-key="6">6</button>
+      <button class="pin-key" data-delete-pin-key="7">7</button>
+      <button class="pin-key" data-delete-pin-key="8">8</button>
+      <button class="pin-key" data-delete-pin-key="9">9</button>
+      <button class="pin-key" data-delete-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-delete-pin-key="0">0</button>
+      <button class="pin-key" data-delete-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
 
 <!-- AUDIT CONFIRM MODAL -->
-<div class="modal-bg" id="auditModal" onclick="closeModal('auditModal',event)">
+<div class="modal-bg" id="auditModal" data-modal-backdrop="auditModal">
   <div class="modal" style="width:420px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:6px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">check_circle</span> Завершити інвентаризацію</h3>
     <div id="auditSummary" style="background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;"></div>
     <div><label>Примітка до інвентаризації</label><input type="text" class="inp" id="auditNote" placeholder="Напр.: Планова інвентаризація червень 2026"></div>
     <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('auditModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmAudit()"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="auditModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="audit-confirm-save"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE LOG MODAL -->
-<div class="modal-bg" id="delLogModal" onclick="closeModal('delLogModal',event)">
+<div class="modal-bg" id="delLogModal" data-modal-backdrop="delLogModal">
   <div class="modal" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис видачі?</h3>
     <p id="delLogItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('delLogModal')">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="confirmDeleteLog()"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delLogModal">Скасувати</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- EDIT LOG MODAL -->
-<div class="modal-bg" id="editLogModal" onclick="closeModal('editLogModal',event)">
+<div class="modal-bg" id="editLogModal" data-modal-backdrop="editLogModal">
   <div class="modal" style="width:400px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати видачу</h3>
     <p id="editLogItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
@@ -893,27 +893,27 @@ async function checkPin(attempt){
     </div>
     <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('editLogModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmEditLog()"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editLogModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE RECEIPT MODAL -->
-<div class="modal-bg" id="delReceiptModal" onclick="closeModal('delReceiptModal',event)">
+<div class="modal-bg" id="delReceiptModal" data-modal-backdrop="delReceiptModal">
   <div class="modal" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис приходу?</h3>
     <p id="delReceiptItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('delReceiptModal')">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="confirmDeleteReceipt()"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delReceiptModal">Скасувати</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- EDIT RECEIPT MODAL -->
-<div class="modal-bg" id="editReceiptModal" onclick="closeModal('editReceiptModal',event)">
+<div class="modal-bg" id="editReceiptModal" data-modal-backdrop="editReceiptModal">
   <div class="modal" style="width:400px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати прихід</h3>
     <p id="editReceiptItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
@@ -937,82 +937,82 @@ async function checkPin(attempt){
     </div>
     <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('editReceiptModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmEditReceipt()"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editReceiptModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" onclick="closeLightbox()">
-  <button id="lbDelBtn" onclick="deleteLightboxPhoto(event)" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
-  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" onclick="event.stopPropagation()">
+<div id="lightbox" data-lightbox-close>
+  <button id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" data-lightbox-stop>
 </div>
 
 <!-- BARCODE ADD MODAL -->
-<div class="modal-bg" id="barcodeAddModal" onclick="closeModal('barcodeAddModal',event)">
+<div class="modal-bg" id="barcodeAddModal" data-modal-backdrop="barcodeAddModal">
   <div class="modal">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="barcodeAddReader"></div>
     <div id="barcodeAddScanning" style="text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;">Наведіть камеру на штрих-код товару</div>
     <div class="barcode-not-found" id="barcodeNotFound">
       <span class="ms" style="font-size:15px;vertical-align:-3px;">warning</span> Товар не знайдено в базі.
-      <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" onclick="searchInGoogle()"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
-      <button class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" onclick="resetBarcodeScanner()"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
+      <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" data-sklad-action="barcode-google"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
+      <button class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" data-sklad-action="barcode-reset"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
     </div>
     <!-- Ручне введення -->
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);">
       <div style="font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:500;"><span class="ms" style="font-size:14px;vertical-align:-2px;">edit</span> Або введіть штрих-код вручну</div>
       <div style="display:flex;gap:8px;">
         <input type="number" id="manualBarcodeI" class="inp" placeholder="4820000000000" style="flex:1;font-size:15px;">
-        <button class="btn btn-primary btn-sm" onclick="searchManualBarcode()" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
+        <button class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
       </div>
     </div>
     <div style="margin-top:12px;">
-      <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="stopBarcodeAdd();closeModal('barcodeAddModal')">Закрити</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;" data-sklad-action="barcode-add-close">Закрити</button>
     </div>
   </div>
 </div>
 
 <!-- QR SCANNER MODAL -->
-<div class="modal-bg" id="qrModal" onclick="closeModal('qrModal',event)">
+<div class="modal-bg" id="qrModal" data-modal-backdrop="qrModal">
   <div class="modal">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="qrReader"></div>
     <div class="qr-result" id="qrResult"></div>
     <p style="font-size:12px;color:#a5b4fc;margin-top:10px;text-align:center;">Наведіть камеру на штрих-код або QR-код товару</p>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="stopQR();closeModal('qrModal')">Закрити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-sklad-action="qr-close">Закрити</button>
     </div>
   </div>
 </div>
 
 <!-- HISTORY MODAL -->
-<div class="modal-bg" id="histModal" onclick="closeModal('histModal',event)">
+<div class="modal-bg" id="histModal" data-modal-backdrop="histModal">
   <div class="modal">
     <h3 id="histTitle" style="font-size:15px;font-weight:800;color:var(--ios-label);margin-bottom:4px;"></h3>
     <p id="histSubtitle" style="font-size:12px;color:#a5b4fc;margin-bottom:16px;"></p>
     <div id="histList"></div>
-    <button class="btn btn-ghost btn-sm" style="margin-top:14px;" onclick="closeModal('histModal')">Закрити</button>
+    <button class="btn btn-ghost btn-sm" style="margin-top:14px;" data-modal-close="histModal">Закрити</button>
   </div>
 </div>
 
 <!-- CHART MODAL -->
-<div class="modal-bg" id="priceModal" onclick="closeModal('priceModal',event)">
+<div class="modal-bg" id="priceModal" data-modal-backdrop="priceModal">
   <div class="modal" style="max-width:560px;">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">travel_explore</span> Підтягнути ціни з інтернету</h3>
     <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
       <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
-      <button class="btn btn-primary" onclick="fetchItemPrice()" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
+      <button class="btn btn-primary" data-sklad-action="price-fetch" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
     </div>
     <div id="priceResults" style="min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);">Оберіть товар і натисніть “Знайти”.</div>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('priceModal')">Закрити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="priceModal">Закрити</button>
     </div>
   </div>
 </div>
 
-<div class="modal-bg" id="manualPriceModal" onclick="closeModal('manualPriceModal',event)">
+<div class="modal-bg" id="manualPriceModal" data-modal-backdrop="manualPriceModal">
   <div class="modal" style="max-width:460px;">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Ручна ціна</h3>
     <div style="display:flex;flex-direction:column;gap:10px;">
@@ -1021,17 +1021,17 @@ async function checkPin(attempt){
       <div><label>Джерело / посилання <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
     </div>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('manualPriceModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="saveManualPrice()"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="manualPriceModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="manual-price-save"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
-<div class="modal-bg" id="chartModal" onclick="closeModal('chartModal',event)">
+<div class="modal-bg" id="chartModal" data-modal-backdrop="chartModal">
   <div class="modal">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:16px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">bar_chart</span> Залишки по категоріях</h3>
     <canvas id="stockChart"></canvas>
-    <button class="btn btn-ghost btn-sm" style="margin-top:16px;" onclick="closeModal('chartModal')">Закрити</button>
+    <button class="btn btn-ghost btn-sm" style="margin-top:16px;" data-modal-close="chartModal">Закрити</button>
   </div>
 </div>
 
@@ -1542,10 +1542,27 @@ function bindSkladStaticControls(){
     'audit-fill-zeros':auditFillZeros,
     'audit-fill-current':auditFillCurrent,
     'audit-confirm-open':openAuditConfirm,
+    'quick-issue-submit':(button)=>doQuickIssue(button),
+    'photo-file-select':()=>document.getElementById('photoFileI').click(),
+    'photo-delete':deletePhoto,
+    'delete-confirm':confirmDelete,
+    'audit-confirm-save':confirmAudit,
+    'delete-log-confirm':confirmDeleteLog,
+    'edit-log-confirm':confirmEditLog,
+    'delete-receipt-confirm':confirmDeleteReceipt,
+    'edit-receipt-confirm':confirmEditReceipt,
+    'barcode-google':searchInGoogle,
+    'barcode-reset':resetBarcodeScanner,
+    'barcode-manual-search':searchManualBarcode,
+    'barcode-add-close':()=>{stopBarcodeAdd();closeModal('barcodeAddModal');},
+    'qr-close':()=>{stopQR();closeModal('qrModal');},
+    'price-fetch':fetchItemPrice,
+    'manual-price-save':saveManualPrice,
+    'lightbox-delete-photo':(button,event)=>deleteLightboxPhoto(event),
   };
   document.querySelectorAll('[data-sklad-action]').forEach(button=>{
     const handler=actionHandlers[button.dataset.skladAction];
-    if(handler) button.addEventListener('click',()=>handler(button));
+    if(handler) button.addEventListener('click',(event)=>handler(button,event));
   });
   const filterHandlers={
     'in-stock':toggleInStock,
@@ -1554,7 +1571,7 @@ function bindSkladStaticControls(){
   };
   document.querySelectorAll('[data-filter-toggle]').forEach(button=>{
     const handler=filterHandlers[button.dataset.filterToggle];
-    if(handler) button.addEventListener('click',()=>handler(button));
+    if(handler) button.addEventListener('click',(event)=>handler(button,event));
   });
   document.querySelectorAll('[data-category-filter]').forEach(button=>{
     button.addEventListener('click',()=>filterCat(button,button.dataset.categoryFilter));
@@ -1573,6 +1590,19 @@ function bindSkladStaticControls(){
   document.querySelector('[data-issue-select]')?.addEventListener('change',onIssueSel);
   document.querySelector('[data-refill-select]')?.addEventListener('change',onRefillSel);
   document.querySelectorAll('[data-stats-filter]').forEach(select=>select.addEventListener('change',renderStats));
+  document.querySelector('[data-photo-file]')?.addEventListener('change',uploadPhoto);
+  document.querySelectorAll('[data-modal-backdrop]').forEach(backdrop=>{
+    backdrop.addEventListener('click',(event)=>closeModal(backdrop.dataset.modalBackdrop,event));
+  });
+  document.querySelectorAll('[data-modal-close]').forEach(button=>{
+    button.addEventListener('click',()=>closeModal(button.dataset.modalClose));
+  });
+  document.querySelector('[data-delete-pin-cancel]')?.addEventListener('click',delPinModalCancel);
+  document.querySelectorAll('[data-delete-pin-key]').forEach(button=>{
+    button.addEventListener('click',()=>deletePinPress(button.dataset.deletePinKey));
+  });
+  document.querySelector('[data-lightbox-close]')?.addEventListener('click',closeLightbox);
+  document.querySelector('[data-lightbox-stop]')?.addEventListener('click',(event)=>event.stopPropagation());
 }
 
 function handleItemActionClick(event){
