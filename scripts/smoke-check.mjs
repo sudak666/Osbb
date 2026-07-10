@@ -101,6 +101,21 @@ for (const [file, needle, label] of checks) {
 }
 
 
+
+// Shell controls should be wired with event listeners rather than inline onclick
+// attributes so markup stays separate from behavior and CSP hardening remains possible.
+{
+  const text = readFileSync('index.html', 'utf8');
+  const label = 'shell controls avoid inline onclick handlers';
+  if (/<(?:button|a)[^>]+onclick=/.test(text)) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Regression guard: the Sklad issue log must not reference variables that are
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).
