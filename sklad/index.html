@@ -669,6 +669,7 @@ async function checkPin(attempt){
         <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" placeholder="Пошук товару..." oninput="renderAuditList()"></div>
         <div id="auditResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
         <div id="auditStats" style="font-size:12px;color:var(--ios-gray);"></div>
+        <div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width:180px;margin-top:0;"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div>
       </div>
     </div>
 
@@ -1108,6 +1109,11 @@ function renderAuditList(){
   });
   document.getElementById('auditStats').textContent=
     `Перераховано: ${counted}/${allItems.length} · ▲ Надлишок: ${surplus} · ▼ Нестача: ${shortage}`;
+  const progress=Math.round((counted/Math.max(allItems.length,1))*100);
+  const progressFill=document.getElementById('auditProgressFill');
+  const progressWrap=document.getElementById('auditProgress');
+  if(progressFill) progressFill.style.width=progress+'%';
+  if(progressWrap) progressWrap.setAttribute('aria-valuenow',String(progress));
 
   const list=document.getElementById('auditList');
   if(!items.length){list.innerHTML='<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div>';return;}
