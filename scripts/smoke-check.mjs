@@ -199,6 +199,41 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Sklad item rows/cards should use delegated data-item-action controls instead of
+// embedding per-row inline handlers for every rendered item action.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function handleItemActionClick');
+  const end = text.indexOf('function updateStats()');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad item actions use delegated data attributes';
+  const forbidden = [
+    'onclick="openQuick',
+    'onclick="openHistory',
+    'onclick="openPhotoModal',
+    'onclick="toggleInternal',
+    'onclick="openItemPriceLookup',
+    'onclick="openDelete(${id}',
+  ];
+  const required = [
+    'function bindItemActionDelegation',
+    'data-item-action="quick"',
+    'data-item-action="history"',
+    'data-item-action="price-lookup"',
+    'data-item-action="delete"',
+  ];
+  const hasForbidden = forbidden.some(needle => body.includes(needle));
+  const missing = required.filter(needle => !body.includes(needle));
+  if (!body || hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // sklad refreshAll() must reload every top-level collection it shows (items,
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.
