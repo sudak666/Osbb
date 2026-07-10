@@ -101,6 +101,52 @@ for (const [file, needle, label] of checks) {
 }
 
 
+
+// Shell controls should be wired with event listeners rather than inline onclick
+// attributes so markup stays separate from behavior and CSP hardening remains possible.
+{
+  const text = readFileSync('index.html', 'utf8');
+  const label = 'shell controls avoid inline onclick handlers';
+  if (/<(?:button|a)[^>]+onclick=/.test(text)) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// OSBB static controls should also avoid inline event attributes. Dynamic rows still
+// have legacy inline handlers, but the PIN/key navigation controls are now bound centrally.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal static controls use centralized event bindings';
+  const forbidden = [
+    "lockPress('",
+    "pinModalPress('",
+    "onclick=\"setTab('",
+    'onchange="changeTheme',
+    'onchange="initCalendar',
+  ];
+  const required = [
+    'function bindOsbbStaticControls',
+    'data-lock-digit="0"',
+    'data-pin-modal-digit="0"',
+    'data-osbb-tab="journal"',
+    'data-calendar-select',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Regression guard: the Sklad issue log must not reference variables that are
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).
@@ -150,6 +196,41 @@ for (const [file, needle, label] of checks) {
   } else {
     failed += 1;
     console.error(`not ok - ${label}`);
+  }
+}
+
+
+// Sklad item rows/cards should use delegated data-item-action controls instead of
+// embedding per-row inline handlers for every rendered item action.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const start = text.indexOf('function handleItemActionClick');
+  const end = text.indexOf('function updateStats()');
+  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const label = 'sklad item actions use delegated data attributes';
+  const forbidden = [
+    'onclick="openQuick',
+    'onclick="openHistory',
+    'onclick="openPhotoModal',
+    'onclick="toggleInternal',
+    'onclick="openItemPriceLookup',
+    'onclick="openDelete(${id}',
+  ];
+  const required = [
+    'function bindItemActionDelegation',
+    'data-item-action="quick"',
+    'data-item-action="history"',
+    'data-item-action="price-lookup"',
+    'data-item-action="delete"',
+  ];
+  const hasForbidden = forbidden.some(needle => body.includes(needle));
+  const missing = required.filter(needle => !body.includes(needle));
+  if (!body || hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
   }
 }
 
