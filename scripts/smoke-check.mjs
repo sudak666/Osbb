@@ -190,6 +190,42 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Journal day cards/table rows should use data hooks for role tasks, shifts,
+// ticket counts, comments and photo uploads instead of inline event attributes.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal day entries use delegated data bindings';
+  const forbidden = [
+    'onclick="if(!${disabled}) toggleTask',
+    'onchange="toggleShift',
+    'oninput="updateTicketCount',
+    'onchange="Array.from(this.files).forEach(f=>uploadPhoto',
+    'oninput="updateComment',
+    'oninput="updateOtherTask',
+    'onclick="toggleOtherExpand',
+  ];
+  const required = [
+    'function bindJournalEntryActions',
+    'data-journal-action="task-toggle"',
+    'data-journal-action="shift-toggle"',
+    'data-journal-action="ticket-count"',
+    'data-journal-action="photo-upload"',
+    'data-journal-action="photo-upload-mobile"',
+    'data-journal-action="day-comment"',
+    'data-journal-action="other-task"',
+    'data-journal-action="other-expand"',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Regression guard: the Sklad issue log must not reference variables that are
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).

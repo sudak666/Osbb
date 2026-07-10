@@ -1333,7 +1333,7 @@
                     const isChecked = state.tasks?.[task.id];
                     const disabled = !state.working;
                     return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
-                        <span onclick="if(!${disabled}) toggleTask(${d},'${role}','${task.id}',{target:{checked:${!isChecked}}})"
+                        <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
                             style="width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
                         </span>
                         <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
@@ -1344,7 +1344,7 @@
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-xs font-bold ${accentColors[role]}">${roleNames[role]}</span>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} onchange="toggleShift(${d},'${role}',event)">
+                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}">
                             <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor}"></div>
                         </label>
                     </div>
@@ -1352,17 +1352,17 @@
                         ${tasksHtml}
                         <div class="flex items-center gap-2 mt-1.5">
                             <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                            <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
+                            <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
                         ${renderOtherField(d, role, state, 'm')}
                         ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
                             <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
                                 Камера
-                                <input type="file" accept="image/*" capture="environment" class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhotoMobile(${d},'${role}',f))">
+                                <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}">
                             </label>
                             <label class="cursor-pointer text-xs text-purple-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-purple-200 bg-purple-50 active:bg-purple-100">
                                 Галерея
-                                <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhotoMobile(${d},'${role}',f))">
+                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}">
                             </label>
                         </div>
                         <div id="mobile-photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
@@ -1372,7 +1372,7 @@
 
             bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
                 <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
-                <textarea rows="4" oninput="updateComment(${d},this.value)" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
+                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
             </div>`;
 
             body.innerHTML = bodyHtml;
@@ -1482,7 +1482,7 @@
                     const isChecked = state.tasks && state.tasks[task.id];
                     const disabled = !state.working;
                     checkBoxesHtml += `<label class="flex items-center gap-2 text-sm cursor-pointer select-none mt-1.5 ${disabled?'pointer-events-none opacity-40':''}">
-                        <span onclick="if(!${disabled}) toggleTask(${d},'${role}','${task.id}',{target:{checked:${!isChecked}}})"
+                        <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
                             style="width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
                         </span>
                         <span class="${isChecked?'font-semibold text-[var(--text-main)]':'text-[var(--text-sub)]'}">${task.label}</span>
@@ -1496,7 +1496,7 @@
                         <div class="flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 no-print">
                             <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'НА ЗМІНІ':'ВИХІДНИЙ'}</span>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} onchange="toggleShift(${d},'${role}',event)">
+                                <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}">
                                 <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div>
                             </label>
                         </div>
@@ -1504,12 +1504,12 @@
                             ${checkBoxesHtml}
                             <div class="flex items-center gap-2 mt-1.5">
                                 <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                                <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} oninput="updateTicketCount(${d},'${role}',this.value)" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
+                                <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
                             </div>
                             ${renderOtherField(d, role, state, 'd')}
                             ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Фото
-                                <input type="file" accept="image/*" multiple class="hidden" onchange="Array.from(this.files).forEach(f=>uploadPhoto(${d},'${role}',f))">
+                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload" data-day="${d}" data-role="${role}">
                             </label>
                             <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
                         </div>
@@ -1522,7 +1522,7 @@
             });
 
             rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top no-print">
-                <textarea rows="4" oninput="updateComment(${d},this.value)" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
+                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
             </td>`;
 
             trBody.innerHTML = `<td class="border-r border-[var(--border)]"></td>` + rolesTd;
@@ -1579,8 +1579,8 @@
         const needsToggle = val.length > 60 || (val.match(/\n/g) || []).length >= 2;
         const id = `other-${prefix}-${d}-${role}`;
         const extraClass = prefix === 'd' ? 'focus:ring-1 focus:ring-emerald-300 mt-1' : 'mt-1.5';
-        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} oninput="updateOtherTask(${d},'${role}',this.value)" placeholder="Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-none leading-relaxed ${extraClass}">${escaped}</textarea>
-            ${needsToggle ? `<button type="button" onclick="toggleOtherExpand('${id}', this)" class="no-print text-[10px] font-semibold text-emerald-600 hover:underline mt-0.5">Показати все ▾</button>` : ''}`;
+        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} data-journal-action="other-task" data-day="${d}" data-role="${role}" placeholder="Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-none leading-relaxed ${extraClass}">${escaped}</textarea>
+            ${needsToggle ? `<button type="button" data-journal-action="other-expand" data-other-target="${id}" class="no-print text-[10px] font-semibold text-emerald-600 hover:underline mt-0.5">Показати все ▾</button>` : ''}`;
     }
 
     function toggleOtherExpand(id, btn) {
@@ -1775,9 +1775,53 @@
         });
     }
 
+    function bindJournalEntryActions() {
+        ['mobile-cards', 'calendar-body'].forEach((id) => {
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.addEventListener('click', (event) => {
+                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"]');
+                if (!trigger) return;
+                if (trigger.dataset.journalAction === 'task-toggle') {
+                    event.preventDefault();
+                    toggleTask(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.taskId, event);
+                }
+                if (trigger.dataset.journalAction === 'other-expand') {
+                    event.preventDefault();
+                    toggleOtherExpand(trigger.dataset.otherTarget, trigger);
+                }
+            });
+            container.addEventListener('change', (event) => {
+                const field = event.target.closest('[data-journal-action]');
+                if (!field) return;
+                const day = Number(field.dataset.day);
+                const role = field.dataset.role;
+                if (field.dataset.journalAction === 'shift-toggle') toggleShift(day, role, event);
+                if (field.dataset.journalAction === 'photo-upload') {
+                    Array.from(field.files || []).forEach((file) => uploadPhoto(day, role, file));
+                    field.value = '';
+                }
+                if (field.dataset.journalAction === 'photo-upload-mobile') {
+                    Array.from(field.files || []).forEach((file) => uploadPhotoMobile(day, role, file));
+                    field.value = '';
+                }
+            });
+            container.addEventListener('input', (event) => {
+                const field = event.target.closest('[data-journal-action]');
+                if (!field) return;
+                const day = Number(field.dataset.day);
+                const role = field.dataset.role;
+                if (field.dataset.journalAction === 'ticket-count') updateTicketCount(day, role, field.value);
+                if (field.dataset.journalAction === 'other-task') updateOtherTask(day, role, field.value);
+                if (field.dataset.journalAction === 'day-comment') updateComment(day, field.value);
+            });
+        });
+    }
+
     bindOsbbStaticControls();
     bindOsbbPhotoActions();
     bindOsbbChatActions();
+    bindJournalEntryActions();
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     document.getElementById('theme-select').value = savedTheme;
@@ -2738,4 +2782,3 @@
     document.head.appendChild(styleEl);
 
 </script>
-
