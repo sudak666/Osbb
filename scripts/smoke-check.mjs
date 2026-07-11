@@ -701,6 +701,31 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// On mobile, the price lookup modal can produce long result lists. Keep it
+// scrollable and keep the close action sticky, while using solid light cards for
+// cleaner contrast in the item list.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad mobile price modal is scrollable and closeable';
+  const required = [
+    '#priceModal .modal{display:flex',
+    '#priceResults{max-height:52dvh',
+    '.price-modal-actions{position:sticky',
+    'class="price-search-row"',
+    'class="price-modal-actions"',
+    '.theme-light .m-card{background:#fff',
+    '.theme-light .m-card .btn-ghost',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Photo URLs are stored in Supabase/user-controlled records. Renderers should
 // pass them through the same http(s)-only URL sanitizer before writing src/data
 // attributes or lightbox lists.
