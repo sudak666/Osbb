@@ -240,6 +240,21 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Avoid direct event handler property assignment as well; use addEventListener
+// so all pages follow the same centralized binding style.
+{
+  const label = 'app scripts avoid direct event handler property assignments';
+  const directHandlerAssignment = /\.(?:onclick|oninput|onchange|onblur|onfocus|onkeydown)\s*=/;
+  const offenders = ['index.html', 'osbb/index.html', 'sklad/index.html'].filter(file => directHandlerAssignment.test(readFileSync(file, 'utf8')));
+  if (offenders.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${offenders.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // OSBB garbage/dispatcher dynamic lists should also rely on delegated data
 // hooks now that journal day entries have been centralized.
 {

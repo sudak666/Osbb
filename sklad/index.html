@@ -2942,8 +2942,8 @@ function enhanceSelect(select){
         closePanel();
         btn.focus();
       };
-      item.onclick=choose;
-      item.onkeydown=(e)=>{
+      item.addEventListener('click',choose);
+      item.addEventListener('keydown',(e)=>{
         if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}
         else if(e.key==='Escape'){closePanel();btn.focus();}
         else if(e.key==='ArrowDown'){e.preventDefault();(item.nextElementSibling||panel.querySelector('.custom-select-option'))?.focus();}
@@ -2953,7 +2953,7 @@ function enhanceSelect(select){
           if(prev&&prev.classList.contains('custom-select-option')) prev.focus();
           else panel.querySelector('input[type="search"]')?.focus();
         }
-      };
+      });
       panel.appendChild(item);
     });
     if(searchable && !visibleOptions.some(o=>o.value)){
