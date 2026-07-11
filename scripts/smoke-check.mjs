@@ -226,6 +226,57 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// All app HTML should now avoid inline event attributes for CSP readiness.
+{
+  const label = 'app pages avoid inline HTML event attributes';
+  const inlineEventAttr = /<[^>]+\s(?:onclick|oninput|onchange|onblur|onfocus|onkeydown)=/;
+  const offenders = ['index.html', 'osbb/index.html', 'sklad/index.html'].filter(file => inlineEventAttr.test(readFileSync(file, 'utf8')));
+  if (offenders.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${offenders.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// OSBB garbage/dispatcher dynamic lists should also rely on delegated data
+// hooks now that journal day entries have been centralized.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal garbage and dispatcher lists use delegated data bindings';
+  const forbidden = [
+    'onclick="gToggleDay',
+    'onchange="gUpdateRow',
+    'onchange="gUpdateType',
+    'onchange="dispToggleShift',
+    'onclick="dispToggleTask',
+    'oninput="dispUpdate',
+    'header.onclick =',
+  ];
+  const required = [
+    'function bindGarbageEntryActions',
+    'function bindDispatcherEntryActions',
+    'data-g-action="toggle-day"',
+    'data-g-action="row-update"',
+    'data-g-action="type-toggle"',
+    'data-g-action="type-count"',
+    'data-disp-action="toggle-day"',
+    'data-disp-action="shift-toggle"',
+    'data-disp-action="task-toggle"',
+    'data-disp-action="field-update"',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Regression guard: the Sklad issue log must not reference variables that are
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).
