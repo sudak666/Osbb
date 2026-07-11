@@ -1772,7 +1772,7 @@ function renderItems(){
     const name=escapeHtml(item.name||'');
     const category=escapeHtml(item.category||'—');
     const unit=escapeHtml(item.unit||'');
-    const safePhoto=item.photo_url?escapeHtml(item.photo_url):'';
+    const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
     const photoCell=safePhoto
       ? `<img src="${safePhoto}" class="photo-thumb tip-up" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}" data-tip="Переглянути" alt="Фото товару ${name}">`
       : `<div class="photo-ph tip-up" data-item-action="photo" data-item-id="${id}" data-tip="Додати фото" role="button" tabindex="0" aria-label="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
@@ -1804,7 +1804,7 @@ function renderItems(){
     const name=escapeHtml(item.name||'');
     const category=escapeHtml(item.category||'—');
     const unit=escapeHtml(item.unit||'');
-    const safePhoto=item.photo_url?escapeHtml(item.photo_url):'';
+    const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
     const photo=safePhoto
       ? `<img src="${safePhoto}" alt="Фото товару ${name}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}">`
       : '';
@@ -2417,8 +2417,8 @@ function openPhotoModal(id){
   document.getElementById('photoFileI').value='';
   const cur=document.getElementById('photoCurrent');
   const delBtn=document.getElementById('delPhotoBtn');
-  if(item.photo_url){
-    const safePhoto=escapeHtml(item.photo_url);
+  const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
+  if(safePhoto){
     cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
     delBtn.style.display='inline-flex';
   } else {

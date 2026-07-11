@@ -1206,11 +1206,35 @@
     }
 
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
-        container.innerHTML = photos.map(p => `
+        container.innerHTML = photos.map(p => {
+            const safeUrl = safeExternalUrl(p.url);
+            if (!safeUrl) return '';
+            return `
             <div class="relative group">
-                <img src="${escapeAttr(p.url)}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${escapeAttr(p.url)}" data-tip="Натисни для збільшення">
-                <button data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${escapeAttr(p.url)}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-            </div>`).join('');
+                <img src="${safeUrl}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
+                <button data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>`;
+        }).join('');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    function escapeAttr(value) {
+        return escapeHtml(value);
+    }
+
+    function safeExternalUrl(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        try {
+            const url = new URL(raw, location.href);
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+            return escapeAttr(url.href);
+        } catch (_) {
+            return '';
+        }
     }
 
     function escapeHtml(value) {
@@ -1227,7 +1251,7 @@
     function buildLightboxPhotos() {
         lightboxPhotos = [];
         if (!photosCache) return;
-        Object.values(photosCache).forEach(arr => arr.forEach(p => lightboxPhotos.push(p.url)));
+        Object.values(photosCache).forEach(arr => arr.forEach(p => { const safeUrl = safeExternalUrl(p.url); if (safeUrl) lightboxPhotos.push(safeUrl); }));
     }
 
     // Запобігаємо виходу лайтбоксу за межі наявних картинок

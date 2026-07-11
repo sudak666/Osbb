@@ -584,6 +584,39 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Photo URLs are stored in Supabase/user-controlled records. Renderers should
+// pass them through the same http(s)-only URL sanitizer before writing src/data
+// attributes or lightbox lists.
+{
+  const osbb = readFileSync('osbb/index.html', 'utf8');
+  const sklad = readFileSync('sklad/index.html', 'utf8');
+  const label = 'photo renderers sanitize image URLs';
+  const required = [
+    [osbb, 'const safeUrl = safeExternalUrl(p.url);'],
+    [osbb, 'if (!safeUrl) return \'\';'],
+    [osbb, 'data-photo-url="${safeUrl}"'],
+    [osbb, 'if (safeUrl) lightboxPhotos.push(safeUrl);'],
+    [sklad, 'const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):\'\';'],
+    [sklad, 'data-photo-url="${safePhoto}"'],
+  ];
+  const forbidden = [
+    [osbb, 'src="${escapeAttr(p.url)}"'],
+    [osbb, 'data-photo-url="${escapeAttr(p.url)}"'],
+    [osbb, 'lightboxPhotos.push(p.url)'],
+    [sklad, 'const safePhoto=item.photo_url?escapeHtml(item.photo_url):\'\';'],
+    [sklad, 'const safePhoto=escapeHtml(item.photo_url);'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  const hasForbidden = forbidden.some(([text, needle]) => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad dynamic renderers should not emit inline event attributes. Delegated
 // data hooks keep generated markup safer when item names/URLs contain quotes and
 // make refreshed lists keep the same behavior without rebinding every row.
