@@ -557,6 +557,33 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Price search links come from an Edge Function response. Only http(s) URLs
+// should be rendered into href/data-url values.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad price result links are URL-sanitized';
+  const required = [
+    'function safeExternalUrl',
+    'const safeLink=safeExternalUrl(r.link);',
+    'href="${safeLink}"',
+    'data-url="${safeLink}"',
+    "url.protocol!=='http:'&&url.protocol!=='https:'",
+  ];
+  const forbidden = [
+    'href="${escapeHtml(r.link)}"',
+    'data-url="${escapeHtml(String(r.link||',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad dynamic renderers should not emit inline event attributes. Delegated
 // data hooks keep generated markup safer when item names/URLs contain quotes and
 // make refreshed lists keep the same behavior without rebinding every row.

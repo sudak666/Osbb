@@ -2708,16 +2708,19 @@ async function fetchItemPrice(){
     if(!res.ok) throw new Error(data.error||'Помилка пошуку');
     const results=data.results||[];
     if(!results.length){box.innerHTML='<div class="empty" style="padding:18px;">Ціну не знайдено. Спробуйте ручне введення.</div>';return;}
-    box.innerHTML=results.slice(0,5).map((r,idx)=>`<div style="padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;">
+    box.innerHTML=results.slice(0,5).map((r,idx)=>{
+      const safeLink=safeExternalUrl(r.link);
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;color:var(--ios-label);font-size:13px;line-height:1.35;">${escapeHtml(r.title||'Товар')}</div>
-        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${r.link?`<a href="${escapeHtml(r.link)}" target="_blank" rel="noopener" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
+        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${safeLink?`<a href="${safeLink}" target="_blank" rel="noopener" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(r.price)}</div>
-        <button class="btn btn-primary btn-sm" style="margin-top:6px;" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${escapeHtml(String(r.link||''))}">Взяти</button>
+        <button class="btn btn-primary btn-sm" style="margin-top:6px;" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${safeLink}">Взяти</button>
       </div>
-    </div>`).join('');
+    </div>`;
+    }).join('');
   }catch(e){
     box.innerHTML=`<div style="color:var(--ios-red);font-size:13px;line-height:1.5;">${escapeHtml(e.message||String(e))}<br><small>Перевірте деплой Edge Function fetch-item-prices і секрет SERPAPI_KEY / SHOPAPIS_KEY у базі Складу.</small></div>`;
   }
@@ -3074,6 +3077,17 @@ async function deletePinPress(k) {
 let toastT;
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeExternalUrl(value){
+  const raw=String(value||'').trim();
+  if(!raw) return '';
+  try{
+    const url=new URL(raw,location.href);
+    if(url.protocol!=='http:'&&url.protocol!=='https:') return '';
+    return escapeHtml(url.href);
+  }catch(_){
+    return '';
+  }
 }
 function jsString(s){
   return JSON.stringify(String(s ?? ''));
