@@ -1372,7 +1372,7 @@
 
             bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
                 <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
-                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
+                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
             </div>`;
 
             body.innerHTML = bodyHtml;
@@ -1522,7 +1522,7 @@
             });
 
             rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top no-print">
-                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${(currentMonthData[d].comment||'').replace(/</g,'&lt;')}</textarea>
+                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
             </td>`;
 
             trBody.innerHTML = `<td class="border-r border-[var(--border)]"></td>` + rolesTd;
@@ -1575,7 +1575,7 @@
 
     function renderOtherField(d, role, state, prefix) {
         const val = state.other || '';
-        const escaped = val.replace(/</g, '&lt;');
+        const escaped = escapeHtml(val);
         const needsToggle = val.length > 60 || (val.match(/\n/g) || []).length >= 2;
         const id = `other-${prefix}-${d}-${role}`;
         const extraClass = prefix === 'd' ? 'focus:ring-1 focus:ring-emerald-300 mt-1' : 'mt-1.5';
@@ -2572,7 +2572,7 @@
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар / події дня:</div>
                             <textarea rows="4" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment"
                                 placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
-                                class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed">${(row.comment||'').replace(/</g,'&lt;')}</textarea>
+                                class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed">${escapeHtml(row.comment||'')}</textarea>
                         </div>
                     </div>
                 </div>
@@ -2650,8 +2650,8 @@
         container.innerHTML = chatMessages.map(msg => {
             const d = new Date(msg.created_at);
             const time = d.toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-            const authorEscaped = (msg.author || 'Анонім').replace(/</g, '&lt;');
-            const initials = (msg.author || '?').slice(0,2).toUpperCase().replace(/</g, '&lt;');
+            const authorEscaped = escapeHtml(msg.author || 'Анонім');
+            const initials = escapeHtml((msg.author || '?').slice(0,2).toUpperCase());
             const colors = ['bg-emerald-500','bg-blue-500','bg-purple-500','bg-amber-500','bg-red-500','bg-teal-500'];
             const color = colors[Math.abs((msg.author||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
             const isMine = myName && msg.author === myName;
@@ -2666,7 +2666,7 @@
                         <span class="text-[10px] text-[var(--text-sub)]">${time}</span>
                         ${deleteBtn}
                     </div>
-                    <div class="text-sm rounded-2xl px-3 py-2 break-words max-w-xs ${isMine?'bg-emerald-500 text-white rounded-tr-sm':'bg-[var(--bg-input)] rounded-tl-sm'}">${msg.text.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
+                    <div class="text-sm rounded-2xl px-3 py-2 break-words max-w-xs ${isMine?'bg-emerald-500 text-white rounded-tr-sm':'bg-[var(--bg-input)] rounded-tl-sm'}">${escapeHtml(msg.text || '').replace(/\n/g,'<br>')}</div>
                 </div>
             </div>`;
         }).join('');

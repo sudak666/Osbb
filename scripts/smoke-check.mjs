@@ -292,6 +292,34 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// OSBB text escaping should use the shared escapeHtml helper rather than ad-hoc
+// `<` replacement so ampersands/quotes are handled consistently in renderers.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal renderers use shared escapeHtml helper';
+  const forbidden = [
+    "replace(/</g,'&lt;')",
+    "replace(/</g, '&lt;')",
+  ];
+  const required = [
+    'function escapeHtml',
+    "const escaped = escapeHtml(val);",
+    "const authorEscaped = escapeHtml(msg.author || 'Анонім');",
+    "escapeHtml(msg.text || '').replace(/\\n/g,'<br>')",
+    "${escapeHtml(currentMonthData[d].comment||'')}",
+    "${escapeHtml(row.comment||'')}",
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Regression guard: the Sklad issue log must not reference variables that are
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).
