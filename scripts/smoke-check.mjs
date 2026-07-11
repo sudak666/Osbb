@@ -116,6 +116,37 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Shell PIN sessions should not live forever in sessionStorage. The shell now
+// records when auth was granted, validates the timestamp before unlock, and
+// clears both keys when the session is stale or explicitly locked.
+{
+  const text = readFileSync('index.html', 'utf8');
+  const label = 'shell auth session has TTL';
+  const required = [
+    'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
+    "sessionStorage.setItem('auth_at', String(Date.now()))",
+    'function isAuthSessionValid',
+    'Date.now() - authAt >= AUTH_TTL_MS',
+    'clearAuthSession();',
+    'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
+    'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
+    'if (isAuthSessionValid()) {',
+  ];
+  const forbidden = [
+    'function setAuthSession() {\n        setAuthSession();',
+    'function clearAuthSession() {\n        clearAuthSession();',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 
 // OSBB static controls should also avoid inline event attributes. Dynamic rows still
 // have legacy inline handlers, but the PIN/key navigation controls are now bound centrally.

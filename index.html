@@ -218,9 +218,15 @@
 <script>
     // Ховаємо екран блокування якнайшвидше, щоб при поверненні в межах уже
     // авторизованої сесії він не встигав промайнути, поки парситься решта сторінки.
-    if (sessionStorage.getItem('auth') === 'ok') {
+    const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+    const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
+    const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
+    if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
         const earlyLockScreen = document.getElementById('app-lock-screen');
         if (earlyLockScreen) earlyLockScreen.style.display = 'none';
+    } else if (sessionStorage.getItem('auth') === 'ok') {
+        sessionStorage.removeItem('auth');
+        sessionStorage.removeItem('auth_at');
     }
 </script>
 
@@ -274,9 +280,28 @@
         return txt ? JSON.parse(txt) : null;
     }
 
+    const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
     let lockBuf = '';
     let lockBusy = false;
     let lockFails = 0;
+
+    function setAuthSession() {
+        sessionStorage.setItem('auth', 'ok');
+        sessionStorage.setItem('auth_at', String(Date.now()));
+    }
+    function clearAuthSession() {
+        sessionStorage.removeItem('auth');
+        sessionStorage.removeItem('auth_at');
+    }
+    function isAuthSessionValid() {
+        if (sessionStorage.getItem('auth') !== 'ok') return false;
+        const authAt = Number(sessionStorage.getItem('auth_at') || 0);
+        if (!authAt || Date.now() - authAt >= AUTH_TTL_MS) {
+            clearAuthSession();
+            return false;
+        }
+        return true;
+    }
 
     function unlockShell() {
         const lockScreen = document.getElementById('app-lock-screen');
@@ -320,7 +345,7 @@
             if (ok) {
                 lockFails = 0;
                 lockBusy = false;
-                sessionStorage.setItem('auth', 'ok');
+                setAuthSession();
                 resetIdleLockTimer();
                 lockBuf = '';
                 unlockShell();
@@ -365,7 +390,7 @@
     }
 
     function lockShellNow() {
-        sessionStorage.removeItem('auth');
+        clearAuthSession();
         lockBuf = '';
         lockBusy = false;
         lockUpdateDots();
@@ -380,7 +405,7 @@
     let idleLockTimer = null;
     function resetIdleLockTimer() {
         clearTimeout(idleLockTimer);
-        if (sessionStorage.getItem('auth') === 'ok') idleLockTimer = setTimeout(lockShellNow, IDLE_LOCK_MS);
+        if (isAuthSessionValid()) idleLockTimer = setTimeout(lockShellNow, IDLE_LOCK_MS);
     }
     function handleVisibilityLockTimer() {
         if (document.visibilityState === 'visible') resetIdleLockTimer();
@@ -419,7 +444,7 @@
 
     bindShellControls();
 
-    if (sessionStorage.getItem('auth') === 'ok') {
+    if (isAuthSessionValid()) {
         unlockShell();
     }
 
