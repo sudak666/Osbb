@@ -543,6 +543,37 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Sklad modal dialogs should expose dialog semantics and be opened through the
+// shared helper so keyboard focus lands inside the active modal.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad modals expose accessible dialog semantics';
+  const modalCount = (text.match(/<div class="modal"/g) || []).length;
+  const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
+  const required = [
+    'function openModal',
+    "modalBg.querySelector('[role=\"dialog\"]')?.focus",
+    "openModal('qModal')",
+    "openModal('photoModal')",
+    "openModal('delPinModal')",
+    "openModal('priceModal')",
+  ];
+  const forbidden = [
+    "document.getElementById('qModal').classList.add('open')",
+    "document.getElementById('photoModal').classList.add('open')",
+    "document.getElementById('delPinModal').classList.add('open')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (!modalCount || modalCount !== dialogCount || missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${modalCount !== dialogCount ? ` (dialogs: ${dialogCount}/${modalCount})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Price result actions can contain merchant/source/link text with apostrophes, so
 // they must not be serialized into inline JS argument lists.
 {

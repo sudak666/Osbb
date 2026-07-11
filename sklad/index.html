@@ -768,7 +768,7 @@ async function checkPin(attempt){
 
 <!-- QUICK MODAL -->
 <div class="modal-bg" id="qModal" data-modal-backdrop="qModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 id="qmName" style="font-size:15px;line-height:1.4;margin-bottom:4px;"></h3>
     <p style="font-size:13px;color:var(--ios-label3);margin-bottom:18px;">Залишок: <span id="qmQtyShow" style="font-weight:800;color:#6366f1;"></span></p>
     <div style="display:flex;flex-direction:column;gap:13px;">
@@ -784,7 +784,7 @@ async function checkPin(attempt){
 
 <!-- PHOTO MODAL -->
 <div class="modal-bg" id="photoModal" data-modal-backdrop="photoModal">
-  <div class="modal" style="width:420px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
     <h3 id="photoItemName" style="font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);"></h3>
     <div id="photoCurrent" style="margin-bottom:14px;"></div>
     <div style="border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;">
@@ -802,7 +802,7 @@ async function checkPin(attempt){
 
 <!-- DELETE MODAL -->
 <div class="modal-bg" id="delModal" data-modal-backdrop="delModal">
-  <div class="modal" style="width:380px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити товар?</h3>
     <p id="delItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
@@ -815,7 +815,7 @@ async function checkPin(attempt){
 
 <!-- PIN CONFIRM MODAL (для будь-якого видалення) -->
 <div class="modal-bg" id="delPinModal" data-delete-pin-cancel>
-  <div class="modal" style="width:320px;text-align:center;background:#1C1C1E;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:320px;text-align:center;background:#1C1C1E;">
     <h3 id="delPinTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px;">PIN для видалення</h3>
     <p style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;">Підтвердіть дію PIN-кодом</p>
     <div class="auth-dots">
@@ -844,7 +844,7 @@ async function checkPin(attempt){
 
 <!-- AUDIT CONFIRM MODAL -->
 <div class="modal-bg" id="auditModal" data-modal-backdrop="auditModal">
-  <div class="modal" style="width:420px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:6px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">check_circle</span> Завершити інвентаризацію</h3>
     <div id="auditSummary" style="background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;"></div>
     <div><label>Примітка до інвентаризації</label><input type="text" class="inp" id="auditNote" placeholder="Напр.: Планова інвентаризація червень 2026"></div>
@@ -857,7 +857,7 @@ async function checkPin(attempt){
 
 <!-- DELETE LOG MODAL -->
 <div class="modal-bg" id="delLogModal" data-modal-backdrop="delLogModal">
-  <div class="modal" style="width:380px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис видачі?</h3>
     <p id="delLogItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
@@ -870,7 +870,7 @@ async function checkPin(attempt){
 
 <!-- EDIT LOG MODAL -->
 <div class="modal-bg" id="editLogModal" data-modal-backdrop="editLogModal">
-  <div class="modal" style="width:400px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати видачу</h3>
     <p id="editLogItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
     <div style="display:flex;flex-direction:column;gap:14px;">
@@ -901,7 +901,7 @@ async function checkPin(attempt){
 
 <!-- DELETE RECEIPT MODAL -->
 <div class="modal-bg" id="delReceiptModal" data-modal-backdrop="delReceiptModal">
-  <div class="modal" style="width:380px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис приходу?</h3>
     <p id="delReceiptItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
@@ -914,7 +914,7 @@ async function checkPin(attempt){
 
 <!-- EDIT RECEIPT MODAL -->
 <div class="modal-bg" id="editReceiptModal" data-modal-backdrop="editReceiptModal">
-  <div class="modal" style="width:400px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати прихід</h3>
     <p id="editReceiptItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
     <div style="display:flex;flex-direction:column;gap:14px;">
@@ -951,7 +951,7 @@ async function checkPin(attempt){
 
 <!-- BARCODE ADD MODAL -->
 <div class="modal-bg" id="barcodeAddModal" data-modal-backdrop="barcodeAddModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="barcodeAddReader"></div>
     <div id="barcodeAddScanning" style="text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;">Наведіть камеру на штрих-код товару</div>
@@ -976,7 +976,7 @@ async function checkPin(attempt){
 
 <!-- QR SCANNER MODAL -->
 <div class="modal-bg" id="qrModal" data-modal-backdrop="qrModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="qrReader"></div>
     <div class="qr-result" id="qrResult"></div>
@@ -989,7 +989,7 @@ async function checkPin(attempt){
 
 <!-- HISTORY MODAL -->
 <div class="modal-bg" id="histModal" data-modal-backdrop="histModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 id="histTitle" style="font-size:15px;font-weight:800;color:var(--ios-label);margin-bottom:4px;"></h3>
     <p id="histSubtitle" style="font-size:12px;color:#a5b4fc;margin-bottom:16px;"></p>
     <div id="histList"></div>
@@ -999,7 +999,7 @@ async function checkPin(attempt){
 
 <!-- CHART MODAL -->
 <div class="modal-bg" id="priceModal" data-modal-backdrop="priceModal">
-  <div class="modal" style="max-width:560px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:560px;">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">travel_explore</span> Підтягнути ціни з інтернету</h3>
     <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
       <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
@@ -1013,7 +1013,7 @@ async function checkPin(attempt){
 </div>
 
 <div class="modal-bg" id="manualPriceModal" data-modal-backdrop="manualPriceModal">
-  <div class="modal" style="max-width:460px;">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:460px;">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Ручна ціна</h3>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <div><label>Товар</label><select class="inp" id="manualPriceItemSel"><option value="">— Оберіть товар —</option></select></div>
@@ -1028,7 +1028,7 @@ async function checkPin(attempt){
 </div>
 
 <div class="modal-bg" id="chartModal" data-modal-backdrop="chartModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:16px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">bar_chart</span> Залишки по категоріях</h3>
     <canvas id="stockChart"></canvas>
     <button class="btn btn-ghost btn-sm" style="margin-top:16px;" data-modal-close="chartModal">Закрити</button>
@@ -1246,7 +1246,7 @@ function openAuditConfirm(){
     </div>
     ${uncounted.length>0?`<div style="margin-top:10px;font-size:12px;color:#f59e0b;"><span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> ${uncounted.length} товарів не будуть оновлені (поле порожнє)</div>`:''}
   `;
-  document.getElementById('auditModal').classList.add('open');
+  openModal('auditModal');
 }
 
 async function confirmAudit(){
@@ -1878,7 +1878,7 @@ function openQuick(id){
   document.getElementById('qmQtyShow').textContent=item.quantity+' '+item.unit;
   document.getElementById('qmQtyI').value='';
   document.getElementById('qmPersonI').value='';
-  document.getElementById('qModal').classList.add('open');
+  openModal('qModal');
   setTimeout(()=>document.getElementById('qmQtyI').focus(),100);
 }
 async function doQuickIssue(btn){
@@ -2063,7 +2063,7 @@ function openDeleteLog(id){
   if(!l) return;
   deleteLogId=id;
   document.getElementById('delLogItemName').textContent=`${l.item_name} · ${l.quantity} ${(allItems.find(i=>i.id===l.item_id)||{}).unit||''} · ${l.issued_to||'—'}`;
-  document.getElementById('delLogModal').classList.add('open');
+  openModal('delLogModal');
 }
 async function confirmDeleteLog(){
   if(!deleteLogId) return;
@@ -2090,7 +2090,7 @@ function openEditLog(id){
   document.getElementById('editLogDate').value=dateToInputValue(l.issued_at);
   document.getElementById('editLogPerson').value=l.issued_to||'';
   document.getElementById('editLogNote').value=l.note||'';
-  document.getElementById('editLogModal').classList.add('open');
+  openModal('editLogModal');
 }
 async function confirmEditLog(){
   if(!editLogId) return;
@@ -2183,7 +2183,7 @@ function openDeleteReceipt(id){
   if(!r) return;
   deleteReceiptId=id;
   document.getElementById('delReceiptItemName').textContent=`${r.item_name} · +${r.quantity} ${(allItems.find(i=>i.id===r.item_id)||{}).unit||''} · ${r.supplier||'—'}`;
-  document.getElementById('delReceiptModal').classList.add('open');
+  openModal('delReceiptModal');
 }
 async function confirmDeleteReceipt(){
   if(!deleteReceiptId) return;
@@ -2210,7 +2210,7 @@ function openEditReceipt(id){
   document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
   document.getElementById('editReceiptSupplier').value=r.supplier||'';
   document.getElementById('editReceiptNote').value=r.note||'';
-  document.getElementById('editReceiptModal').classList.add('open');
+  openModal('editReceiptModal');
 }
 async function confirmEditReceipt(){
   if(!editReceiptId) return;
@@ -2389,7 +2389,7 @@ function openDelete(id){
   if(!item) return;
   deleteItemId=id;
   document.getElementById('delItemName').textContent='«'+item.name+'»';
-  document.getElementById('delModal').classList.add('open');
+  openModal('delModal');
 }
 async function confirmDelete(){
   if(!deleteItemId) return;
@@ -2425,7 +2425,7 @@ function openPhotoModal(id){
     cur.innerHTML='<div style="text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;">Фото ще не додано</div>';
     delBtn.style.display='none';
   }
-  document.getElementById('photoModal').classList.add('open');
+  openModal('photoModal');
 }
 async function uploadPhoto(){
   const file=document.getElementById('photoFileI').files[0];
@@ -2640,7 +2640,7 @@ function fillPriceSelects(selectedId='', searchText='') {
 function openPriceRefreshModal(id='') {
   fillPriceSelects(id);
   document.getElementById('priceResults').innerHTML='Оберіть товар і натисніть “Знайти”.';
-  document.getElementById('priceModal').classList.add('open');
+  openModal('priceModal');
 }
 function openItemPriceLookup(id){
   openPriceRefreshModal(id);
@@ -2651,7 +2651,7 @@ function openManualPriceModal(id='') {
   const item=allItems.find(i=>String(i.id)===String(id));
   document.getElementById('manualPriceValue').value=item&&priceValue(item)?priceValue(item):'';
   document.getElementById('manualPriceSource').value=item?.price_source||'';
-  document.getElementById('manualPriceModal').classList.add('open');
+  openModal('manualPriceModal');
 }
 async function saveItemPrice(itemId, price, source='', url='', confidence='manual') {
   const payload={
@@ -2747,7 +2747,7 @@ function setPerson(name, btn) {
 // ===== BARCODE SCANNER (НОВИЙ ТОВАР) =====
 let barcodeAddScanner=null,lastScannedCode='';
 function openBarcodeAddScanner(){
-  document.getElementById('barcodeAddModal').classList.add('open');
+  openModal('barcodeAddModal');
   resetBarcodeScanner();
   setTimeout(()=>{
     barcodeAddScanner=new Html5Qrcode('barcodeAddReader');
@@ -2788,7 +2788,7 @@ function stopBarcodeAdd(){
 // ===== QR SCANNER =====
 let qrScanner=null;
 function openQR(){
-  document.getElementById('qrModal').classList.add('open');
+  openModal('qrModal');
   document.getElementById('qrResult').style.display='none';
   setTimeout(()=>{
     qrScanner=new Html5Qrcode('qrReader');
@@ -2824,7 +2824,7 @@ async function openHistory(itemId){
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
   document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Завантаження...</div>';
-  document.getElementById('histModal').classList.add('open');
+  openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
   if(!data||!data.length){
     document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Видач не було</div>';
@@ -2846,7 +2846,7 @@ async function openHistory(itemId){
 // ===== CHART =====
 let chartInst=null;
 function openChartModal(){
-  document.getElementById('chartModal').classList.add('open');
+  openModal('chartModal');
   setTimeout(renderChart,100);
 }
 function renderChart(){
@@ -3012,6 +3012,12 @@ function refreshEnhancedSelect(select){
 }
 
 // ===== MODAL =====
+function openModal(id){
+  const modalBg=document.getElementById(id);
+  if(!modalBg) return;
+  modalBg.classList.add('open');
+  requestAnimationFrame(()=>modalBg.querySelector('[role="dialog"]')?.focus({preventScroll:true}));
+}
 function closeModal(id,e){
   if(e&&e.target!==document.getElementById(id)) return;
   document.getElementById(id).classList.remove('open');
@@ -3031,7 +3037,7 @@ function showDeletePinModal(title, action) {
   document.getElementById('delPinTitle').textContent = title;
   document.getElementById('delPinErr').textContent = '';
   updateDeletePinDots();
-  document.getElementById('delPinModal').classList.add('open');
+  openModal('delPinModal');
 }
 function delPinModalCancel(e) {
   if (e && e.target !== document.getElementById('delPinModal')) return;
