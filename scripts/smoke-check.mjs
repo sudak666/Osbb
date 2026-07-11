@@ -190,6 +190,27 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// OSBB PIN confirmation modal and lightbox should expose dialog semantics and
+// move focus into the active overlay when opened.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal overlays expose accessible dialog semantics';
+  const required = [
+    'role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1"',
+    'data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1"',
+    "modal.querySelector('[role=\"dialog\"]')?.focus",
+    'requestAnimationFrame(()=>lightbox.focus',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal day cards/table rows should use data hooks for role tasks, shifts,
 // ticket counts, comments and photo uploads instead of inline event attributes.
 {
