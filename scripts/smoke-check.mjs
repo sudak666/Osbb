@@ -147,6 +147,40 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+// Embedded modules share the same sessionStorage auth flag as the shell, so they
+// must also respect the timestamp when opened directly or parsed before the shell
+// has a chance to clear stale credentials.
+for (const file of ['osbb/index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} auth session respects TTL`;
+  const required = [
+    'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
+    'function setAuthSession',
+    'function clearAuthSession',
+    'function isAuthSessionValid',
+    'auth_at',
+    'Date.now()',
+    'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
+    'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
+  ];
+  const hasAuthValidityGate = text.includes('if (isAuthSessionValid())') || text.includes('if(isAuthSessionValid())');
+  const forbidden = [
+    'function setAuthSession() {\n        setAuthSession();',
+    'function setAuthSession(){\n  setAuthSession();',
+    "if (sessionStorage.getItem('auth') === 'ok') {\n        const lockScreen",
+    "if(sessionStorage.getItem('auth')==='ok')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden || !hasAuthValidityGate) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${!hasAuthValidityGate ? ' (missing auth validity gate)' : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 
 // OSBB static controls should also avoid inline event attributes. Dynamic rows still
 // have legacy inline handlers, but the PIN/key navigation controls are now bound centrally.

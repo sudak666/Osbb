@@ -418,11 +418,35 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 // Ховаємо екран авторизації якнайшвидше (одразу після його розмітки), щоб при
 // вбудовуванні в shell (PIN уже підтверджено на його рівні) цей екран не встигав
 // промайнути, поки браузер парсить решту сторінки.
-if (sessionStorage.getItem('auth') === 'ok') {
+const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
+const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
+if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
   const earlyAuthScreen = document.getElementById('authScreen');
   if (earlyAuthScreen) earlyAuthScreen.style.display = 'none';
+} else if (sessionStorage.getItem('auth') === 'ok') {
+  sessionStorage.removeItem('auth');
+  sessionStorage.removeItem('auth_at');
 }
 // PIN перевіряється на сервері (Supabase RPC verify_pin), сам код нікому не відомий на клієнті
+const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+function setAuthSession(){
+  sessionStorage.setItem('auth','ok');
+  sessionStorage.setItem('auth_at',String(Date.now()));
+}
+function clearAuthSession(){
+  sessionStorage.removeItem('auth');
+  sessionStorage.removeItem('auth_at');
+}
+function isAuthSessionValid(){
+  if(sessionStorage.getItem('auth')!=='ok') return false;
+  const authAt=Number(sessionStorage.getItem('auth_at')||0);
+  if(!authAt || Date.now()-authAt>=AUTH_TTL_MS){
+    clearAuthSession();
+    return false;
+  }
+  return true;
+}
 let pinEntered='';
 let pinBusy=false;
 let pinFails=0;
@@ -448,7 +472,7 @@ async function checkPin(attempt){
     const scr=document.getElementById('authScreen');
     scr.style.transition='opacity .3s';
     scr.style.opacity='0';
-    sessionStorage.setItem('auth','ok');
+    setAuthSession();
     setTimeout(()=>{scr.style.display='none';scr.style.opacity='';},320);
     pinBusy=false;
   } else {
@@ -1073,7 +1097,7 @@ function priceBadge(item){
 
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
-if(sessionStorage.getItem('auth')==='ok') document.getElementById('authScreen').style.display='none';
+if(isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
 
 // ===== NAV =====
 function nav(page,el){
