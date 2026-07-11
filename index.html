@@ -200,38 +200,44 @@
         <div id="lock-err" class="lock-error-text"></div>
 
         <div class="pin-keyboard">
-            <button onclick="lockPress('1')" class="pin-btn">1</button>
-            <button onclick="lockPress('2')" class="pin-btn">2</button>
-            <button onclick="lockPress('3')" class="pin-btn">3</button>
-            <button onclick="lockPress('4')" class="pin-btn">4</button>
-            <button onclick="lockPress('5')" class="pin-btn">5</button>
-            <button onclick="lockPress('6')" class="pin-btn">6</button>
-            <button onclick="lockPress('7')" class="pin-btn">7</button>
-            <button onclick="lockPress('8')" class="pin-btn">8</button>
-            <button onclick="lockPress('9')" class="pin-btn">9</button>
+            <button class="pin-btn" data-lock-digit="1">1</button>
+            <button class="pin-btn" data-lock-digit="2">2</button>
+            <button class="pin-btn" data-lock-digit="3">3</button>
+            <button class="pin-btn" data-lock-digit="4">4</button>
+            <button class="pin-btn" data-lock-digit="5">5</button>
+            <button class="pin-btn" data-lock-digit="6">6</button>
+            <button class="pin-btn" data-lock-digit="7">7</button>
+            <button class="pin-btn" data-lock-digit="8">8</button>
+            <button class="pin-btn" data-lock-digit="9">9</button>
             <div></div>
-            <button onclick="lockPress('0')" class="pin-btn">0</button>
-            <button onclick="lockDel()" class="pin-text-btn">Видалити</button>
+            <button class="pin-btn" data-lock-digit="0">0</button>
+            <button class="pin-text-btn" data-lock-delete>Видалити</button>
         </div>
     </div>
 </div>
 <script>
     // Ховаємо екран блокування якнайшвидше, щоб при поверненні в межах уже
     // авторизованої сесії він не встигав промайнути, поки парситься решта сторінки.
-    if (sessionStorage.getItem('auth') === 'ok') {
+    const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+    const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
+    const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
+    if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
         const earlyLockScreen = document.getElementById('app-lock-screen');
         if (earlyLockScreen) earlyLockScreen.style.display = 'none';
+    } else if (sessionStorage.getItem('auth') === 'ok') {
+        sessionStorage.removeItem('auth');
+        sessionStorage.removeItem('auth_at');
     }
 </script>
 
 <div id="shell-main">
     <div id="shell-tabs">
         <div class="ios-segmented-control">
-            <button class="shell-tab-btn active" id="shell-tab-journal" onclick="switchTab('journal')">
+            <button class="shell-tab-btn active" id="shell-tab-journal" data-shell-tab="journal">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
                 Журнал
             </button>
-            <button class="shell-tab-btn" id="shell-tab-sklad" onclick="switchTab('sklad')">
+            <button class="shell-tab-btn" id="shell-tab-sklad" data-shell-tab="sklad">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Склад
             </button>
@@ -243,7 +249,7 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 Deye ↗
             </a>
-            <button class="shell-tab-btn shell-lock-btn" id="shell-lock-btn" onclick="lockShellNow()" aria-label="Заблокувати застосунок" title="Заблокувати">
+            <button class="shell-tab-btn shell-lock-btn" id="shell-lock-btn" data-shell-lock aria-label="Заблокувати застосунок" title="Заблокувати">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 Блок
             </button>
@@ -274,9 +280,28 @@
         return txt ? JSON.parse(txt) : null;
     }
 
+    const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
     let lockBuf = '';
     let lockBusy = false;
     let lockFails = 0;
+
+    function setAuthSession() {
+        sessionStorage.setItem('auth', 'ok');
+        sessionStorage.setItem('auth_at', String(Date.now()));
+    }
+    function clearAuthSession() {
+        sessionStorage.removeItem('auth');
+        sessionStorage.removeItem('auth_at');
+    }
+    function isAuthSessionValid() {
+        if (sessionStorage.getItem('auth') !== 'ok') return false;
+        const authAt = Number(sessionStorage.getItem('auth_at') || 0);
+        if (!authAt || Date.now() - authAt >= AUTH_TTL_MS) {
+            clearAuthSession();
+            return false;
+        }
+        return true;
+    }
 
     function unlockShell() {
         const lockScreen = document.getElementById('app-lock-screen');
@@ -320,7 +345,7 @@
             if (ok) {
                 lockFails = 0;
                 lockBusy = false;
-                sessionStorage.setItem('auth', 'ok');
+                setAuthSession();
                 resetIdleLockTimer();
                 lockBuf = '';
                 unlockShell();
@@ -365,7 +390,7 @@
     }
 
     function lockShellNow() {
-        sessionStorage.removeItem('auth');
+        clearAuthSession();
         lockBuf = '';
         lockBusy = false;
         lockUpdateDots();
@@ -380,7 +405,7 @@
     let idleLockTimer = null;
     function resetIdleLockTimer() {
         clearTimeout(idleLockTimer);
-        if (sessionStorage.getItem('auth') === 'ok') idleLockTimer = setTimeout(lockShellNow, IDLE_LOCK_MS);
+        if (isAuthSessionValid()) idleLockTimer = setTimeout(lockShellNow, IDLE_LOCK_MS);
     }
     function handleVisibilityLockTimer() {
         if (document.visibilityState === 'visible') resetIdleLockTimer();
@@ -391,6 +416,20 @@
         if (event.origin !== window.location.origin) return;
         if (event.data && event.data.type === 'osbb:user-activity') resetIdleLockTimer();
     });
+
+    function bindShellControls() {
+        document.querySelectorAll('[data-lock-digit]').forEach((button) => {
+            button.addEventListener('click', () => lockPress(button.dataset.lockDigit));
+        });
+        const deleteButton = document.querySelector('[data-lock-delete]');
+        if (deleteButton) deleteButton.addEventListener('click', lockDel);
+
+        document.querySelectorAll('[data-shell-tab]').forEach((button) => {
+            button.addEventListener('click', () => switchTab(button.dataset.shellTab));
+        });
+        const lockButton = document.querySelector('[data-shell-lock]');
+        if (lockButton) lockButton.addEventListener('click', lockShellNow);
+    }
 
     function switchTab(name) {
         loadTab(name);
@@ -403,7 +442,9 @@
         if (targetFrame) targetFrame.classList.add('active');
     }
 
-    if (sessionStorage.getItem('auth') === 'ok') {
+    bindShellControls();
+
+    if (isAuthSessionValid()) {
         unlockShell();
     }
 

@@ -263,6 +263,15 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .sw{width:100%!important;}
   .card{border-radius:18px;}
   .modal{padding:18px!important;width:94vw!important;max-width:94vw!important;border-radius:24px!important;}
+  .modal-bg{align-items:flex-start!important;justify-content:center!important;overflow-y:auto!important;padding:12px 0 calc(104px + env(safe-area-inset-bottom))!important;}
+  .modal-bg.open{display:flex!important;}
+  .modal-bg .modal{max-height:calc(100dvh - 28px - env(safe-area-inset-bottom))!important;overflow-y:auto!important;margin:0!important;}
+  #priceModal .modal{display:flex!important;flex-direction:column!important;max-height:calc(100dvh - 28px - env(safe-area-inset-bottom))!important;}
+  #priceModal .price-search-row{grid-template-columns:minmax(0,1fr) 116px!important;align-items:stretch!important;}
+  #priceModal .price-search-row .inp{min-height:84px!important;line-height:1.35!important;}
+  #priceResults{max-height:52dvh!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;}
+  #priceModal .price-modal-actions{position:sticky!important;bottom:-18px!important;margin-left:-18px!important;margin-right:-18px!important;margin-bottom:-18px!important;padding:10px 18px calc(10px + env(safe-area-inset-bottom))!important;background:linear-gradient(180deg,rgba(255,255,255,0),var(--ios-card) 28%)!important;border-radius:0 0 24px 24px!important;z-index:2!important;}
+  .theme-dark #priceModal .price-modal-actions{background:linear-gradient(180deg,rgba(30,30,33,0),var(--ios-card) 28%)!important;}
   .inp{font-size:16px!important;padding:11px 12px;}
   .btn{font-size:14px;min-height:42px;}
   .alert-banner{font-size:12px;padding:9px 12px;}
@@ -316,6 +325,10 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 
 /* Mobile item card */
 .m-card{background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.7);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);border-radius:20px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--ios-shadow),0 1px 0 var(--ios-sep);}
+.theme-light .m-card{background:#fff;border-color:rgba(60,60,67,.14);box-shadow:0 8px 22px rgba(15,23,42,.08),0 1px 0 rgba(255,255,255,.8);backdrop-filter:none;-webkit-backdrop-filter:none;}
+.theme-light .m-card .btn-ghost{background:#f3f4f6;border-color:rgba(60,60,67,.10);color:var(--brand-dark);}
+.theme-light .m-card .qty-ok{color:var(--brand-dark);}
+.theme-dark .m-card{background:rgba(30,30,33,.94);border-color:rgba(255,255,255,.12);}
 
 
 /* ===AUTH SCREEN=== */
@@ -389,18 +402,18 @@ canvas#stockChart{width:100%!important;max-height:300px;}
     </div>
     <div class="auth-err" id="authErr"></div>
     <div class="pin-keys">
-      <button class="pin-key" onclick="pinPress('1')">1</button>
-      <button class="pin-key" onclick="pinPress('2')">2</button>
-      <button class="pin-key" onclick="pinPress('3')">3</button>
-      <button class="pin-key" onclick="pinPress('4')">4</button>
-      <button class="pin-key" onclick="pinPress('5')">5</button>
-      <button class="pin-key" onclick="pinPress('6')">6</button>
-      <button class="pin-key" onclick="pinPress('7')">7</button>
-      <button class="pin-key" onclick="pinPress('8')">8</button>
-      <button class="pin-key" onclick="pinPress('9')">9</button>
-      <button class="pin-key" onclick="pinPress('C')"><span class="ms" style="font-size:20px;">close</span></button>
-      <button class="pin-key" onclick="pinPress('0')">0</button>
-      <button class="pin-key" onclick="pinPress('DEL')"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-auth-pin-key="1">1</button>
+      <button class="pin-key" data-auth-pin-key="2">2</button>
+      <button class="pin-key" data-auth-pin-key="3">3</button>
+      <button class="pin-key" data-auth-pin-key="4">4</button>
+      <button class="pin-key" data-auth-pin-key="5">5</button>
+      <button class="pin-key" data-auth-pin-key="6">6</button>
+      <button class="pin-key" data-auth-pin-key="7">7</button>
+      <button class="pin-key" data-auth-pin-key="8">8</button>
+      <button class="pin-key" data-auth-pin-key="9">9</button>
+      <button class="pin-key" data-auth-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-auth-pin-key="0">0</button>
+      <button class="pin-key" data-auth-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
@@ -418,11 +431,35 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 // Ховаємо екран авторизації якнайшвидше (одразу після його розмітки), щоб при
 // вбудовуванні в shell (PIN уже підтверджено на його рівні) цей екран не встигав
 // промайнути, поки браузер парсить решту сторінки.
-if (sessionStorage.getItem('auth') === 'ok') {
+const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
+const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
+if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
   const earlyAuthScreen = document.getElementById('authScreen');
   if (earlyAuthScreen) earlyAuthScreen.style.display = 'none';
+} else if (sessionStorage.getItem('auth') === 'ok') {
+  sessionStorage.removeItem('auth');
+  sessionStorage.removeItem('auth_at');
 }
 // PIN перевіряється на сервері (Supabase RPC verify_pin), сам код нікому не відомий на клієнті
+const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+function setAuthSession(){
+  sessionStorage.setItem('auth','ok');
+  sessionStorage.setItem('auth_at',String(Date.now()));
+}
+function clearAuthSession(){
+  sessionStorage.removeItem('auth');
+  sessionStorage.removeItem('auth_at');
+}
+function isAuthSessionValid(){
+  if(sessionStorage.getItem('auth')!=='ok') return false;
+  const authAt=Number(sessionStorage.getItem('auth_at')||0);
+  if(!authAt || Date.now()-authAt>=AUTH_TTL_MS){
+    clearAuthSession();
+    return false;
+  }
+  return true;
+}
 let pinEntered='';
 let pinBusy=false;
 let pinFails=0;
@@ -448,7 +485,7 @@ async function checkPin(attempt){
     const scr=document.getElementById('authScreen');
     scr.style.transition='opacity .3s';
     scr.style.opacity='0';
-    sessionStorage.setItem('auth','ok');
+    setAuthSession();
     setTimeout(()=>{scr.style.display='none';scr.style.opacity='';},320);
     pinBusy=false;
   } else {
@@ -476,16 +513,16 @@ async function checkPin(attempt){
     <span class="sb-ver">v3.1</span>
   </div>
   <nav>
-    <div class="ni active" data-page="items" onclick="nav('items',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+    <div class="ni active" data-page="items" role="button" tabindex="0">
       <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Товари</span>
       <span class="ni-badge" id="sb-alert" style="display:none">!</span>
     </div>
-    <div class="ni" data-page="issue" onclick="nav('issue',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">output</span></span><span class="nav-label">Видача</span></div>
-    <div class="ni" data-page="log" onclick="nav('log',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">receipt_long</span></span><span class="nav-label">Журнал</span></div>
-    <div class="ni" data-page="add" onclick="nav('add',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">add_circle</span></span><span class="nav-label">Додати</span></div>
-    <div class="ni" data-page="audit" onclick="nav('audit',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">fact_check</span></span><span class="nav-label">Інвентаризація</span></div>
-    <div class="ni" data-page="receipts" onclick="nav('receipts',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">move_to_inbox</span></span><span class="nav-label">Прихід</span></div>
-    <div class="ni" data-page="stats" onclick="nav('stats',this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><span class="ni-icon"><span class="ms" aria-hidden="true">bar_chart</span></span><span class="nav-label">Статистика</span></div>
+    <div class="ni" data-page="issue" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">output</span></span><span class="nav-label">Видача</span></div>
+    <div class="ni" data-page="log" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">receipt_long</span></span><span class="nav-label">Журнал</span></div>
+    <div class="ni" data-page="add" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">add_circle</span></span><span class="nav-label">Додати</span></div>
+    <div class="ni" data-page="audit" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">fact_check</span></span><span class="nav-label">Інвентаризація</span></div>
+    <div class="ni" data-page="receipts" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">move_to_inbox</span></span><span class="nav-label">Прихід</span></div>
+    <div class="ni" data-page="stats" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">bar_chart</span></span><span class="nav-label">Статистика</span></div>
   </nav>
   <div class="sb-bottom">ОСББ «Микитська Слобода»</div>
 </div>
@@ -495,42 +532,42 @@ async function checkPin(attempt){
     <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
-      <button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openChartModal()" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm topbar-right-excel" onclick="openPriceRefreshModal()" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button class="btn btn-ghost btn-sm" onclick="openQR()" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" onclick="goReceipts()" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" onclick="exportExcel()"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
-      <button class="btn btn-ghost btn-sm" id="refreshBtn" onclick="refreshAll()" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
-      <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
+      <button class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="chart" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="price-refresh" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button class="btn btn-ghost btn-sm" data-sklad-action="qr" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" data-sklad-action="receipts" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
+      <button class="btn btn-ghost btn-sm" id="refreshBtn" data-sklad-action="refresh" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
+      <button class="btn btn-ghost btn-sm" data-sklad-action="theme" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
     </div>
   </div>
 
   <!-- ITEMS -->
   <div id="page-items" class="page active">
-    <div id="alertBanner" style="display:none;" onclick="nav('stats',document.querySelector('.ni[data-page=stats]'))">
+    <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
       <div class="alert-banner"><span class="ms" style="font-size:16px;vertical-align:-3px;">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
     </div>
     <div class="g4" style="margin-bottom:22px;">
-      <div class="stat-card sc-purple" onclick="filterByStock('all',this)"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">inventory_2</span></div></div>
-      <div class="stat-card sc-red" onclick="filterByStock('zero',this)"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">production_quantity_limits</span></div></div>
-      <div class="stat-card sc-orange" onclick="filterByStock('low',this)"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">warning</span></div></div>
-      <div class="stat-card sc-green" onclick="filterByStock('ok',this)"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">check_circle</span></div></div>
+      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">inventory_2</span></div></div>
+      <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">production_quantity_limits</span></div></div>
+      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">warning</span></div></div>
+      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">check_circle</span></div></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <button class="pill" id="inStockPill" onclick="toggleInStock(this)" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
-        <button class="pill" id="hideInternalPill" onclick="toggleHideInternal(this)" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
-        <button class="pill" id="onlyInternalPill" onclick="toggleOnlyInternal(this)" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
+        <button class="pill" id="inStockPill" data-filter-toggle="in-stock" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
+        <button class="pill" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
+        <button class="pill" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="catPills" class="pills-wrap">
-        <button class="pill active" onclick="filterCat(this,'')">Всі</button>
-        <button class="pill" onclick="filterCat(this,'Прибирання')"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
-        <button class="pill" onclick="filterCat(this,'Ремонт')"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
-        <button class="pill" onclick="filterCat(this,'Електрика')"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
-        <button class="pill" onclick="filterCat(this,'Сантехніка')"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
-        <button class="pill" onclick="filterCat(this,'Відеоспостереження')"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
-        <button class="pill" onclick="filterCat(this,'Інше')"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
+        <button class="pill active" data-category-filter="">Всі</button>
+        <button class="pill" data-category-filter="Прибирання"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
+        <button class="pill" data-category-filter="Ремонт"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
+        <button class="pill" data-category-filter="Електрика"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
+        <button class="pill" data-category-filter="Сантехніка"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
+        <button class="pill" data-category-filter="Відеоспостереження"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
+        <button class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." oninput="renderItems()"></div>
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
-        <button class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" onclick="resetItemFilters()" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
+        <button class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
       </div>
     </div>
     <div class="card desktop-table" style="overflow:hidden;">
@@ -554,7 +591,7 @@ async function checkPin(attempt){
       <div class="card" style="padding:28px;">
         <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--brand);">output</span>Оформити видачу</h3>
         <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" onchange="onIssueSel()"><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
           <div id="issueInfo" style="display:none;background:#f0f0ff;border-radius:12px;padding:14px;">
             <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--ios-label3);">Залишок:</span><span id="issueInfoQty" style="font-weight:800;color:#6366f1;"></span></div>
           </div>
@@ -562,9 +599,9 @@ async function checkPin(attempt){
             <div><label>Кількість</label><input type="number" class="inp" id="issueQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата</label><input type="date" class="inp" id="issueDateI"></div>
           </div>
-          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Електрик',this)">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Сантехнік',this)">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Двірник',this)">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Охорона',this)">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Прибиральниця',this)">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
+          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doIssue(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
         </div>
       </div>
       <div class="card" style="padding:20px;overflow:hidden;max-width:100%;">
@@ -578,14 +615,14 @@ async function checkPin(attempt){
   <div id="page-log" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;" class="pills-wrap">
-        <button class="pill active" onclick="filterLogCat(this,'')">Всі</button>
-        <button class="pill" onclick="filterLogCat(this,'Прибирання')"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
-        <button class="pill" onclick="filterLogCat(this,'Ремонт')"><span class="ms" style="font-size:15px;">build</span></button>
-        <button class="pill" onclick="filterLogCat(this,'Електрика')"><span class="ms" style="font-size:15px;">bolt</span></button>
-        <button class="pill" onclick="filterLogCat(this,'Сантехніка')"><span class="ms" style="font-size:15px;">plumbing</span></button>
+        <button class="pill active" data-log-category-filter="">Всі</button>
+        <button class="pill" data-log-category-filter="Прибирання"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
+        <button class="pill" data-log-category-filter="Ремонт"><span class="ms" style="font-size:15px;">build</span></button>
+        <button class="pill" data-log-category-filter="Електрика"><span class="ms" style="font-size:15px;">bolt</span></button>
+        <button class="pill" data-log-category-filter="Сантехніка"><span class="ms" style="font-size:15px;">plumbing</span></button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." oninput="renderLog()"></div>
+        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." data-render-log-input></div>
         <div id="logResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -608,7 +645,7 @@ async function checkPin(attempt){
       <div class="card" style="padding:28px;">
         <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--ios-green);">add_circle</span>Поповнити залишок</h3>
         <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="refillSel" onchange="onRefillSel()"><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select><option value="">— Оберіть товар —</option></select></div>
           <div id="refillInfo" style="display:none;background:#f0fff4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;font-size:13px;color:#166534;">Поточний залишок: <span id="refillCur" style="font-weight:800;"></span></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
@@ -616,22 +653,22 @@ async function checkPin(attempt){
           </div>
           <div><label>Постачальник <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
           <div><label>Примітка <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
-          <button class="btn btn-success" style="width:100%;justify-content:center;" onclick="doRefill(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
+          <button class="btn btn-success" style="width:100%;justify-content:center;" data-sklad-action="refill-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
         </div>
         <div style="margin-top:32px;padding-top:24px;border-top:1px solid #f0eeff;">
           <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fiber_new</span> Новий товар</h3>
           <div style="display:flex;flex-direction:column;gap:14px;">
-            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" oninput="renderNewProductMatches()"><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button class="btn btn-ghost" onclick="openBarcodeAddScanner()" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
+            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button class="btn btn-ghost" data-sklad-action="barcode-add-open" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
-              <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" onblur="if(/^\d+([.,]\d+)?$/.test(this.value.trim())) toast('Одиниця має бути словом, не числом!','error');"></div>
+              <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
             </div>
             <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;padding:10px 12px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:12px;">
               <input type="checkbox" id="newInternal" style="width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;">
               <span style="font-weight:600;color:var(--ios-label2);font-size:12.5px;line-height:1.4;">Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
             </label>
-            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doAddNew(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="add-new-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
           </div>
         </div>
       </div>
@@ -663,13 +700,13 @@ async function checkPin(attempt){
           <div id="auditDate" style="font-size:12px;color:var(--ios-gray);margin-top:2px;"></div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" onclick="auditFillZeros()" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
-          <button class="btn btn-ghost btn-sm" onclick="auditFillCurrent()" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
-          <button class="btn btn-primary" onclick="openAuditConfirm()" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
+          <button class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-zeros" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
+          <button class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-current" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
+          <button class="btn btn-primary" data-sklad-action="audit-confirm-open" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
         </div>
       </div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" placeholder="Пошук товару..." oninput="renderAuditList()"></div>
+        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" placeholder="Пошук товару..." data-render-audit-input></div>
         <div id="auditResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
         <div id="auditStats" style="font-size:12px;color:var(--ios-gray);"></div>
         <div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width:180px;margin-top:0;"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div>
@@ -691,7 +728,7 @@ async function checkPin(attempt){
   <div id="page-receipts" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." oninput="renderReceipts()"></div>
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." data-render-receipts-input></div>
         <div id="recResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -742,10 +779,10 @@ async function checkPin(attempt){
     <div class="card" style="padding:18px 22px;margin-bottom:16px;">
       <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;margin-bottom:12px;"><span class="ms" style="font-size:16px;">filter_alt</span> Фільтр вартості складу</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;">
-        <div><label>Категорія</label><select class="inp" id="valueCatFilter" onchange="renderStats()"><option value="">Усі категорії</option></select></div>
-        <div><label>Залишок</label><select class="inp" id="valueStockFilter" onchange="renderStats()"><option value="all">Усі товари</option><option value="positive">Є залишок</option><option value="low">Мало (≤3)</option><option value="zero">Закінчились</option><option value="normal">В нормі (&gt;3)</option></select></div>
-        <div><label>Тип</label><select class="inp" id="valueInternalFilter" onchange="renderStats()"><option value="balance">Балансові</option><option value="all">Усі</option><option value="internal">Внутрішні</option></select></div>
-        <div><label>Ціна</label><select class="inp" id="valuePriceFilter" onchange="renderStats()"><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
+        <div><label>Категорія</label><select class="inp" id="valueCatFilter" data-stats-filter><option value="">Усі категорії</option></select></div>
+        <div><label>Залишок</label><select class="inp" id="valueStockFilter" data-stats-filter><option value="all">Усі товари</option><option value="positive">Є залишок</option><option value="low">Мало (≤3)</option><option value="zero">Закінчились</option><option value="normal">В нормі (&gt;3)</option></select></div>
+        <div><label>Тип</label><select class="inp" id="valueInternalFilter" data-stats-filter><option value="balance">Балансові</option><option value="all">Усі</option><option value="internal">Внутрішні</option></select></div>
+        <div><label>Ціна</label><select class="inp" id="valuePriceFilter" data-stats-filter><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
       </div>
       <div id="valueFilterSummary" style="font-size:12px;color:var(--ios-label3);margin-top:10px;line-height:1.45;">Показано баланс без внутрішнього використання.</div>
     </div>
@@ -755,8 +792,8 @@ async function checkPin(attempt){
         <div id="priceSummary" style="font-size:12px;color:var(--ios-label3);margin-top:4px;">Ціни не оновлювались</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="openPriceRefreshModal()"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
-        <button class="btn btn-ghost btn-sm" onclick="openManualPriceModal()"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
+        <button class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
+        <button class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
@@ -767,55 +804,55 @@ async function checkPin(attempt){
 </div>
 
 <!-- QUICK MODAL -->
-<div class="modal-bg" id="qModal" onclick="closeModal('qModal',event)">
-  <div class="modal">
+<div class="modal-bg" id="qModal" data-modal-backdrop="qModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 id="qmName" style="font-size:15px;line-height:1.4;margin-bottom:4px;"></h3>
     <p style="font-size:13px;color:var(--ios-label3);margin-bottom:18px;">Залишок: <span id="qmQtyShow" style="font-weight:800;color:#6366f1;"></span></p>
     <div style="display:flex;flex-direction:column;gap:13px;">
       <div><label>Кількість</label><input type="number" class="inp" id="qmQtyI" min="0.1" step="0.1"></div>
-      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Електрик',this)">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Сантехнік',this)">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Двірник',this)">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Охорона',this)">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" onclick="setPerson('Прибиральниця',this)">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
+      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
       <div style="display:flex;gap:10px;margin-top:4px;">
-        <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('qModal')">Скасувати</button>
-        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="doQuickIssue(this)"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
+        <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="qModal">Скасувати</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="quick-issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- PHOTO MODAL -->
-<div class="modal-bg" id="photoModal" onclick="closeModal('photoModal',event)">
-  <div class="modal" style="width:420px;">
+<div class="modal-bg" id="photoModal" data-modal-backdrop="photoModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
     <h3 id="photoItemName" style="font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);"></h3>
     <div id="photoCurrent" style="margin-bottom:14px;"></div>
     <div style="border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;">
       <div style="font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">photo_camera</span> Завантажити нове фото</div>
-      <input type="file" id="photoFileI" accept="image/*" style="display:none;" onchange="uploadPhoto()">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('photoFileI').click()">Обрати файл</button>
+      <input type="file" id="photoFileI" accept="image/*" style="display:none;" data-photo-file>
+      <button class="btn btn-ghost btn-sm" data-sklad-action="photo-file-select">Обрати файл</button>
       <div id="photoStatus" style="font-size:12px;color:#a5b4fc;margin-top:8px;"></div>
     </div>
     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn btn-danger btn-sm" id="delPhotoBtn" onclick="deletePhoto()" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('photoModal')">Закрити</button>
+      <button class="btn btn-danger btn-sm" id="delPhotoBtn" data-sklad-action="photo-delete" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+      <button class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE MODAL -->
-<div class="modal-bg" id="delModal" onclick="closeModal('delModal',event)">
-  <div class="modal" style="width:380px;">
+<div class="modal-bg" id="delModal" data-modal-backdrop="delModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити товар?</h3>
     <p id="delItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('delModal')">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="confirmDelete()"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delModal">Скасувати</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- PIN CONFIRM MODAL (для будь-якого видалення) -->
-<div class="modal-bg" id="delPinModal" onclick="delPinModalCancel(event)">
-  <div class="modal" style="width:320px;text-align:center;background:#1C1C1E;">
+<div class="modal-bg" id="delPinModal" data-delete-pin-cancel>
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:320px;text-align:center;background:#1C1C1E;">
     <h3 id="delPinTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px;">PIN для видалення</h3>
     <p style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;">Підтвердіть дію PIN-кодом</p>
     <div class="auth-dots">
@@ -826,51 +863,51 @@ async function checkPin(attempt){
     </div>
     <div id="delPinErr" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
     <div class="pin-keys">
-      <button class="pin-key" onclick="deletePinPress('1')">1</button>
-      <button class="pin-key" onclick="deletePinPress('2')">2</button>
-      <button class="pin-key" onclick="deletePinPress('3')">3</button>
-      <button class="pin-key" onclick="deletePinPress('4')">4</button>
-      <button class="pin-key" onclick="deletePinPress('5')">5</button>
-      <button class="pin-key" onclick="deletePinPress('6')">6</button>
-      <button class="pin-key" onclick="deletePinPress('7')">7</button>
-      <button class="pin-key" onclick="deletePinPress('8')">8</button>
-      <button class="pin-key" onclick="deletePinPress('9')">9</button>
-      <button class="pin-key" onclick="deletePinPress('C')"><span class="ms" style="font-size:20px;">close</span></button>
-      <button class="pin-key" onclick="deletePinPress('0')">0</button>
-      <button class="pin-key" onclick="deletePinPress('DEL')"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-delete-pin-key="1">1</button>
+      <button class="pin-key" data-delete-pin-key="2">2</button>
+      <button class="pin-key" data-delete-pin-key="3">3</button>
+      <button class="pin-key" data-delete-pin-key="4">4</button>
+      <button class="pin-key" data-delete-pin-key="5">5</button>
+      <button class="pin-key" data-delete-pin-key="6">6</button>
+      <button class="pin-key" data-delete-pin-key="7">7</button>
+      <button class="pin-key" data-delete-pin-key="8">8</button>
+      <button class="pin-key" data-delete-pin-key="9">9</button>
+      <button class="pin-key" data-delete-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-delete-pin-key="0">0</button>
+      <button class="pin-key" data-delete-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
 
 <!-- AUDIT CONFIRM MODAL -->
-<div class="modal-bg" id="auditModal" onclick="closeModal('auditModal',event)">
-  <div class="modal" style="width:420px;">
+<div class="modal-bg" id="auditModal" data-modal-backdrop="auditModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:6px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">check_circle</span> Завершити інвентаризацію</h3>
     <div id="auditSummary" style="background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;"></div>
     <div><label>Примітка до інвентаризації</label><input type="text" class="inp" id="auditNote" placeholder="Напр.: Планова інвентаризація червень 2026"></div>
     <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('auditModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmAudit()"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="auditModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="audit-confirm-save"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE LOG MODAL -->
-<div class="modal-bg" id="delLogModal" onclick="closeModal('delLogModal',event)">
-  <div class="modal" style="width:380px;">
+<div class="modal-bg" id="delLogModal" data-modal-backdrop="delLogModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис видачі?</h3>
     <p id="delLogItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('delLogModal')">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="confirmDeleteLog()"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delLogModal">Скасувати</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- EDIT LOG MODAL -->
-<div class="modal-bg" id="editLogModal" onclick="closeModal('editLogModal',event)">
-  <div class="modal" style="width:400px;">
+<div class="modal-bg" id="editLogModal" data-modal-backdrop="editLogModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати видачу</h3>
     <p id="editLogItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
     <div style="display:flex;flex-direction:column;gap:14px;">
@@ -893,28 +930,28 @@ async function checkPin(attempt){
     </div>
     <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('editLogModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmEditLog()"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editLogModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE RECEIPT MODAL -->
-<div class="modal-bg" id="delReceiptModal" onclick="closeModal('delReceiptModal',event)">
-  <div class="modal" style="width:380px;">
+<div class="modal-bg" id="delReceiptModal" data-modal-backdrop="delReceiptModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
     <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис приходу?</h3>
     <p id="delReceiptItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('delReceiptModal')">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="confirmDeleteReceipt()"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delReceiptModal">Скасувати</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- EDIT RECEIPT MODAL -->
-<div class="modal-bg" id="editReceiptModal" onclick="closeModal('editReceiptModal',event)">
-  <div class="modal" style="width:400px;">
+<div class="modal-bg" id="editReceiptModal" data-modal-backdrop="editReceiptModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати прихід</h3>
     <p id="editReceiptItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
     <div style="display:flex;flex-direction:column;gap:14px;">
@@ -937,83 +974,83 @@ async function checkPin(attempt){
     </div>
     <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('editReceiptModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmEditReceipt()"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editReceiptModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" onclick="closeLightbox()">
-  <button id="lbDelBtn" onclick="deleteLightboxPhoto(event)" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
-  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" onclick="event.stopPropagation()">
+<div id="lightbox" data-lightbox-close>
+  <button id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" data-lightbox-stop>
 </div>
 
 <!-- BARCODE ADD MODAL -->
-<div class="modal-bg" id="barcodeAddModal" onclick="closeModal('barcodeAddModal',event)">
-  <div class="modal">
+<div class="modal-bg" id="barcodeAddModal" data-modal-backdrop="barcodeAddModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="barcodeAddReader"></div>
     <div id="barcodeAddScanning" style="text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;">Наведіть камеру на штрих-код товару</div>
     <div class="barcode-not-found" id="barcodeNotFound">
       <span class="ms" style="font-size:15px;vertical-align:-3px;">warning</span> Товар не знайдено в базі.
-      <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" onclick="searchInGoogle()"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
-      <button class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" onclick="resetBarcodeScanner()"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
+      <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" data-sklad-action="barcode-google"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
+      <button class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" data-sklad-action="barcode-reset"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
     </div>
     <!-- Ручне введення -->
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);">
       <div style="font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:500;"><span class="ms" style="font-size:14px;vertical-align:-2px;">edit</span> Або введіть штрих-код вручну</div>
       <div style="display:flex;gap:8px;">
         <input type="number" id="manualBarcodeI" class="inp" placeholder="4820000000000" style="flex:1;font-size:15px;">
-        <button class="btn btn-primary btn-sm" onclick="searchManualBarcode()" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
+        <button class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
       </div>
     </div>
     <div style="margin-top:12px;">
-      <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="stopBarcodeAdd();closeModal('barcodeAddModal')">Закрити</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;" data-sklad-action="barcode-add-close">Закрити</button>
     </div>
   </div>
 </div>
 
 <!-- QR SCANNER MODAL -->
-<div class="modal-bg" id="qrModal" onclick="closeModal('qrModal',event)">
-  <div class="modal">
+<div class="modal-bg" id="qrModal" data-modal-backdrop="qrModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="qrReader"></div>
     <div class="qr-result" id="qrResult"></div>
     <p style="font-size:12px;color:#a5b4fc;margin-top:10px;text-align:center;">Наведіть камеру на штрих-код або QR-код товару</p>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="stopQR();closeModal('qrModal')">Закрити</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-sklad-action="qr-close">Закрити</button>
     </div>
   </div>
 </div>
 
 <!-- HISTORY MODAL -->
-<div class="modal-bg" id="histModal" onclick="closeModal('histModal',event)">
-  <div class="modal">
+<div class="modal-bg" id="histModal" data-modal-backdrop="histModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 id="histTitle" style="font-size:15px;font-weight:800;color:var(--ios-label);margin-bottom:4px;"></h3>
     <p id="histSubtitle" style="font-size:12px;color:#a5b4fc;margin-bottom:16px;"></p>
     <div id="histList"></div>
-    <button class="btn btn-ghost btn-sm" style="margin-top:14px;" onclick="closeModal('histModal')">Закрити</button>
+    <button class="btn btn-ghost btn-sm" style="margin-top:14px;" data-modal-close="histModal">Закрити</button>
   </div>
 </div>
 
 <!-- CHART MODAL -->
-<div class="modal-bg" id="priceModal" onclick="closeModal('priceModal',event)">
-  <div class="modal" style="max-width:560px;">
+<div class="modal-bg" id="priceModal" data-modal-backdrop="priceModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:560px;">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">travel_explore</span> Підтягнути ціни з інтернету</h3>
-    <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
+    <div class="price-search-row" style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
       <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
-      <button class="btn btn-primary" onclick="fetchItemPrice()" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
+      <button class="btn btn-primary" data-sklad-action="price-fetch" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
     </div>
     <div id="priceResults" style="min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);">Оберіть товар і натисніть “Знайти”.</div>
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('priceModal')">Закрити</button>
+    <div class="price-modal-actions" style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="priceModal">Закрити</button>
     </div>
   </div>
 </div>
 
-<div class="modal-bg" id="manualPriceModal" onclick="closeModal('manualPriceModal',event)">
-  <div class="modal" style="max-width:460px;">
+<div class="modal-bg" id="manualPriceModal" data-modal-backdrop="manualPriceModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:460px;">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Ручна ціна</h3>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <div><label>Товар</label><select class="inp" id="manualPriceItemSel"><option value="">— Оберіть товар —</option></select></div>
@@ -1021,17 +1058,17 @@ async function checkPin(attempt){
       <div><label>Джерело / посилання <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
     </div>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeModal('manualPriceModal')">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="saveManualPrice()"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="manualPriceModal">Скасувати</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="manual-price-save"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
-<div class="modal-bg" id="chartModal" onclick="closeModal('chartModal',event)">
-  <div class="modal">
+<div class="modal-bg" id="chartModal" data-modal-backdrop="chartModal">
+  <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:16px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">bar_chart</span> Залишки по категоріях</h3>
     <canvas id="stockChart"></canvas>
-    <button class="btn btn-ghost btn-sm" style="margin-top:16px;" onclick="closeModal('chartModal')">Закрити</button>
+    <button class="btn btn-ghost btn-sm" style="margin-top:16px;" data-modal-close="chartModal">Закрити</button>
   </div>
 </div>
 
@@ -1061,11 +1098,11 @@ function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
 function priceBadge(item){
   const id=escapeHtml(String(item?.id||''));
   const price=priceValue(item);
-  if(!price) return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" onclick="openManualPriceModal('${id}')"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
+  if(!price) return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
   const checked=item.price_checked_at?new Date(item.price_checked_at).toLocaleDateString('uk-UA'):'';
   const src=item.price_source?escapeHtml(item.price_source):'ціна';
   const title=[src,checked].filter(Boolean).join(' · ');
-  return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" onclick="openManualPriceModal('${id}')" data-tip="${escapeHtml(title)}">
+  return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
     <span style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(price)}</span>
     <span style="font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;">${src}</span>
   </button>`;
@@ -1073,7 +1110,7 @@ function priceBadge(item){
 
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
-if(sessionStorage.getItem('auth')==='ok') document.getElementById('authScreen').style.display='none';
+if(isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
 
 // ===== NAV =====
 function nav(page,el){
@@ -1162,11 +1199,10 @@ function renderAuditList(){
             placeholder="?"
             min="0" step="any"
             style="width:80px;padding:7px 10px;border-radius:10px;border:1.5px solid ${isCounted?border:'var(--ios-sep)'};font-size:15px;font-weight:700;text-align:center;background:var(--ios-card);outline:none;-webkit-appearance:none;"
-            oninput="onAuditInput(${item.id},this.value)"
-            onfocus="this.select()">
+            data-audit-input data-item-id="${item.id}">
           <span style="font-size:11px;color:var(--ios-gray);">${unit}</span>
         </div>
-        ${isCounted?`<button onclick="clearAuditItem(${item.id})" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
+        ${isCounted?`<button data-audit-clear data-item-id="${item.id}" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1247,7 +1283,7 @@ function openAuditConfirm(){
     </div>
     ${uncounted.length>0?`<div style="margin-top:10px;font-size:12px;color:#f59e0b;"><span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> ${uncounted.length} товарів не будуть оновлені (поле порожнє)</div>`:''}
   `;
-  document.getElementById('auditModal').classList.add('open');
+  openModal('auditModal');
 }
 
 async function confirmAudit(){
@@ -1500,6 +1536,236 @@ function toggleInternal(id,val){
 }
 
 // ===== RENDER ITEMS =====
+
+
+function activateSkladPageTrigger(trigger){
+  const page=trigger.dataset.skladPage||trigger.dataset.page;
+  if(page) nav(page,trigger);
+}
+function handleSkladStaticKeydown(event){
+  if(event.key!=='Enter'&&event.key!==' ') return;
+  const trigger=event.target.closest('[data-sklad-page],[data-page],[data-stock-filter]');
+  if(!trigger) return;
+  event.preventDefault();
+  trigger.click();
+}
+function bindSkladStaticControls(){
+  document.querySelectorAll('[data-auth-pin-key]').forEach(button=>{
+    button.addEventListener('click',()=>pinPress(button.dataset.authPinKey));
+  });
+  document.querySelectorAll('[data-sklad-page], .ni[data-page], .bn-item[data-page]').forEach(trigger=>{
+    trigger.addEventListener('click',()=>activateSkladPageTrigger(trigger));
+    trigger.addEventListener('keydown',handleSkladStaticKeydown);
+  });
+  document.querySelectorAll('[data-stock-filter]').forEach(card=>{
+    card.addEventListener('click',()=>filterByStock(card.dataset.stockFilter,card));
+    card.addEventListener('keydown',handleSkladStaticKeydown);
+  });
+  const actionHandlers={
+    'chart':openChartModal,
+    'price-refresh':openPriceRefreshModal,
+    'manual-price':()=>openManualPriceModal(),
+    'qr':openQR,
+    'receipts':goReceipts,
+    'export-excel':exportExcel,
+    'refresh':refreshAll,
+    'theme':toggleTheme,
+    'reset-item-filters':resetItemFilters,
+    'issue-submit':(button)=>doIssue(button),
+    'refill-submit':(button)=>doRefill(button),
+    'add-new-submit':(button)=>doAddNew(button),
+    'barcode-add-open':openBarcodeAddScanner,
+    'audit-fill-zeros':auditFillZeros,
+    'audit-fill-current':auditFillCurrent,
+    'audit-confirm-open':openAuditConfirm,
+    'quick-issue-submit':(button)=>doQuickIssue(button),
+    'photo-file-select':()=>document.getElementById('photoFileI').click(),
+    'photo-delete':deletePhoto,
+    'delete-confirm':confirmDelete,
+    'audit-confirm-save':confirmAudit,
+    'delete-log-confirm':confirmDeleteLog,
+    'edit-log-confirm':confirmEditLog,
+    'delete-receipt-confirm':confirmDeleteReceipt,
+    'edit-receipt-confirm':confirmEditReceipt,
+    'barcode-google':searchInGoogle,
+    'barcode-reset':resetBarcodeScanner,
+    'barcode-manual-search':searchManualBarcode,
+    'barcode-add-close':()=>{stopBarcodeAdd();closeModal('barcodeAddModal');},
+    'qr-close':()=>{stopQR();closeModal('qrModal');},
+    'price-fetch':fetchItemPrice,
+    'manual-price-save':saveManualPrice,
+    'lightbox-delete-photo':(button,event)=>deleteLightboxPhoto(event),
+  };
+  document.querySelectorAll('[data-sklad-action]').forEach(button=>{
+    const handler=actionHandlers[button.dataset.skladAction];
+    if(handler) button.addEventListener('click',(event)=>handler(button,event));
+  });
+  const filterHandlers={
+    'in-stock':toggleInStock,
+    'hide-internal':toggleHideInternal,
+    'only-internal':toggleOnlyInternal,
+  };
+  document.querySelectorAll('[data-filter-toggle]').forEach(button=>{
+    const handler=filterHandlers[button.dataset.filterToggle];
+    if(handler) button.addEventListener('click',(event)=>handler(button,event));
+  });
+  document.querySelectorAll('[data-category-filter]').forEach(button=>{
+    button.addEventListener('click',()=>filterCat(button,button.dataset.categoryFilter));
+  });
+  document.querySelectorAll('[data-person-preset]').forEach(button=>{
+    button.addEventListener('click',()=>setPerson(button.dataset.personPreset,button));
+  });
+  document.querySelectorAll('[data-log-category-filter]').forEach(button=>{
+    button.addEventListener('click',()=>filterLogCat(button,button.dataset.logCategoryFilter));
+  });
+  document.querySelector('[data-render-items-input]')?.addEventListener('input',renderItems);
+  document.querySelector('[data-render-log-input]')?.addEventListener('input',renderLog);
+  document.querySelector('[data-render-audit-input]')?.addEventListener('input',renderAuditList);
+  document.querySelector('[data-render-receipts-input]')?.addEventListener('input',renderReceipts);
+  document.querySelector('[data-new-product-input]')?.addEventListener('input',renderNewProductMatches);
+  document.querySelector('[data-unit-word-input]')?.addEventListener('blur',(event)=>validateUnitWordInput(event.target));
+  document.querySelector('[data-issue-select]')?.addEventListener('change',onIssueSel);
+  document.querySelector('[data-refill-select]')?.addEventListener('change',onRefillSel);
+  document.querySelectorAll('[data-stats-filter]').forEach(select=>select.addEventListener('change',renderStats));
+  document.querySelector('[data-photo-file]')?.addEventListener('change',uploadPhoto);
+  document.querySelectorAll('[data-modal-backdrop]').forEach(backdrop=>{
+    backdrop.addEventListener('click',(event)=>closeModal(backdrop.dataset.modalBackdrop,event));
+  });
+  document.querySelectorAll('[data-modal-close]').forEach(button=>{
+    button.addEventListener('click',()=>closeModal(button.dataset.modalClose));
+  });
+  document.querySelector('[data-delete-pin-cancel]')?.addEventListener('click',delPinModalCancel);
+  document.querySelectorAll('[data-delete-pin-key]').forEach(button=>{
+    button.addEventListener('click',()=>deletePinPress(button.dataset.deletePinKey));
+  });
+  document.querySelector('[data-lightbox-close]')?.addEventListener('click',closeLightbox);
+  document.querySelector('[data-lightbox-stop]')?.addEventListener('click',(event)=>event.stopPropagation());
+}
+
+function validateUnitWordInput(input){
+  if(/^\d+([.,]\d+)?$/.test(input.value.trim())) toast('Одиниця має бути словом, не числом!','error');
+}
+
+function handleItemActionClick(event){
+  const trigger=event.target.closest('[data-item-action]');
+  if(!trigger) return;
+  const scope=trigger.closest('#itemsTable,#mobileCards');
+  if(!scope) return;
+  event.preventDefault();
+  const id=Number(trigger.dataset.itemId);
+  if(!id) return;
+  trigger.closest('details')?.removeAttribute('open');
+  switch(trigger.dataset.itemAction){
+    case 'quick': openQuick(id); break;
+    case 'history': openHistory(id); break;
+    case 'photo': openPhotoModal(id); break;
+    case 'internal': toggleInternal(id, trigger.dataset.internalNext==='true'); break;
+    case 'manual-price': openManualPriceModal(id); break;
+    case 'price-lookup': openItemPriceLookup(id); break;
+    case 'delete': openDelete(id); break;
+    case 'lightbox': openLightbox(trigger.dataset.photoUrl||'', id); break;
+  }
+}
+function handleItemActionKeydown(event){
+  if(event.key!=='Enter'&&event.key!==' ') return;
+  const trigger=event.target.closest('[data-item-action]');
+  if(!trigger || !trigger.closest('#itemsTable,#mobileCards')) return;
+  event.preventDefault();
+  trigger.click();
+}
+function bindItemActionDelegation(){
+  ['itemsTable','mobileCards'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('click',handleItemActionClick);
+    el.addEventListener('keydown',handleItemActionKeydown);
+  });
+}
+
+function bindPriceBadgeActions(){
+  document.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-price-badge-action="manual-price"]');
+    if(!button) return;
+    event.preventDefault();
+    openManualPriceModal(button.dataset.itemId||'');
+  });
+}
+
+function bindAuditListDelegation(){
+  const list=document.getElementById('auditList');
+  if(!list) return;
+  list.addEventListener('input',(event)=>{
+    const input=event.target.closest('[data-audit-input]');
+    if(!input) return;
+    onAuditInput(Number(input.dataset.itemId),input.value);
+  });
+  list.addEventListener('focusin',(event)=>{
+    const input=event.target.closest('[data-audit-input]');
+    if(input) input.select();
+  });
+  list.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-audit-clear]');
+    if(!button) return;
+    event.preventDefault();
+    clearAuditItem(Number(button.dataset.itemId));
+  });
+}
+
+function bindLogActionDelegation(){
+  ['logTable','logMobileList'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('click',(event)=>{
+      const button=event.target.closest('[data-log-action]');
+      if(!button) return;
+      event.preventDefault();
+      const logId=Number(button.dataset.logId);
+      if(!logId) return;
+      if(button.dataset.logAction==='edit') openEditLog(logId);
+      if(button.dataset.logAction==='delete') openDeleteLog(logId);
+    });
+  });
+}
+
+function bindReceiptActionDelegation(){
+  ['recTable','recMobileList'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('click',(event)=>{
+      const button=event.target.closest('[data-receipt-action]');
+      if(!button) return;
+      event.preventDefault();
+      const receiptId=Number(button.dataset.receiptId);
+      if(!receiptId) return;
+      if(button.dataset.receiptAction==='edit') openEditReceipt(receiptId);
+      if(button.dataset.receiptAction==='delete') openDeleteReceipt(receiptId);
+    });
+  });
+}
+
+function bindNewProductMatchActions(){
+  const box=document.getElementById('newNameMatches');
+  if(!box) return;
+  box.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-new-match-action]');
+    if(!button) return;
+    event.preventDefault();
+    const itemId=button.dataset.itemId||'';
+    if(button.dataset.newMatchAction==='refill') useExistingItemForRefill(itemId);
+  });
+}
+
+function bindPhotoCurrentActions(){
+  const box=document.getElementById('photoCurrent');
+  if(!box) return;
+  box.addEventListener('click',(event)=>{
+    const image=event.target.closest('[data-photo-current-lightbox]');
+    if(!image) return;
+    event.preventDefault();
+    openLightbox(image.dataset.photoUrl||'',Number(image.dataset.itemId)||null);
+  });
+}
+
 function updateItemsResultSummary(count,total,query){
   const el=document.getElementById('itemsResultSummary');
   if(!el) return;
@@ -1543,11 +1809,10 @@ function renderItems(){
     const name=escapeHtml(item.name||'');
     const category=escapeHtml(item.category||'—');
     const unit=escapeHtml(item.unit||'');
-    const safePhoto=item.photo_url?escapeHtml(item.photo_url):'';
-    const photoArg=jsString(item.photo_url||'');
+    const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
     const photoCell=safePhoto
-      ? `<img src="${safePhoto}" class="photo-thumb tip-up" onclick="openLightbox(${photoArg},${id})" data-tip="Переглянути" alt="Фото товару ${name}">`
-      : `<div class="photo-ph tip-up" onclick="openPhotoModal(${id})" data-tip="Додати фото" role="button" aria-label="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
+      ? `<img src="${safePhoto}" class="photo-thumb tip-up" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}" data-tip="Переглянути" alt="Фото товару ${name}">`
+      : `<div class="photo-ph tip-up" data-item-action="photo" data-item-id="${id}" data-tip="Додати фото" role="button" tabindex="0" aria-label="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
     return `<tr>
       <td style="color:#a5b4fc;font-size:12px;">${idx+1}</td>
       <td style="font-weight:600;color:var(--ios-label);max-width:280px;">${name}${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</td>
@@ -1557,13 +1822,13 @@ function renderItems(){
       <td><span class="${qc}">${item.quantity}</span> <span style="color:#a5b4fc;font-size:11px;">${unit}</span></td>
       <td>${priceBadge(item)}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-primary btn-sm" onclick="openQuick(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button class="btn btn-ghost btn-sm" onclick="openHistory(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
-        <button class="btn btn-ghost btn-sm" onclick="openPhotoModal(${id})"><span class="ms" style="font-size:16px;">photo_camera</span></button>
-        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" onclick="toggleInternal(${id},${!item.is_internal})" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
-        <button class="btn btn-ghost btn-sm tip-up" onclick="openManualPriceModal(${id})" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
-        <button class="btn btn-ghost btn-sm tip-up" onclick="openItemPriceLookup(${id})" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
-        <button class="btn btn-danger btn-sm" onclick="openDelete(${id})"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
+        <button class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
+        <button class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"><span class="ms" style="font-size:16px;">photo_camera</span></button>
+        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
+        <button class="btn btn-ghost btn-sm tip-up" data-item-action="manual-price" data-item-id="${id}" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
+        <button class="btn btn-ghost btn-sm tip-up" data-item-action="price-lookup" data-item-id="${id}" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
+        <button class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1576,10 +1841,9 @@ function renderItems(){
     const name=escapeHtml(item.name||'');
     const category=escapeHtml(item.category||'—');
     const unit=escapeHtml(item.unit||'');
-    const safePhoto=item.photo_url?escapeHtml(item.photo_url):'';
-    const photoArg=jsString(item.photo_url||'');
+    const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
     const photo=safePhoto
-      ? `<img src="${safePhoto}" alt="Фото товару ${name}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" onclick="openLightbox(${photoArg},${id})">`
+      ? `<img src="${safePhoto}" alt="Фото товару ${name}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}">`
       : '';
     return `<div class="m-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
@@ -1597,15 +1861,15 @@ function renderItems(){
         </div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
-        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:10px 10px;font-size:13px;" onclick="openQuick(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button class="btn btn-ghost" style="padding:10px 12px;" onclick="openHistory(${id})"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:10px 10px;font-size:13px;" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
+        <button class="btn btn-ghost" style="padding:10px 12px;" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
         <details class="item-more"><summary aria-label="Додаткові дії"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu">
-            <button onclick="openPhotoModal(${id})"><span class="ms">photo_camera</span> Фото</button>
-            <button onclick="toggleInternal(${id},${!item.is_internal})"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
-            <button onclick="openManualPriceModal(${id})"><span class="ms">sell</span> Ручна ціна</button>
-            <button onclick="openItemPriceLookup(${id})"><span class="ms">travel_explore</span> Інтернет-ціна</button>
-            <button class="danger" onclick="openDelete(${id})"><span class="ms">delete</span> Видалити</button>
+            <button data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
+            <button data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
+            <button data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
+            <button class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
           </div>
         </details>
       </div>
@@ -1651,7 +1915,7 @@ function openQuick(id){
   document.getElementById('qmQtyShow').textContent=item.quantity+' '+item.unit;
   document.getElementById('qmQtyI').value='';
   document.getElementById('qmPersonI').value='';
-  document.getElementById('qModal').classList.add('open');
+  openModal('qModal');
   setTimeout(()=>document.getElementById('qmQtyI').focus(),100);
 }
 async function doQuickIssue(btn){
@@ -1796,8 +2060,8 @@ function renderLog(){
       <td style="color:var(--ios-label2);">${safeIssuedTo}</td>
       <td style="color:var(--ios-gray);font-size:12px;">${safeNote}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-ghost btn-sm" onclick="openEditLog(${l.id})"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button class="btn btn-danger btn-sm" onclick="openDeleteLog(${l.id})"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">edit</span></button>
+        <button class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1821,8 +2085,8 @@ function renderLog(){
       <div style="font-weight:800;color:#ef4444;font-size:13px;flex-shrink:0;text-align:right;">
         −${l.quantity}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
         <div style="display:flex;gap:4px;margin-top:4px;">
-          <button onclick="openEditLog(${l.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button onclick="openDeleteLog(${l.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button data-log-action="edit" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button data-log-action="delete" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -1836,7 +2100,7 @@ function openDeleteLog(id){
   if(!l) return;
   deleteLogId=id;
   document.getElementById('delLogItemName').textContent=`${l.item_name} · ${l.quantity} ${(allItems.find(i=>i.id===l.item_id)||{}).unit||''} · ${l.issued_to||'—'}`;
-  document.getElementById('delLogModal').classList.add('open');
+  openModal('delLogModal');
 }
 async function confirmDeleteLog(){
   if(!deleteLogId) return;
@@ -1863,7 +2127,7 @@ function openEditLog(id){
   document.getElementById('editLogDate').value=dateToInputValue(l.issued_at);
   document.getElementById('editLogPerson').value=l.issued_to||'';
   document.getElementById('editLogNote').value=l.note||'';
-  document.getElementById('editLogModal').classList.add('open');
+  openModal('editLogModal');
 }
 async function confirmEditLog(){
   if(!editLogId) return;
@@ -1921,8 +2185,8 @@ function renderReceipts(){
       <td style="color:var(--ios-label2);">${safeSupplier}</td>
       <td style="color:var(--ios-gray);font-size:12px;">${safeNote}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-ghost btn-sm" onclick="openEditReceipt(${r.id})"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button class="btn btn-danger btn-sm" onclick="openDeleteReceipt(${r.id})"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">edit</span></button>
+        <button class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1943,8 +2207,8 @@ function renderReceipts(){
       <div style="font-weight:800;color:var(--ios-green);font-size:13px;flex-shrink:0;text-align:right;">
         +${r.quantity}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
         <div style="display:flex;gap:4px;margin-top:4px;">
-          <button onclick="openEditReceipt(${r.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button onclick="openDeleteReceipt(${r.id})" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button data-receipt-action="edit" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button data-receipt-action="delete" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -1956,7 +2220,7 @@ function openDeleteReceipt(id){
   if(!r) return;
   deleteReceiptId=id;
   document.getElementById('delReceiptItemName').textContent=`${r.item_name} · +${r.quantity} ${(allItems.find(i=>i.id===r.item_id)||{}).unit||''} · ${r.supplier||'—'}`;
-  document.getElementById('delReceiptModal').classList.add('open');
+  openModal('delReceiptModal');
 }
 async function confirmDeleteReceipt(){
   if(!deleteReceiptId) return;
@@ -1983,7 +2247,7 @@ function openEditReceipt(id){
   document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
   document.getElementById('editReceiptSupplier').value=r.supplier||'';
   document.getElementById('editReceiptNote').value=r.note||'';
-  document.getElementById('editReceiptModal').classList.add('open');
+  openModal('editReceiptModal');
 }
 async function confirmEditReceipt(){
   if(!editReceiptId) return;
@@ -2093,8 +2357,8 @@ function renderNewProductMatches(){
       <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')} · ${priceValue(i)?money(priceValue(i)):'без ціни'}</div>
     </div>
     <div style="display:flex;gap:6px;flex-shrink:0;">
-      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" onclick="useExistingItemForRefill('${escapeHtml(String(i.id))}')">Поповнити</button>
-      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" onclick="openManualPriceModal('${escapeHtml(String(i.id))}')">Ціна</button>
+      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-new-match-action="refill" data-item-id="${escapeHtml(String(i.id))}">Поповнити</button>
+      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
     </div>
   </div>`).join('');
 }
@@ -2162,7 +2426,7 @@ function openDelete(id){
   if(!item) return;
   deleteItemId=id;
   document.getElementById('delItemName').textContent='«'+item.name+'»';
-  document.getElementById('delModal').classList.add('open');
+  openModal('delModal');
 }
 async function confirmDelete(){
   if(!deleteItemId) return;
@@ -2190,16 +2454,15 @@ function openPhotoModal(id){
   document.getElementById('photoFileI').value='';
   const cur=document.getElementById('photoCurrent');
   const delBtn=document.getElementById('delPhotoBtn');
-  if(item.photo_url){
-    const safePhoto=escapeHtml(item.photo_url);
-    const photoArg=jsString(item.photo_url);
-    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" onclick="openLightbox(${photoArg},${item.id})">`;
+  const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
+  if(safePhoto){
+    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
     delBtn.style.display='inline-flex';
   } else {
     cur.innerHTML='<div style="text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;">Фото ще не додано</div>';
     delBtn.style.display='none';
   }
-  document.getElementById('photoModal').classList.add('open');
+  openModal('photoModal');
 }
 async function uploadPhoto(){
   const file=document.getElementById('photoFileI').files[0];
@@ -2350,7 +2613,7 @@ function renderStats(){
           <div style="font-weight:700;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
           <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')}</div>
         </div>
-        <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" onclick="openManualPriceModal('${escapeHtml(String(i.id))}')">Ціна</button>
+        <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
       </div>`).join('')+(unpriced.length>12?`<div style="font-size:11px;color:var(--ios-gray);margin-top:8px;">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
     : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
@@ -2414,7 +2677,7 @@ function fillPriceSelects(selectedId='', searchText='') {
 function openPriceRefreshModal(id='') {
   fillPriceSelects(id);
   document.getElementById('priceResults').innerHTML='Оберіть товар і натисніть “Знайти”.';
-  document.getElementById('priceModal').classList.add('open');
+  openModal('priceModal');
 }
 function openItemPriceLookup(id){
   openPriceRefreshModal(id);
@@ -2425,7 +2688,7 @@ function openManualPriceModal(id='') {
   const item=allItems.find(i=>String(i.id)===String(id));
   document.getElementById('manualPriceValue').value=item&&priceValue(item)?priceValue(item):'';
   document.getElementById('manualPriceSource').value=item?.price_source||'';
-  document.getElementById('manualPriceModal').classList.add('open');
+  openModal('manualPriceModal');
 }
 async function saveItemPrice(itemId, price, source='', url='', confidence='manual') {
   const payload={
@@ -2454,6 +2717,18 @@ async function saveManualPrice(){
   if(!price||price<=0) return toast('Вкажіть ціну','error');
   if(await saveItemPrice(id,price,source,'','manual')) { closeModal('manualPriceModal'); toast('Ціну збережено','success'); }
 }
+
+function bindPriceResultActions(){
+  const box=document.getElementById('priceResults');
+  if(!box) return;
+  box.addEventListener('click',(event)=>{
+    const button=event.target.closest('[data-price-result-action="apply"]');
+    if(!button) return;
+    event.preventDefault();
+    applyFoundPrice(button.dataset.itemId,Number(button.dataset.price)||0,button.dataset.source||'Інтернет',button.dataset.url||'');
+  });
+}
+
 async function fetchItemPrice(){
   const id=document.getElementById('priceItemSel').value;
   const item=allItems.find(i=>String(i.id)===String(id));
@@ -2470,16 +2745,19 @@ async function fetchItemPrice(){
     if(!res.ok) throw new Error(data.error||'Помилка пошуку');
     const results=data.results||[];
     if(!results.length){box.innerHTML='<div class="empty" style="padding:18px;">Ціну не знайдено. Спробуйте ручне введення.</div>';return;}
-    box.innerHTML=results.slice(0,5).map((r,idx)=>`<div style="padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;">
+    box.innerHTML=results.slice(0,5).map((r,idx)=>{
+      const safeLink=safeExternalUrl(r.link);
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;color:var(--ios-label);font-size:13px;line-height:1.35;">${escapeHtml(r.title||'Товар')}</div>
-        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${r.link?`<a href="${escapeHtml(r.link)}" target="_blank" rel="noopener" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
+        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${safeLink?`<a href="${safeLink}" target="_blank" rel="noopener" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(r.price)}</div>
-        <button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="applyFoundPrice('${escapeHtml(String(item.id))}',${Number(r.price)||0},'${escapeHtml(String(r.source||'Інтернет'))}','${escapeHtml(String(r.link||''))}')">Взяти</button>
+        <button class="btn btn-primary btn-sm" style="margin-top:6px;" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${safeLink}">Взяти</button>
       </div>
-    </div>`).join('');
+    </div>`;
+    }).join('');
   }catch(e){
     box.innerHTML=`<div style="color:var(--ios-red);font-size:13px;line-height:1.5;">${escapeHtml(e.message||String(e))}<br><small>Перевірте деплой Edge Function fetch-item-prices і секрет SERPAPI_KEY / SHOPAPIS_KEY у базі Складу.</small></div>`;
   }
@@ -2506,7 +2784,7 @@ function setPerson(name, btn) {
 // ===== BARCODE SCANNER (НОВИЙ ТОВАР) =====
 let barcodeAddScanner=null,lastScannedCode='';
 function openBarcodeAddScanner(){
-  document.getElementById('barcodeAddModal').classList.add('open');
+  openModal('barcodeAddModal');
   resetBarcodeScanner();
   setTimeout(()=>{
     barcodeAddScanner=new Html5Qrcode('barcodeAddReader');
@@ -2547,7 +2825,7 @@ function stopBarcodeAdd(){
 // ===== QR SCANNER =====
 let qrScanner=null;
 function openQR(){
-  document.getElementById('qrModal').classList.add('open');
+  openModal('qrModal');
   document.getElementById('qrResult').style.display='none';
   setTimeout(()=>{
     qrScanner=new Html5Qrcode('qrReader');
@@ -2583,7 +2861,7 @@ async function openHistory(itemId){
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
   document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Завантаження...</div>';
-  document.getElementById('histModal').classList.add('open');
+  openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
   if(!data||!data.length){
     document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Видач не було</div>';
@@ -2605,7 +2883,7 @@ async function openHistory(itemId){
 // ===== CHART =====
 let chartInst=null;
 function openChartModal(){
-  document.getElementById('chartModal').classList.add('open');
+  openModal('chartModal');
   setTimeout(renderChart,100);
 }
 function renderChart(){
@@ -2704,8 +2982,8 @@ function enhanceSelect(select){
         closePanel();
         btn.focus();
       };
-      item.onclick=choose;
-      item.onkeydown=(e)=>{
+      item.addEventListener('click',choose);
+      item.addEventListener('keydown',(e)=>{
         if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}
         else if(e.key==='Escape'){closePanel();btn.focus();}
         else if(e.key==='ArrowDown'){e.preventDefault();(item.nextElementSibling||panel.querySelector('.custom-select-option'))?.focus();}
@@ -2715,7 +2993,7 @@ function enhanceSelect(select){
           if(prev&&prev.classList.contains('custom-select-option')) prev.focus();
           else panel.querySelector('input[type="search"]')?.focus();
         }
-      };
+      });
       panel.appendChild(item);
     });
     if(searchable && !visibleOptions.some(o=>o.value)){
@@ -2771,6 +3049,12 @@ function refreshEnhancedSelect(select){
 }
 
 // ===== MODAL =====
+function openModal(id){
+  const modalBg=document.getElementById(id);
+  if(!modalBg) return;
+  modalBg.classList.add('open');
+  requestAnimationFrame(()=>modalBg.querySelector('[role="dialog"]')?.focus({preventScroll:true}));
+}
 function closeModal(id,e){
   if(e&&e.target!==document.getElementById(id)) return;
   document.getElementById(id).classList.remove('open');
@@ -2790,7 +3074,7 @@ function showDeletePinModal(title, action) {
   document.getElementById('delPinTitle').textContent = title;
   document.getElementById('delPinErr').textContent = '';
   updateDeletePinDots();
-  document.getElementById('delPinModal').classList.add('open');
+  openModal('delPinModal');
 }
 function delPinModalCancel(e) {
   if (e && e.target !== document.getElementById('delPinModal')) return;
@@ -2836,6 +3120,17 @@ async function deletePinPress(k) {
 let toastT;
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeExternalUrl(value){
+  const raw=String(value||'').trim();
+  if(!raw) return '';
+  try{
+    const url=new URL(raw,location.href);
+    if(url.protocol!=='http:'&&url.protocol!=='https:') return '';
+    return escapeHtml(url.href);
+  }catch(_){
+    return '';
+  }
 }
 function jsString(s){
   return JSON.stringify(String(s ?? ''));
@@ -2937,6 +3232,16 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+bindItemActionDelegation();
+bindPriceResultActions();
+bindPriceBadgeActions();
+bindAuditListDelegation();
+bindLogActionDelegation();
+bindReceiptActionDelegation();
+bindNewProductMatchActions();
+bindPhotoCurrentActions();
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindSkladStaticControls,{once:true});
+else bindSkladStaticControls();
 setRefreshStatus('syncing','Завантаження...');
 loadItems()
   .then(()=>loadLogs())
@@ -2949,24 +3254,24 @@ loadItems()
 
 <!-- BOTTOM NAV (mobile) -->
 <div class="bottom-nav" id="bottomNav">
-  <button class="bn-item active" data-page="items" onclick="nav('items',this)">
+  <button class="bn-item active" data-page="items">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">inventory_2</span></span></div>
     <span class="bn-label">Товари</span>
     <span class="bn-badge" id="bn-alert" style="display:none">!</span>
   </button>
-  <button class="bn-item" data-page="issue" onclick="nav('issue',this)">
+  <button class="bn-item" data-page="issue">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">output</span></span></div>
     <span class="bn-label">Видача</span>
   </button>
-  <button class="bn-item" data-page="log" onclick="nav('log',this)">
+  <button class="bn-item" data-page="log">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">receipt_long</span></span></div>
     <span class="bn-label">Журнал</span>
   </button>
-  <button class="bn-item" data-page="add" onclick="nav('add',this)">
+  <button class="bn-item" data-page="add">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">add_circle</span></span></div>
     <span class="bn-label">Додати</span>
   </button>
-  <button class="bn-item" data-page="audit" onclick="nav('audit',this)">
+  <button class="bn-item" data-page="audit">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">fact_check</span></span></div>
     <span class="bn-label">Інвент.</span>
   </button>
