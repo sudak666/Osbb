@@ -513,6 +513,23 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Shell and journal controls are action buttons rather than form submits; keep
+// explicit button types to avoid accidental submit/reload regressions as markup
+// shifts around modals and toolbar containers.
+for (const file of ['index.html', 'osbb/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} buttons declare explicit button type`;
+  const missingType = text.match(/<button(?![^>]*\btype=)/g) || [];
+  if (missingType.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missingType.length} missing type attributes)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad buttons live inside several modal/form-like containers and dynamic
 // templates; keep them explicit non-submit controls unless a future form needs
 // a real submit button.
