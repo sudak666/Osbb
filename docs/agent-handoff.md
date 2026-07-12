@@ -125,7 +125,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Latest known expected result: `115 smoke checks passed` after the accessibility/focus/escaping/mobile-topbar hardening pass.
+Latest known expected result: `116 smoke checks passed` after the accessibility/focus/escaping/mobile-topbar/menu hardening pass.
 
 ## Suggested next work
 
@@ -134,7 +134,7 @@ Latest known expected result: `115 smoke checks passed` after the accessibility/
 - Re-check mobile topbar spacing and contrast in light/dark themes.
 - Simplify mobile item cards further if they still feel too noisy.
 - Ensure primary vs secondary actions are visually clear.
-- Check bottom nav overlap with modals, cards, and long lists.
+- Check bottom nav overlap with modals, cards, long lists, and mobile item overflow menus.
 
 ### Priority 2 — Accessibility follow-up audit
 

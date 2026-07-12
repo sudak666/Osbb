@@ -1675,6 +1675,18 @@ function handleItemActionKeydown(event){
   event.preventDefault();
   trigger.click();
 }
+function closeOpenItemMenus(except=null){
+  document.querySelectorAll('#mobileCards details.item-more[open]').forEach(menu=>{
+    if(menu!==except) menu.removeAttribute('open');
+  });
+}
+function handleItemMenuToggle(event){
+  const menu=event.target;
+  if(menu.matches?.('#mobileCards details.item-more') && menu.open) closeOpenItemMenus(menu);
+}
+function handleItemMenuOutsideClick(event){
+  if(!event.target.closest?.('#mobileCards details.item-more')) closeOpenItemMenus();
+}
 function bindItemActionDelegation(){
   ['itemsTable','mobileCards'].forEach(id=>{
     const el=document.getElementById(id);
@@ -1682,6 +1694,8 @@ function bindItemActionDelegation(){
     el.addEventListener('click',handleItemActionClick);
     el.addEventListener('keydown',handleItemActionKeydown);
   });
+  document.addEventListener('toggle',handleItemMenuToggle,true);
+  document.addEventListener('click',handleItemMenuOutsideClick);
 }
 
 function bindPriceBadgeActions(){
@@ -3287,6 +3301,9 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key==='Escape'){
+    const openItemMenu=document.querySelector('#mobileCards details.item-more[open]');
+    closeOpenItemMenus();
+    openItemMenu?.querySelector('summary')?.focus({preventScroll:true});
     closeOpenModals();
     closeLightbox();
     stopQR();stopBarcodeAdd();

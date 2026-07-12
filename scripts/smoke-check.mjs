@@ -460,6 +460,30 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 }
 
 
+
+// Mobile item overflow menus should behave like transient menus: only one open
+// at a time, close on outside click, and return focus to the summary on Escape.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad mobile item overflow menus close predictably';
+  const required = [
+    'function closeOpenItemMenus',
+    "document.querySelectorAll('#mobileCards details.item-more[open]')",
+    'function handleItemMenuToggle',
+    'function handleItemMenuOutsideClick',
+    "document.addEventListener('toggle',handleItemMenuToggle,true)",
+    "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad mobile topbar should reserve flexible title space while keeping the
 // remaining icon actions compact enough to avoid overflow on narrow screens.
 {
