@@ -13,6 +13,16 @@ const checks = [
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
   ['osbb/index.html', "db.rpc('delete_chat_message'", 'journal deletes chat through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
+  ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
+  ['osbb/index.html', 'id="ios-toast" role="status" aria-live="polite"', 'journal toast exposes live status semantics'],
+  ['sklad/index.html', 'id="toast" role="status" aria-live="polite"', 'sklad toast exposes live status semantics'],
+  ['index.html', 'id="lock-err" class="lock-error-text" role="alert" aria-live="assertive"', 'shell lock errors expose alert semantics'],
+  ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
+  ['osbb/index.html', 'data-pin-modal-cancel aria-label="Скасувати введення PIN"', 'journal PIN cancel has accessible label'],
+  ['sklad/index.html', 'id="authErr" role="alert" aria-live="assertive"', 'sklad auth errors expose alert semantics'],
+  ['sklad/index.html', 'id="delPinErr" role="alert" aria-live="assertive"', 'sklad delete PIN errors expose alert semantics'],
+  ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],
+  ['sklad/index.html', 'data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad delete PIN delete has accessible label'],
 
   ['sklad/index.html', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
   ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],
@@ -236,6 +246,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-action="garbage-clear-month"',
     'data-action="dispatcher-clear-month"',
     'data-action="chat-send"',
+    'aria-label="Надіслати повідомлення"',
     'data-chat-author',
     'data-chat-input',
     'data-photo-action="open"',
@@ -263,8 +274,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1"',
     'data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1"',
-    "modal.querySelector('[role=\"dialog\"]')?.focus",
-    'requestAnimationFrame(()=>lightbox.focus',
+    'function focusPinModal',
+    'function trapPinModalFocus',
+    'pinModalFocusReturn',
+    'lightboxFocusReturn',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -638,7 +651,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
   const required = [
     'function openModal',
-    "modalBg.querySelector('[role=\"dialog\"]')?.focus",
+    'function focusModalDialog',
+    'focusModalDialog(modalBg)',
+    'function trapModalFocus',
+    'modalFocusReturn',
     "openModal('qModal')",
     "openModal('photoModal')",
     "openModal('delPinModal')",
