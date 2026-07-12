@@ -1265,6 +1265,7 @@
 
     let lightboxPhotos = [];
     let lightboxIndex = 0;
+    let lightboxFocusReturn = null;
 
     function buildLightboxPhotos() {
         lightboxPhotos = [];
@@ -1279,10 +1280,16 @@
         if (lightboxIndex < 0) { lightboxPhotos = [url]; lightboxIndex = 0; }
         document.getElementById('lightbox-img').src = url;
         const lightbox=document.getElementById('lightbox');
+        lightboxFocusReturn = document.activeElement;
         lightbox.classList.add('open');
         requestAnimationFrame(()=>lightbox.focus({preventScroll:true}));
     }
-    function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        const opener = lightboxFocusReturn;
+        lightboxFocusReturn = null;
+        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
+    }
 
     // Виправлено: перемикання тепер працює стабільно по колу без застрягань
     function lightboxPrev() {
@@ -1748,6 +1755,7 @@
         });
         document.querySelector('[data-pin-modal-cancel]')?.addEventListener('click', pinModalCancel);
         document.querySelector('[data-pin-modal-delete]')?.addEventListener('click', pinModalDel);
+        document.getElementById('pin-modal')?.addEventListener('keydown', trapPinModalFocus);
 
         document.querySelector('[data-theme-select]')?.addEventListener('change', (event) => changeTheme(event.target.value));
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
@@ -2357,6 +2365,39 @@
     // ==========================================
     let pinModalBuf = '';
     let pinModalCallback = null;
+    let pinModalFocusReturn = null;
+    const pinModalFocusableSelector = 'button:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+    function focusPinModal() {
+        const modal = document.getElementById('pin-modal');
+        const dialog = modal.querySelector('[role="dialog"]');
+        const firstButton = dialog?.querySelector(pinModalFocusableSelector);
+        (firstButton || dialog)?.focus({preventScroll:true});
+    }
+
+    function restorePinModalFocus() {
+        const opener = pinModalFocusReturn;
+        pinModalFocusReturn = null;
+        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
+    }
+
+    function hidePinModal() {
+        document.getElementById('pin-modal').style.display = 'none';
+        restorePinModalFocus();
+    }
+
+    function trapPinModalFocus(event) {
+        if (document.getElementById('pin-modal').style.display !== 'flex') return;
+        if (event.key === 'Escape') { event.preventDefault(); pinModalCancel(); return; }
+        if (event.key !== 'Tab') return;
+        const dialog = document.querySelector('#pin-modal [role="dialog"]');
+        const focusables = [...dialog.querySelectorAll(pinModalFocusableSelector)].filter(el => el.offsetParent !== null || el === document.activeElement);
+        if (!focusables.length) { event.preventDefault(); dialog.focus({preventScroll:true}); return; }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
+    }
 
     function showPinModal(title, sub, callback, danger = false) {
         pinModalBuf = '';
@@ -2369,12 +2410,13 @@
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
         const modal = document.getElementById('pin-modal');
+        pinModalFocusReturn = document.activeElement;
         modal.style.display = 'flex';
-        requestAnimationFrame(()=>modal.querySelector('[role="dialog"]')?.focus({preventScroll:true}));
+        requestAnimationFrame(()=>focusPinModal());
     }
 
     function pinModalCancel() {
-        document.getElementById('pin-modal').style.display = 'none';
+        hidePinModal();
         pinModalBuf = '';
         pinModalCallback = null;
     }
@@ -2403,7 +2445,7 @@
             try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
             if (ok) {
                 document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
-                document.getElementById('pin-modal').style.display = 'none';
+                hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
                 // його ще раз перед видаленням, а не покладається лише на
