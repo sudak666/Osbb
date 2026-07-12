@@ -517,6 +517,31 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Placeholder-only search/chat fields need stable accessible names.
+{
+  const osbb = readFileSync('osbb/index.html', 'utf8');
+  const sklad = readFileSync('sklad/index.html', 'utf8');
+  const label = 'search and chat fields expose aria-labels';
+  const required = [
+    [sklad, 'id="searchInp" aria-label="Пошук товарів"'],
+    [sklad, 'id="logSearch" aria-label="Пошук у журналі видач"'],
+    [sklad, 'id="auditSearch" aria-label="Пошук товару для інвентаризації"'],
+    [sklad, 'id="recSearch" aria-label="Пошук у приходах"'],
+    [sklad, 'id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну"'],
+    [osbb, "id=\"chat-author\" type=\"text\" aria-label=\"Ваше ім'я в чаті\""],
+    [osbb, 'id="chat-input" rows="2" aria-label="Повідомлення в чат"'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Rendered images should carry alt text, including dynamic photo thumbnails and
 // lightbox images.
 for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {

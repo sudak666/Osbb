@@ -569,7 +569,7 @@ async function checkPin(attempt){
         <button type="button" class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." data-render-items-input></div>
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
         <button type="button" class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
       </div>
@@ -626,7 +626,7 @@ async function checkPin(attempt){
         <button type="button" class="pill" data-log-category-filter="Сантехніка"><span class="ms" style="font-size:15px;">plumbing</span></button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." data-render-log-input></div>
+        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
         <div id="logResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -710,7 +710,7 @@ async function checkPin(attempt){
         </div>
       </div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" placeholder="Пошук товару..." data-render-audit-input></div>
+        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару..." data-render-audit-input></div>
         <div id="auditResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
         <div id="auditStats" style="font-size:12px;color:var(--ios-gray);"></div>
         <div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width:180px;margin-top:0;"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div>
@@ -732,7 +732,7 @@ async function checkPin(attempt){
   <div id="page-receipts" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." data-render-receipts-input></div>
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук..." data-render-receipts-input></div>
         <div id="recResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -1005,7 +1005,7 @@ async function checkPin(attempt){
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);">
       <div style="font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:500;"><span class="ms" style="font-size:14px;vertical-align:-2px;">edit</span> Або введіть штрих-код вручну</div>
       <div style="display:flex;gap:8px;">
-        <input type="number" id="manualBarcodeI" class="inp" placeholder="4820000000000" style="flex:1;font-size:15px;">
+        <input type="number" id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну" placeholder="4820000000000" style="flex:1;font-size:15px;">
         <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
       </div>
     </div>

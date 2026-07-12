@@ -548,9 +548,9 @@
             <!-- Поле введення -->
             <div class="p-3 border-t border-[var(--border)] flex gap-2 items-end">
                 <div class="flex-1">
-                    <input id="chat-author" type="text" placeholder="Ваше ім'я..." maxlength="30" readonly data-chat-author
+                    <input id="chat-author" type="text" aria-label="Ваше ім'я в чаті" placeholder="Ваше ім'я..." maxlength="30" readonly data-chat-author
                         class="w-full text-xs p-2 rounded-xl border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 mb-1.5">
-                    <textarea id="chat-input" rows="2" placeholder="Напишіть повідомлення..." maxlength="500"
+                    <textarea id="chat-input" rows="2" aria-label="Повідомлення в чат" placeholder="Напишіть повідомлення..." maxlength="500"
                         class="w-full text-sm p-2 rounded-xl border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
                         data-chat-input></textarea>
                 </div>
