@@ -2416,7 +2416,7 @@ function renderAddLow(){
   if(!low.length){el.innerHTML='<div style="font-size:13px;color:#10b981;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Все в нормі!</div>';return;}
   el.innerHTML=low.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
     <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name||'—')}</span>
-    <span class="${i.quantity==0?'qty-zero':'qty-low'}">${i.quantity}</span>
+    <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
   </div>`).join('');
 }
 
@@ -2886,7 +2886,7 @@ async function openHistory(itemId){
         <div style="font-weight:600;color:var(--ios-label);">${escapeHtml(l.issued_to||'—')}</div>
         <div style="font-size:11px;color:#a5b4fc;">${d} ${t}${l.note?' · '+escapeHtml(l.note):''}</div>
       </div>
-      <div class="hist-out">−${l.quantity} ${unit}</div>
+      <div class="hist-out">−${escapeHtml(String(l.quantity??0))} ${unit}</div>
     </div>`;
   }).join('');
 }

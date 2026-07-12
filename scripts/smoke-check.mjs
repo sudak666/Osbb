@@ -436,6 +436,26 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 }
 
 
+
+// Quantity values rendered in HTML contexts should be string-escaped too; these
+// can be stale/offline/database values rather than guaranteed numbers.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad HTML quantity renderers escape values';
+  const required = [
+    '${escapeHtml(String(i.quantity??0))}</span>',
+    '−${escapeHtml(String(l.quantity??0))} ${unit}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Chart/stat renderers should escape labels that can come from stored data.
 {
   const osbb = readFileSync('osbb/index.html', 'utf8');
