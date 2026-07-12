@@ -197,7 +197,7 @@
             <div id="lock-d2" class="pin-dot"></div>
             <div id="lock-d3" class="pin-dot"></div>
         </div>
-        <div id="lock-err" class="lock-error-text"></div>
+        <div id="lock-err" class="lock-error-text" role="alert" aria-live="assertive"></div>
 
         <div class="pin-keyboard">
             <button class="pin-btn" data-lock-digit="1">1</button>
@@ -233,7 +233,7 @@
 <div id="shell-main">
     <div id="shell-tabs">
         <div class="ios-segmented-control">
-            <button class="shell-tab-btn active" id="shell-tab-journal" data-shell-tab="journal">
+            <button class="shell-tab-btn active" id="shell-tab-journal" data-shell-tab="journal" aria-current="page">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
                 Журнал
             </button>
@@ -433,9 +433,15 @@
 
     function switchTab(name) {
         loadTab(name);
-        document.querySelectorAll('.shell-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.shell-tab-btn').forEach(b => {
+            b.classList.remove('active');
+            b.removeAttribute('aria-current');
+        });
         const targetTab = document.getElementById('shell-tab-' + name);
-        if (targetTab) targetTab.classList.add('active');
+        if (targetTab) {
+            targetTab.classList.add('active');
+            targetTab.setAttribute('aria-current', 'page');
+        }
 
         document.querySelectorAll('#shell-frames iframe').forEach(f => f.classList.remove('active'));
         const targetFrame = document.getElementById('frame-' + name);

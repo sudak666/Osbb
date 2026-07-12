@@ -400,7 +400,7 @@ canvas#stockChart{width:100%!important;max-height:300px;}
       <div class="auth-dot" id="d2"></div>
       <div class="auth-dot" id="d3"></div>
     </div>
-    <div class="auth-err" id="authErr"></div>
+    <div class="auth-err" id="authErr" role="alert" aria-live="assertive"></div>
     <div class="pin-keys">
       <button class="pin-key" data-auth-pin-key="1">1</button>
       <button class="pin-key" data-auth-pin-key="2">2</button>
@@ -411,9 +411,9 @@ canvas#stockChart{width:100%!important;max-height:300px;}
       <button class="pin-key" data-auth-pin-key="7">7</button>
       <button class="pin-key" data-auth-pin-key="8">8</button>
       <button class="pin-key" data-auth-pin-key="9">9</button>
-      <button class="pin-key" data-auth-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-auth-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
       <button class="pin-key" data-auth-pin-key="0">0</button>
-      <button class="pin-key" data-auth-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
@@ -513,7 +513,7 @@ async function checkPin(attempt){
     <span class="sb-ver">v3.1</span>
   </div>
   <nav>
-    <div class="ni active" data-page="items" role="button" tabindex="0">
+    <div class="ni active" data-page="items" role="button" tabindex="0" aria-current="page">
       <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Товари</span>
       <span class="ni-badge" id="sb-alert" style="display:none">!</span>
     </div>
@@ -861,7 +861,7 @@ async function checkPin(attempt){
       <div class="auth-dot" id="dp2"></div>
       <div class="auth-dot" id="dp3"></div>
     </div>
-    <div id="delPinErr" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
+    <div id="delPinErr" role="alert" aria-live="assertive" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
     <div class="pin-keys">
       <button class="pin-key" data-delete-pin-key="1">1</button>
       <button class="pin-key" data-delete-pin-key="2">2</button>
@@ -872,9 +872,9 @@ async function checkPin(attempt){
       <button class="pin-key" data-delete-pin-key="7">7</button>
       <button class="pin-key" data-delete-pin-key="8">8</button>
       <button class="pin-key" data-delete-pin-key="9">9</button>
-      <button class="pin-key" data-delete-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-delete-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
       <button class="pin-key" data-delete-pin-key="0">0</button>
-      <button class="pin-key" data-delete-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
@@ -981,7 +981,7 @@ async function checkPin(attempt){
 </div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" data-lightbox-close>
+<div id="lightbox" data-lightbox-close role="dialog" aria-modal="true" aria-label="Перегляд фото товару" tabindex="-1">
   <button id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
   <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" data-lightbox-stop>
 </div>
@@ -1072,7 +1072,7 @@ async function checkPin(attempt){
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,deleteItemId=null,stockFilter='';
@@ -1115,9 +1115,9 @@ if(isAuthSessionValid()) document.getElementById('authScreen').style.display='no
 // ===== NAV =====
 function nav(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.ni,.bn-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.ni,.bn-item').forEach(n=>{n.classList.remove('active');n.removeAttribute('aria-current');});
   document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>n.classList.add('active'));
+  document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>{n.classList.add('active');n.setAttribute('aria-current','page');});
   document.getElementById('pageTitle').innerHTML=pageTitles[page]||'';
   if(page==='issue'){populateSels();loadRecentIssues();}
   if(page==='log'){loadLogs();}
@@ -2511,15 +2511,25 @@ async function deletePhoto(){
   });
 }
 let lightboxPhotoItemId=null;
+let lightboxFocusReturn=null;
 function openLightbox(url,itemId=null){
   lightboxPhotoItemId=itemId||photoItemId||null;
+  lightboxFocusReturn=document.activeElement;
   document.getElementById('lbImg').src=url;
   document.getElementById('lbDelBtn').style.display=lightboxPhotoItemId?'inline-flex':'none';
-  document.getElementById('lightbox').classList.add('open');
+  const lightbox=document.getElementById('lightbox');
+  lightbox.classList.add('open');
+  requestAnimationFrame(()=>{
+    const deleteBtn=document.getElementById('lbDelBtn');
+    (deleteBtn.style.display==='none' ? lightbox : deleteBtn).focus({preventScroll:true});
+  });
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
   lightboxPhotoItemId=null;
+  const opener=lightboxFocusReturn;
+  lightboxFocusReturn=null;
+  if(opener && document.contains(opener) && typeof opener.focus==='function') opener.focus({preventScroll:true});
 }
 async function deleteLightboxPhoto(e){
   e.stopPropagation();
@@ -3049,15 +3059,63 @@ function refreshEnhancedSelect(select){
 }
 
 // ===== MODAL =====
+const focusableModalSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const modalFocusReturn = new Map();
+
+function getFocusableModalElements(container){
+  return [...container.querySelectorAll(focusableModalSelector)].filter(el=>el.offsetParent!==null || el === document.activeElement);
+}
+function focusModalDialog(modalBg){
+  const dialog = modalBg.querySelector('[role="dialog"]');
+  if(!dialog) return;
+  const focusTarget = getFocusableModalElements(dialog)[0] || dialog;
+  focusTarget.focus({preventScroll:true});
+}
 function openModal(id){
   const modalBg=document.getElementById(id);
   if(!modalBg) return;
+  if(!modalBg.classList.contains('open')) modalFocusReturn.set(id,document.activeElement);
   modalBg.classList.add('open');
-  requestAnimationFrame(()=>modalBg.querySelector('[role="dialog"]')?.focus({preventScroll:true}));
+  requestAnimationFrame(()=>focusModalDialog(modalBg));
+}
+function restoreModalFocus(id){
+  const opener = modalFocusReturn.get(id);
+  modalFocusReturn.delete(id);
+  if(opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
 }
 function closeModal(id,e){
-  if(e&&e.target!==document.getElementById(id)) return;
-  document.getElementById(id).classList.remove('open');
+  const modalBg=document.getElementById(id);
+  if(!modalBg || (e&&e.target!==modalBg)) return;
+  if(modalBg.classList.contains('open')){
+    modalBg.classList.remove('open');
+    restoreModalFocus(id);
+  }
+}
+function closeOpenModals(){
+  document.querySelectorAll('.modal-bg.open').forEach(modal=>closeModal(modal.id));
+}
+function trapModalFocus(event){
+  if(event.key !== 'Tab') return;
+  const openModals = [...document.querySelectorAll('.modal-bg.open')];
+  const modalBg = openModals[openModals.length-1];
+  if(!modalBg) return;
+  const dialog = modalBg.querySelector('[role="dialog"]');
+  if(!dialog) return;
+  const focusables = getFocusableModalElements(dialog);
+  if(!focusables.length){
+    event.preventDefault();
+    dialog.focus({preventScroll:true});
+    return;
+  }
+  const first = focusables[0];
+  const last = focusables[focusables.length-1];
+  if(event.shiftKey && document.activeElement === first){
+    event.preventDefault();
+    last.focus({preventScroll:true});
+  } else if(!event.shiftKey && document.activeElement === last){
+    event.preventDefault();
+    first.focus({preventScroll:true});
+  }
 }
 
 // ===== PIN ПРИ ВИДАЛЕННІ =====
@@ -3226,10 +3284,11 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key==='Escape'){
-    ['qModal','photoModal','delModal','histModal','chartModal','priceModal','manualPriceModal','barcodeAddModal','delLogModal','editLogModal','delReceiptModal','editReceiptModal','auditModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
-    document.getElementById('lightbox').classList.remove('open');
+    closeOpenModals();
+    closeLightbox();
     stopQR();stopBarcodeAdd();
   }
+  trapModalFocus(e);
 });
 
 bindItemActionDelegation();
@@ -3254,7 +3313,7 @@ loadItems()
 
 <!-- BOTTOM NAV (mobile) -->
 <div class="bottom-nav" id="bottomNav">
-  <button class="bn-item active" data-page="items">
+  <button class="bn-item active" data-page="items" aria-current="page">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">inventory_2</span></span></div>
     <span class="bn-label">Товари</span>
     <span class="bn-badge" id="bn-alert" style="display:none">!</span>
