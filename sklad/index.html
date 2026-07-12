@@ -246,8 +246,10 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 @media(max-width:768px){
   .sidebar{display:none!important;}
   .main{margin-left:0!important;padding-bottom:calc(88px + env(safe-area-inset-bottom));}
-  .topbar{padding:0 14px;height:56px;border-radius:0 0 18px 18px;}
-  .topbar h2{font-size:15px;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}
+  .topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar>div{gap:6px!important;flex-shrink:0;}
+  .topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;padding:0!important;justify-content:center;}
   .topbar-right-excel{display:none!important;}
   .page{padding:14px 12px;}
   .g4{grid-template-columns:1fr 1fr;gap:8px;}

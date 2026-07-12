@@ -459,6 +459,27 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+
+// Sklad mobile topbar should reserve flexible title space while keeping the
+// remaining icon actions compact enough to avoid overflow on narrow screens.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad mobile topbar keeps compact actions and flexible title';
+  const required = [
+    '.topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}',
+    '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+    '.topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;padding:0!important;justify-content:center;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Quantity values rendered in HTML contexts should be string-escaped too; these
 // can be stale/offline/database values rather than guaranteed numbers.
 {
