@@ -512,6 +512,23 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 }
 
 
+
+// Sklad buttons live inside several modal/form-like containers and dynamic
+// templates; keep them explicit non-submit controls unless a future form needs
+// a real submit button.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad buttons declare explicit button type';
+  const missingType = text.match(/<button(?![^>]*\btype=)/g) || [];
+  if (missingType.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missingType.length} missing type attributes)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad page titles should be rendered with DOM text nodes instead of assigning
 // HTML strings, and the mobile bottom nav should expose semantic navigation and
 // stable labels for icon-heavy buttons.
