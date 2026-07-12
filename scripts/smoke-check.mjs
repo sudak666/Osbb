@@ -14,6 +14,8 @@ const checks = [
   ['osbb/index.html', "db.rpc('delete_chat_message'", 'journal deletes chat through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
   ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
+  ['osbb/index.html', 'id="ios-toast" role="status" aria-live="polite"', 'journal toast exposes live status semantics'],
+  ['sklad/index.html', 'id="toast" role="status" aria-live="polite"', 'sklad toast exposes live status semantics'],
 
   ['sklad/index.html', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
   ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],
