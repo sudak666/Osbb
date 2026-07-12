@@ -13,6 +13,7 @@ const checks = [
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
   ['osbb/index.html', "db.rpc('delete_chat_message'", 'journal deletes chat through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
+  ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
 
   ['sklad/index.html', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
   ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],

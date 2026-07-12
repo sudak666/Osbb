@@ -2837,7 +2837,7 @@
     function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
         const el = document.getElementById('ios-toast');
         if (!el) return;
-        el.innerHTML = `<span style="width:18px;height:18px;border-radius:50%;background:rgba(52,199,89,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;">${icon}</span>${msg}`;
+        el.innerHTML = `<span style="width:18px;height:18px;border-radius:50%;background:rgba(52,199,89,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;">${icon}</span>${escapeHtml(msg)}`;
         el.style.opacity = '1';
         el.style.transform = 'translateX(-50%) translateY(0)';
         clearTimeout(toastTimer);
