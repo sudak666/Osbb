@@ -981,7 +981,7 @@ async function checkPin(attempt){
 </div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" data-lightbox-close>
+<div id="lightbox" data-lightbox-close role="dialog" aria-modal="true" aria-label="Перегляд фото товару" tabindex="-1">
   <button id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
   <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" data-lightbox-stop>
 </div>
@@ -2511,15 +2511,25 @@ async function deletePhoto(){
   });
 }
 let lightboxPhotoItemId=null;
+let lightboxFocusReturn=null;
 function openLightbox(url,itemId=null){
   lightboxPhotoItemId=itemId||photoItemId||null;
+  lightboxFocusReturn=document.activeElement;
   document.getElementById('lbImg').src=url;
   document.getElementById('lbDelBtn').style.display=lightboxPhotoItemId?'inline-flex':'none';
-  document.getElementById('lightbox').classList.add('open');
+  const lightbox=document.getElementById('lightbox');
+  lightbox.classList.add('open');
+  requestAnimationFrame(()=>{
+    const deleteBtn=document.getElementById('lbDelBtn');
+    (deleteBtn.style.display==='none' ? lightbox : deleteBtn).focus({preventScroll:true});
+  });
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
   lightboxPhotoItemId=null;
+  const opener=lightboxFocusReturn;
+  lightboxFocusReturn=null;
+  if(opener && document.contains(opener) && typeof opener.focus==='function') opener.focus({preventScroll:true});
 }
 async function deleteLightboxPhoto(e){
   e.stopPropagation();
@@ -3049,15 +3059,63 @@ function refreshEnhancedSelect(select){
 }
 
 // ===== MODAL =====
+const focusableModalSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const modalFocusReturn = new Map();
+
+function getFocusableModalElements(container){
+  return [...container.querySelectorAll(focusableModalSelector)].filter(el=>el.offsetParent!==null || el === document.activeElement);
+}
+function focusModalDialog(modalBg){
+  const dialog = modalBg.querySelector('[role="dialog"]');
+  if(!dialog) return;
+  const focusTarget = getFocusableModalElements(dialog)[0] || dialog;
+  focusTarget.focus({preventScroll:true});
+}
 function openModal(id){
   const modalBg=document.getElementById(id);
   if(!modalBg) return;
+  if(!modalBg.classList.contains('open')) modalFocusReturn.set(id,document.activeElement);
   modalBg.classList.add('open');
-  requestAnimationFrame(()=>modalBg.querySelector('[role="dialog"]')?.focus({preventScroll:true}));
+  requestAnimationFrame(()=>focusModalDialog(modalBg));
+}
+function restoreModalFocus(id){
+  const opener = modalFocusReturn.get(id);
+  modalFocusReturn.delete(id);
+  if(opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
 }
 function closeModal(id,e){
-  if(e&&e.target!==document.getElementById(id)) return;
-  document.getElementById(id).classList.remove('open');
+  const modalBg=document.getElementById(id);
+  if(!modalBg || (e&&e.target!==modalBg)) return;
+  if(modalBg.classList.contains('open')){
+    modalBg.classList.remove('open');
+    restoreModalFocus(id);
+  }
+}
+function closeOpenModals(){
+  document.querySelectorAll('.modal-bg.open').forEach(modal=>closeModal(modal.id));
+}
+function trapModalFocus(event){
+  if(event.key !== 'Tab') return;
+  const openModals = [...document.querySelectorAll('.modal-bg.open')];
+  const modalBg = openModals[openModals.length-1];
+  if(!modalBg) return;
+  const dialog = modalBg.querySelector('[role="dialog"]');
+  if(!dialog) return;
+  const focusables = getFocusableModalElements(dialog);
+  if(!focusables.length){
+    event.preventDefault();
+    dialog.focus({preventScroll:true});
+    return;
+  }
+  const first = focusables[0];
+  const last = focusables[focusables.length-1];
+  if(event.shiftKey && document.activeElement === first){
+    event.preventDefault();
+    last.focus({preventScroll:true});
+  } else if(!event.shiftKey && document.activeElement === last){
+    event.preventDefault();
+    first.focus({preventScroll:true});
+  }
 }
 
 // ===== PIN ПРИ ВИДАЛЕННІ =====
@@ -3226,10 +3284,11 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key==='Escape'){
-    ['qModal','photoModal','delModal','histModal','chartModal','priceModal','manualPriceModal','barcodeAddModal','delLogModal','editLogModal','delReceiptModal','editReceiptModal','auditModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
-    document.getElementById('lightbox').classList.remove('open');
+    closeOpenModals();
+    closeLightbox();
     stopQR();stopBarcodeAdd();
   }
+  trapModalFocus(e);
 });
 
 bindItemActionDelegation();

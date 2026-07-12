@@ -263,8 +263,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1"',
     'data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1"',
-    "modal.querySelector('[role=\"dialog\"]')?.focus",
-    'requestAnimationFrame(()=>lightbox.focus',
+    'function focusPinModal',
+    'function trapPinModalFocus',
+    'pinModalFocusReturn',
+    'lightboxFocusReturn',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -638,7 +640,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
   const required = [
     'function openModal',
-    "modalBg.querySelector('[role=\"dialog\"]')?.focus",
+    'function focusModalDialog',
+    'focusModalDialog(modalBg)',
+    'function trapModalFocus',
+    'modalFocusReturn',
     "openModal('qModal')",
     "openModal('photoModal')",
     "openModal('delPinModal')",
