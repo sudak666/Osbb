@@ -367,7 +367,7 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .item-more{position:relative;flex-shrink:0;}
 .item-more summary{list-style:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(116,116,128,.10);color:var(--brand);cursor:pointer;}
 .item-more summary::-webkit-details-marker{display:none;}
-.item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:30;min-width:190px;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 14px 34px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:2px;}
+.item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 14px 34px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:2px;}
 .item-more-menu button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--ios-label);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;text-align:left;}
 .item-more-menu button:active,.item-more-menu button:hover{background:var(--ios-gray6);}
 .item-more-menu button.danger{color:var(--ios-red);}
@@ -1675,14 +1675,22 @@ function handleItemActionKeydown(event){
   event.preventDefault();
   trigger.click();
 }
+function setItemMenuExpanded(menu,expanded){
+  menu?.querySelector('summary')?.setAttribute('aria-expanded', String(expanded));
+}
 function closeOpenItemMenus(except=null){
   document.querySelectorAll('#mobileCards details.item-more[open]').forEach(menu=>{
-    if(menu!==except) menu.removeAttribute('open');
+    if(menu!==except){
+      menu.removeAttribute('open');
+      setItemMenuExpanded(menu,false);
+    }
   });
 }
 function handleItemMenuToggle(event){
   const menu=event.target;
-  if(menu.matches?.('#mobileCards details.item-more') && menu.open) closeOpenItemMenus(menu);
+  if(!menu.matches?.('#mobileCards details.item-more')) return;
+  setItemMenuExpanded(menu,menu.open);
+  if(menu.open) closeOpenItemMenus(menu);
 }
 function handleItemMenuOutsideClick(event){
   if(!event.target.closest?.('#mobileCards details.item-more')) closeOpenItemMenus();
@@ -1879,13 +1887,13 @@ function renderItems(){
       <div style="display:flex;gap:6px;align-items:center;">
         <button class="btn btn-primary" style="flex:1;justify-content:center;padding:10px 10px;font-size:13px;" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
         <button class="btn btn-ghost" style="padding:10px 12px;" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
-        <details class="item-more"><summary aria-label="Додаткові дії"><span class="ms" aria-hidden="true">more_horiz</span></summary>
-          <div class="item-more-menu">
-            <button data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
-            <button data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
-            <button data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
-            <button data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
-            <button class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
+        <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
+          <div class="item-more-menu" role="menu">
+            <button role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
+            <button role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
+            <button role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
+            <button role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
           </div>
         </details>
       </div>

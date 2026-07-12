@@ -467,10 +467,15 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync('sklad/index.html', 'utf8');
   const label = 'sklad mobile item overflow menus close predictably';
   const required = [
+    'function setItemMenuExpanded',
     'function closeOpenItemMenus',
     "document.querySelectorAll('#mobileCards details.item-more[open]')",
     'function handleItemMenuToggle',
     'function handleItemMenuOutsideClick',
+    'aria-haspopup="menu" aria-expanded="false"',
+    'class="item-more-menu" role="menu"',
+    'role="menuitem" data-item-action="photo"',
+    'z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;',
     "document.addEventListener('toggle',handleItemMenuToggle,true)",
     "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
   ];
