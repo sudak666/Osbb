@@ -517,7 +517,14 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync('sklad/index.html', 'utf8');
   const label = 'sklad HTML quantity renderers escape values';
   const required = [
-    '${escapeHtml(String(i.quantity??0))}</span>',
+    '${escapeHtml(String(item.quantity??0))} ${unit}',
+    '<span class="${qc}">${escapeHtml(String(item.quantity??0))}</span>',
+    '<span class="${qc}" style="font-size:22px;">${escapeHtml(String(item.quantity??0))}</span>',
+    '−${escapeHtml(String(l.quantity??0))}</div>',
+    '−${escapeHtml(String(l.quantity??0))}<span',
+    '+${escapeHtml(String(r.quantity??0))}<span',
+    "${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}",
+    "(${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')})",
     '−${escapeHtml(String(l.quantity??0))} ${unit}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
