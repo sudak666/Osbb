@@ -2982,7 +2982,7 @@ function enhanceSelect(select){
   btn.className=btnClass+' custom-select-btn';
   btn.setAttribute('aria-haspopup','listbox');
   btn.setAttribute('aria-expanded','false');
-  btn.innerHTML='<span class="custom-select-label"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.55;"><polyline points="6 9 12 15 18 9"/></svg>';
+  btn.innerHTML='<span class="custom-select-label"></span><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.55;"><polyline points="6 9 12 15 18 9"/></svg>';
   wrap.appendChild(btn);
 
   const panel=document.createElement('div');

@@ -195,7 +195,7 @@
 </head>
 <body class="theme-light min-h-screen">
 
-<svg style="display:none" aria-hidden="true">
+<svg aria-hidden="true" focusable="false" style="display:none">
     <defs>
         <symbol id="i-journal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="13" y2="18"/></symbol>
         <symbol id="i-charts" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
@@ -209,7 +209,7 @@
 <div id="app-lock-screen" style="position:fixed;inset:0;background:#1c1c1e;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
     <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;padding:0 24px;">
         <!-- Лого -->
-        <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#34c759,#248a3d);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(52,199,89,0.35);"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
+        <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#34c759,#248a3d);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(52,199,89,0.35);"><svg aria-hidden="true" focusable="false" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
         <div style="color:#fff;font-size:1.15rem;font-weight:700;margin-bottom:4px;letter-spacing:-0.3px;">ОСББ "Микитська Слобода"</div>
         <div style="color:#98989d;font-size:0.8rem;margin-bottom:36px;">Введіть PIN для входу</div>
 
@@ -263,16 +263,16 @@
 <div id="intro-splash">
     <div class="pulse-ring"></div>
     <div class="pulse-ring pulse-ring2"></div>
-    <div class="intro-logo"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
+    <div class="intro-logo"><svg aria-hidden="true" focusable="false" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
     <div class="intro-name">ОСББ "Микитська Слобода"</div>
-    <div class="intro-sub"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg> Завантаження...</span></div>
+    <div class="intro-sub"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg> Завантаження...</span></div>
 </div>
 
 
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(15,10,40,0.6);backdrop-filter:blur(6px);z-index:9500;align-items:center;justify-content:center;">
     <div role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1" style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 60px rgba(52,199,89,0.4);border:1px solid rgba(255,255,255,0.12);">
-        <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon"><span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.15);align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+        <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon"><span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.15);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
         <div style="color:#fff;font-size:1rem;font-weight:800;margin-bottom:4px;" id="pin-modal-title">Пароль для скидання</div>
         <div style="color:#94a3b8;font-size:0.75rem;margin-bottom:20px;" id="pin-modal-sub">Введіть 4-значний PIN</div>
         <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;">
@@ -294,7 +294,7 @@
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="9">9</button>
             <button type="button" data-pin-modal-cancel aria-label="Скасувати введення PIN" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="0">0</button>
-            <button type="button" data-pin-modal-delete aria-label="Видалити цифру" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:80px;height:80px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            <button type="button" data-pin-modal-delete aria-label="Видалити цифру" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:80px;height:80px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
     </div>
 </div>
@@ -312,18 +312,18 @@
 
     <div class="no-print flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] gap-4 shadow-md relative">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight animated-title"><span class="inline-flex items-center gap-2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ОСББ "Микитська Слобода"</span></h1>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight animated-title"><span class="inline-flex items-center gap-2"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ОСББ "Микитська Слобода"</span></h1>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-            <span id="network-badge" style="display:none;" class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-600 flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
-            <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span></span>
+            <span id="network-badge" style="display:none;" class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-600 flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
+            <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span></span>
             <select id="theme-select" data-theme-select aria-label="Тема оформлення" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
                 <option value="theme-light">Світла</option>
                 <option value="theme-dark">Темна</option>
             </select>
-            <button type="button" data-action="export-excel" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg> Excel</span></button>
-            <button type="button" data-action="print-page" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</span></button>
-            <button type="button" data-action="clear-current-month" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
+            <button type="button" data-action="export-excel" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg> Excel</span></button>
+            <button type="button" data-action="print-page" class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</span></button>
+            <button type="button" data-action="clear-current-month" class="text-sm text-red-600 hover:bg-red-500/10 px-3 py-2 rounded-xl font-medium border border-red-200/30 transition shadow-sm hover:scale-105"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
         </div>
     </div>
 
@@ -333,27 +333,27 @@
         <select id="month-select" data-calendar-select aria-label="Місяць" class="rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-bold outline-none shadow-sm text-sm"></select>
         <button type="button" data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="text-lg font-bold w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 transition select-none">›</button>
         <button type="button" data-action="go-today" id="btn-today" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-600 hover:bg-emerald-500/20 transition hidden">
-            <span class="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg> Сьогодні</span>
+            <span class="flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg> Сьогодні</span>
         </button>
         <button type="button" data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-input)] hover:bg-emerald-500/10 text-emerald-600 transition" id="btn-refresh">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         </button>
         <!-- Таби — тільки на десктопі в цьому рядку -->
         <div id="desktop-tabs" class="ml-auto flex gap-1.5" role="tablist" aria-label="Розділи журналу">
             <button type="button" data-osbb-tab="journal" id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
+                <svg aria-hidden="true" focusable="false" width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
             </button>
             <button type="button" data-osbb-tab="charts" id="tab-charts" role="tab" aria-selected="false" aria-controls="section-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
+                <svg aria-hidden="true" focusable="false" width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
             </button>
             <button type="button" data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
+                <svg aria-hidden="true" focusable="false" width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
             </button>
             <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
+                <svg aria-hidden="true" focusable="false" width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
             </button>
             <button type="button" data-osbb-tab="chat" id="tab-chat" role="tab" aria-selected="false" aria-controls="section-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
+                <svg aria-hidden="true" focusable="false" width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
             </button>
         </div>
     </div>
@@ -361,49 +361,49 @@
     <!-- BOTTOM NAV — тільки на мобілці -->
     <div id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу" class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] no-print" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
         <button type="button" data-osbb-tab="journal" id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
-            <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
+            <svg aria-hidden="true" focusable="false" width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
         </button>
         <button type="button" data-osbb-tab="charts" id="tab-charts-m" role="tab" aria-selected="false" aria-controls="section-charts" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
+            <svg aria-hidden="true" focusable="false" width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
         </button>
         <button type="button" data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
+            <svg aria-hidden="true" focusable="false" width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
         </button>
         <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
+            <svg aria-hidden="true" focusable="false" width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
         </button>
         <button type="button" data-osbb-tab="chat" id="tab-chat-m" role="tab" aria-selected="false" aria-controls="section-chat" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
+            <svg aria-hidden="true" focusable="false" width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
         </button>
     </div>
 
     <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
         <div class="no-print mb-4 p-3 bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
-            <span class="w-7 h-7 rounded-full bg-amber-400/20 flex items-center justify-center shrink-0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span>
+            <span class="w-7 h-7 rounded-full bg-amber-400/20 flex items-center justify-center shrink-0"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span>
             <p id="fun-quote" class="text-xs font-medium italic"></p>
         </div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg> Моніторинг Суперсил за Місяць:</span></h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg> Моніторинг Суперсил за Місяць:</span></h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-bold text-amber-700"><span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
+                <div class="flex items-center justify-between"><span class="font-bold text-amber-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-bold text-emerald-700"><span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
+                <div class="flex items-center justify-between"><span class="font-bold text-emerald-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-bold text-blue-700"><span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
+                <div class="flex items-center justify-between"><span class="font-bold text-blue-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
+                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
         </div>
 
-        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Сміття за Місяць:</span></h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Сміття за Місяць:</span></h3>
         <div class="stat-card p-4 rounded-xl bg-emerald-500/5 border-2 border-emerald-500/20 shadow-sm mb-6">
             <!-- Головний показник — Баки -->
             <div class="flex items-center justify-between mb-3">
                 <div>
-                    <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-0.5"><span class="inline-flex items-center gap-1.5"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Баків вивезено</span></div>
+                    <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-0.5"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Баків вивезено</span></div>
                     <div class="text-xs text-[var(--text-sub)]">Всього за місяць: <span id="dash-garbage-total" class="font-bold text-[var(--text-main)]">0</span></div>
                 </div>
                 <span id="dash-garbage-bins" class="text-4xl font-black text-emerald-500">0</span>
@@ -423,11 +423,11 @@
                 <canvas id="chart-daily" height="200"></canvas>
             </div>
             <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
-                <h3 class="text-sm font-bold mb-4"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> Розподіл змін по ролях</span></h3>
+                <h3 class="text-sm font-bold mb-4"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> Розподіл змін по ролях</span></h3>
                 <canvas id="chart-pie" height="200"></canvas>
             </div>
             <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md lg:col-span-2">
-                <h3 class="text-sm font-bold mb-4"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Активність по тижнях</span></h3>
+                <h3 class="text-sm font-bold mb-4"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Активність по тижнях</span></h3>
                 <canvas id="chart-weekly" height="120"></canvas>
             </div>
         </div>
@@ -443,7 +443,7 @@
         <div id="loading-overlay" class="no-print fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="bg-[var(--bg-card)] p-5 rounded-2xl flex items-center gap-3 border border-[var(--border)] shadow-2xl">
                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
-                <p id="loading-text" class="font-bold text-sm"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Зв'язуюсь із хмарою...</span></p>
+                <p id="loading-text" class="font-bold text-sm"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Зв'язуюсь із хмарою...</span></p>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -451,10 +451,10 @@
                 <thead>
                     <tr class="bg-[var(--table-header)] border-b border-[var(--border)] text-xs font-bold uppercase tracking-wider">
                         <th class="p-4 w-36">Дата / День</th>
-                        <th class="p-4 border-l border-[var(--border)] text-amber-700"><span class="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></th>
-                        <th class="p-4 border-l border-[var(--border)] text-emerald-700"><span class="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></th>
-                        <th class="p-4 border-l border-[var(--border)] text-blue-700"><span class="inline-flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></th>
-                        <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print"><span style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span></th>
+                        <th class="p-4 border-l border-[var(--border)] text-amber-700"><span class="inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></th>
+                        <th class="p-4 border-l border-[var(--border)] text-emerald-700"><span class="inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></th>
+                        <th class="p-4 border-l border-[var(--border)] text-blue-700"><span class="inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></th>
+                        <th class="p-4 border-l border-[var(--border)] text-purple-700 no-print"><span style="display:inline-flex;align-items:center;gap:4px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span></th>
                     </tr>
                 </thead>
                 <tbody id="calendar-body" class="divide-y divide-[var(--border)] text-sm">
@@ -490,10 +490,10 @@
         <!-- Список днів (згорнуто, окрім сьогодні) -->
         <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
-                <span class="text-sm font-bold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Журнал вивозу сміття</span>
+                <span class="text-sm font-bold"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Журнал вивозу сміття</span>
                 <div class="flex items-center gap-2">
-                    <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
-                    <button type="button" data-action="garbage-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
+                    <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
+                    <button type="button" data-action="garbage-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
                 </div>
             </div>
 
@@ -523,11 +523,11 @@
         <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16z"/></svg> Журнал Диспетчера</span></span>
+                    <span class="text-sm font-bold"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16z"/></svg> Журнал Диспетчера</span></span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span id="disp-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
-                    <button type="button" data-action="dispatcher-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
+                    <span id="disp-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
+                    <button type="button" data-action="dispatcher-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span style="display:inline-flex;align-items:center;gap:6px;"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
                 </div>
             </div>
             <div id="disp-cards" class="divide-y divide-[var(--border)]"></div>
@@ -539,9 +539,9 @@
         <div class="rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
             <div class="p-4 bg-[var(--table-header)] border-b border-[var(--border)] flex items-center justify-between gap-3">
                 <span class="text-sm font-bold flex items-center gap-2">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Чат ОСББ
+                    <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Чат ОСББ
                 </span>
-                <span id="chat-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
+                <span id="chat-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
             </div>
             <!-- Повідомлення -->
             <div id="chat-messages" class="flex flex-col gap-2 p-4 overflow-y-auto" style="min-height:300px;max-height:60vh;"></div>
@@ -555,7 +555,7 @@
                         data-chat-input></textarea>
                 </div>
                 <button type="button" data-action="chat-send" aria-label="Надіслати повідомлення" class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition shrink-0 mb-0.5">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
             </div>
             <div class="px-4 pb-2 text-[10px] text-[var(--text-sub)]">Ctrl+Enter для надсилання</div>
@@ -781,16 +781,16 @@
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const quotes = [
-        `Чистий під'їзд починається не з мітли, а з посмішки! <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>`,
-        `Електрик вміє вмикати гарний настрій навіть без генератора! <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-        `Наші сантехніки контролюють ситуацію краще, ніж Нептун! <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="23"/><path d="M5 15H2a10 10 0 0 0 20 0h-3"/></svg>`,
-        `Сьогодні чудовий день підстригти газон! <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M2 22c0-9.4 7.6-17 17-17h3l-3.5 3.5A12 12 0 0 1 5 22H2z"/></svg>`,
-        `Порядок у будинку — спокій у душі. <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/></svg>`,
-        `Директор каже: «Хто рано встає — тому й мітла дістається нова!» <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>`,
-        `Пам'ятайте: навіть Супермен іноді міняв лампочки! <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
-        `Кожна виконана заявка — це крок до ідеального ОСББ! <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg>`,
-        `Директор нагадує: «Завдання не виконаються самі... або виконаються?» <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-        `Якість роботи визначається не тільки мітлою, а й душею! <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+        `Чистий під'їзд починається не з мітли, а з посмішки! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>`,
+        `Електрик вміє вмикати гарний настрій навіть без генератора! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+        `Наші сантехніки контролюють ситуацію краще, ніж Нептун! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="23"/><path d="M5 15H2a10 10 0 0 0 20 0h-3"/></svg>`,
+        `Сьогодні чудовий день підстригти газон! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M2 22c0-9.4 7.6-17 17-17h3l-3.5 3.5A12 12 0 0 1 5 22H2z"/></svg>`,
+        `Порядок у будинку — спокій у душі. <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/></svg>`,
+        `Директор каже: «Хто рано встає — тому й мітла дістається нова!» <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>`,
+        `Пам'ятайте: навіть Супермен іноді міняв лампочки! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
+        `Кожна виконана заявка — це крок до ідеального ОСББ! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg>`,
+        `Директор нагадує: «Завдання не виконаються самі... або виконаються?» <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+        `Якість роботи визначається не тільки мітлою, а й душею! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
     ];
     const roleTasksConfig = {
         electrician: [{ id: 'lamps', label: 'Заміна ламп' }],
@@ -855,7 +855,7 @@
         btn.className = btnClass + ' custom-select-btn';
         btn.setAttribute('aria-haspopup', 'listbox');
         btn.setAttribute('aria-expanded', 'false');
-        btn.innerHTML = '<span class="custom-select-label"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>';
+        btn.innerHTML = '<span class="custom-select-label"></span><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>';
         wrap.appendChild(btn);
 
         const panel = document.createElement('div');
@@ -1024,7 +1024,7 @@
 
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
-        showOverlay(true, 'Завантажую дані...'); setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
+        showOverlay(true, 'Завантажую дані...'); setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
         photosCache = null;
 
         const offline = loadOffline();
@@ -1032,7 +1032,7 @@
 
         if (IS_PREVIEW) {
             currentMonthData = offline || {};
-            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>');
+            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>');
         } else {
             try {
                 const [scheduleRes] = await Promise.all([
@@ -1043,11 +1043,11 @@
                 if (error && error.code !== 'PGRST116') throw error;
                 currentMonthData = data?.data || offline || {};
                 saveOffline();
-                setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Синхронізовано</span>');
+                setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Синхронізовано</span>');
             } catch (err) {
                 if (err && err.code !== 'FETCH_ERROR') console.error('initCalendar error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-                if (offline) { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg> Офлайн</span>'); }
-                else { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Немає даних</span>'); currentMonthData = {}; }
+                if (offline) { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg> Офлайн</span>'); }
+                else { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Немає даних</span>'); currentMonthData = {}; }
             }
         }
         renderTable(); renderMobileCards(); updateStats(); showOverlay(false);
@@ -1062,18 +1062,18 @@
     let pendingRollback = null;
 
     function scheduleSave(day = null, snapshot = null) {
-        setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
+        setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
         saveOffline();
         clearTimeout(saveTimer);
         if (day !== null && snapshot !== null) pendingRollback = { day, snapshot };
         saveTimer = setTimeout(saveToCloud, 1000);
     }
     async function saveToCloud() {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); pendingRollback = null; return; }
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); pendingRollback = null; return; }
         try {
             const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
             if (error) throw error;
-            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Збережено</span>');
+            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Збережено</span>');
             pendingRollback = null;
         } catch (err) {
             console.error('save error:', err);
@@ -1081,7 +1081,7 @@
                 rollbackDay(pendingRollback.day, pendingRollback.snapshot);
                 pendingRollback = null;
             } else {
-                setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
+                setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
             }
         }
     }
@@ -1183,8 +1183,8 @@
     }
 
     async function uploadPhoto(day, role, file) {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
-        setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Завантажую...</span>');
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
+        setSyncStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Завантажую...</span>');
         try {
             const compressed = await compressImage(file);
             const ext = 'jpg';
@@ -1203,23 +1203,23 @@
             const key = `${day}-${role}`;
             if (!photosCache[key]) photosCache[key] = [];
             photosCache[key].push({ id: realId, url: urlData.publicUrl });
-            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Фото збережено</span>');
+            setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Фото збережено</span>');
             
             // Оновлюємо обидва інтерфейси одночасно
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
             if (desktopCont) renderPhotoContainer(desktopCont, photosCache[key], day, role);
             const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
             if (mobileCont) renderPhotoContainer(mobileCont, photosCache[key], day, role, true);
-        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка фото</span>'); }
+        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка фото</span>'); }
     }
 
     async function deletePhoto(id, url, day, role) {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
         showPinModal('Видалення фото', 'PIN для видалення фото', async (pin) => {
             try {
                 const ok = await db.rpc('delete_photo', { p_photo_id: id, attempt: pin });
                 if (!ok) {
-                    setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> PIN не підтверджено</span>');
+                    setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> PIN не підтверджено</span>');
                     return;
                 }
                 const path = url.split('/photos/')[1];
@@ -1229,13 +1229,13 @@
                 if (photosCache && photosCache[key]) {
                     photosCache[key] = photosCache[key].filter(p => String(p.id) !== String(id));
                 }
-                setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Фото видалено</span>');
+                setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Фото видалено</span>');
 
                 const desktopCont = document.getElementById(`photos-${day}-${role}`);
                 if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
                 const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
                 if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
-            } catch (err) { console.error('delete error:', err); setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка видалення</span>'); }
+            } catch (err) { console.error('delete error:', err); setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка видалення</span>'); }
         }, true);
     }
 
@@ -1246,7 +1246,7 @@
             return `
             <div class="relative group">
                 <img src="${safeUrl}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
-                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>`;
         }).join('');
     }
@@ -1358,9 +1358,9 @@
             header.className = `day-card-header ${isWeekend ? 'text-red-500' : ''}`;
             let statusBadge = '';
             if (isToday) {
-                statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>СЬОГОДНІ</span>';
+                statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>СЬОГОДНІ</span>';
             } else if (isFuture) {
-                statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>Попереду</span>';
+                statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>Попереду</span>';
             } else if (anyWorking) {
                 statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingCount} на зміні</span>`;
             } else {
@@ -1567,7 +1567,7 @@
                             </div>
                             ${renderOtherField(d, role, state, 'd')}
                             ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Фото
+                                <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Фото
                                 <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload" data-day="${d}" data-role="${role}">
                             </label>
                             <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
@@ -1605,7 +1605,7 @@
         currentMonthData[day] = snapshot;
         saveOffline();
         renderTable(); renderMobileCards(); updateStats();
-        setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>Відкат — помилка збереження</span>');
+        setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>Відкат — помилка збереження</span>');
     }
 
     function toggleShift(day, role, event) {
@@ -1666,7 +1666,7 @@
 
     function getWorkerBadge(role, count) {
         function svg(path, color) {
-            return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;">${path}</svg>`;
+            return `<svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;">${path}</svg>`;
         }
         const moon    = svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',                                                                                   '#94a3b8');
         const zap     = svg('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',                                                                                     '#f59e0b');
@@ -1726,13 +1726,13 @@
     async function clearCurrentMonth() {
         showPinModal('Скидання журналу', 'PIN для очищення місяця', async (pin) => {
             showOverlay(true, 'Видаляю...'); currentMonthData = {};
-            if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); renderTable(); updateStats(); showOverlay(false); return; }
+            if (IS_PREVIEW) { setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); renderTable(); updateStats(); showOverlay(false); return; }
             try {
                 const ok = await db.rpc('reset_month', { table_name: 'schedule', p_month_key: `${currentYear}-${currentMonth}`, attempt: pin });
-                if (ok) setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Місяць скинуто</span>');
-                else setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка</span>');
+                if (ok) setSyncStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Місяць скинуто</span>');
+                else setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка</span>');
             }
-            catch (err) { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка</span>'); }
+            catch (err) { setSyncStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Помилка</span>'); }
             renderTable(); updateStats(); showOverlay(false);
         }, true);
     }
@@ -2066,14 +2066,14 @@
     }
 
     async function gInitTab() {
-        gSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
+        gSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
         const offlineMig = gMigrateOldData(gLoadOffline());
         const offline = offlineMig.data;
         if (offline) { gData = offline; gRender(); }
 
         if (IS_PREVIEW) {
             gData = offline || {};
-            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>');
             gRender();
             return;
         }
@@ -2086,10 +2086,10 @@
             gSaveOffline();
             // Якщо дані щойно мігровано зі старого формату — одразу зберігаємо новий формат у хмару
             if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
-            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Синхронізовано</span>');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Синхронізовано</span>');
         } catch(err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', offline ? '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>' : '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Немає даних</span>');
+            gSetStatus('error', offline ? '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>' : '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Немає даних</span>');
             gData = offline || {};
         }
         gLoaded = true;
@@ -2097,21 +2097,21 @@
     }
 
     function gScheduleSave() {
-        gSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
+        gSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
         gSaveOffline();
         clearTimeout(gSaveTimer);
         gSaveTimer = setTimeout(gSaveCloud, 1200);
     }
 
     async function gSaveCloud() {
-        if (IS_PREVIEW) { gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Превью</span>'); return; }
+        if (IS_PREVIEW) { gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Превью</span>'); return; }
         try {
             const { error } = await db.from('garbage').upsert({ month_key: gKey(), data: gData });
             if (error) throw error;
-            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Збережено</span>');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Збережено</span>');
         } catch(err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage save error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
+            gSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
         }
     }
 
@@ -2251,7 +2251,7 @@
             wrap.innerHTML = `
                 <div class="flex items-center justify-between p-3 cursor-pointer select-none" data-g-action="toggle-day" data-g-day-key="${isToday2 ? 'CLOSED_' + day : day}">
                     <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${day} <span class="text-xs opacity-60 uppercase">${dayName}</span>
-                        ${isToday2 ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>сьогодні</span>' : ''}
+                        ${isToday2 ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>сьогодні</span>' : ''}
                     </span>
                     <div class="flex items-center gap-2">
                         ${hasData ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${dayTotal} баків</span>` : '<span class="text-[10px] text-gray-400">порожньо</span>'}
@@ -2261,12 +2261,12 @@
                 <div class="px-3 pb-3 ${isOpen ? '' : 'hidden'}">
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
                             <input type="time" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
                         </div>
                         <div>
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Працівник</div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Працівник</div>
                             <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
                                 <option value="">—</option>
@@ -2364,7 +2364,7 @@
             if (!IS_PREVIEW) {
                 try { await db.rpc('reset_month', { table_name: 'garbage', p_month_key: gKey(), attempt: pin }); } catch(e) {}
             }
-            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Скинуто</span>');
+            gSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Скинуто</span>');
             gRender();
         }, true);
     }
@@ -2412,8 +2412,8 @@
         pinModalCallback = callback;
         document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
         document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
-        const lockIcon  = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(129,140,248,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
-        const trashIcon = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
+        const lockIcon  = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(129,140,248,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+        const trashIcon = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
         document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
@@ -2452,7 +2452,7 @@
             let ok = false;
             try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
             if (ok) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
@@ -2461,7 +2461,7 @@
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
             } else {
                 document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
-                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
                 pinModalBuf = '';
                 pinUpdateDots();
                 // Тряска
@@ -2507,13 +2507,13 @@
     }
 
     async function dispInitTab() {
-        dispSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
+        dispSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span>');
         const offline = dispLoadOffline();
         if (offline) { dispData = offline; dispRender(); }
 
         if (IS_PREVIEW) {
             dispData = offline || {};
-            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>');
             dispRender();
             return;
         }
@@ -2523,31 +2523,31 @@
             if (error && error.code !== 'PGRST116') throw error;
             dispData = data?.data || offline || {};
             dispSaveOffline();
-            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Синхронізовано</span>');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Синхронізовано</span>');
         } catch(err) {
             console.error('dispatcher load error:', err);
-            dispSetStatus('error', offline ? '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>' : '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Немає даних</span>');
+            dispSetStatus('error', offline ? '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>' : '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Немає даних</span>');
             dispData = offline || {};
         }
         dispRender();
     }
 
     function dispScheduleSave() {
-        dispSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
+        dispSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:4px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
         dispSaveOffline();
         clearTimeout(dispSaveTimer);
         dispSaveTimer = setTimeout(dispSaveCloud, 1200);
     }
 
     async function dispSaveCloud() {
-        if (IS_PREVIEW) { dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Превью</span>'); return; }
+        if (IS_PREVIEW) { dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Превью</span>'); return; }
         try {
             const { error } = await db.from('dispatcher').upsert({ month_key: dispKey(), data: dispData });
             if (error) throw error;
-            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Збережено</span>');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Збережено</span>');
         } catch(err) {
             console.error('dispatcher save error:', err);
-            dispSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
+            dispSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
         }
     }
 
@@ -2606,9 +2606,9 @@
             const isOpen = isToday ? !dispOpenDays.has('CLOSED_' + d) : dispOpenDays.has(d);
 
             let statusBadge = '';
-            if (isToday) statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>СЬОГОДНІ</span>';
-            else if (isFuture) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>Попереду</span>';
-            else if (row.working) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>На зміні</span>';
+            if (isToday) statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>СЬОГОДНІ</span>';
+            else if (isFuture) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>Попереду</span>';
+            else if (row.working) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>На зміні</span>';
             else statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
 
             const card = document.createElement('div');
@@ -2620,7 +2620,7 @@
                 <div class="flex items-center gap-2">
                     <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${String(d).padStart(2,'0')} ${dayName.toUpperCase()}</span>
                     ${statusBadge}
-                    ${row.calls ? `<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>${row.calls}</span>` : ''}
+                    ${row.calls ? `<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>${row.calls}</span>` : ''}
                 </div>
                 <span class="text-xs text-[var(--text-sub)] transition-transform" id="disp-arrow-${d}" style="${isOpen ? 'transform:rotate(180deg)' : ''}">▼</span>`;
             header.dataset.dispAction = 'toggle-day';
@@ -2639,7 +2639,7 @@
                 <div class="rounded-xl p-3 mb-3" style="background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.25);">
                     <!-- Перемикач зміни -->
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-purple-700 inline-flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Диспетчер</span>
+                        <span class="text-xs font-bold text-purple-700 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Диспетчер</span>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" class="sr-only peer" ${row.working?'checked':''} data-disp-action="shift-toggle" data-disp-day="${d}">
                             <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-500"></div>
@@ -2657,7 +2657,7 @@
                         </div>
                         <!-- Дзвінки -->
                         <div class="mt-3">
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Дзвінків:</div>
+                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Дзвінків:</div>
                             <input type="number" min="0" max="999" value="${escapeAttr(String(row.calls||''))}" placeholder="0"
                                 data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
@@ -2686,7 +2686,7 @@
             if (!IS_PREVIEW) {
                 try { await db.rpc('reset_month', { table_name: 'dispatcher', p_month_key: dispKey(), attempt: pin }); } catch(e) {}
             }
-            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Скинуто</span>');
+            dispSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Скинуто</span>');
             dispRender();
         }, true);
     }
@@ -2736,7 +2736,7 @@
         if (!container) return;
         if (!chatMessages.length) {
             container.innerHTML = `<div class="flex flex-col items-center justify-center h-40 gap-2 text-[var(--text-sub)]">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <svg aria-hidden="true" focusable="false" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 <span class="text-sm">Повідомлень ще немає. Напишіть першим!</span>
             </div>`;
             return;
@@ -2774,21 +2774,21 @@
     }
 
     async function chatInitTab() {
-        chatSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>');
+        chatSetStatus('loading', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>');
         chatMessages = chatLoadOffline();
         chatRender();
-        if (IS_PREVIEW) { chatSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
+        if (IS_PREVIEW) { chatSetStatus('ok', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Превью</span>'); return; }
         try {
             const res = await db.from('chat').select('id,author,text,created_at').order('created_at', { ascending: true }).limit(200);
             const { data, error } = res;
             if (error) throw error;
             chatMessages = data || [];
             chatSaveOffline();
-            chatSetStatus('ok', `<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 17.01"/></svg>${chatMessages.length} повідомлень</span>`);
+            chatSetStatus('ok', `<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 17.01"/></svg>${chatMessages.length} повідомлень</span>`);
             chatRender();
         } catch(e) {
             if (e && e.code !== 'FETCH_ERROR') console.error('chat load error:', e.message || e);
-            chatSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>');
+            chatSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>');
         }
         // Авто-оновлення чату кожні 15 секунд поки вкладка активна
         clearInterval(chatPollTimer);
@@ -2822,7 +2822,7 @@
             await chatInitTab();
         } catch(e) {
             if (e && e.code !== 'FETCH_ERROR') console.error('chat send error:', e.message || e);
-            chatSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
+            chatSetStatus('error', '<span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Помилка</span>');
         }
         inputEl.disabled = false;
         inputEl.focus();
@@ -2838,10 +2838,10 @@
     // iOS TOAST повідомлення
     // ============================================================
     let toastTimer = null;
-    const TOAST_ICON_CHECK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    const TOAST_ICON_WARN  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-    const TOAST_ICON_TRASH = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
-    const TOAST_ICON_ERROR = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    const TOAST_ICON_CHECK = '<svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    const TOAST_ICON_WARN  = '<svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    const TOAST_ICON_TRASH = '<svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    const TOAST_ICON_ERROR = '<svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
         const el = document.getElementById('ios-toast');
         if (!el) return;

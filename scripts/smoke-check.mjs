@@ -514,6 +514,24 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Inline SVG icons are decorative because adjacent text/aria-labels carry the
+// accessible names. Keep them hidden from assistive tech and unfocusable, while
+// ignoring SVG data URLs used for favicons.
+for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} inline SVG icons are decorative`;
+  const htmlSvgLines = text.split('\n').filter(line => line.includes('<svg') && !line.includes('data:image/svg+xml'));
+  const missing = htmlSvgLines.filter(line => !line.includes('<svg aria-hidden="true" focusable="false"'));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missing.length} inline SVGs missing aria-hidden/focusable)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shell and journal controls are action buttons rather than form submits; keep
 // explicit button types to avoid accidental submit/reload regressions as markup
 // shifts around modals and toolbar containers.
