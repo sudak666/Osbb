@@ -516,6 +516,22 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Rendered images should carry alt text, including dynamic photo thumbnails and
+// lightbox images.
+for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} images expose alt text`;
+  const missingAlt = text.match(/<img(?![^>]*\balt=)/g) || [];
+  if (missingAlt.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missingAlt.length} images missing alt)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // External links opened in a new tab should avoid opener leaks.
 for (const file of ['index.html', 'sklad/index.html']) {
   const text = readFileSync(file, 'utf8');

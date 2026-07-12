@@ -303,7 +303,7 @@
 
 <div id="lightbox" class="lightbox no-print" data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1">
     <button type="button" data-lightbox-action="prev" aria-label="Попереднє фото" class="absolute left-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">‹</button>
-    <img id="lightbox-img" src="" alt="">
+    <img id="lightbox-img" src="" alt="Збільшене фото запису">
     <button type="button" data-lightbox-action="next" aria-label="Наступне фото" class="absolute right-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">›</button>
     <button type="button" data-lightbox-action="close" aria-label="Закрити перегляд фото" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-9 h-9 rounded-full flex items-center justify-center transition z-10">✕</button>
 </div>
@@ -1245,7 +1245,7 @@
             if (!safeUrl) return '';
             return `
             <div class="relative group">
-                <img src="${safeUrl}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
+                <img src="${safeUrl}" alt="Фото запису за день ${day}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
                 <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>`;
         }).join('');
