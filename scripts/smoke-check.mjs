@@ -437,6 +437,28 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Dynamic values inside HTML attributes should use escapeAttr, not raw stored
+// values from offline/database state.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal dynamic input attributes are escaped';
+  const required = [
+    'value="${escapeAttr(String(state.ticketCount||\'\'))}"',
+    'value="${escapeAttr(row.time||\'\')}" data-g-action="row-update"',
+    'value="${escapeAttr(String(val))}"',
+    'value="${escapeAttr(String(row.calls||\'\'))}" placeholder="0"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Quantity values rendered in HTML contexts should be string-escaped too; these
 // can be stale/offline/database values rather than guaranteed numbers.
 {
