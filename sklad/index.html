@@ -249,7 +249,9 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}
   .topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .topbar>div{gap:6px!important;flex-shrink:0;}
-  .topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;padding:0!important;justify-content:center;}
+  .topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}
+  .topbar .btn:not(.topbar-right-excel) .ms{font-size:20px!important;vertical-align:middle!important;margin:0!important;}
+  .topbar [data-sklad-action="theme"]{display:none!important;}
   .topbar-right-excel{display:none!important;}
   .page{padding:14px 12px;}
   .g4{grid-template-columns:1fr 1fr;gap:8px;}
