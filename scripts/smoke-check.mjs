@@ -511,6 +511,36 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+
+// Sklad page titles should be rendered with DOM text nodes instead of assigning
+// HTML strings, and the mobile bottom nav should expose semantic navigation and
+// stable labels for icon-heavy buttons.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad navigation titles and mobile nav are semantic';
+  const forbidden = [
+    "document.getElementById('pageTitle').innerHTML=pageTitles[page]||''",
+    "const pageTitles={items:'<span",
+  ];
+  const required = [
+    'function setPageTitle(page)',
+    "target.append(icon,document.createTextNode(title.label));",
+    '<nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">',
+    'data-page="items" aria-current="page" aria-label="Товари"',
+    'data-page="add" aria-label="Додати або поповнити"',
+    'class="ms" aria-hidden="true">fact_check</span>',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Quantity values rendered in HTML contexts should be string-escaped too; these
 // can be stale/offline/database values rather than guaranteed numbers.
 {

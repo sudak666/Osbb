@@ -1085,12 +1085,12 @@ const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електр
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
 // HTML-рендер іконок Material Symbols. catIcon (emoji) лишається окремо для Chart.js,
 // оскільки canvas-легенда графіка не вміє рендерити HTML-теги.
-function msIcon(name,size){return '<span class="ms" style="font-size:'+(size||'1em')+';vertical-align:-0.15em;">'+name+'</span>';}
+function msIcon(name,size){return '<span class="ms" aria-hidden="true" style="font-size:'+(size||'1em')+';vertical-align:-0.15em;">'+name+'</span>';}
 const catIconName={'Прибирання':'cleaning_services','Ремонт':'build','Електрика':'bolt','Сантехніка':'plumbing','Відеоспостереження':'videocam','Інше':'inventory_2'};
 const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
-const pageTitles={items:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі',issue:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">output</span>Видача зі складу',log:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">receipt_long</span>Журнал видач',add:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">add_circle</span>Додати / Поповнити',receipts:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">move_to_inbox</span>Прихід товару',audit:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">fact_check</span>Інвентаризація',stats:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">bar_chart</span>Статистика'};
+const pageTitles={items:{icon:'inventory_2',label:'Товари на складі'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Прихід товару'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
 function money(v){
   const n=Number(v);
@@ -1117,12 +1117,27 @@ function priceBadge(item){
 if(isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
 
 // ===== NAV =====
+function setPageTitle(page){
+  const target=document.getElementById('pageTitle');
+  if(!target) return;
+  const title=pageTitles[page];
+  target.textContent='';
+  if(!title) return;
+  const icon=document.createElement('span');
+  icon.className='ms';
+  icon.setAttribute('aria-hidden','true');
+  icon.style.fontSize='18px';
+  icon.style.verticalAlign='-4px';
+  icon.style.marginRight='6px';
+  icon.textContent=title.icon;
+  target.append(icon,document.createTextNode(title.label));
+}
 function nav(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.ni,.bn-item').forEach(n=>{n.classList.remove('active');n.removeAttribute('aria-current');});
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>{n.classList.add('active');n.setAttribute('aria-current','page');});
-  document.getElementById('pageTitle').innerHTML=pageTitles[page]||'';
+  setPageTitle(page);
   if(page==='issue'){populateSels();loadRecentIssues();}
   if(page==='log'){loadLogs();}
   if(page==='add'){populateSels();renderAddLow();}
@@ -3342,29 +3357,29 @@ loadItems()
 </script>
 
 <!-- BOTTOM NAV (mobile) -->
-<div class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">
-  <button class="bn-item active" data-page="items" aria-current="page">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">inventory_2</span></span></div>
+<nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">
+  <button class="bn-item active" data-page="items" aria-current="page" aria-label="Товари">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">inventory_2</span></span></div>
     <span class="bn-label">Товари</span>
     <span class="bn-badge" id="bn-alert" style="display:none">!</span>
   </button>
-  <button class="bn-item" data-page="issue">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">output</span></span></div>
+  <button class="bn-item" data-page="issue" aria-label="Видача">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">output</span></span></div>
     <span class="bn-label">Видача</span>
   </button>
-  <button class="bn-item" data-page="log">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">receipt_long</span></span></div>
+  <button class="bn-item" data-page="log" aria-label="Журнал видач">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">receipt_long</span></span></div>
     <span class="bn-label">Журнал</span>
   </button>
-  <button class="bn-item" data-page="add">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">add_circle</span></span></div>
+  <button class="bn-item" data-page="add" aria-label="Додати або поповнити">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">add_circle</span></span></div>
     <span class="bn-label">Додати</span>
   </button>
-  <button class="bn-item" data-page="audit">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">fact_check</span></span></div>
+  <button class="bn-item" data-page="audit" aria-label="Інвентаризація">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">fact_check</span></span></div>
     <span class="bn-label">Інвент.</span>
   </button>
-</div>
+</nav>
 
 
 <script>
