@@ -258,7 +258,7 @@
 
 
 <!-- iOS TOAST -->
-<div id="ios-toast" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,32,0.92);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;pointer-events:none;opacity:0;transition:all 0.3s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,0.3);" id="ios-toast"></div>
+<div id="ios-toast" role="status" aria-live="polite" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,32,0.92);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;pointer-events:none;opacity:0;transition:all 0.3s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,0.3);"></div>
 
 <div id="intro-splash">
     <div class="pulse-ring"></div>
@@ -281,7 +281,7 @@
             <div id="pin-d2" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
             <div id="pin-d3" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
         </div>
-        <div id="pin-err" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
+        <div id="pin-err" role="alert" aria-live="assertive" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
             <button class="pin-mb-btn" data-pin-modal-digit="1">1</button>
             <button class="pin-mb-btn" data-pin-modal-digit="2">2</button>
@@ -292,7 +292,7 @@
             <button class="pin-mb-btn" data-pin-modal-digit="7">7</button>
             <button class="pin-mb-btn" data-pin-modal-digit="8">8</button>
             <button class="pin-mb-btn" data-pin-modal-digit="9">9</button>
-            <button data-pin-modal-cancel style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
+            <button data-pin-modal-cancel aria-label="Скасувати введення PIN" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
             <button class="pin-mb-btn" data-pin-modal-digit="0">0</button>
             <button data-pin-modal-delete aria-label="Видалити цифру" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:80px;height:80px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
@@ -339,40 +339,40 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         </button>
         <!-- Таби — тільки на десктопі в цьому рядку -->
-        <div id="desktop-tabs" class="ml-auto flex gap-1.5">
-            <button data-osbb-tab="journal" id="tab-journal" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+        <div id="desktop-tabs" class="ml-auto flex gap-1.5" role="tablist" aria-label="Розділи журналу">
+            <button data-osbb-tab="journal" id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
             </button>
-            <button data-osbb-tab="charts" id="tab-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="charts" id="tab-charts" role="tab" aria-selected="false" aria-controls="section-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
             </button>
-            <button data-osbb-tab="garbage" id="tab-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
             </button>
-            <button data-osbb-tab="dispatcher" id="tab-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
             </button>
-            <button data-osbb-tab="chat" id="tab-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="chat" id="tab-chat" role="tab" aria-selected="false" aria-controls="section-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
             </button>
         </div>
     </div>
 
     <!-- BOTTOM NAV — тільки на мобілці -->
-    <div id="bottom-nav" class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] no-print" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
-        <button data-osbb-tab="journal" id="tab-journal-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
+    <div id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу" class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] no-print" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
+        <button data-osbb-tab="journal" id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
         </button>
-        <button data-osbb-tab="charts" id="tab-charts-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="charts" id="tab-charts-m" role="tab" aria-selected="false" aria-controls="section-charts" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-charts"/></svg> Графіки
         </button>
-        <button data-osbb-tab="garbage" id="tab-garbage-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-garbage"/></svg> Сміття
         </button>
-        <button data-osbb-tab="dispatcher" id="tab-dispatcher-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-dispatcher"/></svg> Диспетчер
         </button>
-        <button data-osbb-tab="chat" id="tab-chat-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+        <button data-osbb-tab="chat" id="tab-chat-m" role="tab" aria-selected="false" aria-controls="section-chat" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-chat"/></svg> Чат
         </button>
     </div>
@@ -554,7 +554,7 @@
                         class="w-full text-sm p-2 rounded-xl border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
                         data-chat-input></textarea>
                 </div>
-                <button data-action="chat-send" class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition shrink-0 mb-0.5">
+                <button data-action="chat-send" aria-label="Надіслати повідомлення" class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition shrink-0 mb-0.5">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
             </div>
@@ -968,12 +968,20 @@
         // Десктоп таби
         ['journal','charts','garbage','dispatcher','chat'].forEach(t => {
             const el = document.getElementById('tab-' + t);
-            if (el) el.classList.toggle('active', t === tab);
+            if (el) {
+                el.classList.toggle('active', t === tab);
+                el.toggleAttribute('aria-current', t === tab);
+                el.setAttribute('aria-selected', String(t === tab));
+            }
         });
         // Мобільний bottom nav
         ['journal','charts','garbage','dispatcher','chat'].forEach(t => {
             const el = document.getElementById('tab-' + t + '-m');
-            if (el) el.classList.toggle('mob-active', t === tab);
+            if (el) {
+                el.classList.toggle('mob-active', t === tab);
+                el.toggleAttribute('aria-current', t === tab);
+                el.setAttribute('aria-selected', String(t === tab));
+            }
         });
 
         const mobileCards = document.getElementById('mobile-cards');
@@ -1265,6 +1273,7 @@
 
     let lightboxPhotos = [];
     let lightboxIndex = 0;
+    let lightboxFocusReturn = null;
 
     function buildLightboxPhotos() {
         lightboxPhotos = [];
@@ -1279,10 +1288,16 @@
         if (lightboxIndex < 0) { lightboxPhotos = [url]; lightboxIndex = 0; }
         document.getElementById('lightbox-img').src = url;
         const lightbox=document.getElementById('lightbox');
+        lightboxFocusReturn = document.activeElement;
         lightbox.classList.add('open');
         requestAnimationFrame(()=>lightbox.focus({preventScroll:true}));
     }
-    function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        const opener = lightboxFocusReturn;
+        lightboxFocusReturn = null;
+        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
+    }
 
     // Виправлено: перемикання тепер працює стабільно по колу без застрягань
     function lightboxPrev() {
@@ -1396,7 +1411,7 @@
                         ${tasksHtml}
                         <div class="flex items-center gap-2 mt-1.5">
                             <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                            <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
+                            <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
                         ${renderOtherField(d, role, state, 'm')}
                         ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
@@ -1548,7 +1563,7 @@
                             ${checkBoxesHtml}
                             <div class="flex items-center gap-2 mt-1.5">
                                 <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                                <input type="number" min="0" max="999" value="${state.ticketCount||''}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
+                                <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
                             </div>
                             ${renderOtherField(d, role, state, 'd')}
                             ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
@@ -1748,6 +1763,7 @@
         });
         document.querySelector('[data-pin-modal-cancel]')?.addEventListener('click', pinModalCancel);
         document.querySelector('[data-pin-modal-delete]')?.addEventListener('click', pinModalDel);
+        document.getElementById('pin-modal')?.addEventListener('keydown', trapPinModalFocus);
 
         document.querySelector('[data-theme-select]')?.addEventListener('change', (event) => changeTheme(event.target.value));
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
@@ -2201,7 +2217,7 @@
         delete restTypes.bins;
         breakdownEl.innerHTML = Object.keys(restTypes).length
             ? Object.entries(restTypes).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
-                `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">${gTypeLabels[k]||k} <span class="font-black">${v}</span></span>`
+                `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">${escapeHtml(gTypeLabels[k]||k)} <span class="font-black">${v}</span></span>`
               ).join('')
             : '<span class="text-[var(--text-sub)]">Інших типів немає</span>';
     }
@@ -2246,7 +2262,7 @@
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
-                            <input type="time" value="${row.time||''}" data-g-action="row-update" data-g-day="${day}" data-g-field="time"
+                            <input type="time" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
                         </div>
                         <div>
@@ -2272,7 +2288,7 @@
                                         class="round-checkbox">
                                     ${label}
                                 </label>
-                                ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${val}"
+                                ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${escapeAttr(String(val))}"
                                     data-g-action="type-count" data-g-day="${day}" data-g-type="${k}"
                                     ${checked ? '' : 'disabled'}
                                     class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">` : ''}
@@ -2357,6 +2373,39 @@
     // ==========================================
     let pinModalBuf = '';
     let pinModalCallback = null;
+    let pinModalFocusReturn = null;
+    const pinModalFocusableSelector = 'button:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+    function focusPinModal() {
+        const modal = document.getElementById('pin-modal');
+        const dialog = modal.querySelector('[role="dialog"]');
+        const firstButton = dialog?.querySelector(pinModalFocusableSelector);
+        (firstButton || dialog)?.focus({preventScroll:true});
+    }
+
+    function restorePinModalFocus() {
+        const opener = pinModalFocusReturn;
+        pinModalFocusReturn = null;
+        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
+    }
+
+    function hidePinModal() {
+        document.getElementById('pin-modal').style.display = 'none';
+        restorePinModalFocus();
+    }
+
+    function trapPinModalFocus(event) {
+        if (document.getElementById('pin-modal').style.display !== 'flex') return;
+        if (event.key === 'Escape') { event.preventDefault(); pinModalCancel(); return; }
+        if (event.key !== 'Tab') return;
+        const dialog = document.querySelector('#pin-modal [role="dialog"]');
+        const focusables = [...dialog.querySelectorAll(pinModalFocusableSelector)].filter(el => el.offsetParent !== null || el === document.activeElement);
+        if (!focusables.length) { event.preventDefault(); dialog.focus({preventScroll:true}); return; }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
+    }
 
     function showPinModal(title, sub, callback, danger = false) {
         pinModalBuf = '';
@@ -2369,12 +2418,13 @@
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
         const modal = document.getElementById('pin-modal');
+        pinModalFocusReturn = document.activeElement;
         modal.style.display = 'flex';
-        requestAnimationFrame(()=>modal.querySelector('[role="dialog"]')?.focus({preventScroll:true}));
+        requestAnimationFrame(()=>focusPinModal());
     }
 
     function pinModalCancel() {
-        document.getElementById('pin-modal').style.display = 'none';
+        hidePinModal();
         pinModalBuf = '';
         pinModalCallback = null;
     }
@@ -2403,7 +2453,7 @@
             try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
             if (ok) {
                 document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
-                document.getElementById('pin-modal').style.display = 'none';
+                hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
                 // його ще раз перед видаленням, а не покладається лише на
@@ -2608,7 +2658,7 @@
                         <!-- Дзвінки -->
                         <div class="mt-3">
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Дзвінків:</div>
-                            <input type="number" min="0" max="999" value="${row.calls||''}" placeholder="0"
+                            <input type="number" min="0" max="999" value="${escapeAttr(String(row.calls||''))}" placeholder="0"
                                 data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
@@ -2795,7 +2845,7 @@
     function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
         const el = document.getElementById('ios-toast');
         if (!el) return;
-        el.innerHTML = `<span style="width:18px;height:18px;border-radius:50%;background:rgba(52,199,89,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;">${icon}</span>${msg}`;
+        el.innerHTML = `<span style="width:18px;height:18px;border-radius:50%;background:rgba(52,199,89,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;">${icon}</span>${escapeHtml(msg)}`;
         el.style.opacity = '1';
         el.style.transform = 'translateX(-50%) translateY(0)';
         clearTimeout(toastTimer);
