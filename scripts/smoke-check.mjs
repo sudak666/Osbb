@@ -638,7 +638,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
   const required = [
     'function openModal',
-    "modalBg.querySelector('[role=\"dialog\"]')?.focus",
+    'function focusModalDialog',
+    'focusModalDialog(modalBg)',
+    'function trapModalFocus',
+    'modalFocusReturn',
     "openModal('qModal')",
     "openModal('photoModal')",
     "openModal('delPinModal')",
