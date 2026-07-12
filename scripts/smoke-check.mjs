@@ -13,6 +13,32 @@ const checks = [
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
   ['osbb/index.html', "db.rpc('delete_chat_message'", 'journal deletes chat through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
+  ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
+  ['osbb/index.html', 'id="ios-toast" role="status" aria-live="polite"', 'journal toast exposes live status semantics'],
+  ['sklad/index.html', 'id="toast" role="status" aria-live="polite"', 'sklad toast exposes live status semantics'],
+  ['index.html', 'id="lock-err" class="lock-error-text" role="alert" aria-live="assertive"', 'shell lock errors expose alert semantics'],
+  ['index.html', 'role="tablist" aria-label="Розділи застосунку"', 'shell tabs expose tablist semantics'],
+  ['index.html', 'data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page"', 'shell active tab exposes tab semantics'],
+  ['index.html', 'role="tabpanel" aria-labelledby="shell-tab-journal"', 'shell frame exposes tabpanel semantics'],
+  ['index.html', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
+  ['index.html', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
+  ['osbb/index.html', 'id="desktop-tabs" class="ml-auto flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
+  ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
+  ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
+  ['osbb/index.html', 'id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal mobile active tab exposes tab semantics'],
+  ['osbb/index.html', "el.toggleAttribute('aria-current', t === tab)", 'journal tab switch updates aria-current'],
+  ['osbb/index.html', "el.setAttribute('aria-selected', String(t === tab))", 'journal tab switch updates aria-selected'],
+  ['sklad/index.html', '<nav aria-label="Розділи складу">', 'sklad sidebar exposes navigation label'],
+  ['sklad/index.html', 'id="bottomNav" aria-label="Мобільні розділи складу"', 'sklad bottom nav exposes navigation label'],
+  ['sklad/index.html', 'data-page="items" role="button" tabindex="0" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
+  ['sklad/index.html', 'class="bn-item active" data-page="items" aria-current="page"', 'sklad bottom nav active page exposes aria-current'],
+  ['sklad/index.html', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
+  ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
+  ['osbb/index.html', 'data-pin-modal-cancel aria-label="Скасувати введення PIN"', 'journal PIN cancel has accessible label'],
+  ['sklad/index.html', 'id="authErr" role="alert" aria-live="assertive"', 'sklad auth errors expose alert semantics'],
+  ['sklad/index.html', 'id="delPinErr" role="alert" aria-live="assertive"', 'sklad delete PIN errors expose alert semantics'],
+  ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],
+  ['sklad/index.html', 'data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad delete PIN delete has accessible label'],
 
   ['sklad/index.html', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
   ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],
@@ -236,6 +262,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-action="garbage-clear-month"',
     'data-action="dispatcher-clear-month"',
     'data-action="chat-send"',
+    'aria-label="Надіслати повідомлення"',
     'data-chat-author',
     'data-chat-input',
     'data-photo-action="open"',
@@ -263,8 +290,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1"',
     'data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1"',
-    "modal.querySelector('[role=\"dialog\"]')?.focus",
-    'requestAnimationFrame(()=>lightbox.focus',
+    'function focusPinModal',
+    'function trapPinModalFocus',
+    'pinModalFocusReturn',
+    'lightboxFocusReturn',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -400,6 +429,242 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   if (hasForbidden || missing.length) {
     failed += 1;
     console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+
+
+// Dynamic values inside HTML attributes should use escapeAttr, not raw stored
+// values from offline/database state.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal dynamic input attributes are escaped';
+  const required = [
+    'value="${escapeAttr(String(state.ticketCount||\'\'))}"',
+    'value="${escapeAttr(row.time||\'\')}" data-g-action="row-update"',
+    'value="${escapeAttr(String(val))}"',
+    'value="${escapeAttr(String(row.calls||\'\'))}" placeholder="0"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+
+// Mobile item overflow menus should behave like transient menus: only one open
+// at a time, close on outside click, and return focus to the summary on Escape.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad mobile item overflow menus close predictably';
+  const required = [
+    'function setItemMenuExpanded',
+    'function closeOpenItemMenus',
+    "document.querySelectorAll('#mobileCards details.item-more[open]')",
+    'function handleItemMenuToggle',
+    'function handleItemMenuOutsideClick',
+    'aria-haspopup="menu" aria-expanded="false"',
+    'class="item-more-menu" role="menu"',
+    'role="menuitem" data-item-action="photo"',
+    'z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;',
+    "document.addEventListener('toggle',handleItemMenuToggle,true)",
+    "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad mobile topbar should reserve flexible title space while keeping the
+// remaining icon actions compact enough to avoid overflow on narrow screens.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad mobile topbar keeps compact actions and flexible title';
+  const required = [
+    '.topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}',
+    '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+    '.topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}',
+    '.topbar .btn:not(.topbar-right-excel) .ms{font-size:20px!important;vertical-align:middle!important;margin:0!important;}',
+    '.topbar [data-sklad-action="theme"]{display:none!important;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+
+
+
+
+
+// Rendered images should carry alt text, including dynamic photo thumbnails and
+// lightbox images.
+for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} images expose alt text`;
+  const missingAlt = text.match(/<img(?![^>]*\balt=)/g) || [];
+  if (missingAlt.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missingAlt.length} images missing alt)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// External links opened in a new tab should avoid opener leaks.
+for (const file of ['index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} blank links use noopener noreferrer`;
+  const blankLinks = text.match(/<a\b(?=[^>]*target="_blank")[^>]*>/gs) || [];
+  const missing = blankLinks.filter(link => !link.includes('rel="noopener noreferrer"'));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missing.length} blank links missing noreferrer)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Inline SVG icons are decorative because adjacent text/aria-labels carry the
+// accessible names. Keep them hidden from assistive tech and unfocusable, while
+// ignoring SVG data URLs used for favicons.
+for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} inline SVG icons are decorative`;
+  const htmlSvgLines = text.split('\n').filter(line => line.includes('<svg') && !line.includes('data:image/svg+xml'));
+  const missing = htmlSvgLines.filter(line => !line.includes('<svg aria-hidden="true" focusable="false"'));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missing.length} inline SVGs missing aria-hidden/focusable)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Shell and journal controls are action buttons rather than form submits; keep
+// explicit button types to avoid accidental submit/reload regressions as markup
+// shifts around modals and toolbar containers.
+for (const file of ['index.html', 'osbb/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} buttons declare explicit button type`;
+  const missingType = text.match(/<button(?![^>]*\btype=)/g) || [];
+  if (missingType.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missingType.length} missing type attributes)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad buttons live inside several modal/form-like containers and dynamic
+// templates; keep them explicit non-submit controls unless a future form needs
+// a real submit button.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad buttons declare explicit button type';
+  const missingType = text.match(/<button(?![^>]*\btype=)/g) || [];
+  if (missingType.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missingType.length} missing type attributes)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad page titles should be rendered with DOM text nodes instead of assigning
+// HTML strings, and the mobile bottom nav should expose semantic navigation and
+// stable labels for icon-heavy buttons.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad navigation titles and mobile nav are semantic';
+  const forbidden = [
+    "document.getElementById('pageTitle').innerHTML=pageTitles[page]||''",
+    "const pageTitles={items:'<span",
+  ];
+  const required = [
+    'function setPageTitle(page)',
+    "target.append(icon,document.createTextNode(title.label));",
+    '<nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">',
+    'data-page="items" aria-current="page" aria-label="Товари"',
+    'data-page="add" aria-label="Додати або поповнити"',
+    'class="ms" aria-hidden="true">fact_check</span>',
+  ];
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  const missing = required.filter(needle => !text.includes(needle));
+  if (hasForbidden || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Quantity values rendered in HTML contexts should be string-escaped too; these
+// can be stale/offline/database values rather than guaranteed numbers.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad HTML quantity renderers escape values';
+  const required = [
+    '${escapeHtml(String(item.quantity??0))} ${unit}',
+    '<span class="${qc}">${escapeHtml(String(item.quantity??0))}</span>',
+    '<span class="${qc}" style="font-size:22px;">${escapeHtml(String(item.quantity??0))}</span>',
+    '−${escapeHtml(String(l.quantity??0))}</div>',
+    '−${escapeHtml(String(l.quantity??0))}<span',
+    '+${escapeHtml(String(r.quantity??0))}<span',
+    "${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}",
+    "(${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')})",
+    '−${escapeHtml(String(l.quantity??0))} ${unit}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Chart/stat renderers should escape labels that can come from stored data.
+{
+  const osbb = readFileSync('osbb/index.html', 'utf8');
+  const sklad = readFileSync('sklad/index.html', 'utf8');
+  const label = 'dashboard stat labels escape stored text';
+  const required = [
+    [osbb, 'escapeHtml(gTypeLabels[k]||k)'],
+    [sklad, "const safeCat=escapeHtml(cat||'—');"],
+    [sklad, '${safeCat}</span>'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -638,7 +903,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
   const required = [
     'function openModal',
-    "modalBg.querySelector('[role=\"dialog\"]')?.focus",
+    'function focusModalDialog',
+    'focusModalDialog(modalBg)',
+    'function trapModalFocus',
+    'modalFocusReturn',
     "openModal('qModal')",
     "openModal('photoModal')",
     "openModal('delPinModal')",
