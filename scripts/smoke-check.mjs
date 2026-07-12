@@ -239,6 +239,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-action="garbage-clear-month"',
     'data-action="dispatcher-clear-month"',
     'data-action="chat-send"',
+    'aria-label="Надіслати повідомлення"',
     'data-chat-author',
     'data-chat-input',
     'data-photo-action="open"',
