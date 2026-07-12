@@ -400,7 +400,7 @@ canvas#stockChart{width:100%!important;max-height:300px;}
       <div class="auth-dot" id="d2"></div>
       <div class="auth-dot" id="d3"></div>
     </div>
-    <div class="auth-err" id="authErr"></div>
+    <div class="auth-err" id="authErr" role="alert" aria-live="assertive"></div>
     <div class="pin-keys">
       <button class="pin-key" data-auth-pin-key="1">1</button>
       <button class="pin-key" data-auth-pin-key="2">2</button>
@@ -411,9 +411,9 @@ canvas#stockChart{width:100%!important;max-height:300px;}
       <button class="pin-key" data-auth-pin-key="7">7</button>
       <button class="pin-key" data-auth-pin-key="8">8</button>
       <button class="pin-key" data-auth-pin-key="9">9</button>
-      <button class="pin-key" data-auth-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-auth-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
       <button class="pin-key" data-auth-pin-key="0">0</button>
-      <button class="pin-key" data-auth-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
@@ -861,7 +861,7 @@ async function checkPin(attempt){
       <div class="auth-dot" id="dp2"></div>
       <div class="auth-dot" id="dp3"></div>
     </div>
-    <div id="delPinErr" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
+    <div id="delPinErr" role="alert" aria-live="assertive" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
     <div class="pin-keys">
       <button class="pin-key" data-delete-pin-key="1">1</button>
       <button class="pin-key" data-delete-pin-key="2">2</button>
@@ -872,9 +872,9 @@ async function checkPin(attempt){
       <button class="pin-key" data-delete-pin-key="7">7</button>
       <button class="pin-key" data-delete-pin-key="8">8</button>
       <button class="pin-key" data-delete-pin-key="9">9</button>
-      <button class="pin-key" data-delete-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
+      <button class="pin-key" data-delete-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
       <button class="pin-key" data-delete-pin-key="0">0</button>
-      <button class="pin-key" data-delete-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button class="pin-key" data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>

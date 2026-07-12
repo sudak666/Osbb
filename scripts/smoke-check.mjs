@@ -16,6 +16,13 @@ const checks = [
   ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
   ['osbb/index.html', 'id="ios-toast" role="status" aria-live="polite"', 'journal toast exposes live status semantics'],
   ['sklad/index.html', 'id="toast" role="status" aria-live="polite"', 'sklad toast exposes live status semantics'],
+  ['index.html', 'id="lock-err" class="lock-error-text" role="alert" aria-live="assertive"', 'shell lock errors expose alert semantics'],
+  ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
+  ['osbb/index.html', 'data-pin-modal-cancel aria-label="Скасувати введення PIN"', 'journal PIN cancel has accessible label'],
+  ['sklad/index.html', 'id="authErr" role="alert" aria-live="assertive"', 'sklad auth errors expose alert semantics'],
+  ['sklad/index.html', 'id="delPinErr" role="alert" aria-live="assertive"', 'sklad delete PIN errors expose alert semantics'],
+  ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],
+  ['sklad/index.html', 'data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad delete PIN delete has accessible label'],
 
   ['sklad/index.html', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
   ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],

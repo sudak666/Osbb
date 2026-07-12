@@ -281,7 +281,7 @@
             <div id="pin-d2" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
             <div id="pin-d3" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
         </div>
-        <div id="pin-err" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
+        <div id="pin-err" role="alert" aria-live="assertive" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
             <button class="pin-mb-btn" data-pin-modal-digit="1">1</button>
             <button class="pin-mb-btn" data-pin-modal-digit="2">2</button>
@@ -292,7 +292,7 @@
             <button class="pin-mb-btn" data-pin-modal-digit="7">7</button>
             <button class="pin-mb-btn" data-pin-modal-digit="8">8</button>
             <button class="pin-mb-btn" data-pin-modal-digit="9">9</button>
-            <button data-pin-modal-cancel style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
+            <button data-pin-modal-cancel aria-label="Скасувати введення PIN" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
             <button class="pin-mb-btn" data-pin-modal-digit="0">0</button>
             <button data-pin-modal-delete aria-label="Видалити цифру" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:80px;height:80px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
