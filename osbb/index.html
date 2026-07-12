@@ -340,7 +340,7 @@
         </button>
         <!-- Таби — тільки на десктопі в цьому рядку -->
         <div id="desktop-tabs" class="ml-auto flex gap-1.5">
-            <button data-osbb-tab="journal" id="tab-journal" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+            <button data-osbb-tab="journal" id="tab-journal" aria-current="page" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg width="14" height="14" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
             </button>
             <button data-osbb-tab="charts" id="tab-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
@@ -360,7 +360,7 @@
 
     <!-- BOTTOM NAV — тільки на мобілці -->
     <div id="bottom-nav" class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] no-print" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
-        <button data-osbb-tab="journal" id="tab-journal-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
+        <button data-osbb-tab="journal" id="tab-journal-m" aria-current="page" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] active-mob">
             <svg width="20" height="20" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><use href="#i-journal"/></svg> Журнал
         </button>
         <button data-osbb-tab="charts" id="tab-charts-m" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
@@ -968,12 +968,18 @@
         // Десктоп таби
         ['journal','charts','garbage','dispatcher','chat'].forEach(t => {
             const el = document.getElementById('tab-' + t);
-            if (el) el.classList.toggle('active', t === tab);
+            if (el) {
+                el.classList.toggle('active', t === tab);
+                el.toggleAttribute('aria-current', t === tab);
+            }
         });
         // Мобільний bottom nav
         ['journal','charts','garbage','dispatcher','chat'].forEach(t => {
             const el = document.getElementById('tab-' + t + '-m');
-            if (el) el.classList.toggle('mob-active', t === tab);
+            if (el) {
+                el.classList.toggle('mob-active', t === tab);
+                el.toggleAttribute('aria-current', t === tab);
+            }
         });
 
         const mobileCards = document.getElementById('mobile-cards');

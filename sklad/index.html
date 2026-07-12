@@ -513,7 +513,7 @@ async function checkPin(attempt){
     <span class="sb-ver">v3.1</span>
   </div>
   <nav>
-    <div class="ni active" data-page="items" role="button" tabindex="0">
+    <div class="ni active" data-page="items" role="button" tabindex="0" aria-current="page">
       <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Товари</span>
       <span class="ni-badge" id="sb-alert" style="display:none">!</span>
     </div>
@@ -1115,9 +1115,9 @@ if(isAuthSessionValid()) document.getElementById('authScreen').style.display='no
 // ===== NAV =====
 function nav(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.ni,.bn-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.ni,.bn-item').forEach(n=>{n.classList.remove('active');n.removeAttribute('aria-current');});
   document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>n.classList.add('active'));
+  document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>{n.classList.add('active');n.setAttribute('aria-current','page');});
   document.getElementById('pageTitle').innerHTML=pageTitles[page]||'';
   if(page==='issue'){populateSels();loadRecentIssues();}
   if(page==='log'){loadLogs();}
@@ -3313,7 +3313,7 @@ loadItems()
 
 <!-- BOTTOM NAV (mobile) -->
 <div class="bottom-nav" id="bottomNav">
-  <button class="bn-item active" data-page="items">
+  <button class="bn-item active" data-page="items" aria-current="page">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">inventory_2</span></span></div>
     <span class="bn-label">Товари</span>
     <span class="bn-badge" id="bn-alert" style="display:none">!</span>
