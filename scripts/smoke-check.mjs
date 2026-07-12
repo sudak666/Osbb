@@ -515,6 +515,22 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// External links opened in a new tab should avoid opener leaks.
+for (const file of ['index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  const label = `${file} blank links use noopener noreferrer`;
+  const blankLinks = text.match(/<a\b(?=[^>]*target="_blank")[^>]*>/gs) || [];
+  const missing = blankLinks.filter(link => !link.includes('rel="noopener noreferrer"'));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (${missing.length} blank links missing noreferrer)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Inline SVG icons are decorative because adjacent text/aria-labels carry the
 // accessible names. Keep them hidden from assistive tech and unfocusable, while
 // ignoring SVG data URLs used for favicons.
