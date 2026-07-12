@@ -435,6 +435,27 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+
+// Chart/stat renderers should escape labels that can come from stored data.
+{
+  const osbb = readFileSync('osbb/index.html', 'utf8');
+  const sklad = readFileSync('sklad/index.html', 'utf8');
+  const label = 'dashboard stat labels escape stored text';
+  const required = [
+    [osbb, 'escapeHtml(gTypeLabels[k]||k)'],
+    [sklad, "const safeCat=escapeHtml(cat||'—');"],
+    [sklad, '${safeCat}</span>'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Regression guard: the Sklad issue log must not reference variables that are
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).

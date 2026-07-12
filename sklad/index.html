@@ -2600,9 +2600,10 @@ function renderStats(){
     const items=allItems.filter(i=>i.category===cat);
     const pct=allItems.length?Math.round(items.length/allItems.length*100):0;
     const c=catColor[cat]||'#64748b';
+    const safeCat=escapeHtml(cat||'—');
     return `<div>
       <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
-        <span style="font-weight:600;color:var(--ios-label);">${catIconHtml[cat]||catIconHtmlDefault} ${cat}</span>
+        <span style="font-weight:600;color:var(--ios-label);">${catIconHtml[cat]||catIconHtmlDefault} ${safeCat}</span>
         <span style="color:var(--ios-label3);">${items.length} поз.</span>
       </div>
       <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c};"></div></div>

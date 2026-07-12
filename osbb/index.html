@@ -2217,7 +2217,7 @@
         delete restTypes.bins;
         breakdownEl.innerHTML = Object.keys(restTypes).length
             ? Object.entries(restTypes).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
-                `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">${gTypeLabels[k]||k} <span class="font-black">${v}</span></span>`
+                `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">${escapeHtml(gTypeLabels[k]||k)} <span class="font-black">${v}</span></span>`
               ).join('')
             : '<span class="text-[var(--text-sub)]">Інших типів немає</span>';
     }
