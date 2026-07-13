@@ -204,6 +204,21 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .side-panel{padding:20px;overflow:hidden;max-width:100%;}
 .side-panel-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:850;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
 .side-panel-body{overflow:hidden;}
+.list-toolbar{position:sticky;top:74px;z-index:8;margin-bottom:16px;padding:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-xl);background:color-mix(in srgb,var(--surface-1) 88%,transparent);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);box-shadow:var(--shadow-sm);}
+.list-toolbar-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.list-toolbar-row + .list-toolbar-row{margin-top:10px;}
+.list-search-row{display:grid;grid-template-columns:minmax(220px,320px) minmax(160px,1fr);gap:10px;align-items:center;}
+.list-summary{font-size:12px;color:var(--ios-label3);font-weight:700;line-height:1.35;}
+.log-mobile-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ios-sep);}
+.log-mobile-icon{width:38px;height:38px;border-radius:16px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);}
+.log-mobile-main{flex:1;min-width:0;}
+.log-mobile-title{font-weight:750;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.log-mobile-meta{font-size:11px;color:var(--ios-label3);margin-top:2px;line-height:1.35;}
+.log-mobile-side{font-weight:850;color:var(--danger);font-size:13px;flex-shrink:0;text-align:right;}
+.log-mobile-unit{font-size:10px;font-weight:500;color:var(--ios-label3);}
+.log-mobile-actions{display:flex;gap:4px;justify-content:flex-end;margin-top:4px;}
+.icon-action{width:28px;height:28px;border:0;border-radius:10px;background:var(--surface-2);color:var(--ios-label3);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.icon-action.danger{color:var(--danger);}
 
 /* STAT CARDS */
 .stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
@@ -375,6 +390,8 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .items-metrics{margin-bottom:12px;}
   .items-filter-bar{position:relative;top:auto;padding:10px;margin-bottom:12px;border-radius:20px;}
   .items-search-row{grid-template-columns:1fr;}
+  .list-toolbar{position:relative;top:auto;padding:10px;margin-bottom:12px;border-radius:20px;}
+  .list-search-row{grid-template-columns:1fr;}
   .workflow-card{padding:18px;}
   .workflow-heading{gap:10px;margin-bottom:16px;}
   .workflow-heading-icon{width:36px;height:36px;border-radius:14px;}
@@ -770,20 +787,20 @@ async function checkPin(attempt){
 
   <!-- LOG -->
   <div id="page-log" class="page">
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;" class="pills-wrap">
+    <div class="list-toolbar">
+      <div class="list-toolbar-row pills-wrap">
         <button type="button" class="pill active" data-log-category-filter="">Всі</button>
         <button type="button" class="pill" data-log-category-filter="Прибирання"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
         <button type="button" class="pill" data-log-category-filter="Ремонт"><span class="ms" style="font-size:15px;">build</span></button>
         <button type="button" class="pill" data-log-category-filter="Електрика"><span class="ms" style="font-size:15px;">bolt</span></button>
         <button type="button" class="pill" data-log-category-filter="Сантехніка"><span class="ms" style="font-size:15px;">plumbing</span></button>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="list-toolbar-row list-search-row">
         <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
-        <div id="logResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
+        <div id="logResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
-    <div class="card" style="overflow:hidden;">
+    <div class="card table-modern">
       <table>
         <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Кому</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="logTable">
@@ -2270,17 +2287,17 @@ function renderLog(){
     const safeIssuedTo=escapeHtml(l.issued_to||'—');
     const safeNote=l.note?' · '+escapeHtml(l.note):'';
     const icon=catIconHtml[cat]||catIconHtmlDefault;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--ios-sep);">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${icon}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
-        <div style="font-size:11px;color:#a5b4fc;margin-top:1px;">${safeIssuedTo} · ${dt}${safeNote}</div>
+    return `<div class="log-mobile-item">
+      <div class="log-mobile-icon">${icon}</div>
+      <div class="log-mobile-main">
+        <div class="log-mobile-title">${safeName}</div>
+        <div class="log-mobile-meta">${safeIssuedTo} · ${dt}${safeNote}</div>
       </div>
-      <div style="font-weight:800;color:#ef4444;font-size:13px;flex-shrink:0;text-align:right;">
-        −${escapeHtml(String(l.quantity??0))}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
-        <div style="display:flex;gap:4px;margin-top:4px;">
-          <button type="button" data-log-action="edit" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button type="button" data-log-action="delete" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+      <div class="log-mobile-side">
+        −${escapeHtml(String(l.quantity??0))}<span class="log-mobile-unit"> ${safeUnit}</span>
+        <div class="log-mobile-actions">
+          <button type="button" class="icon-action" data-log-action="edit" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button type="button" class="icon-action danger" data-log-action="delete" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;

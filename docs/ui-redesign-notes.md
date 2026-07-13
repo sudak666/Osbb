@@ -76,16 +76,25 @@ The `Видача` screen now uses the same calmer workflow language:
 - recent activity uses `side-panel`, `side-panel-title`, and `side-panel-body`;
 - smoke checks now guard these workflow form primitives.
 
+### Sklad log list shell
+
+The `Журнал` screen now shares list primitives with the items workflow:
+
+- category filters and search summary use `list-toolbar`, `list-toolbar-row`, `list-search-row`, and `list-summary`;
+- desktop journal table now uses the existing `table-modern` shell;
+- mobile log rows use `log-mobile-*` structure classes and `icon-action` buttons instead of inline-heavy row markup;
+- smoke checks guard the list toolbar/table/mobile-list markers.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
 
-Continue after this items/issue redesign pass:
+Continue after this items/issue/log redesign pass:
 
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
 - Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
-- Apply the same calm hierarchy pass to `Журнал`, `Прихід`, and `Інвентаризація` screens.
+- Apply the same calm hierarchy pass to `Прихід` and `Інвентаризація` screens.
 
 ### 2. OSBB journal header simplification
 

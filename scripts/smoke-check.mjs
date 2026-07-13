@@ -605,6 +605,34 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Sklad log screen should share the calm list toolbar/table/mobile-list
+// primitives introduced during the visual redesign.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad log screen uses redesigned list primitives';
+  const required = [
+    'class="list-toolbar"',
+    'class="list-toolbar-row pills-wrap"',
+    'class="list-toolbar-row list-search-row"',
+    'class="list-summary"',
+    'class="card table-modern"',
+    'class="log-mobile-item"',
+    'class="log-mobile-icon"',
+    'class="log-mobile-actions"',
+    'class="icon-action danger"',
+    '.list-toolbar{',
+    '.log-mobile-item{',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
