@@ -187,6 +187,14 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-filter-row + .items-filter-row{margin-top:10px;}
 .items-search-row{display:grid;grid-template-columns:minmax(220px,360px) minmax(160px,1fr) auto;gap:10px;align-items:center;}
 .items-summary{font-size:12px;color:var(--ios-label3);font-weight:700;line-height:1.35;}
+.items-filter-pill{display:inline-flex;align-items:center;gap:4px;}
+.items-filter-pill.is-success{border-color:var(--ios-green);color:var(--ios-green);}
+.items-filter-pill.is-warning{border-color:var(--ios-orange);color:var(--ios-orange);}
+.items-filter-icon{font-size:16px;}
+.category-pill-icon{font-size:15px;vertical-align:-3px;}
+.items-search-field{width:250px;min-width:160px;}
+.items-reset-btn{display:none;padding:7px 10px;}
+.items-reset-icon{font-size:14px;vertical-align:-2px;}
 .table-modern{overflow:hidden;}
 .table-modern table{border-collapse:separate;border-spacing:0;}
 .table-modern thead th{background:linear-gradient(180deg,var(--surface-2),var(--ios-gray6));}
@@ -561,6 +569,11 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .bn-icon .ms{font-size:24px;}
 #logMobileList{display:none;}
 #recMobileList{display:none;}
+
+@media(max-width:1180px){
+  .items-hero{grid-template-columns:1fr;align-items:start;}
+  .items-hero-actions{justify-content:flex-start;}
+}
 
 @media(max-width:960px){
   .split{grid-template-columns:1fr!important;}
@@ -946,14 +959,14 @@ async function checkPin(attempt){
   <div id="page-items" class="page active">
     <section class="items-hero" aria-labelledby="itemsHeroTitle">
       <div>
-        <div class="items-hero-kicker"><span class="ms" style="font-size:15px;">auto_awesome</span> Операційний центр складу</div>
-        <h1 class="items-hero-title" id="itemsHeroTitle">Швидко бачимо ризики, знаходимо товар і видаємо без зайвих кроків.</h1>
-        <div class="items-hero-copy">Нижче — ключові залишки, фільтри та живий пошук. Найважливіші дії винесені вгору, а детальні операції залишаються в контексті картки або рядка товару.</div>
+        <div class="items-hero-kicker"><span class="ms category-pill-icon" aria-hidden="true">auto_awesome</span> Операційний центр складу</div>
+        <h1 class="items-hero-title" id="itemsHeroTitle">Товари на складі</h1>
+        <div class="items-hero-copy">Залишки, пошук і основні дії в одному місці.</div>
       </div>
       <div class="items-hero-actions" aria-label="Швидкі дії складу">
-        <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms" aria-hidden="true" style="font-size:16px;">output</span> Видати</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-page="add"><span class="ms" aria-hidden="true" style="font-size:16px;">add_circle</span> Поповнити</button>
-        <div class="items-quick-note"><span class="ms" aria-hidden="true" style="font-size:15px;">tips_and_updates</span> Фокус: спершу критичні залишки</div>
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms items-filter-icon" aria-hidden="true">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-page="add"><span class="ms items-filter-icon" aria-hidden="true">add_circle</span> Поповнити</button>
+        <div class="items-quick-note"><span class="ms category-pill-icon" aria-hidden="true">tips_and_updates</span> Фокус: спершу критичні залишки</div>
       </div>
     </section>
     <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
@@ -967,23 +980,23 @@ async function checkPin(attempt){
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
-        <button type="button" class="pill" id="inStockPill" data-filter-toggle="in-stock" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
-        <button type="button" class="pill" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
-        <button type="button" class="pill" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
+        <button type="button" class="pill items-filter-pill is-success" id="inStockPill" data-filter-toggle="in-stock"><span class="ms items-filter-icon" aria-hidden="true">check_circle</span> Тільки в наявності</button>
+        <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Без внутрішніх</button>
+        <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Тільки внутрішні</button>
       </div>
       <div class="items-filter-row pills-wrap" id="catPills">
         <button type="button" class="pill active" data-category-filter="">Всі</button>
-        <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
-        <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
-        <button type="button" class="pill" data-category-filter="Електрика"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
-        <button type="button" class="pill" data-category-filter="Сантехніка"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
-        <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
-        <button type="button" class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
+        <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms category-pill-icon" aria-hidden="true">cleaning_services</span> Прибирання</button>
+        <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms category-pill-icon" aria-hidden="true">build</span> Ремонт</button>
+        <button type="button" class="pill" data-category-filter="Електрика"><span class="ms category-pill-icon" aria-hidden="true">bolt</span> Електрика</button>
+        <button type="button" class="pill" data-category-filter="Сантехніка"><span class="ms category-pill-icon" aria-hidden="true">plumbing</span> Сантехніка</button>
+        <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms category-pill-icon" aria-hidden="true">videocam</span> Відео</button>
+        <button type="button" class="pill" data-category-filter="Інше"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
       </div>
       <div class="items-filter-row items-search-row">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
+        <div class="sw items-search-field"><span class="si"><span class="ms" style="font-size:18px;" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
-        <button type="button" class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
+        <button type="button" class="btn btn-ghost btn-sm items-reset-btn" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters"><span class="ms items-reset-icon" aria-hidden="true">filter_alt_off</span> Скинути</button>
       </div>
     </div>
     <div class="card desktop-table table-modern">
