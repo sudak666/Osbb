@@ -71,6 +71,9 @@
         .journal-title-copy { color:var(--text-sub); font-size:13px; font-weight:650; margin-top:6px; max-width:560px; line-height:1.45; }
         .journal-title-eyebrow { color:var(--accent); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; margin-bottom:4px; }
         .journal-title-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
+        .journal-theme-toggle { min-height:36px; padding:8px 12px; border-radius:14px; border:1px solid var(--border-subtle); background:var(--surface-1); color:var(--text-main); display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800; box-shadow:var(--shadow-sm); transition:transform .15s ease, background .15s ease; }
+        .journal-theme-toggle:hover { transform:translateY(-1px); background:color-mix(in srgb,var(--accent) 8%,var(--surface-1)); }
+        .journal-theme-icon { font-size:16px; line-height:1; }
         .journal-action-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; position:relative; z-index:1; }
         .journal-calendar-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
         .journal-export-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
@@ -360,10 +363,7 @@
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-600 flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
                 <span id="sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><span style="display:inline-flex;align-items:center;gap:5px;"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Завантаження...</span></span>
-                <select id="theme-select" data-theme-select aria-label="Тема оформлення" class="text-sm rounded-xl border p-2 bg-[var(--bg-card)] border-[var(--border)] font-semibold outline-none">
-                    <option value="theme-light">Світла</option>
-                    <option value="theme-dark">Темна</option>
-                </select>
+                <button type="button" class="journal-theme-toggle" data-theme-toggle aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true">☀️</span><span id="journalThemeLabel">Світла</span></button>
             </div>
         </div>
 
@@ -978,7 +978,6 @@
     }
     enhanceSelect(yearSelect);
     enhanceSelect(monthSelect);
-    enhanceSelect(document.getElementById('theme-select'));
 
     function stepMonth(dir) {
         let m = parseInt(monthSelect.value) + dir;
@@ -1790,10 +1789,16 @@
     function changeTheme(themeName) {
         document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
         localStorage.setItem('selected_theme', themeName);
+        const isDark = themeName === 'theme-dark';
+        document.getElementById('journalThemeIcon').textContent = isDark ? '🌙' : '☀️';
+        document.getElementById('journalThemeLabel').textContent = isDark ? 'Темна' : 'Світла';
         // Оновлюємо колір рядка стану браузера/PWA
         const themeColors = { 'theme-light': '#34c759', 'theme-dark': '#000000' };
         const metaColor = document.getElementById('meta-theme-color');
         if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#34c759');
+    }
+    function toggleTheme() {
+        changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
     }
     function showOverlay(show, text = '') {
         const overlay = document.getElementById('loading-overlay');
@@ -1815,7 +1820,7 @@
         document.querySelector('[data-pin-modal-delete]')?.addEventListener('click', pinModalDel);
         document.getElementById('pin-modal')?.addEventListener('keydown', trapPinModalFocus);
 
-        document.querySelector('[data-theme-select]')?.addEventListener('change', (event) => changeTheme(event.target.value));
+        document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
             select.addEventListener('change', initCalendar);
         });
@@ -1996,8 +2001,6 @@
     bindDispatcherEntryActions();
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
-    document.getElementById('theme-select').value = savedTheme;
-    refreshEnhancedSelect(document.getElementById('theme-select'));
     changeTheme(savedTheme);
     // Встановити mob-active для початкового табу (журнал)
     const initMobTab = document.getElementById('tab-journal-m');
@@ -2232,7 +2235,7 @@
         let total = 0;
         const byType = {};
         for (let d = 1; d <= daysInMonth; d++) {
-            const day = String(d).padStart(2,'00');
+            const day = String(d).padStart(2,'0');
             const row = gData[day];
             if (!row || !row.types) continue;
             Object.entries(row.types).forEach(([type, cnt]) => {
@@ -2366,6 +2369,23 @@
         if (daysEl) daysEl.textContent = days;
     }
 
+    async function gLoadGarbageYearFromCloud(year) {
+        if (IS_PREVIEW) return;
+        const keys = Array.from({ length: 12 }, (_, month) => `${year}-${month}`);
+        try {
+            const { data, error } = await db.from('garbage').select('month_key,data').in('month_key', keys);
+            if (error) throw error;
+            (data || []).forEach(row => {
+                const month = Number(String(row.month_key).split('-')[1]);
+                if (!Number.isInteger(month) || month < 0 || month > 11) return;
+                const migrated = gMigrateOldData(row.data);
+                try { localStorage.setItem(`garbage_${year}_${month}`, JSON.stringify(migrated.data || {})); } catch(e) {}
+            });
+        } catch (err) {
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage yearly chart load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
+        }
+    }
+
     async function gRenderChart() {
         const container = document.getElementById('g-chart');
         if (!container) return;
@@ -2374,6 +2394,8 @@
             if (!types) return 0;
             return parseInt(types.bins) || 0;
         }
+
+        await gLoadGarbageYearFromCloud(currentYear);
 
         // Завантажуємо дані по всіх місяцях з локального кешу — тільки баки
         const monthlyTotals = [];

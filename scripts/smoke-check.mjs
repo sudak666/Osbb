@@ -226,6 +226,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-pin-modal-digit="0"',
     'data-osbb-tab="journal"',
     'data-calendar-select',
+    'data-theme-toggle',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));
@@ -1112,6 +1113,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-title-copy"',
     '--surface-1:',
     '--shadow-md:',
+    '.journal-theme-toggle {',
+    'class="journal-theme-toggle" data-theme-toggle',
+    'function toggleTheme()',
     '.journal-dashboard-panel {',
     '.journal-stats-grid {',
     '.journal-stat-card {',
@@ -1127,6 +1131,31 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   if (missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+
+// Garbage dashboard chart should load the full selected year from Supabase, not
+// only whatever months happen to exist in localStorage.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal garbage chart fetches yearly cloud data';
+  const required = [
+    'async function gLoadGarbageYearFromCloud(year)',
+    "db.from('garbage').select('month_key,data').in('month_key', keys)",
+    'await gLoadGarbageYearFromCloud(currentYear)',
+    "String(d).padStart(2,'0')",
+  ];
+  const forbidden = ["String(d).padStart(2,'00')"];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${hasForbidden ? ' (forbidden stale padding)' : ''}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
