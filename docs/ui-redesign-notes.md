@@ -153,6 +153,15 @@ The item history modal now follows the same small class-based cleanup pattern:
 - dynamic history loading/empty rows no longer rely on inline text alignment/color/padding styles;
 - smoke checks guard the modal shell and row primitives.
 
+
+### Sklad barcode scanner modal cleanup
+
+The barcode scanner modal now uses class-based scanner/manual-entry controls:
+
+- title, scanning status, not-found actions, manual barcode entry, and close action use `barcode-modal-*` / `barcode-manual-*` classes;
+- manual barcode input/action layout no longer depends on inline flex and sizing styles;
+- smoke checks guard the scanner modal shell.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

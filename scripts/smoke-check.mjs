@@ -638,6 +638,34 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Barcode add modal should use class-based scanner/manual-entry controls
+// instead of inline layout styles.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad barcode modal uses class-based shell';
+  const required = [
+    'class="barcode-modal-title"',
+    'id="barcodeAddScanning" class="barcode-scan-status"',
+    'class="barcode-manual-entry"',
+    'class="barcode-manual-title"',
+    'class="barcode-manual-row"',
+    'class="barcode-modal-close"',
+    '.barcode-modal-title{display:flex;',
+    '.barcode-manual-entry{margin-top:14px;',
+    '.barcode-manual-row{display:flex;',
+    '.barcode-modal-close .btn{width:100%;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Item history modal should use class-based title/subtitle/list/state rows
 // instead of inline layout styles.
 {

@@ -586,6 +586,22 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 #barcodeAddReader,#qrReader{width:100%;border-radius:14px;overflow:hidden;background:#000;}
 #barcodeAddReader video,#qrReader video{width:100%!important;}
 .barcode-not-found{background:#FFF3CD;border:1px solid #FFE082;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;color:#7A5200;font-weight:500;display:none;}
+
+.barcode-modal-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:750;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.03em;}
+.barcode-modal-title .ms{font-size:18px;}
+.barcode-scan-status{text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;}
+.barcode-not-found .ms{font-size:15px;}
+.barcode-not-found .btn{width:100%;justify-content:center;}
+.barcode-not-found .btn-primary{margin-top:10px;}
+.barcode-not-found .btn-ghost{margin-top:6px;}
+.barcode-manual-entry{margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);}
+.barcode-manual-title{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:650;}
+.barcode-manual-title .ms{font-size:14px;}
+.barcode-manual-row{display:flex;gap:8px;}
+.barcode-manual-row .inp{flex:1;font-size:15px;}
+.barcode-manual-row .btn{flex-shrink:0;white-space:nowrap;}
+.barcode-modal-close{margin-top:12px;}
+.barcode-modal-close .btn{width:100%;justify-content:center;}
 .qr-result{background:var(--ios-blue-light);border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:var(--ios-blue);font-weight:600;display:none;}
 
 /* ===HISTORY MODAL=== */
@@ -1252,24 +1268,24 @@ async function checkPin(attempt){
 <!-- BARCODE ADD MODAL -->
 <div class="modal-bg" id="barcodeAddModal" data-modal-backdrop="barcodeAddModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
+    <h3 class="barcode-modal-title"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="barcodeAddReader"></div>
-    <div id="barcodeAddScanning" style="text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;">Наведіть камеру на штрих-код товару</div>
+    <div id="barcodeAddScanning" class="barcode-scan-status">Наведіть камеру на штрих-код товару</div>
     <div class="barcode-not-found" id="barcodeNotFound">
-      <span class="ms" style="font-size:15px;vertical-align:-3px;">warning</span> Товар не знайдено в базі.
-      <button type="button" class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" data-sklad-action="barcode-google"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
-      <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" data-sklad-action="barcode-reset"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
+      <span class="ms" aria-hidden="true">warning</span> Товар не знайдено в базі.
+      <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-google"><span class="ms" aria-hidden="true">search</span> Шукати в Google</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="barcode-reset"><span class="ms" aria-hidden="true">refresh</span> Сканувати ще раз</button>
     </div>
     <!-- Ручне введення -->
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);">
-      <div style="font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:500;"><span class="ms" style="font-size:14px;vertical-align:-2px;">edit</span> Або введіть штрих-код вручну</div>
-      <div style="display:flex;gap:8px;">
-        <input type="number" id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну" placeholder="4820000000000" style="flex:1;font-size:15px;">
-        <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
+    <div class="barcode-manual-entry">
+      <div class="barcode-manual-title"><span class="ms" aria-hidden="true">edit</span> Або введіть штрих-код вручну</div>
+      <div class="barcode-manual-row">
+        <input type="number" id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну" placeholder="4820000000000">
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search"><span class="ms" aria-hidden="true">search</span> Google</button>
       </div>
     </div>
-    <div style="margin-top:12px;">
-      <button type="button" class="btn btn-ghost" style="width:100%;justify-content:center;" data-sklad-action="barcode-add-close">Закрити</button>
+    <div class="barcode-modal-close">
+      <button type="button" class="btn btn-ghost" data-sklad-action="barcode-add-close">Закрити</button>
     </div>
   </div>
 </div>
