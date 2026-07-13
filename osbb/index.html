@@ -89,6 +89,10 @@
         .journal-stat-card.role-janitor { border-top:3px solid #10b981!important; }
         .journal-stat-card.role-plumber { border-top:3px solid #3b82f6!important; }
         .journal-garbage-card { border-top:3px solid var(--accent)!important; }
+        .journal-panel { padding:22px; border:1px solid var(--border-subtle); background:var(--surface-1); border-radius:24px; box-shadow:var(--shadow-sm); }
+        .journal-panel-title { display:flex; align-items:center; gap:7px; color:var(--text-main); font-size:14px; font-weight:850; margin-bottom:16px; }
+        .journal-table-shell { border:1px solid var(--border-subtle)!important; background:var(--surface-1)!important; border-radius:24px!important; box-shadow:var(--shadow-sm)!important; }
+        .journal-table-shell thead tr { background:linear-gradient(180deg,var(--surface-2),var(--table-header))!important; }
 
         .journal-inline-icon { display:inline-block; vertical-align:middle; flex-shrink:0; }
         .journal-action-label { display:inline-flex; align-items:center; gap:6px; }
@@ -122,6 +126,7 @@
             #bottom-nav { display: flex !important; }
             .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
             .journal-dashboard-panel { padding:16px; border-radius:22px; }
+            .journal-panel { padding:16px; border-radius:20px; }
             .journal-stats-grid { grid-template-columns:1fr; gap:10px; }
             .journal-title-row, .journal-action-row { flex-direction:column; align-items:stretch; }
             .journal-title-actions, .journal-export-actions, .journal-calendar-controls { justify-content:flex-start; }
@@ -468,16 +473,16 @@
 
     <div id="section-charts" class="hidden mb-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
-                <h3 class="text-sm font-bold mb-4">Зміни по днях місяця</h3>
+            <div class="journal-panel">
+                <h3 class="journal-panel-title">Зміни по днях місяця</h3>
                 <canvas id="chart-daily" height="200"></canvas>
             </div>
-            <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md">
-                <h3 class="text-sm font-bold mb-4"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> Розподіл змін по ролях</span></h3>
+            <div class="journal-panel">
+                <h3 class="journal-panel-title"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> Розподіл змін по ролях</span></h3>
                 <canvas id="chart-pie" height="200"></canvas>
             </div>
-            <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] shadow-md lg:col-span-2">
-                <h3 class="text-sm font-bold mb-4"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Активність по тижнях</span></h3>
+            <div class="journal-panel lg:col-span-2">
+                <h3 class="journal-panel-title"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Активність по тижнях</span></h3>
                 <canvas id="chart-weekly" height="120"></canvas>
             </div>
         </div>
@@ -489,7 +494,7 @@
         <div class="day-card"><div class="day-card-header"><span class="skel skel-bar" style="width:90px;"></span><span class="skel skel-bar" style="width:40px;"></span></div></div>
     </div>
 
-    <div id="section-journal" class="desktop-table print-card rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] overflow-hidden shadow-xl">
+    <div id="section-journal" class="desktop-table print-card journal-table-shell overflow-hidden">
         <div id="loading-overlay" class="no-print fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="bg-[var(--bg-card)] p-5 rounded-2xl flex items-center gap-3 border border-[var(--border)] shadow-2xl">
                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
