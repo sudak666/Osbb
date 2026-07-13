@@ -152,6 +152,15 @@ nav{margin-top:6px;flex:1;}
 .main{margin-left:var(--sb);min-height:100vh;}
 .topbar{background:var(--ios-topbar-glass);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-bottom:1px solid var(--border-subtle);padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 8px 28px rgba(15,23,42,.04);}
 .topbar h2{font-weight:850;font-size:var(--text-xl);line-height:var(--leading-tight);color:var(--ios-label);letter-spacing:-.045em;}
+.topbar-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;}
+.topbar-title-icon{font-size:18px;margin-right:6px;}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.topbar-icon-btn{padding:6px 10px;}
+.topbar-icon-btn .ms{font-size:20px;}
+.topbar-refresh{white-space:nowrap;}
+.topbar-refresh .ms{font-size:18px;}
+.topbar-excel-icon{font-size:16px;}
+
 .sync-status{display:none;align-items:center;gap:4px;font-size:11px;color:var(--ios-label3);white-space:nowrap;}
 .sync-status.is-visible{display:inline-flex;}
 .sync-status.is-syncing{color:var(--brand);}
@@ -913,12 +922,16 @@ async function checkPin(attempt){
 
 <div class="main">
   <div class="topbar">
-    <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
-    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Товари на складі</h2>
+    <div class="topbar-actions">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
-      <button type="button" class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="chart" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button type="button" class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="price-refresh" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="qr" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="receipts" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button type="button" class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
-      <button type="button" class="btn btn-ghost btn-sm" id="refreshBtn" data-sklad-action="refresh" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
-      <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="theme" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-right-excel topbar-icon-btn" data-sklad-action="chart" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true">bar_chart</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-right-excel topbar-icon-btn" data-sklad-action="price-refresh" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true">sell</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true">qr_code_scanner</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="receipts" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true">move_to_inbox</span></button>
+      <button type="button" class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms topbar-excel-icon" aria-hidden="true">upload_file</span> Excel</button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-refresh" id="refreshBtn" data-sklad-action="refresh"><span class="ms" aria-hidden="true">sync</span> Оновити</button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="theme" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true">dark_mode</span></button>
     </div>
   </div>
 
@@ -1525,11 +1538,8 @@ function setPageTitle(page){
   target.textContent='';
   if(!title) return;
   const icon=document.createElement('span');
-  icon.className='ms';
+  icon.className='ms topbar-title-icon';
   icon.setAttribute('aria-hidden','true');
-  icon.style.fontSize='18px';
-  icon.style.verticalAlign='-4px';
-  icon.style.marginRight='6px';
   icon.textContent=title.icon;
   target.append(icon,document.createTextNode(title.label));
 }

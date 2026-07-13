@@ -234,6 +234,14 @@ The item photo lightbox and current-photo preview now use class-based image shel
 - the photo modal preview image and empty state use `photo-current-img` / `photo-empty-state`;
 - smoke checks guard the static lightbox shell and dynamic preview class strings.
 
+### Sklad topbar action cleanup
+
+The Sklad topbar now uses class-based title/action helpers instead of inline button/title styles:
+
+- page title and dynamically inserted title icons use `topbar-title` / `topbar-title-icon`;
+- chart, price, scanner, receipts, refresh, theme, and Excel actions use `topbar-actions`, `topbar-icon-btn`, `topbar-refresh`, and `topbar-excel-icon`;
+- smoke checks guard both the static markup and the dynamic title icon class assignment.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

@@ -646,6 +646,36 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Sklad topbar should use class-based title/action/icon helpers instead of
+// dense inline styles on the header controls.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad topbar uses class-based title and action controls';
+  const required = [
+    'id="pageTitle" class="topbar-title"',
+    'class="ms topbar-title-icon"',
+    'class="topbar-actions"',
+    'class="btn btn-ghost btn-sm topbar-right-excel topbar-icon-btn"',
+    'class="btn btn-ghost btn-sm topbar-icon-btn"',
+    'class="ms topbar-excel-icon"',
+    'class="btn btn-ghost btn-sm topbar-refresh"',
+    "icon.className='ms topbar-title-icon'",
+    '.topbar-title{white-space:nowrap;',
+    '.topbar-actions{display:flex;',
+    '.topbar-icon-btn{padding:6px 10px;',
+    '.topbar-refresh{white-space:nowrap;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad lightbox and dynamic current-photo preview should use class-based image
 // and empty-state shells rather than inline style strings.
 {
