@@ -22,7 +22,7 @@ const checks = [
   ['index.html', 'role="tabpanel" aria-labelledby="shell-tab-journal"', 'shell frame exposes tabpanel semantics'],
   ['index.html', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
   ['index.html', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
-  ['osbb/index.html', 'id="desktop-tabs" class="ml-auto flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
+  ['osbb/index.html', 'id="desktop-tabs" class="flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal mobile active tab exposes tab semantics'],
@@ -622,6 +622,90 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="icon-action danger"',
     '.list-toolbar{',
     '.log-mobile-item{',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// Sklad receipt and audit screens should follow the same calm workflow/list
+// primitives as items, issue, and log instead of reverting to ad-hoc inline rows.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad receipts and audit screens use redesigned workflow primitives';
+  const required = [
+    'class="receipts-toolbar"',
+    'class="receipts-search-row"',
+    'class="receipt-mobile-item"',
+    'class="receipt-mobile-actions"',
+    'class="audit-toolbar"',
+    'class="audit-search-row"',
+    'class="audit-legend"',
+    'class="audit-list"',
+    'class="audit-item ${stateClass}"',
+    'class="audit-qty-input"',
+    '.receipts-toolbar,.audit-toolbar{position:sticky;',
+    '.audit-item{',
+    '.receipt-mobile-item{',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// OSBB journal header should be split into clear title/status, calendar/action,
+// and tab rows so the controls do not collapse into one dense visual band.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal header uses separated title action and tab rows';
+  const required = [
+    'class="no-print journal-shell-header"',
+    'class="journal-title-row"',
+    'class="journal-title-actions"',
+    'class="journal-action-row"',
+    'class="journal-calendar-controls"',
+    'class="journal-export-actions"',
+    'class="journal-tabs-row"',
+    '.journal-shell-header {',
+    '.journal-title-row {',
+    '.journal-action-row {',
+    '.journal-tabs-row {',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// OSBB static icon/action markup should keep moving repeated inline layout
+// styles into reusable classes instead of duplicating SVG layout style strings.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal static icons and header actions use reusable style classes';
+  const required = [
+    '.journal-inline-icon {',
+    '.journal-action-label {',
+    '.journal-action-btn {',
+    'class="journal-action-btn journal-action-btn-primary"',
+    'class="journal-action-btn journal-action-btn-danger"',
+    'class="journal-inline-icon"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
