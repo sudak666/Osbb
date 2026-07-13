@@ -85,6 +85,99 @@ The `Журнал` screen now shares list primitives with the items workflow:
 - mobile log rows use `log-mobile-*` structure classes and `icon-action` buttons instead of inline-heavy row markup;
 - smoke checks guard the list toolbar/table/mobile-list markers.
 
+
+### Sklad receipt and audit workflow pass
+
+`Прихід` and `Інвентаризація` now use the same calm workflow/list language as the refreshed items, issue, and log screens:
+
+- receipt search moved into a sticky `receipts-toolbar` with workflow heading/copy and `receipts-search-row`;
+- receipts desktop table now uses the shared `table-modern` shell;
+- mobile receipt rows use `receipt-mobile-*` structure classes and `icon-action` buttons;
+- audit controls moved into a sticky `audit-toolbar` with `audit-search-row`, progress summary, and class-based legend chips;
+- dynamic audit rows now use `audit-item`, `audit-item-*`, `audit-qty-input`, and state classes instead of inline layout styles;
+- smoke checks guard the receipt/audit workflow primitives.
+
+
+### OSBB journal header simplification
+
+The OSBB journal header has been split into calmer rows instead of one dense control band:
+
+- `journal-title-row` keeps the app title, network badge, sync badge, and theme selector together;
+- `journal-action-row` separates calendar navigation from export/print/reset actions;
+- `journal-tabs-row` gives desktop section tabs their own visual row;
+- mobile CSS keeps the rows stacked while preserving the existing bottom navigation.
+
+
+### OSBB static icon/action cleanup
+
+A small follow-up pass started reducing repeated static inline icon/action styling in the journal shell:
+
+- repeated SVG alignment style strings now use `journal-inline-icon`;
+- repeated inline action label layout now uses `journal-action-label`;
+- journal export/reset buttons now use `journal-action-btn` variants instead of long Tailwind/inline-heavy class stacks;
+- smoke checks guard these reusable static classes.
+
+
+### Sklad manual price modal cleanup
+
+The manual price modal now has a small class-based structure on top of the text-selection fix:
+
+- `manual-price-modal`, `manual-price-title`, `manual-price-form`, `manual-price-note`, and `manual-price-actions` replace the remaining inline layout for that modal;
+- the existing selection/focus safeguards remain in place so opening the modal does not leave blue highlighted chrome text;
+- smoke checks now cover both the text-selection safeguards and the class-based modal shell.
+
+
+### Sklad price lookup modal cleanup
+
+The internet price lookup modal now mirrors the class-based manual price modal shell:
+
+- `price-lookup-modal`, `price-lookup-title`, `price-results-panel`, and `price-modal-actions` own the modal layout;
+- `price-search-row` is now a real reusable grid class instead of inline grid styles;
+- smoke checks guard the class-based price lookup shell while preserving the existing mobile close/scroll behavior.
+
+
+### Sklad price lookup results cleanup
+
+The dynamic internet price result rows now use reusable classes instead of inline layout styles:
+
+- loading/empty/error states use `price-results-state`;
+- found prices render as `price-result-card` with `price-result-main`, `price-result-meta`, `price-result-side`, and `price-result-value`;
+- external links keep `safeExternalUrl()` plus `rel="noopener noreferrer"`, while apply actions remain data-driven.
+
+
+### Sklad item history modal cleanup
+
+The item history modal now follows the same small class-based cleanup pattern:
+
+- title, subtitle, list, empty/loading state, close action, and history rows use `history-modal-*` / `hist-*` classes;
+- dynamic history loading/empty rows no longer rely on inline text alignment/color/padding styles;
+- smoke checks guard the modal shell and row primitives.
+
+
+### Sklad barcode scanner modal cleanup
+
+The barcode scanner modal now uses class-based scanner/manual-entry controls:
+
+- title, scanning status, not-found actions, manual barcode entry, and close action use `barcode-modal-*` / `barcode-manual-*` classes;
+- manual barcode input/action layout no longer depends on inline flex and sizing styles;
+- smoke checks guard the scanner modal shell.
+
+### Sklad QR scanner and chart modal cleanup
+
+The QR scanner and stock chart modals now follow the same modal cleanup path as barcode/history/price dialogs:
+
+- QR title, helper copy, and close action use `qr-modal-*` classes instead of inline title/action styles;
+- chart title and close action use `chart-modal-*` classes;
+- smoke checks guard both small modal shells so future passes do not reintroduce inline modal chrome.
+
+### Sklad refill item search
+
+The refill form product picker is now searchable using the existing custom select search shell:
+
+- the `refillSel` picker is marked with `data-searchable="1"`;
+- its search placeholder is specific to replenishment flow;
+- smoke checks guard the searchable refill select marker.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -94,15 +187,12 @@ Continue after this items/issue/log redesign pass:
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
 - Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
-- Apply the same calm hierarchy pass to `Прихід` and `Інвентаризація` screens.
+- Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
 
-### 2. OSBB journal header simplification
+### 2. OSBB journal follow-up
 
-The journal header still has too many controls in one visual row. Split it into:
-
-- title/status row;
-- calendar/action row;
-- tab row.
+- Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
+- Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes, prioritizing one static shell/list area at a time.
 
 ### 3. Component extraction
 
