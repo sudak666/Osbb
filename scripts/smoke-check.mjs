@@ -226,6 +226,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-pin-modal-digit="0"',
     'data-osbb-tab="journal"',
     'data-calendar-select',
+    'data-theme-toggle',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));
@@ -559,9 +560,16 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="g4 items-metrics insight-grid"',
     'class="items-filter-bar"',
     'class="items-filter-row items-search-row"',
+    'class="pill items-filter-pill is-success"',
+    'class="pill items-filter-pill is-warning"',
+    'class="sw items-search-field"',
+    'class="btn btn-ghost btn-sm items-reset-btn"',
     'class="card desktop-table table-modern"',
     'class="stat-icon" aria-hidden="true"',
     '.items-filter-bar{position:sticky;',
+    '@media(max-width:1180px)',
+    '.items-filter-pill{display:inline-flex;',
+    '.items-search-field{width:250px;',
     '.insight-grid .stat-card',
     '.table-modern tbody tr:hover',
   ];
@@ -1099,6 +1107,22 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-export-actions"',
     'class="journal-tabs-row"',
     '.journal-shell-header {',
+    '.journal-shell-header::after',
+    '.journal-title-heading {',
+    'class="journal-title-heading"',
+    'class="journal-title-copy"',
+    '--surface-1:',
+    '--shadow-md:',
+    '.journal-theme-toggle {',
+    'class="journal-theme-toggle" data-theme-toggle',
+    'function toggleTheme()',
+    '.journal-dashboard-panel {',
+    '.journal-stats-grid {',
+    '.journal-stat-card {',
+    'class="journal-dashboard-panel"',
+    'class="journal-stats-grid"',
+    'class="stat-card journal-stat-card role-electrician',
+    'class="stat-card journal-stat-card journal-garbage-card',
     '.journal-title-row {',
     '.journal-action-row {',
     '.journal-tabs-row {',
@@ -1107,6 +1131,58 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   if (missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+
+
+// Journal theme toggle should avoid colored emoji glyphs and use the compact
+// monochrome control style matching Sklad more closely.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal theme toggle uses monochrome icon';
+  const required = [
+    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true">◐</span>',
+    "document.getElementById('journalThemeIcon').textContent = '◐'",
+  ];
+  const forbidden = ['☀️', '🌙'];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${hasForbidden ? ' (colored emoji icon present)' : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// Garbage dashboard chart should load the full selected year from Supabase, not
+// only whatever months happen to exist in localStorage.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal garbage chart fetches yearly cloud data';
+  const required = [
+    'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
+    'async function gFetchGarbageMonthData(year = currentYear, month = currentMonth)',
+    "String(oneBasedMonth).padStart(2,'0')",
+    'async function gLoadGarbageYearFromCloud(year)',
+    'Promise.all(Array.from({ length: 12 }, async (_, month) =>',
+    'const { data } = await gFetchGarbageMonthData(year, month)',
+    'await gLoadGarbageYearFromCloud(currentYear)',
+    "String(d).padStart(2,'0')",
+  ];
+  const forbidden = ["String(d).padStart(2,'00')", ".select('month_key,data').in(", "keys.map(monthKey =>"];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${hasForbidden ? ' (forbidden stale padding)' : ''}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
