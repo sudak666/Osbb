@@ -1139,6 +1139,29 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Journal theme toggle should avoid colored emoji glyphs and use the compact
+// monochrome control style matching Sklad more closely.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal theme toggle uses monochrome icon';
+  const required = [
+    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true">◐</span>',
+    "document.getElementById('journalThemeIcon').textContent = '◐'",
+  ];
+  const forbidden = ['☀️', '🌙'];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${hasForbidden ? ' (colored emoji icon present)' : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
 // Garbage dashboard chart should load the full selected year from Supabase, not
 // only whatever months happen to exist in localStorage.
 {
@@ -1148,6 +1171,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'async function gLoadGarbageYearFromCloud(year)',
     "Promise.all(keys.map(monthKey =>",
     "db.from('garbage').select('data').eq('month_key', monthKey).single()",
+    'for (const result of results)',
+    'if (!result) continue;',
     'await gLoadGarbageYearFromCloud(currentYear)',
     "String(d).padStart(2,'0')",
   ];
