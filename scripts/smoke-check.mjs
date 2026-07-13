@@ -1172,12 +1172,13 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'async function gFetchGarbageMonthData(year = currentYear, month = currentMonth)',
     "String(oneBasedMonth).padStart(2,'0')",
     'async function gLoadGarbageYearFromCloud(year)',
-    'Promise.all(Array.from({ length: 12 }, async (_, month) =>',
-    'const { data } = await gFetchGarbageMonthData(year, month)',
+    "db.from('garbage').select('month_key,data')",
+    'const candidates = gMonthKeyCandidates(year, month)',
+    'candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean)',
     'await gLoadGarbageYearFromCloud(currentYear)',
     "String(d).padStart(2,'0')",
   ];
-  const forbidden = ["String(d).padStart(2,'00')", ".select('month_key,data').in(", "keys.map(monthKey =>"];
+  const forbidden = ["String(d).padStart(2,'00')", ".select('month_key,data').in(", "keys.map(monthKey =>", 'Promise.all(Array.from({ length: 12 }, async (_, month) =>'];
   const missing = required.filter(needle => !text.includes(needle));
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   if (missing.length || hasForbidden) {

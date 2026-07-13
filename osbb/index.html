@@ -2235,6 +2235,7 @@
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage dashboard load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
             gData = offline || {};
         }
+        await gLoadGarbageYearFromCloud(currentYear);
         dashGarbageRender();
     }
 
@@ -2385,18 +2386,15 @@
     async function gLoadGarbageYearFromCloud(year) {
         if (IS_PREVIEW) return;
         try {
-            const results = await Promise.all(Array.from({ length: 12 }, async (_, month) => {
-                try {
-                    const { data } = await gFetchGarbageMonthData(year, month);
-                    return { month, data };
-                } catch (error) {
-                    return { month, error };
-                }
-            }));
-            for (const result of results) {
-                if (!result || result.error || !result.data?.data) continue;
-                const migrated = gMigrateOldData(result.data.data);
-                try { localStorage.setItem(`garbage_${year}_${result.month}`, JSON.stringify(migrated.data || {})); } catch(e) {}
+            const { data, error } = await db.from('garbage').select('month_key,data');
+            if (error) throw error;
+            const rows = Array.isArray(data) ? data : [];
+            for (let month = 0; month <= 11; month++) {
+                const candidates = gMonthKeyCandidates(year, month);
+                const row = candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean);
+                if (!row?.data) continue;
+                const migrated = gMigrateOldData(row.data);
+                try { localStorage.setItem(`garbage_${year}_${month}`, JSON.stringify(migrated.data || {})); } catch(e) {}
             }
         } catch (err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage yearly chart load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
