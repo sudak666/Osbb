@@ -48,17 +48,26 @@ The first implementation pass refreshed:
 - photo thumbnails with cleaner hover/elevation;
 - global reduced-motion handling in Sklad.
 
+### Sklad items workflow shell
+
+The next pass started the actual `Товари на складі` screen redesign:
+
+- added an `items-hero` with a product-style headline, contextual copy and clear primary/secondary CTAs;
+- kept the alert banner and metric cards, but moved them into a calmer workflow sequence;
+- introduced a sticky `items-filter-bar` for stock filters, category pills, search, result summary and reset action;
+- added `table-modern` treatment for the desktop inventory table;
+- added a smoke-check guard so future sessions keep these layout primitives.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
 
-Do next after this foundational pass:
+Continue after this items shell pass:
 
-- Add a page hero for `Товари на складі` with title, sync state and one primary CTA.
-- Move secondary actions into a compact action group or overflow.
-- Rework stat cards into a calmer `insight-grid`.
-- Make search + filters a sticky filter bar on desktop and a compact stacked section on mobile.
+- Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
+- Rework stat cards into a calmer `insight-grid` variant with consistent icon bubbles and less saturated gradients.
 - Simplify mobile item cards: title/category/qty/primary CTA visible; secondary actions in menu.
+- Replace remaining inline styles in the items screen with reusable classes once the visual direction is accepted.
 
 ### 2. OSBB journal header simplification
 

@@ -164,6 +164,28 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .page.active{display:block;}
 .card{background:var(--surface-1);border-radius:var(--radius-xl);border:1px solid var(--border-subtle);box-shadow:var(--shadow-sm);backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);}
 
+/* ITEMS EXPERIENCE */
+.items-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;margin-bottom:18px;padding:22px;border:1px solid var(--border-subtle);border-radius:calc(var(--radius-xl) + 4px);background:radial-gradient(circle at 10% 0%,rgba(34,197,94,.18),transparent 34%),linear-gradient(135deg,var(--surface-1),var(--surface-2));box-shadow:var(--shadow-md);overflow:hidden;position:relative;}
+.items-hero::after{content:'';position:absolute;right:-42px;top:-56px;width:180px;height:180px;border-radius:50%;background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(0,122,255,.10));pointer-events:none;}
+.items-hero-kicker{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:8px;}
+.items-hero-title{font-size:clamp(24px,3vw,36px);line-height:.95;font-weight:900;letter-spacing:-.075em;color:var(--ios-label);margin:0 0 8px;}
+.items-hero-copy{max-width:620px;font-size:14px;line-height:1.55;color:var(--ios-label3);font-weight:600;}
+.items-hero-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;position:relative;z-index:1;}
+.items-quick-note{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:16px;background:var(--accent-soft);color:var(--accent-strong);font-size:12px;font-weight:750;border:1px solid color-mix(in srgb,var(--accent) 18%,transparent);}
+.items-metrics{margin-bottom:18px;}
+.items-filter-bar{position:sticky;top:74px;z-index:8;margin-bottom:16px;padding:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-xl);background:color-mix(in srgb,var(--surface-1) 86%,transparent);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);box-shadow:var(--shadow-sm);}
+.items-filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.items-filter-row + .items-filter-row{margin-top:10px;}
+.items-search-row{display:grid;grid-template-columns:minmax(220px,360px) minmax(160px,1fr) auto;gap:10px;align-items:center;}
+.items-summary{font-size:12px;color:var(--ios-label3);font-weight:700;line-height:1.35;}
+.table-modern{overflow:hidden;}
+.table-modern table{border-collapse:separate;border-spacing:0;}
+.table-modern thead th{background:linear-gradient(180deg,var(--surface-2),var(--ios-gray6));}
+.table-modern tbody tr{transition:background var(--motion-base) ease,transform var(--motion-base) var(--ease-out);}
+.table-modern tbody tr:hover{background:color-mix(in srgb,var(--accent) 7%,transparent);}
+.table-modern tbody td:first-child,.table-modern thead th:first-child{padding-left:20px;}
+.table-modern tbody td:last-child,.table-modern thead th:last-child{padding-right:20px;}
+
 /* STAT CARDS */
 .stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.26) inset,var(--shadow-lg);filter:saturate(1.04);}
@@ -313,6 +335,14 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .split{grid-template-columns:1fr!important;}
   .desktop-table{display:none!important;}
   .mobile-cards{display:block!important;}
+  .items-hero{grid-template-columns:1fr;padding:16px;margin-bottom:12px;border-radius:22px;}
+  .items-hero-title{font-size:25px;letter-spacing:-.065em;}
+  .items-hero-copy{font-size:12.5px;}
+  .items-hero-actions{justify-content:flex-start;}
+  .items-quick-note{width:100%;justify-content:center;}
+  .items-metrics{margin-bottom:12px;}
+  .items-filter-bar{position:relative;top:auto;padding:10px;margin-bottom:12px;border-radius:20px;}
+  .items-search-row{grid-template-columns:1fr;}
   #catPills{flex-wrap:nowrap!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px!important;padding-bottom:2px;}
   #catPills::-webkit-scrollbar{display:none;}
   #catPills .pill{flex-shrink:0;white-space:nowrap;padding:5px 11px;font-size:12px;}
@@ -596,22 +626,34 @@ async function checkPin(attempt){
 
   <!-- ITEMS -->
   <div id="page-items" class="page active">
+    <section class="items-hero" aria-labelledby="itemsHeroTitle">
+      <div>
+        <div class="items-hero-kicker"><span class="ms" style="font-size:15px;">auto_awesome</span> Операційний центр складу</div>
+        <h1 class="items-hero-title" id="itemsHeroTitle">Швидко бачимо ризики, знаходимо товар і видаємо без зайвих кроків.</h1>
+        <div class="items-hero-copy">Нижче — ключові залишки, фільтри та живий пошук. Найважливіші дії винесені вгору, а детальні операції залишаються в контексті картки або рядка товару.</div>
+      </div>
+      <div class="items-hero-actions" aria-label="Швидкі дії складу">
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms" aria-hidden="true" style="font-size:16px;">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-page="add"><span class="ms" aria-hidden="true" style="font-size:16px;">add_circle</span> Поповнити</button>
+        <div class="items-quick-note"><span class="ms" aria-hidden="true" style="font-size:15px;">tips_and_updates</span> Фокус: спершу критичні залишки</div>
+      </div>
+    </section>
     <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
       <div class="alert-banner"><span class="ms" style="font-size:16px;vertical-align:-3px;">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
     </div>
-    <div class="g4" style="margin-bottom:22px;">
+    <div class="g4 items-metrics">
       <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">inventory_2</span></div></div>
       <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">production_quantity_limits</span></div></div>
       <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">warning</span></div></div>
       <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">check_circle</span></div></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <div class="items-filter-bar">
+      <div class="items-filter-row">
         <button type="button" class="pill" id="inStockPill" data-filter-toggle="in-stock" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
         <button type="button" class="pill" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
         <button type="button" class="pill" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="catPills" class="pills-wrap">
+      <div class="items-filter-row pills-wrap" id="catPills">
         <button type="button" class="pill active" data-category-filter="">Всі</button>
         <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
         <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
@@ -620,13 +662,13 @@ async function checkPin(attempt){
         <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
         <button type="button" class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="items-filter-row items-search-row">
         <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
-        <div id="itemsResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
+        <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
         <button type="button" class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
       </div>
     </div>
-    <div class="card desktop-table" style="overflow:hidden;">
+    <div class="card desktop-table table-modern">
       <table>
         <thead><tr><th>#</th><th>Назва товару</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
         <tbody id="itemsTable">

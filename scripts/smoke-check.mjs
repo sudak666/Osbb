@@ -546,6 +546,33 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// The first visual redesign pass should make the Sklad items page feel like a
+// deliberate workflow rather than a loose stack of controls.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad items screen exposes redesigned hero and filter layout';
+  const required = [
+    'class="items-hero"',
+    'class="items-hero-kicker"',
+    'class="items-hero-actions"',
+    'class="items-quick-note"',
+    'class="g4 items-metrics"',
+    'class="items-filter-bar"',
+    'class="items-filter-row items-search-row"',
+    'class="card desktop-table table-modern"',
+    '.items-filter-bar{position:sticky;',
+    '.table-modern tbody tr:hover',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
