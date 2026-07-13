@@ -595,6 +595,15 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .hist-out{color:var(--ios-red);font-weight:700;}
 .hist-in{color:var(--ios-green);font-weight:700;}
 
+.history-modal-title{font-size:15px;font-weight:850;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.02em;}
+.history-modal-subtitle{font-size:12px;color:var(--ios-label3);margin-bottom:16px;font-weight:650;}
+.history-modal-list{max-height:min(52dvh,420px);overflow-y:auto;}
+.history-modal-state{text-align:center;color:var(--ios-label3);padding:20px;}
+.history-modal-close{margin-top:14px;}
+.hist-main{flex:1;min-width:0;}
+.hist-person{font-weight:700;color:var(--ios-label);}
+.hist-meta{font-size:11px;color:var(--ios-label3);}
+
 .item-more{position:relative;flex-shrink:0;}
 .item-more summary{list-style:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(116,116,128,.10);color:var(--brand);cursor:pointer;}
 .item-more summary::-webkit-details-marker{display:none;}
@@ -1281,10 +1290,10 @@ async function checkPin(attempt){
 <!-- HISTORY MODAL -->
 <div class="modal-bg" id="histModal" data-modal-backdrop="histModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 id="histTitle" style="font-size:15px;font-weight:800;color:var(--ios-label);margin-bottom:4px;"></h3>
-    <p id="histSubtitle" style="font-size:12px;color:#a5b4fc;margin-bottom:16px;"></p>
-    <div id="histList"></div>
-    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:14px;" data-modal-close="histModal">Закрити</button>
+    <h3 id="histTitle" class="history-modal-title"></h3>
+    <p id="histSubtitle" class="history-modal-subtitle"></p>
+    <div id="histList" class="history-modal-list"></div>
+    <button type="button" class="btn btn-ghost btn-sm history-modal-close" data-modal-close="histModal">Закрити</button>
   </div>
 </div>
 
@@ -3164,20 +3173,20 @@ async function openHistory(itemId){
   const unit=escapeHtml(item.unit||'');
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
-  document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Завантаження...</div>';
+  document.getElementById('histList').innerHTML='<div class="history-modal-state">Завантаження...</div>';
   openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
   if(!data||!data.length){
-    document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Видач не було</div>';
+    document.getElementById('histList').innerHTML='<div class="history-modal-state">Видач не було</div>';
     return;
   }
   document.getElementById('histList').innerHTML=data.map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     const t=new Date(l.issued_at).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     return `<div class="hist-row">
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);">${escapeHtml(l.issued_to||'—')}</div>
-        <div style="font-size:11px;color:#a5b4fc;">${d} ${t}${l.note?' · '+escapeHtml(l.note):''}</div>
+      <div class="hist-main">
+        <div class="hist-person">${escapeHtml(l.issued_to||'—')}</div>
+        <div class="hist-meta">${d} ${t}${l.note?' · '+escapeHtml(l.note):''}</div>
       </div>
       <div class="hist-out">−${escapeHtml(String(l.quantity??0))} ${unit}</div>
     </div>`;

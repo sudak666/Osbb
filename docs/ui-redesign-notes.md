@@ -144,6 +144,15 @@ The dynamic internet price result rows now use reusable classes instead of inlin
 - found prices render as `price-result-card` with `price-result-main`, `price-result-meta`, `price-result-side`, and `price-result-value`;
 - external links keep `safeExternalUrl()` plus `rel="noopener noreferrer"`, while apply actions remain data-driven.
 
+
+### Sklad item history modal cleanup
+
+The item history modal now follows the same small class-based cleanup pattern:
+
+- title, subtitle, list, empty/loading state, close action, and history rows use `history-modal-*` / `hist-*` classes;
+- dynamic history loading/empty rows no longer rely on inline text alignment/color/padding styles;
+- smoke checks guard the modal shell and row primitives.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

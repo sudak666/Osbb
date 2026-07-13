@@ -637,6 +637,34 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Item history modal should use class-based title/subtitle/list/state rows
+// instead of inline layout styles.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad history modal uses class-based shell';
+  const required = [
+    'class="history-modal-title"',
+    'class="history-modal-subtitle"',
+    'id="histList" class="history-modal-list"',
+    'class="btn btn-ghost btn-sm history-modal-close"',
+    '.history-modal-state{text-align:center;',
+    '.hist-main{flex:1;',
+    '.hist-person{font-weight:700;',
+    '.hist-meta{font-size:11px;',
+    'class="history-modal-state"',
+    'class="hist-main"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Internet price lookup results should render with reusable result-row classes,
 // while keeping links sanitized and apply actions data-driven.
 {
