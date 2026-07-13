@@ -643,6 +643,41 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Delete, delete-log, delete-PIN and audit confirmation modals should use
+// reusable class-based confirmation shells.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad confirmation modals use class-based shells';
+  const required = [
+    'class="modal confirm-modal"',
+    'class="confirm-title is-danger"',
+    'class="confirm-target"',
+    'class="confirm-copy"',
+    'class="confirm-actions"',
+    'class="modal delete-pin-modal"',
+    'id="delPinTitle" class="delete-pin-title"',
+    'class="delete-pin-subtitle"',
+    'id="delPinErr" role="alert" aria-live="assertive" class="delete-pin-error"',
+    'class="modal audit-confirm-modal"',
+    'class="audit-confirm-title"',
+    'id="auditSummary" class="audit-summary-box"',
+    'class="audit-confirm-actions"',
+    '.confirm-modal{width:380px;',
+    '.delete-pin-modal{width:320px;',
+    '.audit-confirm-modal{width:420px;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const duplicatedSix = text.includes('data-delete-pin-key="6">6</button>\n      <button type="button" class="pin-key" data-delete-pin-key="6"');
+  if (missing.length || duplicatedSix) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${duplicatedSix ? ' (duplicate PIN key 6)' : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Quick issue and photo modals should use class-based shells instead of
 // inline-heavy modal chrome.
 {

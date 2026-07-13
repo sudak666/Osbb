@@ -210,6 +210,14 @@ The quick issue and item photo dialogs now use class-based modal chrome:
 - photo upload title, current-photo area, file input, status, delete button, and actions use `photo-*` classes;
 - smoke checks guard the static quick/photo modal shell markers.
 
+### Sklad confirmation modal cleanup
+
+Delete, delete-log, delete-PIN, and audit confirmation dialogs now share class-based confirmation shells:
+
+- danger confirmation dialogs use `confirm-*` classes for title, body copy, target text, and action rows;
+- the delete PIN dialog uses `delete-pin-*` classes and keeps alert semantics on `delPinErr`;
+- the audit confirmation dialog uses `audit-confirm-*` classes, and smoke checks guard the confirmation shells plus the PIN keypad sequence.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

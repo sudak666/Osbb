@@ -262,6 +262,30 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 
 
 
+
+/* CONFIRM / PIN MODALS */
+.confirm-modal{width:380px;}
+.confirm-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:8px;letter-spacing:-.02em;}
+.confirm-title.is-danger{color:#ef4444;}
+.confirm-title .ms{font-size:18px;}
+.confirm-target{font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;}
+.confirm-copy{font-size:12px;color:var(--ios-gray);margin-bottom:20px;line-height:1.45;}
+.confirm-actions{display:flex;gap:10px;}
+.confirm-actions .btn{flex:1;justify-content:center;}
+.confirm-actions .ms{font-size:16px;}
+.delete-pin-modal{width:320px;text-align:center;background:#1C1C1E;}
+.delete-pin-title{font-size:16px;font-weight:750;color:#fff;margin-bottom:4px;letter-spacing:-.3px;}
+.delete-pin-subtitle{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;}
+.delete-pin-error{min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;}
+.pin-key .ms{font-size:20px;}
+.audit-confirm-modal{width:420px;}
+.audit-confirm-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:750;color:var(--ios-label);margin-bottom:6px;letter-spacing:-.3px;}
+.audit-confirm-title .ms{font-size:18px;}
+.audit-summary-box{background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;}
+.audit-confirm-actions{display:flex;gap:10px;margin-top:16px;}
+.audit-confirm-actions .btn{flex:1;justify-content:center;}
+.audit-confirm-actions .ms{font-size:16px;}
+
 /* QUICK / PHOTO MODALS */
 .quick-issue-title{font-size:15px;line-height:1.4;margin-bottom:4px;color:var(--ios-label);}
 .quick-issue-meta{font-size:13px;color:var(--ios-label3);margin-bottom:18px;}
@@ -754,9 +778,9 @@ canvas#stockChart{width:100%!important;max-height:300px;}
       <button type="button" class="pin-key" data-auth-pin-key="7">7</button>
       <button type="button" class="pin-key" data-auth-pin-key="8">8</button>
       <button type="button" class="pin-key" data-auth-pin-key="9">9</button>
-      <button type="button" class="pin-key" data-auth-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
+      <button type="button" class="pin-key" data-auth-pin-key="C" aria-label="Очистити PIN"><span class="ms" aria-hidden="true">close</span></button>
       <button type="button" class="pin-key" data-auth-pin-key="0">0</button>
-      <button type="button" class="pin-key" data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button type="button" class="pin-key" data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" aria-hidden="true">backspace</span></button>
     </div>
   </div>
 </div>
@@ -1203,29 +1227,29 @@ async function checkPin(attempt){
 
 <!-- DELETE MODAL -->
 <div class="modal-bg" id="delModal" data-modal-backdrop="delModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
-    <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити товар?</h3>
-    <p id="delItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
-    <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
-    <div style="display:flex;gap:10px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delModal">Скасувати</button>
-      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+  <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="confirm-title is-danger"><span class="ms" aria-hidden="true">delete</span> Видалити товар?</h3>
+    <p id="delItemName" class="confirm-target"></p>
+    <p class="confirm-copy">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="delModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" data-sklad-action="delete-confirm"><span class="ms" aria-hidden="true">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- PIN CONFIRM MODAL (для будь-якого видалення) -->
 <div class="modal-bg" id="delPinModal" data-delete-pin-cancel>
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:320px;text-align:center;background:#1C1C1E;">
-    <h3 id="delPinTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px;">PIN для видалення</h3>
-    <p style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;">Підтвердіть дію PIN-кодом</p>
+  <div class="modal delete-pin-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 id="delPinTitle" class="delete-pin-title">PIN для видалення</h3>
+    <p class="delete-pin-subtitle">Підтвердіть дію PIN-кодом</p>
     <div class="auth-dots">
       <div class="auth-dot" id="dp0"></div>
       <div class="auth-dot" id="dp1"></div>
       <div class="auth-dot" id="dp2"></div>
       <div class="auth-dot" id="dp3"></div>
     </div>
-    <div id="delPinErr" role="alert" aria-live="assertive" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
+    <div id="delPinErr" role="alert" aria-live="assertive" class="delete-pin-error"></div>
     <div class="pin-keys">
       <button type="button" class="pin-key" data-delete-pin-key="1">1</button>
       <button type="button" class="pin-key" data-delete-pin-key="2">2</button>
@@ -1236,35 +1260,35 @@ async function checkPin(attempt){
       <button type="button" class="pin-key" data-delete-pin-key="7">7</button>
       <button type="button" class="pin-key" data-delete-pin-key="8">8</button>
       <button type="button" class="pin-key" data-delete-pin-key="9">9</button>
-      <button type="button" class="pin-key" data-delete-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
+      <button type="button" class="pin-key" data-delete-pin-key="C" aria-label="Очистити PIN"><span class="ms" aria-hidden="true">close</span></button>
       <button type="button" class="pin-key" data-delete-pin-key="0">0</button>
-      <button type="button" class="pin-key" data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button type="button" class="pin-key" data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" aria-hidden="true">backspace</span></button>
     </div>
   </div>
 </div>
 
 <!-- AUDIT CONFIRM MODAL -->
 <div class="modal-bg" id="auditModal" data-modal-backdrop="auditModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:6px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">check_circle</span> Завершити інвентаризацію</h3>
-    <div id="auditSummary" style="background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;"></div>
+  <div class="modal audit-confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="audit-confirm-title"><span class="ms" aria-hidden="true">check_circle</span> Завершити інвентаризацію</h3>
+    <div id="auditSummary" class="audit-summary-box"></div>
     <div><label>Примітка до інвентаризації</label><input type="text" class="inp" id="auditNote" placeholder="Напр.: Планова інвентаризація червень 2026"></div>
-    <div style="display:flex;gap:10px;margin-top:16px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="auditModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="audit-confirm-save"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
+    <div class="audit-confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="auditModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="audit-confirm-save"><span class="ms" aria-hidden="true">save</span> Зберегти і оновити</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE LOG MODAL -->
 <div class="modal-bg" id="delLogModal" data-modal-backdrop="delLogModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
-    <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис видачі?</h3>
-    <p id="delLogItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
-    <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
-    <div style="display:flex;gap:10px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delLogModal">Скасувати</button>
-      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+  <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="confirm-title is-danger"><span class="ms" aria-hidden="true">delete</span> Видалити запис видачі?</h3>
+    <p id="delLogItemName" class="confirm-target"></p>
+    <p class="confirm-copy">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="delLogModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" data-sklad-action="delete-log-confirm"><span class="ms" aria-hidden="true">delete</span> Видалити</button>
     </div>
   </div>
 </div>
