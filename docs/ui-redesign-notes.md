@@ -162,6 +162,22 @@ The barcode scanner modal now uses class-based scanner/manual-entry controls:
 - manual barcode input/action layout no longer depends on inline flex and sizing styles;
 - smoke checks guard the scanner modal shell.
 
+### Sklad QR scanner and chart modal cleanup
+
+The QR scanner and stock chart modals now follow the same modal cleanup path as barcode/history/price dialogs:
+
+- QR title, helper copy, and close action use `qr-modal-*` classes instead of inline title/action styles;
+- chart title and close action use `chart-modal-*` classes;
+- smoke checks guard both small modal shells so future passes do not reintroduce inline modal chrome.
+
+### Sklad refill item search
+
+The refill form product picker is now searchable using the existing custom select search shell:
+
+- the `refillSel` picker is marked with `data-searchable="1"`;
+- its search placeholder is specific to replenishment flow;
+- smoke checks guard the searchable refill select marker.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

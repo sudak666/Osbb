@@ -603,6 +603,11 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .barcode-modal-close{margin-top:12px;}
 .barcode-modal-close .btn{width:100%;justify-content:center;}
 .qr-result{background:var(--ios-blue-light);border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:var(--ios-blue);font-weight:600;display:none;}
+.qr-modal-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.02em;}
+.qr-modal-title .ms{font-size:18px;}
+.qr-modal-copy{font-size:12px;color:var(--ios-label3);margin-top:10px;text-align:center;font-weight:650;}
+.qr-modal-actions{display:flex;gap:8px;margin-top:14px;}
+.qr-modal-actions .btn{flex:1;justify-content:center;}
 
 /* ===HISTORY MODAL=== */
 #histModal .modal{width:500px;max-height:80vh;overflow-y:auto;}
@@ -631,6 +636,9 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 /* ===CHART=== */
 #chartModal .modal{width:600px;}
 canvas#stockChart{width:100%!important;max-height:300px;}
+.chart-modal-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:16px;letter-spacing:-.02em;}
+.chart-modal-title .ms{font-size:18px;}
+.chart-modal-close{margin-top:16px;}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
@@ -922,7 +930,7 @@ async function checkPin(attempt){
       <div class="card" style="padding:28px;">
         <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--ios-green);">add_circle</span>Поповнити залишок</h3>
         <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-placeholder="Пошук товару для поповнення..."><option value="">— Оберіть товар —</option></select></div>
           <div id="refillInfo" style="display:none;background:#f0fff4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;font-size:13px;color:#166534;">Поточний залишок: <span id="refillCur" style="font-weight:800;"></span></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
@@ -1293,12 +1301,12 @@ async function checkPin(attempt){
 <!-- QR SCANNER MODAL -->
 <div class="modal-bg" id="qrModal" data-modal-backdrop="qrModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
+    <h3 class="qr-modal-title"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="qrReader"></div>
     <div class="qr-result" id="qrResult"></div>
-    <p style="font-size:12px;color:#a5b4fc;margin-top:10px;text-align:center;">Наведіть камеру на штрих-код або QR-код товару</p>
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-sklad-action="qr-close">Закрити</button>
+    <p class="qr-modal-copy">Наведіть камеру на штрих-код або QR-код товару</p>
+    <div class="qr-modal-actions">
+      <button type="button" class="btn btn-ghost" data-sklad-action="qr-close">Закрити</button>
     </div>
   </div>
 </div>
@@ -1345,9 +1353,9 @@ async function checkPin(attempt){
 
 <div class="modal-bg" id="chartModal" data-modal-backdrop="chartModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:16px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">bar_chart</span> Залишки по категоріях</h3>
+    <h3 class="chart-modal-title"><span class="ms" aria-hidden="true">bar_chart</span> Залишки по категоріях</h3>
     <canvas id="stockChart"></canvas>
-    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:16px;" data-modal-close="chartModal">Закрити</button>
+    <button type="button" class="btn btn-ghost btn-sm chart-modal-close" data-modal-close="chartModal">Закрити</button>
   </div>
 </div>
 

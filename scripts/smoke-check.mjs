@@ -639,6 +639,34 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// QR scanner and chart modal chrome should use small class-based shells
+// instead of inline title/action styles.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad qr and chart modals use class-based shells';
+  const required = [
+    'class="qr-modal-title"',
+    'class="qr-modal-copy"',
+    'class="qr-modal-actions"',
+    '.qr-modal-title{display:flex;',
+    '.qr-modal-copy{font-size:12px;',
+    '.qr-modal-actions{display:flex;',
+    'class="chart-modal-title"',
+    'class="btn btn-ghost btn-sm chart-modal-close"',
+    '.chart-modal-title{display:flex;',
+    '.chart-modal-close{margin-top:16px;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Barcode add modal should use class-based scanner/manual-entry controls
 // instead of inline layout styles.
 {
@@ -1221,7 +1249,8 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'data-person-preset="Електрик"',
     'data-sklad-action="issue-submit"',
     'data-log-category-filter="Ремонт"',
-    'data-refill-select',
+    'data-refill-select data-searchable="1"',
+    'data-search-placeholder="Пошук товару для поповнення..."',
     'data-new-product-input',
     'data-render-audit-input',
     'data-render-receipts-input',
