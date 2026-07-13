@@ -2076,12 +2076,9 @@
     function gKey() { return `${currentYear}-${currentMonth}`; }
     function gOfflineKey() { return `garbage_${currentYear}_${currentMonth}`; }
     function gMonthKeyCandidates(year = currentYear, month = currentMonth) {
-        const oneBasedMonth = month + 1;
         return [...new Set([
             `${year}-${month}`,
             `${year}-${String(month).padStart(2,'0')}`,
-            `${year}-${oneBasedMonth}`,
-            `${year}-${String(oneBasedMonth).padStart(2,'0')}`,
         ])];
     }
     async function gFetchGarbageMonthData(year = currentYear, month = currentMonth) {

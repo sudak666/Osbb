@@ -1170,7 +1170,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
     'async function gFetchGarbageMonthData(year = currentYear, month = currentMonth)',
-    "String(oneBasedMonth).padStart(2,'0')",
+    "String(month).padStart(2,'0')",
     'async function gLoadGarbageYearFromCloud(year)',
     "db.from('garbage').select('month_key,data')",
     'const candidates = gMonthKeyCandidates(year, month)',
@@ -1178,7 +1178,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'await gLoadGarbageYearFromCloud(currentYear)',
     "String(d).padStart(2,'0')",
   ];
-  const forbidden = ["String(d).padStart(2,'00')", ".select('month_key,data').in(", "keys.map(monthKey =>", 'Promise.all(Array.from({ length: 12 }, async (_, month) =>'];
+  const forbidden = ["String(d).padStart(2,'00')", 'oneBasedMonth', ".select('month_key,data').in(", "keys.map(monthKey =>", 'Promise.all(Array.from({ length: 12 }, async (_, month) =>'];
   const missing = required.filter(needle => !text.includes(needle));
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   if (missing.length || hasForbidden) {
