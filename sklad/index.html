@@ -261,6 +261,29 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 
 
 
+
+/* QUICK / PHOTO MODALS */
+.quick-issue-title{font-size:15px;line-height:1.4;margin-bottom:4px;color:var(--ios-label);}
+.quick-issue-meta{font-size:13px;color:var(--ios-label3);margin-bottom:18px;}
+.quick-issue-meta strong,.quick-issue-meta span{font-weight:850;color:#6366f1;}
+.quick-issue-form{display:flex;flex-direction:column;gap:13px;}
+.quick-person-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+.quick-person-chip{padding:5px 10px;font-size:12px;}
+.quick-modal-actions{display:flex;gap:10px;margin-top:4px;}
+.quick-modal-actions .btn{flex:1;justify-content:center;}
+.quick-modal-actions .ms{font-size:16px;}
+.photo-modal{width:420px;}
+.photo-modal-title{font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);}
+.photo-current{margin-bottom:14px;}
+.photo-upload-box{border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;}
+.photo-upload-title{display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:650;}
+.photo-upload-title .ms{font-size:15px;}
+.photo-file-input{display:none;}
+.photo-status{font-size:12px;color:#a5b4fc;margin-top:8px;}
+.photo-modal-actions{margin-top:14px;display:flex;gap:8px;justify-content:flex-end;}
+.photo-delete-btn{display:none;}
+.photo-delete-btn .ms{font-size:14px;}
+
 /* STATS PAGE */
 .stats-panel{padding:18px 22px;margin-bottom:16px;}
 .stats-panel-title{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:850;color:var(--brand);text-transform:uppercase;letter-spacing:.03em;margin-bottom:12px;}
@@ -1147,14 +1170,14 @@ async function checkPin(attempt){
 <!-- QUICK MODAL -->
 <div class="modal-bg" id="qModal" data-modal-backdrop="qModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 id="qmName" style="font-size:15px;line-height:1.4;margin-bottom:4px;"></h3>
-    <p style="font-size:13px;color:var(--ios-label3);margin-bottom:18px;">Залишок: <span id="qmQtyShow" style="font-weight:800;color:#6366f1;"></span></p>
-    <div style="display:flex;flex-direction:column;gap:13px;">
+    <h3 id="qmName" class="quick-issue-title"></h3>
+    <p class="quick-issue-meta">Залишок: <span id="qmQtyShow"></span></p>
+    <div class="quick-issue-form">
       <div><label>Кількість</label><input type="number" class="inp" id="qmQtyI" min="0.1" step="0.1"></div>
-      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
-      <div style="display:flex;gap:10px;margin-top:4px;">
-        <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="qModal">Скасувати</button>
-        <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="quick-issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
+      <div><label>Кому видано</label><div class="quick-person-row"><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
+      <div class="quick-modal-actions">
+        <button type="button" class="btn btn-ghost" data-modal-close="qModal">Скасувати</button>
+        <button type="button" class="btn btn-primary" data-sklad-action="quick-issue-submit"><span class="ms" aria-hidden="true">check_circle</span> Видати</button>
       </div>
     </div>
   </div>
@@ -1162,17 +1185,17 @@ async function checkPin(attempt){
 
 <!-- PHOTO MODAL -->
 <div class="modal-bg" id="photoModal" data-modal-backdrop="photoModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
-    <h3 id="photoItemName" style="font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);"></h3>
-    <div id="photoCurrent" style="margin-bottom:14px;"></div>
-    <div style="border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;">
-      <div style="font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">photo_camera</span> Завантажити нове фото</div>
-      <input type="file" id="photoFileI" accept="image/*" style="display:none;" data-photo-file>
+  <div class="modal photo-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 id="photoItemName" class="photo-modal-title"></h3>
+    <div id="photoCurrent" class="photo-current"></div>
+    <div class="photo-upload-box">
+      <div class="photo-upload-title"><span class="ms" aria-hidden="true">photo_camera</span> Завантажити нове фото</div>
+      <input type="file" id="photoFileI" accept="image/*" class="photo-file-input" data-photo-file>
       <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="photo-file-select">Обрати файл</button>
-      <div id="photoStatus" style="font-size:12px;color:#a5b4fc;margin-top:8px;"></div>
+      <div id="photoStatus" class="photo-status"></div>
     </div>
-    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
-      <button type="button" class="btn btn-danger btn-sm" id="delPhotoBtn" data-sklad-action="photo-delete" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+    <div class="photo-modal-actions">
+      <button type="button" class="btn btn-danger btn-sm photo-delete-btn" id="delPhotoBtn" data-sklad-action="photo-delete"><span class="ms" aria-hidden="true">delete</span> Видалити фото</button>
       <button type="button" class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
     </div>
   </div>

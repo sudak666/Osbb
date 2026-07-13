@@ -202,6 +202,14 @@ The statistics page now uses shared class-based panels and grids:
 - the duplicate `statLow` target was collapsed to a single list card so `renderStats()` has one stable destination;
 - smoke checks guard the stats shell classes and the single low-stock target.
 
+### Sklad quick issue and photo modal cleanup
+
+The quick issue and item photo dialogs now use class-based modal chrome:
+
+- quick issue title, stock meta, person presets, and action row use `quick-*` classes;
+- photo upload title, current-photo area, file input, status, delete button, and actions use `photo-*` classes;
+- smoke checks guard the static quick/photo modal shell markers.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

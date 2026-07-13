@@ -642,6 +642,42 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Quick issue and photo modals should use class-based shells instead of
+// inline-heavy modal chrome.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad quick issue and photo modals use class-based shells';
+  const required = [
+    'id="qmName" class="quick-issue-title"',
+    'class="quick-issue-meta"',
+    'class="quick-issue-form"',
+    'class="quick-person-row"',
+    'class="btn btn-ghost btn-sm quick-person-chip"',
+    'class="quick-modal-actions"',
+    'class="modal photo-modal"',
+    'id="photoItemName" class="photo-modal-title"',
+    'id="photoCurrent" class="photo-current"',
+    'class="photo-upload-box"',
+    'class="photo-upload-title"',
+    'class="photo-file-input"',
+    'id="photoStatus" class="photo-status"',
+    'class="photo-modal-actions"',
+    'class="btn btn-danger btn-sm photo-delete-btn"',
+    '.quick-issue-title{font-size:15px;',
+    '.photo-modal{width:420px;',
+    '.photo-upload-box{border:2px dashed',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad stats page should use class-based panels/grids and keep a single
 // low-stock stats target for renderStats().
 {
