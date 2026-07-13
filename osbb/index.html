@@ -1403,7 +1403,7 @@
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-xs font-bold ${accentColors[role]}">${roleNames[role]}</span>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}">
+                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
                             <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor}"></div>
                         </label>
                     </div>
@@ -1411,17 +1411,17 @@
                         ${tasksHtml}
                         <div class="flex items-center gap-2 mt-1.5">
                             <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                            <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
+                            <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
                         ${renderOtherField(d, role, state, 'm')}
                         ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
                             <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
                                 Камера
-                                <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}">
+                                <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
                             </label>
                             <label class="cursor-pointer text-xs text-purple-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-purple-200 bg-purple-50 active:bg-purple-100">
                                 Галерея
-                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}">
+                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
                             </label>
                         </div>
                         <div id="mobile-photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
@@ -1431,7 +1431,7 @@
 
             bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
                 <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
-                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
+                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
             </div>`;
 
             body.innerHTML = bodyHtml;
@@ -1555,7 +1555,7 @@
                         <div class="flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 no-print">
                             <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'НА ЗМІНІ':'ВИХІДНИЙ'}</span>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}">
+                                <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
                                 <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all ${toggleColor} shadow-inner"></div>
                             </label>
                         </div>
@@ -1563,12 +1563,12 @@
                             ${checkBoxesHtml}
                             <div class="flex items-center gap-2 mt-1.5">
                                 <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                                <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
+                                <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
                             </div>
                             ${renderOtherField(d, role, state, 'd')}
                             ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
                                 <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Фото
-                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload" data-day="${d}" data-role="${role}">
+                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
                             </label>
                             <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
                         </div>
@@ -1581,7 +1581,7 @@
             });
 
             rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top no-print">
-                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
+                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
             </td>`;
 
             trBody.innerHTML = `<td class="border-r border-[var(--border)]"></td>` + rolesTd;
@@ -1638,7 +1638,7 @@
         const needsToggle = val.length > 60 || (val.match(/\n/g) || []).length >= 2;
         const id = `other-${prefix}-${d}-${role}`;
         const extraClass = prefix === 'd' ? 'focus:ring-1 focus:ring-emerald-300 mt-1' : 'mt-1.5';
-        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} data-journal-action="other-task" data-day="${d}" data-role="${role}" placeholder="Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-none leading-relaxed ${extraClass}">${escaped}</textarea>
+        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} data-journal-action="other-task" data-day="${d}" data-role="${role}" aria-label="Інші роботи ${roleNames[role]} за день ${d}" placeholder="Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-none leading-relaxed ${extraClass}">${escaped}</textarea>
             ${needsToggle ? `<button type="button" data-journal-action="other-expand" data-other-target="${id}" class="no-print text-[10px] font-semibold text-emerald-600 hover:underline mt-0.5">Показати все ▾</button>` : ''}`;
     }
 
@@ -2262,12 +2262,12 @@
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
-                            <input type="time" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time"
+                            <input type="time" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" aria-label="Час вивозу сміття за день ${day}"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
                         </div>
                         <div>
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Працівник</div>
-                            <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker"
+                            <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker" aria-label="Працівник сміття за день ${day}"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
                                 <option value="">—</option>
                                 ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
@@ -2289,7 +2289,7 @@
                                     ${label}
                                 </label>
                                 ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${escapeAttr(String(val))}"
-                                    data-g-action="type-count" data-g-day="${day}" data-g-type="${k}"
+                                    data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
                                     ${checked ? '' : 'disabled'}
                                     class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">` : ''}
                             </div>`;
@@ -2641,7 +2641,7 @@
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold text-purple-700 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Диспетчер</span>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" ${row.working?'checked':''} data-disp-action="shift-toggle" data-disp-day="${d}">
+                            <input type="checkbox" class="sr-only peer" ${row.working?'checked':''} data-disp-action="shift-toggle" data-disp-day="${d}" aria-label="Зміна диспетчера за день ${d}">
                             <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-500"></div>
                         </label>
                     </div>
@@ -2659,13 +2659,13 @@
                         <div class="mt-3">
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Дзвінків:</div>
                             <input type="number" min="0" max="999" value="${escapeAttr(String(row.calls||''))}" placeholder="0"
-                                data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls"
+                                data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls" aria-label="Кількість дзвінків диспетчера за день ${d}"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
                         <!-- Коментар дня (розширений) -->
                         <div class="mt-3">
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар / події дня:</div>
-                            <textarea rows="4" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment"
+                            <textarea rows="4" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment" aria-label="Коментар диспетчера за день ${d}"
                                 placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
                                 class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed">${escapeHtml(row.comment||'')}</textarea>
                         </div>

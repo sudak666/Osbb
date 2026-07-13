@@ -518,6 +518,35 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Dynamic journal/garbage/dispatcher form controls should not rely solely on
+// visual context; generated controls need stable labels for assistive tech.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal dynamic controls expose aria-labels';
+  const required = [
+    'aria-label="Зміна ${roleNames[role]} за день ${d}"',
+    'aria-label="Кількість заявок ${roleNames[role]} за день ${d}"',
+    'aria-label="Додати фото ${roleNames[role]} за день ${d}"',
+    'aria-label="Коментар до дня ${d}"',
+    'aria-label="Інші роботи ${roleNames[role]} за день ${d}"',
+    'aria-label="Час вивозу сміття за день ${day}"',
+    'aria-label="Працівник сміття за день ${day}"',
+    'aria-label="Кількість баків за день ${day}"',
+    'aria-label="Зміна диспетчера за день ${d}"',
+    'aria-label="Кількість дзвінків диспетчера за день ${d}"',
+    'aria-label="Коментар диспетчера за день ${d}"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Placeholder-only search/chat fields need stable accessible names.
 {
   const osbb = readFileSync('osbb/index.html', 'utf8');
