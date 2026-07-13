@@ -22,7 +22,7 @@ const checks = [
   ['index.html', 'role="tabpanel" aria-labelledby="shell-tab-journal"', 'shell frame exposes tabpanel semantics'],
   ['index.html', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
   ['index.html', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
-  ['osbb/index.html', 'id="desktop-tabs" class="ml-auto flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
+  ['osbb/index.html', 'id="desktop-tabs" class="flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal mobile active tab exposes tab semantics'],
@@ -633,6 +633,362 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+// Quick issue and photo modals should use class-based shells instead of
+// inline-heavy modal chrome.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad quick issue and photo modals use class-based shells';
+  const required = [
+    'id="qmName" class="quick-issue-title"',
+    'class="quick-issue-meta"',
+    'class="quick-issue-form"',
+    'class="quick-person-row"',
+    'class="btn btn-ghost btn-sm quick-person-chip"',
+    'class="quick-modal-actions"',
+    'class="modal photo-modal"',
+    'id="photoItemName" class="photo-modal-title"',
+    'id="photoCurrent" class="photo-current"',
+    'class="photo-upload-box"',
+    'class="photo-upload-title"',
+    'class="photo-file-input"',
+    'id="photoStatus" class="photo-status"',
+    'class="photo-modal-actions"',
+    'class="btn btn-danger btn-sm photo-delete-btn"',
+    '.quick-issue-title{font-size:15px;',
+    '.photo-modal{width:420px;',
+    '.photo-upload-box{border:2px dashed',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad stats page should use class-based panels/grids and keep a single
+// low-stock stats target for renderStats().
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad stats page uses class-based panels';
+  const required = [
+    'class="card stats-panel"',
+    'class="stats-balance-grid"',
+    'class="stats-metric-value is-orange"',
+    'class="stats-metric-value is-green"',
+    'class="card stats-list-card"',
+    'id="statCats" class="stats-list-stack"',
+    'class="stats-filter-grid"',
+    'id="valueFilterSummary" class="stats-filter-summary"',
+    'class="card price-assessment-panel"',
+    'id="priceSummary" class="price-assessment-summary"',
+    'class="price-assessment-actions"',
+    '.stats-panel{padding:18px 22px;',
+    '.stats-filter-grid{display:grid;',
+    '.price-assessment-panel{padding:18px 22px;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const statLowCount = (text.match(/id="statLow"/g) || []).length;
+  if (missing.length || statLowCount !== 1) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${statLowCount !== 1 ? ` (statLow count: ${statLowCount})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad add/refill page should use class-based form/card helpers instead of
+// inline-heavy add-page chrome.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad add and refill page uses class-based shell';
+  const required = [
+    'class="card add-card"',
+    'class="add-section-title is-refill"',
+    'class="add-form-stack"',
+    'id="refillInfo" class="refill-info"',
+    'class="form-note"',
+    'class="btn btn-success full-action"',
+    'class="add-new-section"',
+    'class="add-new-stack"',
+    'id="newNameMatches" class="new-name-matches"',
+    'class="btn btn-ghost add-scanner-btn"',
+    'id="barcodeAddStatus" class="barcode-add-status"',
+    'class="internal-use-toggle"',
+    'class="add-side-stack pc-only"',
+    'class="card add-help-card"',
+    'class="add-help-list"',
+    'class="card add-low-card"',
+    '.add-card{padding:28px;',
+    '.two-col{display:grid;',
+    '.internal-use-toggle{display:flex;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// QR scanner and chart modal chrome should use small class-based shells
+// instead of inline title/action styles.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad qr and chart modals use class-based shells';
+  const required = [
+    'class="qr-modal-title"',
+    'class="qr-modal-copy"',
+    'class="qr-modal-actions"',
+    '.qr-modal-title{display:flex;',
+    '.qr-modal-copy{font-size:12px;',
+    '.qr-modal-actions{display:flex;',
+    'class="chart-modal-title"',
+    'class="btn btn-ghost btn-sm chart-modal-close"',
+    '.chart-modal-title{display:flex;',
+    '.chart-modal-close{margin-top:16px;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Barcode add modal should use class-based scanner/manual-entry controls
+// instead of inline layout styles.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad barcode modal uses class-based shell';
+  const required = [
+    'class="barcode-modal-title"',
+    'id="barcodeAddScanning" class="barcode-scan-status"',
+    'class="barcode-manual-entry"',
+    'class="barcode-manual-title"',
+    'class="barcode-manual-row"',
+    'class="barcode-modal-close"',
+    '.barcode-modal-title{display:flex;',
+    '.barcode-manual-entry{margin-top:14px;',
+    '.barcode-manual-row{display:flex;',
+    '.barcode-modal-close .btn{width:100%;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Item history modal should use class-based title/subtitle/list/state rows
+// instead of inline layout styles.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad history modal uses class-based shell';
+  const required = [
+    'class="history-modal-title"',
+    'class="history-modal-subtitle"',
+    'id="histList" class="history-modal-list"',
+    'class="btn btn-ghost btn-sm history-modal-close"',
+    '.history-modal-state{text-align:center;',
+    '.hist-main{flex:1;',
+    '.hist-person{font-weight:700;',
+    '.hist-meta{font-size:11px;',
+    'class="history-modal-state"',
+    'class="hist-main"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Internet price lookup results should render with reusable result-row classes,
+// while keeping links sanitized and apply actions data-driven.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad price lookup results use class-based rows';
+  const required = [
+    '.price-results-state{padding:18px;',
+    '.price-result-card{padding:10px 0;',
+    '.price-result-main{flex:1;',
+    '.price-result-link{color:var(--brand);',
+    '.price-result-apply{margin-top:6px;}',
+    'class="price-results-state is-loading"',
+    'class="price-result-card"',
+    'class="price-result-link" href="${safeLink}" target="_blank" rel="noopener noreferrer"',
+    'class="btn btn-primary btn-sm price-result-apply" data-price-result-action="apply"',
+    'class="price-results-state is-error"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Price lookup modal should use the same class-based shell as manual price
+// instead of embedding its grid/results/actions layout inline.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad price lookup modal uses class-based shell';
+  const required = [
+    'class="modal price-lookup-modal"',
+    'class="price-lookup-title"',
+    'class="price-results-panel"',
+    '.price-lookup-modal{max-width:560px;}',
+    '.price-search-row{display:grid;',
+    '.price-results-panel{min-height:80px;',
+    '.price-modal-actions{display:flex;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Manual price modal should not open with accidental blue text selection; it
+// clears stale selections and focuses the price input without selecting modal text.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad manual price modal clears accidental text selection';
+  const required = [
+    'class="modal manual-price-modal"',
+    '.manual-price-modal{max-width:460px;}',
+    '.manual-price-form{display:flex;',
+    '.manual-price-actions{display:flex;',
+    '#manualPriceModal .modal{user-select:none;',
+    '#manualPriceModal input{user-select:text;',
+    'id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus',
+    'function clearTextSelection()',
+    'selection.removeAllRanges()',
+    "const preferredFocus = dialog.querySelector('[data-modal-initial-focus]')",
+    'requestAnimationFrame(clearTextSelection)',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad receipt and audit screens should follow the same calm workflow/list
+// primitives as items, issue, and log instead of reverting to ad-hoc inline rows.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad receipts and audit screens use redesigned workflow primitives';
+  const required = [
+    'class="receipts-toolbar"',
+    'class="receipts-search-row"',
+    'class="receipt-mobile-item"',
+    'class="receipt-mobile-actions"',
+    'class="audit-toolbar"',
+    'class="audit-search-row"',
+    'class="audit-legend"',
+    'class="audit-list"',
+    'class="audit-item ${stateClass}"',
+    'class="audit-qty-input"',
+    '.receipts-toolbar,.audit-toolbar{position:sticky;',
+    '.audit-item{',
+    '.receipt-mobile-item{',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// OSBB journal header should be split into clear title/status, calendar/action,
+// and tab rows so the controls do not collapse into one dense visual band.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal header uses separated title action and tab rows';
+  const required = [
+    'class="no-print journal-shell-header"',
+    'class="journal-title-row"',
+    'class="journal-title-actions"',
+    'class="journal-action-row"',
+    'class="journal-calendar-controls"',
+    'class="journal-export-actions"',
+    'class="journal-tabs-row"',
+    '.journal-shell-header {',
+    '.journal-title-row {',
+    '.journal-action-row {',
+    '.journal-tabs-row {',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+// OSBB static icon/action markup should keep moving repeated inline layout
+// styles into reusable classes instead of duplicating SVG layout style strings.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal static icons and header actions use reusable style classes';
+  const required = [
+    '.journal-inline-icon {',
+    '.journal-action-label {',
+    '.journal-action-btn {',
+    'class="journal-action-btn journal-action-btn-primary"',
+    'class="journal-action-btn journal-action-btn-danger"',
+    'class="journal-inline-icon"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
@@ -998,8 +1354,15 @@ for (const file of ['index.html', 'osbb/index.html']) {
   const required = [
     'data-person-preset="Електрик"',
     'data-sklad-action="issue-submit"',
+    'data-issue-select data-searchable="1"',
+    'data-search-placeholder="Пошук товару для видачі..."',
     'data-log-category-filter="Ремонт"',
-    'data-refill-select',
+    'data-refill-select data-searchable="1"',
+    'data-search-placeholder="Пошук товару для поповнення..."',
+    'id="manualPriceItemSel" data-searchable="1"',
+    'data-search-placeholder="Пошук товару для ручної ціни..."',
+    "className='inp custom-select-search'",
+    '.custom-select-search{margin:8px;',
     'data-new-product-input',
     'data-render-audit-input',
     'data-render-receipts-input',
@@ -1067,7 +1430,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 {
   const text = readFileSync('sklad/index.html', 'utf8');
   const label = 'sklad modals expose accessible dialog semantics';
-  const modalCount = (text.match(/<div class="modal"/g) || []).length;
+  const modalCount = (text.match(/<div class="modal(?:\s[^"]*)?"/g) || []).length;
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
   const required = [
     'function openModal',
