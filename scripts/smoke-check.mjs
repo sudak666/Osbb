@@ -635,6 +635,31 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Price lookup modal should use the same class-based shell as manual price
+// instead of embedding its grid/results/actions layout inline.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad price lookup modal uses class-based shell';
+  const required = [
+    'class="modal price-lookup-modal"',
+    'class="price-lookup-title"',
+    'class="price-results-panel"',
+    '.price-lookup-modal{max-width:560px;}',
+    '.price-search-row{display:grid;',
+    '.price-results-panel{min-height:80px;',
+    '.price-modal-actions{display:flex;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Manual price modal should not open with accidental blue text selection; it
 // clears stale selections and focuses the price input without selecting modal text.
 {

@@ -126,6 +126,15 @@ The manual price modal now has a small class-based structure on top of the text-
 - the existing selection/focus safeguards remain in place so opening the modal does not leave blue highlighted chrome text;
 - smoke checks now cover both the text-selection safeguards and the class-based modal shell.
 
+
+### Sklad price lookup modal cleanup
+
+The internet price lookup modal now mirrors the class-based manual price modal shell:
+
+- `price-lookup-modal`, `price-lookup-title`, `price-results-panel`, and `price-modal-actions` own the modal layout;
+- `price-search-row` is now a real reusable grid class instead of inline grid styles;
+- smoke checks guard the class-based price lookup shell while preserving the existing mobile close/scroll behavior.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

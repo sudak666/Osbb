@@ -360,6 +360,16 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 @keyframes popIn{from{transform:translateY(10px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 
 
+
+.price-lookup-modal{max-width:560px;}
+.price-lookup-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:8px;letter-spacing:-.02em;}
+.price-lookup-title .ms{font-size:18px;}
+.price-search-row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:10px;margin-bottom:12px;}
+.price-search-row .btn{justify-content:center;}
+.price-search-row .ms,.price-modal-actions .ms{font-size:15px;}
+.price-results-panel{min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);}
+.price-modal-actions{display:flex;gap:8px;margin-top:14px;}
+.price-modal-actions .btn{flex:1;justify-content:center;}
 .manual-price-modal{max-width:460px;}
 .manual-price-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.02em;}
 .manual-price-title .ms{font-size:18px;}
@@ -1267,15 +1277,15 @@ async function checkPin(attempt){
 
 <!-- CHART MODAL -->
 <div class="modal-bg" id="priceModal" data-modal-backdrop="priceModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:560px;">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">travel_explore</span> Підтягнути ціни з інтернету</h3>
-    <div class="price-search-row" style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
+  <div class="modal price-lookup-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="price-lookup-title"><span class="ms" aria-hidden="true">travel_explore</span> Підтягнути ціни з інтернету</h3>
+    <div class="price-search-row">
       <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
-      <button type="button" class="btn btn-primary" data-sklad-action="price-fetch" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="price-fetch"><span class="ms" aria-hidden="true">search</span> Знайти</button>
     </div>
-    <div id="priceResults" style="min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);">Оберіть товар і натисніть “Знайти”.</div>
-    <div class="price-modal-actions" style="display:flex;gap:8px;margin-top:14px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="priceModal">Закрити</button>
+    <div id="priceResults" class="price-results-panel">Оберіть товар і натисніть “Знайти”.</div>
+    <div class="price-modal-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="priceModal">Закрити</button>
     </div>
   </div>
 </div>
