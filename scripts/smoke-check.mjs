@@ -634,6 +634,31 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 }
 
 
+
+// Manual price modal should not open with accidental blue text selection; it
+// clears stale selections and focuses the price input without selecting modal text.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad manual price modal clears accidental text selection';
+  const required = [
+    '#manualPriceModal .modal{user-select:none;',
+    '#manualPriceModal input{user-select:text;',
+    'id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus',
+    'function clearTextSelection()',
+    'selection.removeAllRanges()',
+    "const preferredFocus = dialog.querySelector('[data-modal-initial-focus]')",
+    'requestAnimationFrame(clearTextSelection)',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad receipt and audit screens should follow the same calm workflow/list
 // primitives as items, issue, and log instead of reverting to ad-hoc inline rows.
 {
