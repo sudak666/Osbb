@@ -515,6 +515,13 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .manual-price-actions{display:flex;gap:8px;margin-top:14px;}
 .manual-price-actions .btn{flex:1;justify-content:center;}
 .manual-price-actions .ms{font-size:15px;}
+
+.price-badge-btn{padding:6px 9px;font-size:12px;}
+.price-badge-btn .ms{font-size:14px;}
+.price-badge-btn.has-price{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;}
+.price-badge-value{font-weight:900;color:var(--ios-green);white-space:nowrap;}
+.price-badge-source{font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+
 #manualPriceModal .modal{user-select:none;-webkit-user-select:none;}
 #manualPriceModal input{user-select:text;-webkit-user-select:text;}
 #manualPriceModal .custom-select-wrap,#manualPriceModal .custom-select-btn,#manualPriceModal label,#manualPriceModal button{user-select:none;-webkit-user-select:none;}
@@ -1516,13 +1523,13 @@ function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
 function priceBadge(item){
   const id=escapeHtml(String(item?.id||''));
   const price=priceValue(item);
-  if(!price) return `<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
+  if(!price) return `<button type="button" class="btn btn-ghost btn-sm price-badge-btn" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" aria-hidden="true">add</span> Ціна</button>`;
   const checked=item.price_checked_at?new Date(item.price_checked_at).toLocaleDateString('uk-UA'):'';
   const src=item.price_source?escapeHtml(item.price_source):'ціна';
   const title=[src,checked].filter(Boolean).join(' · ');
-  return `<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
-    <span style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(price)}</span>
-    <span style="font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;">${src}</span>
+  return `<button type="button" class="btn btn-ghost btn-sm price-badge-btn has-price" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
+    <span class="price-badge-value">${money(price)}</span>
+    <span class="price-badge-source">${src}</span>
   </button>`;
 }
 

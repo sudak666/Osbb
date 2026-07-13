@@ -647,6 +647,32 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Dynamic item price badges should use class-based rows instead of inline
+// sizing/color style strings.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad price badges use class-based renderer';
+  const required = [
+    'class="btn btn-ghost btn-sm price-badge-btn"',
+    'class="btn btn-ghost btn-sm price-badge-btn has-price"',
+    'class="price-badge-value"',
+    'class="price-badge-source"',
+    '.price-badge-btn{padding:6px 9px;',
+    '.price-badge-btn.has-price{display:flex;',
+    '.price-badge-value{font-weight:900;',
+    '.price-badge-source{font-size:10px;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad topbar should use class-based title/action/icon helpers instead of
 // dense inline styles on the header controls.
 {

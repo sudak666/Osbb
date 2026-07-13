@@ -242,6 +242,14 @@ The Sklad topbar now uses class-based title/action helpers instead of inline but
 - chart, price, scanner, receipts, refresh, theme, and Excel actions use `topbar-actions`, `topbar-icon-btn`, `topbar-refresh`, and `topbar-excel-icon`;
 - smoke checks guard both the static markup and the dynamic title icon class assignment.
 
+### Sklad price badge renderer cleanup
+
+The item price badge renderer now uses class-based markup for both priced and unpriced states:
+
+- the manual price button uses `price-badge-btn`;
+- priced rows use `price-badge-btn has-price`, `price-badge-value`, and `price-badge-source`;
+- smoke checks guard the dynamic price badge renderer classes.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
