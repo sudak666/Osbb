@@ -125,7 +125,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Latest known expected result: `132 smoke checks passed` after the accessibility/focus/escaping/mobile-topbar/menu hardening, Sklad foundational UI token pass, items-screen hero/filter redesign shell, and calmer insight/mobile item card pass.
+Latest known expected result: `133 smoke checks passed` after the accessibility/focus/escaping/mobile-topbar/menu hardening, Sklad foundational UI token pass, items-screen hero/filter redesign shell, calmer insight/mobile item card pass, and issue workflow form pass.
 
 ## Suggested next work
 
@@ -133,7 +133,7 @@ Latest known expected result: `132 smoke checks passed` after the accessibility/
 
 - Read `docs/ui-redesign-notes.md` before making visual changes.
 - Build on the new Sklad design tokens (`--surface-*`, `--shadow-*`, `--radius-*`, `--motion-*`).
-- Continue the Sklad redesign: refine the new hero/filter/insight-card shell, reduce remaining inline styles, and apply the same calm hierarchy to Issue/Log/Receipt screens.
+- Continue the Sklad redesign: refine the new hero/filter/insight-card and issue workflow shells, reduce remaining inline styles, and apply the same calm hierarchy to Log/Receipt/Audit screens.
 - Ensure primary vs secondary actions are visually clear.
 - Check bottom nav overlap with modals, cards, long lists, and mobile item overflow menus.
 

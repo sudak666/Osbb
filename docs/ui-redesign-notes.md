@@ -67,16 +67,25 @@ The follow-up pass made the items screen calmer and less saturated:
 - mobile item photos now use the reusable `m-card-photo` class and quantity emphasis is handled through `m-card-qty-value`;
 - smoke checks were adjusted to guard the insight-grid shell and the escaped quantity renderer in its new class-based markup.
 
+### Sklad issue workflow form
+
+The `Видача` screen now uses the same calmer workflow language:
+
+- main form card uses `workflow-card`, `workflow-heading`, `workflow-kicker`, `workflow-title`, and `workflow-copy`;
+- form fields use `form-stack`, `field-grid`, `info-callout`, `preset-row`, `preset-chip`, and `full-width-action`;
+- recent activity uses `side-panel`, `side-panel-title`, and `side-panel-body`;
+- smoke checks now guard these workflow form primitives.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
 
-Continue after this items shell and insight-card pass:
+Continue after this items/issue redesign pass:
 
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
-- Continue removing remaining inline styles from items filters/table actions after the visual direction is accepted.
+- Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
-- Start the same calm hierarchy pass for `Видача`, `Журнал` and `Прихід` screens.
+- Apply the same calm hierarchy pass to `Журнал`, `Прихід`, and `Інвентаризація` screens.
 
 ### 2. OSBB journal header simplification
 

@@ -186,6 +186,25 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .table-modern tbody td:first-child,.table-modern thead th:first-child{padding-left:20px;}
 .table-modern tbody td:last-child,.table-modern thead th:last-child{padding-right:20px;}
 
+/* WORKFLOW FORMS */
+.workflow-card{padding:26px;}
+.workflow-heading{display:flex;align-items:flex-start;gap:12px;margin-bottom:22px;}
+.workflow-heading-icon{width:40px;height:40px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);flex-shrink:0;}
+.workflow-kicker{font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:4px;}
+.workflow-title{font-size:20px;font-weight:900;line-height:1.08;letter-spacing:-.045em;color:var(--ios-label);margin:0;}
+.workflow-copy{font-size:13px;line-height:1.5;color:var(--ios-label3);font-weight:600;margin-top:5px;}
+.form-stack{display:flex;flex-direction:column;gap:16px;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.info-callout{background:linear-gradient(135deg,var(--accent-soft),color-mix(in srgb,var(--info) 8%,var(--surface-2)));border:1px solid color-mix(in srgb,var(--accent) 18%,var(--border-subtle));border-radius:16px;padding:14px;}
+.info-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--ios-label3);}
+.info-row strong{color:var(--accent);font-weight:850;}
+.preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.preset-chip{min-height:30px;padding:0 11px;font-size:12px;border-radius:999px;}
+.full-width-action{width:100%;justify-content:center;}
+.side-panel{padding:20px;overflow:hidden;max-width:100%;}
+.side-panel-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:850;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.side-panel-body{overflow:hidden;}
+
 /* STAT CARDS */
 .stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.26) inset,var(--shadow-lg);filter:saturate(1.04);}
@@ -356,6 +375,12 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .items-metrics{margin-bottom:12px;}
   .items-filter-bar{position:relative;top:auto;padding:10px;margin-bottom:12px;border-radius:20px;}
   .items-search-row{grid-template-columns:1fr;}
+  .workflow-card{padding:18px;}
+  .workflow-heading{gap:10px;margin-bottom:16px;}
+  .workflow-heading-icon{width:36px;height:36px;border-radius:14px;}
+  .workflow-title{font-size:17px;}
+  .workflow-copy{font-size:12px;}
+  .field-grid{grid-template-columns:1fr;}
   #catPills{flex-wrap:nowrap!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px!important;padding-bottom:2px;}
   #catPills::-webkit-scrollbar{display:none;}
   #catPills .pill{flex-shrink:0;white-space:nowrap;padding:5px 11px;font-size:12px;}
@@ -389,7 +414,8 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   /* Issue page */
   #page-issue .split{display:flex!important;flex-direction:column!important;gap:12px!important;}
   #page-issue .card{padding:14px!important;}
-  #page-issue h3{font-size:15px!important;margin-bottom:14px!important;}
+  #page-issue .workflow-card{padding:16px!important;}
+  #page-issue .workflow-heading{margin-bottom:14px!important;}
   #page-issue .btn-ghost.btn-sm{font-size:11px!important;padding:5px 8px!important;}
   /* Log page - hide table, show cards */
   #page-log .card table{display:none;}
@@ -712,25 +738,32 @@ async function checkPin(attempt){
   <!-- ISSUE -->
   <div id="page-issue" class="page">
     <div class="split">
-      <div class="card" style="padding:28px;">
-        <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--brand);">output</span>Оформити видачу</h3>
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
-          <div id="issueInfo" style="display:none;background:#f0f0ff;border-radius:12px;padding:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--ios-label3);">Залишок:</span><span id="issueInfoQty" style="font-weight:800;color:#6366f1;"></span></div>
+      <div class="card workflow-card">
+        <div class="workflow-heading">
+          <div class="workflow-heading-icon"><span class="ms" aria-hidden="true">output</span></div>
+          <div>
+            <div class="workflow-kicker">Операція складу</div>
+            <h3 class="workflow-title">Оформити видачу</h3>
+            <div class="workflow-copy">Обери товар, кількість і відповідального — система одразу оновить залишок та журнал руху.</div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
+        </div>
+        <div class="form-stack">
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
+          <div id="issueInfo" class="info-callout" style="display:none;">
+            <div class="info-row"><span>Залишок:</span><strong id="issueInfoQty"></strong></div>
+          </div>
+          <div class="field-grid two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="issueQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата</label><input type="date" class="inp" id="issueDateI"></div>
           </div>
-          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
+          <div><label>Кому видано</label><div class="preset-row"><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
+          <button type="button" class="btn btn-primary full-width-action" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
         </div>
       </div>
-      <div class="card" style="padding:20px;overflow:hidden;max-width:100%;">
-        <div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">Останні видачі</div>
-        <div id="recentIssues" style="overflow:hidden;"></div>
+      <div class="card side-panel">
+        <div class="side-panel-title"><span class="ms" aria-hidden="true" style="font-size:15px;">history</span> Останні видачі</div>
+        <div id="recentIssues" class="side-panel-body"></div>
       </div>
     </div>
   </div>

@@ -575,6 +575,36 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Sklad issue flow should share the redesigned workflow form primitives instead
+// of reverting to inline-heavy card markup.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad issue screen uses workflow form primitives';
+  const required = [
+    'class="card workflow-card"',
+    'class="workflow-heading"',
+    'class="workflow-heading-icon"',
+    'class="workflow-kicker"',
+    'class="workflow-title"',
+    'class="form-stack"',
+    'class="field-grid two-col"',
+    'class="info-callout"',
+    'class="preset-row"',
+    'class="btn btn-primary full-width-action"',
+    'class="card side-panel"',
+    '.workflow-card{',
+    '.side-panel-title{',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
