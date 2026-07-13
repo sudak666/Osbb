@@ -566,6 +566,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="card desktop-table table-modern"',
     'class="stat-icon" aria-hidden="true"',
     '.items-filter-bar{position:sticky;',
+    '@media(max-width:1180px)',
     '.items-filter-pill{display:inline-flex;',
     '.items-search-field{width:250px;',
     '.insight-grid .stat-card',

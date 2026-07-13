@@ -570,6 +570,11 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 #logMobileList{display:none;}
 #recMobileList{display:none;}
 
+@media(max-width:1180px){
+  .items-hero{grid-template-columns:1fr;align-items:start;}
+  .items-hero-actions{justify-content:flex-start;}
+}
+
 @media(max-width:960px){
   .split{grid-template-columns:1fr!important;}
   .g4{grid-template-columns:1fr 1fr;}
@@ -955,8 +960,8 @@ async function checkPin(attempt){
     <section class="items-hero" aria-labelledby="itemsHeroTitle">
       <div>
         <div class="items-hero-kicker"><span class="ms category-pill-icon" aria-hidden="true">auto_awesome</span> Операційний центр складу</div>
-        <h1 class="items-hero-title" id="itemsHeroTitle">Швидко бачимо ризики, знаходимо товар і видаємо без зайвих кроків.</h1>
-        <div class="items-hero-copy">Нижче — ключові залишки, фільтри та живий пошук. Найважливіші дії винесені вгору, а детальні операції залишаються в контексті картки або рядка товару.</div>
+        <h1 class="items-hero-title" id="itemsHeroTitle">Товари на складі</h1>
+        <div class="items-hero-copy">Залишки, пошук і основні дії в одному місці.</div>
       </div>
       <div class="items-hero-actions" aria-label="Швидкі дії складу">
         <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms items-filter-icon" aria-hidden="true">output</span> Видати</button>
