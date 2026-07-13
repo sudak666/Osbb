@@ -178,6 +178,14 @@ The refill form product picker is now searchable using the existing custom selec
 - its search placeholder is specific to replenishment flow;
 - smoke checks guard the searchable refill select marker.
 
+### Sklad product picker search expansion
+
+The searchable product-picker behavior now covers the main long product lists:
+
+- issue, refill, price lookup, and manual price item pickers use the same searchable custom select shell;
+- the custom select search input uses a reusable `custom-select-search` class instead of inline sizing styles;
+- smoke checks guard the searchable markers for issue/refill/manual price flows.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

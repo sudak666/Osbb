@@ -309,6 +309,7 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .custom-select-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left;}
 .custom-select-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.16);padding:6px;max-height:280px;overflow-y:auto;}
 .custom-select-panel.hidden{display:none;}
+.custom-select-search{margin:8px;width:calc(100% - 16px);}
 .custom-select-option{padding:9px 12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;color:var(--ios-label);transition:background .12s;}
 .custom-select-option:hover,.custom-select-option:focus-visible{background:var(--ios-gray6);outline:none;}
 .custom-select-option.active{background:var(--brand);color:#fff;}
@@ -876,7 +877,7 @@ async function checkPin(attempt){
           </div>
         </div>
         <div class="form-stack">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select data-searchable="1" data-search-placeholder="Пошук товару для видачі..."><option value="">— Оберіть товар —</option></select></div>
           <div id="issueInfo" class="info-callout" style="display:none;">
             <div class="info-row"><span>Залишок:</span><strong id="issueInfoQty"></strong></div>
           </div>
@@ -1340,7 +1341,7 @@ async function checkPin(attempt){
   <div class="modal manual-price-modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 class="manual-price-title"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</h3>
     <div class="manual-price-form">
-      <div><label>Товар</label><select class="inp" id="manualPriceItemSel"><option value="">— Оберіть товар —</option></select></div>
+      <div><label>Товар</label><select class="inp" id="manualPriceItemSel" data-searchable="1" data-search-placeholder="Пошук товару для ручної ціни..."><option value="">— Оберіть товар —</option></select></div>
       <div><label>Ціна за одиницю, грн</label><input class="inp" id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus></div>
       <div><label>Джерело / посилання <span class="manual-price-note">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
     </div>
@@ -3285,12 +3286,10 @@ function enhanceSelect(select){
     let searchInput=null;
     if(searchable){
       searchInput=document.createElement('input');
-      searchInput.className='inp';
+      searchInput.className='inp custom-select-search';
       searchInput.type='search';
       searchInput.placeholder=select.dataset.searchPlaceholder||'Пошук...';
       searchInput.value=selectSearchTerm;
-      searchInput.style.margin='8px';
-      searchInput.style.width='calc(100% - 16px)';
       searchInput.addEventListener('input',()=>{
         selectSearchTerm=searchInput.value;
         renderOptions();
