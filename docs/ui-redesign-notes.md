@@ -135,6 +135,15 @@ The internet price lookup modal now mirrors the class-based manual price modal s
 - `price-search-row` is now a real reusable grid class instead of inline grid styles;
 - smoke checks guard the class-based price lookup shell while preserving the existing mobile close/scroll behavior.
 
+
+### Sklad price lookup results cleanup
+
+The dynamic internet price result rows now use reusable classes instead of inline layout styles:
+
+- loading/empty/error states use `price-results-state`;
+- found prices render as `price-result-card` with `price-result-main`, `price-result-meta`, `price-result-side`, and `price-result-value`;
+- external links keep `safeExternalUrl()` plus `rel="noopener noreferrer"`, while apply actions remain data-driven.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

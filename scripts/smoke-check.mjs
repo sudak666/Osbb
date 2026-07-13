@@ -636,6 +636,34 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Internet price lookup results should render with reusable result-row classes,
+// while keeping links sanitized and apply actions data-driven.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad price lookup results use class-based rows';
+  const required = [
+    '.price-results-state{padding:18px;',
+    '.price-result-card{padding:10px 0;',
+    '.price-result-main{flex:1;',
+    '.price-result-link{color:var(--brand);',
+    '.price-result-apply{margin-top:6px;}',
+    'class="price-results-state is-loading"',
+    'class="price-result-card"',
+    'class="price-result-link" href="${safeLink}" target="_blank" rel="noopener noreferrer"',
+    'class="btn btn-primary btn-sm price-result-apply" data-price-result-action="apply"',
+    'class="price-results-state is-error"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Price lookup modal should use the same class-based shell as manual price
 // instead of embedding its grid/results/actions layout inline.
 {
