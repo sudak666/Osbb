@@ -311,6 +311,8 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .photo-modal{width:420px;}
 .photo-modal-title{font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);}
 .photo-current{margin-bottom:14px;}
+.photo-current-img{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;}
+.photo-empty-state{text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;}
 .photo-upload-box{border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;}
 .photo-upload-title{display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:650;}
 .photo-upload-title .ms{font-size:15px;}
@@ -517,6 +519,9 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
 #lightbox.open{display:flex;}
 #lightbox img{max-width:90vw;max-height:90vh;border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.38);}
+.lightbox-delete-btn{position:absolute;top:18px;right:18px;z-index:2;display:none;}
+.lightbox-delete-btn .ms{font-size:14px;}
+.lightbox-img{max-width:90vw;max-height:90vh;border-radius:12px;}
 
 .log-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--ios-sep);overflow:hidden;max-width:100%;min-width:0;}
 .log-row:last-child{border-bottom:none;}
@@ -1382,8 +1387,8 @@ async function checkPin(attempt){
 
 <!-- LIGHTBOX -->
 <div id="lightbox" data-lightbox-close role="dialog" aria-modal="true" aria-label="Перегляд фото товару" tabindex="-1">
-  <button type="button" id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
-  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" data-lightbox-stop>
+  <button type="button" id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm lightbox-delete-btn"><span class="ms" aria-hidden="true">delete</span> Видалити фото</button>
+  <img id="lbImg" class="lightbox-img" src="" alt="" data-lightbox-stop>
 </div>
 
 <!-- BARCODE ADD MODAL -->
@@ -2893,10 +2898,10 @@ function openPhotoModal(id){
   const delBtn=document.getElementById('delPhotoBtn');
   const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
   if(safePhoto){
-    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
+    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" class="photo-current-img" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
     delBtn.style.display='inline-flex';
   } else {
-    cur.innerHTML='<div style="text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;">Фото ще не додано</div>';
+    cur.innerHTML='<div class="photo-empty-state">Фото ще не додано</div>';
     delBtn.style.display='none';
   }
   openModal('photoModal');

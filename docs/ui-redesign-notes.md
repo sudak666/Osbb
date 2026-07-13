@@ -226,6 +226,14 @@ Issue-log and receipt edit dialogs now share a class-based edit shell:
 - receipt delete reuses the shared `confirm-*` confirmation shell;
 - smoke checks guard the edit shell markers and the corrected receipt-note wrapper.
 
+### Sklad lightbox and photo preview cleanup
+
+The item photo lightbox and current-photo preview now use class-based image shells:
+
+- lightbox delete button and image use `lightbox-delete-btn` / `lightbox-img`;
+- the photo modal preview image and empty state use `photo-current-img` / `photo-empty-state`;
+- smoke checks guard the static lightbox shell and dynamic preview class strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

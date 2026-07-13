@@ -645,6 +645,32 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Sklad lightbox and dynamic current-photo preview should use class-based image
+// and empty-state shells rather than inline style strings.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad lightbox and photo preview use class-based shells';
+  const required = [
+    'class="btn btn-danger btn-sm lightbox-delete-btn"',
+    'id="lbImg" class="lightbox-img"',
+    'class="photo-current-img"',
+    'class="photo-empty-state"',
+    '.lightbox-delete-btn{position:absolute;',
+    '.lightbox-img{max-width:90vw;',
+    '.photo-current-img{width:100%;',
+    '.photo-empty-state{text-align:center;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Edit movement modals (issue log and receipt edits) should share the same
 // class-based edit shell, and receipt delete should reuse confirm-modal.
 {
