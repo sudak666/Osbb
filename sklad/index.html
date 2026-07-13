@@ -38,9 +38,16 @@ button:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
 :root{
   --sb:240px;
-  --brand:#34C759;
-  --brand-light:rgba(52,199,89,.12);
-  --brand-dark:#248A3D;
+  --brand:#22C55E;
+  --brand-light:rgba(34,197,94,.12);
+  --brand-dark:#16A34A;
+  --accent:#22C55E;
+  --accent-strong:#16A34A;
+  --accent-soft:rgba(34,197,94,.12);
+  --info:#3B82F6;
+  --warning:#F59E0B;
+  --danger:#EF4444;
+  --success:#22C55E;
   --ios-blue:#007AFF;
   --ios-blue-light:#EBF5FF;
   --ios-green:#34C759;
@@ -50,56 +57,101 @@ button:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
   --ios-gray:#8E8E93;
   --ios-gray2:#AEAEB2;
   --ios-gray6:#F2F2F7;
-  --ios-bg:#F2F2F7;
-  --ios-bg-top:#fbfbfd;
+  --ios-bg:#F4F7FB;
+  --ios-bg-top:#FCFDFE;
   --ios-card:#FFFFFF;
-  --ios-card-glass:rgba(255,255,255,.88);
-  --ios-topbar-glass:rgba(251,251,253,.82);
-  --ios-sep:rgba(60,60,67,.12);
-  --ios-label:#000000;
-  --ios-label2:#3C3C43;
-  --ios-label3:rgba(60,60,67,.6);
-  --ios-glass:rgba(255,255,255,.78);
-  --ios-shadow:0 10px 30px rgba(0,0,0,.08);
-  --ios-radius-lg:22px;
+  --ios-card-glass:rgba(255,255,255,.86);
+  --ios-topbar-glass:rgba(252,253,254,.82);
+  --ios-sep:rgba(15,23,42,.08);
+  --ios-label:#0F172A;
+  --ios-label2:#475569;
+  --ios-label3:#64748B;
+  --ios-glass:rgba(255,255,255,.74);
+  --ios-shadow:0 14px 36px rgba(15,23,42,.08);
+  --surface-0:#F4F7FB;
+  --surface-1:#FFFFFF;
+  --surface-2:#F1F5F9;
+  --surface-3:#E8EEF6;
+  --border-subtle:rgba(15,23,42,.08);
+  --border-strong:rgba(15,23,42,.14);
+  --text-1:#0F172A;
+  --text-2:#475569;
+  --text-3:#64748B;
+  --radius-xs:8px;
+  --radius-sm:12px;
+  --radius-md:16px;
+  --radius-lg:22px;
+  --radius-xl:28px;
+  --shadow-xs:0 1px 2px rgba(15,23,42,.04);
+  --shadow-sm:0 8px 24px rgba(15,23,42,.06);
+  --shadow-md:0 16px 44px rgba(15,23,42,.10);
+  --shadow-lg:0 28px 80px rgba(15,23,42,.16);
+  --text-xs:11px;
+  --text-sm:13px;
+  --text-md:15px;
+  --text-lg:17px;
+  --text-xl:22px;
+  --text-display:32px;
+  --leading-tight:1.15;
+  --leading-snug:1.25;
+  --leading-normal:1.45;
+  --motion-fast:120ms;
+  --motion-base:180ms;
+  --motion-slow:260ms;
+  --ease-out:cubic-bezier(.2,.8,.2,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ios-radius-lg:var(--radius-lg);
 }
 .theme-dark{
   --brand:#30D158;
   --brand-light:rgba(48,209,88,.16);
+  --brand-dark:#22C55E;
+  --accent:#30D158;
+  --accent-strong:#22C55E;
+  --accent-soft:rgba(48,209,88,.14);
   --ios-blue-light:rgba(0,122,255,.16);
-  --ios-gray6:#29292c;
-  --ios-bg:#121214;
-  --ios-bg-top:#1a1a1d;
-  --ios-card:#1e1e21;
-  --ios-card-glass:rgba(30,30,33,.88);
-  --ios-topbar-glass:rgba(28,28,31,.82);
-  --ios-sep:rgba(255,255,255,.12);
-  --ios-label:#f2f2f2;
-  --ios-label2:#d1d1d6;
-  --ios-label3:rgba(235,235,245,.6);
-  --ios-glass:rgba(30,30,33,.78);
-  --ios-shadow:0 10px 30px rgba(0,0,0,.35);
+  --ios-gray6:#1D2633;
+  --ios-bg:#080C10;
+  --ios-bg-top:#0D131A;
+  --ios-card:#111821;
+  --ios-card-glass:rgba(17,24,33,.88);
+  --ios-topbar-glass:rgba(13,19,26,.82);
+  --ios-sep:rgba(148,163,184,.14);
+  --ios-label:#F8FAFC;
+  --ios-label2:#CBD5E1;
+  --ios-label3:#94A3B8;
+  --ios-glass:rgba(17,24,33,.76);
+  --ios-shadow:0 18px 48px rgba(0,0,0,.42);
+  --surface-0:#080C10;
+  --surface-1:#111821;
+  --surface-2:#17212D;
+  --surface-3:#1D2937;
+  --border-subtle:rgba(148,163,184,.14);
+  --border-strong:rgba(148,163,184,.22);
+  --text-1:#F8FAFC;
+  --text-2:#CBD5E1;
+  --text-3:#94A3B8;
 }
-body{background:radial-gradient(circle at top left,rgba(52,199,89,.10),transparent 28rem),linear-gradient(180deg,var(--ios-bg-top) 0%,var(--ios-bg) 42%);margin:0;color:var(--ios-label);transition:background .3s,color .3s;}
+body{background:radial-gradient(circle at 0% 0%,rgba(34,197,94,.12),transparent 30rem),radial-gradient(circle at 100% 0%,rgba(59,130,246,.09),transparent 26rem),linear-gradient(180deg,var(--ios-bg-top) 0%,var(--ios-bg) 46%);margin:0;color:var(--ios-label);line-height:var(--leading-normal);transition:background .3s,color .3s;}
 
 /* SIDEBAR */
-.sidebar{width:var(--sb);background:var(--ios-glass);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);min-height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;border-right:1px solid var(--ios-sep);z-index:20;}
+.sidebar{width:var(--sb);background:var(--ios-glass);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);min-height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;border-right:1px solid var(--border-subtle);z-index:20;box-shadow:8px 0 30px rgba(15,23,42,.04);}
 .sb-logo{padding:24px 18px 16px;border-bottom:1px solid var(--ios-sep);}
 .sb-logo h1{color:var(--ios-label);font-size:17px;font-weight:700;letter-spacing:-.3px;}
 .sb-logo p{color:var(--ios-label3);font-size:12px;margin-top:2px;}
 .sb-ver{color:var(--brand);background:var(--brand-light);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;margin-top:5px;}
 nav{margin-top:6px;flex:1;}
-.ni{display:flex;align-items:center;gap:10px;padding:10px 14px;color:var(--ios-label3);cursor:pointer;transition:all .15s;font-size:14px;font-weight:500;position:relative;margin:1px 8px;border-radius:12px;}
-.ni:hover{background:var(--brand-light);color:var(--brand);}
-.ni.active{background:var(--brand-light);color:var(--brand);font-weight:600;}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 14px;color:var(--ios-label3);cursor:pointer;transition:background var(--motion-base) ease,color var(--motion-base) ease,transform var(--motion-base) var(--ease-out);font-size:14px;font-weight:600;position:relative;margin:1px 8px;border-radius:14px;}
+.ni:hover{background:var(--accent-soft);color:var(--accent);transform:translateX(1px);}
+.ni.active{background:linear-gradient(180deg,rgba(34,197,94,.16),rgba(34,197,94,.10));color:var(--accent);font-weight:800;box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 10px 24px rgba(34,197,94,.12);}
 .ni-icon{font-size:16px;width:20px;text-align:center;}
 .ni-badge{margin-left:auto;background:var(--ios-red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
 .sb-bottom{padding:14px 18px;border-top:1px solid var(--ios-sep);font-size:11px;color:var(--ios-gray);}
 
 /* MAIN */
 .main{margin-left:var(--sb);min-height:100vh;}
-.topbar{background:var(--ios-topbar-glass);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-bottom:1px solid var(--ios-sep);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
-.topbar h2{font-weight:700;font-size:17px;color:var(--ios-label);letter-spacing:-.3px;}
+.topbar{background:var(--ios-topbar-glass);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-bottom:1px solid var(--border-subtle);padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 8px 28px rgba(15,23,42,.04);}
+.topbar h2{font-weight:850;font-size:var(--text-xl);line-height:var(--leading-tight);color:var(--ios-label);letter-spacing:-.045em;}
 .sync-status{display:none;align-items:center;gap:4px;font-size:11px;color:var(--ios-label3);white-space:nowrap;}
 .sync-status.is-visible{display:inline-flex;}
 .sync-status.is-syncing{color:var(--brand);}
@@ -110,16 +162,38 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 
 .page{display:none;padding:24px;}
 .page.active{display:block;}
-.card{background:var(--ios-card-glass);border-radius:var(--ios-radius-lg);border:1px solid var(--ios-sep);box-shadow:var(--ios-shadow),0 1px 0 var(--ios-sep);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);}
+.card{background:var(--surface-1);border-radius:var(--radius-xl);border:1px solid var(--border-subtle);box-shadow:var(--shadow-sm);backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);}
+
+/* ITEMS EXPERIENCE */
+.items-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;margin-bottom:18px;padding:22px;border:1px solid var(--border-subtle);border-radius:calc(var(--radius-xl) + 4px);background:radial-gradient(circle at 10% 0%,rgba(34,197,94,.18),transparent 34%),linear-gradient(135deg,var(--surface-1),var(--surface-2));box-shadow:var(--shadow-md);overflow:hidden;position:relative;}
+.items-hero::after{content:'';position:absolute;right:-42px;top:-56px;width:180px;height:180px;border-radius:50%;background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(0,122,255,.10));pointer-events:none;}
+.items-hero-kicker{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:8px;}
+.items-hero-title{font-size:clamp(24px,3vw,36px);line-height:.95;font-weight:900;letter-spacing:-.075em;color:var(--ios-label);margin:0 0 8px;}
+.items-hero-copy{max-width:620px;font-size:14px;line-height:1.55;color:var(--ios-label3);font-weight:600;}
+.items-hero-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;position:relative;z-index:1;}
+.items-quick-note{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:16px;background:var(--accent-soft);color:var(--accent-strong);font-size:12px;font-weight:750;border:1px solid color-mix(in srgb,var(--accent) 18%,transparent);}
+.items-metrics{margin-bottom:18px;}
+.items-filter-bar{position:sticky;top:74px;z-index:8;margin-bottom:16px;padding:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-xl);background:color-mix(in srgb,var(--surface-1) 86%,transparent);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);box-shadow:var(--shadow-sm);}
+.items-filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.items-filter-row + .items-filter-row{margin-top:10px;}
+.items-search-row{display:grid;grid-template-columns:minmax(220px,360px) minmax(160px,1fr) auto;gap:10px;align-items:center;}
+.items-summary{font-size:12px;color:var(--ios-label3);font-weight:700;line-height:1.35;}
+.table-modern{overflow:hidden;}
+.table-modern table{border-collapse:separate;border-spacing:0;}
+.table-modern thead th{background:linear-gradient(180deg,var(--surface-2),var(--ios-gray6));}
+.table-modern tbody tr{transition:background var(--motion-base) ease,transform var(--motion-base) var(--ease-out);}
+.table-modern tbody tr:hover{background:color-mix(in srgb,var(--accent) 7%,transparent);}
+.table-modern tbody td:first-child,.table-modern thead th:first-child{padding-left:20px;}
+.table-modern tbody td:last-child,.table-modern thead th:last-child{padding-right:20px;}
 
 /* STAT CARDS */
-.stat-card{border-radius:var(--ios-radius-lg);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;user-select:none;box-shadow:var(--ios-shadow);}
-.stat-card:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.15);}
-.stat-card:active{transform:scale(.96);}
-.stat-card.sc-active{box-shadow:0 0 0 3px rgba(255,255,255,.5),0 6px 20px rgba(0,0,0,.2);}
-.stat-card::after{content:'';position:absolute;right:-15px;top:-15px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.12);}
-.stat-card .big{font-size:30px;font-weight:700;line-height:1;letter-spacing:-.5px;}
-.stat-card .lbl{font-size:12px;opacity:.9;margin-top:5px;font-weight:500;}
+.stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.26) inset,var(--shadow-lg);filter:saturate(1.04);}
+.stat-card:active{transform:scale(.985);}
+.stat-card.sc-active{box-shadow:0 0 0 3px rgba(255,255,255,.55),0 0 0 6px rgba(34,197,94,.22),var(--shadow-lg);}
+.stat-card::after{content:'';position:absolute;right:-18px;top:-18px;width:92px;height:92px;border-radius:50%;background:rgba(255,255,255,.14);}
+.stat-card .big{font-size:var(--text-display);font-weight:850;line-height:1;letter-spacing:-.06em;}
+.stat-card .lbl{font-size:12px;opacity:.9;margin-top:6px;font-weight:700;}
 .sc-purple{background:linear-gradient(135deg,#007AFF,#5856D6);}
 .sc-red{background:linear-gradient(135deg,#FF3B30,#FF9500);}
 .sc-orange{background:linear-gradient(135deg,#FF9500,#FFCC00);}
@@ -139,8 +213,8 @@ tbody tr:last-child{border-bottom:none;}
 .qty-zero{color:var(--ios-red);font-weight:700;}.qty-low{color:var(--ios-orange);font-weight:700;}.qty-ok{color:var(--ios-green);font-weight:600;}
 
 /* INPUTS */
-.inp{width:100%;border:1px solid var(--ios-sep);border-radius:14px;padding:12px 14px;font-size:15px;outline:none;transition:all .15s;background:rgba(242,242,247,.92);color:var(--ios-label);}
-.inp:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-light);background:var(--ios-card);}
+.inp{width:100%;border:1px solid var(--border-subtle);border-radius:14px;padding:12px 14px;min-height:44px;font-size:15px;outline:none;transition:border-color var(--motion-base) ease,box-shadow var(--motion-base) ease,background var(--motion-base) ease;box-shadow:var(--shadow-xs);background:var(--surface-1);color:var(--ios-label);}
+.inp:hover{border-color:color-mix(in srgb,var(--accent) 24%,var(--border-subtle));}.inp:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft),var(--shadow-xs);background:var(--surface-1);}
 label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margin-bottom:6px;letter-spacing:.01em;}
 
 /* Кастомний випадний список — заміна нативного <select>, у якого браузер
@@ -154,25 +228,25 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .custom-select-option.active{background:var(--brand);color:#fff;}
 
 /* BUTTONS */
-.btn{padding:11px 20px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s,opacity .15s,box-shadow .15s,background .15s;border:none;display:inline-flex;align-items:center;gap:6px;letter-spacing:-.1px;}
-.btn-primary{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(52,199,89,.3);}
-.btn-primary:hover{background:var(--brand-dark);}
-.btn-primary:active{transform:scale(.97);}
+.btn{min-height:42px;padding:0 16px;border-radius:14px;font-size:14px;font-weight:750;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),opacity var(--motion-base) ease,box-shadow var(--motion-base) ease,background var(--motion-base) ease,border-color var(--motion-base) ease;border:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;letter-spacing:-.01em;}
+.btn-primary{background:linear-gradient(180deg,var(--accent),var(--accent-strong));color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,0 10px 24px rgba(34,197,94,.24);}
+.btn-primary:hover{background:linear-gradient(180deg,var(--accent),var(--brand-dark));box-shadow:0 1px 0 rgba(255,255,255,.26) inset,0 14px 30px rgba(34,197,94,.28);}
+.btn-primary:active{transform:scale(.975);}
 .btn-success{background:var(--ios-green);color:#fff;box-shadow:0 2px 8px rgba(52,199,89,.3);}
 .btn-success:active{transform:scale(.97);}
 .btn-danger{background:var(--ios-red);color:#fff;box-shadow:0 2px 8px rgba(255,59,48,.3);}
 .btn-danger:active{transform:scale(.97);}
-.btn-ghost{background:rgba(116,116,128,.10);color:var(--brand);border:none;}
-.btn-ghost:hover{background:#E5E5EA;}
+.btn-ghost{background:var(--surface-2);color:var(--accent);border:1px solid var(--border-subtle);box-shadow:var(--shadow-xs);}
+.btn-ghost:hover{background:color-mix(in srgb,var(--accent) 10%,var(--surface-2));border-color:color-mix(in srgb,var(--accent) 20%,var(--border-subtle));}
 .btn-excel{background:var(--ios-green);color:#fff;}
-.btn-sm{padding:7px 14px;font-size:13px;border-radius:10px;}
+.btn-sm{min-height:34px;padding:0 12px;font-size:13px;border-radius:11px;}
 .btn-warning{background:var(--ios-orange);color:#fff;box-shadow:0 2px 8px rgba(255,149,0,.3);}
 .btn-warning:active{transform:scale(.97);}
 
 /* PILLS */
-.pill{padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;border:none;color:var(--ios-label3);background:rgba(116,116,128,.10);transition:all .15s;}
-.pill:hover{background:var(--ios-gray6);}
-.pill.active{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(52,199,89,.3);}
+.pill{padding:8px 16px;border-radius:999px;font-size:13px;font-weight:750;cursor:pointer;border:1px solid var(--border-subtle);color:var(--ios-label3);background:var(--surface-1);box-shadow:var(--shadow-xs);transition:background var(--motion-base) ease,color var(--motion-base) ease,border-color var(--motion-base) ease,transform var(--motion-base) var(--ease-out);}
+.pill:hover{background:var(--surface-2);transform:translateY(-1px);}
+.pill.active{background:linear-gradient(180deg,var(--accent),var(--accent-strong));color:#fff;border-color:transparent;box-shadow:0 10px 24px rgba(34,197,94,.20);}
 
 /* ALERT */
 .alert-banner{background:#FFF8E6;border:1px solid #FFE082;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#7A5200;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:16px;}
@@ -196,12 +270,12 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:50;display:none;align-items:center;justify-content:center;}
 .modal-bg.open{display:flex;}
-.modal{background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.75);backdrop-filter:saturate(180%) blur(28px);-webkit-backdrop-filter:saturate(180%) blur(28px);border-radius:26px;padding:24px;width:440px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,.22);animation:popIn .22s cubic-bezier(.34,1.56,.64,1);}
-@keyframes popIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+.modal{background:var(--ios-card-glass);border:1px solid rgba(255,255,255,.55);backdrop-filter:saturate(180%) blur(28px);-webkit-backdrop-filter:saturate(180%) blur(28px);border-radius:28px;padding:24px;width:440px;max-width:95vw;box-shadow:var(--shadow-lg);animation:popIn .22s var(--ease-spring);}
+@keyframes popIn{from{transform:translateY(10px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 
 /* PHOTOS */
-.photo-thumb{width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid var(--ios-sep);cursor:pointer;transition:transform .15s;}
-.photo-thumb:hover{transform:scale(1.06);}
+.photo-thumb{width:48px;height:48px;border-radius:12px;object-fit:cover;border:1px solid var(--border-subtle);cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease;box-shadow:var(--shadow-xs);}
+.photo-thumb:hover{transform:translateY(-1px) scale(1.04);box-shadow:var(--shadow-sm);}
 .photo-ph{width:48px;height:48px;border-radius:10px;background:var(--ios-gray6);border:1.5px dashed var(--ios-gray2);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .15s;}
 .photo-ph:hover{background:#E5E5EA;}
 
@@ -246,8 +320,12 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 @media(max-width:768px){
   .sidebar{display:none!important;}
   .main{margin-left:0!important;padding-bottom:calc(88px + env(safe-area-inset-bottom));}
-  .topbar{padding:0 14px;height:56px;border-radius:0 0 18px 18px;}
-  .topbar h2{font-size:15px;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}
+  .topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar>div{gap:6px!important;flex-shrink:0;}
+  .topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}
+  .topbar .btn:not(.topbar-right-excel) .ms{font-size:20px!important;vertical-align:middle!important;margin:0!important;}
+  .topbar [data-sklad-action="theme"]{display:none!important;}
   .topbar-right-excel{display:none!important;}
   .page{padding:14px 12px;}
   .g4{grid-template-columns:1fr 1fr;gap:8px;}
@@ -257,6 +335,14 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .split{grid-template-columns:1fr!important;}
   .desktop-table{display:none!important;}
   .mobile-cards{display:block!important;}
+  .items-hero{grid-template-columns:1fr;padding:16px;margin-bottom:12px;border-radius:22px;}
+  .items-hero-title{font-size:25px;letter-spacing:-.065em;}
+  .items-hero-copy{font-size:12.5px;}
+  .items-hero-actions{justify-content:flex-start;}
+  .items-quick-note{width:100%;justify-content:center;}
+  .items-metrics{margin-bottom:12px;}
+  .items-filter-bar{position:relative;top:auto;padding:10px;margin-bottom:12px;border-radius:20px;}
+  .items-search-row{grid-template-columns:1fr;}
   #catPills{flex-wrap:nowrap!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px!important;padding-bottom:2px;}
   #catPills::-webkit-scrollbar{display:none;}
   #catPills .pill{flex-shrink:0;white-space:nowrap;padding:5px 11px;font-size:12px;}
@@ -365,7 +451,7 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .item-more{position:relative;flex-shrink:0;}
 .item-more summary{list-style:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(116,116,128,.10);color:var(--brand);cursor:pointer;}
 .item-more summary::-webkit-details-marker{display:none;}
-.item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:30;min-width:190px;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 14px 34px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:2px;}
+.item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 14px 34px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:2px;}
 .item-more-menu button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--ios-label);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;text-align:left;}
 .item-more-menu button:active,.item-more-menu button:hover{background:var(--ios-gray6);}
 .item-more-menu button.danger{color:var(--ios-red);}
@@ -400,20 +486,20 @@ canvas#stockChart{width:100%!important;max-height:300px;}
       <div class="auth-dot" id="d2"></div>
       <div class="auth-dot" id="d3"></div>
     </div>
-    <div class="auth-err" id="authErr"></div>
+    <div class="auth-err" id="authErr" role="alert" aria-live="assertive"></div>
     <div class="pin-keys">
-      <button class="pin-key" data-auth-pin-key="1">1</button>
-      <button class="pin-key" data-auth-pin-key="2">2</button>
-      <button class="pin-key" data-auth-pin-key="3">3</button>
-      <button class="pin-key" data-auth-pin-key="4">4</button>
-      <button class="pin-key" data-auth-pin-key="5">5</button>
-      <button class="pin-key" data-auth-pin-key="6">6</button>
-      <button class="pin-key" data-auth-pin-key="7">7</button>
-      <button class="pin-key" data-auth-pin-key="8">8</button>
-      <button class="pin-key" data-auth-pin-key="9">9</button>
-      <button class="pin-key" data-auth-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
-      <button class="pin-key" data-auth-pin-key="0">0</button>
-      <button class="pin-key" data-auth-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button type="button" class="pin-key" data-auth-pin-key="1">1</button>
+      <button type="button" class="pin-key" data-auth-pin-key="2">2</button>
+      <button type="button" class="pin-key" data-auth-pin-key="3">3</button>
+      <button type="button" class="pin-key" data-auth-pin-key="4">4</button>
+      <button type="button" class="pin-key" data-auth-pin-key="5">5</button>
+      <button type="button" class="pin-key" data-auth-pin-key="6">6</button>
+      <button type="button" class="pin-key" data-auth-pin-key="7">7</button>
+      <button type="button" class="pin-key" data-auth-pin-key="8">8</button>
+      <button type="button" class="pin-key" data-auth-pin-key="9">9</button>
+      <button type="button" class="pin-key" data-auth-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
+      <button type="button" class="pin-key" data-auth-pin-key="0">0</button>
+      <button type="button" class="pin-key" data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
@@ -512,8 +598,8 @@ async function checkPin(attempt){
     <p>Микитська Слобода</p>
     <span class="sb-ver">v3.1</span>
   </div>
-  <nav>
-    <div class="ni active" data-page="items" role="button" tabindex="0">
+  <nav aria-label="Розділи складу">
+    <div class="ni active" data-page="items" role="button" tabindex="0" aria-current="page">
       <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Товари</span>
       <span class="ni-badge" id="sb-alert" style="display:none">!</span>
     </div>
@@ -532,45 +618,57 @@ async function checkPin(attempt){
     <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
-      <button class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="chart" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="price-refresh" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button class="btn btn-ghost btn-sm" data-sklad-action="qr" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button class="btn btn-ghost btn-sm" data-sklad-action="receipts" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
-      <button class="btn btn-ghost btn-sm" id="refreshBtn" data-sklad-action="refresh" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
-      <button class="btn btn-ghost btn-sm" data-sklad-action="theme" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="chart" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button type="button" class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="price-refresh" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="qr" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="receipts" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button type="button" class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="refreshBtn" data-sklad-action="refresh" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="theme" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
     </div>
   </div>
 
   <!-- ITEMS -->
   <div id="page-items" class="page active">
+    <section class="items-hero" aria-labelledby="itemsHeroTitle">
+      <div>
+        <div class="items-hero-kicker"><span class="ms" style="font-size:15px;">auto_awesome</span> Операційний центр складу</div>
+        <h1 class="items-hero-title" id="itemsHeroTitle">Швидко бачимо ризики, знаходимо товар і видаємо без зайвих кроків.</h1>
+        <div class="items-hero-copy">Нижче — ключові залишки, фільтри та живий пошук. Найважливіші дії винесені вгору, а детальні операції залишаються в контексті картки або рядка товару.</div>
+      </div>
+      <div class="items-hero-actions" aria-label="Швидкі дії складу">
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms" aria-hidden="true" style="font-size:16px;">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-page="add"><span class="ms" aria-hidden="true" style="font-size:16px;">add_circle</span> Поповнити</button>
+        <div class="items-quick-note"><span class="ms" aria-hidden="true" style="font-size:15px;">tips_and_updates</span> Фокус: спершу критичні залишки</div>
+      </div>
+    </section>
     <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
       <div class="alert-banner"><span class="ms" style="font-size:16px;vertical-align:-3px;">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
     </div>
-    <div class="g4" style="margin-bottom:22px;">
+    <div class="g4 items-metrics">
       <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">inventory_2</span></div></div>
       <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">production_quantity_limits</span></div></div>
       <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">warning</span></div></div>
       <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">check_circle</span></div></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <button class="pill" id="inStockPill" data-filter-toggle="in-stock" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
-        <button class="pill" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
-        <button class="pill" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
+    <div class="items-filter-bar">
+      <div class="items-filter-row">
+        <button type="button" class="pill" id="inStockPill" data-filter-toggle="in-stock" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
+        <button type="button" class="pill" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
+        <button type="button" class="pill" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="catPills" class="pills-wrap">
-        <button class="pill active" data-category-filter="">Всі</button>
-        <button class="pill" data-category-filter="Прибирання"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
-        <button class="pill" data-category-filter="Ремонт"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
-        <button class="pill" data-category-filter="Електрика"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
-        <button class="pill" data-category-filter="Сантехніка"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
-        <button class="pill" data-category-filter="Відеоспостереження"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
-        <button class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
+      <div class="items-filter-row pills-wrap" id="catPills">
+        <button type="button" class="pill active" data-category-filter="">Всі</button>
+        <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
+        <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
+        <button type="button" class="pill" data-category-filter="Електрика"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
+        <button type="button" class="pill" data-category-filter="Сантехніка"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
+        <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
+        <button type="button" class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" placeholder="Пошук..." data-render-items-input></div>
-        <div id="itemsResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
-        <button class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
+      <div class="items-filter-row items-search-row">
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
+        <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
       </div>
     </div>
-    <div class="card desktop-table" style="overflow:hidden;">
+    <div class="card desktop-table table-modern">
       <table>
         <thead><tr><th>#</th><th>Назва товару</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
         <tbody id="itemsTable">
@@ -599,9 +697,9 @@ async function checkPin(attempt){
             <div><label>Кількість</label><input type="number" class="inp" id="issueQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата</label><input type="date" class="inp" id="issueDateI"></div>
           </div>
-          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
+          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
+          <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
         </div>
       </div>
       <div class="card" style="padding:20px;overflow:hidden;max-width:100%;">
@@ -615,14 +713,14 @@ async function checkPin(attempt){
   <div id="page-log" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;" class="pills-wrap">
-        <button class="pill active" data-log-category-filter="">Всі</button>
-        <button class="pill" data-log-category-filter="Прибирання"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
-        <button class="pill" data-log-category-filter="Ремонт"><span class="ms" style="font-size:15px;">build</span></button>
-        <button class="pill" data-log-category-filter="Електрика"><span class="ms" style="font-size:15px;">bolt</span></button>
-        <button class="pill" data-log-category-filter="Сантехніка"><span class="ms" style="font-size:15px;">plumbing</span></button>
+        <button type="button" class="pill active" data-log-category-filter="">Всі</button>
+        <button type="button" class="pill" data-log-category-filter="Прибирання"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
+        <button type="button" class="pill" data-log-category-filter="Ремонт"><span class="ms" style="font-size:15px;">build</span></button>
+        <button type="button" class="pill" data-log-category-filter="Електрика"><span class="ms" style="font-size:15px;">bolt</span></button>
+        <button type="button" class="pill" data-log-category-filter="Сантехніка"><span class="ms" style="font-size:15px;">plumbing</span></button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" placeholder="Пошук..." data-render-log-input></div>
+        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
         <div id="logResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -653,12 +751,12 @@ async function checkPin(attempt){
           </div>
           <div><label>Постачальник <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
           <div><label>Примітка <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
-          <button class="btn btn-success" style="width:100%;justify-content:center;" data-sklad-action="refill-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
+          <button type="button" class="btn btn-success" style="width:100%;justify-content:center;" data-sklad-action="refill-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
         </div>
         <div style="margin-top:32px;padding-top:24px;border-top:1px solid #f0eeff;">
           <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fiber_new</span> Новий товар</h3>
           <div style="display:flex;flex-direction:column;gap:14px;">
-            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button class="btn btn-ghost" data-sklad-action="barcode-add-open" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
+            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button type="button" class="btn btn-ghost" data-sklad-action="barcode-add-open" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
@@ -668,7 +766,7 @@ async function checkPin(attempt){
               <input type="checkbox" id="newInternal" style="width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;">
               <span style="font-weight:600;color:var(--ios-label2);font-size:12.5px;line-height:1.4;">Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
             </label>
-            <button class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="add-new-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
+            <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="add-new-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
           </div>
         </div>
       </div>
@@ -700,13 +798,13 @@ async function checkPin(attempt){
           <div id="auditDate" style="font-size:12px;color:var(--ios-gray);margin-top:2px;"></div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-zeros" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
-          <button class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-current" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
-          <button class="btn btn-primary" data-sklad-action="audit-confirm-open" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-zeros" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-current" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
+          <button type="button" class="btn btn-primary" data-sklad-action="audit-confirm-open" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
         </div>
       </div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" placeholder="Пошук товару..." data-render-audit-input></div>
+        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару..." data-render-audit-input></div>
         <div id="auditResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
         <div id="auditStats" style="font-size:12px;color:var(--ios-gray);"></div>
         <div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width:180px;margin-top:0;"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div>
@@ -728,7 +826,7 @@ async function checkPin(attempt){
   <div id="page-receipts" class="page">
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" placeholder="Пошук..." data-render-receipts-input></div>
+        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук..." data-render-receipts-input></div>
         <div id="recResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
       </div>
     </div>
@@ -792,8 +890,8 @@ async function checkPin(attempt){
         <div id="priceSummary" style="font-size:12px;color:var(--ios-label3);margin-top:4px;">Ціни не оновлювались</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
-        <button class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
@@ -810,10 +908,10 @@ async function checkPin(attempt){
     <p style="font-size:13px;color:var(--ios-label3);margin-bottom:18px;">Залишок: <span id="qmQtyShow" style="font-weight:800;color:#6366f1;"></span></p>
     <div style="display:flex;flex-direction:column;gap:13px;">
       <div><label>Кількість</label><input type="number" class="inp" id="qmQtyI" min="0.1" step="0.1"></div>
-      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
+      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
       <div style="display:flex;gap:10px;margin-top:4px;">
-        <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="qModal">Скасувати</button>
-        <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="quick-issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
+        <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="qModal">Скасувати</button>
+        <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="quick-issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
       </div>
     </div>
   </div>
@@ -827,12 +925,12 @@ async function checkPin(attempt){
     <div style="border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;">
       <div style="font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">photo_camera</span> Завантажити нове фото</div>
       <input type="file" id="photoFileI" accept="image/*" style="display:none;" data-photo-file>
-      <button class="btn btn-ghost btn-sm" data-sklad-action="photo-file-select">Обрати файл</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="photo-file-select">Обрати файл</button>
       <div id="photoStatus" style="font-size:12px;color:#a5b4fc;margin-top:8px;"></div>
     </div>
     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn btn-danger btn-sm" id="delPhotoBtn" data-sklad-action="photo-delete" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
-      <button class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
+      <button type="button" class="btn btn-danger btn-sm" id="delPhotoBtn" data-sklad-action="photo-delete" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
     </div>
   </div>
 </div>
@@ -844,8 +942,8 @@ async function checkPin(attempt){
     <p id="delItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delModal">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
@@ -861,20 +959,20 @@ async function checkPin(attempt){
       <div class="auth-dot" id="dp2"></div>
       <div class="auth-dot" id="dp3"></div>
     </div>
-    <div id="delPinErr" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
+    <div id="delPinErr" role="alert" aria-live="assertive" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
     <div class="pin-keys">
-      <button class="pin-key" data-delete-pin-key="1">1</button>
-      <button class="pin-key" data-delete-pin-key="2">2</button>
-      <button class="pin-key" data-delete-pin-key="3">3</button>
-      <button class="pin-key" data-delete-pin-key="4">4</button>
-      <button class="pin-key" data-delete-pin-key="5">5</button>
-      <button class="pin-key" data-delete-pin-key="6">6</button>
-      <button class="pin-key" data-delete-pin-key="7">7</button>
-      <button class="pin-key" data-delete-pin-key="8">8</button>
-      <button class="pin-key" data-delete-pin-key="9">9</button>
-      <button class="pin-key" data-delete-pin-key="C"><span class="ms" style="font-size:20px;">close</span></button>
-      <button class="pin-key" data-delete-pin-key="0">0</button>
-      <button class="pin-key" data-delete-pin-key="DEL"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button type="button" class="pin-key" data-delete-pin-key="1">1</button>
+      <button type="button" class="pin-key" data-delete-pin-key="2">2</button>
+      <button type="button" class="pin-key" data-delete-pin-key="3">3</button>
+      <button type="button" class="pin-key" data-delete-pin-key="4">4</button>
+      <button type="button" class="pin-key" data-delete-pin-key="5">5</button>
+      <button type="button" class="pin-key" data-delete-pin-key="6">6</button>
+      <button type="button" class="pin-key" data-delete-pin-key="7">7</button>
+      <button type="button" class="pin-key" data-delete-pin-key="8">8</button>
+      <button type="button" class="pin-key" data-delete-pin-key="9">9</button>
+      <button type="button" class="pin-key" data-delete-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
+      <button type="button" class="pin-key" data-delete-pin-key="0">0</button>
+      <button type="button" class="pin-key" data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
     </div>
   </div>
 </div>
@@ -886,8 +984,8 @@ async function checkPin(attempt){
     <div id="auditSummary" style="background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;"></div>
     <div><label>Примітка до інвентаризації</label><input type="text" class="inp" id="auditNote" placeholder="Напр.: Планова інвентаризація червень 2026"></div>
     <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="auditModal">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="audit-confirm-save"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="auditModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="audit-confirm-save"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
     </div>
   </div>
 </div>
@@ -899,8 +997,8 @@ async function checkPin(attempt){
     <p id="delLogItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delLogModal">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delLogModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
@@ -930,8 +1028,8 @@ async function checkPin(attempt){
     </div>
     <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editLogModal">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editLogModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
@@ -943,8 +1041,8 @@ async function checkPin(attempt){
     <p id="delReceiptItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
     <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delReceiptModal">Скасувати</button>
-      <button class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delReceiptModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
     </div>
   </div>
 </div>
@@ -974,15 +1072,15 @@ async function checkPin(attempt){
     </div>
     <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editReceiptModal">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editReceiptModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" data-lightbox-close>
-  <button id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+<div id="lightbox" data-lightbox-close role="dialog" aria-modal="true" aria-label="Перегляд фото товару" tabindex="-1">
+  <button type="button" id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
   <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" data-lightbox-stop>
 </div>
 
@@ -994,19 +1092,19 @@ async function checkPin(attempt){
     <div id="barcodeAddScanning" style="text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;">Наведіть камеру на штрих-код товару</div>
     <div class="barcode-not-found" id="barcodeNotFound">
       <span class="ms" style="font-size:15px;vertical-align:-3px;">warning</span> Товар не знайдено в базі.
-      <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" data-sklad-action="barcode-google"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
-      <button class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" data-sklad-action="barcode-reset"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
+      <button type="button" class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" data-sklad-action="barcode-google"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" data-sklad-action="barcode-reset"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
     </div>
     <!-- Ручне введення -->
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);">
       <div style="font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:500;"><span class="ms" style="font-size:14px;vertical-align:-2px;">edit</span> Або введіть штрих-код вручну</div>
       <div style="display:flex;gap:8px;">
-        <input type="number" id="manualBarcodeI" class="inp" placeholder="4820000000000" style="flex:1;font-size:15px;">
-        <button class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
+        <input type="number" id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну" placeholder="4820000000000" style="flex:1;font-size:15px;">
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
       </div>
     </div>
     <div style="margin-top:12px;">
-      <button class="btn btn-ghost" style="width:100%;justify-content:center;" data-sklad-action="barcode-add-close">Закрити</button>
+      <button type="button" class="btn btn-ghost" style="width:100%;justify-content:center;" data-sklad-action="barcode-add-close">Закрити</button>
     </div>
   </div>
 </div>
@@ -1019,7 +1117,7 @@ async function checkPin(attempt){
     <div class="qr-result" id="qrResult"></div>
     <p style="font-size:12px;color:#a5b4fc;margin-top:10px;text-align:center;">Наведіть камеру на штрих-код або QR-код товару</p>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-sklad-action="qr-close">Закрити</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-sklad-action="qr-close">Закрити</button>
     </div>
   </div>
 </div>
@@ -1030,7 +1128,7 @@ async function checkPin(attempt){
     <h3 id="histTitle" style="font-size:15px;font-weight:800;color:var(--ios-label);margin-bottom:4px;"></h3>
     <p id="histSubtitle" style="font-size:12px;color:#a5b4fc;margin-bottom:16px;"></p>
     <div id="histList"></div>
-    <button class="btn btn-ghost btn-sm" style="margin-top:14px;" data-modal-close="histModal">Закрити</button>
+    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:14px;" data-modal-close="histModal">Закрити</button>
   </div>
 </div>
 
@@ -1040,11 +1138,11 @@ async function checkPin(attempt){
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">travel_explore</span> Підтягнути ціни з інтернету</h3>
     <div class="price-search-row" style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
       <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
-      <button class="btn btn-primary" data-sklad-action="price-fetch" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="price-fetch" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
     </div>
     <div id="priceResults" style="min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);">Оберіть товар і натисніть “Знайти”.</div>
     <div class="price-modal-actions" style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="priceModal">Закрити</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="priceModal">Закрити</button>
     </div>
   </div>
 </div>
@@ -1058,8 +1156,8 @@ async function checkPin(attempt){
       <div><label>Джерело / посилання <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
     </div>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="manualPriceModal">Скасувати</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="manual-price-save"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="manualPriceModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="manual-price-save"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
     </div>
   </div>
 </div>
@@ -1068,11 +1166,11 @@ async function checkPin(attempt){
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:16px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">bar_chart</span> Залишки по категоріях</h3>
     <canvas id="stockChart"></canvas>
-    <button class="btn btn-ghost btn-sm" style="margin-top:16px;" data-modal-close="chartModal">Закрити</button>
+    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:16px;" data-modal-close="chartModal">Закрити</button>
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,deleteItemId=null,stockFilter='';
@@ -1081,12 +1179,12 @@ const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електр
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
 // HTML-рендер іконок Material Symbols. catIcon (emoji) лишається окремо для Chart.js,
 // оскільки canvas-легенда графіка не вміє рендерити HTML-теги.
-function msIcon(name,size){return '<span class="ms" style="font-size:'+(size||'1em')+';vertical-align:-0.15em;">'+name+'</span>';}
+function msIcon(name,size){return '<span class="ms" aria-hidden="true" style="font-size:'+(size||'1em')+';vertical-align:-0.15em;">'+name+'</span>';}
 const catIconName={'Прибирання':'cleaning_services','Ремонт':'build','Електрика':'bolt','Сантехніка':'plumbing','Відеоспостереження':'videocam','Інше':'inventory_2'};
 const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
-const pageTitles={items:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі',issue:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">output</span>Видача зі складу',log:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">receipt_long</span>Журнал видач',add:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">add_circle</span>Додати / Поповнити',receipts:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">move_to_inbox</span>Прихід товару',audit:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">fact_check</span>Інвентаризація',stats:'<span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">bar_chart</span>Статистика'};
+const pageTitles={items:{icon:'inventory_2',label:'Товари на складі'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Прихід товару'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
 function money(v){
   const n=Number(v);
@@ -1098,11 +1196,11 @@ function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
 function priceBadge(item){
   const id=escapeHtml(String(item?.id||''));
   const price=priceValue(item);
-  if(!price) return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
+  if(!price) return `<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
   const checked=item.price_checked_at?new Date(item.price_checked_at).toLocaleDateString('uk-UA'):'';
   const src=item.price_source?escapeHtml(item.price_source):'ціна';
   const title=[src,checked].filter(Boolean).join(' · ');
-  return `<button class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
+  return `<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
     <span style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(price)}</span>
     <span style="font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;">${src}</span>
   </button>`;
@@ -1113,12 +1211,27 @@ function priceBadge(item){
 if(isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
 
 // ===== NAV =====
+function setPageTitle(page){
+  const target=document.getElementById('pageTitle');
+  if(!target) return;
+  const title=pageTitles[page];
+  target.textContent='';
+  if(!title) return;
+  const icon=document.createElement('span');
+  icon.className='ms';
+  icon.setAttribute('aria-hidden','true');
+  icon.style.fontSize='18px';
+  icon.style.verticalAlign='-4px';
+  icon.style.marginRight='6px';
+  icon.textContent=title.icon;
+  target.append(icon,document.createTextNode(title.label));
+}
 function nav(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.ni,.bn-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.ni,.bn-item').forEach(n=>{n.classList.remove('active');n.removeAttribute('aria-current');});
   document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>n.classList.add('active'));
-  document.getElementById('pageTitle').innerHTML=pageTitles[page]||'';
+  document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>{n.classList.add('active');n.setAttribute('aria-current','page');});
+  setPageTitle(page);
   if(page==='issue'){populateSels();loadRecentIssues();}
   if(page==='log'){loadLogs();}
   if(page==='add'){populateSels();renderAddLow();}
@@ -1187,7 +1300,7 @@ function renderAuditList(){
         <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
         <div style="font-size:11px;color:var(--ios-gray);margin-top:2px;">
           <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${safeCat}</span>
-          · За даними: <b>${item.quantity} ${unit}</b>
+          · За даними: <b>${escapeHtml(String(item.quantity??0))} ${unit}</b>
           ${diffHtml?'· '+diffHtml:''}
         </div>
       </div>
@@ -1202,7 +1315,7 @@ function renderAuditList(){
             data-audit-input data-item-id="${item.id}">
           <span style="font-size:11px;color:var(--ios-gray);">${unit}</span>
         </div>
-        ${isCounted?`<button data-audit-clear data-item-id="${item.id}" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
+        ${isCounted?`<button type="button" data-audit-clear data-item-id="${item.id}" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1673,6 +1786,26 @@ function handleItemActionKeydown(event){
   event.preventDefault();
   trigger.click();
 }
+function setItemMenuExpanded(menu,expanded){
+  menu?.querySelector('summary')?.setAttribute('aria-expanded', String(expanded));
+}
+function closeOpenItemMenus(except=null){
+  document.querySelectorAll('#mobileCards details.item-more[open]').forEach(menu=>{
+    if(menu!==except){
+      menu.removeAttribute('open');
+      setItemMenuExpanded(menu,false);
+    }
+  });
+}
+function handleItemMenuToggle(event){
+  const menu=event.target;
+  if(!menu.matches?.('#mobileCards details.item-more')) return;
+  setItemMenuExpanded(menu,menu.open);
+  if(menu.open) closeOpenItemMenus(menu);
+}
+function handleItemMenuOutsideClick(event){
+  if(!event.target.closest?.('#mobileCards details.item-more')) closeOpenItemMenus();
+}
 function bindItemActionDelegation(){
   ['itemsTable','mobileCards'].forEach(id=>{
     const el=document.getElementById(id);
@@ -1680,6 +1813,8 @@ function bindItemActionDelegation(){
     el.addEventListener('click',handleItemActionClick);
     el.addEventListener('keydown',handleItemActionKeydown);
   });
+  document.addEventListener('toggle',handleItemMenuToggle,true);
+  document.addEventListener('click',handleItemMenuOutsideClick);
 }
 
 function bindPriceBadgeActions(){
@@ -1819,16 +1954,16 @@ function renderItems(){
       <td><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span></td>
       <td style="color:var(--ios-label3);font-size:12px;">${unit}</td>
       <td>${photoCell}</td>
-      <td><span class="${qc}">${item.quantity}</span> <span style="color:#a5b4fc;font-size:11px;">${unit}</span></td>
+      <td><span class="${qc}">${escapeHtml(String(item.quantity??0))}</span> <span style="color:#a5b4fc;font-size:11px;">${unit}</span></td>
       <td>${priceBadge(item)}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
-        <button class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"><span class="ms" style="font-size:16px;">photo_camera</span></button>
-        <button class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
-        <button class="btn btn-ghost btn-sm tip-up" data-item-action="manual-price" data-item-id="${id}" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
-        <button class="btn btn-ghost btn-sm tip-up" data-item-action="price-lookup" data-item-id="${id}" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
-        <button class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"><span class="ms" style="font-size:16px;">photo_camera</span></button>
+        <button type="button" class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
+        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="manual-price" data-item-id="${id}" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
+        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="price-lookup" data-item-id="${id}" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1855,21 +1990,21 @@ function renderItems(){
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
           ${photo}
           <div style="text-align:right;">
-            <span class="${qc}" style="font-size:22px;">${item.quantity}</span>
+            <span class="${qc}" style="font-size:22px;">${escapeHtml(String(item.quantity??0))}</span>
             <div style="font-size:10px;color:#a5b4fc;">${unit}</div>
           </div>
         </div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
-        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:10px 10px;font-size:13px;" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button class="btn btn-ghost" style="padding:10px 12px;" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
-        <details class="item-more"><summary aria-label="Додаткові дії"><span class="ms" aria-hidden="true">more_horiz</span></summary>
-          <div class="item-more-menu">
-            <button data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
-            <button data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
-            <button data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
-            <button data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
-            <button class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
+        <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;padding:10px 10px;font-size:13px;" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost" style="padding:10px 12px;" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
+        <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
+          <div class="item-more-menu" role="menu">
+            <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
+            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
+            <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
+            <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
           </div>
         </details>
       </div>
@@ -2010,7 +2145,7 @@ async function loadRecentIssues(){
         <div style="font-size:13px;font-weight:600;color:var(--ios-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
         <div style="font-size:11px;color:#a5b4fc;">${safeIssuedTo} · ${dt}</div>
       </div>
-      <div style="font-size:13px;font-weight:800;color:#6366f1;">−${l.quantity}</div>
+      <div style="font-size:13px;font-weight:800;color:#6366f1;">−${escapeHtml(String(l.quantity??0))}</div>
     </div>`;
   }).join('');
 }
@@ -2056,12 +2191,12 @@ function renderLog(){
     return `<tr>
       <td style="font-size:12px;color:var(--ios-label3);white-space:nowrap;">${dt}</td>
       <td style="font-weight:600;color:var(--ios-label);">${safeName}${cat?` <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${safeCat}</span>`:''}</td>
-      <td style="font-weight:800;color:#6366f1;">${l.quantity} <span style="font-weight:400;color:#a5b4fc;font-size:11px;">${safeUnit}</span></td>
+      <td style="font-weight:800;color:#6366f1;">${escapeHtml(String(l.quantity??0))} <span style="font-weight:400;color:#a5b4fc;font-size:11px;">${safeUnit}</span></td>
       <td style="color:var(--ios-label2);">${safeIssuedTo}</td>
       <td style="color:var(--ios-gray);font-size:12px;">${safeNote}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">edit</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2083,10 +2218,10 @@ function renderLog(){
         <div style="font-size:11px;color:#a5b4fc;margin-top:1px;">${safeIssuedTo} · ${dt}${safeNote}</div>
       </div>
       <div style="font-weight:800;color:#ef4444;font-size:13px;flex-shrink:0;text-align:right;">
-        −${l.quantity}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
+        −${escapeHtml(String(l.quantity??0))}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
         <div style="display:flex;gap:4px;margin-top:4px;">
-          <button data-log-action="edit" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button data-log-action="delete" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button type="button" data-log-action="edit" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button type="button" data-log-action="delete" data-log-id="${l.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2181,12 +2316,12 @@ function renderReceipts(){
     return `<tr>
       <td style="font-size:12px;color:var(--ios-label3);white-space:nowrap;">${dt}</td>
       <td style="font-weight:600;color:var(--ios-label);">${safeName}</td>
-      <td style="font-weight:800;color:var(--ios-green);">+${r.quantity} <span style="font-weight:400;color:#a5b4fc;font-size:11px;">${safeUnit}</span></td>
+      <td style="font-weight:800;color:var(--ios-green);">+${escapeHtml(String(r.quantity??0))} <span style="font-weight:400;color:#a5b4fc;font-size:11px;">${safeUnit}</span></td>
       <td style="color:var(--ios-label2);">${safeSupplier}</td>
       <td style="color:var(--ios-gray);font-size:12px;">${safeNote}</td>
       <td><div style="display:flex;gap:6px;">
-        <button class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">edit</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2205,10 +2340,10 @@ function renderReceipts(){
         <div style="font-size:11px;color:#a5b4fc;margin-top:1px;">${safeSupplier} · ${dt}${safeNote}</div>
       </div>
       <div style="font-weight:800;color:var(--ios-green);font-size:13px;flex-shrink:0;text-align:right;">
-        +${r.quantity}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
+        +${escapeHtml(String(r.quantity??0))}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
         <div style="display:flex;gap:4px;margin-top:4px;">
-          <button data-receipt-action="edit" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button data-receipt-action="delete" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button type="button" data-receipt-action="edit" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button type="button" data-receipt-action="delete" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2354,11 +2489,11 @@ function renderNewProductMatches(){
   box.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--brand);margin-bottom:6px;">Схожі товари на складі</div>'+matches.map(i=>`<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;border:1px solid var(--ios-sep);border-radius:12px;background:var(--ios-bg);margin-top:6px;">
     <div style="min-width:0;flex:1;">
       <div style="font-size:13px;font-weight:800;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
-      <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')} · ${priceValue(i)?money(priceValue(i)):'без ціни'}</div>
+      <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')} · ${priceValue(i)?money(priceValue(i)):'без ціни'}</div>
     </div>
     <div style="display:flex;gap:6px;flex-shrink:0;">
-      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-new-match-action="refill" data-item-id="${escapeHtml(String(i.id))}">Поповнити</button>
-      <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-new-match-action="refill" data-item-id="${escapeHtml(String(i.id))}">Поповнити</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
     </div>
   </div>`).join('');
 }
@@ -2416,7 +2551,7 @@ function renderAddLow(){
   if(!low.length){el.innerHTML='<div style="font-size:13px;color:#10b981;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Все в нормі!</div>';return;}
   el.innerHTML=low.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
     <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name||'—')}</span>
-    <span class="${i.quantity==0?'qty-zero':'qty-low'}">${i.quantity}</span>
+    <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
   </div>`).join('');
 }
 
@@ -2511,15 +2646,25 @@ async function deletePhoto(){
   });
 }
 let lightboxPhotoItemId=null;
+let lightboxFocusReturn=null;
 function openLightbox(url,itemId=null){
   lightboxPhotoItemId=itemId||photoItemId||null;
+  lightboxFocusReturn=document.activeElement;
   document.getElementById('lbImg').src=url;
   document.getElementById('lbDelBtn').style.display=lightboxPhotoItemId?'inline-flex':'none';
-  document.getElementById('lightbox').classList.add('open');
+  const lightbox=document.getElementById('lightbox');
+  lightbox.classList.add('open');
+  requestAnimationFrame(()=>{
+    const deleteBtn=document.getElementById('lbDelBtn');
+    (deleteBtn.style.display==='none' ? lightbox : deleteBtn).focus({preventScroll:true});
+  });
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
   lightboxPhotoItemId=null;
+  const opener=lightboxFocusReturn;
+  lightboxFocusReturn=null;
+  if(opener && document.contains(opener) && typeof opener.focus==='function') opener.focus({preventScroll:true});
 }
 async function deleteLightboxPhoto(e){
   e.stopPropagation();
@@ -2590,9 +2735,10 @@ function renderStats(){
     const items=allItems.filter(i=>i.category===cat);
     const pct=allItems.length?Math.round(items.length/allItems.length*100):0;
     const c=catColor[cat]||'#64748b';
+    const safeCat=escapeHtml(cat||'—');
     return `<div>
       <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
-        <span style="font-weight:600;color:var(--ios-label);">${catIconHtml[cat]||catIconHtmlDefault} ${cat}</span>
+        <span style="font-weight:600;color:var(--ios-label);">${catIconHtml[cat]||catIconHtmlDefault} ${safeCat}</span>
         <span style="color:var(--ios-label3);">${items.length} поз.</span>
       </div>
       <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c};"></div></div>
@@ -2602,7 +2748,7 @@ function renderStats(){
   document.getElementById('statLow').innerHTML=low.length
     ? low.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
         <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">${escapeHtml(i.name||'—')}</span>
-        <span class="${i.quantity==0?'qty-zero':'qty-low'}" style="flex-shrink:0;white-space:nowrap;">${i.quantity} ${escapeHtml(i.unit||'')}</span>
+        <span class="${i.quantity==0?'qty-zero':'qty-low'}" style="flex-shrink:0;white-space:nowrap;">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
       </div>`).join('')
     : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Всі товари в нормі!</div>';
   const unpriced=allItems.filter(i=>!priceValue(i)).sort((a,b)=>Number(b.quantity||0)-Number(a.quantity||0));
@@ -2611,9 +2757,9 @@ function renderStats(){
     ? unpriced.slice(0,12).map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
         <div style="min-width:0;flex:1;">
           <div style="font-weight:700;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
-          <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${i.quantity} ${escapeHtml(i.unit||'')}</div>
+          <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</div>
         </div>
-        <button class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
+        <button type="button" class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
       </div>`).join('')+(unpriced.length>12?`<div style="font-size:11px;color:var(--ios-gray);margin-top:8px;">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
     : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
@@ -2663,7 +2809,7 @@ function fillPriceSelects(selectedId='', searchText='') {
   const selectedItem=selectedId?allItems.find(i=>String(i.id)===String(selectedId)):null;
   const filtered=allItems.filter(i=>itemMatchesSearch(i,searchText));
   const items=(selectedItem && !filtered.some(i=>String(i.id)===String(selectedId)))?[selectedItem,...filtered]:filtered;
-  const opts=items.map(i=>`<option value="${i.id}">${escapeHtml(i.name)} (${i.quantity} ${escapeHtml(i.unit||'')})</option>`).join('');
+  const opts=items.map(i=>`<option value="${Number(i.id)}">${escapeHtml(i.name)} (${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')})</option>`).join('');
   ['priceItemSel','manualPriceItemSel'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
@@ -2750,11 +2896,11 @@ async function fetchItemPrice(){
       return `<div style="padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;color:var(--ios-label);font-size:13px;line-height:1.35;">${escapeHtml(r.title||'Товар')}</div>
-        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${safeLink?`<a href="${safeLink}" target="_blank" rel="noopener" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
+        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${safeLink?`<a href="${safeLink}" target="_blank" rel="noopener noreferrer" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(r.price)}</div>
-        <button class="btn btn-primary btn-sm" style="margin-top:6px;" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${safeLink}">Взяти</button>
+        <button type="button" class="btn btn-primary btn-sm" style="margin-top:6px;" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${safeLink}">Взяти</button>
       </div>
     </div>`;
     }).join('');
@@ -2875,7 +3021,7 @@ async function openHistory(itemId){
         <div style="font-weight:600;color:var(--ios-label);">${escapeHtml(l.issued_to||'—')}</div>
         <div style="font-size:11px;color:#a5b4fc;">${d} ${t}${l.note?' · '+escapeHtml(l.note):''}</div>
       </div>
-      <div class="hist-out">−${l.quantity} ${unit}</div>
+      <div class="hist-out">−${escapeHtml(String(l.quantity??0))} ${unit}</div>
     </div>`;
   }).join('');
 }
@@ -2904,7 +3050,7 @@ function renderChart(){
 
 // ===== SELECTS =====
 function populateSels(){
-  const opts=allItems.map(i=>`<option value="${Number(i.id)}">${escapeHtml(i.name||'—')} (${i.quantity} ${escapeHtml(i.unit||'')})</option>`).join('');
+  const opts=allItems.map(i=>`<option value="${Number(i.id)}">${escapeHtml(i.name||'—')} (${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')})</option>`).join('');
   ['issueItemSel','refillSel'].forEach(k=>{const el=document.getElementById(k);if(el){el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;refreshEnhancedSelect(el);}});
 }
 
@@ -2930,7 +3076,7 @@ function enhanceSelect(select){
   btn.className=btnClass+' custom-select-btn';
   btn.setAttribute('aria-haspopup','listbox');
   btn.setAttribute('aria-expanded','false');
-  btn.innerHTML='<span class="custom-select-label"></span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.55;"><polyline points="6 9 12 15 18 9"/></svg>';
+  btn.innerHTML='<span class="custom-select-label"></span><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.55;"><polyline points="6 9 12 15 18 9"/></svg>';
   wrap.appendChild(btn);
 
   const panel=document.createElement('div');
@@ -3049,15 +3195,63 @@ function refreshEnhancedSelect(select){
 }
 
 // ===== MODAL =====
+const focusableModalSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const modalFocusReturn = new Map();
+
+function getFocusableModalElements(container){
+  return [...container.querySelectorAll(focusableModalSelector)].filter(el=>el.offsetParent!==null || el === document.activeElement);
+}
+function focusModalDialog(modalBg){
+  const dialog = modalBg.querySelector('[role="dialog"]');
+  if(!dialog) return;
+  const focusTarget = getFocusableModalElements(dialog)[0] || dialog;
+  focusTarget.focus({preventScroll:true});
+}
 function openModal(id){
   const modalBg=document.getElementById(id);
   if(!modalBg) return;
+  if(!modalBg.classList.contains('open')) modalFocusReturn.set(id,document.activeElement);
   modalBg.classList.add('open');
-  requestAnimationFrame(()=>modalBg.querySelector('[role="dialog"]')?.focus({preventScroll:true}));
+  requestAnimationFrame(()=>focusModalDialog(modalBg));
+}
+function restoreModalFocus(id){
+  const opener = modalFocusReturn.get(id);
+  modalFocusReturn.delete(id);
+  if(opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
 }
 function closeModal(id,e){
-  if(e&&e.target!==document.getElementById(id)) return;
-  document.getElementById(id).classList.remove('open');
+  const modalBg=document.getElementById(id);
+  if(!modalBg || (e&&e.target!==modalBg)) return;
+  if(modalBg.classList.contains('open')){
+    modalBg.classList.remove('open');
+    restoreModalFocus(id);
+  }
+}
+function closeOpenModals(){
+  document.querySelectorAll('.modal-bg.open').forEach(modal=>closeModal(modal.id));
+}
+function trapModalFocus(event){
+  if(event.key !== 'Tab') return;
+  const openModals = [...document.querySelectorAll('.modal-bg.open')];
+  const modalBg = openModals[openModals.length-1];
+  if(!modalBg) return;
+  const dialog = modalBg.querySelector('[role="dialog"]');
+  if(!dialog) return;
+  const focusables = getFocusableModalElements(dialog);
+  if(!focusables.length){
+    event.preventDefault();
+    dialog.focus({preventScroll:true});
+    return;
+  }
+  const first = focusables[0];
+  const last = focusables[focusables.length-1];
+  if(event.shiftKey && document.activeElement === first){
+    event.preventDefault();
+    last.focus({preventScroll:true});
+  } else if(!event.shiftKey && document.activeElement === last){
+    event.preventDefault();
+    first.focus({preventScroll:true});
+  }
 }
 
 // ===== PIN ПРИ ВИДАЛЕННІ =====
@@ -3226,10 +3420,14 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key==='Escape'){
-    ['qModal','photoModal','delModal','histModal','chartModal','priceModal','manualPriceModal','barcodeAddModal','delLogModal','editLogModal','delReceiptModal','editReceiptModal','auditModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
-    document.getElementById('lightbox').classList.remove('open');
+    const openItemMenu=document.querySelector('#mobileCards details.item-more[open]');
+    closeOpenItemMenus();
+    openItemMenu?.querySelector('summary')?.focus({preventScroll:true});
+    closeOpenModals();
+    closeLightbox();
     stopQR();stopBarcodeAdd();
   }
+  trapModalFocus(e);
 });
 
 bindItemActionDelegation();
@@ -3253,29 +3451,29 @@ loadItems()
 </script>
 
 <!-- BOTTOM NAV (mobile) -->
-<div class="bottom-nav" id="bottomNav">
-  <button class="bn-item active" data-page="items">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">inventory_2</span></span></div>
+<nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">
+  <button type="button" class="bn-item active" data-page="items" aria-current="page" aria-label="Товари">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">inventory_2</span></span></div>
     <span class="bn-label">Товари</span>
     <span class="bn-badge" id="bn-alert" style="display:none">!</span>
   </button>
-  <button class="bn-item" data-page="issue">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">output</span></span></div>
+  <button type="button" class="bn-item" data-page="issue" aria-label="Видача">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">output</span></span></div>
     <span class="bn-label">Видача</span>
   </button>
-  <button class="bn-item" data-page="log">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">receipt_long</span></span></div>
+  <button type="button" class="bn-item" data-page="log" aria-label="Журнал видач">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">receipt_long</span></span></div>
     <span class="bn-label">Журнал</span>
   </button>
-  <button class="bn-item" data-page="add">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">add_circle</span></span></div>
+  <button type="button" class="bn-item" data-page="add" aria-label="Додати або поповнити">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">add_circle</span></span></div>
     <span class="bn-label">Додати</span>
   </button>
-  <button class="bn-item" data-page="audit">
-    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms">fact_check</span></span></div>
+  <button type="button" class="bn-item" data-page="audit" aria-label="Інвентаризація">
+    <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">fact_check</span></span></div>
     <span class="bn-label">Інвент.</span>
   </button>
-</div>
+</nav>
 
 
 <script>
