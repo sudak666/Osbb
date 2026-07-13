@@ -85,6 +85,47 @@ The `Журнал` screen now shares list primitives with the items workflow:
 - mobile log rows use `log-mobile-*` structure classes and `icon-action` buttons instead of inline-heavy row markup;
 - smoke checks guard the list toolbar/table/mobile-list markers.
 
+
+### Sklad receipt and audit workflow pass
+
+`Прихід` and `Інвентаризація` now use the same calm workflow/list language as the refreshed items, issue, and log screens:
+
+- receipt search moved into a sticky `receipts-toolbar` with workflow heading/copy and `receipts-search-row`;
+- receipts desktop table now uses the shared `table-modern` shell;
+- mobile receipt rows use `receipt-mobile-*` structure classes and `icon-action` buttons;
+- audit controls moved into a sticky `audit-toolbar` with `audit-search-row`, progress summary, and class-based legend chips;
+- dynamic audit rows now use `audit-item`, `audit-item-*`, `audit-qty-input`, and state classes instead of inline layout styles;
+- smoke checks guard the receipt/audit workflow primitives.
+
+
+### OSBB journal header simplification
+
+The OSBB journal header has been split into calmer rows instead of one dense control band:
+
+- `journal-title-row` keeps the app title, network badge, sync badge, and theme selector together;
+- `journal-action-row` separates calendar navigation from export/print/reset actions;
+- `journal-tabs-row` gives desktop section tabs their own visual row;
+- mobile CSS keeps the rows stacked while preserving the existing bottom navigation.
+
+
+### OSBB static icon/action cleanup
+
+A small follow-up pass started reducing repeated static inline icon/action styling in the journal shell:
+
+- repeated SVG alignment style strings now use `journal-inline-icon`;
+- repeated inline action label layout now uses `journal-action-label`;
+- journal export/reset buttons now use `journal-action-btn` variants instead of long Tailwind/inline-heavy class stacks;
+- smoke checks guard these reusable static classes.
+
+
+### Sklad manual price modal cleanup
+
+The manual price modal now has a small class-based structure on top of the text-selection fix:
+
+- `manual-price-modal`, `manual-price-title`, `manual-price-form`, `manual-price-note`, and `manual-price-actions` replace the remaining inline layout for that modal;
+- the existing selection/focus safeguards remain in place so opening the modal does not leave blue highlighted chrome text;
+- smoke checks now cover both the text-selection safeguards and the class-based modal shell.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -94,15 +135,12 @@ Continue after this items/issue/log redesign pass:
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
 - Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
-- Apply the same calm hierarchy pass to `Прихід` and `Інвентаризація` screens.
+- Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
 
-### 2. OSBB journal header simplification
+### 2. OSBB journal follow-up
 
-The journal header still has too many controls in one visual row. Split it into:
-
-- title/status row;
-- calendar/action row;
-- tab row.
+- Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
+- Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes, prioritizing one static shell/list area at a time.
 
 ### 3. Component extraction
 
