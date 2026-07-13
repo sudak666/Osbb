@@ -97,6 +97,16 @@ The `Журнал` screen now shares list primitives with the items workflow:
 - dynamic audit rows now use `audit-item`, `audit-item-*`, `audit-qty-input`, and state classes instead of inline layout styles;
 - smoke checks guard the receipt/audit workflow primitives.
 
+
+### OSBB journal header simplification
+
+The OSBB journal header has been split into calmer rows instead of one dense control band:
+
+- `journal-title-row` keeps the app title, network badge, sync badge, and theme selector together;
+- `journal-action-row` separates calendar navigation from export/print/reset actions;
+- `journal-tabs-row` gives desktop section tabs their own visual row;
+- mobile CSS keeps the rows stacked while preserving the existing bottom navigation.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -108,13 +118,10 @@ Continue after this items/issue/log redesign pass:
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
 - Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
 
-### 2. OSBB journal header simplification
+### 2. OSBB journal follow-up
 
-The journal header still has too many controls in one visual row. Split it into:
-
-- title/status row;
-- calendar/action row;
-- tab row.
+- Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
+- Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes.
 
 ### 3. Component extraction
 
