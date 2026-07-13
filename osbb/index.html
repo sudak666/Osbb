@@ -32,8 +32,8 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         html { overflow-x: hidden; }
-        .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #34c759; --accent-dark: #248a3d; --glass-card: rgba(255,255,255,0.86); --glass-nav: rgba(255,255,255,0.78); --soft-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        .theme-dark { --bg-app: #121214; --bg-card: #1e1e21; --text-main: #ececed; --text-sub: #9a9a9e; --border: #333336; --bg-input: #29292c; --table-header: #29292c; --accent: #30d158; --accent-dark: #248a3d; --glass-card: rgba(30,30,33,0.86); --glass-nav: rgba(30,30,33,0.78); --soft-shadow: 0 10px 30px rgba(0,0,0,0.22); }
+        .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #34c759; --accent-dark: #248a3d; --glass-card: rgba(255,255,255,0.86); --glass-nav: rgba(255,255,255,0.78); --surface-1:#ffffff; --surface-2:#f8fafc; --border-subtle:rgba(148,163,184,.22); --shadow-sm:0 12px 30px rgba(15,23,42,.07); --shadow-md:0 18px 48px rgba(15,23,42,.10); --soft-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .theme-dark { --bg-app: #121214; --bg-card: #1e1e21; --text-main: #ececed; --text-sub: #9a9a9e; --border: #333336; --bg-input: #29292c; --table-header: #29292c; --accent: #30d158; --accent-dark: #248a3d; --glass-card: rgba(30,30,33,0.86); --glass-nav: rgba(30,30,33,0.78); --surface-1:#1e1e21; --surface-2:#29292c; --border-subtle:rgba(148,163,184,.20); --shadow-sm:0 12px 30px rgba(0,0,0,.24); --shadow-md:0 18px 48px rgba(0,0,0,.32); --soft-shadow: 0 10px 30px rgba(0,0,0,0.22); }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes title-reveal { 0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; } 60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; } 100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; } }
@@ -60,18 +60,21 @@
         .ic { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; }
 
         /* iOS-style polish */
-        body { background: radial-gradient(circle at top left, rgba(52,199,89,0.12), transparent 30rem), var(--bg-app); }
-        body.theme-dark { background: radial-gradient(circle at top left, rgba(48,209,88,0.12), transparent 28rem), #121214; }
+        body { background: radial-gradient(circle at 0% 0%, rgba(52,199,89,0.13), transparent 30rem), radial-gradient(circle at 100% 0%, rgba(59,130,246,0.08), transparent 26rem), var(--bg-app); }
+        body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.13), transparent 28rem), radial-gradient(circle at 100% 0%, rgba(59,130,246,0.10), transparent 24rem), #121214; }
         #desktop-tabs, #bottom-nav { background: var(--glass-nav) !important; backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); border-color: var(--border) !important; }
-        .journal-shell-header { display:flex; flex-direction:column; gap:12px; margin-bottom:1.5rem; padding:18px; border:1px solid var(--border); background:var(--glass-card); border-radius:24px; box-shadow:var(--soft-shadow); backdrop-filter:saturate(160%) blur(18px); -webkit-backdrop-filter:saturate(160%) blur(18px); }
-        .journal-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+        .journal-shell-header { display:flex; flex-direction:column; gap:12px; margin-bottom:1.5rem; padding:20px; border:1px solid var(--border-subtle); background:radial-gradient(circle at 8% 0%, rgba(52,199,89,.16), transparent 34%), linear-gradient(135deg,var(--surface-1),var(--surface-2)); border-radius:28px; box-shadow:var(--shadow-md); backdrop-filter:saturate(140%) blur(14px); -webkit-backdrop-filter:saturate(140%) blur(14px); position:relative; overflow:hidden; }
+        .journal-shell-header::after { content:''; position:absolute; right:-44px; top:-58px; width:176px; height:176px; border-radius:50%; background:linear-gradient(135deg, rgba(52,199,89,.14), rgba(59,130,246,.10)); pointer-events:none; }
+        .journal-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle); position:relative; z-index:1; }
         .journal-title-block { min-width:0; }
+        .journal-title-heading { color:var(--text-main); font-size:clamp(1.35rem,2.6vw,2rem); line-height:1.05; font-weight:900; letter-spacing:-.06em; }
+        .journal-title-copy { color:var(--text-sub); font-size:13px; font-weight:650; margin-top:6px; max-width:560px; line-height:1.45; }
         .journal-title-eyebrow { color:var(--accent); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; margin-bottom:4px; }
         .journal-title-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
-        .journal-action-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; }
+        .journal-action-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; position:relative; z-index:1; }
         .journal-calendar-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
         .journal-export-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
-        .journal-tabs-row { display:flex; justify-content:flex-end; padding-top:10px; border-top:1px solid var(--border); }
+        .journal-tabs-row { display:flex; justify-content:flex-end; padding-top:10px; border-top:1px solid var(--border-subtle); position:relative; z-index:1; }
         .journal-tabs-row #desktop-tabs { margin-left:0; }
 
         .journal-inline-icon { display:inline-block; vertical-align:middle; flex-shrink:0; }
@@ -339,7 +342,8 @@
         <div class="journal-title-row">
             <div class="journal-title-block">
                 <div class="journal-title-eyebrow">Журнал обліку ОСББ</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight animated-title"><span class="inline-flex items-center gap-2"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ОСББ "Микитська Слобода"</span></h1>
+                <h1 class="journal-title-heading"><span class="inline-flex items-center gap-2"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ОСББ "Микитська Слобода"</span></h1>
+                <div class="journal-title-copy">Журнал чергувань, заявок і подій будинку.</div>
             </div>
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-600 flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
