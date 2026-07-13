@@ -117,6 +117,15 @@ A small follow-up pass started reducing repeated static inline icon/action styli
 - journal export/reset buttons now use `journal-action-btn` variants instead of long Tailwind/inline-heavy class stacks;
 - smoke checks guard these reusable static classes.
 
+
+### Sklad manual price modal cleanup
+
+The manual price modal now has a small class-based structure on top of the text-selection fix:
+
+- `manual-price-modal`, `manual-price-title`, `manual-price-form`, `manual-price-note`, and `manual-price-actions` replace the remaining inline layout for that modal;
+- the existing selection/focus safeguards remain in place so opening the modal does not leave blue highlighted chrome text;
+- smoke checks now cover both the text-selection safeguards and the class-based modal shell.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

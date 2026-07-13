@@ -641,6 +641,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync('sklad/index.html', 'utf8');
   const label = 'sklad manual price modal clears accidental text selection';
   const required = [
+    'class="modal manual-price-modal"',
+    '.manual-price-modal{max-width:460px;}',
+    '.manual-price-form{display:flex;',
+    '.manual-price-actions{display:flex;',
     '#manualPriceModal .modal{user-select:none;',
     '#manualPriceModal input{user-select:text;',
     'id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus',
@@ -1176,7 +1180,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 {
   const text = readFileSync('sklad/index.html', 'utf8');
   const label = 'sklad modals expose accessible dialog semantics';
-  const modalCount = (text.match(/<div class="modal"/g) || []).length;
+  const modalCount = (text.match(/<div class="modal(?:\s[^"]*)?"/g) || []).length;
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
   const required = [
     'function openModal',

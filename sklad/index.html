@@ -359,6 +359,15 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .modal{background:var(--ios-card-glass);border:1px solid rgba(255,255,255,.55);backdrop-filter:saturate(180%) blur(28px);-webkit-backdrop-filter:saturate(180%) blur(28px);border-radius:28px;padding:24px;width:440px;max-width:95vw;box-shadow:var(--shadow-lg);animation:popIn .22s var(--ease-spring);}
 @keyframes popIn{from{transform:translateY(10px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 
+
+.manual-price-modal{max-width:460px;}
+.manual-price-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.02em;}
+.manual-price-title .ms{font-size:18px;}
+.manual-price-form{display:flex;flex-direction:column;gap:10px;}
+.manual-price-note{color:var(--ios-gray);font-weight:400;}
+.manual-price-actions{display:flex;gap:8px;margin-top:14px;}
+.manual-price-actions .btn{flex:1;justify-content:center;}
+.manual-price-actions .ms{font-size:15px;}
 #manualPriceModal .modal{user-select:none;-webkit-user-select:none;}
 #manualPriceModal input{user-select:text;-webkit-user-select:text;}
 #manualPriceModal .custom-select-wrap,#manualPriceModal .custom-select-btn,#manualPriceModal label,#manualPriceModal button{user-select:none;-webkit-user-select:none;}
@@ -1272,16 +1281,16 @@ async function checkPin(attempt){
 </div>
 
 <div class="modal-bg" id="manualPriceModal" data-modal-backdrop="manualPriceModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:460px;">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Ручна ціна</h3>
-    <div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="modal manual-price-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="manual-price-title"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</h3>
+    <div class="manual-price-form">
       <div><label>Товар</label><select class="inp" id="manualPriceItemSel"><option value="">— Оберіть товар —</option></select></div>
       <div><label>Ціна за одиницю, грн</label><input class="inp" id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus></div>
-      <div><label>Джерело / посилання <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
+      <div><label>Джерело / посилання <span class="manual-price-note">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="manualPriceModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="manual-price-save"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
+    <div class="manual-price-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="manualPriceModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="manual-price-save"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
     </div>
   </div>
 </div>
