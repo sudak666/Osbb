@@ -1175,6 +1175,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     "db.from('garbage').select('month_key,data')",
     'const candidates = gMonthKeyCandidates(year, month)',
     'candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean)',
+    'localStorage.removeItem(`garbage_${year}_${month}`)',
     'await gLoadGarbageYearFromCloud(currentYear)',
     "String(d).padStart(2,'0')",
   ];

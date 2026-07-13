@@ -2389,7 +2389,10 @@
             for (let month = 0; month <= 11; month++) {
                 const candidates = gMonthKeyCandidates(year, month);
                 const row = candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean);
-                if (!row?.data) continue;
+                if (!row?.data) {
+                    try { localStorage.removeItem(`garbage_${year}_${month}`); } catch(e) {}
+                    continue;
+                }
                 const migrated = gMigrateOldData(row.data);
                 try { localStorage.setItem(`garbage_${year}_${month}`, JSON.stringify(migrated.data || {})); } catch(e) {}
             }
