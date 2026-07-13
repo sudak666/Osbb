@@ -693,6 +693,30 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+
+// OSBB static icon/action markup should keep moving repeated inline layout
+// styles into reusable classes instead of duplicating SVG layout style strings.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal static icons and header actions use reusable style classes';
+  const required = [
+    '.journal-inline-icon {',
+    '.journal-action-label {',
+    '.journal-action-btn {',
+    'class="journal-action-btn journal-action-btn-primary"',
+    'class="journal-action-btn journal-action-btn-danger"',
+    'class="journal-inline-icon"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {

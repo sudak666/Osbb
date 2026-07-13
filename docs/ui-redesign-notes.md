@@ -107,6 +107,16 @@ The OSBB journal header has been split into calmer rows instead of one dense con
 - `journal-tabs-row` gives desktop section tabs their own visual row;
 - mobile CSS keeps the rows stacked while preserving the existing bottom navigation.
 
+
+### OSBB static icon/action cleanup
+
+A small follow-up pass started reducing repeated static inline icon/action styling in the journal shell:
+
+- repeated SVG alignment style strings now use `journal-inline-icon`;
+- repeated inline action label layout now uses `journal-action-label`;
+- journal export/reset buttons now use `journal-action-btn` variants instead of long Tailwind/inline-heavy class stacks;
+- smoke checks guard these reusable static classes.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -121,7 +131,7 @@ Continue after this items/issue/log redesign pass:
 ### 2. OSBB journal follow-up
 
 - Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
-- Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes.
+- Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes, prioritizing one static shell/list area at a time.
 
 ### 3. Component extraction
 
