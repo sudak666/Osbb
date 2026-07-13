@@ -58,16 +58,34 @@ The next pass started the actual `Товари на складі` screen redesig
 - added `table-modern` treatment for the desktop inventory table;
 - added a smoke-check guard so future sessions keep these layout primitives.
 
+### Sklad insight cards and mobile item cards
+
+The follow-up pass made the items screen calmer and less saturated:
+
+- metric cards now use the `insight-grid` treatment with solid surfaces, subtle top accent lines and reusable `stat-icon` bubbles;
+- mobile item cards now use named structure classes (`m-card-head`, `m-card-title`, `m-card-meta`, `m-card-qty`, `m-card-actions`) instead of the previous inline-heavy layout;
+- mobile item photos now use the reusable `m-card-photo` class and quantity emphasis is handled through `m-card-qty-value`;
+- smoke checks were adjusted to guard the insight-grid shell and the escaped quantity renderer in its new class-based markup.
+
+### Sklad issue workflow form
+
+The `Видача` screen now uses the same calmer workflow language:
+
+- main form card uses `workflow-card`, `workflow-heading`, `workflow-kicker`, `workflow-title`, and `workflow-copy`;
+- form fields use `form-stack`, `field-grid`, `info-callout`, `preset-row`, `preset-chip`, and `full-width-action`;
+- recent activity uses `side-panel`, `side-panel-title`, and `side-panel-body`;
+- smoke checks now guard these workflow form primitives.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
 
-Continue after this items shell pass:
+Continue after this items/issue redesign pass:
 
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
-- Rework stat cards into a calmer `insight-grid` variant with consistent icon bubbles and less saturated gradients.
-- Simplify mobile item cards: title/category/qty/primary CTA visible; secondary actions in menu.
-- Replace remaining inline styles in the items screen with reusable classes once the visual direction is accepted.
+- Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
+- Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
+- Apply the same calm hierarchy pass to `Журнал`, `Прихід`, and `Інвентаризація` screens.
 
 ### 2. OSBB journal header simplification
 

@@ -186,6 +186,25 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .table-modern tbody td:first-child,.table-modern thead th:first-child{padding-left:20px;}
 .table-modern tbody td:last-child,.table-modern thead th:last-child{padding-right:20px;}
 
+/* WORKFLOW FORMS */
+.workflow-card{padding:26px;}
+.workflow-heading{display:flex;align-items:flex-start;gap:12px;margin-bottom:22px;}
+.workflow-heading-icon{width:40px;height:40px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);flex-shrink:0;}
+.workflow-kicker{font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:4px;}
+.workflow-title{font-size:20px;font-weight:900;line-height:1.08;letter-spacing:-.045em;color:var(--ios-label);margin:0;}
+.workflow-copy{font-size:13px;line-height:1.5;color:var(--ios-label3);font-weight:600;margin-top:5px;}
+.form-stack{display:flex;flex-direction:column;gap:16px;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.info-callout{background:linear-gradient(135deg,var(--accent-soft),color-mix(in srgb,var(--info) 8%,var(--surface-2)));border:1px solid color-mix(in srgb,var(--accent) 18%,var(--border-subtle));border-radius:16px;padding:14px;}
+.info-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--ios-label3);}
+.info-row strong{color:var(--accent);font-weight:850;}
+.preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.preset-chip{min-height:30px;padding:0 11px;font-size:12px;border-radius:999px;}
+.full-width-action{width:100%;justify-content:center;}
+.side-panel{padding:20px;overflow:hidden;max-width:100%;}
+.side-panel-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:850;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.side-panel-body{overflow:hidden;}
+
 /* STAT CARDS */
 .stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.26) inset,var(--shadow-lg);filter:saturate(1.04);}
@@ -198,6 +217,19 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .sc-red{background:linear-gradient(135deg,#FF3B30,#FF9500);}
 .sc-orange{background:linear-gradient(135deg,#FF9500,#FFCC00);}
 .sc-green{background:linear-gradient(135deg,#34C759,#30D158);}
+.insight-grid .stat-card{--stat-accent:var(--accent);--stat-soft:var(--accent-soft);display:flex;flex-direction:column;min-height:118px;background:linear-gradient(180deg,var(--surface-1),var(--surface-2));color:var(--ios-label);border:1px solid var(--border-subtle);box-shadow:var(--shadow-sm);}
+.insight-grid .stat-card::before{content:'';position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--stat-accent),transparent 78%);}
+.insight-grid .stat-card::after{right:-24px;top:-28px;width:118px;height:118px;background:var(--stat-soft);}
+.insight-grid .stat-card:hover{box-shadow:var(--shadow-md);filter:none;}
+.insight-grid .stat-card.sc-active{box-shadow:0 0 0 3px var(--stat-soft),var(--shadow-md);}
+.insight-grid .stat-card .big{color:var(--stat-accent);}
+.insight-grid .stat-card .lbl{display:flex;align-items:center;gap:6px;color:var(--ios-label2);opacity:1;}
+.stat-icon{position:absolute;right:14px;top:14px;width:42px;height:42px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:var(--stat-accent);background:var(--stat-soft);}
+.stat-icon .ms{font-size:22px;}
+.insight-grid .sc-purple{--stat-accent:var(--info);--stat-soft:rgba(0,122,255,.12);}
+.insight-grid .sc-red{--stat-accent:var(--danger);--stat-soft:rgba(255,59,48,.12);}
+.insight-grid .sc-orange{--stat-accent:var(--warning);--stat-soft:rgba(255,149,0,.14);}
+.insight-grid .sc-green{--stat-accent:var(--success);--stat-soft:rgba(52,199,89,.12);}
 
 /* TABLE */
 table{width:100%;border-collapse:collapse;font-size:14px;}
@@ -343,6 +375,12 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .items-metrics{margin-bottom:12px;}
   .items-filter-bar{position:relative;top:auto;padding:10px;margin-bottom:12px;border-radius:20px;}
   .items-search-row{grid-template-columns:1fr;}
+  .workflow-card{padding:18px;}
+  .workflow-heading{gap:10px;margin-bottom:16px;}
+  .workflow-heading-icon{width:36px;height:36px;border-radius:14px;}
+  .workflow-title{font-size:17px;}
+  .workflow-copy{font-size:12px;}
+  .field-grid{grid-template-columns:1fr;}
   #catPills{flex-wrap:nowrap!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px!important;padding-bottom:2px;}
   #catPills::-webkit-scrollbar{display:none;}
   #catPills .pill{flex-shrink:0;white-space:nowrap;padding:5px 11px;font-size:12px;}
@@ -376,7 +414,8 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   /* Issue page */
   #page-issue .split{display:flex!important;flex-direction:column!important;gap:12px!important;}
   #page-issue .card{padding:14px!important;}
-  #page-issue h3{font-size:15px!important;margin-bottom:14px!important;}
+  #page-issue .workflow-card{padding:16px!important;}
+  #page-issue .workflow-heading{margin-bottom:14px!important;}
   #page-issue .btn-ghost.btn-sm{font-size:11px!important;padding:5px 8px!important;}
   /* Log page - hide table, show cards */
   #page-log .card table{display:none;}
@@ -415,6 +454,19 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .theme-light .m-card .btn-ghost{background:#f3f4f6;border-color:rgba(60,60,67,.10);color:var(--brand-dark);}
 .theme-light .m-card .qty-ok{color:var(--brand-dark);}
 .theme-dark .m-card{background:rgba(30,30,33,.94);border-color:rgba(255,255,255,.12);}
+.m-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.m-card-main{flex:1;min-width:0;}
+.m-card-title{font-size:14px;font-weight:850;color:var(--ios-label);line-height:1.32;margin-bottom:7px;letter-spacing:-.02em;}
+.m-card-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.m-card-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.m-card-photo{width:42px;height:42px;border-radius:14px;object-fit:cover;border:1px solid var(--border-subtle);box-shadow:var(--shadow-xs);cursor:pointer;flex-shrink:0;}
+.m-card-qty{text-align:right;padding:4px 0 0;}
+.m-card-qty-value{font-size:24px;line-height:1;font-weight:850;letter-spacing:-.05em;}
+.m-card-unit{font-size:10px;color:var(--ios-label3);font-weight:700;margin-top:2px;}
+.m-card-price{margin-top:7px;}
+.m-card-actions{display:flex;gap:7px;align-items:center;}
+.m-card-actions .btn-primary{flex:1;justify-content:center;padding:10px 10px;font-size:13px;}
+.m-card-actions .btn-ghost{padding:10px 12px;}
 
 
 /* ===AUTH SCREEN=== */
@@ -641,11 +693,11 @@ async function checkPin(attempt){
     <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
       <div class="alert-banner"><span class="ms" style="font-size:16px;vertical-align:-3px;">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
     </div>
-    <div class="g4 items-metrics">
-      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">inventory_2</span></div></div>
-      <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">production_quantity_limits</span></div></div>
-      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">warning</span></div></div>
-      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div style="position:absolute;right:14px;top:14px;opacity:.25;"><span class="ms" style="font-size:28px;">check_circle</span></div></div>
+    <div class="g4 items-metrics insight-grid">
+      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></div></div>
+      <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></div></div>
+      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div class="stat-icon" aria-hidden="true"><span class="ms">warning</span></div></div>
+      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div class="stat-icon" aria-hidden="true"><span class="ms">check_circle</span></div></div>
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
@@ -686,25 +738,32 @@ async function checkPin(attempt){
   <!-- ISSUE -->
   <div id="page-issue" class="page">
     <div class="split">
-      <div class="card" style="padding:28px;">
-        <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--brand);">output</span>Оформити видачу</h3>
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
-          <div id="issueInfo" style="display:none;background:#f0f0ff;border-radius:12px;padding:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--ios-label3);">Залишок:</span><span id="issueInfoQty" style="font-weight:800;color:#6366f1;"></span></div>
+      <div class="card workflow-card">
+        <div class="workflow-heading">
+          <div class="workflow-heading-icon"><span class="ms" aria-hidden="true">output</span></div>
+          <div>
+            <div class="workflow-kicker">Операція складу</div>
+            <h3 class="workflow-title">Оформити видачу</h3>
+            <div class="workflow-copy">Обери товар, кількість і відповідального — система одразу оновить залишок та журнал руху.</div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
+        </div>
+        <div class="form-stack">
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
+          <div id="issueInfo" class="info-callout" style="display:none;">
+            <div class="info-row"><span>Залишок:</span><strong id="issueInfoQty"></strong></div>
+          </div>
+          <div class="field-grid two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="issueQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата</label><input type="date" class="inp" id="issueDateI"></div>
           </div>
-          <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
+          <div><label>Кому видано</label><div class="preset-row"><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
+          <button type="button" class="btn btn-primary full-width-action" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
         </div>
       </div>
-      <div class="card" style="padding:20px;overflow:hidden;max-width:100%;">
-        <div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">Останні видачі</div>
-        <div id="recentIssues" style="overflow:hidden;"></div>
+      <div class="card side-panel">
+        <div class="side-panel-title"><span class="ms" aria-hidden="true" style="font-size:15px;">history</span> Останні видачі</div>
+        <div id="recentIssues" class="side-panel-body"></div>
       </div>
     </div>
   </div>
@@ -1978,26 +2037,26 @@ function renderItems(){
     const unit=escapeHtml(item.unit||'');
     const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
     const photo=safePhoto
-      ? `<img src="${safePhoto}" alt="Фото товару ${name}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #e8e6ff;cursor:pointer;flex-shrink:0;" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}">`
+      ? `<img src="${safePhoto}" alt="Фото товару ${name}" class="m-card-photo" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}">`
       : '';
     return `<div class="m-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:13.5px;font-weight:700;color:var(--ios-label);line-height:1.4;margin-bottom:5px;">${name}</div>
-          <span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span>${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}
-          <div style="margin-top:6px;">${priceBadge(item)}</div>
+      <div class="m-card-head">
+        <div class="m-card-main">
+          <div class="m-card-title">${name}</div>
+          <div class="m-card-meta"><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span>${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</div>
+          <div class="m-card-price">${priceBadge(item)}</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+        <div class="m-card-side">
           ${photo}
-          <div style="text-align:right;">
-            <span class="${qc}" style="font-size:22px;">${escapeHtml(String(item.quantity??0))}</span>
-            <div style="font-size:10px;color:#a5b4fc;">${unit}</div>
+          <div class="m-card-qty">
+            <span class="${qc} m-card-qty-value">${escapeHtml(String(item.quantity??0))}</span>
+            <div class="m-card-unit">${unit}</div>
           </div>
         </div>
       </div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;padding:10px 10px;font-size:13px;" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button type="button" class="btn btn-ghost" style="padding:10px 12px;" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
+      <div class="m-card-actions">
+        <button type="button" class="btn btn-primary" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>

@@ -556,12 +556,44 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="items-hero-kicker"',
     'class="items-hero-actions"',
     'class="items-quick-note"',
-    'class="g4 items-metrics"',
+    'class="g4 items-metrics insight-grid"',
     'class="items-filter-bar"',
     'class="items-filter-row items-search-row"',
     'class="card desktop-table table-modern"',
+    'class="stat-icon" aria-hidden="true"',
     '.items-filter-bar{position:sticky;',
+    '.insight-grid .stat-card',
     '.table-modern tbody tr:hover',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad issue flow should share the redesigned workflow form primitives instead
+// of reverting to inline-heavy card markup.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad issue screen uses workflow form primitives';
+  const required = [
+    'class="card workflow-card"',
+    'class="workflow-heading"',
+    'class="workflow-heading-icon"',
+    'class="workflow-kicker"',
+    'class="workflow-title"',
+    'class="form-stack"',
+    'class="field-grid two-col"',
+    'class="info-callout"',
+    'class="preset-row"',
+    'class="btn btn-primary full-width-action"',
+    'class="card side-panel"',
+    '.workflow-card{',
+    '.side-panel-title{',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -741,7 +773,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
   const required = [
     '${escapeHtml(String(item.quantity??0))} ${unit}',
     '<span class="${qc}">${escapeHtml(String(item.quantity??0))}</span>',
-    '<span class="${qc}" style="font-size:22px;">${escapeHtml(String(item.quantity??0))}</span>',
+    '<span class="${qc} m-card-qty-value">${escapeHtml(String(item.quantity??0))}</span>',
     '−${escapeHtml(String(l.quantity??0))}</div>',
     '−${escapeHtml(String(l.quantity??0))}<span',
     '+${escapeHtml(String(r.quantity??0))}<span',
