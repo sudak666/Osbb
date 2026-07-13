@@ -95,13 +95,7 @@ Many modals/lightbox surfaces now expose dialog semantics and focus behavior:
 - `openModal(...)` focus behavior
 - keyboard handlers for custom/action controls
 
-Remaining accessibility work should continue from here:
-
-- focus trap inside active modals;
-- `Esc` to close;
-- return focus to the opener;
-- ensure icon-only buttons have stable `aria-label`;
-- avoid custom clickable elements without keyboard support.
+Recent accessibility work added focus traps, `Esc` close paths, opener focus restoration, live regions, tab semantics, `aria-current`/`aria-selected` state sync, and labels for several icon-only controls. Continue auditing any newly added custom controls for keyboard support and stable accessible names.
 
 ### 5. Sklad mobile UI polish
 
@@ -131,7 +125,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Latest known expected result: `85 smoke checks passed`.
+Latest known expected result: `116 smoke checks passed` after the accessibility/focus/escaping/mobile-topbar/menu hardening pass.
 
 ## Suggested next work
 
@@ -140,14 +134,14 @@ Latest known expected result: `85 smoke checks passed`.
 - Re-check mobile topbar spacing and contrast in light/dark themes.
 - Simplify mobile item cards further if they still feel too noisy.
 - Ensure primary vs secondary actions are visually clear.
-- Check bottom nav overlap with modals, cards, and long lists.
+- Check bottom nav overlap with modals, cards, long lists, and mobile item overflow menus.
 
-### Priority 2 — Modal accessibility hardening
+### Priority 2 — Accessibility follow-up audit
 
-- Add focus trap for active modal/lightbox.
-- Add `Esc` close consistently.
-- Return focus to the trigger that opened the modal.
-- Add smoke checks for these behaviors where possible.
+- Keep focus trap / `Esc` / opener-return behavior intact when adding new modals or lightboxes.
+- Check newly added icon-only buttons for stable `aria-label`.
+- Prefer semantic controls over custom clickable elements; if custom controls are needed, preserve keyboard support.
+- Add smoke checks for new accessibility invariants where practical.
 
 ### Priority 3 — Safer rendering pass
 
