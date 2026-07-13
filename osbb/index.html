@@ -77,6 +77,16 @@
         .journal-tabs-row { display:flex; justify-content:flex-end; padding-top:10px; border-top:1px solid var(--border-subtle); position:relative; z-index:1; }
         .journal-tabs-row #desktop-tabs { margin-left:0; }
 
+        .journal-dashboard-panel { padding:22px; border:1px solid var(--border-subtle); background:linear-gradient(180deg,var(--surface-1),var(--surface-2)); border-radius:28px; box-shadow:var(--shadow-sm); margin-bottom:1.5rem; }
+        .journal-note { background:color-mix(in srgb,var(--accent) 10%,var(--surface-1)); border:1px solid color-mix(in srgb,var(--accent) 18%,var(--border-subtle)); border-radius:18px; }
+        .journal-section-title { display:inline-flex; align-items:center; gap:6px; color:var(--text-sub); font-size:11px; font-weight:850; text-transform:uppercase; letter-spacing:.11em; margin-bottom:12px; }
+        .journal-stats-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:22px; }
+        .journal-stat-card { border-radius:20px!important; border:1px solid var(--border-subtle)!important; background:var(--surface-1)!important; box-shadow:var(--shadow-sm)!important; }
+        .journal-stat-card.role-electrician { border-top:3px solid #f59e0b!important; }
+        .journal-stat-card.role-janitor { border-top:3px solid #10b981!important; }
+        .journal-stat-card.role-plumber { border-top:3px solid #3b82f6!important; }
+        .journal-garbage-card { border-top:3px solid var(--accent)!important; }
+
         .journal-inline-icon { display:inline-block; vertical-align:middle; flex-shrink:0; }
         .journal-action-label { display:inline-flex; align-items:center; gap:6px; }
         .journal-action-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 12px; border-radius:14px; font-size:14px; font-weight:800; transition:transform .15s ease, background .15s ease, opacity .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.05); }
@@ -108,6 +118,8 @@
             #desktop-tabs { display: none !important; }
             #bottom-nav { display: flex !important; }
             .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
+            .journal-dashboard-panel { padding:16px; border-radius:22px; }
+            .journal-stats-grid { grid-template-columns:1fr; gap:10px; }
             .journal-title-row, .journal-action-row { flex-direction:column; align-items:stretch; }
             .journal-title-actions, .journal-export-actions, .journal-calendar-controls { justify-content:flex-start; }
             .journal-title-actions select { max-width:160px; }
@@ -415,29 +427,29 @@
         </button>
     </div>
 
-    <div class="p-6 rounded-2xl border bg-[var(--bg-card)] border-[var(--border)] mb-6 shadow-md">
-        <div class="no-print mb-4 p-3 bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
+    <div class="journal-dashboard-panel">
+        <div class="no-print journal-note mb-4 p-3 flex items-center gap-3">
             <span class="w-7 h-7 rounded-full bg-amber-400/20 flex items-center justify-center shrink-0"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span>
             <p id="fun-quote" class="text-xs font-medium italic"></p>
         </div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg> Моніторинг Суперсил за Місяць:</span></h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div class="stat-card p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 shadow-sm flex flex-col justify-between">
+        <h3 class="journal-section-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg> Моніторинг за місяць</h3>
+        <div class="journal-stats-grid">
+            <div class="stat-card journal-stat-card role-electrician p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-bold text-amber-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></span><span id="stats-electrician" class="text-xl font-black text-amber-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
-            <div class="stat-card p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 shadow-sm flex flex-col justify-between">
+            <div class="stat-card journal-stat-card role-janitor p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-bold text-emerald-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></span><span id="stats-janitor" class="text-xl font-black text-emerald-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
-            <div class="stat-card p-4 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 shadow-sm flex flex-col justify-between">
+            <div class="stat-card journal-stat-card role-plumber p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-bold text-blue-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></span><span id="stats-plumber" class="text-xl font-black text-blue-600">0 змін</span></div>
                 <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
         </div>
 
-        <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-sub)] mb-3"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Сміття за Місяць:</span></h3>
-        <div class="stat-card p-4 rounded-xl bg-emerald-500/5 border-2 border-emerald-500/20 shadow-sm mb-6">
+        <h3 class="journal-section-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Сміття за місяць</h3>
+        <div class="stat-card journal-stat-card journal-garbage-card p-4 mb-6">
             <!-- Головний показник — Баки -->
             <div class="flex items-center justify-between mb-3">
                 <div>
