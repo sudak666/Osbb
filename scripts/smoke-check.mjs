@@ -633,6 +633,37 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+
+// Sklad receipt and audit screens should follow the same calm workflow/list
+// primitives as items, issue, and log instead of reverting to ad-hoc inline rows.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad receipts and audit screens use redesigned workflow primitives';
+  const required = [
+    'class="receipts-toolbar"',
+    'class="receipts-search-row"',
+    'class="receipt-mobile-item"',
+    'class="receipt-mobile-actions"',
+    'class="audit-toolbar"',
+    'class="audit-search-row"',
+    'class="audit-legend"',
+    'class="audit-list"',
+    'class="audit-item ${stateClass}"',
+    'class="audit-qty-input"',
+    '.receipts-toolbar,.audit-toolbar{position:sticky;',
+    '.audit-item{',
+    '.receipt-mobile-item{',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {

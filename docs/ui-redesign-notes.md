@@ -85,6 +85,18 @@ The `Журнал` screen now shares list primitives with the items workflow:
 - mobile log rows use `log-mobile-*` structure classes and `icon-action` buttons instead of inline-heavy row markup;
 - smoke checks guard the list toolbar/table/mobile-list markers.
 
+
+### Sklad receipt and audit workflow pass
+
+`Прихід` and `Інвентаризація` now use the same calm workflow/list language as the refreshed items, issue, and log screens:
+
+- receipt search moved into a sticky `receipts-toolbar` with workflow heading/copy and `receipts-search-row`;
+- receipts desktop table now uses the shared `table-modern` shell;
+- mobile receipt rows use `receipt-mobile-*` structure classes and `icon-action` buttons;
+- audit controls moved into a sticky `audit-toolbar` with `audit-search-row`, progress summary, and class-based legend chips;
+- dynamic audit rows now use `audit-item`, `audit-item-*`, `audit-qty-input`, and state classes instead of inline layout styles;
+- smoke checks guard the receipt/audit workflow primitives.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -94,7 +106,7 @@ Continue after this items/issue/log redesign pass:
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
 - Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
-- Apply the same calm hierarchy pass to `Прихід` and `Інвентаризація` screens.
+- Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
 
 ### 2. OSBB journal header simplification
 
