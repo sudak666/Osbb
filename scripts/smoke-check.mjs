@@ -640,6 +640,43 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Sklad add/refill page should use class-based form/card helpers instead of
+// inline-heavy add-page chrome.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad add and refill page uses class-based shell';
+  const required = [
+    'class="card add-card"',
+    'class="add-section-title is-refill"',
+    'class="add-form-stack"',
+    'id="refillInfo" class="refill-info"',
+    'class="form-note"',
+    'class="btn btn-success full-action"',
+    'class="add-new-section"',
+    'class="add-new-stack"',
+    'id="newNameMatches" class="new-name-matches"',
+    'class="btn btn-ghost add-scanner-btn"',
+    'id="barcodeAddStatus" class="barcode-add-status"',
+    'class="internal-use-toggle"',
+    'class="add-side-stack pc-only"',
+    'class="card add-help-card"',
+    'class="add-help-list"',
+    'class="card add-low-card"',
+    '.add-card{padding:28px;',
+    '.two-col{display:grid;',
+    '.internal-use-toggle{display:flex;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // QR scanner and chart modal chrome should use small class-based shells
 // instead of inline title/action styles.
 {

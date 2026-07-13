@@ -186,6 +186,14 @@ The searchable product-picker behavior now covers the main long product lists:
 - the custom select search input uses a reusable `custom-select-search` class instead of inline sizing styles;
 - smoke checks guard the searchable markers for issue/refill/manual price flows.
 
+### Sklad add/refill page shell cleanup
+
+The add/replenishment screen now uses class-based page helpers for the larger form area:
+
+- refill and new-product sections use `add-card`, `add-section-title`, `add-form-stack`, and `add-new-stack`;
+- scanner/status/internal-use controls use reusable `add-scanner-btn`, `barcode-add-status`, and `internal-use-toggle` classes;
+- the desktop hints and low-stock side cards use `add-help-*` / `add-low-*` classes, guarded by smoke checks.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

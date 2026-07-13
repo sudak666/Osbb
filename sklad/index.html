@@ -259,6 +259,36 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .receipt-mobile-unit{font-size:10px;font-weight:500;color:var(--ios-label3);}
 .receipt-mobile-actions{display:flex;gap:4px;justify-content:flex-end;margin-top:4px;}
 
+
+/* ADD / REFILL */
+.add-card{padding:28px;}
+.add-section-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:850;color:var(--ios-label);margin-bottom:22px;letter-spacing:-.02em;}
+.add-section-title .ms{font-size:18px;}
+.add-section-title.is-refill .ms{color:var(--success);}
+.add-form-stack{display:flex;flex-direction:column;gap:16px;}
+.add-new-section{margin-top:32px;padding-top:24px;border-top:1px solid var(--border-subtle);}
+.add-new-stack{display:flex;flex-direction:column;gap:14px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.refill-info{display:none;background:rgba(34,197,94,.10);border:1.5px solid rgba(34,197,94,.28);border-radius:10px;padding:12px;font-size:13px;color:#166534;}
+.refill-info strong,.refill-info span{font-weight:850;}
+.form-note{color:var(--ios-gray);font-weight:400;}
+.full-action{width:100%;justify-content:center;}
+.full-action .ms{font-size:16px;}
+.new-name-matches{display:none;margin-top:8px;}
+.add-scanner-btn{width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;}
+.add-scanner-btn .ms{font-size:14px;}
+.barcode-add-status{display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:650;}
+.internal-use-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;padding:10px 12px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:12px;}
+.internal-use-toggle input{width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;}
+.internal-use-toggle span{font-weight:650;color:var(--ios-label2);font-size:12.5px;line-height:1.4;}
+.add-side-stack{display:flex;flex-direction:column;gap:16px;}
+.add-help-card{padding:20px;background:linear-gradient(135deg,#f0f0ff,#ede9fe);}
+.add-help-title{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:10px;}
+.add-help-title .ms,.add-help-list .ms,.add-low-title .ms{font-size:15px;}
+.add-help-list{font-size:12.5px;color:#6b21a8;line-height:2.2;list-style:none;padding:0;margin:0;}
+.add-low-card{padding:20px;}
+.add-low-title{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+
 /* STAT CARDS */
 .stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.26) inset,var(--shadow-lg);filter:saturate(1.04);}
@@ -928,48 +958,48 @@ async function checkPin(attempt){
   <!-- ADD -->
   <div id="page-add" class="page">
     <div class="split">
-      <div class="card" style="padding:28px;">
-        <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--ios-green);">add_circle</span>Поповнити залишок</h3>
-        <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card add-card">
+        <h3 class="add-section-title is-refill"><span class="ms" aria-hidden="true">add_circle</span>Поповнити залишок</h3>
+        <div class="add-form-stack">
           <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-placeholder="Пошук товару для поповнення..."><option value="">— Оберіть товар —</option></select></div>
-          <div id="refillInfo" style="display:none;background:#f0fff4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;font-size:13px;color:#166534;">Поточний залишок: <span id="refillCur" style="font-weight:800;"></span></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
+          <div id="refillInfo" class="refill-info">Поточний залишок: <span id="refillCur"></span></div>
+          <div class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
           </div>
-          <div><label>Постачальник <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
-          <div><label>Примітка <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
-          <button type="button" class="btn btn-success" style="width:100%;justify-content:center;" data-sklad-action="refill-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
+          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
+          <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
+          <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
         </div>
-        <div style="margin-top:32px;padding-top:24px;border-top:1px solid #f0eeff;">
-          <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fiber_new</span> Новий товар</h3>
-          <div style="display:flex;flex-direction:column;gap:14px;">
-            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button type="button" class="btn btn-ghost" data-sklad-action="barcode-add-open" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
+        <div class="add-new-section">
+          <h3 class="add-section-title"><span class="ms" aria-hidden="true">fiber_new</span> Новий товар</h3>
+          <div class="add-new-stack">
+            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" class="new-name-matches"></div><button type="button" class="btn btn-ghost add-scanner-btn" data-sklad-action="barcode-add-open"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" class="barcode-add-status"></div></div>
+            <div class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
             </div>
             <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;padding:10px 12px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:12px;">
-              <input type="checkbox" id="newInternal" style="width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;">
-              <span style="font-weight:600;color:var(--ios-label2);font-size:12.5px;line-height:1.4;">Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
+            <label class="internal-use-toggle">
+              <input type="checkbox" id="newInternal">
+              <span>Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
             </label>
-            <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="add-new-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
+            <button type="button" class="btn btn-primary full-action" data-sklad-action="add-new-submit"><span class="ms" aria-hidden="true">check_circle</span> Додати товар</button>
           </div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:16px;" class="pc-only">
-        <div class="card" style="padding:20px;background:linear-gradient(135deg,#f0f0ff,#ede9fe);">
-          <div style="font-size:13px;font-weight:700;color:#4c1d95;margin-bottom:10px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">lightbulb</span> Підказки</div>
-          <ul style="font-size:12.5px;color:#6b21a8;line-height:2.2;list-style:none;padding:0;margin:0;">
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">upload_file</span> <b>Excel</b> — на ПК, кнопка вгорі</li>
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">photo_camera</span> <b>Фото</b> — клік <span class="ms" style="font-size:14px;vertical-align:-2px;">photo_camera</span> в таблиці товарів</li>
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> <b>Видалення</b> — кнопка <span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> в рядку</li>
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">notifications</span> <b>Сповіщення</b> — автоматично</li>
+      <div class="add-side-stack pc-only">
+        <div class="card add-help-card">
+          <div class="add-help-title"><span class="ms" aria-hidden="true">lightbulb</span> Підказки</div>
+          <ul class="add-help-list">
+            <li><span class="ms" aria-hidden="true">upload_file</span> <b>Excel</b> — на ПК, кнопка вгорі</li>
+            <li><span class="ms" aria-hidden="true">photo_camera</span> <b>Фото</b> — клік <span class="ms" aria-hidden="true">photo_camera</span> в таблиці товарів</li>
+            <li><span class="ms" aria-hidden="true">delete</span> <b>Видалення</b> — кнопка <span class="ms" aria-hidden="true">delete</span> в рядку</li>
+            <li><span class="ms" aria-hidden="true">notifications</span> <b>Сповіщення</b> — автоматично</li>
           </ul>
         </div>
-        <div class="card" style="padding:20px;">
-          <div style="font-size:12px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> Потребують поповнення</div>
+        <div class="card add-low-card">
+          <div class="add-low-title"><span class="ms" aria-hidden="true">warning</span> Потребують поповнення</div>
           <div id="addLowList"></div>
         </div>
       </div>
