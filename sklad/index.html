@@ -260,6 +260,29 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .receipt-mobile-actions{display:flex;gap:4px;justify-content:flex-end;margin-top:4px;}
 
 
+
+/* STATS PAGE */
+.stats-panel{padding:18px 22px;margin-bottom:16px;}
+.stats-panel-title{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:850;color:var(--brand);text-transform:uppercase;letter-spacing:.03em;margin-bottom:12px;}
+.stats-panel-title .ms{font-size:16px;}
+.stats-panel-title.is-purple{color:#6366f1;}
+.stats-panel-title.is-danger{color:#ef4444;}
+.stats-panel-title.is-warning{color:var(--ios-orange);}
+.stats-balance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;}
+.stats-metric-value{font-size:26px;font-weight:850;color:var(--brand);letter-spacing:-.04em;}
+.stats-metric-value.is-orange{color:var(--ios-orange);}
+.stats-metric-value.is-green{color:var(--ios-green);}
+.stats-metric-label{font-size:12px;color:var(--ios-label3);line-height:1.35;}
+.stats-metric-label .ms{font-size:13px;}
+.stats-list-card{padding:18px;overflow:hidden;}
+.stats-list-stack{display:flex;flex-direction:column;gap:12px;}
+.stats-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;}
+.stats-filter-summary{font-size:12px;color:var(--ios-label3);margin-top:10px;line-height:1.45;}
+.price-assessment-panel{padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.price-assessment-summary{font-size:12px;color:var(--ios-label3);margin-top:4px;}
+.price-assessment-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.price-assessment-actions .ms{font-size:15px;}
+
 /* ADD / REFILL */
 .add-card{padding:28px;}
 .add-section-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:850;color:var(--ios-label);margin-bottom:22px;letter-spacing:-.02em;}
@@ -1065,58 +1088,58 @@ async function checkPin(attempt){
 
   <!-- STATS -->
   <div id="page-stats" class="page">
-    <div class="card" style="padding:18px 22px;margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">account_balance</span>Баланс складу</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
+    <div class="card stats-panel">
+      <div class="stats-panel-title"><span class="ms" aria-hidden="true">account_balance</span>Баланс складу</div>
+      <div class="stats-balance-grid">
         <div>
-          <div id="bal-total" style="font-size:26px;font-weight:800;color:var(--brand);">0</div>
-          <div style="font-size:12px;color:var(--ios-label3);">позицій на балансі</div>
+          <div id="bal-total" class="stats-metric-value">0</div>
+          <div class="stats-metric-label">позицій на балансі</div>
         </div>
         <div>
-          <div id="bal-internal" style="font-size:26px;font-weight:800;color:var(--ios-orange);">0</div>
-          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">home_repair_service</span> внутрішнього використання (не входять у баланс)</div>
+          <div id="bal-internal" class="stats-metric-value is-orange">0</div>
+          <div class="stats-metric-label"><span class="ms" aria-hidden="true">home_repair_service</span> внутрішнього використання (не входять у баланс)</div>
         </div>
         <div>
-          <div id="bal-value" style="font-size:26px;font-weight:800;color:var(--ios-green);">—</div>
-          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">payments</span> орієнтовна вартість залишку</div>
+          <div id="bal-value" class="stats-metric-value is-green">—</div>
+          <div class="stats-metric-label"><span class="ms" aria-hidden="true">payments</span> орієнтовна вартість залишку</div>
         </div>
         <div>
-          <div id="bal-filtered-value" style="font-size:26px;font-weight:800;color:var(--ios-green);">—</div>
-          <div id="bal-filtered-count" style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">filter_alt</span> за фільтрами вартості</div>
+          <div id="bal-filtered-value" class="stats-metric-value is-green">—</div>
+          <div id="bal-filtered-count" class="stats-metric-label"><span class="ms" aria-hidden="true">filter_alt</span> за фільтрами вартості</div>
         </div>
         <div>
-          <div id="bal-priced" style="font-size:26px;font-weight:800;color:var(--brand);">0</div>
-          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">sell</span> товарів з ціною</div>
+          <div id="bal-priced" class="stats-metric-value">0</div>
+          <div class="stats-metric-label"><span class="ms" aria-hidden="true">sell</span> товарів з ціною</div>
         </div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
-      <div class="card" style="padding:18px;"><div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">bar_chart</span>По категоріях</div><div id="statCats" style="display:flex;flex-direction:column;gap:12px;"></div></div>
-      <div class="card" style="padding:18px;overflow:hidden;"><div style="font-size:11px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;color:#ef4444;">warning</span>Потребують поповнення</div><div id="statLow" style="overflow:hidden;"></div></div>
+    <div class="stats-grid">
+      <div class="card stats-list-card"><div class="stats-panel-title is-purple"><span class="ms" aria-hidden="true">bar_chart</span>По категоріях</div><div id="statCats" class="stats-list-stack"></div></div>
+      <div class="card stats-list-card"><div class="stats-panel-title is-danger"><span class="ms" aria-hidden="true">warning</span>Потребують поповнення</div><div id="statLow"></div></div>
     </div>
-    <div class="card" style="padding:18px 22px;margin-bottom:16px;">
-      <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;margin-bottom:12px;"><span class="ms" style="font-size:16px;">filter_alt</span> Фільтр вартості складу</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;">
+    <div class="card stats-panel">
+      <div class="stats-panel-title"><span class="ms" aria-hidden="true">filter_alt</span> Фільтр вартості складу</div>
+      <div class="stats-filter-grid">
         <div><label>Категорія</label><select class="inp" id="valueCatFilter" data-stats-filter><option value="">Усі категорії</option></select></div>
         <div><label>Залишок</label><select class="inp" id="valueStockFilter" data-stats-filter><option value="all">Усі товари</option><option value="positive">Є залишок</option><option value="low">Мало (≤3)</option><option value="zero">Закінчились</option><option value="normal">В нормі (&gt;3)</option></select></div>
         <div><label>Тип</label><select class="inp" id="valueInternalFilter" data-stats-filter><option value="balance">Балансові</option><option value="all">Усі</option><option value="internal">Внутрішні</option></select></div>
         <div><label>Ціна</label><select class="inp" id="valuePriceFilter" data-stats-filter><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
       </div>
-      <div id="valueFilterSummary" style="font-size:12px;color:var(--ios-label3);margin-top:10px;line-height:1.45;">Показано баланс без внутрішнього використання.</div>
+      <div id="valueFilterSummary" class="stats-filter-summary">Показано баланс без внутрішнього використання.</div>
     </div>
-    <div class="card" style="padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <div class="card price-assessment-panel">
       <div>
-        <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">sell</span> Інтернет-оцінка цін</div>
-        <div id="priceSummary" style="font-size:12px;color:var(--ios-label3);margin-top:4px;">Ціни не оновлювались</div>
+        <div class="stats-panel-title"><span class="ms" aria-hidden="true">sell</span> Інтернет-оцінка цін</div>
+        <div id="priceSummary" class="price-assessment-summary">Ціни не оновлювались</div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
+      <div class="price-assessment-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" aria-hidden="true">travel_explore</span> Знайти ціни</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</button>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
-      <div class="card" style="padding:18px;overflow:hidden;"><div style="font-size:11px;font-weight:700;color:var(--ios-orange);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">sell</span>Товари без ціни</div><div id="statUnpriced"></div></div>
-      <div class="card" style="padding:22px;"><div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">history</span>Останні видачі</div><div id="statLog"></div></div>
+    <div class="stats-grid">
+      <div class="card stats-list-card"><div class="stats-panel-title is-warning"><span class="ms" aria-hidden="true">sell</span>Товари без ціни</div><div id="statUnpriced"></div></div>
+      <div class="card stats-list-card"><div class="stats-panel-title is-purple"><span class="ms" aria-hidden="true">history</span>Останні видачі</div><div id="statLog"></div></div>
     </div>
   </div>
 </div>

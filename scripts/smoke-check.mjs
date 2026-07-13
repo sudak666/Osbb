@@ -641,6 +641,39 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Sklad stats page should use class-based panels/grids and keep a single
+// low-stock stats target for renderStats().
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad stats page uses class-based panels';
+  const required = [
+    'class="card stats-panel"',
+    'class="stats-balance-grid"',
+    'class="stats-metric-value is-orange"',
+    'class="stats-metric-value is-green"',
+    'class="card stats-list-card"',
+    'id="statCats" class="stats-list-stack"',
+    'class="stats-filter-grid"',
+    'id="valueFilterSummary" class="stats-filter-summary"',
+    'class="card price-assessment-panel"',
+    'id="priceSummary" class="price-assessment-summary"',
+    'class="price-assessment-actions"',
+    '.stats-panel{padding:18px 22px;',
+    '.stats-filter-grid{display:grid;',
+    '.price-assessment-panel{padding:18px 22px;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const statLowCount = (text.match(/id="statLow"/g) || []).length;
+  if (missing.length || statLowCount !== 1) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${statLowCount !== 1 ? ` (statLow count: ${statLowCount})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad add/refill page should use class-based form/card helpers instead of
 // inline-heavy add-page chrome.
 {

@@ -194,6 +194,14 @@ The add/replenishment screen now uses class-based page helpers for the larger fo
 - scanner/status/internal-use controls use reusable `add-scanner-btn`, `barcode-add-status`, and `internal-use-toggle` classes;
 - the desktop hints and low-stock side cards use `add-help-*` / `add-low-*` classes, guarded by smoke checks.
 
+### Sklad stats page shell cleanup
+
+The statistics page now uses shared class-based panels and grids:
+
+- balance metrics, filter controls, price assessment, and list cards use `stats-*` / `price-assessment-*` classes instead of inline grid/card styles;
+- the duplicate `statLow` target was collapsed to a single list card so `renderStats()` has one stable destination;
+- smoke checks guard the stats shell classes and the single low-stock target.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
