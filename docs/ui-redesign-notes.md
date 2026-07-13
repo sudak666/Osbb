@@ -218,6 +218,14 @@ Delete, delete-log, delete-PIN, and audit confirmation dialogs now share class-b
 - the delete PIN dialog uses `delete-pin-*` classes and keeps alert semantics on `delPinErr`;
 - the audit confirmation dialog uses `audit-confirm-*` classes, and smoke checks guard the confirmation shells plus the PIN keypad sequence.
 
+### Sklad edit movement modal cleanup
+
+Issue-log and receipt edit dialogs now share a class-based edit shell:
+
+- edit titles, subtitles, form stacks, helper notes, and actions use `edit-movement-*` classes;
+- receipt delete reuses the shared `confirm-*` confirmation shell;
+- smoke checks guard the edit shell markers and the corrected receipt-note wrapper.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

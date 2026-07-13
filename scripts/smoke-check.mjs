@@ -644,6 +644,37 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Edit movement modals (issue log and receipt edits) should share the same
+// class-based edit shell, and receipt delete should reuse confirm-modal.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad edit movement modals use class-based shells';
+  const required = [
+    'class="modal edit-movement-modal"',
+    'class="edit-movement-title"',
+    'class="edit-movement-subtitle"',
+    'class="edit-movement-form"',
+    'class="edit-movement-note"',
+    'class="edit-movement-actions"',
+    'id="delReceiptItemName" class="confirm-target"',
+    'data-sklad-action="delete-receipt-confirm"',
+    'data-sklad-action="edit-log-confirm"',
+    'data-sklad-action="edit-receipt-confirm"',
+    '.edit-movement-modal{width:400px;',
+    '.edit-movement-form{display:flex;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const malformedReceiptDiv = text.includes('<div>\n      <div>\n        <label>Примітка</label>');
+  if (missing.length || malformedReceiptDiv) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${malformedReceiptDiv ? ' (malformed receipt note wrapper)' : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Delete, delete-log, delete-PIN and audit confirmation modals should use
 // reusable class-based confirmation shells.
 {

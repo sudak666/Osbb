@@ -263,6 +263,18 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 
 
 
+
+/* EDIT MOVEMENT MODALS */
+.edit-movement-modal{width:400px;}
+.edit-movement-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:750;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;}
+.edit-movement-title .ms{font-size:18px;}
+.edit-movement-subtitle{font-size:13px;color:var(--ios-gray);margin-bottom:18px;}
+.edit-movement-form{display:flex;flex-direction:column;gap:14px;}
+.edit-movement-note{font-size:12px;color:var(--ios-gray);margin-top:12px;line-height:1.45;}
+.edit-movement-actions{display:flex;gap:10px;margin-top:18px;}
+.edit-movement-actions .btn{flex:1;justify-content:center;}
+.edit-movement-actions .ms{font-size:16px;}
+
 /* CONFIRM / PIN MODALS */
 .confirm-modal{width:380px;}
 .confirm-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:8px;letter-spacing:-.02em;}
@@ -1295,10 +1307,10 @@ async function checkPin(attempt){
 
 <!-- EDIT LOG MODAL -->
 <div class="modal-bg" id="editLogModal" data-modal-backdrop="editLogModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати видачу</h3>
-    <p id="editLogItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
-    <div style="display:flex;flex-direction:column;gap:14px;">
+  <div class="modal edit-movement-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="edit-movement-title"><span class="ms" aria-hidden="true">edit</span> Редагувати видачу</h3>
+    <p id="editLogItemName" class="edit-movement-subtitle"></p>
+    <div class="edit-movement-form">
       <div>
         <label>Кількість</label>
         <input type="number" class="inp" id="editLogQty" step="any">
@@ -1316,33 +1328,33 @@ async function checkPin(attempt){
         <input type="text" class="inp" id="editLogNote">
       </div>
     </div>
-    <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
-    <div style="display:flex;gap:10px;margin-top:18px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editLogModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+    <p class="edit-movement-note">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
+    <div class="edit-movement-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="editLogModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="edit-log-confirm"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE RECEIPT MODAL -->
 <div class="modal-bg" id="delReceiptModal" data-modal-backdrop="delReceiptModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
-    <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис приходу?</h3>
-    <p id="delReceiptItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
-    <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
-    <div style="display:flex;gap:10px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delReceiptModal">Скасувати</button>
-      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+  <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="confirm-title is-danger"><span class="ms" aria-hidden="true">delete</span> Видалити запис приходу?</h3>
+    <p id="delReceiptItemName" class="confirm-target"></p>
+    <p class="confirm-copy">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="delReceiptModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" data-sklad-action="delete-receipt-confirm"><span class="ms" aria-hidden="true">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- EDIT RECEIPT MODAL -->
 <div class="modal-bg" id="editReceiptModal" data-modal-backdrop="editReceiptModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати прихід</h3>
-    <p id="editReceiptItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
-    <div style="display:flex;flex-direction:column;gap:14px;">
+  <div class="modal edit-movement-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="edit-movement-title"><span class="ms" aria-hidden="true">edit</span> Редагувати прихід</h3>
+    <p id="editReceiptItemName" class="edit-movement-subtitle"></p>
+    <div class="edit-movement-form">
       <div>
         <label>Кількість</label>
         <input type="number" class="inp" id="editReceiptQty" step="any">
@@ -1360,10 +1372,10 @@ async function checkPin(attempt){
         <input type="text" class="inp" id="editReceiptNote">
       </div>
     </div>
-    <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
-    <div style="display:flex;gap:10px;margin-top:18px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editReceiptModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+    <p class="edit-movement-note">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
+    <div class="edit-movement-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="editReceiptModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="edit-receipt-confirm"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
     </div>
   </div>
 </div>
