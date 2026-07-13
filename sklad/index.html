@@ -152,6 +152,15 @@ nav{margin-top:6px;flex:1;}
 .main{margin-left:var(--sb);min-height:100vh;}
 .topbar{background:var(--ios-topbar-glass);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);border-bottom:1px solid var(--border-subtle);padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 8px 28px rgba(15,23,42,.04);}
 .topbar h2{font-weight:850;font-size:var(--text-xl);line-height:var(--leading-tight);color:var(--ios-label);letter-spacing:-.045em;}
+.topbar-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;}
+.topbar-title-icon{font-size:18px;margin-right:6px;}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.topbar-icon-btn{padding:6px 10px;}
+.topbar-icon-btn .ms{font-size:20px;}
+.topbar-refresh{white-space:nowrap;}
+.topbar-refresh .ms{font-size:18px;}
+.topbar-excel-icon{font-size:16px;}
+
 .sync-status{display:none;align-items:center;gap:4px;font-size:11px;color:var(--ios-label3);white-space:nowrap;}
 .sync-status.is-visible{display:inline-flex;}
 .sync-status.is-syncing{color:var(--brand);}
@@ -220,6 +229,159 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .icon-action{width:28px;height:28px;border:0;border-radius:10px;background:var(--surface-2);color:var(--ios-label3);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
 .icon-action.danger{color:var(--danger);}
 
+
+/* RECEIPTS & AUDIT WORKFLOWS */
+.receipts-toolbar,.audit-toolbar{position:sticky;top:74px;z-index:8;margin-bottom:16px;padding:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-xl);background:color-mix(in srgb,var(--surface-1) 88%,transparent);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);box-shadow:var(--shadow-sm);}
+.receipts-toolbar-row,.audit-toolbar-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.receipts-search-row,.audit-search-row{display:grid;grid-template-columns:minmax(220px,320px) minmax(160px,1fr) auto;gap:10px;align-items:center;margin-top:12px;}
+.audit-progress-wrap{display:flex;align-items:center;gap:10px;min-width:220px;}
+.audit-progress-wrap .pbar{flex:1;margin-top:0;}
+.audit-legend{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.audit-legend-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:var(--surface-1);border:1px solid var(--border-subtle);box-shadow:var(--shadow-xs);font-size:12px;font-weight:750;color:var(--ios-label3);}
+.audit-legend-dot{width:10px;height:10px;border-radius:4px;display:inline-block;border:1px solid currentColor;}
+.audit-legend-dot.surplus{background:#dcfce7;color:#86efac;}
+.audit-legend-dot.shortage{background:#fee2e2;color:#fca5a5;}
+.audit-legend-dot.pending{background:var(--ios-gray6);color:var(--ios-sep);}
+.audit-list{display:flex;flex-direction:column;gap:8px;}
+.audit-item{--audit-bg:var(--surface-1);--audit-border:var(--border-subtle);background:var(--audit-bg);border:1px solid var(--audit-border);border-radius:18px;padding:13px 14px;display:flex;align-items:center;gap:12px;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,border-color var(--motion-base) ease;box-shadow:var(--shadow-xs);}
+.audit-item:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+.audit-item.is-pending{--audit-bg:var(--surface-1);}
+.audit-item.is-surplus,.audit-item.is-match{--audit-bg:color-mix(in srgb,var(--success) 8%,var(--surface-1));--audit-border:rgba(34,197,94,.28);}
+.audit-item.is-shortage{--audit-bg:color-mix(in srgb,var(--danger) 8%,var(--surface-1));--audit-border:rgba(239,68,68,.28);}
+.audit-item-icon{font-size:22px;flex-shrink:0;}
+.audit-item-main{flex:1;min-width:0;}
+.audit-item-title{font-weight:750;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.audit-item-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--ios-label3);margin-top:4px;}
+.audit-diff{font-size:12px;font-weight:850;}
+.audit-diff.good{color:var(--success);}
+.audit-diff.bad{color:var(--danger);}
+.audit-item-control{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.audit-input-row{display:flex;align-items:center;gap:6px;}
+.audit-qty-input{width:82px;padding:8px 10px;border-radius:12px;border:1px solid var(--audit-border);font-size:15px;font-weight:800;text-align:center;background:var(--surface-1);color:var(--ios-label);outline:none;-webkit-appearance:none;box-shadow:var(--shadow-xs);}
+.audit-reset-btn{font-size:11px;color:var(--ios-label3);background:none;border:none;cursor:pointer;padding:2px 0;font-weight:700;}
+.receipt-mobile-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ios-sep);}
+.receipt-mobile-icon{width:38px;height:38px;border-radius:16px;background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(34,197,94,.08));display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--success);}
+.receipt-mobile-main{flex:1;min-width:0;}
+.receipt-mobile-title{font-weight:750;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.receipt-mobile-meta{font-size:11px;color:var(--ios-label3);margin-top:2px;line-height:1.35;}
+.receipt-mobile-side{font-weight:850;color:var(--success);font-size:13px;flex-shrink:0;text-align:right;}
+.receipt-mobile-unit{font-size:10px;font-weight:500;color:var(--ios-label3);}
+.receipt-mobile-actions{display:flex;gap:4px;justify-content:flex-end;margin-top:4px;}
+
+
+
+
+
+
+/* EDIT MOVEMENT MODALS */
+.edit-movement-modal{width:400px;}
+.edit-movement-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:750;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;}
+.edit-movement-title .ms{font-size:18px;}
+.edit-movement-subtitle{font-size:13px;color:var(--ios-gray);margin-bottom:18px;}
+.edit-movement-form{display:flex;flex-direction:column;gap:14px;}
+.edit-movement-note{font-size:12px;color:var(--ios-gray);margin-top:12px;line-height:1.45;}
+.edit-movement-actions{display:flex;gap:10px;margin-top:18px;}
+.edit-movement-actions .btn{flex:1;justify-content:center;}
+.edit-movement-actions .ms{font-size:16px;}
+
+/* CONFIRM / PIN MODALS */
+.confirm-modal{width:380px;}
+.confirm-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:8px;letter-spacing:-.02em;}
+.confirm-title.is-danger{color:#ef4444;}
+.confirm-title .ms{font-size:18px;}
+.confirm-target{font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;}
+.confirm-copy{font-size:12px;color:var(--ios-gray);margin-bottom:20px;line-height:1.45;}
+.confirm-actions{display:flex;gap:10px;}
+.confirm-actions .btn{flex:1;justify-content:center;}
+.confirm-actions .ms{font-size:16px;}
+.delete-pin-modal{width:320px;text-align:center;background:#1C1C1E;}
+.delete-pin-title{font-size:16px;font-weight:750;color:#fff;margin-bottom:4px;letter-spacing:-.3px;}
+.delete-pin-subtitle{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;}
+.delete-pin-error{min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;}
+.pin-key .ms{font-size:20px;}
+.audit-confirm-modal{width:420px;}
+.audit-confirm-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:750;color:var(--ios-label);margin-bottom:6px;letter-spacing:-.3px;}
+.audit-confirm-title .ms{font-size:18px;}
+.audit-summary-box{background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;}
+.audit-confirm-actions{display:flex;gap:10px;margin-top:16px;}
+.audit-confirm-actions .btn{flex:1;justify-content:center;}
+.audit-confirm-actions .ms{font-size:16px;}
+
+/* QUICK / PHOTO MODALS */
+.quick-issue-title{font-size:15px;line-height:1.4;margin-bottom:4px;color:var(--ios-label);}
+.quick-issue-meta{font-size:13px;color:var(--ios-label3);margin-bottom:18px;}
+.quick-issue-meta strong,.quick-issue-meta span{font-weight:850;color:#6366f1;}
+.quick-issue-form{display:flex;flex-direction:column;gap:13px;}
+.quick-person-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+.quick-person-chip{padding:5px 10px;font-size:12px;}
+.quick-modal-actions{display:flex;gap:10px;margin-top:4px;}
+.quick-modal-actions .btn{flex:1;justify-content:center;}
+.quick-modal-actions .ms{font-size:16px;}
+.photo-modal{width:420px;}
+.photo-modal-title{font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);}
+.photo-current{margin-bottom:14px;}
+.photo-current-img{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;}
+.photo-empty-state{text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;}
+.photo-upload-box{border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;}
+.photo-upload-title{display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:650;}
+.photo-upload-title .ms{font-size:15px;}
+.photo-file-input{display:none;}
+.photo-status{font-size:12px;color:#a5b4fc;margin-top:8px;}
+.photo-modal-actions{margin-top:14px;display:flex;gap:8px;justify-content:flex-end;}
+.photo-delete-btn{display:none;}
+.photo-delete-btn .ms{font-size:14px;}
+
+/* STATS PAGE */
+.stats-panel{padding:18px 22px;margin-bottom:16px;}
+.stats-panel-title{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:850;color:var(--brand);text-transform:uppercase;letter-spacing:.03em;margin-bottom:12px;}
+.stats-panel-title .ms{font-size:16px;}
+.stats-panel-title.is-purple{color:#6366f1;}
+.stats-panel-title.is-danger{color:#ef4444;}
+.stats-panel-title.is-warning{color:var(--ios-orange);}
+.stats-balance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;}
+.stats-metric-value{font-size:26px;font-weight:850;color:var(--brand);letter-spacing:-.04em;}
+.stats-metric-value.is-orange{color:var(--ios-orange);}
+.stats-metric-value.is-green{color:var(--ios-green);}
+.stats-metric-label{font-size:12px;color:var(--ios-label3);line-height:1.35;}
+.stats-metric-label .ms{font-size:13px;}
+.stats-list-card{padding:18px;overflow:hidden;}
+.stats-list-stack{display:flex;flex-direction:column;gap:12px;}
+.stats-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;}
+.stats-filter-summary{font-size:12px;color:var(--ios-label3);margin-top:10px;line-height:1.45;}
+.price-assessment-panel{padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.price-assessment-summary{font-size:12px;color:var(--ios-label3);margin-top:4px;}
+.price-assessment-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.price-assessment-actions .ms{font-size:15px;}
+
+/* ADD / REFILL */
+.add-card{padding:28px;}
+.add-section-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:850;color:var(--ios-label);margin-bottom:22px;letter-spacing:-.02em;}
+.add-section-title .ms{font-size:18px;}
+.add-section-title.is-refill .ms{color:var(--success);}
+.add-form-stack{display:flex;flex-direction:column;gap:16px;}
+.add-new-section{margin-top:32px;padding-top:24px;border-top:1px solid var(--border-subtle);}
+.add-new-stack{display:flex;flex-direction:column;gap:14px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.refill-info{display:none;background:rgba(34,197,94,.10);border:1.5px solid rgba(34,197,94,.28);border-radius:10px;padding:12px;font-size:13px;color:#166534;}
+.refill-info strong,.refill-info span{font-weight:850;}
+.form-note{color:var(--ios-gray);font-weight:400;}
+.full-action{width:100%;justify-content:center;}
+.full-action .ms{font-size:16px;}
+.new-name-matches{display:none;margin-top:8px;}
+.add-scanner-btn{width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;}
+.add-scanner-btn .ms{font-size:14px;}
+.barcode-add-status{display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:650;}
+.internal-use-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;padding:10px 12px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:12px;}
+.internal-use-toggle input{width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;}
+.internal-use-toggle span{font-weight:650;color:var(--ios-label2);font-size:12.5px;line-height:1.4;}
+.add-side-stack{display:flex;flex-direction:column;gap:16px;}
+.add-help-card{padding:20px;background:linear-gradient(135deg,#f0f0ff,#ede9fe);}
+.add-help-title{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:10px;}
+.add-help-title .ms,.add-help-list .ms,.add-low-title .ms{font-size:15px;}
+.add-help-list{font-size:12.5px;color:#6b21a8;line-height:2.2;list-style:none;padding:0;margin:0;}
+.add-low-card{padding:20px;}
+.add-low-title{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+
 /* STAT CARDS */
 .stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.26) inset,var(--shadow-lg);filter:saturate(1.04);}
@@ -270,6 +432,7 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .custom-select-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left;}
 .custom-select-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.16);padding:6px;max-height:280px;overflow-y:auto;}
 .custom-select-panel.hidden{display:none;}
+.custom-select-search{margin:8px;width:calc(100% - 16px);}
 .custom-select-option{padding:9px 12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;color:var(--ios-label);transition:background .12s;}
 .custom-select-option:hover,.custom-select-option:focus-visible{background:var(--ios-gray6);outline:none;}
 .custom-select-option.active{background:var(--brand);color:#fff;}
@@ -320,6 +483,49 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .modal{background:var(--ios-card-glass);border:1px solid rgba(255,255,255,.55);backdrop-filter:saturate(180%) blur(28px);-webkit-backdrop-filter:saturate(180%) blur(28px);border-radius:28px;padding:24px;width:440px;max-width:95vw;box-shadow:var(--shadow-lg);animation:popIn .22s var(--ease-spring);}
 @keyframes popIn{from{transform:translateY(10px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 
+
+
+.price-lookup-modal{max-width:560px;}
+.price-lookup-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:8px;letter-spacing:-.02em;}
+.price-lookup-title .ms{font-size:18px;}
+.price-search-row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:10px;margin-bottom:12px;}
+.price-search-row .btn{justify-content:center;}
+.price-search-row .ms,.price-modal-actions .ms{font-size:15px;}
+.price-results-panel{min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);}
+.price-modal-actions{display:flex;gap:8px;margin-top:14px;}
+.price-modal-actions .btn{flex:1;justify-content:center;}
+
+.price-results-state{padding:18px;text-align:center;color:var(--ios-gray);}
+.price-results-state.is-loading{padding:22px;}
+.price-results-state.is-error{text-align:left;color:var(--ios-red);font-size:13px;line-height:1.5;}
+.price-result-card{padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;}
+.price-result-card:last-child{border-bottom:none;}
+.price-result-main{flex:1;min-width:0;}
+.price-result-title{font-weight:750;color:var(--ios-label);font-size:13px;line-height:1.35;}
+.price-result-meta{font-size:12px;color:var(--ios-label3);margin-top:3px;}
+.price-result-link{color:var(--brand);font-weight:750;}
+.price-result-side{text-align:right;flex-shrink:0;}
+.price-result-value{font-weight:900;color:var(--ios-green);white-space:nowrap;}
+.price-result-apply{margin-top:6px;}
+.manual-price-modal{max-width:460px;}
+.manual-price-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.02em;}
+.manual-price-title .ms{font-size:18px;}
+.manual-price-form{display:flex;flex-direction:column;gap:10px;}
+.manual-price-note{color:var(--ios-gray);font-weight:400;}
+.manual-price-actions{display:flex;gap:8px;margin-top:14px;}
+.manual-price-actions .btn{flex:1;justify-content:center;}
+.manual-price-actions .ms{font-size:15px;}
+
+.price-badge-btn{padding:6px 9px;font-size:12px;}
+.price-badge-btn .ms{font-size:14px;}
+.price-badge-btn.has-price{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;}
+.price-badge-value{font-weight:900;color:var(--ios-green);white-space:nowrap;}
+.price-badge-source{font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+
+#manualPriceModal .modal{user-select:none;-webkit-user-select:none;}
+#manualPriceModal input{user-select:text;-webkit-user-select:text;}
+#manualPriceModal .custom-select-wrap,#manualPriceModal .custom-select-btn,#manualPriceModal label,#manualPriceModal button{user-select:none;-webkit-user-select:none;}
+
 /* PHOTOS */
 .photo-thumb{width:48px;height:48px;border-radius:12px;object-fit:cover;border:1px solid var(--border-subtle);cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease;box-shadow:var(--shadow-xs);}
 .photo-thumb:hover{transform:translateY(-1px) scale(1.04);box-shadow:var(--shadow-sm);}
@@ -329,6 +535,9 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
 #lightbox.open{display:flex;}
 #lightbox img{max-width:90vw;max-height:90vh;border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.38);}
+.lightbox-delete-btn{position:absolute;top:18px;right:18px;z-index:2;display:none;}
+.lightbox-delete-btn .ms{font-size:14px;}
+.lightbox-img{max-width:90vw;max-height:90vh;border-radius:12px;}
 
 .log-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--ios-sep);overflow:hidden;max-width:100%;min-width:0;}
 .log-row:last-child{border-bottom:none;}
@@ -440,16 +649,19 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   #logMobileList{}
   #page-receipts .card table{display:none;}
   #recMobileList{display:block;}
+  .receipts-toolbar,.audit-toolbar{position:relative;top:auto;padding:12px;margin-bottom:12px;border-radius:20px;}
+  .receipts-search-row,.audit-search-row{grid-template-columns:1fr;}
+  .audit-toolbar-row{align-items:flex-start;}
+  .audit-progress-wrap{min-width:0;width:100%;}
+  .audit-item{align-items:flex-start;gap:9px;}
+  .audit-item-meta{gap:4px;}
+  .audit-qty-input{width:70px;font-size:16px;}
   /* Add page */
   #page-add .card{padding:14px!important;}
   #page-add h3{font-size:15px!important;margin-bottom:14px!important;}
   #page-add .split{display:flex!important;flex-direction:column!important;}
-  #page-audit .card{padding:12px 14px!important;}
+  #page-audit .audit-toolbar .btn{font-size:12px!important;padding:6px 10px!important;}
   #auditList>div{padding:10px 12px!important;}
-  #auditList input[type=number]{width:70px!important;font-size:17px!important;}
-  #page-audit>div:first-child .btn{font-size:12px!important;padding:6px 10px!important;}
-  #page-audit>div:first-child{flex-direction:column!important;}
-  #page-audit>div:first-child>div:first-child{flex-direction:column!important;gap:8px!important;}
 }
 
 /* ===BOTTOM NAV iOS style=== */
@@ -508,7 +720,28 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 #barcodeAddReader,#qrReader{width:100%;border-radius:14px;overflow:hidden;background:#000;}
 #barcodeAddReader video,#qrReader video{width:100%!important;}
 .barcode-not-found{background:#FFF3CD;border:1px solid #FFE082;border-radius:12px;padding:12px;margin-top:12px;font-size:13px;color:#7A5200;font-weight:500;display:none;}
+
+.barcode-modal-title{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:750;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.03em;}
+.barcode-modal-title .ms{font-size:18px;}
+.barcode-scan-status{text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;}
+.barcode-not-found .ms{font-size:15px;}
+.barcode-not-found .btn{width:100%;justify-content:center;}
+.barcode-not-found .btn-primary{margin-top:10px;}
+.barcode-not-found .btn-ghost{margin-top:6px;}
+.barcode-manual-entry{margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);}
+.barcode-manual-title{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:650;}
+.barcode-manual-title .ms{font-size:14px;}
+.barcode-manual-row{display:flex;gap:8px;}
+.barcode-manual-row .inp{flex:1;font-size:15px;}
+.barcode-manual-row .btn{flex-shrink:0;white-space:nowrap;}
+.barcode-modal-close{margin-top:12px;}
+.barcode-modal-close .btn{width:100%;justify-content:center;}
 .qr-result{background:var(--ios-blue-light);border-radius:10px;padding:12px;margin-top:12px;font-size:13px;color:var(--ios-blue);font-weight:600;display:none;}
+.qr-modal-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.02em;}
+.qr-modal-title .ms{font-size:18px;}
+.qr-modal-copy{font-size:12px;color:var(--ios-label3);margin-top:10px;text-align:center;font-weight:650;}
+.qr-modal-actions{display:flex;gap:8px;margin-top:14px;}
+.qr-modal-actions .btn{flex:1;justify-content:center;}
 
 /* ===HISTORY MODAL=== */
 #histModal .modal{width:500px;max-height:80vh;overflow-y:auto;}
@@ -516,6 +749,15 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .hist-row:last-child{border-bottom:none;}
 .hist-out{color:var(--ios-red);font-weight:700;}
 .hist-in{color:var(--ios-green);font-weight:700;}
+
+.history-modal-title{font-size:15px;font-weight:850;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.02em;}
+.history-modal-subtitle{font-size:12px;color:var(--ios-label3);margin-bottom:16px;font-weight:650;}
+.history-modal-list{max-height:min(52dvh,420px);overflow-y:auto;}
+.history-modal-state{text-align:center;color:var(--ios-label3);padding:20px;}
+.history-modal-close{margin-top:14px;}
+.hist-main{flex:1;min-width:0;}
+.hist-person{font-weight:700;color:var(--ios-label);}
+.hist-meta{font-size:11px;color:var(--ios-label3);}
 
 .item-more{position:relative;flex-shrink:0;}
 .item-more summary{list-style:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(116,116,128,.10);color:var(--brand);cursor:pointer;}
@@ -528,6 +770,9 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 /* ===CHART=== */
 #chartModal .modal{width:600px;}
 canvas#stockChart{width:100%!important;max-height:300px;}
+.chart-modal-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:850;color:var(--ios-label);margin-bottom:16px;letter-spacing:-.02em;}
+.chart-modal-title .ms{font-size:18px;}
+.chart-modal-close{margin-top:16px;}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
@@ -566,9 +811,9 @@ canvas#stockChart{width:100%!important;max-height:300px;}
       <button type="button" class="pin-key" data-auth-pin-key="7">7</button>
       <button type="button" class="pin-key" data-auth-pin-key="8">8</button>
       <button type="button" class="pin-key" data-auth-pin-key="9">9</button>
-      <button type="button" class="pin-key" data-auth-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
+      <button type="button" class="pin-key" data-auth-pin-key="C" aria-label="Очистити PIN"><span class="ms" aria-hidden="true">close</span></button>
       <button type="button" class="pin-key" data-auth-pin-key="0">0</button>
-      <button type="button" class="pin-key" data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button type="button" class="pin-key" data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" aria-hidden="true">backspace</span></button>
     </div>
   </div>
 </div>
@@ -684,12 +929,16 @@ async function checkPin(attempt){
 
 <div class="main">
   <div class="topbar">
-    <h2 id="pageTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;font-size:15px;"><span class="ms" style="font-size:18px;vertical-align:-4px;margin-right:6px;">inventory_2</span>Товари на складі</h2>
-    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Товари на складі</h2>
+    <div class="topbar-actions">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
-      <button type="button" class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="chart" style="padding:6px 10px;" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true" style="font-size:20px;">bar_chart</span></button><button type="button" class="btn btn-ghost btn-sm topbar-right-excel" data-sklad-action="price-refresh" style="padding:6px 10px;" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true" style="font-size:20px;">sell</span></button><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="qr" style="padding:6px 10px;" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true" style="font-size:20px;">qr_code_scanner</span></button><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="receipts" style="padding:6px 10px;" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true" style="font-size:20px;">move_to_inbox</span></button><button type="button" class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms" aria-hidden="true" style="font-size:16px;vertical-align:-3px;">upload_file</span> Excel</button>
-      <button type="button" class="btn btn-ghost btn-sm" id="refreshBtn" data-sklad-action="refresh" style="white-space:nowrap;"><span class="ms" aria-hidden="true" style="font-size:18px;vertical-align:-4px;">sync</span> Оновити</button>
-      <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="theme" style="padding:6px 10px;" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true" style="font-size:20px;">dark_mode</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-right-excel topbar-icon-btn" data-sklad-action="chart" data-tip="Графік" aria-label="Графік"><span class="ms" aria-hidden="true">bar_chart</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-right-excel topbar-icon-btn" data-sklad-action="price-refresh" data-tip="Оцінка цін" aria-label="Оцінка цін"><span class="ms" aria-hidden="true">sell</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true">qr_code_scanner</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="receipts" data-tip="Прихід товару" aria-label="Прихід товару"><span class="ms" aria-hidden="true">move_to_inbox</span></button>
+      <button type="button" class="btn btn-excel btn-sm topbar-right-excel" data-sklad-action="export-excel"><span class="ms topbar-excel-icon" aria-hidden="true">upload_file</span> Excel</button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-refresh" id="refreshBtn" data-sklad-action="refresh"><span class="ms" aria-hidden="true">sync</span> Оновити</button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="theme" data-tip="Змінити тему" aria-label="Змінити тему"><span class="ms" id="themeToggleIcon" aria-hidden="true">dark_mode</span></button>
     </div>
   </div>
 
@@ -765,7 +1014,7 @@ async function checkPin(attempt){
           </div>
         </div>
         <div class="form-stack">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select data-searchable="1" data-search-placeholder="Пошук товару для видачі..."><option value="">— Оберіть товар —</option></select></div>
           <div id="issueInfo" class="info-callout" style="display:none;">
             <div class="info-row"><span>Залишок:</span><strong id="issueInfoQty"></strong></div>
           </div>
@@ -816,48 +1065,48 @@ async function checkPin(attempt){
   <!-- ADD -->
   <div id="page-add" class="page">
     <div class="split">
-      <div class="card" style="padding:28px;">
-        <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;display:flex;align-items:center;gap:8px;"><span class="ms" style="color:var(--ios-green);">add_circle</span>Поповнити залишок</h3>
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select><option value="">— Оберіть товар —</option></select></div>
-          <div id="refillInfo" style="display:none;background:#f0fff4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;font-size:13px;color:#166534;">Поточний залишок: <span id="refillCur" style="font-weight:800;"></span></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
+      <div class="card add-card">
+        <h3 class="add-section-title is-refill"><span class="ms" aria-hidden="true">add_circle</span>Поповнити залишок</h3>
+        <div class="add-form-stack">
+          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-placeholder="Пошук товару для поповнення..."><option value="">— Оберіть товар —</option></select></div>
+          <div id="refillInfo" class="refill-info">Поточний залишок: <span id="refillCur"></span></div>
+          <div class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
           </div>
-          <div><label>Постачальник <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
-          <div><label>Примітка <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
-          <button type="button" class="btn btn-success" style="width:100%;justify-content:center;" data-sklad-action="refill-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">add</span> Поповнити</button>
+          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
+          <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
+          <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
         </div>
-        <div style="margin-top:32px;padding-top:24px;border-top:1px solid #f0eeff;">
-          <h3 style="font-size:17px;font-weight:800;color:var(--ios-label);margin-bottom:22px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fiber_new</span> Новий товар</h3>
-          <div style="display:flex;flex-direction:column;gap:14px;">
-            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" style="display:none;margin-top:8px;"></div><button type="button" class="btn btn-ghost" data-sklad-action="barcode-add-open" style="width:100%;justify-content:center;margin-top:8px;padding:9px;font-size:13px;border-style:dashed;"><span class="ms" style="font-size:14px;vertical-align:-2px;">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" style="display:none;margin-top:6px;font-size:12px;color:#15803d;font-weight:600;"></div></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="two-col">
+        <div class="add-new-section">
+          <h3 class="add-section-title"><span class="ms" aria-hidden="true">fiber_new</span> Новий товар</h3>
+          <div class="add-new-stack">
+            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" class="new-name-matches"></div><button type="button" class="btn btn-ghost add-scanner-btn" data-sklad-action="barcode-add-open"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" class="barcode-add-status"></div></div>
+            <div class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
             </div>
             <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;padding:10px 12px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:12px;">
-              <input type="checkbox" id="newInternal" style="width:18px;height:18px;accent-color:var(--ios-orange);cursor:pointer;flex-shrink:0;">
-              <span style="font-weight:600;color:var(--ios-label2);font-size:12.5px;line-height:1.4;">Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
+            <label class="internal-use-toggle">
+              <input type="checkbox" id="newInternal">
+              <span>Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
             </label>
-            <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-sklad-action="add-new-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Додати товар</button>
+            <button type="button" class="btn btn-primary full-action" data-sklad-action="add-new-submit"><span class="ms" aria-hidden="true">check_circle</span> Додати товар</button>
           </div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:16px;" class="pc-only">
-        <div class="card" style="padding:20px;background:linear-gradient(135deg,#f0f0ff,#ede9fe);">
-          <div style="font-size:13px;font-weight:700;color:#4c1d95;margin-bottom:10px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">lightbulb</span> Підказки</div>
-          <ul style="font-size:12.5px;color:#6b21a8;line-height:2.2;list-style:none;padding:0;margin:0;">
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">upload_file</span> <b>Excel</b> — на ПК, кнопка вгорі</li>
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">photo_camera</span> <b>Фото</b> — клік <span class="ms" style="font-size:14px;vertical-align:-2px;">photo_camera</span> в таблиці товарів</li>
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> <b>Видалення</b> — кнопка <span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> в рядку</li>
-            <li><span class="ms" style="font-size:14px;vertical-align:-2px;">notifications</span> <b>Сповіщення</b> — автоматично</li>
+      <div class="add-side-stack pc-only">
+        <div class="card add-help-card">
+          <div class="add-help-title"><span class="ms" aria-hidden="true">lightbulb</span> Підказки</div>
+          <ul class="add-help-list">
+            <li><span class="ms" aria-hidden="true">upload_file</span> <b>Excel</b> — на ПК, кнопка вгорі</li>
+            <li><span class="ms" aria-hidden="true">photo_camera</span> <b>Фото</b> — клік <span class="ms" aria-hidden="true">photo_camera</span> в таблиці товарів</li>
+            <li><span class="ms" aria-hidden="true">delete</span> <b>Видалення</b> — кнопка <span class="ms" aria-hidden="true">delete</span> в рядку</li>
+            <li><span class="ms" aria-hidden="true">notifications</span> <b>Сповіщення</b> — автоматично</li>
           </ul>
         </div>
-        <div class="card" style="padding:20px;">
-          <div style="font-size:12px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> Потребують поповнення</div>
+        <div class="card add-low-card">
+          <div class="add-low-title"><span class="ms" aria-hidden="true">warning</span> Потребують поповнення</div>
           <div id="addLowList"></div>
         </div>
       </div>
@@ -866,47 +1115,49 @@ async function checkPin(attempt){
 
   <!-- AUDIT -->
   <div id="page-audit" class="page">
-    <!-- Заголовок і контроли -->
-    <div class="card" style="padding:16px 20px;margin-bottom:12px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div class="audit-toolbar">
+      <div class="audit-toolbar-row">
         <div>
-          <div style="font-size:17px;font-weight:800;color:var(--ios-label);letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">fact_check</span> Інвентаризація складу</div>
-          <div id="auditDate" style="font-size:12px;color:var(--ios-gray);margin-top:2px;"></div>
+          <div class="workflow-kicker"><span class="ms" style="font-size:15px;vertical-align:-3px;">fact_check</span> Контроль залишків</div>
+          <h3 class="workflow-title">Інвентаризація складу</h3>
+          <div id="auditDate" class="workflow-copy"></div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="items-hero-actions">
           <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-zeros" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
           <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-current" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
-          <button type="button" class="btn btn-primary" data-sklad-action="audit-confirm-open" style="font-weight:700;"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити інвентаризацію</button>
+          <button type="button" class="btn btn-primary" data-sklad-action="audit-confirm-open"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити</button>
         </div>
       </div>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <div class="sw" style="flex:1;min-width:160px;max-width:280px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару..." data-render-audit-input></div>
-        <div id="auditResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
-        <div id="auditStats" style="font-size:12px;color:var(--ios-gray);"></div>
-        <div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width:180px;margin-top:0;"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div>
+      <div class="audit-search-row">
+        <div class="sw"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару..." data-render-audit-input></div>
+        <div id="auditResultSummary" class="list-summary" aria-live="polite"></div>
+        <div class="audit-progress-wrap"><div id="auditStats" class="list-summary"></div><div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div></div>
       </div>
     </div>
-
-    <!-- Легенда -->
-    <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-      <span style="font-size:12px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#dcfce7;display:inline-block;border:1px solid #86efac;"></span>Надлишок</span>
-      <span style="font-size:12px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#fee2e2;display:inline-block;border:1px solid #fca5a5;"></span>Нестача</span>
-      <span style="font-size:12px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--ios-gray6);display:inline-block;border:1px solid var(--ios-sep);"></span>Не перераховано</span>
+    <div class="audit-legend">
+      <span class="audit-legend-chip"><span class="audit-legend-dot surplus"></span>Надлишок</span>
+      <span class="audit-legend-chip"><span class="audit-legend-dot shortage"></span>Нестача</span>
+      <span class="audit-legend-chip"><span class="audit-legend-dot pending"></span>Не перераховано</span>
     </div>
-
-    <!-- Список товарів -->
-    <div id="auditList" style="display:flex;flex-direction:column;gap:6px;"></div>
+    <div id="auditList" class="audit-list"></div>
   </div>
 
   <!-- RECEIPTS -->
   <div id="page-receipts" class="page">
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук..." data-render-receipts-input></div>
-        <div id="recResultSummary" aria-live="polite" style="font-size:12px;color:var(--ios-label3);font-weight:600;"></div>
+    <div class="receipts-toolbar">
+      <div class="receipts-toolbar-row">
+        <div>
+          <div class="workflow-kicker"><span class="ms" style="font-size:15px;vertical-align:-3px;">move_to_inbox</span> Поповнення складу</div>
+          <h3 class="workflow-title">Прихід товару</h3>
+          <p class="workflow-copy">Швидко перевіряйте останні надходження, постачальників і примітки.</p>
+        </div>
+      </div>
+      <div class="receipts-search-row">
+        <div class="sw"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук по товару, постачальнику або примітці..." data-render-receipts-input></div>
+        <div id="recResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
-    <div class="card desktop-table" style="overflow:hidden;margin-bottom:16px;">
+    <div class="card desktop-table table-modern" style="overflow:hidden;margin-bottom:16px;">
       <table>
         <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Постачальник</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="recTable">
@@ -921,58 +1172,58 @@ async function checkPin(attempt){
 
   <!-- STATS -->
   <div id="page-stats" class="page">
-    <div class="card" style="padding:18px 22px;margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">account_balance</span>Баланс складу</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
+    <div class="card stats-panel">
+      <div class="stats-panel-title"><span class="ms" aria-hidden="true">account_balance</span>Баланс складу</div>
+      <div class="stats-balance-grid">
         <div>
-          <div id="bal-total" style="font-size:26px;font-weight:800;color:var(--brand);">0</div>
-          <div style="font-size:12px;color:var(--ios-label3);">позицій на балансі</div>
+          <div id="bal-total" class="stats-metric-value">0</div>
+          <div class="stats-metric-label">позицій на балансі</div>
         </div>
         <div>
-          <div id="bal-internal" style="font-size:26px;font-weight:800;color:var(--ios-orange);">0</div>
-          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">home_repair_service</span> внутрішнього використання (не входять у баланс)</div>
+          <div id="bal-internal" class="stats-metric-value is-orange">0</div>
+          <div class="stats-metric-label"><span class="ms" aria-hidden="true">home_repair_service</span> внутрішнього використання (не входять у баланс)</div>
         </div>
         <div>
-          <div id="bal-value" style="font-size:26px;font-weight:800;color:var(--ios-green);">—</div>
-          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">payments</span> орієнтовна вартість залишку</div>
+          <div id="bal-value" class="stats-metric-value is-green">—</div>
+          <div class="stats-metric-label"><span class="ms" aria-hidden="true">payments</span> орієнтовна вартість залишку</div>
         </div>
         <div>
-          <div id="bal-filtered-value" style="font-size:26px;font-weight:800;color:var(--ios-green);">—</div>
-          <div id="bal-filtered-count" style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">filter_alt</span> за фільтрами вартості</div>
+          <div id="bal-filtered-value" class="stats-metric-value is-green">—</div>
+          <div id="bal-filtered-count" class="stats-metric-label"><span class="ms" aria-hidden="true">filter_alt</span> за фільтрами вартості</div>
         </div>
         <div>
-          <div id="bal-priced" style="font-size:26px;font-weight:800;color:var(--brand);">0</div>
-          <div style="font-size:12px;color:var(--ios-label3);"><span class="ms" style="font-size:13px;vertical-align:-2px;">sell</span> товарів з ціною</div>
+          <div id="bal-priced" class="stats-metric-value">0</div>
+          <div class="stats-metric-label"><span class="ms" aria-hidden="true">sell</span> товарів з ціною</div>
         </div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
-      <div class="card" style="padding:18px;"><div style="font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">bar_chart</span>По категоріях</div><div id="statCats" style="display:flex;flex-direction:column;gap:12px;"></div></div>
-      <div class="card" style="padding:18px;overflow:hidden;"><div style="font-size:11px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;color:#ef4444;">warning</span>Потребують поповнення</div><div id="statLow" style="overflow:hidden;"></div></div>
+    <div class="stats-grid">
+      <div class="card stats-list-card"><div class="stats-panel-title is-purple"><span class="ms" aria-hidden="true">bar_chart</span>По категоріях</div><div id="statCats" class="stats-list-stack"></div></div>
+      <div class="card stats-list-card"><div class="stats-panel-title is-danger"><span class="ms" aria-hidden="true">warning</span>Потребують поповнення</div><div id="statLow"></div></div>
     </div>
-    <div class="card" style="padding:18px 22px;margin-bottom:16px;">
-      <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;margin-bottom:12px;"><span class="ms" style="font-size:16px;">filter_alt</span> Фільтр вартості складу</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;">
+    <div class="card stats-panel">
+      <div class="stats-panel-title"><span class="ms" aria-hidden="true">filter_alt</span> Фільтр вартості складу</div>
+      <div class="stats-filter-grid">
         <div><label>Категорія</label><select class="inp" id="valueCatFilter" data-stats-filter><option value="">Усі категорії</option></select></div>
         <div><label>Залишок</label><select class="inp" id="valueStockFilter" data-stats-filter><option value="all">Усі товари</option><option value="positive">Є залишок</option><option value="low">Мало (≤3)</option><option value="zero">Закінчились</option><option value="normal">В нормі (&gt;3)</option></select></div>
         <div><label>Тип</label><select class="inp" id="valueInternalFilter" data-stats-filter><option value="balance">Балансові</option><option value="all">Усі</option><option value="internal">Внутрішні</option></select></div>
         <div><label>Ціна</label><select class="inp" id="valuePriceFilter" data-stats-filter><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
       </div>
-      <div id="valueFilterSummary" style="font-size:12px;color:var(--ios-label3);margin-top:10px;line-height:1.45;">Показано баланс без внутрішнього використання.</div>
+      <div id="valueFilterSummary" class="stats-filter-summary">Показано баланс без внутрішнього використання.</div>
     </div>
-    <div class="card" style="padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <div class="card price-assessment-panel">
       <div>
-        <div style="font-size:12px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">sell</span> Інтернет-оцінка цін</div>
-        <div id="priceSummary" style="font-size:12px;color:var(--ios-label3);margin-top:4px;">Ціни не оновлювались</div>
+        <div class="stats-panel-title"><span class="ms" aria-hidden="true">sell</span> Інтернет-оцінка цін</div>
+        <div id="priceSummary" class="price-assessment-summary">Ціни не оновлювались</div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" style="font-size:15px;vertical-align:-3px;">travel_explore</span> Знайти ціни</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" style="font-size:15px;vertical-align:-3px;">edit</span> Ручна ціна</button>
+      <div class="price-assessment-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" aria-hidden="true">travel_explore</span> Знайти ціни</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</button>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="stats-grid">
-      <div class="card" style="padding:18px;overflow:hidden;"><div style="font-size:11px;font-weight:700;color:var(--ios-orange);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">sell</span>Товари без ціни</div><div id="statUnpriced"></div></div>
-      <div class="card" style="padding:22px;"><div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:6px;"><span class="ms" style="font-size:16px;">history</span>Останні видачі</div><div id="statLog"></div></div>
+    <div class="stats-grid">
+      <div class="card stats-list-card"><div class="stats-panel-title is-warning"><span class="ms" aria-hidden="true">sell</span>Товари без ціни</div><div id="statUnpriced"></div></div>
+      <div class="card stats-list-card"><div class="stats-panel-title is-purple"><span class="ms" aria-hidden="true">history</span>Останні видачі</div><div id="statLog"></div></div>
     </div>
   </div>
 </div>
@@ -980,14 +1231,14 @@ async function checkPin(attempt){
 <!-- QUICK MODAL -->
 <div class="modal-bg" id="qModal" data-modal-backdrop="qModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 id="qmName" style="font-size:15px;line-height:1.4;margin-bottom:4px;"></h3>
-    <p style="font-size:13px;color:var(--ios-label3);margin-bottom:18px;">Залишок: <span id="qmQtyShow" style="font-weight:800;color:#6366f1;"></span></p>
-    <div style="display:flex;flex-direction:column;gap:13px;">
+    <h3 id="qmName" class="quick-issue-title"></h3>
+    <p class="quick-issue-meta">Залишок: <span id="qmQtyShow"></span></p>
+    <div class="quick-issue-form">
       <div><label>Кількість</label><input type="number" class="inp" id="qmQtyI" min="0.1" step="0.1"></div>
-      <div><label>Кому видано</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm" style="padding:5px 10px;font-size:12px;" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
-      <div style="display:flex;gap:10px;margin-top:4px;">
-        <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="qModal">Скасувати</button>
-        <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="quick-issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати</button>
+      <div><label>Кому видано</label><div class="quick-person-row"><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
+      <div class="quick-modal-actions">
+        <button type="button" class="btn btn-ghost" data-modal-close="qModal">Скасувати</button>
+        <button type="button" class="btn btn-primary" data-sklad-action="quick-issue-submit"><span class="ms" aria-hidden="true">check_circle</span> Видати</button>
       </div>
     </div>
   </div>
@@ -995,17 +1246,17 @@ async function checkPin(attempt){
 
 <!-- PHOTO MODAL -->
 <div class="modal-bg" id="photoModal" data-modal-backdrop="photoModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
-    <h3 id="photoItemName" style="font-size:15px;line-height:1.4;margin-bottom:14px;color:var(--ios-label);"></h3>
-    <div id="photoCurrent" style="margin-bottom:14px;"></div>
-    <div style="border:2px dashed #c4b5fd;border-radius:12px;padding:20px;text-align:center;background:#faf8ff;">
-      <div style="font-size:13px;color:#6366f1;margin-bottom:10px;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">photo_camera</span> Завантажити нове фото</div>
-      <input type="file" id="photoFileI" accept="image/*" style="display:none;" data-photo-file>
+  <div class="modal photo-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 id="photoItemName" class="photo-modal-title"></h3>
+    <div id="photoCurrent" class="photo-current"></div>
+    <div class="photo-upload-box">
+      <div class="photo-upload-title"><span class="ms" aria-hidden="true">photo_camera</span> Завантажити нове фото</div>
+      <input type="file" id="photoFileI" accept="image/*" class="photo-file-input" data-photo-file>
       <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="photo-file-select">Обрати файл</button>
-      <div id="photoStatus" style="font-size:12px;color:#a5b4fc;margin-top:8px;"></div>
+      <div id="photoStatus" class="photo-status"></div>
     </div>
-    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
-      <button type="button" class="btn btn-danger btn-sm" id="delPhotoBtn" data-sklad-action="photo-delete" style="display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
+    <div class="photo-modal-actions">
+      <button type="button" class="btn btn-danger btn-sm photo-delete-btn" id="delPhotoBtn" data-sklad-action="photo-delete"><span class="ms" aria-hidden="true">delete</span> Видалити фото</button>
       <button type="button" class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
     </div>
   </div>
@@ -1013,29 +1264,29 @@ async function checkPin(attempt){
 
 <!-- DELETE MODAL -->
 <div class="modal-bg" id="delModal" data-modal-backdrop="delModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
-    <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити товар?</h3>
-    <p id="delItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
-    <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
-    <div style="display:flex;gap:10px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delModal">Скасувати</button>
-      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+  <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="confirm-title is-danger"><span class="ms" aria-hidden="true">delete</span> Видалити товар?</h3>
+    <p id="delItemName" class="confirm-target"></p>
+    <p class="confirm-copy">Цю дію неможливо скасувати. Записи в журналі збережуться.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="delModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" data-sklad-action="delete-confirm"><span class="ms" aria-hidden="true">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- PIN CONFIRM MODAL (для будь-якого видалення) -->
 <div class="modal-bg" id="delPinModal" data-delete-pin-cancel>
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:320px;text-align:center;background:#1C1C1E;">
-    <h3 id="delPinTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px;">PIN для видалення</h3>
-    <p style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:20px;">Підтвердіть дію PIN-кодом</p>
+  <div class="modal delete-pin-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 id="delPinTitle" class="delete-pin-title">PIN для видалення</h3>
+    <p class="delete-pin-subtitle">Підтвердіть дію PIN-кодом</p>
     <div class="auth-dots">
       <div class="auth-dot" id="dp0"></div>
       <div class="auth-dot" id="dp1"></div>
       <div class="auth-dot" id="dp2"></div>
       <div class="auth-dot" id="dp3"></div>
     </div>
-    <div id="delPinErr" role="alert" aria-live="assertive" style="min-height:18px;color:#FF6B6B;font-size:12px;margin-bottom:4px;"></div>
+    <div id="delPinErr" role="alert" aria-live="assertive" class="delete-pin-error"></div>
     <div class="pin-keys">
       <button type="button" class="pin-key" data-delete-pin-key="1">1</button>
       <button type="button" class="pin-key" data-delete-pin-key="2">2</button>
@@ -1046,45 +1297,45 @@ async function checkPin(attempt){
       <button type="button" class="pin-key" data-delete-pin-key="7">7</button>
       <button type="button" class="pin-key" data-delete-pin-key="8">8</button>
       <button type="button" class="pin-key" data-delete-pin-key="9">9</button>
-      <button type="button" class="pin-key" data-delete-pin-key="C" aria-label="Очистити PIN"><span class="ms" style="font-size:20px;">close</span></button>
+      <button type="button" class="pin-key" data-delete-pin-key="C" aria-label="Очистити PIN"><span class="ms" aria-hidden="true">close</span></button>
       <button type="button" class="pin-key" data-delete-pin-key="0">0</button>
-      <button type="button" class="pin-key" data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" style="font-size:20px;">backspace</span></button>
+      <button type="button" class="pin-key" data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"><span class="ms" aria-hidden="true">backspace</span></button>
     </div>
   </div>
 </div>
 
 <!-- AUDIT CONFIRM MODAL -->
 <div class="modal-bg" id="auditModal" data-modal-backdrop="auditModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:420px;">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:6px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">check_circle</span> Завершити інвентаризацію</h3>
-    <div id="auditSummary" style="background:var(--ios-bg);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.7;"></div>
+  <div class="modal audit-confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="audit-confirm-title"><span class="ms" aria-hidden="true">check_circle</span> Завершити інвентаризацію</h3>
+    <div id="auditSummary" class="audit-summary-box"></div>
     <div><label>Примітка до інвентаризації</label><input type="text" class="inp" id="auditNote" placeholder="Напр.: Планова інвентаризація червень 2026"></div>
-    <div style="display:flex;gap:10px;margin-top:16px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="auditModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="audit-confirm-save"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти і оновити</button>
+    <div class="audit-confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="auditModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="audit-confirm-save"><span class="ms" aria-hidden="true">save</span> Зберегти і оновити</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE LOG MODAL -->
 <div class="modal-bg" id="delLogModal" data-modal-backdrop="delLogModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
-    <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис видачі?</h3>
-    <p id="delLogItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
-    <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
-    <div style="display:flex;gap:10px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delLogModal">Скасувати</button>
-      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+  <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="confirm-title is-danger"><span class="ms" aria-hidden="true">delete</span> Видалити запис видачі?</h3>
+    <p id="delLogItemName" class="confirm-target"></p>
+    <p class="confirm-copy">Товар буде повернуто на склад (кількість збільшиться). Цю дію неможливо скасувати.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="delLogModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" data-sklad-action="delete-log-confirm"><span class="ms" aria-hidden="true">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- EDIT LOG MODAL -->
 <div class="modal-bg" id="editLogModal" data-modal-backdrop="editLogModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати видачу</h3>
-    <p id="editLogItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
-    <div style="display:flex;flex-direction:column;gap:14px;">
+  <div class="modal edit-movement-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="edit-movement-title"><span class="ms" aria-hidden="true">edit</span> Редагувати видачу</h3>
+    <p id="editLogItemName" class="edit-movement-subtitle"></p>
+    <div class="edit-movement-form">
       <div>
         <label>Кількість</label>
         <input type="number" class="inp" id="editLogQty" step="any">
@@ -1102,33 +1353,33 @@ async function checkPin(attempt){
         <input type="text" class="inp" id="editLogNote">
       </div>
     </div>
-    <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
-    <div style="display:flex;gap:10px;margin-top:18px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editLogModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-log-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+    <p class="edit-movement-note">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
+    <div class="edit-movement-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="editLogModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="edit-log-confirm"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- DELETE RECEIPT MODAL -->
 <div class="modal-bg" id="delReceiptModal" data-modal-backdrop="delReceiptModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:380px;">
-    <h3 style="color:#ef4444;margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">delete</span> Видалити запис приходу?</h3>
-    <p id="delReceiptItemName" style="font-size:14px;color:var(--ios-label2);margin-bottom:10px;line-height:1.5;"></p>
-    <p style="font-size:12px;color:var(--ios-gray);margin-bottom:20px;">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
-    <div style="display:flex;gap:10px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="delReceiptModal">Скасувати</button>
-      <button type="button" class="btn btn-danger" style="flex:1;justify-content:center;" data-sklad-action="delete-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">delete</span> Видалити</button>
+  <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="confirm-title is-danger"><span class="ms" aria-hidden="true">delete</span> Видалити запис приходу?</h3>
+    <p id="delReceiptItemName" class="confirm-target"></p>
+    <p class="confirm-copy">Залишок товару на складі буде зменшено. Цю дію неможливо скасувати.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="delReceiptModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" data-sklad-action="delete-receipt-confirm"><span class="ms" aria-hidden="true">delete</span> Видалити</button>
     </div>
   </div>
 </div>
 
 <!-- EDIT RECEIPT MODAL -->
 <div class="modal-bg" id="editReceiptModal" data-modal-backdrop="editReceiptModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="width:400px;">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:4px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Редагувати прихід</h3>
-    <p id="editReceiptItemName" style="font-size:13px;color:var(--ios-gray);margin-bottom:18px;"></p>
-    <div style="display:flex;flex-direction:column;gap:14px;">
+  <div class="modal edit-movement-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="edit-movement-title"><span class="ms" aria-hidden="true">edit</span> Редагувати прихід</h3>
+    <p id="editReceiptItemName" class="edit-movement-subtitle"></p>
+    <div class="edit-movement-form">
       <div>
         <label>Кількість</label>
         <input type="number" class="inp" id="editReceiptQty" step="any">
@@ -1146,41 +1397,41 @@ async function checkPin(attempt){
         <input type="text" class="inp" id="editReceiptNote">
       </div>
     </div>
-    <p style="font-size:12px;color:var(--ios-gray);margin-top:12px;">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
-    <div style="display:flex;gap:10px;margin-top:18px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="editReceiptModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="edit-receipt-confirm"><span class="ms" style="font-size:16px;vertical-align:-3px;">save</span> Зберегти</button>
+    <p class="edit-movement-note">При зміні кількості залишок товару на складі буде скориговано автоматично.</p>
+    <div class="edit-movement-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="editReceiptModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="edit-receipt-confirm"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <!-- LIGHTBOX -->
 <div id="lightbox" data-lightbox-close role="dialog" aria-modal="true" aria-label="Перегляд фото товару" tabindex="-1">
-  <button type="button" id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm" style="position:absolute;top:18px;right:18px;z-index:2;display:none;"><span class="ms" style="font-size:14px;vertical-align:-2px;">delete</span> Видалити фото</button>
-  <img id="lbImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;" data-lightbox-stop>
+  <button type="button" id="lbDelBtn" data-sklad-action="lightbox-delete-photo" class="btn btn-danger btn-sm lightbox-delete-btn"><span class="ms" aria-hidden="true">delete</span> Видалити фото</button>
+  <img id="lbImg" class="lightbox-img" src="" alt="" data-lightbox-stop>
 </div>
 
 <!-- BARCODE ADD MODAL -->
 <div class="modal-bg" id="barcodeAddModal" data-modal-backdrop="barcodeAddModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 style="font-size:17px;font-weight:700;color:var(--ios-label);margin-bottom:14px;letter-spacing:-.3px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
+    <h3 class="barcode-modal-title"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="barcodeAddReader"></div>
-    <div id="barcodeAddScanning" style="text-align:center;font-size:13px;color:var(--ios-gray);padding:10px 0;">Наведіть камеру на штрих-код товару</div>
+    <div id="barcodeAddScanning" class="barcode-scan-status">Наведіть камеру на штрих-код товару</div>
     <div class="barcode-not-found" id="barcodeNotFound">
-      <span class="ms" style="font-size:15px;vertical-align:-3px;">warning</span> Товар не знайдено в базі.
-      <button type="button" class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" data-sklad-action="barcode-google"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Шукати в Google</button>
-      <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px;width:100%;justify-content:center;" data-sklad-action="barcode-reset"><span class="ms" style="font-size:16px;vertical-align:-3px;">refresh</span> Сканувати ще раз</button>
+      <span class="ms" aria-hidden="true">warning</span> Товар не знайдено в базі.
+      <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-google"><span class="ms" aria-hidden="true">search</span> Шукати в Google</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="barcode-reset"><span class="ms" aria-hidden="true">refresh</span> Сканувати ще раз</button>
     </div>
     <!-- Ручне введення -->
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ios-sep);">
-      <div style="font-size:12px;color:var(--ios-gray);margin-bottom:8px;font-weight:500;"><span class="ms" style="font-size:14px;vertical-align:-2px;">edit</span> Або введіть штрих-код вручну</div>
-      <div style="display:flex;gap:8px;">
-        <input type="number" id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну" placeholder="4820000000000" style="flex:1;font-size:15px;">
-        <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search" style="flex-shrink:0;white-space:nowrap;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search</span> Google</button>
+    <div class="barcode-manual-entry">
+      <div class="barcode-manual-title"><span class="ms" aria-hidden="true">edit</span> Або введіть штрих-код вручну</div>
+      <div class="barcode-manual-row">
+        <input type="number" id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну" placeholder="4820000000000">
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-action="barcode-manual-search"><span class="ms" aria-hidden="true">search</span> Google</button>
       </div>
     </div>
-    <div style="margin-top:12px;">
-      <button type="button" class="btn btn-ghost" style="width:100%;justify-content:center;" data-sklad-action="barcode-add-close">Закрити</button>
+    <div class="barcode-modal-close">
+      <button type="button" class="btn btn-ghost" data-sklad-action="barcode-add-close">Закрити</button>
     </div>
   </div>
 </div>
@@ -1188,12 +1439,12 @@ async function checkPin(attempt){
 <!-- QR SCANNER MODAL -->
 <div class="modal-bg" id="qrModal" data-modal-backdrop="qrModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">qr_code_scanner</span> Сканер штрих-коду</h3>
+    <h3 class="qr-modal-title"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканер штрих-коду</h3>
     <div id="qrReader"></div>
     <div class="qr-result" id="qrResult"></div>
-    <p style="font-size:12px;color:#a5b4fc;margin-top:10px;text-align:center;">Наведіть камеру на штрих-код або QR-код товару</p>
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-sklad-action="qr-close">Закрити</button>
+    <p class="qr-modal-copy">Наведіть камеру на штрих-код або QR-код товару</p>
+    <div class="qr-modal-actions">
+      <button type="button" class="btn btn-ghost" data-sklad-action="qr-close">Закрити</button>
     </div>
   </div>
 </div>
@@ -1201,48 +1452,48 @@ async function checkPin(attempt){
 <!-- HISTORY MODAL -->
 <div class="modal-bg" id="histModal" data-modal-backdrop="histModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 id="histTitle" style="font-size:15px;font-weight:800;color:var(--ios-label);margin-bottom:4px;"></h3>
-    <p id="histSubtitle" style="font-size:12px;color:#a5b4fc;margin-bottom:16px;"></p>
-    <div id="histList"></div>
-    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:14px;" data-modal-close="histModal">Закрити</button>
+    <h3 id="histTitle" class="history-modal-title"></h3>
+    <p id="histSubtitle" class="history-modal-subtitle"></p>
+    <div id="histList" class="history-modal-list"></div>
+    <button type="button" class="btn btn-ghost btn-sm history-modal-close" data-modal-close="histModal">Закрити</button>
   </div>
 </div>
 
 <!-- CHART MODAL -->
 <div class="modal-bg" id="priceModal" data-modal-backdrop="priceModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:560px;">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:8px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">travel_explore</span> Підтягнути ціни з інтернету</h3>
-    <div class="price-search-row" style="display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:12px;">
+  <div class="modal price-lookup-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="price-lookup-title"><span class="ms" aria-hidden="true">travel_explore</span> Підтягнути ціни з інтернету</h3>
+    <div class="price-search-row">
       <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
-      <button type="button" class="btn btn-primary" data-sklad-action="price-fetch" style="justify-content:center;"><span class="ms" style="font-size:15px;vertical-align:-3px;">search</span> Знайти</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="price-fetch"><span class="ms" aria-hidden="true">search</span> Знайти</button>
     </div>
-    <div id="priceResults" style="min-height:80px;background:var(--ios-bg);border:1px solid var(--ios-sep);border-radius:14px;padding:12px;font-size:13px;color:var(--ios-label2);">Оберіть товар і натисніть “Знайти”.</div>
-    <div class="price-modal-actions" style="display:flex;gap:8px;margin-top:14px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="priceModal">Закрити</button>
+    <div id="priceResults" class="price-results-panel">Оберіть товар і натисніть “Знайти”.</div>
+    <div class="price-modal-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="priceModal">Закрити</button>
     </div>
   </div>
 </div>
 
 <div class="modal-bg" id="manualPriceModal" data-modal-backdrop="manualPriceModal">
-  <div class="modal" role="dialog" aria-modal="true" tabindex="-1" style="max-width:460px;">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:14px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">edit</span> Ручна ціна</h3>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <div><label>Товар</label><select class="inp" id="manualPriceItemSel"><option value="">— Оберіть товар —</option></select></div>
-      <div><label>Ціна за одиницю, грн</label><input class="inp" id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div><label>Джерело / посилання <span style="color:var(--ios-gray);font-weight:400;">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
+  <div class="modal manual-price-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="manual-price-title"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</h3>
+    <div class="manual-price-form">
+      <div><label>Товар</label><select class="inp" id="manualPriceItemSel" data-searchable="1" data-search-placeholder="Пошук товару для ручної ціни..."><option value="">— Оберіть товар —</option></select></div>
+      <div><label>Ціна за одиницю, грн</label><input class="inp" id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus></div>
+      <div><label>Джерело / посилання <span class="manual-price-note">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button type="button" class="btn btn-ghost" style="flex:1;justify-content:center;" data-modal-close="manualPriceModal">Скасувати</button>
-      <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" data-sklad-action="manual-price-save"><span class="ms" style="font-size:15px;vertical-align:-3px;">save</span> Зберегти</button>
+    <div class="manual-price-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="manualPriceModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="manual-price-save"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
     </div>
   </div>
 </div>
 
 <div class="modal-bg" id="chartModal" data-modal-backdrop="chartModal">
   <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 style="font-size:16px;font-weight:800;color:var(--ios-label);margin-bottom:16px;"><span class="ms" style="font-size:18px;vertical-align:-4px;">bar_chart</span> Залишки по категоріях</h3>
+    <h3 class="chart-modal-title"><span class="ms" aria-hidden="true">bar_chart</span> Залишки по категоріях</h3>
     <canvas id="stockChart"></canvas>
-    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:16px;" data-modal-close="chartModal">Закрити</button>
+    <button type="button" class="btn btn-ghost btn-sm chart-modal-close" data-modal-close="chartModal">Закрити</button>
   </div>
 </div>
 
@@ -1272,13 +1523,13 @@ function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
 function priceBadge(item){
   const id=escapeHtml(String(item?.id||''));
   const price=priceValue(item);
-  if(!price) return `<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" style="font-size:14px;vertical-align:-3px;">add</span> Ціна</button>`;
+  if(!price) return `<button type="button" class="btn btn-ghost btn-sm price-badge-btn" data-price-badge-action="manual-price" data-item-id="${id}"><span class="ms" aria-hidden="true">add</span> Ціна</button>`;
   const checked=item.price_checked_at?new Date(item.price_checked_at).toLocaleDateString('uk-UA'):'';
   const src=item.price_source?escapeHtml(item.price_source):'ціна';
   const title=[src,checked].filter(Boolean).join(' · ');
-  return `<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 9px;font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:96px;" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
-    <span style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(price)}</span>
-    <span style="font-size:10px;color:var(--ios-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;">${src}</span>
+  return `<button type="button" class="btn btn-ghost btn-sm price-badge-btn has-price" data-price-badge-action="manual-price" data-item-id="${id}" data-tip="${escapeHtml(title)}">
+    <span class="price-badge-value">${money(price)}</span>
+    <span class="price-badge-source">${src}</span>
   </button>`;
 }
 
@@ -1294,11 +1545,8 @@ function setPageTitle(page){
   target.textContent='';
   if(!title) return;
   const icon=document.createElement('span');
-  icon.className='ms';
+  icon.className='ms topbar-title-icon';
   icon.setAttribute('aria-hidden','true');
-  icon.style.fontSize='18px';
-  icon.style.verticalAlign='-4px';
-  icon.style.marginRight='6px';
   icon.textContent=title.icon;
   target.append(icon,document.createTextNode(title.label));
 }
@@ -1359,39 +1607,39 @@ function renderAuditList(){
     const actual=auditData[item.id];
     const isCounted=actual!==null;
     const diff=isCounted ? actual-item.quantity : null;
-    let bg='var(--ios-gray6)', border='var(--ios-sep)', diffHtml='';
+    let stateClass='is-pending', diffHtml='';
     if(isCounted){
-      if(diff>0){bg='#f0fdf4';border='#86efac';diffHtml=`<span style="color:var(--ios-green);font-weight:700;font-size:12px;">▲ +${diff}</span>`;}
-      else if(diff<0){bg='#fef2f2';border='#fca5a5';diffHtml=`<span style="color:var(--ios-red);font-weight:700;font-size:12px;">▼ ${diff}</span>`;}
-      else{bg='#f0fdf4';border='#86efac';diffHtml=`<span style="color:var(--ios-green);font-size:12px;"><span class="ms" style="font-size:13px;vertical-align:-2px;">check</span> Збігається</span>`;}
+      if(diff>0){stateClass='is-surplus';diffHtml=`<span class="audit-diff good">▲ +${diff}</span>`;}
+      else if(diff<0){stateClass='is-shortage';diffHtml=`<span class="audit-diff bad">▼ ${diff}</span>`;}
+      else{stateClass='is-match';diffHtml=`<span class="audit-diff good"><span class="ms" style="font-size:13px;vertical-align:-2px;">check</span> Збігається</span>`;}
     }
     const cat=item.category||'';
     const safeCat=escapeHtml(cat||'—');
     const name=escapeHtml(item.name||'');
     const unit=escapeHtml(item.unit||'');
     const icon=catIconHtml[cat]||catIconHtmlDefault;
-    return `<div style="background:${bg};border:1.5px solid ${border};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:all .2s;">
-      <div style="font-size:22px;flex-shrink:0;">${icon}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
-        <div style="font-size:11px;color:var(--ios-gray);margin-top:2px;">
+    return `<div class="audit-item ${stateClass}">
+      <div class="audit-item-icon">${icon}</div>
+      <div class="audit-item-main">
+        <div class="audit-item-title">${name}</div>
+        <div class="audit-item-meta">
           <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${safeCat}</span>
-          · За даними: <b>${escapeHtml(String(item.quantity??0))} ${unit}</b>
-          ${diffHtml?'· '+diffHtml:''}
+          <span>За даними: <b>${escapeHtml(String(item.quantity??0))} ${unit}</b></span>
+          ${diffHtml}
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
-        <div style="display:flex;align-items:center;gap:6px;">
+      <div class="audit-item-control">
+        <div class="audit-input-row">
           <input type="number"
             id="audit_${item.id}"
             value="${isCounted?actual:''}"
             placeholder="?"
             min="0" step="any"
-            style="width:80px;padding:7px 10px;border-radius:10px;border:1.5px solid ${isCounted?border:'var(--ios-sep)'};font-size:15px;font-weight:700;text-align:center;background:var(--ios-card);outline:none;-webkit-appearance:none;"
+            class="audit-qty-input"
             data-audit-input data-item-id="${item.id}">
-          <span style="font-size:11px;color:var(--ios-gray);">${unit}</span>
+          <span style="font-size:11px;color:var(--ios-label3);">${unit}</span>
         </div>
-        ${isCounted?`<button type="button" data-audit-clear data-item-id="${item.id}" style="font-size:10px;color:var(--ios-gray);background:none;border:none;cursor:pointer;padding:0;"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
+        ${isCounted?`<button type="button" class="audit-reset-btn" data-audit-clear data-item-id="${item.id}"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -2409,17 +2657,17 @@ function renderReceipts(){
     const safeUnit=escapeHtml(item?.unit||'');
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=r.note?' · '+escapeHtml(r.note):'';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--ios-sep);">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ios-green);"><span class="ms" style="font-size:20px;">move_to_inbox</span></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
-        <div style="font-size:11px;color:#a5b4fc;margin-top:1px;">${safeSupplier} · ${dt}${safeNote}</div>
+    return `<div class="receipt-mobile-item">
+      <div class="receipt-mobile-icon"><span class="ms" style="font-size:20px;">move_to_inbox</span></div>
+      <div class="receipt-mobile-main">
+        <div class="receipt-mobile-title">${safeName}</div>
+        <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}</div>
       </div>
-      <div style="font-weight:800;color:var(--ios-green);font-size:13px;flex-shrink:0;text-align:right;">
-        +${escapeHtml(String(r.quantity??0))}<span style="font-size:10px;font-weight:400;color:#a5b4fc;"> ${safeUnit}</span>
-        <div style="display:flex;gap:4px;margin-top:4px;">
-          <button type="button" data-receipt-action="edit" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button type="button" data-receipt-action="delete" data-receipt-id="${r.id}" style="background:none;border:none;font-size:14px;padding:2px;cursor:pointer;"><span class="ms" style="font-size:16px;">delete</span></button>
+      <div class="receipt-mobile-side">
+        +${escapeHtml(String(r.quantity??0))}<span class="receipt-mobile-unit"> ${safeUnit}</span>
+        <div class="receipt-mobile-actions">
+          <button type="button" class="icon-action" data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"><span class="ms" style="font-size:16px;">edit</span></button>
+          <button type="button" class="icon-action danger" data-receipt-action="delete" data-receipt-id="${r.id}" aria-label="Видалити прихід"><span class="ms" style="font-size:16px;">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2667,10 +2915,10 @@ function openPhotoModal(id){
   const delBtn=document.getElementById('delPhotoBtn');
   const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
   if(safePhoto){
-    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px;cursor:zoom-in;" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
+    cur.innerHTML=`<img src="${safePhoto}" alt="Фото товару ${escapeHtml(item.name||'')}" class="photo-current-img" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
     delBtn.style.display='inline-flex';
   } else {
-    cur.innerHTML='<div style="text-align:center;color:#a5b4fc;font-size:13px;padding:12px 0;">Фото ще не додано</div>';
+    cur.innerHTML='<div class="photo-empty-state">Фото ще не додано</div>';
     delBtn.style.display='none';
   }
   openModal('photoModal');
@@ -2910,7 +3158,9 @@ function openManualPriceModal(id='') {
   const item=allItems.find(i=>String(i.id)===String(id));
   document.getElementById('manualPriceValue').value=item&&priceValue(item)?priceValue(item):'';
   document.getElementById('manualPriceSource').value=item?.price_source||'';
+  clearTextSelection();
   openModal('manualPriceModal');
+  requestAnimationFrame(clearTextSelection);
 }
 async function saveItemPrice(itemId, price, source='', url='', confidence='manual') {
   const payload={
@@ -2956,7 +3206,7 @@ async function fetchItemPrice(){
   const item=allItems.find(i=>String(i.id)===String(id));
   if(!item) return toast('Оберіть товар','error');
   const box=document.getElementById('priceResults');
-  box.innerHTML='<div style="text-align:center;padding:22px;color:var(--ios-gray);"><span class="ms" style="font-size:18px;vertical-align:-4px;">sync</span> Шукаю ціни...</div>';
+  box.innerHTML='<div class="price-results-state is-loading"><span class="ms" aria-hidden="true">sync</span> Шукаю ціни...</div>';
   try{
     const res=await fetch(PRICE_LOOKUP_URL,{
       method:'POST',
@@ -2966,22 +3216,22 @@ async function fetchItemPrice(){
     const data=await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(data.error||'Помилка пошуку');
     const results=data.results||[];
-    if(!results.length){box.innerHTML='<div class="empty" style="padding:18px;">Ціну не знайдено. Спробуйте ручне введення.</div>';return;}
+    if(!results.length){box.innerHTML='<div class="price-results-state">Ціну не знайдено. Спробуйте ручне введення.</div>';return;}
     box.innerHTML=results.slice(0,5).map((r,idx)=>{
       const safeLink=safeExternalUrl(r.link);
-      return `<div style="padding:10px 0;border-bottom:1px solid var(--ios-sep);display:flex;gap:10px;align-items:flex-start;">
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;color:var(--ios-label);font-size:13px;line-height:1.35;">${escapeHtml(r.title||'Товар')}</div>
-        <div style="font-size:12px;color:var(--ios-label3);margin-top:3px;">${escapeHtml(r.source||'інтернет')} · ${safeLink?`<a href="${safeLink}" target="_blank" rel="noopener noreferrer" style="color:var(--brand);">відкрити</a>`:'без посилання'}</div>
+      return `<div class="price-result-card">
+      <div class="price-result-main">
+        <div class="price-result-title">${escapeHtml(r.title||'Товар')}</div>
+        <div class="price-result-meta">${escapeHtml(r.source||'інтернет')} · ${safeLink?`<a class="price-result-link" href="${safeLink}" target="_blank" rel="noopener noreferrer">відкрити</a>`:'без посилання'}</div>
       </div>
-      <div style="text-align:right;flex-shrink:0;">
-        <div style="font-weight:900;color:var(--ios-green);white-space:nowrap;">${money(r.price)}</div>
-        <button type="button" class="btn btn-primary btn-sm" style="margin-top:6px;" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${safeLink}">Взяти</button>
+      <div class="price-result-side">
+        <div class="price-result-value">${money(r.price)}</div>
+        <button type="button" class="btn btn-primary btn-sm price-result-apply" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${safeLink}">Взяти</button>
       </div>
     </div>`;
     }).join('');
   }catch(e){
-    box.innerHTML=`<div style="color:var(--ios-red);font-size:13px;line-height:1.5;">${escapeHtml(e.message||String(e))}<br><small>Перевірте деплой Edge Function fetch-item-prices і секрет SERPAPI_KEY / SHOPAPIS_KEY у базі Складу.</small></div>`;
+    box.innerHTML=`<div class="price-results-state is-error">${escapeHtml(e.message||String(e))}<br><small>Перевірте деплой Edge Function fetch-item-prices і секрет SERPAPI_KEY / SHOPAPIS_KEY у базі Складу.</small></div>`;
   }
 }
 async function applyFoundPrice(itemId, price, source, url){
@@ -3082,20 +3332,20 @@ async function openHistory(itemId){
   const unit=escapeHtml(item.unit||'');
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
-  document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Завантаження...</div>';
+  document.getElementById('histList').innerHTML='<div class="history-modal-state">Завантаження...</div>';
   openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
   if(!data||!data.length){
-    document.getElementById('histList').innerHTML='<div style="text-align:center;color:#a5b4fc;padding:20px;">Видач не було</div>';
+    document.getElementById('histList').innerHTML='<div class="history-modal-state">Видач не було</div>';
     return;
   }
   document.getElementById('histList').innerHTML=data.map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     const t=new Date(l.issued_at).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     return `<div class="hist-row">
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;color:var(--ios-label);">${escapeHtml(l.issued_to||'—')}</div>
-        <div style="font-size:11px;color:#a5b4fc;">${d} ${t}${l.note?' · '+escapeHtml(l.note):''}</div>
+      <div class="hist-main">
+        <div class="hist-person">${escapeHtml(l.issued_to||'—')}</div>
+        <div class="hist-meta">${d} ${t}${l.note?' · '+escapeHtml(l.note):''}</div>
       </div>
       <div class="hist-out">−${escapeHtml(String(l.quantity??0))} ${unit}</div>
     </div>`;
@@ -3170,12 +3420,10 @@ function enhanceSelect(select){
     let searchInput=null;
     if(searchable){
       searchInput=document.createElement('input');
-      searchInput.className='inp';
+      searchInput.className='inp custom-select-search';
       searchInput.type='search';
       searchInput.placeholder=select.dataset.searchPlaceholder||'Пошук...';
       searchInput.value=selectSearchTerm;
-      searchInput.style.margin='8px';
-      searchInput.style.width='calc(100% - 16px)';
       searchInput.addEventListener('input',()=>{
         selectSearchTerm=searchInput.value;
         renderOptions();
@@ -3277,10 +3525,16 @@ const modalFocusReturn = new Map();
 function getFocusableModalElements(container){
   return [...container.querySelectorAll(focusableModalSelector)].filter(el=>el.offsetParent!==null || el === document.activeElement);
 }
+function clearTextSelection(){
+  const selection = window.getSelection?.();
+  if(selection && !selection.isCollapsed) selection.removeAllRanges();
+}
 function focusModalDialog(modalBg){
   const dialog = modalBg.querySelector('[role="dialog"]');
   if(!dialog) return;
-  const focusTarget = getFocusableModalElements(dialog)[0] || dialog;
+  const preferredFocus = dialog.querySelector('[data-modal-initial-focus]');
+  const focusTarget = preferredFocus || getFocusableModalElements(dialog)[0] || dialog;
+  clearTextSelection();
   focusTarget.focus({preventScroll:true});
 }
 function openModal(id){
