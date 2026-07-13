@@ -2373,12 +2373,16 @@
         if (IS_PREVIEW) return;
         const keys = Array.from({ length: 12 }, (_, month) => `${year}-${month}`);
         try {
-            const { data, error } = await db.from('garbage').select('month_key,data').in('month_key', keys);
-            if (error) throw error;
-            (data || []).forEach(row => {
-                const month = Number(String(row.month_key).split('-')[1]);
-                if (!Number.isInteger(month) || month < 0 || month > 11) return;
-                const migrated = gMigrateOldData(row.data);
+            const results = await Promise.all(keys.map(monthKey =>
+                db.from('garbage').select('data').eq('month_key', monthKey).single()
+                    .then(result => ({ monthKey, ...result }))
+                    .catch(error => ({ monthKey, error }))
+            ));
+            results.forEach(({ monthKey, data, error }) => {
+                if (error && error.code !== 'PGRST116') throw error;
+                const month = Number(monthKey.split('-')[1]);
+                if (!data?.data || !Number.isInteger(month) || month < 0 || month > 11) return;
+                const migrated = gMigrateOldData(data.data);
                 try { localStorage.setItem(`garbage_${year}_${month}`, JSON.stringify(migrated.data || {})); } catch(e) {}
             });
         } catch (err) {

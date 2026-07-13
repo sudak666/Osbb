@@ -1146,11 +1146,12 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'journal garbage chart fetches yearly cloud data';
   const required = [
     'async function gLoadGarbageYearFromCloud(year)',
-    "db.from('garbage').select('month_key,data').in('month_key', keys)",
+    "Promise.all(keys.map(monthKey =>",
+    "db.from('garbage').select('data').eq('month_key', monthKey).single()",
     'await gLoadGarbageYearFromCloud(currentYear)',
     "String(d).padStart(2,'0')",
   ];
-  const forbidden = ["String(d).padStart(2,'00')"];
+  const forbidden = ["String(d).padStart(2,'00')", ".select('month_key,data').in("];
   const missing = required.filter(needle => !text.includes(needle));
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   if (missing.length || hasForbidden) {
