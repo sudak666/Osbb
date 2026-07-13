@@ -519,6 +519,33 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
+
+// Sklad visual redesign foundation should keep semantic design tokens for future
+// component passes.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad exposes foundational UI design tokens';
+  const required = [
+    '--surface-0:',
+    '--surface-1:',
+    '--border-subtle:',
+    '--radius-xl:',
+    '--shadow-lg:',
+    '--text-display:',
+    '--motion-base:',
+    '--ease-spring:',
+    '@media (prefers-reduced-motion: reduce)',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
