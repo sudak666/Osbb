@@ -1168,15 +1168,17 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync('osbb/index.html', 'utf8');
   const label = 'journal garbage chart fetches yearly cloud data';
   const required = [
+    'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
+    'async function gFetchGarbageMonthData(year = currentYear, month = currentMonth)',
+    "String(oneBasedMonth).padStart(2,'0')",
     'async function gLoadGarbageYearFromCloud(year)',
-    "Promise.all(keys.map(monthKey =>",
-    "db.from('garbage').select('data').eq('month_key', monthKey).single()",
-    'for (const result of results)',
-    'if (!result) continue;',
+    "db.from('garbage').select('month_key,data')",
+    'const candidates = gMonthKeyCandidates(year, month)',
+    'candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean)',
     'await gLoadGarbageYearFromCloud(currentYear)',
     "String(d).padStart(2,'0')",
   ];
-  const forbidden = ["String(d).padStart(2,'00')", ".select('month_key,data').in("];
+  const forbidden = ["String(d).padStart(2,'00')", ".select('month_key,data').in(", "keys.map(monthKey =>", 'Promise.all(Array.from({ length: 12 }, async (_, month) =>'];
   const missing = required.filter(needle => !text.includes(needle));
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   if (missing.length || hasForbidden) {
