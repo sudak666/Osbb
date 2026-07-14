@@ -391,6 +391,14 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .add-section-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:850;color:var(--ios-label);margin-bottom:22px;letter-spacing:-.02em;}
 .add-section-title .ms{font-size:18px;}
 .add-section-title.is-refill .ms{color:var(--success);}
+.match-empty{font-size:12px;color:var(--ios-gray);background:var(--ios-bg);border:1px dashed var(--ios-sep);border-radius:12px;padding:10px;}
+.match-heading{font-size:11px;font-weight:800;color:var(--brand);margin-bottom:6px;}
+.match-row{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;border:1px solid var(--ios-sep);border-radius:12px;background:var(--ios-bg);margin-top:6px;}
+.match-row-main{min-width:0;flex:1;}
+.match-row-title{font-size:13px;font-weight:800;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.match-row-meta{font-size:11px;color:var(--ios-label3);margin-top:2px;}
+.match-row-actions{display:flex;gap:6px;flex-shrink:0;}
+.match-row-btn{padding:6px 8px;font-size:12px;}
 .add-form-stack{display:flex;flex-direction:column;gap:16px;}
 .add-new-section{margin-top:32px;padding-top:24px;border-top:1px solid var(--border-subtle);}
 .add-new-stack{display:flex;flex-direction:column;gap:14px;}
@@ -575,6 +583,10 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .log-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--ios-sep);overflow:hidden;max-width:100%;min-width:0;}
 .log-row:last-child{border-bottom:none;}
 .log-icon{width:36px;height:36px;border-radius:10px;background:var(--brand-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand);}
+.log-row-main{flex:1;min-width:0;}
+.log-row-title{font-size:13px;font-weight:600;color:var(--ios-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.log-row-meta{font-size:11px;color:#a5b4fc;}
+.log-row-qty{font-size:13px;}
 
 .pbar{height:5px;background:var(--ios-gray6);border-radius:3px;overflow:hidden;margin-top:6px;}
 .pfill{height:100%;border-radius:3px;transition:width .4s;}
@@ -2503,11 +2515,11 @@ async function loadRecentIssues(){
     const safeName=escapeHtml(l.item_name||'—');
     const safeIssuedTo=escapeHtml(l.issued_to||'—');
     return `<div class="log-row"><div class="log-icon"><span class="ms" style="font-size:18px;">output</span></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:600;color:var(--ios-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
-        <div style="font-size:11px;color:#a5b4fc;">${safeIssuedTo} · ${dt}</div>
+      <div class="log-row-main">
+        <div class="log-row-title">${safeName}</div>
+        <div class="log-row-meta">${safeIssuedTo} · ${dt}</div>
       </div>
-      <div style="font-size:13px;font-weight:800;color:#6366f1;">−${escapeHtml(String(l.quantity??0))}</div>
+      <div class="log-row-qty log-qty-out">−${escapeHtml(String(l.quantity??0))}</div>
     </div>`;
   }).join('');
 }
@@ -2844,18 +2856,18 @@ function renderNewProductMatches(){
   const matches=allItems.filter(i=>itemMatchesSearch(i,q)).slice(0,5);
   if(!matches.length){
     box.style.display='block';
-    box.innerHTML='<div style="font-size:12px;color:var(--ios-gray);background:var(--ios-bg);border:1px dashed var(--ios-sep);border-radius:12px;padding:10px;">Схожих товарів не знайдено — можна додавати новий.</div>';
+    box.innerHTML='<div class="match-empty">Схожих товарів не знайдено — можна додавати новий.</div>';
     return;
   }
   box.style.display='block';
-  box.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--brand);margin-bottom:6px;">Схожі товари на складі</div>'+matches.map(i=>`<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;border:1px solid var(--ios-sep);border-radius:12px;background:var(--ios-bg);margin-top:6px;">
-    <div style="min-width:0;flex:1;">
-      <div style="font-size:13px;font-weight:800;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
-      <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')} · ${priceValue(i)?money(priceValue(i)):'без ціни'}</div>
+  box.innerHTML='<div class="match-heading">Схожі товари на складі</div>'+matches.map(i=>`<div class="match-row">
+    <div class="match-row-main">
+      <div class="match-row-title">${escapeHtml(i.name)}</div>
+      <div class="match-row-meta">${escapeHtml(i.category||'—')} · ${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')} · ${priceValue(i)?money(priceValue(i)):'без ціни'}</div>
     </div>
-    <div style="display:flex;gap:6px;flex-shrink:0;">
-      <button type="button" class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-new-match-action="refill" data-item-id="${escapeHtml(String(i.id))}">Поповнити</button>
-      <button type="button" class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
+    <div class="match-row-actions">
+      <button type="button" class="btn btn-ghost btn-sm match-row-btn" data-new-match-action="refill" data-item-id="${escapeHtml(String(i.id))}">Поповнити</button>
+      <button type="button" class="btn btn-ghost btn-sm match-row-btn" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
     </div>
   </div>`).join('');
 }
