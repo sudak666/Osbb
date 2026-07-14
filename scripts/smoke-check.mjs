@@ -898,6 +898,48 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Sklad Material Symbol icons should use shared size utility classes
+// instead of repeated inline font-size/vertical-align style strings, and
+// the stats-page recent-activity log rows should use class-based cells.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad icons use ic-* size utilities; stats log uses class-based rows';
+  const required = [
+    '.ic-16-3{font-size:16px;vertical-align:-3px;}',
+    '.ic-15-3{font-size:15px;vertical-align:-3px;}',
+    '.ic-14-2{font-size:14px;vertical-align:-2px;}',
+    '.ic-13-2{font-size:13px;vertical-align:-2px;}',
+    '.ic-12-2{font-size:12px;vertical-align:-2px;}',
+    '.ic-16{font-size:16px;}',
+    '.ic-18{font-size:18px;}',
+    '.ic-15{font-size:15px;}',
+    '.ic-48{font-size:48px;}',
+    '.ic-40{font-size:40px;}',
+    '.ic-20{font-size:20px;}',
+    'class="stat-log-row"',
+    'class="stat-log-name"',
+    'class="stat-log-person"',
+    'class="stat-log-date"',
+  ];
+  const forbidden = [
+    'style="font-size:16px;vertical-align:-3px;"',
+    'style="font-size:15px;vertical-align:-3px;"',
+    'style="font-size:14px;vertical-align:-2px;"',
+    'style="font-size:13px;vertical-align:-2px;"',
+    'style="font-size:12px;vertical-align:-2px;"',
+    "<div style=\"display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;\">",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {

@@ -317,6 +317,18 @@ The add-page low-stock sidebar and the stats-page category breakdown, low-stock 
 - `stat-unpriced-row`/`stat-unpriced-main`/`stat-unpriced-title`/`stat-unpriced-meta`/`stat-unpriced-btn`/`stat-unpriced-more` replace the unpriced-items list inline styles, reusing `stat-low-empty` for its "all priced" empty state;
 - smoke checks guard the new classes and flag regressions back to the old inline strings.
 
+### Sklad icon-size utility sweep
+
+Started the larger, file-wide cleanup flagged in the previous pass: the Material Symbols `<span class="ms" style="font-size:...;vertical-align:...;">` pattern was repeated ~63 times across `sklad/index.html` (buttons, empty states, headings, badges).
+
+- Added a small set of reusable size utility classes (`ic-10`, `ic-12-2`, `ic-13-2`, `ic-14-2`, `ic-15`, `ic-15-3`, `ic-16`, `ic-16-3`, `ic-18`, `ic-20`, `ic-40`, `ic-48`) covering every distinct font-size/vertical-align combination found in the file;
+- mechanically replaced all matching `class="ms" style="font-size:...(;vertical-align:...)?;"` occurrences (and the one `class="badge ..." style="font-size:10px;"` badge) with `class="ms ic-XX[-Y]"`;
+- also cleaned the stats-page recent-activity log rows (`renderStats()`'s `statLog` list) into `stat-log-row`/`stat-log-name`/`stat-log-person`/`stat-log-date` classes;
+- `msIcon(name,size)` (the helper that builds ad-hoc sized icon spans from a JS parameter) intentionally keeps its inline `style` — the size is a genuine runtime parameter, not a fixed set of values;
+- smoke checks guard the new utility classes and flag regressions back to the old inline strings.
+- Remaining `style="` in `sklad/index.html` after this pass is skeleton-loader widths, `display:none` state toggles, per-instance dynamic bar widths/colors, and a couple of genuinely one-off styles (e.g. the PIN-screen brand icon) — not more repeated noise.
+- `osbb/index.html` did not have this exact `<span class="ms" style="font-size:...">` icon pattern (its icons are inline `<svg>` with per-instance `stroke`/paths, already handled case-by-case in earlier passes); its remaining `style="` is dominated by the lock-screen/PIN-modal branding (intentionally custom) and skeleton widths.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

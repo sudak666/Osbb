@@ -398,6 +398,10 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .stat-unpriced-meta{font-size:11px;color:var(--ios-label3);margin-top:2px;}
 .stat-unpriced-btn{padding:6px 8px;font-size:12px;flex-shrink:0;}
 .stat-unpriced-more{font-size:11px;color:var(--ios-gray);margin-top:8px;}
+.stat-log-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;}
+.stat-log-name{font-weight:600;color:var(--ios-label);flex:1;min-width:0;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stat-log-person{color:var(--ios-label3);margin-right:8px;white-space:nowrap;font-size:12px;}
+.stat-log-date{color:#a5b4fc;font-size:11px;white-space:nowrap;}
 
 /* ADD / REFILL */
 .add-card{padding:28px;}
@@ -472,6 +476,20 @@ tbody tr{border-bottom:1px solid var(--ios-sep);transition:background .1s;}
 tbody tr:hover{background:rgba(52,199,89,.04);}
 tbody td{padding:12px 16px;color:var(--ios-label);vertical-align:middle;}
 tbody tr:last-child{border-bottom:none;}
+
+/* ICON SIZE UTILITIES (Material Symbols spans) */
+.ic-10{font-size:10px;}
+.ic-12-2{font-size:12px;vertical-align:-2px;}
+.ic-13-2{font-size:13px;vertical-align:-2px;}
+.ic-14-2{font-size:14px;vertical-align:-2px;}
+.ic-15{font-size:15px;}
+.ic-15-3{font-size:15px;vertical-align:-3px;}
+.ic-16{font-size:16px;}
+.ic-16-3{font-size:16px;vertical-align:-3px;}
+.ic-18{font-size:18px;}
+.ic-20{font-size:20px;}
+.ic-40{font-size:40px;}
+.ic-48{font-size:48px;}
 
 /* BADGES */
 .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
@@ -857,7 +875,7 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 <!-- AUTH SCREEN -->
 <div id="authScreen">
   <div class="auth-box">
-    <div style="margin-bottom:12px;"><span class="ms" style="font-size:48px;">storefront</span></div>
+    <div style="margin-bottom:12px;"><span class="ms ic-48">storefront</span></div>
     <h1>Склад ОСББ</h1>
     <p>Микитська Слобода</p>
     <div class="auth-dots" id="authDots">
@@ -956,7 +974,7 @@ async function checkPin(attempt){
     pinBusy=false;
   } else {
     pinFails++;
-    document.getElementById('authErr').innerHTML='<span class="ms" style="font-size:14px;vertical-align:-2px;">cancel</span> Невірний PIN-код';
+    document.getElementById('authErr').innerHTML='<span class="ms ic-14-2">cancel</span> Невірний PIN-код';
     const box=document.querySelector('.auth-box');
     box.style.animation='shake .4s';
     setTimeout(()=>box.style.animation='',400);
@@ -1023,13 +1041,13 @@ async function checkPin(attempt){
       </div>
     </section>
     <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
-      <div class="alert-banner"><span class="ms" style="font-size:16px;vertical-align:-3px;">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
+      <div class="alert-banner"><span class="ms ic-16-3">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
     </div>
     <div class="g4 items-metrics insight-grid">
-      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">inventory_2</span> Всі позиції</div><div class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></div></div>
-      <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">production_quantity_limits</span> Закінчились</div><div class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></div></div>
-      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">warning</span> Мало залишилось</div><div class="stat-icon" aria-hidden="true"><span class="ms">warning</span></div></div>
-      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms" style="font-size:13px;vertical-align:-2px;">check_circle</span> В нормі</div><div class="stat-icon" aria-hidden="true"><span class="ms">check_circle</span></div></div>
+      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms ic-13-2">inventory_2</span> Всі позиції</div><div class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></div></div>
+      <div class="stat-card sc-red" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms ic-13-2">production_quantity_limits</span> Закінчились</div><div class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></div></div>
+      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms ic-13-2">warning</span> Мало залишилось</div><div class="stat-icon" aria-hidden="true"><span class="ms">warning</span></div></div>
+      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms ic-13-2">check_circle</span> В нормі</div><div class="stat-icon" aria-hidden="true"><span class="ms">check_circle</span></div></div>
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
@@ -1047,7 +1065,7 @@ async function checkPin(attempt){
         <button type="button" class="pill" data-category-filter="Інше"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
       </div>
       <div class="items-filter-row items-search-row">
-        <div class="sw items-search-field"><span class="si"><span class="ms" style="font-size:18px;" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
+        <div class="sw items-search-field"><span class="si"><span class="ms ic-18" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
         <button type="button" class="btn btn-ghost btn-sm items-reset-btn" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters"><span class="ms items-reset-icon" aria-hidden="true">filter_alt_off</span> Скинути</button>
       </div>
@@ -1090,11 +1108,11 @@ async function checkPin(attempt){
           </div>
           <div><label>Кому видано</label><div class="preset-row"><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button type="button" class="btn btn-primary full-width-action" data-sklad-action="issue-submit"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Видати зі складу</button>
+          <button type="button" class="btn btn-primary full-width-action" data-sklad-action="issue-submit"><span class="ms ic-16-3">check_circle</span> Видати зі складу</button>
         </div>
       </div>
       <div class="card side-panel">
-        <div class="side-panel-title"><span class="ms" aria-hidden="true" style="font-size:15px;">history</span> Останні видачі</div>
+        <div class="side-panel-title"><span class="ms ic-15" aria-hidden="true">history</span> Останні видачі</div>
         <div id="recentIssues" class="side-panel-body"></div>
       </div>
     </div>
@@ -1105,13 +1123,13 @@ async function checkPin(attempt){
     <div class="list-toolbar">
       <div class="list-toolbar-row pills-wrap">
         <button type="button" class="pill active" data-log-category-filter="">Всі</button>
-        <button type="button" class="pill" data-log-category-filter="Прибирання"><span class="ms" style="font-size:15px;">cleaning_services</span></button>
-        <button type="button" class="pill" data-log-category-filter="Ремонт"><span class="ms" style="font-size:15px;">build</span></button>
-        <button type="button" class="pill" data-log-category-filter="Електрика"><span class="ms" style="font-size:15px;">bolt</span></button>
-        <button type="button" class="pill" data-log-category-filter="Сантехніка"><span class="ms" style="font-size:15px;">plumbing</span></button>
+        <button type="button" class="pill" data-log-category-filter="Прибирання"><span class="ms ic-15">cleaning_services</span></button>
+        <button type="button" class="pill" data-log-category-filter="Ремонт"><span class="ms ic-15">build</span></button>
+        <button type="button" class="pill" data-log-category-filter="Електрика"><span class="ms ic-15">bolt</span></button>
+        <button type="button" class="pill" data-log-category-filter="Сантехніка"><span class="ms ic-15">plumbing</span></button>
       </div>
       <div class="list-toolbar-row list-search-row">
-        <div class="sw" style="width:240px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
+        <div class="sw" style="width:240px;"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
         <div id="logResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
@@ -1184,18 +1202,18 @@ async function checkPin(attempt){
     <div class="audit-toolbar">
       <div class="audit-toolbar-row">
         <div>
-          <div class="workflow-kicker"><span class="ms" style="font-size:15px;vertical-align:-3px;">fact_check</span> Контроль залишків</div>
+          <div class="workflow-kicker"><span class="ms ic-15-3">fact_check</span> Контроль залишків</div>
           <h3 class="workflow-title">Інвентаризація складу</h3>
           <div id="auditDate" class="workflow-copy"></div>
         </div>
         <div class="items-hero-actions">
-          <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-zeros" data-tip="Обнулити всі поля"><span class="ms" style="font-size:14px;vertical-align:-2px;">clear_all</span> Очистити</button>
-          <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-current" data-tip="Підставити поточні залишки"><span class="ms" style="font-size:14px;vertical-align:-2px;">content_paste</span> Підставити поточні</button>
-          <button type="button" class="btn btn-primary" data-sklad-action="audit-confirm-open"><span class="ms" style="font-size:16px;vertical-align:-3px;">check_circle</span> Завершити</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-zeros" data-tip="Обнулити всі поля"><span class="ms ic-14-2">clear_all</span> Очистити</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="audit-fill-current" data-tip="Підставити поточні залишки"><span class="ms ic-14-2">content_paste</span> Підставити поточні</button>
+          <button type="button" class="btn btn-primary" data-sklad-action="audit-confirm-open"><span class="ms ic-16-3">check_circle</span> Завершити</button>
         </div>
       </div>
       <div class="audit-search-row">
-        <div class="sw"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару..." data-render-audit-input></div>
+        <div class="sw"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару..." data-render-audit-input></div>
         <div id="auditResultSummary" class="list-summary" aria-live="polite"></div>
         <div class="audit-progress-wrap"><div id="auditStats" class="list-summary"></div><div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div></div>
       </div>
@@ -1213,13 +1231,13 @@ async function checkPin(attempt){
     <div class="receipts-toolbar">
       <div class="receipts-toolbar-row">
         <div>
-          <div class="workflow-kicker"><span class="ms" style="font-size:15px;vertical-align:-3px;">move_to_inbox</span> Поповнення складу</div>
+          <div class="workflow-kicker"><span class="ms ic-15-3">move_to_inbox</span> Поповнення складу</div>
           <h3 class="workflow-title">Прихід товару</h3>
           <p class="workflow-copy">Швидко перевіряйте останні надходження, постачальників і примітки.</p>
         </div>
       </div>
       <div class="receipts-search-row">
-        <div class="sw"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук по товару, постачальнику або примітці..." data-render-receipts-input></div>
+        <div class="sw"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук по товару, постачальнику або примітці..." data-render-receipts-input></div>
         <div id="recResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
@@ -1667,7 +1685,7 @@ function renderAuditList(){
   if(progressWrap) progressWrap.setAttribute('aria-valuenow',String(progress));
 
   const list=document.getElementById('auditList');
-  if(!items.length){list.innerHTML='<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div>';return;}
+  if(!items.length){list.innerHTML='<div class="empty"><span class="ms ic-16-3">search_off</span> Нічого не знайдено</div>';return;}
 
   list.innerHTML=items.map(item=>{
     const actual=auditData[item.id];
@@ -1677,7 +1695,7 @@ function renderAuditList(){
     if(isCounted){
       if(diff>0){stateClass='is-surplus';diffHtml=`<span class="audit-diff good">▲ +${diff}</span>`;}
       else if(diff<0){stateClass='is-shortage';diffHtml=`<span class="audit-diff bad">▼ ${diff}</span>`;}
-      else{stateClass='is-match';diffHtml=`<span class="audit-diff good"><span class="ms" style="font-size:13px;vertical-align:-2px;">check</span> Збігається</span>`;}
+      else{stateClass='is-match';diffHtml=`<span class="audit-diff good"><span class="ms ic-13-2">check</span> Збігається</span>`;}
     }
     const cat=item.category||'';
     const safeCat=escapeHtml(cat||'—');
@@ -1689,7 +1707,7 @@ function renderAuditList(){
       <div class="audit-item-main">
         <div class="audit-item-title">${name}</div>
         <div class="audit-item-meta">
-          <span class="badge ${catBadge[cat]||'bo'}" style="font-size:10px;">${safeCat}</span>
+          <span class="badge ${catBadge[cat]||'bo'} ic-10">${safeCat}</span>
           <span>За даними: <b>${escapeHtml(String(item.quantity??0))} ${unit}</b></span>
           ${diffHtml}
         </div>
@@ -1705,7 +1723,7 @@ function renderAuditList(){
             data-audit-input data-item-id="${item.id}">
           <span style="font-size:11px;color:var(--ios-label3);">${unit}</span>
         </div>
-        ${isCounted?`<button type="button" class="audit-reset-btn" data-audit-clear data-item-id="${item.id}"><span class="ms" style="font-size:12px;vertical-align:-2px;">close</span> скинути</button>`:''}
+        ${isCounted?`<button type="button" class="audit-reset-btn" data-audit-clear data-item-id="${item.id}"><span class="ms ic-12-2">close</span> скинути</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1784,7 +1802,7 @@ function openAuditConfirm(){
         <div class="audit-summary-label">Нестача</div>
       </div>
     </div>
-    ${uncounted.length>0?`<div class="audit-summary-warning"><span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> ${uncounted.length} товарів не будуть оновлені (поле порожнє)</div>`:''}
+    ${uncounted.length>0?`<div class="audit-summary-warning"><span class="ms ic-14-2">warning</span> ${uncounted.length} товарів не будуть оновлені (поле порожнє)</div>`:''}
   `;
   openModal('auditModal');
 }
@@ -2323,9 +2341,9 @@ function renderItems(){
   // Desktop table
   const tb=document.getElementById('itemsTable');
   if(!items.length){
-    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"><span class="ms" style="font-size:40px;">search_off</span></div>Нічого не знайдено</div></td></tr>';
+    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"><span class="ms ic-40">search_off</span></div>Нічого не знайдено</div></td></tr>';
     const mc=document.getElementById('mobileCards');
-    if(mc) mc.innerHTML='<div class="empty empty-compact"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div>';
+    if(mc) mc.innerHTML='<div class="empty empty-compact"><span class="ms ic-16-3">search_off</span> Нічого не знайдено</div>';
     return;
   }
   tb.innerHTML=items.map((item,idx)=>{
@@ -2337,7 +2355,7 @@ function renderItems(){
     const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
     const photoCell=safePhoto
       ? `<img src="${safePhoto}" class="photo-thumb tip-up" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}" data-tip="Переглянути" alt="Фото товару ${name}">`
-      : `<div class="photo-ph tip-up" data-item-action="photo" data-item-id="${id}" data-tip="Додати фото" role="button" tabindex="0" aria-label="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
+      : `<div class="photo-ph tip-up" data-item-action="photo" data-item-id="${id}" data-tip="Додати фото" role="button" tabindex="0" aria-label="Додати фото"><span class="ms ic-18">photo_camera</span></div>`;
     return `<tr>
       <td class="table-idx-cell">${idx+1}</td>
       <td class="table-name-cell">${name}${item.is_internal?' <span class="badge badge-internal">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</td>
@@ -2347,13 +2365,13 @@ function renderItems(){
       <td><span class="${qc}">${escapeHtml(String(item.quantity??0))}</span> <span class="table-qty-unit">${unit}</span></td>
       <td>${priceBadge(item)}</td>
       <td><div class="table-row-actions">
-        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"><span class="ms" style="font-size:16px;">photo_camera</span></button>
-        <button type="button" class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms" aria-hidden="true" style="font-size:16px;">home_repair_service</span></button>
-        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="manual-price" data-item-id="${id}" data-tip="Ціна" aria-label="Ціна"><span class="ms" style="font-size:16px;">sell</span></button>
-        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="price-lookup" data-item-id="${id}" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms" style="font-size:16px;">travel_explore</span></button>
-        <button type="button" class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms ic-15-3">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"><span class="ms ic-16">photo_camera</span></button>
+        <button type="button" class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms ic-16" aria-hidden="true">home_repair_service</span></button>
+        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="manual-price" data-item-id="${id}" data-tip="Ціна" aria-label="Ціна"><span class="ms ic-16">sell</span></button>
+        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="price-lookup" data-item-id="${id}" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms ic-16">travel_explore</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}"><span class="ms ic-16">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2386,8 +2404,8 @@ function renderItems(){
         </div>
       </div>
       <div class="m-card-actions">
-        <button type="button" class="btn btn-primary" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
-        <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Деталі</button>
+        <button type="button" class="btn btn-primary" data-item-action="quick" data-item-id="${id}"><span class="ms ic-15-3">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Деталі</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
@@ -2524,13 +2542,13 @@ async function issueItem(itemId,qty,person,note,issueDate){
 async function loadRecentIssues(){
   const {data}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
   const el=document.getElementById('recentIssues');
-  if(!data||!data.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms" style="font-size:16px;vertical-align:-3px;">inbox</span> Видач ще не було</div>';return;}
+  if(!data||!data.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">inbox</span> Видач ще не було</div>';return;}
   el.innerHTML=data.map(l=>{
     const d=new Date(l.issued_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const safeName=escapeHtml(l.item_name||'—');
     const safeIssuedTo=escapeHtml(l.issued_to||'—');
-    return `<div class="log-row"><div class="log-icon"><span class="ms" style="font-size:18px;">output</span></div>
+    return `<div class="log-row"><div class="log-icon"><span class="ms ic-18">output</span></div>
       <div class="log-row-main">
         <div class="log-row-title">${safeName}</div>
         <div class="log-row-meta">${safeIssuedTo} · ${dt}</div>
@@ -2564,8 +2582,8 @@ function renderLog(){
   const mb=document.getElementById('logMobileList');
   if(!logs.length){
     const empty=s?'Нічого не знайдено':'Видач ще не було';
-    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> ${empty}</div>`;
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div></td></tr>`;
+    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div>`;
     return;
   }
   tb.innerHTML=logs.map(l=>{
@@ -2585,8 +2603,8 @@ function renderLog(){
       <td class="log-person-cell">${safeIssuedTo}</td>
       <td class="log-note-cell">${safeNote}</td>
       <td><div class="table-row-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button type="button" class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}"><span class="ms ic-16">edit</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}"><span class="ms ic-16">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2610,8 +2628,8 @@ function renderLog(){
       <div class="log-mobile-side">
         −${escapeHtml(String(l.quantity??0))}<span class="log-mobile-unit"> ${safeUnit}</span>
         <div class="log-mobile-actions">
-          <button type="button" class="icon-action" data-log-action="edit" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button type="button" class="icon-action danger" data-log-action="delete" data-log-id="${l.id}"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button type="button" class="icon-action" data-log-action="edit" data-log-id="${l.id}"><span class="ms ic-16">edit</span></button>
+          <button type="button" class="icon-action danger" data-log-action="delete" data-log-id="${l.id}"><span class="ms ic-16">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2691,8 +2709,8 @@ function renderReceipts(){
   const mb=document.getElementById('recMobileList');
   if(!recs.length){
     const empty=s?'Нічого не знайдено':'Приходів ще не було';
-    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">inbox</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms" style="font-size:16px;vertical-align:-3px;">inbox</span> ${empty}</div>`;
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
+    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div>`;
     return;
   }
   tb.innerHTML=recs.map(r=>{
@@ -2710,8 +2728,8 @@ function renderReceipts(){
       <td class="log-person-cell">${safeSupplier}</td>
       <td class="log-note-cell">${safeNote}</td>
       <td><div class="table-row-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">edit</span></button>
-        <button type="button" class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}"><span class="ms" style="font-size:16px;">delete</span></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}"><span class="ms ic-16">edit</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}"><span class="ms ic-16">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2724,7 +2742,7 @@ function renderReceipts(){
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=r.note?' · '+escapeHtml(r.note):'';
     return `<div class="receipt-mobile-item">
-      <div class="receipt-mobile-icon"><span class="ms" style="font-size:20px;">move_to_inbox</span></div>
+      <div class="receipt-mobile-icon"><span class="ms ic-20">move_to_inbox</span></div>
       <div class="receipt-mobile-main">
         <div class="receipt-mobile-title">${safeName}</div>
         <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}</div>
@@ -2732,8 +2750,8 @@ function renderReceipts(){
       <div class="receipt-mobile-side">
         +${escapeHtml(String(r.quantity??0))}<span class="receipt-mobile-unit"> ${safeUnit}</span>
         <div class="receipt-mobile-actions">
-          <button type="button" class="icon-action" data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"><span class="ms" style="font-size:16px;">edit</span></button>
-          <button type="button" class="icon-action danger" data-receipt-action="delete" data-receipt-id="${r.id}" aria-label="Видалити прихід"><span class="ms" style="font-size:16px;">delete</span></button>
+          <button type="button" class="icon-action" data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"><span class="ms ic-16">edit</span></button>
+          <button type="button" class="icon-action danger" data-receipt-action="delete" data-receipt-id="${r.id}" aria-label="Видалити прихід"><span class="ms ic-16">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2938,7 +2956,7 @@ async function doAddNew(btn){
 function renderAddLow(){
   const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity).slice(0,10);
   const el=document.getElementById('addLowList');
-  if(!low.length){el.innerHTML='<div class="add-low-empty"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Все в нормі!</div>';return;}
+  if(!low.length){el.innerHTML='<div class="add-low-empty"><span class="ms ic-15-3">check_circle</span> Все в нормі!</div>';return;}
   el.innerHTML=low.map(i=>`<div class="add-low-row">
     <span class="add-low-name">${escapeHtml(i.name||'—')}</span>
     <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
@@ -3006,7 +3024,7 @@ async function uploadPhoto(){
       const {error:upErr}=await db.storage.from('photos').upload(path,blob,{contentType:'image/jpeg',upsert:true});
       if(upErr){
         if(/bucket/i.test(upErr.message)){
-          status.innerHTML='<span class="ms" style="font-size:15px;vertical-align:-3px;">cancel</span> Сховище фото не налаштовано.<br><small>Потрібно створити Storage bucket "photos" (Public) в Supabase Dashboard.</small>';
+          status.innerHTML='<span class="ms ic-15-3">cancel</span> Сховище фото не налаштовано.<br><small>Потрібно створити Storage bucket "photos" (Public) в Supabase Dashboard.</small>';
         } else {
           status.textContent='Помилка: '+upErr.message;
         }
@@ -3015,7 +3033,7 @@ async function uploadPhoto(){
       const {data:{publicUrl}}=db.storage.from('photos').getPublicUrl(path);
       const {error:dbErr}=await db.from('inventory_items').update({photo_url:publicUrl}).eq('id',photoItemId);
       if(dbErr){status.textContent='Помилка: '+dbErr.message;return;}
-      status.innerHTML='<span class="ms" style="font-size:14px;vertical-align:-2px;">check_circle</span> Збережено!';
+      status.innerHTML='<span class="ms ic-14-2">check_circle</span> Збережено!';
       await loadItems();openPhotoModal(photoItemId);
     },'image/jpeg',0.82);
   };
@@ -3109,7 +3127,7 @@ function renderStats(){
   const filteredValueEl=document.getElementById('bal-filtered-value');
   if(filteredValueEl) filteredValueEl.textContent=filteredValue?money(filteredValue):'—';
   const filteredCountEl=document.getElementById('bal-filtered-count');
-  if(filteredCountEl) filteredCountEl.innerHTML=`<span class="ms" style="font-size:13px;vertical-align:-2px;">filter_alt</span> ${filteredItems.length} поз. · ${filteredInStock} в наявності · ${filteredInternal} внутр.`;
+  if(filteredCountEl) filteredCountEl.innerHTML=`<span class="ms ic-13-2">filter_alt</span> ${filteredItems.length} поз. · ${filteredInStock} в наявності · ${filteredInternal} внутр.`;
   const summary=document.getElementById('valueFilterSummary');
   if(summary){
     const missing=filteredItems.length-filteredPriced;
@@ -3140,7 +3158,7 @@ function renderStats(){
         <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
         <span class="${i.quantity==0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
       </div>`).join('')
-    : '<div class="stat-low-empty"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Всі товари в нормі!</div>';
+    : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Всі товари в нормі!</div>';
   const unpriced=allItems.filter(i=>!priceValue(i)).sort((a,b)=>Number(b.quantity||0)-Number(a.quantity||0));
   const unpricedBox=document.getElementById('statUnpriced');
   if(unpricedBox) unpricedBox.innerHTML=unpriced.length
@@ -3151,15 +3169,15 @@ function renderStats(){
         </div>
         <button type="button" class="btn btn-ghost btn-sm stat-unpriced-btn" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
       </div>`).join('')+(unpriced.length>12?`<div class="stat-unpriced-more">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
-    : '<div class="stat-low-empty"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
+    : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Усі товари мають ціну!</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     const safeName=escapeHtml(l.item_name||'—');
     const safeIssuedTo=escapeHtml(l.issued_to||'—');
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
-      <span style="font-weight:600;color:var(--ios-label);flex:1;min-width:0;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</span>
-      <span style="color:var(--ios-label3);margin-right:8px;white-space:nowrap;font-size:12px;">${safeIssuedTo}</span>
-      <span style="color:#a5b4fc;font-size:11px;white-space:nowrap;">${d}</span>
+    return `<div class="stat-log-row">
+      <span class="stat-log-name">${safeName}</span>
+      <span class="stat-log-person">${safeIssuedTo}</span>
+      <span class="stat-log-date">${d}</span>
     </div>`;
   }).join('')||'<div class="empty" style="padding:16px;">Журнал порожній</div>';
 }
@@ -3337,7 +3355,7 @@ function openBarcodeAddScanner(){
         window.open('https://www.google.com/search?q='+encodeURIComponent(decoded),'_blank');
       },
       ()=>{}
-    ).catch(()=>{document.getElementById('barcodeAddScanning').innerHTML='<span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> Не вдалось запустити камеру.';});
+    ).catch(()=>{document.getElementById('barcodeAddScanning').innerHTML='<span class="ms ic-14-2">warning</span> Не вдалось запустити камеру.';});
   },300);
 }
 function searchManualBarcode(){
@@ -3372,14 +3390,14 @@ function openQR(){
       {fps:10,qrbox:{width:220,height:220}},
       (decoded)=>{
         document.getElementById('qrResult').style.display='block';
-        document.getElementById('qrResult').innerHTML='<span class="ms" style="font-size:14px;vertical-align:-2px;">check_circle</span> Зчитано: '+escapeHtml(decoded);
+        document.getElementById('qrResult').innerHTML='<span class="ms ic-14-2">check_circle</span> Зчитано: '+escapeHtml(decoded);
         const found=allItems.find(i=>i.name.toLowerCase().includes(decoded.toLowerCase())||decoded.includes(String(i.id)));
         if(found){stopQR();closeModal('qrModal');openQuick(found.id);}
       },
       ()=>{}
     ).catch(()=>{
       document.getElementById('qrResult').style.display='block';
-      document.getElementById('qrResult').innerHTML='<span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> Не вдалось запустити камеру. Перевірте дозволи браузера.';
+      document.getElementById('qrResult').innerHTML='<span class="ms ic-14-2">warning</span> Не вдалось запустити камеру. Перевірте дозволи браузера.';
     });
   },300);
 }
