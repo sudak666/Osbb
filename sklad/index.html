@@ -3647,9 +3647,11 @@ function closeOpenModals(){
 function trapModalFocus(event){
   if(event.key !== 'Tab') return;
   const openModals = [...document.querySelectorAll('.modal-bg.open')];
+  const lightbox = document.getElementById('lightbox');
+  if(lightbox && lightbox.classList.contains('open')) openModals.push(lightbox);
   const modalBg = openModals[openModals.length-1];
   if(!modalBg) return;
-  const dialog = modalBg.querySelector('[role="dialog"]');
+  const dialog = modalBg.matches('[role="dialog"]') ? modalBg : modalBg.querySelector('[role="dialog"]');
   if(!dialog) return;
   const focusables = getFocusableModalElements(dialog);
   if(!focusables.length){
@@ -3686,7 +3688,7 @@ function showDeletePinModal(title, action) {
 }
 function delPinModalCancel(e) {
   if (e && e.target !== document.getElementById('delPinModal')) return;
-  document.getElementById('delPinModal').classList.remove('open');
+  closeModal('delPinModal');
   deletePinBuf = ''; deletePinAction = null;
   updateDeletePinDots();
   document.getElementById('delPinErr').textContent = '';
@@ -3708,7 +3710,7 @@ async function deletePinPress(k) {
     if (!action) return;
     const result = await action(pin);
     if (result && result.ok) {
-      document.getElementById('delPinModal').classList.remove('open');
+      closeModal('delPinModal');
       deletePinAction = null;
     } else {
       const reason = result && result.reason;
@@ -3718,7 +3720,7 @@ async function deletePinPress(k) {
                 : 'Невірний PIN, спробуйте ще';
       document.getElementById('delPinErr').textContent = msg;
       if (reason && reason !== 'bad_pin') {
-        setTimeout(() => { document.getElementById('delPinModal').classList.remove('open'); deletePinAction = null; }, 1600);
+        setTimeout(() => { closeModal('delPinModal'); deletePinAction = null; }, 1600);
       }
     }
   }
