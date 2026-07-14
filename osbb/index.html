@@ -100,6 +100,8 @@
         .journal-status-icon-row-tight { display:inline-flex; align-items:center; gap:4px; }
         .journal-joke-icon { display:inline-block; vertical-align:-2px; }
         .journal-daytype-icon { display:inline-block; vertical-align:middle; margin-right:3px; }
+        .task-check-dot { width:20px; height:20px; border-radius:50%; border:2px solid #d1d5db; background:transparent; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; cursor:pointer; }
+        .task-check-dot.is-checked { border-color:#34c759; background:#34c759; }
         .journal-action-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 12px; border-radius:14px; font-size:14px; font-weight:800; transition:transform .15s ease, background .15s ease, opacity .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.05); }
         .journal-action-btn:hover { transform:scale(1.03); }
         .journal-action-btn-primary { background:#059669; color:#fff; }
@@ -1451,7 +1453,7 @@
                     const disabled = !state.working;
                     return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
                         <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
-                            style="width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
+                            class="task-check-dot${isChecked?' is-checked':''}">
                         </span>
                         <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
@@ -1600,7 +1602,7 @@
                     const disabled = !state.working;
                     checkBoxesHtml += `<label class="flex items-center gap-2 text-sm cursor-pointer select-none mt-1.5 ${disabled?'pointer-events-none opacity-40':''}">
                         <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
-                            style="width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?'#34c759':'#d1d5db'};background:${isChecked?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
+                            class="task-check-dot${isChecked?' is-checked':''}">
                         </span>
                         <span class="${isChecked?'font-semibold text-[var(--text-main)]':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
