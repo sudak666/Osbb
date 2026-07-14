@@ -802,6 +802,30 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Garbage yearly chart bars should use a class-based gradient with only the
+// per-bar height left inline, instead of a full inline gradient ternary.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb garbage chart bars use class-based gradient';
+  const required = [
+    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#34c759,#28a745); }',
+    '.g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }',
+    "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
+  ];
+  const forbidden = [
+    "style=\"height:${h}px;width:100%;border-radius:6px 6px 0 0;background:${isCur ?",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {

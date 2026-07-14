@@ -102,6 +102,8 @@
         .journal-daytype-icon { display:inline-block; vertical-align:middle; margin-right:3px; }
         .task-check-dot { width:20px; height:20px; border-radius:50%; border:2px solid #d1d5db; background:transparent; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; cursor:pointer; }
         .task-check-dot.is-checked { border-color:#34c759; background:#34c759; }
+        .g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#34c759,#28a745); }
+        .g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }
         .journal-action-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 12px; border-radius:14px; font-size:14px; font-weight:800; transition:transform .15s ease, background .15s ease, opacity .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.05); }
         .journal-action-btn:hover { transform:scale(1.03); }
         .journal-action-btn-primary { background:#059669; color:#fff; }
@@ -2447,9 +2449,9 @@
         container.innerHTML = monthlyTotals.map((val, i) => {
             const h = Math.max(4, Math.round((val / maxVal) * 68));
             const isCur = i === currentMonth;
-            return `<div class="flex flex-col items-center gap-1" style="flex:1">
+            return `<div class="flex flex-col items-center gap-1 flex-1">
                 <div class="text-[10px] font-bold ${isCur ? 'text-amber-500' : 'text-[var(--text-sub)]'}">${val||''}</div>
-                <div style="height:${h}px;width:100%;border-radius:6px 6px 0 0;background:${isCur ? 'linear-gradient(#fbbf24,#f59e0b)' : 'linear-gradient(#34c759,#28a745)'}"></div>
+                <div class="g-chart-bar${isCur ? ' is-current' : ''}" style="height:${h}px"></div>
                 <div class="text-[9px] text-[var(--text-sub)]">${gMonths[i].slice(0,3)}</div>
             </div>`;
         }).join('');
