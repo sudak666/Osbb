@@ -277,6 +277,13 @@ The journal's `setSyncStatus`/`gSetStatus` renderers and the dispatcher joke-mes
 - the row action wrapper now reuses the existing `table-row-actions` class instead of a duplicate inline `display:flex;gap:6px`;
 - smoke checks guard the new classes and flag regressions back to the old inline strings.
 
+### Sklad audit finish-summary cleanup
+
+`openAuditConfirm()`'s 2x2 stat grid (counted/uncounted/surplus/shortage) built every tile from inline grid/color/padding styles:
+
+- `audit-summary-grid`, `audit-summary-tile`, `audit-summary-value` (with `counted`/`uncounted`/`surplus`/`shortage` color modifiers), `audit-summary-label`, and `audit-summary-warning` replace the inline styles;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
