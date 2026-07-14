@@ -268,6 +268,15 @@ The journal's `setSyncStatus`/`gSetStatus` renderers and the dispatcher joke-mes
 - `journal-daytype-icon` replaces the one-off day-type icon inline style;
 - smoke checks guard the new classes and flag regressions back to the old inline strings.
 
+### Sklad log/receipts table cell cleanup
+
+`renderLog()` and `renderReceipts()` shared near-identical inline-styled `<td>` cells for date, item name, quantity, person/supplier, and note columns:
+
+- `log-date-cell`, `log-name-cell`, `log-cat-badge`, `log-person-cell`, `log-note-cell` replace the per-cell inline color/size styles in both renderers;
+- `log-qty-out` (indigo, issue log) / `log-qty-in` (green, receipts) plus a shared `log-unit-suffix` replace the inline quantity/unit styling;
+- the row action wrapper now reuses the existing `table-row-actions` class instead of a duplicate inline `display:flex;gap:6px`;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
