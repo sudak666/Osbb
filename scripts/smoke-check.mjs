@@ -142,6 +142,28 @@ for (const [file, needle, label] of checks) {
 
 
 
+// The shell's <style> block was extracted the same way, but unlike
+// osbb/sw.js and sklad/sw.js, the root sw.js IS the one actively registered
+// service worker (from index.html) and it precaches the shell for offline
+// use — so it must precache and cache-first serve the new styles.css, or
+// an offline user gets an unstyled shell.
+{
+  const text = readFileSync('sw.js', 'utf8');
+  const label = 'shell service worker precaches and cache-first serves styles.css';
+  const required = [
+    "'/Osbb/styles.css',",
+    "url.pathname === '/Osbb/styles.css' ||",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shell controls should be wired with event listeners rather than inline onclick
 // attributes so markup stays separate from behavior and CSP hardening remains possible.
 {
