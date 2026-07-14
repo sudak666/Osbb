@@ -12,6 +12,11 @@ function readSkladCombined() {
   return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8');
 }
 
+// Same story for osbb/index.html's extracted <style> block -> osbb/styles.css.
+function readOsbbCombined() {
+  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8');
+}
+
 const checks = [
   ['index.html', 'verify_lock_pin', 'shell PIN uses server RPC'],
   ['index.html', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
@@ -220,7 +225,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB static controls should also avoid inline event attributes. Dynamic rows still
 // have legacy inline handlers, but the PIN/key navigation controls are now bound centrally.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal static controls use centralized event bindings';
   const forbidden = [
     "lockPress('",
@@ -251,7 +256,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB lightbox, chat, month reset and photo container actions should use
 // central bindings so URLs/messages are not serialized into inline JS calls.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal shell actions use centralized event bindings';
   const forbidden = [
     'onclick="lightboxPrev',
@@ -295,7 +300,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB PIN confirmation modal and lightbox should expose dialog semantics and
 // move focus into the active overlay when opened.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal overlays expose accessible dialog semantics';
   const required = [
     'role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1"',
@@ -318,7 +323,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal day cards/table rows should use data hooks for role tasks, shifts,
 // ticket counts, comments and photo uploads instead of inline event attributes.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal day entries use delegated data bindings';
   const forbidden = [
     'onclick="if(!${disabled}) toggleTask',
@@ -383,7 +388,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB garbage/dispatcher dynamic lists should also rely on delegated data
 // hooks now that journal day entries have been centralized.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal garbage and dispatcher lists use delegated data bindings';
   const forbidden = [
     'onclick="gToggleDay',
@@ -420,7 +425,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB text escaping should use the shared escapeHtml helper rather than ad-hoc
 // `<` replacement so ampersands/quotes are handled consistently in renderers.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal renderers use shared escapeHtml helper';
   const forbidden = [
     "replace(/</g,'&lt;')",
@@ -451,7 +456,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Dynamic values inside HTML attributes should use escapeAttr, not raw stored
 // values from offline/database state.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal dynamic input attributes are escaped';
   const required = [
     'value="${escapeAttr(String(state.ticketCount||\'\'))}"',
@@ -790,7 +795,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal task-toggle dots should use a class-based checked state instead of
 // inline border/background color strings driven by isChecked.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb task-toggle dots use class-based checked state';
   const required = [
     '.task-check-dot { width:20px; height:20px; border-radius:50%;',
@@ -814,7 +819,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Garbage yearly chart bars should use a class-based gradient with only the
 // per-bar height left inline, instead of a full inline gradient ternary.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb garbage chart bars use class-based gradient';
   const required = [
     '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#34c759,#28a745); }',
@@ -952,7 +957,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // The dispatcher card's task-toggle dot and the PIN-modal icon circles
 // should use class-based markup instead of repeated inline style strings.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb dispatcher task dot and PIN-modal icons use class-based markup';
   const required = [
     "class=\"task-check-dot${row.tasks?.[t.id]?' is-checked':''}\"",
@@ -988,7 +993,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // escape their Supabase-sourced free-text/JSONB values before injecting
 // them into innerHTML templates.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb print-summary and dispatcher call badge escape dynamic text';
   const required = [
     'printSummary.push(escapeHtml(state.other))',
@@ -1034,7 +1039,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // native inputs — they must expose checkbox semantics and be keyboard
 // operable (tabindex/role/aria-checked plus an Enter/Space handler).
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb task-toggle dots expose checkbox semantics and keyboard support';
   const required = [
     'role="checkbox" aria-checked="${isChecked?\'true\':\'false\'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?\'-1\':\'0\'}"',
@@ -1059,7 +1064,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // values (a stringified dataset key vs a numeric loop variable is a real
 // bug, not just an a11y gap: it silently never expands).
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb day-card/dispatcher/garbage disclosure headers are keyboard accessible';
   const required = [
     "header.setAttribute('role', 'button');",
@@ -1111,7 +1116,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // helper in this file) — it must have a Tab focus trap alongside its
 // existing Escape/arrow-key handling.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb lightbox has a Tab focus trap';
   const required = [
     "if (e.key === 'Tab') {",
@@ -1130,7 +1135,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'osbb journal status/icon spans use class-based helpers';
   const required = [
     '.journal-status-icon-row { display:inline-flex; align-items:center; gap:5px; }',
@@ -1570,7 +1575,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB journal header should be split into clear title/status, calendar/action,
 // and tab rows so the controls do not collapse into one dense visual band.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal header uses separated title action and tab rows';
   const required = [
     'class="no-print journal-shell-header"',
@@ -1621,7 +1626,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal theme toggle should avoid colored emoji glyphs and use the compact
 // monochrome control style matching Sklad more closely.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
     'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true">◐</span>',
@@ -1643,7 +1648,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Garbage dashboard chart should load the full selected year from Supabase, not
 // only whatever months happen to exist in localStorage.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal garbage chart fetches yearly cloud data';
   const required = [
     'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
@@ -1673,7 +1678,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB static icon/action markup should keep moving repeated inline layout
 // styles into reusable classes instead of duplicating SVG layout style strings.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal static icons and header actions use reusable style classes';
   const required = [
     '.journal-inline-icon {',
@@ -1696,7 +1701,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal dynamic controls expose aria-labels';
   const required = [
     'aria-label="Зміна ${roleNames[role]} за день ${d}"',
