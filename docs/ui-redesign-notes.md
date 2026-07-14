@@ -391,7 +391,22 @@ Visual direction confirmed stable (real-device sign-off above), so extraction st
 - **Shell**: `index.html`'s 162-line `<style>` block moved to a root-level `styles.css`, same `<link>`-in-place treatment. No `smoke-check.mjs` combined-read helper was needed here — the only two shell checks that read `index.html` assert JS/markup (onclick-attribute regex, auth-TTL logic), not CSS rule text.
   - **Important difference from the sklad/osbb extractions**: the root `sw.js` (registered from `index.html`) is the *only* service worker actually active in this app — unlike `osbb/sw.js`/`sklad/sw.js`, which are dead code. It precaches the shell (`urlsToCache`) for offline use and network-first/cache-fallback serves `index.html`, so extracting the CSS into a separate, uncached file would have made the offline-fallback shell render unstyled. Fixed by adding `/Osbb/styles.css` to `urlsToCache` (precached on install) and to the cache-first `isShellStatic` branch, and bumping `CACHE_NAME` to `osbb-shell-v2` so existing installs pick up the new asset on next activation. Added a smoke-check guard for both.
   - Verified: byte-identical diff, 170/170 smoke checks (169 + the new sw.js guard), tag balance/script syntax unaffected, headless Playwright screenshot of the PIN lock screen renders identically to before.
-- All three `<style>` blocks (Sklad, OSBB, shell) are now extracted. Next up if this continues: reconsider whether a shared `styles/tokens.css` makes sense — Sklad and OSBB currently define genuinely different `:root` token sets (different variable names/scales in places), so a shared file would need a real design decision, not just a mechanical move.
+- All three `<style>` blocks (Sklad, OSBB, shell) are now extracted.
+
+### OSBB accent/token color alignment with Sklad (July 2026)
+
+User explicitly asked to align colors, using Sklad as the canonical source ("зроби так як у складі"). This was a real visual change, not a mechanical move — flagged and confirmed before making it.
+
+- Investigated first: OSBB's green accent is **not** primarily driven by the `--accent` CSS variable — it's hardcoded as the literal `#34c759` in ~47 places across `osbb/index.html` and `osbb/styles.css` (icons, buttons, badges, gradients), with only 5 places actually reading `var(--accent)`. Aligning only the variable definition would have left the app two-tone (a few elements shifting color, most staying the old green) — so the fix replaced the literal everywhere, not just the token.
+- `34c759` → `22c55e` (Sklad's light-mode `--brand`/`--accent`) across both files, all ~47 occurrences.
+- `248a3d` (OSBB's `--accent-dark`, theme-invariant) → `16a34a` (Sklad's light-mode `--brand-dark`/`--accent-strong`) across both files, 3 occurrences.
+- Dark-mode accent (`#30d158`) was **already** identical to Sklad's dark `--brand`/`--accent` (`#30D158`, case-insensitive) — no change needed there.
+- Updated the `.theme-light`/`.theme-dark` token blocks in `osbb/styles.css` so `--surface-2`, `--border-subtle`, `--shadow-sm`, and `--shadow-md` now match Sklad's `:root`/`.theme-dark` values exactly (`--surface-1` was already `#ffffff` in light mode, matching; dark-mode `--surface-1` updated `#1e1e21` → `#111821` to match). Sklad's shadow tokens are theme-invariant (same value in light/dark), so OSBB's shadow tokens became invariant too, matching.
+- Did **not** rename OSBB's other variables (`--bg-app`, `--bg-card`, `--text-main`, etc.) to Sklad's `--ios-*` naming — that's a much larger, separate refactor (every `var()` reference in the file), not part of "align colors."
+- Updated two smoke-check needles (`.task-check-dot.is-checked`, `.g-chart-bar`) that had the old `#34c759` hardcoded from an earlier pass this session.
+- Verified: 170/170 smoke checks, tag balance/script syntax unaffected, headless Playwright screenshots of both light and dark themes after the change show correct, unbroken rendering with the new green shade applied consistently. `sklad/` was not touched (verified zero diff).
+
+Next: reconsider a shared `styles/tokens.css` file now that the shared-name tokens (`--accent`, `--surface-1/2`, `--border-subtle`, `--shadow-sm/md`) actually agree in value between the two apps — the remaining OSBB-only variables (`--bg-app` etc.) would stay in `osbb/styles.css`.
 
 ## Guardrails for future sessions
 

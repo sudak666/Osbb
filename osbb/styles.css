@@ -1,7 +1,7 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         html { overflow-x: hidden; }
-        .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #34c759; --accent-dark: #248a3d; --glass-card: rgba(255,255,255,0.86); --glass-nav: rgba(255,255,255,0.78); --surface-1:#ffffff; --surface-2:#f8fafc; --border-subtle:rgba(148,163,184,.22); --shadow-sm:0 12px 30px rgba(15,23,42,.07); --shadow-md:0 18px 48px rgba(15,23,42,.10); --soft-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        .theme-dark { --bg-app: #121214; --bg-card: #1e1e21; --text-main: #ececed; --text-sub: #9a9a9e; --border: #333336; --bg-input: #29292c; --table-header: #29292c; --accent: #30d158; --accent-dark: #248a3d; --glass-card: rgba(30,30,33,0.86); --glass-nav: rgba(30,30,33,0.78); --surface-1:#1e1e21; --surface-2:#29292c; --border-subtle:rgba(148,163,184,.20); --shadow-sm:0 12px 30px rgba(0,0,0,.24); --shadow-md:0 18px 48px rgba(0,0,0,.32); --soft-shadow: 0 10px 30px rgba(0,0,0,0.22); }
+        .theme-light { --bg-app: #f2f2f7; --bg-card: #ffffff; --text-main: #1c1c1e; --text-sub: #6e6e73; --border: #e5e5ea; --bg-input: #f2f2f7; --table-header: #f2f2f7; --accent: #22c55e; --accent-dark: #16a34a; --glass-card: rgba(255,255,255,0.86); --glass-nav: rgba(255,255,255,0.78); --surface-1:#ffffff; --surface-2:#f1f5f9; --border-subtle:rgba(15,23,42,.08); --shadow-sm:0 8px 24px rgba(15,23,42,.06); --shadow-md:0 16px 44px rgba(15,23,42,.10); --soft-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .theme-dark { --bg-app: #121214; --bg-card: #1e1e21; --text-main: #ececed; --text-sub: #9a9a9e; --border: #333336; --bg-input: #29292c; --table-header: #29292c; --accent: #30d158; --accent-dark: #16a34a; --glass-card: rgba(30,30,33,0.86); --glass-nav: rgba(30,30,33,0.78); --surface-1:#111821; --surface-2:#17212d; --border-subtle:rgba(148,163,184,.14); --shadow-sm:0 8px 24px rgba(15,23,42,.06); --shadow-md:0 16px 44px rgba(15,23,42,.10); --soft-shadow: 0 10px 30px rgba(0,0,0,0.22); }
         @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes slide-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes title-reveal { 0% { opacity: 0; transform: translateY(-30px) scale(0.85); letter-spacing: 0.3em; } 60% { opacity: 1; transform: translateY(4px) scale(1.03); letter-spacing: 0.04em; } 100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: normal; } }
@@ -22,7 +22,7 @@
         .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
         .no-select { user-select: none; -webkit-user-select: none; }
         .tab-btn { transition: all 0.2s; }
-        .tab-btn.active { background: #34c759; color: white; }
+        .tab-btn.active { background: #22c55e; color: white; }
         .tab-btn.active svg { stroke: white; }
         .tab-btn svg { stroke: currentColor; }
         .ic { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; }
@@ -69,8 +69,8 @@
         .journal-joke-icon { display:inline-block; vertical-align:-2px; }
         .journal-daytype-icon { display:inline-block; vertical-align:middle; margin-right:3px; }
         .task-check-dot { width:20px; height:20px; border-radius:50%; border:2px solid #d1d5db; background:transparent; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; cursor:pointer; }
-        .task-check-dot.is-checked { border-color:#34c759; background:#34c759; }
-        .g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#34c759,#28a745); }
+        .task-check-dot.is-checked { border-color:#22c55e; background:#22c55e; }
+        .g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#22c55e,#28a745); }
         .g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }
         .pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }
         .pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }
@@ -96,7 +96,7 @@
         button.tab-btn, button[onclick] { transition: transform 0.15s ease, opacity 0.15s ease; }
         button.tab-btn:active, button[onclick]:active { transform: scale(0.96); opacity: 0.85; }
         .shadow-md, .shadow-xl, .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; }
-        select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2334c759' stroke-width='2'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 12px; padding-right: 28px !important; }
+        select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2322c55e' stroke-width='2'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 12px; padding-right: 28px !important; }
         
         .mobile-day-card { display: none; }
         @media (max-width: 640px) {
@@ -120,8 +120,8 @@
             #bottom-nav { display: none !important; }
         }
         .mob-tab { transition: color 0.15s, background 0.15s; -webkit-tap-highlight-color: transparent; }
-        .mob-tab.mob-active { color: #34c759; }
-        .mob-tab.mob-active i { stroke: #34c759; }
+        .mob-tab.mob-active { color: #22c55e; }
+        .mob-tab.mob-active i { stroke: #22c55e; }
 
         /* Плаваюча заокруглена нижня панель (як капсула), а не суцільна смуга по краю екрана */
         #bottom-nav {
@@ -140,10 +140,10 @@
         .theme-dark .mob-tab.mob-active { background: rgba(48,209,88,0.18); }
         /* Кастомний чекбокс */
         .custom-cb { width:20px;height:20px;border-radius:50%;border:2px solid #d1d5db;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer; }
-        .custom-cb:hover { border-color:#34c759; background:rgba(52,199,89,0.08); }
-        .custom-cb.checked { border-color:#34c759; background:#34c759; }
+        .custom-cb:hover { border-color:#22c55e; background:rgba(52,199,89,0.08); }
+        .custom-cb.checked { border-color:#22c55e; background:#22c55e; }
         .round-checkbox { appearance:none; -webkit-appearance:none; width:18px; height:18px; border-radius:50%; border:2px solid #d1d5db; background:transparent; cursor:pointer; transition:all .15s; flex-shrink:0; vertical-align:middle; }
-        .round-checkbox:checked { background:#34c759; border-color:#34c759; }
+        .round-checkbox:checked { background:#22c55e; border-color:#22c55e; }
         .role-card { border-radius: 12px; padding: 10px; margin-bottom: 8px; }
         .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
         .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
@@ -157,7 +157,7 @@
         @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
 
         .animated-title {
-            background: linear-gradient(90deg, #34c759, #f59e0b, #10b981, #34c759);
+            background: linear-gradient(90deg, #22c55e, #f59e0b, #10b981, #22c55e);
             background-size: 300% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -183,7 +183,7 @@
         /* Підсвічування поточного дня на десктопі — через data-атрибут, щоб уникнути конфлікту з Tailwind */
         tr[data-today="1"] td { background: rgba(52, 199, 89, 0.13) !important; }
         /* Мобільна картка сьогодні */
-        .day-card-today { border: 2.5px solid #34c759 !important; box-shadow: 0 0 0 4px rgba(52,199,89,0.18) !important; }
+        .day-card-today { border: 2.5px solid #22c55e !important; box-shadow: 0 0 0 4px rgba(52,199,89,0.18) !important; }
         .day-card-today .day-card-header { background: rgba(52,199,89,0.12) !important; color: #1f7a3d; }
 
         /* Кастомний випадний список — заміна нативного <select>, у якого браузер
@@ -198,7 +198,7 @@
         .custom-select-panel.hidden { display: none; }
         .custom-select-option { padding: 8px 12px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--text-main); transition: background .12s; }
         .custom-select-option:hover { background: var(--bg-input); }
-        .custom-select-option.active { background: #34c759; color: #fff; }
+        .custom-select-option.active { background: #22c55e; color: #fff; }
 
         /* Видимий фокус лише для клавіатурної навігації */
         :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

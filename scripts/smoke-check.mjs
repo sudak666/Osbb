@@ -821,7 +821,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'osbb task-toggle dots use class-based checked state';
   const required = [
     '.task-check-dot { width:20px; height:20px; border-radius:50%;',
-    '.task-check-dot.is-checked { border-color:#34c759; background:#34c759; }',
+    '.task-check-dot.is-checked { border-color:#22c55e; background:#22c55e; }',
     "class=\"task-check-dot${isChecked?' is-checked':''}\"",
   ];
   const forbidden = [
@@ -844,7 +844,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb garbage chart bars use class-based gradient';
   const required = [
-    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#34c759,#28a745); }',
+    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#22c55e,#28a745); }',
     '.g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }',
     "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
   ];
