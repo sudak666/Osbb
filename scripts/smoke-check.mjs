@@ -9,12 +9,12 @@ import { join } from 'node:path';
 // styles.css) in the same block, so we search the concatenation of both
 // files instead of re-classifying every check individually.
 function readSkladCombined() {
-  return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8');
+  return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8') + '\n' + readFileSync('shared/ui.css', 'utf8');
 }
 
 // Same story for osbb/index.html's extracted <style> block -> osbb/styles.css.
 function readOsbbCombined() {
-  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8');
+  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + '\n' + readFileSync('shared/ui.css', 'utf8');
 }
 
 const checks = [
@@ -2401,6 +2401,55 @@ for (const file of ['index.html', 'osbb/index.html']) {
         console.error(`not ok - ${label} (no such file in the repo)`);
       }
     }
+  }
+}
+
+// Atomic stock RPCs: catches a regression back to the old client
+// read-check-write race (two separate .update()/.insert() calls).
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad issue/refill use atomic RPCs, not read-check-write';
+  const required = ["db.rpc('issue_item'", "db.rpc('receive_item'"];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Realtime: both modules should subscribe to postgres_changes so a manual
+// "Оновити" isn't the only way to see another device's edits.
+{
+  const label = 'osbb and sklad subscribe to Realtime postgres_changes';
+  const osbbText = readFileSync('osbb/index.html', 'utf8');
+  const skladText = readFileSync('sklad/index.html', 'utf8');
+  const ok = osbbText.includes("postgres_changes") && skladText.includes("postgres_changes");
+  if (ok) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
+// Shared CSS: shared/ui.css must exist and be linked from all three entrypoints,
+// otherwise a future edit could silently duplicate the tooltip/motion rules again.
+{
+  const label = 'shared/ui.css exists and is linked from all three entrypoints';
+  const sharedExists = allFiles.includes('shared/ui.css');
+  const linked = ['index.html', 'osbb/index.html', 'sklad/index.html'].every(src =>
+    readFileSync(src, 'utf8').includes('shared/ui.css')
+  );
+  if (sharedExists && linked) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
   }
 }
 

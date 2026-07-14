@@ -28,7 +28,9 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/ui.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-light min-h-screen">
@@ -620,6 +622,32 @@
             return q;
         }
     };
+
+    // ==========================================
+    // REALTIME: живі оновлення без ручного "Оновити"
+    // ==========================================
+    // Окремий клієнт лише для підписки на зміни — основний REST-шар (db вище)
+    // не чіпаємо, щоб не ризикувати вже робочою логікою.
+    function realtimeSafeRefresh(tab, fn) {
+        if (currentTab !== tab) return;
+        const active = document.activeElement;
+        // Не перебивати активне редагування коментаря/поля вводу realtime-рефрешем.
+        if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) return;
+        fn();
+    }
+    function initRealtime() {
+        if (IS_PREVIEW || typeof supabase === 'undefined') return;
+        try {
+            const rt = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            rt.channel('osbb-live')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'schedule' }, () => realtimeSafeRefresh('journal', initCalendar))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'garbage' }, () => realtimeSafeRefresh('garbage', gInitTab))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'dispatcher' }, () => realtimeSafeRefresh('dispatcher', dispInitTab))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'chat' }, () => { if (currentTab === 'chat') chatInitTab(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => realtimeSafeRefresh('charts', initCalendar))
+                .subscribe();
+        } catch (e) { console.warn('osbb realtime init failed:', e); }
+    }
 
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const roles = ['electrician', 'janitor', 'plumber'];
@@ -1855,6 +1883,7 @@
     const initMobTab = document.getElementById('tab-journal-m');
     if (initMobTab) initMobTab.classList.add('mob-active');
     initCalendar();
+    initRealtime();
 
     setTimeout(() => {
         const splash = document.getElementById('intro-splash');
