@@ -23,7 +23,7 @@
     </script>
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preconnect" href="https://jpwelaerkkdblpmkueid.supabase.co" crossorigin>
+    <link rel="preconnect" href="https://vkwkyhjjjmcpmiakxohw.supabase.co" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -410,8 +410,8 @@
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://jpwelaerkkdblpmkueid.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_bgV5Xn4zCYCJOBptI7xWjg_0rV_3TP1';
+    const SUPABASE_URL = 'https://vkwkyhjjjmcpmiakxohw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9';
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
     // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
@@ -1032,7 +1032,7 @@
         try {
             const compressed = await compressImage(file);
             const ext = 'jpg';
-            const path = `${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
+            const path = `osbb-duty/${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
             const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
             if (upErr) throw upErr;
             const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
