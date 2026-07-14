@@ -861,6 +861,43 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Add-page low-stock list and stats-page category/low-stock lists should use
+// class-based rows instead of inline color/layout style strings.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad add-low and stats low/category lists use class-based rows';
+  const required = [
+    'class="add-low-empty"',
+    'class="add-low-row"',
+    'class="add-low-name"',
+    'class="stat-cat-row-head"',
+    'class="stat-cat-name"',
+    'class="stat-cat-count"',
+    'class="stat-low-row"',
+    'class="stat-low-name"',
+    'class="stat-low-empty"',
+    'class="stat-unpriced-row"',
+    'class="stat-unpriced-main"',
+    'class="stat-unpriced-title"',
+    'class="btn btn-ghost btn-sm stat-unpriced-btn"',
+  ];
+  const forbidden = [
+    "el.innerHTML='<div style=\"font-size:13px;color:#10b981;font-weight:600;\">",
+    'style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"',
+    "'<div style=\"color:#10b981;font-weight:600;font-size:13px;\">",
+    'style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {
