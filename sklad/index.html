@@ -267,6 +267,15 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .audit-legend-dot.shortage{background:#fee2e2;color:#fca5a5;}
 .audit-legend-dot.pending{background:var(--ios-gray6);color:var(--ios-sep);}
 .audit-list{display:flex;flex-direction:column;gap:8px;}
+.audit-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.audit-summary-tile{background:var(--ios-card);border-radius:10px;padding:10px;text-align:center;}
+.audit-summary-value{font-size:20px;font-weight:800;}
+.audit-summary-value.counted{color:var(--brand);}
+.audit-summary-value.uncounted{color:#f59e0b;}
+.audit-summary-value.surplus{color:var(--ios-green);}
+.audit-summary-value.shortage{color:var(--ios-red);}
+.audit-summary-label{font-size:11px;color:var(--ios-gray);}
+.audit-summary-warning{margin-top:10px;font-size:12px;color:#f59e0b;}
 .audit-item{--audit-bg:var(--surface-1);--audit-border:var(--border-subtle);background:var(--audit-bg);border:1px solid var(--audit-border);border-radius:18px;padding:13px 14px;display:flex;align-items:center;gap:12px;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,border-color var(--motion-base) ease;box-shadow:var(--shadow-xs);}
 .audit-item:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm);}
 .audit-item.is-pending{--audit-bg:var(--surface-1);}
@@ -1729,25 +1738,25 @@ function openAuditConfirm(){
   const uncounted=allItems.filter(i=>auditData[i.id]===null);
 
   document.getElementById('auditSummary').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <div style="background:var(--ios-card);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:20px;font-weight:800;color:var(--brand);">${counted.length}</div>
-        <div style="font-size:11px;color:var(--ios-gray);">Перераховано</div>
+    <div class="audit-summary-grid">
+      <div class="audit-summary-tile">
+        <div class="audit-summary-value counted">${counted.length}</div>
+        <div class="audit-summary-label">Перераховано</div>
       </div>
-      <div style="background:var(--ios-card);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:20px;font-weight:800;color:#f59e0b;">${uncounted.length}</div>
-        <div style="font-size:11px;color:var(--ios-gray);">Не перераховано</div>
+      <div class="audit-summary-tile">
+        <div class="audit-summary-value uncounted">${uncounted.length}</div>
+        <div class="audit-summary-label">Не перераховано</div>
       </div>
-      <div style="background:var(--ios-card);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:20px;font-weight:800;color:var(--ios-green);">▲ ${surplus.length}</div>
-        <div style="font-size:11px;color:var(--ios-gray);">Надлишок</div>
+      <div class="audit-summary-tile">
+        <div class="audit-summary-value surplus">▲ ${surplus.length}</div>
+        <div class="audit-summary-label">Надлишок</div>
       </div>
-      <div style="background:var(--ios-card);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:20px;font-weight:800;color:var(--ios-red);">▼ ${shortage.length}</div>
-        <div style="font-size:11px;color:var(--ios-gray);">Нестача</div>
+      <div class="audit-summary-tile">
+        <div class="audit-summary-value shortage">▼ ${shortage.length}</div>
+        <div class="audit-summary-label">Нестача</div>
       </div>
     </div>
-    ${uncounted.length>0?`<div style="margin-top:10px;font-size:12px;color:#f59e0b;"><span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> ${uncounted.length} товарів не будуть оновлені (поле порожнє)</div>`:''}
+    ${uncounted.length>0?`<div class="audit-summary-warning"><span class="ms" style="font-size:14px;vertical-align:-2px;">warning</span> ${uncounted.length} товарів не будуть оновлені (поле порожнє)</div>`:''}
   `;
   openModal('auditModal');
 }

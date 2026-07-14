@@ -748,6 +748,36 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// The audit finish-confirmation summary grid should use class-based tiles
+// instead of inline grid/color style strings.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad audit summary uses class-based tiles';
+  const required = [
+    'class="audit-summary-grid"',
+    'class="audit-summary-tile"',
+    'class="audit-summary-value counted"',
+    'class="audit-summary-value uncounted"',
+    'class="audit-summary-value surplus"',
+    'class="audit-summary-value shortage"',
+    'class="audit-summary-warning"',
+    '.audit-summary-grid{display:grid;',
+  ];
+  const forbidden = [
+    'style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"',
+    'style="background:var(--ios-card);border-radius:10px;padding:10px;text-align:center;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {
