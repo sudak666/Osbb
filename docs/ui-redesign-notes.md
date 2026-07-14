@@ -346,6 +346,14 @@ The `task-check-dot` spans (journal day-card/table and dispatcher task checkboxe
 - verified end-to-end with a headless Playwright run that dispatches a real `keydown` on the element and confirms the underlying task data and `aria-checked` flip correctly (this environment's Tailwind-CDN block prevents visual/layout verification, so the check goes through the DOM/data state directly — see Testing section);
 - the day-expand toggle (dispatcher card header, a separate `<div>` control) has the same gap and is still open — flagged below, not fixed in this pass to keep the change scoped to the checkbox pattern.
 
+### OSBB day-card/dispatcher/garbage disclosure header accessibility (+ a real bug fix)
+
+Followed up the task-toggle keyboard pass by auditing the three "accordion" disclosure headers that expand/collapse a day's content: the journal mobile day-card header, the dispatcher card header, and the garbage day-row header. All three were plain `<div>`s with only a `click` listener — no `tabindex`, `role`, or `aria-expanded`, so keyboard users could not open them at all.
+
+- added `role="button"`, `tabindex="0"`, `aria-expanded`, and `aria-controls` to all three headers, plus a `keydown` (Enter/Space) handler beside each existing click handler (delegated for dispatcher/garbage, direct listener for the journal day-card since that one isn't built through the shared delegation helper);
+- **found and fixed a real, pre-existing bug while testing this**, unrelated to accessibility: `dispRender()`'s `isOpen` check compared `dispOpenDays.has(d)` where `d` is a numeric loop variable, against values added via `dispToggleDay(trigger.dataset.dispDayKey)` which are always strings (dataset values). `Set.has()` is type-strict, so this comparison silently failed for every non-today day — meaning **the dispatcher's per-day disclosure could never actually expand for any day except today, by mouse or keyboard**, even though the toggle state was being tracked correctly internally. Fixed by comparing `dispOpenDays.has(String(d))`. (The equivalent `gOpenDays`/garbage-tracker check was already type-consistent, no bug there.)
+- verified all three via the same headless-Playwright `dispatchEvent(keydown)` approach used in the previous pass, confirming both the `aria-expanded` state and the actual expand/collapse behavior (DOM class/`display`/`hidden` state) after a keyboard trigger.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -361,7 +369,6 @@ Continue after this items/issue/log redesign pass:
 
 - Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
 - Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes, prioritizing one static shell/list area at a time.
-- The dispatcher card's day-expand header (a `<div data-disp-action="toggle-day">`, separate from the task-toggle checkboxes fixed in the "task-toggle keyboard accessibility" pass) is still mouse-only — no `tabindex`/`role="button"`/`aria-expanded`/keyboard handler. Needs its own pass since it's a disclosure/accordion pattern, not a checkbox.
 
 ### 3. Component extraction
 

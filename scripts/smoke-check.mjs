@@ -1031,7 +1031,35 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'role="checkbox" aria-checked="${isChecked?\'true\':\'false\'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?\'-1\':\'0\'}"',
     'role="checkbox" aria-checked="${row.tasks?.[t.id]?\'true\':\'false\'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?\'0\':\'-1\'}"',
     "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-journal-action=\"task-toggle\"]');",
-    "container.addEventListener('keydown', (event) => {\n            if (event.key !== 'Enter' && event.key !== ' ') return;\n            const trigger = event.target.closest('[data-disp-action=\"task-toggle\"]');",
+    "container.addEventListener('keydown', (event) => {\n            if (event.key !== 'Enter' && event.key !== ' ') return;\n            const trigger = event.target.closest('[data-disp-action=\"task-toggle\"],[data-disp-action=\"toggle-day\"]');",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// The journal day-card, dispatcher card, and garbage day-row disclosure
+// headers are custom <div> "accordion" triggers, not native <button>/
+// <details> — they must expose button/expanded semantics and be keyboard
+// operable, and dispatcher's open-state check must compare same-typed
+// values (a stringified dataset key vs a numeric loop variable is a real
+// bug, not just an a11y gap: it silently never expands).
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb day-card/dispatcher/garbage disclosure headers are keyboard accessible';
+  const required = [
+    "header.setAttribute('role', 'button');",
+    "header.setAttribute('aria-controls', `card-body-${d}`);",
+    'const toggleDayCard = () => {',
+    "header.setAttribute('role', 'button');\n            header.setAttribute('tabindex', '0');\n            header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');\n            header.setAttribute('aria-controls', `disp-body-${d}`);",
+    'role="button" tabindex="0" aria-expanded="${isOpen ? \'true\' : \'false\'}" aria-controls="g-body-${day}"',
+    "const trigger = event.target.closest('[data-g-action=\"toggle-day\"]');",
+    'dispOpenDays.has(String(d))',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
