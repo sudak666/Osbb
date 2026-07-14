@@ -1055,7 +1055,7 @@ async function loadReceipts(){
   if(error){
     const msg=msIcon('warning')+' '+error.message;
     if(tb) tb.innerHTML=`<tr><td colspan="6"><div class="empty">${msg}</div></td></tr>`;
-    if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--ios-gray)">Виконайте SQL-скрипт receipts_table.sql в Supabase SQL Editor</small></div>`;
+    if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--ios-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
     toast('Прихід: '+error.message,'error');
     return;
   }
@@ -2419,7 +2419,7 @@ async function saveItemPrice(itemId, price, source='', url='', confidence='manua
   };
   const {error}=await db.from('inventory_items').update(payload).eq('id',itemId);
   if(error) {
-    if(String(error.message||'').includes('price_unit')) toast('Спочатку виконайте SQL add_price_tracking.sql у базі Складу','error');
+    if(String(error.message||'').includes('price_unit')) toast('Спочатку виконайте SQL 004_add_price_tracking.sql у базі Складу','error');
     else toast('Помилка збереження ціни: '+error.message,'error');
     return false;
   }
