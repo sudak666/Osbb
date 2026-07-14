@@ -826,6 +826,41 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Recent-issues side panel and new-product similar-item matches should use
+// class-based rows instead of inline color/layout style strings.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad recent-issues/new-product-match rows use class-based markup';
+  const required = [
+    'class="log-row-main"',
+    'class="log-row-title"',
+    'class="log-row-meta"',
+    'class="log-row-qty log-qty-out"',
+    'class="match-empty"',
+    'class="match-heading"',
+    'class="match-row"',
+    'class="match-row-main"',
+    'class="match-row-title"',
+    'class="match-row-meta"',
+    'class="match-row-actions"',
+    'class="btn btn-ghost btn-sm match-row-btn"',
+  ];
+  const forbidden = [
+    'style="font-size:13px;font-weight:800;color:#6366f1;"',
+    'style="font-size:11px;font-weight:800;color:var(--brand);margin-bottom:6px;"',
+    'style="padding:6px 8px;font-size:12px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {

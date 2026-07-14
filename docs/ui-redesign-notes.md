@@ -299,6 +299,14 @@ The yearly garbage chart rebuilt each bar's full `height`/`width`/`border-radius
 - the bar column wrapper now uses the existing Tailwind `flex-1` utility instead of an inline `style="flex:1"`;
 - smoke checks guard the new classes and flag regressions back to the old inline ternary.
 
+### Sklad recent-issues panel and new-product match cleanup
+
+The issue-screen "Останні видачі" side-panel rows and the add-product "Схожі товари" match rows were built entirely from inline color/layout styles:
+
+- `log-row-main`/`log-row-title`/`log-row-meta`/`log-row-qty` (reusing the existing `log-qty-out` color class) replace the recent-issues row styles;
+- `match-empty`, `match-heading`, `match-row`, `match-row-main`, `match-row-title`, `match-row-meta`, `match-row-actions`, and `match-row-btn` replace the similar-item match card styles in `renderNewProductMatches()`;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
