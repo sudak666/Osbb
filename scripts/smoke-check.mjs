@@ -975,6 +975,52 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Journal "other tasks" print summary and dispatcher call-count badge must
+// escape their Supabase-sourced free-text/JSONB values before injecting
+// them into innerHTML templates.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb print-summary and dispatcher call badge escape dynamic text';
+  const required = [
+    'printSummary.push(escapeHtml(state.other))',
+    '${escapeHtml(String(row.calls))}</span>` : \'\'}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Icon-only Sklad log/receipt/category-filter/delete buttons must expose an
+// aria-label since their only visible content is a Material Symbols icon.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad icon-only log/receipt/filter/delete buttons expose aria-label';
+  const required = [
+    'data-log-category-filter="Прибирання" aria-label="Фільтр за категорією: Прибирання"',
+    'data-log-category-filter="Ремонт" aria-label="Фільтр за категорією: Ремонт"',
+    'data-log-category-filter="Електрика" aria-label="Фільтр за категорією: Електрика"',
+    'data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка"',
+    'data-item-action="delete" data-item-id="${id}" aria-label="Видалити товар"',
+    'data-log-action="edit" data-log-id="${l.id}" aria-label="Редагувати запис видачі"',
+    'data-log-action="delete" data-log-id="${l.id}" aria-label="Видалити запис видачі"',
+    'data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"',
+    'data-receipt-action="delete" data-receipt-id="${r.id}" aria-label="Видалити прихід"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {
