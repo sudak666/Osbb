@@ -1071,6 +1071,53 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// delPinModal must close through the shared closeModal() helper (which
+// restores focus to the opener) on every path, not via a direct
+// classList.remove('open') that bypasses focus restoration; and the
+// sklad lightbox (which has its own bespoke open/close, not the shared
+// modal-bg pattern) must still be covered by the Tab focus trap.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad delPinModal always closes via closeModal(); lightbox is Tab-trapped';
+  const required = [
+    "closeModal('delPinModal');",
+    "if(lightbox && lightbox.classList.contains('open')) openModals.push(lightbox);",
+    'modalBg.matches(\'[role="dialog"]\') ? modalBg : modalBg.querySelector(\'[role="dialog"]\')',
+  ];
+  const forbidden = [
+    "document.getElementById('delPinModal').classList.remove('open');",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// The OSBB lightbox has its own bespoke open/close (no shared modal
+// helper in this file) — it must have a Tab focus trap alongside its
+// existing Escape/arrow-key handling.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb lightbox has a Tab focus trap';
+  const required = [
+    "if (e.key === 'Tab') {",
+    'const focusables = [...lb.querySelectorAll(\'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])\')].filter(el => el.offsetParent !== null);',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {

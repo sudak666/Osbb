@@ -354,6 +354,16 @@ Followed up the task-toggle keyboard pass by auditing the three "accordion" disc
 - **found and fixed a real, pre-existing bug while testing this**, unrelated to accessibility: `dispRender()`'s `isOpen` check compared `dispOpenDays.has(d)` where `d` is a numeric loop variable, against values added via `dispToggleDay(trigger.dataset.dispDayKey)` which are always strings (dataset values). `Set.has()` is type-strict, so this comparison silently failed for every non-today day — meaning **the dispatcher's per-day disclosure could never actually expand for any day except today, by mouse or keyboard**, even though the toggle state was being tracked correctly internally. Fixed by comparing `dispOpenDays.has(String(d))`. (The equivalent `gOpenDays`/garbage-tracker check was already type-consistent, no bug there.)
 - verified all three via the same headless-Playwright `dispatchEvent(keydown)` approach used in the previous pass, confirming both the `aria-expanded` state and the actual expand/collapse behavior (DOM class/`display`/`hidden` state) after a keyboard trigger.
 
+### Modal focus-trap audit (Sklad delPinModal + both lightboxes)
+
+Audited every modal/dialog's focus handling against the shared `openModal`/`closeModal` pattern (Sklad) and the bespoke lightbox implementations (both files):
+
+- **Sklad `delPinModal`**: all three close paths (`delPinModalCancel()`, the success path, and the failure-timeout path in `deletePinPress()`) called `document.getElementById('delPinModal').classList.remove('open')` directly instead of `closeModal('delPinModal')` — this skipped `restoreModalFocus()`, so focus only returned to the opener when the modal happened to close via the global Escape handler. All three now call `closeModal('delPinModal')`.
+- **Sklad `#lightbox`**: has its own hand-rolled open/close (correct focus set/restore, correct Escape handling) but isn't a `.modal-bg` dialog, so it was invisible to `trapModalFocus()`'s Tab-cycling — Tab could move focus to page content behind the overlay. Extended `trapModalFocus()` to also treat `#lightbox.open` as a trappable dialog, without touching its existing CSS/class structure.
+- **OSBB `#lightbox`**: same gap — Escape/arrow-key navigation already worked, but there was no Tab-key handling at all. Added a Tab-cycle handler (prev/next/close buttons) alongside the existing keydown listener.
+- All three verified end-to-end with headless Playwright: dispatched Tab/Shift+Tab and confirmed focus wraps between first/last focusable elements with `preventDefault()`, and confirmed `delPinModal`'s cancel path now returns focus to the actual opener element.
+- The other 14 Sklad `.modal-bg` dialogs and OSBB's `pin-modal` were already correct — no changes needed there.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
