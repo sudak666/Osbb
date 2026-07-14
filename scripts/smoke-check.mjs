@@ -715,6 +715,39 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Sklad log/receipts table rows should use class-based cells instead of
+// inline color/layout style strings.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad log/receipts rows use class-based cells';
+  const required = [
+    'class="log-date-cell"',
+    'class="log-name-cell"',
+    'class="log-qty-out"',
+    'class="log-qty-in"',
+    'class="log-unit-suffix"',
+    'class="log-person-cell"',
+    'class="log-note-cell"',
+    '.log-date-cell{font-size:12px;',
+    '.log-qty-out{font-weight:800;color:#6366f1;}',
+    '.log-qty-in{font-weight:800;color:var(--ios-green);}',
+  ];
+  const forbidden = [
+    'style="font-weight:800;color:#6366f1;"',
+    'style="font-weight:800;color:var(--ios-green);"',
+    'style="font-weight:400;color:#a5b4fc;font-size:11px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {
