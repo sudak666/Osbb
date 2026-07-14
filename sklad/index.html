@@ -1123,10 +1123,10 @@ async function checkPin(attempt){
     <div class="list-toolbar">
       <div class="list-toolbar-row pills-wrap">
         <button type="button" class="pill active" data-log-category-filter="">Всі</button>
-        <button type="button" class="pill" data-log-category-filter="Прибирання"><span class="ms ic-15">cleaning_services</span></button>
-        <button type="button" class="pill" data-log-category-filter="Ремонт"><span class="ms ic-15">build</span></button>
-        <button type="button" class="pill" data-log-category-filter="Електрика"><span class="ms ic-15">bolt</span></button>
-        <button type="button" class="pill" data-log-category-filter="Сантехніка"><span class="ms ic-15">plumbing</span></button>
+        <button type="button" class="pill" data-log-category-filter="Прибирання" aria-label="Фільтр за категорією: Прибирання"><span class="ms ic-15">cleaning_services</span></button>
+        <button type="button" class="pill" data-log-category-filter="Ремонт" aria-label="Фільтр за категорією: Ремонт"><span class="ms ic-15">build</span></button>
+        <button type="button" class="pill" data-log-category-filter="Електрика" aria-label="Фільтр за категорією: Електрика"><span class="ms ic-15">bolt</span></button>
+        <button type="button" class="pill" data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка"><span class="ms ic-15">plumbing</span></button>
       </div>
       <div class="list-toolbar-row list-search-row">
         <div class="sw" style="width:240px;"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
@@ -2371,7 +2371,7 @@ function renderItems(){
         <button type="button" class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms ic-16" aria-hidden="true">home_repair_service</span></button>
         <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="manual-price" data-item-id="${id}" data-tip="Ціна" aria-label="Ціна"><span class="ms ic-16">sell</span></button>
         <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="price-lookup" data-item-id="${id}" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms ic-16">travel_explore</span></button>
-        <button type="button" class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}"><span class="ms ic-16">delete</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}" aria-label="Видалити товар"><span class="ms ic-16">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2603,8 +2603,8 @@ function renderLog(){
       <td class="log-person-cell">${safeIssuedTo}</td>
       <td class="log-note-cell">${safeNote}</td>
       <td><div class="table-row-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}"><span class="ms ic-16">edit</span></button>
-        <button type="button" class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}"><span class="ms ic-16">delete</span></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-log-action="edit" data-log-id="${l.id}" aria-label="Редагувати запис видачі"><span class="ms ic-16">edit</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-log-action="delete" data-log-id="${l.id}" aria-label="Видалити запис видачі"><span class="ms ic-16">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2628,8 +2628,8 @@ function renderLog(){
       <div class="log-mobile-side">
         −${escapeHtml(String(l.quantity??0))}<span class="log-mobile-unit"> ${safeUnit}</span>
         <div class="log-mobile-actions">
-          <button type="button" class="icon-action" data-log-action="edit" data-log-id="${l.id}"><span class="ms ic-16">edit</span></button>
-          <button type="button" class="icon-action danger" data-log-action="delete" data-log-id="${l.id}"><span class="ms ic-16">delete</span></button>
+          <button type="button" class="icon-action" data-log-action="edit" data-log-id="${l.id}" aria-label="Редагувати запис видачі"><span class="ms ic-16">edit</span></button>
+          <button type="button" class="icon-action danger" data-log-action="delete" data-log-id="${l.id}" aria-label="Видалити запис видачі"><span class="ms ic-16">delete</span></button>
         </div>
       </div>
     </div>`;
@@ -2728,8 +2728,8 @@ function renderReceipts(){
       <td class="log-person-cell">${safeSupplier}</td>
       <td class="log-note-cell">${safeNote}</td>
       <td><div class="table-row-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}"><span class="ms ic-16">edit</span></button>
-        <button type="button" class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}"><span class="ms ic-16">delete</span></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"><span class="ms ic-16">edit</span></button>
+        <button type="button" class="btn btn-danger btn-sm" data-receipt-action="delete" data-receipt-id="${r.id}" aria-label="Видалити прихід"><span class="ms ic-16">delete</span></button>
       </div></td>
     </tr>`;
   }).join('');
