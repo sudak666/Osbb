@@ -259,6 +259,15 @@ The desktop items table and mobile item cards now use class-based cells instead 
 - the "internal use" badge (desktop table + mobile card) uses `badge-internal` instead of a hardcoded hex background/color;
 - smoke checks guard the class-based cells and flag regressions back to the old inline strings.
 
+### OSBB journal sync-status/joke-icon cleanup
+
+The journal's `setSyncStatus`/`gSetStatus` renderers and the dispatcher joke-message array repeated the same inline-flex/vertical-align style strings dozens of times:
+
+- `journal-status-icon-row` / `journal-status-icon-row-tight` replace the repeated `style="display:inline-flex;align-items:center;gap:5px/4px;"` wrapper on every sync-status icon+label span (44 + 5 call sites across `osbb/index.html`);
+- `journal-joke-icon` replaces the repeated `vertical-align:-2px` inline style on the 10 dispatcher joke-message icons;
+- `journal-daytype-icon` replaces the one-off day-type icon inline style;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

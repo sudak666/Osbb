@@ -715,6 +715,34 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Journal sync-status/joke-icon spans should use class-based helpers instead
+// of the repeated inline-flex/vertical-align style strings.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb journal status/icon spans use class-based helpers';
+  const required = [
+    '.journal-status-icon-row { display:inline-flex; align-items:center; gap:5px; }',
+    '.journal-status-icon-row-tight { display:inline-flex; align-items:center; gap:4px; }',
+    '.journal-joke-icon { display:inline-block; vertical-align:-2px; }',
+    '.journal-daytype-icon { display:inline-block; vertical-align:middle; margin-right:3px; }',
+  ];
+  const forbidden = [
+    'style="display:inline-flex;align-items:center;gap:5px;"',
+    'style="display:inline-flex;align-items:center;gap:4px;"',
+    'style="display:inline-block;vertical-align:-2px;"',
+    'style="display:inline-block;vertical-align:middle;margin-right:3px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad topbar should use class-based title/action/icon helpers instead of
 // dense inline styles on the header controls.
 {
