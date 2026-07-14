@@ -250,6 +250,15 @@ The item price badge renderer now uses class-based markup for both priced and un
 - priced rows use `price-badge-btn has-price`, `price-badge-value`, and `price-badge-source`;
 - smoke checks guard the dynamic price badge renderer classes.
 
+### Sklad items table/card cleanup
+
+The desktop items table and mobile item cards now use class-based cells instead of inline color/layout styles:
+
+- index, name, unit, and quantity-unit cells use `table-idx-cell`, `table-name-cell`, `table-unit-cell`, `table-qty-unit`;
+- the desktop row action wrapper uses `table-row-actions`;
+- the "internal use" badge (desktop table + mobile card) uses `badge-internal` instead of a hardcoded hex background/color;
+- smoke checks guard the class-based cells and flag regressions back to the old inline strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -257,9 +266,9 @@ The item price badge renderer now uses class-based markup for both priced and un
 Continue after this items/issue/log redesign pass:
 
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
-- Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
 - Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
+- The `#a5b4fc` muted-text color and small icon `font-size`/`vertical-align` spans are still inline in many places across items/log/receipts renderers (not just the items table) — promoting them to a shared token/class is a bigger, separate pass, not scoped to one screen.
 
 ### 2. OSBB journal follow-up
 
