@@ -104,6 +104,11 @@
         .task-check-dot.is-checked { border-color:#34c759; background:#34c759; }
         .g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#34c759,#28a745); }
         .g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }
+        .pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }
+        .pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }
+        .pin-modal-icon-wrap.is-red { background:rgba(239,68,68,0.2); }
+        .pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }
+        .pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }
         .journal-action-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 12px; border-radius:14px; font-size:14px; font-weight:800; transition:transform .15s ease, background .15s ease, opacity .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.05); }
         .journal-action-btn:hover { transform:scale(1.03); }
         .journal-action-btn-primary { background:#059669; color:#fff; }
@@ -328,7 +333,7 @@
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(15,10,40,0.6);backdrop-filter:blur(6px);z-index:9500;align-items:center;justify-content:center;">
     <div role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1" style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 60px rgba(52,199,89,0.4);border:1px solid rgba(255,255,255,0.12);">
-        <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon"><span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.15);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+        <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
         <div style="color:#fff;font-size:1rem;font-weight:800;margin-bottom:4px;" id="pin-modal-title">Пароль для скидання</div>
         <div style="color:#94a3b8;font-size:0.75rem;margin-bottom:20px;" id="pin-modal-sub">Введіть 4-значний PIN</div>
         <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;">
@@ -2512,8 +2517,8 @@
         pinModalCallback = callback;
         document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
         document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
-        const lockIcon  = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(129,140,248,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
-        const trashIcon = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
+        const lockIcon  = '<span class="pin-modal-icon-wrap is-indigo"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
         document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
@@ -2552,7 +2557,7 @@
             let ok = false;
             try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
             if (ok) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
@@ -2561,7 +2566,7 @@
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
             } else {
                 document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
-                document.getElementById('pin-modal-icon').innerHTML = '<span style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
                 pinModalBuf = '';
                 pinUpdateDots();
                 // Тряска
@@ -2750,7 +2755,7 @@
                         <div class="mb-2">${dispTasks.map(t => `
                             <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
                                 <span data-disp-action="task-toggle" data-disp-day="${d}" data-disp-task-id="${t.id}" data-disp-next="${!row.tasks?.[t.id]}"
-                                    style="width:20px;height:20px;border-radius:50%;border:2px solid ${row.tasks?.[t.id]?'#34c759':'#d1d5db'};background:${row.tasks?.[t.id]?'#34c759':'transparent'};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer;">
+                                    class="task-check-dot${row.tasks?.[t.id]?' is-checked':''}">
                                 </span>
                                 <span class="${row.tasks?.[t.id]?'font-semibold':'text-[var(--text-sub)]'}">${t.label}</span>
                             </label>`).join('')}

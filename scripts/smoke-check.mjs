@@ -940,6 +940,41 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// The dispatcher card's task-toggle dot and the PIN-modal icon circles
+// should use class-based markup instead of repeated inline style strings.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb dispatcher task dot and PIN-modal icons use class-based markup';
+  const required = [
+    "class=\"task-check-dot${row.tasks?.[t.id]?' is-checked':''}\"",
+    '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
+    '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
+    '.pin-modal-icon-wrap.is-red { background:rgba(239,68,68,0.2); }',
+    '.pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }',
+    '.pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }',
+    'class="pin-modal-icon-wrap is-indigo"',
+    'class="pin-modal-icon-wrap is-red"',
+    'class="pin-modal-icon-wrap is-green"',
+    'class="pin-modal-icon-wrap is-green-soft"',
+  ];
+  const forbidden = [
+    "style=\"width:20px;height:20px;border-radius:50%;border:2px solid ${row.tasks?.[t.id]?",
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(129,140,248,0.2);',
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);',
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);',
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.15);',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {

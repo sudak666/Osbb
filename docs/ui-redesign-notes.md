@@ -329,6 +329,14 @@ Started the larger, file-wide cleanup flagged in the previous pass: the Material
 - Remaining `style="` in `sklad/index.html` after this pass is skeleton-loader widths, `display:none` state toggles, per-instance dynamic bar widths/colors, and a couple of genuinely one-off styles (e.g. the PIN-screen brand icon) — not more repeated noise.
 - `osbb/index.html` did not have this exact `<span class="ms" style="font-size:...">` icon pattern (its icons are inline `<svg>` with per-instance `stroke`/paths, already handled case-by-case in earlier passes); its remaining `style="` is dominated by the lock-screen/PIN-modal branding (intentionally custom) and skeleton widths.
 
+### OSBB dispatcher task-dot and PIN-modal icon cleanup
+
+Found while auditing what was left in `osbb/index.html` after the Sklad icon sweep:
+
+- the dispatcher card had its own third copy of the task-toggle dot inline-style ternary (identical to the two already cleaned in the journal day-card/table views) — now reuses the existing `task-check-dot`/`is-checked` classes;
+- the PIN-modal's lock/trash/check/x icon circles (`pin-modal-icon`) repeated the same `width:40px;height:40px;border-radius:50%` wrapper with only the `background` rgba color varying — replaced with `pin-modal-icon-wrap` plus `is-indigo`/`is-red`/`is-green`/`is-green-soft` color modifiers (the static initial markup used a slightly different opacity than the JS-set states, preserved exactly as `is-green-soft`);
+- smoke checks guard both and flag regressions back to the old inline strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
