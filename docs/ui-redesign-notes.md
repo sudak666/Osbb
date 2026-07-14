@@ -364,20 +364,20 @@ Audited every modal/dialog's focus handling against the shared `openModal`/`clos
 - All three verified end-to-end with headless Playwright: dispatched Tab/Shift+Tab and confirmed focus wraps between first/last focusable elements with `preventDefault()`, and confirmed `delPinModal`'s cancel path now returns focus to the actual opener element.
 - The other 14 Sklad `.modal-bg` dialogs and OSBB's `pin-modal` were already correct — no changes needed there.
 
+## Real-device review (July 2026)
+
+User reviewed the current state of both `sklad/index.html` and `osbb/index.html` (items/issue/log/receipt/audit screens, journal header, dispatcher, garbage dashboard) on a real device after the accessibility/inline-style cleanup rounds above. Verdict: looks good, no visual changes requested. The hero-copy/topbar-overflow/`Прихід`/`Інвентаризація` review items below are considered closed — no action needed unless something new comes up.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
 
-Continue after this items/issue/log redesign pass:
-
-- Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
-- Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
-- Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
+- ~~Tighten hero copy/CTA labels, topbar overflow, review Прихід/Інвентаризація~~ — done, confirmed on real device, no changes needed (see "Real-device review" above).
 - ~~The `#a5b4fc` muted-text color and icon `font-size`/`vertical-align` spans...~~ done — see the "Sklad icon-size utility sweep" pass above; remaining `style="` in `sklad/index.html` is skeleton widths, `display:none` toggles, and one-off values.
 
 ### 2. OSBB journal follow-up
 
-- Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
+- ~~Review the simplified journal header on real devices~~ — done, confirmed on real device, no changes needed.
 - Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes, prioritizing one static shell/list area at a time.
 
 ### 3. Component extraction
