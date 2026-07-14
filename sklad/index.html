@@ -21,6 +21,7 @@
 <link rel="preconnect" href="https://vkwkyhjjjmcpmiakxohw.supabase.co" crossorigin>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../shared/enhance-select.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -262,7 +263,7 @@ async function checkPin(attempt){
           </div>
         </div>
         <div class="form-stack">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select data-searchable="1" data-search-placeholder="Пошук товару для видачі..."><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для видачі..."><option value="">— Оберіть товар —</option></select></div>
           <div id="issueInfo" class="info-callout" style="display:none;">
             <div class="info-row"><span>Залишок:</span><strong id="issueInfoQty"></strong></div>
           </div>
@@ -316,7 +317,7 @@ async function checkPin(attempt){
       <div class="card add-card">
         <h3 class="add-section-title is-refill"><span class="ms" aria-hidden="true">add_circle</span>Поповнити залишок</h3>
         <div class="add-form-stack">
-          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-placeholder="Пошук товару для поповнення..."><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для поповнення..."><option value="">— Оберіть товар —</option></select></div>
           <div id="refillInfo" class="refill-info">Поточний залишок: <span id="refillCur"></span></div>
           <div class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
@@ -712,7 +713,7 @@ async function checkPin(attempt){
   <div class="modal price-lookup-modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 class="price-lookup-title"><span class="ms" aria-hidden="true">travel_explore</span> Підтягнути ціни з інтернету</h3>
     <div class="price-search-row">
-      <select class="inp" id="priceItemSel" data-searchable="1" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
+      <select class="inp" id="priceItemSel" data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
       <button type="button" class="btn btn-primary" data-sklad-action="price-fetch"><span class="ms" aria-hidden="true">search</span> Знайти</button>
     </div>
     <div id="priceResults" class="price-results-panel">Оберіть товар і натисніть “Знайти”.</div>
@@ -726,7 +727,7 @@ async function checkPin(attempt){
   <div class="modal manual-price-modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 class="manual-price-title"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</h3>
     <div class="manual-price-form">
-      <div><label>Товар</label><select class="inp" id="manualPriceItemSel" data-searchable="1" data-search-placeholder="Пошук товару для ручної ціни..."><option value="">— Оберіть товар —</option></select></div>
+      <div><label>Товар</label><select class="inp" id="manualPriceItemSel" data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для ручної ціни..."><option value="">— Оберіть товар —</option></select></div>
       <div><label>Ціна за одиницю, грн</label><input class="inp" id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus></div>
       <div><label>Джерело / посилання <span class="manual-price-note">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
     </div>
@@ -2647,143 +2648,9 @@ function populateSels(){
   ['issueItemSel','refillSel'].forEach(k=>{const el=document.getElementById(k);if(el){el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;refreshEnhancedSelect(el);}});
 }
 
-// Замінює нативний <select> (квадратне системне спливаюче меню) на кастомний
-// заокруглений список у стилі застосунку. Сам <select> лишається в DOM
-// (прихований) — існуючий код (.value, onchange) працює без змін, бо клік
-// по кастомній опції виставляє select.value і породжує справжню подію 'change'.
-function enhanceSelect(select){
-  if(!select||select.dataset.enhanced) return;
-  select.dataset.enhanced='1';
-  const btnClass=select.className;
-  const searchable=select.dataset.searchable==='1';
-  let selectSearchTerm='';
-  select.style.display='none';
-
-  const wrap=document.createElement('div');
-  wrap.className='custom-select-wrap';
-  select.parentNode.insertBefore(wrap,select);
-  wrap.appendChild(select);
-
-  const btn=document.createElement('button');
-  btn.type='button';
-  btn.className=btnClass+' custom-select-btn';
-  btn.setAttribute('aria-haspopup','listbox');
-  btn.setAttribute('aria-expanded','false');
-  btn.innerHTML='<span class="custom-select-label"></span><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.55;"><polyline points="6 9 12 15 18 9"/></svg>';
-  wrap.appendChild(btn);
-
-  const panel=document.createElement('div');
-  panel.className='custom-select-panel hidden';
-  panel.setAttribute('role','listbox');
-  wrap.appendChild(panel);
-
-  function optionMatches(opt){
-    if(!searchable||!selectSearchTerm) return true;
-    if(!opt.value) return true;
-    return normalizeSearchText(opt.textContent).includes(normalizeSearchText(selectSearchTerm));
-  }
-  function renderOptions(){
-    panel.innerHTML='';
-    let searchInput=null;
-    if(searchable){
-      searchInput=document.createElement('input');
-      searchInput.className='inp custom-select-search';
-      searchInput.type='search';
-      searchInput.placeholder=select.dataset.searchPlaceholder||'Пошук...';
-      searchInput.value=selectSearchTerm;
-      searchInput.addEventListener('input',()=>{
-        selectSearchTerm=searchInput.value;
-        renderOptions();
-        const next=panel.querySelector('input[type="search"]');
-        if(next){next.focus();next.setSelectionRange(next.value.length,next.value.length);}
-      });
-      searchInput.addEventListener('keydown',(e)=>{
-        if(e.key==='Escape'){e.preventDefault();closePanel();btn.focus();}
-        if(e.key==='ArrowDown'){e.preventDefault();panel.querySelector('.custom-select-option')?.focus();}
-      });
-      panel.appendChild(searchInput);
-    }
-    const visibleOptions=Array.from(select.options).filter(optionMatches);
-    visibleOptions.forEach(opt=>{
-      const item=document.createElement('div');
-      item.className='custom-select-option'+(opt.value===select.value?' active':'');
-      item.textContent=opt.textContent;
-      item.setAttribute('role','option');
-      item.setAttribute('tabindex','0');
-      item.setAttribute('aria-selected',opt.value===select.value?'true':'false');
-      const choose=()=>{
-        select.value=opt.value;
-        select.dispatchEvent(new Event('change'));
-        selectSearchTerm='';
-        syncLabel();
-        closePanel();
-        btn.focus();
-      };
-      item.addEventListener('click',choose);
-      item.addEventListener('keydown',(e)=>{
-        if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}
-        else if(e.key==='Escape'){closePanel();btn.focus();}
-        else if(e.key==='ArrowDown'){e.preventDefault();(item.nextElementSibling||panel.querySelector('.custom-select-option'))?.focus();}
-        else if(e.key==='ArrowUp'){
-          e.preventDefault();
-          const prev=item.previousElementSibling;
-          if(prev&&prev.classList.contains('custom-select-option')) prev.focus();
-          else panel.querySelector('input[type="search"]')?.focus();
-        }
-      });
-      panel.appendChild(item);
-    });
-    if(searchable && !visibleOptions.some(o=>o.value)){
-      const empty=document.createElement('div');
-      empty.className='empty';
-      empty.style.padding='12px';
-      empty.textContent='Товар не знайдено';
-      panel.appendChild(empty);
-    }
-  }
-  function syncLabel(){
-    const selectedOpt=select.options[select.selectedIndex];
-    btn.querySelector('.custom-select-label').textContent=selectedOpt?selectedOpt.textContent:'';
-    panel.querySelectorAll('.custom-select-option').forEach(el=>{
-      const opt=Array.from(select.options).find(o=>o.textContent===el.textContent);
-      el.classList.toggle('active',opt&&opt.value===select.value);
-      el.setAttribute('aria-selected',opt&&opt.value===select.value?'true':'false');
-    });
-  }
-  function openPanel(){
-    document.querySelectorAll('.custom-select-panel').forEach(p=>{if(p!==panel) p.classList.add('hidden');});
-    renderOptions();
-    panel.classList.remove('hidden');
-    btn.setAttribute('aria-expanded','true');
-    if(searchable) panel.querySelector('input[type="search"]')?.focus();
-    else panel.querySelector('.custom-select-option.active')?.focus();
-  }
-  function closePanel(){panel.classList.add('hidden');btn.setAttribute('aria-expanded','false');}
-
-  btn.addEventListener('click',(e)=>{
-    e.stopPropagation();
-    if(panel.classList.contains('hidden')) openPanel(); else closePanel();
-  });
-  btn.addEventListener('keydown',(e)=>{
-    if((e.key==='ArrowDown'||e.key==='Enter'||e.key===' ')&&panel.classList.contains('hidden')){
-      e.preventDefault();
-      openPanel();
-    } else if(searchable && e.key.length===1 && !e.ctrlKey && !e.metaKey && !e.altKey){
-      e.preventDefault();
-      selectSearchTerm=e.key;
-      openPanel();
-    }
-  });
-  panel.addEventListener('click',(e)=>e.stopPropagation());
-  document.addEventListener('click',closePanel);
-
-  select._syncCustomLabel=syncLabel;
-  renderOptions();
-  syncLabel();
-}
-function refreshEnhancedSelect(select){
-  if(select&&select._syncCustomLabel) select._syncCustomLabel();
-}
+// enhanceSelect/refreshEnhancedSelect (кастомний <select> замість квадратного
+// системного спливаючого меню, з опційним пошуком через data-searchable="1")
+// тепер у ../shared/enhance-select.js — та сама реалізація, що й у журналі.
 
 // ===== MODAL =====
 const focusableModalSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
