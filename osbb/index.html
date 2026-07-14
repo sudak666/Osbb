@@ -1460,6 +1460,7 @@
                     const disabled = !state.working;
                     return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
                         <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
+                            role="checkbox" aria-checked="${isChecked?'true':'false'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?'-1':'0'}"
                             class="task-check-dot${isChecked?' is-checked':''}">
                         </span>
                         <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
@@ -1609,6 +1610,7 @@
                     const disabled = !state.working;
                     checkBoxesHtml += `<label class="flex items-center gap-2 text-sm cursor-pointer select-none mt-1.5 ${disabled?'pointer-events-none opacity-40':''}">
                         <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
+                            role="checkbox" aria-checked="${isChecked?'true':'false'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?'-1':'0'}"
                             class="task-check-dot${isChecked?' is-checked':''}">
                         </span>
                         <span class="${isChecked?'font-semibold text-[var(--text-main)]':'text-[var(--text-sub)]'}">${task.label}</span>
@@ -1924,6 +1926,14 @@
                     toggleOtherExpand(trigger.dataset.otherTarget, trigger);
                 }
             });
+            container.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                const trigger = event.target.closest('[data-journal-action="task-toggle"]');
+                if (!trigger) return;
+                event.preventDefault();
+                const rect = trigger.getBoundingClientRect();
+                toggleTask(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.taskId, { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 });
+            });
             container.addEventListener('change', (event) => {
                 const field = event.target.closest('[data-journal-action]');
                 if (!field) return;
@@ -1996,6 +2006,13 @@
                 event.preventDefault();
                 dispToggleTask(Number(trigger.dataset.dispDay), trigger.dataset.dispTaskId, trigger.dataset.dispNext === 'true');
             }
+        });
+        container.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            const trigger = event.target.closest('[data-disp-action="task-toggle"]');
+            if (!trigger) return;
+            event.preventDefault();
+            dispToggleTask(Number(trigger.dataset.dispDay), trigger.dataset.dispTaskId, trigger.dataset.dispNext === 'true');
         });
         container.addEventListener('change', (event) => {
             const field = event.target.closest('[data-disp-action]');
@@ -2755,6 +2772,7 @@
                         <div class="mb-2">${dispTasks.map(t => `
                             <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
                                 <span data-disp-action="task-toggle" data-disp-day="${d}" data-disp-task-id="${t.id}" data-disp-next="${!row.tasks?.[t.id]}"
+                                    role="checkbox" aria-checked="${row.tasks?.[t.id]?'true':'false'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?'0':'-1'}"
                                     class="task-check-dot${row.tasks?.[t.id]?' is-checked':''}">
                                 </span>
                                 <span class="${row.tasks?.[t.id]?'font-semibold':'text-[var(--text-sub)]'}">${t.label}</span>

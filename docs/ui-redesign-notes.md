@@ -337,6 +337,15 @@ Found while auditing what was left in `osbb/index.html` after the Sklad icon swe
 - the PIN-modal's lock/trash/check/x icon circles (`pin-modal-icon`) repeated the same `width:40px;height:40px;border-radius:50%` wrapper with only the `background` rgba color varying — replaced with `pin-modal-icon-wrap` plus `is-indigo`/`is-red`/`is-green`/`is-green-soft` color modifiers (the static initial markup used a slightly different opacity than the JS-set states, preserved exactly as `is-green-soft`);
 - smoke checks guard both and flag regressions back to the old inline strings.
 
+### OSBB task-toggle keyboard accessibility
+
+The `task-check-dot` spans (journal day-card/table and dispatcher task checkboxes) were purely mouse-driven custom controls — plain `<span>`s inside a `<label>` with no real `<input>`, so keyboard users could not reach or activate them:
+
+- added `role="checkbox"`, `aria-checked`, `aria-label` (the task name), and `tabindex="0"`/`"-1"` (following the existing disabled state) to all three render call sites;
+- added a matching `keydown` handler (Enter/Space) next to each existing `click` delegation, calling the same `toggleTask()`/`dispToggleTask()` functions;
+- verified end-to-end with a headless Playwright run that dispatches a real `keydown` on the element and confirms the underlying task data and `aria-checked` flip correctly (this environment's Tailwind-CDN block prevents visual/layout verification, so the check goes through the DOM/data state directly — see Testing section);
+- the day-expand toggle (dispatcher card header, a separate `<div>` control) has the same gap and is still open — flagged below, not fixed in this pass to keep the change scoped to the checkbox pattern.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
@@ -346,12 +355,13 @@ Continue after this items/issue/log redesign pass:
 - Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
 - Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
 - Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
-- The `#a5b4fc` muted-text color and small icon `font-size`/`vertical-align` spans are still inline in many places across items/log/receipts renderers (not just the items table) — promoting them to a shared token/class is a bigger, separate pass, not scoped to one screen.
+- ~~The `#a5b4fc` muted-text color and icon `font-size`/`vertical-align` spans...~~ done — see the "Sklad icon-size utility sweep" pass above; remaining `style="` in `sklad/index.html` is skeleton widths, `display:none` toggles, and one-off values.
 
 ### 2. OSBB journal follow-up
 
 - Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
 - Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes, prioritizing one static shell/list area at a time.
+- The dispatcher card's day-expand header (a `<div data-disp-action="toggle-day">`, separate from the task-toggle checkboxes fixed in the "task-toggle keyboard accessibility" pass) is still mouse-only — no `tabindex`/`role="button"`/`aria-expanded`/keyboard handler. Needs its own pass since it's a disclosure/accordion pattern, not a checkbox.
 
 ### 3. Component extraction
 
