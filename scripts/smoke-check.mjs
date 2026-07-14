@@ -681,6 +681,40 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Dynamic item table rows/cards should use class-based cells instead of
+// inline color/layout style strings.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad item table rows use class-based cells';
+  const required = [
+    'class="table-idx-cell"',
+    'class="table-name-cell"',
+    'class="table-unit-cell"',
+    'class="table-qty-unit"',
+    'class="table-row-actions"',
+    'class="badge badge-internal"',
+    '.table-idx-cell{color:',
+    '.table-name-cell{font-weight:600;',
+    '.table-row-actions{display:flex;',
+    '.badge-internal{background:',
+  ];
+  const forbidden = [
+    'style="color:#a5b4fc;font-size:12px;">${idx+1}',
+    'style="font-weight:600;color:var(--ios-label);max-width:280px;"',
+    'style="background:#FEF3C7;color:#92400E;"',
+    'style="display:flex;gap:6px;">\n        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad topbar should use class-based title/action/icon helpers instead of
 // dense inline styles on the header controls.
 {
