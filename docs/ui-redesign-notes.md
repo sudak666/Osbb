@@ -307,6 +307,16 @@ The issue-screen "Останні видачі" side-panel rows and the add-produ
 - `match-empty`, `match-heading`, `match-row`, `match-row-main`, `match-row-title`, `match-row-meta`, `match-row-actions`, and `match-row-btn` replace the similar-item match card styles in `renderNewProductMatches()`;
 - smoke checks guard the new classes and flag regressions back to the old inline strings.
 
+### Sklad add-page and stats-page list cleanup
+
+The add-page low-stock sidebar and the stats-page category breakdown, low-stock list, and unpriced-items list all built rows from inline color/layout styles:
+
+- `add-low-empty`/`add-low-row`/`add-low-name` replace `renderAddLow()`'s inline styles;
+- `stat-cat-row-head`/`stat-cat-name`/`stat-cat-count` replace the category-breakdown header inline styles (the per-category progress-bar width/color stay inline since they're genuinely per-instance data);
+- `stat-low-row`/`stat-low-name`/`stat-low-qty`/`stat-low-empty` replace the low-stock list inline styles;
+- `stat-unpriced-row`/`stat-unpriced-main`/`stat-unpriced-title`/`stat-unpriced-meta`/`stat-unpriced-btn`/`stat-unpriced-more` replace the unpriced-items list inline styles, reusing `stat-low-empty` for its "all priced" empty state;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

@@ -385,6 +385,19 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .price-assessment-summary{font-size:12px;color:var(--ios-label3);margin-top:4px;}
 .price-assessment-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .price-assessment-actions .ms{font-size:15px;}
+.stat-cat-row-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
+.stat-cat-name{font-weight:600;color:var(--ios-label);}
+.stat-cat-count{color:var(--ios-label3);}
+.stat-low-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;}
+.stat-low-name{color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.stat-low-qty{flex-shrink:0;white-space:nowrap;}
+.stat-low-empty{color:#10b981;font-weight:600;font-size:13px;}
+.stat-unpriced-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;}
+.stat-unpriced-main{min-width:0;flex:1;}
+.stat-unpriced-title{font-weight:700;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stat-unpriced-meta{font-size:11px;color:var(--ios-label3);margin-top:2px;}
+.stat-unpriced-btn{padding:6px 8px;font-size:12px;flex-shrink:0;}
+.stat-unpriced-more{font-size:11px;color:var(--ios-gray);margin-top:8px;}
 
 /* ADD / REFILL */
 .add-card{padding:28px;}
@@ -422,6 +435,9 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .add-help-list{font-size:12.5px;color:#6b21a8;line-height:2.2;list-style:none;padding:0;margin:0;}
 .add-low-card{padding:20px;}
 .add-low-title{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+.add-low-empty{font-size:13px;color:#10b981;font-weight:600;}
+.add-low-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;}
+.add-low-name{color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
 /* STAT CARDS */
 .stat-card{border-radius:var(--radius-xl);padding:18px 20px;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:transform var(--motion-base) var(--ease-out),box-shadow var(--motion-base) ease,filter var(--motion-base) ease;user-select:none;box-shadow:0 1px 0 rgba(255,255,255,.24) inset,var(--shadow-md);}
@@ -2922,9 +2938,9 @@ async function doAddNew(btn){
 function renderAddLow(){
   const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity).slice(0,10);
   const el=document.getElementById('addLowList');
-  if(!low.length){el.innerHTML='<div style="font-size:13px;color:#10b981;font-weight:600;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Все в нормі!</div>';return;}
-  el.innerHTML=low.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
-    <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name||'—')}</span>
+  if(!low.length){el.innerHTML='<div class="add-low-empty"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Все в нормі!</div>';return;}
+  el.innerHTML=low.map(i=>`<div class="add-low-row">
+    <span class="add-low-name">${escapeHtml(i.name||'—')}</span>
     <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
   </div>`).join('');
 }
@@ -3111,31 +3127,31 @@ function renderStats(){
     const c=catColor[cat]||'#64748b';
     const safeCat=escapeHtml(cat||'—');
     return `<div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
-        <span style="font-weight:600;color:var(--ios-label);">${catIconHtml[cat]||catIconHtmlDefault} ${safeCat}</span>
-        <span style="color:var(--ios-label3);">${items.length} поз.</span>
+      <div class="stat-cat-row-head">
+        <span class="stat-cat-name">${catIconHtml[cat]||catIconHtmlDefault} ${safeCat}</span>
+        <span class="stat-cat-count">${items.length} поз.</span>
       </div>
       <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c};"></div></div>
     </div>`;
   }).join('');
   const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity);
   document.getElementById('statLow').innerHTML=low.length
-    ? low.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
-        <span style="color:var(--ios-label2);flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">${escapeHtml(i.name||'—')}</span>
-        <span class="${i.quantity==0?'qty-zero':'qty-low'}" style="flex-shrink:0;white-space:nowrap;">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
+    ? low.map(i=>`<div class="stat-low-row">
+        <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
+        <span class="${i.quantity==0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
       </div>`).join('')
-    : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Всі товари в нормі!</div>';
+    : '<div class="stat-low-empty"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Всі товари в нормі!</div>';
   const unpriced=allItems.filter(i=>!priceValue(i)).sort((a,b)=>Number(b.quantity||0)-Number(a.quantity||0));
   const unpricedBox=document.getElementById('statUnpriced');
   if(unpricedBox) unpricedBox.innerHTML=unpriced.length
-    ? unpriced.slice(0,12).map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;">
-        <div style="min-width:0;flex:1;">
-          <div style="font-weight:700;color:var(--ios-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(i.name)}</div>
-          <div style="font-size:11px;color:var(--ios-label3);margin-top:2px;">${escapeHtml(i.category||'—')} · ${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</div>
+    ? unpriced.slice(0,12).map(i=>`<div class="stat-unpriced-row">
+        <div class="stat-unpriced-main">
+          <div class="stat-unpriced-title">${escapeHtml(i.name)}</div>
+          <div class="stat-unpriced-meta">${escapeHtml(i.category||'—')} · ${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</div>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" style="padding:6px 8px;font-size:12px;flex-shrink:0;" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
-      </div>`).join('')+(unpriced.length>12?`<div style="font-size:11px;color:var(--ios-gray);margin-top:8px;">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
-    : '<div style="color:#10b981;font-weight:600;font-size:13px;"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
+        <button type="button" class="btn btn-ghost btn-sm stat-unpriced-btn" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
+      </div>`).join('')+(unpriced.length>12?`<div class="stat-unpriced-more">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
+    : '<div class="stat-low-empty"><span class="ms" style="font-size:15px;vertical-align:-3px;">check_circle</span> Усі товари мають ціну!</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     const safeName=escapeHtml(l.item_name||'—');
