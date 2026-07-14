@@ -3,6 +3,15 @@ import { readFileSync } from 'node:fs';
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
+// sklad/index.html's <style> block was extracted to sklad/styles.css (see
+// "Component extraction" pass). Most of the sklad-specific checks below
+// assert both HTML markup (still in index.html) and CSS rule text (now in
+// styles.css) in the same block, so we search the concatenation of both
+// files instead of re-classifying every check individually.
+function readSkladCombined() {
+  return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8');
+}
+
 const checks = [
   ['index.html', 'verify_lock_pin', 'shell PIN uses server RPC'],
   ['index.html', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
@@ -465,7 +474,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Mobile item overflow menus should behave like transient menus: only one open
 // at a time, close on outside click, and return focus to the summary on Escape.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad mobile item overflow menus close predictably';
   const required = [
     'function setItemMenuExpanded',
@@ -493,7 +502,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad mobile topbar should reserve flexible title space while keeping the
 // remaining icon actions compact enough to avoid overflow on narrow screens.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad mobile topbar keeps compact actions and flexible title';
   const required = [
     '.topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}',
@@ -524,7 +533,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad visual redesign foundation should keep semantic design tokens for future
 // component passes.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad exposes foundational UI design tokens';
   const required = [
     '--surface-0:',
@@ -550,7 +559,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // The first visual redesign pass should make the Sklad items page feel like a
 // deliberate workflow rather than a loose stack of controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad items screen exposes redesigned hero and filter layout';
   const required = [
     'class="items-hero"',
@@ -586,7 +595,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad issue flow should share the redesigned workflow form primitives instead
 // of reverting to inline-heavy card markup.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad issue screen uses workflow form primitives';
   const required = [
     'class="card workflow-card"',
@@ -616,7 +625,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad log screen should share the calm list toolbar/table/mobile-list
 // primitives introduced during the visual redesign.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad log screen uses redesigned list primitives';
   const required = [
     'class="list-toolbar"',
@@ -659,7 +668,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Dynamic item price badges should use class-based rows instead of inline
 // sizing/color style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price badges use class-based renderer';
   const required = [
     'class="btn btn-ghost btn-sm price-badge-btn"',
@@ -684,7 +693,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Dynamic item table rows/cards should use class-based cells instead of
 // inline color/layout style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad item table rows use class-based cells';
   const required = [
     'class="table-idx-cell"',
@@ -718,7 +727,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad log/receipts table rows should use class-based cells instead of
 // inline color/layout style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad log/receipts rows use class-based cells';
   const required = [
     'class="log-date-cell"',
@@ -751,7 +760,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // The audit finish-confirmation summary grid should use class-based tiles
 // instead of inline grid/color style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad audit summary uses class-based tiles';
   const required = [
     'class="audit-summary-grid"',
@@ -829,7 +838,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Recent-issues side panel and new-product similar-item matches should use
 // class-based rows instead of inline color/layout style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad recent-issues/new-product-match rows use class-based markup';
   const required = [
     'class="log-row-main"',
@@ -864,7 +873,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Add-page low-stock list and stats-page category/low-stock lists should use
 // class-based rows instead of inline color/layout style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad add-low and stats low/category lists use class-based rows';
   const required = [
     'class="add-low-empty"',
@@ -902,7 +911,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // instead of repeated inline font-size/vertical-align style strings, and
 // the stats-page recent-activity log rows should use class-based cells.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad icons use ic-* size utilities; stats log uses class-based rows';
   const required = [
     '.ic-16-3{font-size:16px;vertical-align:-3px;}',
@@ -998,7 +1007,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Icon-only Sklad log/receipt/category-filter/delete buttons must expose an
 // aria-label since their only visible content is a Material Symbols icon.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad icon-only log/receipt/filter/delete buttons expose aria-label';
   const required = [
     'data-log-category-filter="Прибирання" aria-label="Фільтр за категорією: Прибирання"',
@@ -1077,7 +1086,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // sklad lightbox (which has its own bespoke open/close, not the shared
 // modal-bg pattern) must still be covered by the Tab focus trap.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad delPinModal always closes via closeModal(); lightbox is Tab-trapped';
   const required = [
     "closeModal('delPinModal');",
@@ -1149,7 +1158,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad topbar should use class-based title/action/icon helpers instead of
 // dense inline styles on the header controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad topbar uses class-based title and action controls';
   const required = [
     'id="pageTitle" class="topbar-title"',
@@ -1178,7 +1187,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad lightbox and dynamic current-photo preview should use class-based image
 // and empty-state shells rather than inline style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad lightbox and photo preview use class-based shells';
   const required = [
     'class="btn btn-danger btn-sm lightbox-delete-btn"',
@@ -1203,7 +1212,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Edit movement modals (issue log and receipt edits) should share the same
 // class-based edit shell, and receipt delete should reuse confirm-modal.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad edit movement modals use class-based shells';
   const required = [
     'class="modal edit-movement-modal"',
@@ -1233,7 +1242,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Delete, delete-log, delete-PIN and audit confirmation modals should use
 // reusable class-based confirmation shells.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad confirmation modals use class-based shells';
   const required = [
     'class="modal confirm-modal"',
@@ -1267,7 +1276,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Quick issue and photo modals should use class-based shells instead of
 // inline-heavy modal chrome.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad quick issue and photo modals use class-based shells';
   const required = [
     'id="qmName" class="quick-issue-title"',
@@ -1302,7 +1311,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad stats page should use class-based panels/grids and keep a single
 // low-stock stats target for renderStats().
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad stats page uses class-based panels';
   const required = [
     'class="card stats-panel"',
@@ -1334,7 +1343,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad add/refill page should use class-based form/card helpers instead of
 // inline-heavy add-page chrome.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad add and refill page uses class-based shell';
   const required = [
     'class="card add-card"',
@@ -1370,7 +1379,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // QR scanner and chart modal chrome should use small class-based shells
 // instead of inline title/action styles.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad qr and chart modals use class-based shells';
   const required = [
     'class="qr-modal-title"',
@@ -1397,7 +1406,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Barcode add modal should use class-based scanner/manual-entry controls
 // instead of inline layout styles.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad barcode modal uses class-based shell';
   const required = [
     'class="barcode-modal-title"',
@@ -1424,7 +1433,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Item history modal should use class-based title/subtitle/list/state rows
 // instead of inline layout styles.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad history modal uses class-based shell';
   const required = [
     'class="history-modal-title"',
@@ -1451,7 +1460,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Internet price lookup results should render with reusable result-row classes,
 // while keeping links sanitized and apply actions data-driven.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price lookup results use class-based rows';
   const required = [
     '.price-results-state{padding:18px;',
@@ -1478,7 +1487,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Price lookup modal should use the same class-based shell as manual price
 // instead of embedding its grid/results/actions layout inline.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price lookup modal uses class-based shell';
   const required = [
     'class="modal price-lookup-modal"',
@@ -1502,7 +1511,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Manual price modal should not open with accidental blue text selection; it
 // clears stale selections and focuses the price input without selecting modal text.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad manual price modal clears accidental text selection';
   const required = [
     'class="modal manual-price-modal"',
@@ -1530,7 +1539,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad receipt and audit screens should follow the same calm workflow/list
 // primitives as items, issue, and log instead of reverting to ad-hoc inline rows.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad receipts and audit screens use redesigned workflow primitives';
   const required = [
     'class="receipts-toolbar"',
@@ -1803,7 +1812,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // templates; keep them explicit non-submit controls unless a future form needs
 // a real submit button.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad buttons declare explicit button type';
   const missingType = text.match(/<button(?![^>]*\btype=)/g) || [];
   if (missingType.length) {
@@ -1819,7 +1828,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // HTML strings, and the mobile bottom nav should expose semantic navigation and
 // stable labels for icon-heavy buttons.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad navigation titles and mobile nav are semantic';
   const forbidden = [
     "document.getElementById('pageTitle').innerHTML=pageTitles[page]||''",
@@ -1847,7 +1856,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Quantity values rendered in HTML contexts should be string-escaped too; these
 // can be stale/offline/database values rather than guaranteed numbers.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad HTML quantity renderers escape values';
   const required = [
     '${escapeHtml(String(item.quantity??0))} ${unit}',
@@ -1894,7 +1903,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const start = text.indexOf('function renderLog()');
   const end = text.indexOf('// ===== EDIT / DELETE LOG =====');
   const body = start >= 0 && end > start ? text.slice(start, end) : '';
@@ -1912,7 +1921,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Regression guard: the Sklad receipts page must define safeUnit in its own
 // renderer before using it in desktop/mobile receipt rows.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const start = text.indexOf('function renderReceipts()');
   const end = text.indexOf('let deleteReceiptId=');
   const body = start >= 0 && end > start ? text.slice(start, end) : '';
@@ -1947,7 +1956,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad static controls should use centralized data-attribute bindings for auth,
 // navigation, topbar actions, stock/category filters, and common search controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad static controls use centralized event bindings';
   const forbidden = [
     "onclick=\"pinPress('",
@@ -1992,7 +2001,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad item rows/cards should use delegated data-item-action controls instead of
 // embedding per-row inline handlers for every rendered item action.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const start = text.indexOf('function handleItemActionClick');
   const end = text.indexOf('function updateStats()');
   const body = start >= 0 && end > start ? text.slice(start, end) : '';
@@ -2028,7 +2037,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad operational forms (issue/refill/add/audit/log search) should be wired by
 // the centralized static control binder rather than inline handlers.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad operational forms use centralized event bindings';
   const forbidden = [
     'onclick="setPerson',
@@ -2077,7 +2086,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad modal controls should use data attributes and the central binder, including
 // destructive confirmation PIN keys and lightbox controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad modal controls use centralized event bindings';
   const forbidden = [
     'onclick="closeModal',
@@ -2123,7 +2132,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad modal dialogs should expose dialog semantics and be opened through the
 // shared helper so keyboard focus lands inside the active modal.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad modals expose accessible dialog semantics';
   const modalCount = (text.match(/<div class="modal(?:\s[^"]*)?"/g) || []).length;
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
@@ -2157,7 +2166,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Price result actions can contain merchant/source/link text with apostrophes, so
 // they must not be serialized into inline JS argument lists.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price result apply buttons avoid inline JS arguments';
   if (text.includes('onclick="applyFoundPrice') || !text.includes('function bindPriceResultActions') || !text.includes('data-price-result-action="apply"')) {
     failed += 1;
@@ -2171,7 +2180,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Price search links come from an Edge Function response. Only http(s) URLs
 // should be rendered into href/data-url values.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price result links are URL-sanitized';
   const required = [
     'function safeExternalUrl',
@@ -2199,7 +2208,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // scrollable and keep the close action sticky, while using solid light cards for
 // cleaner contrast in the item list.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad mobile price modal is scrollable and closeable';
   const required = [
     '#priceModal .modal{display:flex',
@@ -2257,7 +2266,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // data hooks keep generated markup safer when item names/URLs contain quotes and
 // make refreshed lists keep the same behavior without rebinding every row.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad dynamic renderers avoid inline event attributes';
   const forbidden = [
     'onclick="openManualPriceModal',
@@ -2301,7 +2310,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const m = text.match(/async function refreshAll\(\)\s*\{([^}]*)\}/);
   const label = 'sklad refreshAll() reloads items, logs and receipts';
   if (!m) {
@@ -2323,7 +2332,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // central item lookup prevents modal handlers from crashing on `item.name` /
 // `item.unit` when a row no longer exists in the latest `allItems` collection.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad item actions guard missing/stale item rows';
   const required = [
     'function findItemForAction',

@@ -382,14 +382,12 @@ User reviewed the current state of both `sklad/index.html` and `osbb/index.html`
 
 ### 3. Component extraction
 
-After the visual direction stabilizes, begin small extraction PRs:
+Visual direction confirmed stable (real-device sign-off above), so extraction started. User asked for this in larger chunks rather than many tiny PRs, so the split is one whole `<style>` block per app instead of the originally-sketched tokens/components/sklad three-way split — sklad and osbb each author their own independent `:root` token set today (not a shared file), so forcing them into a common `styles/tokens.css` now would mean reconciling two designs that only happen to agree on values, not a mechanical move. Revisit a shared-tokens split later if the two token sets are deliberately unified.
 
-- `styles/tokens.css`;
-- `styles/components.css`;
-- `styles/sklad.css`;
-- later, lightweight JS modules for shared UI helpers.
-
-Do not perform a large rewrite until smoke checks cover the extracted files.
+- **Sklad**: `sklad/index.html`'s entire `<style>` block (836 lines) moved verbatim to `sklad/styles.css`, referenced via `<link rel="stylesheet" href="styles.css">` in the exact same `<head>` position. `scripts/smoke-check.mjs` now has a `readSkladCombined()` helper (`sklad/index.html` + `sklad/styles.css` concatenated) that the ~45 existing Sklad checks route through, so both HTML-markup and CSS-rule-text assertions keep working without reclassifying every check by hand.
+- Verified: byte-for-byte diff between the extracted block and the new file: identical. `node scripts/smoke-check.mjs` still green. Tag balance and inline-`<script>` syntax unaffected (only CSS moved). Headless Playwright screenshot after the extraction shows the page rendering identically (colors, gradients, layout, tokens all resolve correctly from the external file) — the only thing not rendering is Material Symbols icon glyphs, which is the pre-existing, unrelated Google-Fonts-CDN sandbox block documented in `CLAUDE.md`.
+- Checked PWA/offline impact: the only *registered* service worker is the shell's root `sw.js` (from `index.html`), which explicitly does not intercept `/sklad/*` requests — so `sklad/styles.css` has the same (lack of) offline-cache coverage as the rest of the Sklad app already had. `sklad/sw.js` exists in the repo but is never registered anywhere (dead code, pre-existing) — not touched.
+- **Next**: do the same whole-block extraction for `osbb/index.html` (smaller, ~223-line `<style>` block) and `index.html` (shell, ~163 lines), each as its own PR/commit for isolated failure diagnosis. Only after that, reconsider whether a shared `styles/tokens.css` makes sense.
 
 ## Guardrails for future sessions
 
