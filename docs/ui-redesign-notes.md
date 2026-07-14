@@ -291,6 +291,14 @@ The day-card and table task checkboxes (per-role task dots) built their `border`
 - `task-check-dot` holds the static shape/transition properties, `is-checked` toggles the checked-state border/background color;
 - smoke checks guard the class-based markup and flag regressions back to the old inline ternary style string.
 
+### OSBB garbage yearly chart bar cleanup
+
+The yearly garbage chart rebuilt each bar's full `height`/`width`/`border-radius`/gradient as one inline style string on every render:
+
+- `g-chart-bar` holds the static width/radius/default gradient, `is-current` swaps in the current-month gradient, and only the per-bar `height` stays inline (it's genuinely per-instance data);
+- the bar column wrapper now uses the existing Tailwind `flex-1` utility instead of an inline `style="flex:1"`;
+- smoke checks guard the new classes and flag regressions back to the old inline ternary.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
