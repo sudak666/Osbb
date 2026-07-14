@@ -1021,6 +1021,28 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Journal/dispatcher task-toggle checkboxes are custom <span> controls, not
+// native inputs — they must expose checkbox semantics and be keyboard
+// operable (tabindex/role/aria-checked plus an Enter/Space handler).
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb task-toggle dots expose checkbox semantics and keyboard support';
+  const required = [
+    'role="checkbox" aria-checked="${isChecked?\'true\':\'false\'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?\'-1\':\'0\'}"',
+    'role="checkbox" aria-checked="${row.tasks?.[t.id]?\'true\':\'false\'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?\'0\':\'-1\'}"',
+    "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-journal-action=\"task-toggle\"]');",
+    "container.addEventListener('keydown', (event) => {\n            if (event.key !== 'Enter' && event.key !== ' ') return;\n            const trigger = event.target.closest('[data-disp-action=\"task-toggle\"]');",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {
