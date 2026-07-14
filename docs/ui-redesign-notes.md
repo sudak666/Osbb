@@ -284,6 +284,13 @@ The journal's `setSyncStatus`/`gSetStatus` renderers and the dispatcher joke-mes
 - `audit-summary-grid`, `audit-summary-tile`, `audit-summary-value` (with `counted`/`uncounted`/`surplus`/`shortage` color modifiers), `audit-summary-label`, and `audit-summary-warning` replace the inline styles;
 - smoke checks guard the new classes and flag regressions back to the old inline strings.
 
+### OSBB journal task-toggle dot cleanup
+
+The day-card and table task checkboxes (per-role task dots) built their `border`/`background` colors inline from `isChecked` on every render:
+
+- `task-check-dot` holds the static shape/transition properties, `is-checked` toggles the checked-state border/background color;
+- smoke checks guard the class-based markup and flag regressions back to the old inline ternary style string.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign

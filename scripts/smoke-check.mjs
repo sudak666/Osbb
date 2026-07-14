@@ -778,6 +778,30 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Journal task-toggle dots should use a class-based checked state instead of
+// inline border/background color strings driven by isChecked.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'osbb task-toggle dots use class-based checked state';
+  const required = [
+    '.task-check-dot { width:20px; height:20px; border-radius:50%;',
+    '.task-check-dot.is-checked { border-color:#34c759; background:#34c759; }',
+    "class=\"task-check-dot${isChecked?' is-checked':''}\"",
+  ];
+  const forbidden = [
+    "style=\"width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Journal sync-status/joke-icon spans should use class-based helpers instead
 // of the repeated inline-flex/vertical-align style strings.
 {
