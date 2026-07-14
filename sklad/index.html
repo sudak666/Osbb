@@ -29,6 +29,7 @@ const {createClient}=window.supabase;
 const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9');
 </script>
 
+<link rel="stylesheet" href="../shared/ui.css">
 <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0">
 </head>
@@ -1011,6 +1012,24 @@ async function confirmAudit(){
 }
 
 // ===== LOAD =====
+// ==========================================
+// REALTIME: живі оновлення без ручного "Оновити"
+// ==========================================
+function realtimeSafeReload(fn){
+  const active=document.activeElement;
+  // Не перебивати активне редагування (кількість/примітка тощо) фоновим оновленням.
+  if(active && (active.tagName==='TEXTAREA' || active.tagName==='INPUT')) return;
+  fn().catch(e=>console.warn('realtime reload failed:',e));
+}
+function initRealtime(){
+  try{
+    db.channel('sklad-live')
+      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_items'},()=>realtimeSafeReload(loadItems))
+      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_logs'},()=>realtimeSafeReload(loadLogs))
+      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_receipts'},()=>realtimeSafeReload(loadReceipts))
+      .subscribe();
+  }catch(e){ console.warn('sklad realtime init failed:',e); }
+}
 let refreshBusy=false;
 function setRefreshStatus(state,message){
   const status=document.getElementById('lastUpdate');
@@ -1689,16 +1708,25 @@ async function doIssue(btn){
 async function issueItem(itemId,qty,person,note,issueDate){
   const item=allItems.find(i=>i.id===itemId);
   if(!item){toast('Товар не знайдено!','error');return false;}
-  if(item.quantity<qty){toast('Недостатньо! Залишок: '+item.quantity+' '+item.unit,'error');return false;}
-  const newQ=Math.round((item.quantity-qty)*100)/100;
-  const logRow={item_id:itemId,item_name:item.name,quantity:qty,issued_to:person,note:note||null};
   const issuedAt=dateInputToTimestamp(issueDate);
-  if(issuedAt) logRow.issued_at=issuedAt;
-  const {error:e1}=await db.from('inventory_items').update({quantity:newQ}).eq('id',itemId);
-  const {error:e2}=await db.from('inventory_logs').insert([logRow]);
-  if(e1||e2){toast('Помилка: '+(e1?.message||e2?.message),'error');return false;}
-  toast('Видано: '+qty+' '+item.unit+' → '+person,'success');
-  notifyTelegram('📤 Видача: '+item.name+' −'+qty+' '+item.unit+' → '+person+(note?' ('+note+')':''));
+  // Атомарний RPC замість read-check-write з клієнта: перевірка залишку і
+  // списання відбуваються однією транзакцією на сервері (issue_item),
+  // тому паралельна видача того самого товару не може дати від'ємний залишок.
+  const {data,error}=await db.rpc('issue_item',{
+    p_item_id:itemId, p_qty:qty, p_person:person, p_note:note||null, p_issued_at:issuedAt||null
+  });
+  if(error){
+    if((error.message||'').includes('insufficient_stock')){
+      toast('Недостатньо! Залишок: '+item.quantity+' '+item.unit,'error');
+    }else{
+      toast('Помилка: '+error.message,'error');
+    }
+    return false;
+  }
+  const row=data && data[0];
+  const unit=row?.unit||item.unit;
+  toast('Видано: '+qty+' '+unit+' → '+person,'success');
+  notifyTelegram('📤 Видача: '+item.name+' −'+qty+' '+unit+' → '+person+(note?' ('+note+')':''));
   await loadItems();
   return true;
 }
@@ -2004,24 +2032,16 @@ async function doRefill(btn){
   const done=setActionButtonLoading(btn,'Поповнюю...');
   if(!done) return;
   try{
-  const nq=Math.round((item.quantity+qty)*100)/100;
-  const {error}=await db.from('inventory_items').update({quantity:nq}).eq('id',id);
+  // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
+  // одній транзакції на сервері, замість двох окремих незалежних запитів.
+  const receivedAt=dateInputToTimestamp(receiptDate);
+  const {data,error}=await db.rpc('receive_item',{
+    p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null
+  });
   if(error) return toast('Помилка: '+error.message,'error');
-  // записуємо прихід в окрему таблицю (не блокуємо основний потік якщо таблиці ще немає)
-  try{
-    const receiptRow={item_id:id,item_name:item.name,quantity:qty,supplier:supplier||null,note:note||null};
-    const receivedAt=dateInputToTimestamp(receiptDate);
-    if(receivedAt) receiptRow.received_at=receivedAt;
-    const {error:recErr}=await db.from('inventory_receipts').insert([receiptRow]);
-    if(recErr){
-      console.warn('inventory_receipts insert failed:',recErr.message);
-      toast('Залишок оновлено, але прихід не збережено: '+recErr.message,'error');
-    }
-  }catch(e){
-    console.warn('inventory_receipts insert exception:',e);
-    toast('Залишок оновлено, але прихід не збережено','error');
-  }
-  toast('Поповнено +'+qty+' '+item.unit,'success');
+  const row=data && data[0];
+  const unit=row?.unit||item.unit;
+  toast('Поповнено +'+qty+' '+unit,'success');
   notifyTelegram('📦 Прихід: '+item.name+' +'+qty+' '+item.unit+(supplier?' від '+supplier:'')+(note?' ('+note+')':''));
   document.getElementById('refillQtyI').value='';
   document.getElementById('refillSupplierI').value='';
@@ -3027,6 +3047,7 @@ loadItems()
     console.warn('initial sklad load failed:',e);
     setRefreshStatus('ready','Помилка завантаження');
   });
+initRealtime();
 </script>
 
 <!-- BOTTOM NAV (mobile) -->

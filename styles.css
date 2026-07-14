@@ -9,9 +9,7 @@
     /* Не блокуємо виділення тексту глобально — лише на кнопках/навігації, як у нативних застосунках */
     button, .shell-tab-btn, .pin-btn, .pin-text-btn { user-select: none; -webkit-user-select: none; }
 
-    @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
-    }
+    /* prefers-reduced-motion тепер у shared/ui.css */
 
     /* ЕКРАН БЛОКУВАННЯ (iOS Passcode Style) */
     #app-lock-screen {
