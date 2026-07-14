@@ -13,8 +13,8 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `sklad/index.html` | Склад: товари, видача, приходи, інвентаризація, фото, QR, графіки та Excel-експорт. |
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
-| `supabase/*.sql` | SQL-скрипти для PIN-перевірки та посилення RLS для журналу (виконуються у тому ж проєкті, що й `sklad/supabase/*.sql` — див. примітку вище). |
-| `sklad/supabase/*.sql` | SQL-скрипти для складу, PIN-перевірки й для об'єднання журналу зі складом в один проєкт (`merge_osbb_journal.sql`). |
+| `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `005_merge_osbb_journal.sql`). |
 | `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
 | `sklad/supabase/functions/fetch-item-prices` | Supabase Edge Function для пошуку орієнтовних цін товарів складу в інтернеті без розкриття API-ключів у фронтенді. |
 
@@ -27,28 +27,30 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Supabase
 
-Перед деплоєм перевірте, що у відповідних Supabase-проєктах створені таблиці, RPC-функції, RLS-політики та Storage bucket-и, які використовуються фронтендом.
+Один спільний проєкт (`vkwkyhjjjmcpmiakxohw`) для журналу й складу. Перед деплоєм перевірте, що в ньому створені таблиці, RPC-функції, RLS-політики та Storage bucket-и, які використовуються фронтендом.
 
 Основні сутності, які видно з коду:
 
-- журнал: `schedule`, `photos`, `garbage`, `dispatcher`, `chat`;
-- склад: `inventory_items`, `inventory_logs`, `inventory_receipts`, `inventory_audits`, `inventory_audit_items`;
-- RPC: `verify_lock_pin`, `verify_reset_pin`, `reset_month`, `verify_pin`, `delete_inventory_item`, `delete_inventory_log`, `delete_inventory_receipt`;
-- Storage bucket: `photos`.
+- журнал: `schedule`, `photos`, `garbage`, `dispatcher`, `chat`, `osbb_app_auth`, `osbb_app_pin_attempts`, `osbb_telegram_config`;
+- склад: `inventory_items`, `inventory_logs`, `inventory_receipts`, `inventory_audits`, `inventory_audit_items`, `app_auth`, `app_pin_attempts`, `telegram_config`;
+- RPC: `verify_lock_pin`, `verify_reset_pin`, `reset_month`, `verify_pin`, `delete_inventory_item`, `delete_inventory_log`, `delete_inventory_receipt`, `delete_chat_message`, `delete_photo`;
+- Storage bucket: `photos` (фото складу без префіксу, фото чергувань журналу — під `osbb-duty/`).
+
+Журнал і склад мають окремі `app_auth`-таблиці (`osbb_app_auth` — два PIN, вхід+скидання; `app_auth` складу — один PIN) — це не помилка, а свідоме рішення: два незалежні PIN-контури, а не єдина авторизація.
 
 ## Порядок виконання SQL у Supabase
 
-Виконуйте SQL тільки у відповідному Supabase-проєкті:
+Для нового розгортання виконайте файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `005_...`) — кожен наступний може залежати від попереднього:
 
-1. Основний ОСББ / журнал: `supabase/setup_pin_auth.sql` — PIN входу, PIN скидання та server-side lockout.
-2. Основний ОСББ / журнал: `supabase/harden_rls_delete.sql` — PIN-захищене скидання місяця для `schedule`, `garbage`, `dispatcher`.
-3. Основний ОСББ / журнал: `supabase/harden_chat_photos_delete.sql` — PIN-захищене видалення `chat` і `photos`.
-4. Склад: `sklad/supabase/setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
-5. Склад: `sklad/supabase/receipts_table.sql` — таблиця `inventory_receipts` (сторінка "Прихід товару"). На вже налаштованому проєкті це no-op (`if not exists`); потрібен лише для розгортання на новому Supabase-проєкті.
-6. Склад: `sklad/supabase/add_internal_use_flag.sql` — додає поле `is_internal` (внутрішнє використання/хознужди) до `inventory_items`. Без цього скрипту кнопка "Додати товар" видаватиме помилку, оскільки фронтенд надсилає це поле в кожному запиті створення товару.
-7. Склад: `sklad/supabase/add_price_tracking.sql` — додає опційні поля ціни (`price_unit`, джерело, URL, час перевірки) до `inventory_items`. Цей скрипт треба виконати саме у базі Складу (`vkwkyhjjjmcpmiakxohw`), не в основній базі журналу ОСББ.
+1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
+2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
+3. `003_add_internal_use_flag.sql` — додає поле `is_internal` до `inventory_items`. Без нього кнопка "Додати товар" впаде з помилкою.
+4. `004_add_price_tracking.sql` — опційні поля ціни (`price_unit`, джерело, URL, час перевірки) в `inventory_items`.
+5. `005_merge_osbb_journal.sql` — увесь журнал ОСББ (`schedule`/`garbage`/`dispatcher`/`chat`/`photos` + PIN-и + RPC + тригер сповіщень чату) в тому ж проєкті.
 
-Перед production-використанням замініть прикладові PIN-и у SQL-файлах на реальні значення. Після виконання SQL перевірте PIN-вхід, скидання місяця, видалення фото/чату та видалення складських записів.
+`supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
+
+Перед production-використанням замініть прикладові PIN-и у SQL-файлах на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), скидання місяця, видалення фото/чату та видалення складських записів.
 
 ## Товари для внутрішнього використання (хознужди)
 
@@ -59,11 +61,11 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 - можуть бути приховані кнопкою-перемикачем "Без внутрішніх" (або показані окремо кнопкою "Тільки внутрішні") на сторінці "Товари";
 - потрапляють в окремий лист "Баланс" в Excel-експорті з підсумками "на балансі" / "внутрішнє використання".
 
-Застосунок підтримує опційний облік орієнтовної вартості товарів: після виконання `sklad/supabase/add_price_tracking.sql` можна вручну задати ціну за одиницю або підтягнути варіанти з інтернету через Edge Function `fetch-item-prices`. До підтвердження адміністратором ціни вважаються довідковими, бо інтернет-пошук може знайти не ту одиницю виміру або не той товар.
+Застосунок підтримує опційний облік орієнтовної вартості товарів: після виконання `sklad/supabase/004_add_price_tracking.sql` можна вручну задати ціну за одиницю або підтягнути варіанти з інтернету через Edge Function `fetch-item-prices`. До підтвердження адміністратором ціни вважаються довідковими, бо інтернет-пошук може знайти не ту одиницю виміру або не той товар.
 
 ## Інтернет-оцінка цін складу
 
-Ціни належать тільки модулю **Склад** і його Supabase-проєкту `vkwkyhjjjmcpmiakxohw`. Основний журнал ОСББ використовує іншу базу Supabase, тому SQL для цін і Edge Function не потрібно виконувати в основному проєкті.
+Ціни стосуються лише таблиці `inventory_items` (модуль Склад) в єдиному Supabase-проєкті `vkwkyhjjjmcpmiakxohw`. Журнальні таблиці (`schedule`/`garbage`/`dispatcher`/`chat`/`photos`) цих полів не мають і SQL для цін на них не впливає.
 
 Налаштування:
 
@@ -89,6 +91,8 @@ supabase secrets set TELEGRAM_CHAT_ID=ваш_chat_id --project-ref vkwkyhjjjmcpm
 ```
 
 `--no-verify-jwt` потрібен тому, що клієнт авторизується новим форматом ключів Supabase (`sb_publishable_...`), який не є JWT. Після деплою перевірте, що додавання/прихід/видача товару в Складі надсилають повідомлення у ваш Telegram-чат.
+
+Той самий бот (токен у таблиці `telegram_config`) шле і сповіщення про повідомлення в чаті журналу — але в інший Telegram-чат: `chat_id` для журналу зберігається окремо, в `osbb_telegram_config` (див. `sklad/supabase/005_merge_osbb_journal.sql`), не в `telegram_config`.
 
 Швидка перевірка після деплою з Windows PowerShell:
 

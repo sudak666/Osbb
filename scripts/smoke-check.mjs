@@ -93,11 +93,14 @@ const checks = [
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
 
-  ['supabase/setup_pin_auth.sql', 'app_pin_attempts', 'OSBB PIN attempts table exists'],
-  ['supabase/setup_pin_auth.sql', 'locked_until', 'OSBB PIN lockout is present'],
-  ['supabase/harden_chat_photos_delete.sql', 'delete_chat_message', 'chat delete RPC exists'],
-  ['supabase/harden_chat_photos_delete.sql', 'delete_photo', 'photo delete RPC exists'],
-  ['sklad/supabase/setup_pin_auth.sql', 'app_pin_attempts', 'sklad PIN attempts table exists'],
+  ['supabase/001_setup_pin_auth.sql', 'app_pin_attempts', 'OSBB PIN attempts table exists (historical archive)'],
+  ['supabase/001_setup_pin_auth.sql', 'locked_until', 'OSBB PIN lockout is present (historical archive)'],
+  ['supabase/003_harden_chat_photos_delete.sql', 'delete_chat_message', 'chat delete RPC exists (historical archive)'],
+  ['supabase/003_harden_chat_photos_delete.sql', 'delete_photo', 'photo delete RPC exists (historical archive)'],
+  ['sklad/supabase/001_setup_pin_auth.sql', 'app_pin_attempts', 'sklad PIN attempts table exists'],
+  ['sklad/supabase/005_merge_osbb_journal.sql', 'delete_chat_message', 'merged project has chat delete RPC'],
+  ['sklad/supabase/005_merge_osbb_journal.sql', 'delete_photo', 'merged project has photo delete RPC'],
+  ['sklad/supabase/005_merge_osbb_journal.sql', 'osbb_telegram_config', 'merged project has osbb telegram config table'],
 ];
 
 const ignoredDirs = new Set(['.git', 'node_modules', '.cache', 'dist', 'build']);
