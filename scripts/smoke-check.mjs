@@ -8,13 +8,15 @@ import { join } from 'node:path';
 // assert both HTML markup (still in index.html) and CSS rule text (now in
 // styles.css) in the same block, so we search the concatenation of both
 // files instead of re-classifying every check individually.
+const SHARED_JS_CSS = '\n' + readFileSync('shared/ui.css', 'utf8') + '\n' + readFileSync('shared/enhance-select.js', 'utf8');
+
 function readSkladCombined() {
-  return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8') + '\n' + readFileSync('shared/ui.css', 'utf8');
+  return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8') + SHARED_JS_CSS;
 }
 
 // Same story for osbb/index.html's extracted <style> block -> osbb/styles.css.
 function readOsbbCombined() {
-  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + '\n' + readFileSync('shared/ui.css', 'utf8');
+  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + SHARED_JS_CSS;
 }
 
 const checks = [
@@ -2095,7 +2097,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'data-search-placeholder="Пошук товару для поповнення..."',
     'id="manualPriceItemSel" data-searchable="1"',
     'data-search-placeholder="Пошук товару для ручної ціни..."',
-    "className='inp custom-select-search'",
+    "className = 'inp custom-select-search'",
     '.custom-select-search{margin:8px;',
     'data-new-product-input',
     'data-render-audit-input',
@@ -2445,6 +2447,27 @@ for (const file of ['index.html', 'osbb/index.html']) {
     readFileSync(src, 'utf8').includes('shared/ui.css')
   );
   if (sharedExists && linked) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
+// Same guard for shared/enhance-select.js: it must exist, be linked from both
+// modules, and neither module should have re-introduced its own inline copy
+// of enhanceSelect (that's exactly the drift this extraction was meant to end).
+{
+  const label = 'shared/enhance-select.js exists, is linked, and not re-duplicated inline';
+  const sharedExists = allFiles.includes('shared/enhance-select.js');
+  const linked = ['osbb/index.html', 'sklad/index.html'].every(src =>
+    readFileSync(src, 'utf8').includes('shared/enhance-select.js')
+  );
+  const notReDuplicated = ['osbb/index.html', 'sklad/index.html'].every(src =>
+    !readFileSync(src, 'utf8').includes('function enhanceSelect(')
+  );
+  if (sharedExists && linked && notReDuplicated) {
     passed += 1;
     console.log(`ok - ${label}`);
   } else {

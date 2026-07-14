@@ -29,6 +29,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../shared/enhance-select.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../shared/ui.css">
     <link rel="stylesheet" href="styles.css">
@@ -707,98 +708,9 @@
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
     document.getElementById('fun-quote').innerHTML = quotes[Math.floor(Math.random() * quotes.length)];
 
-    // Замінюємо нативний <select> (квадратне системне спливаюче меню, яке не
-    // стилізується) на кастомний заокруглений випадний список. Сам <select>
-    // лишається в DOM (прихований) — існуючий код (.value, onchange) працює
-    // без змін, бо клік по кастомній опції виставляє select.value і породжує
-    // справжню подію 'change'.
-    function enhanceSelect(select) {
-        if (!select || select.dataset.enhanced) return;
-        select.dataset.enhanced = '1';
-        const btnClass = select.className;
-        select.style.display = 'none';
-
-        const wrap = document.createElement('div');
-        wrap.className = 'custom-select-wrap';
-        select.parentNode.insertBefore(wrap, select);
-        wrap.appendChild(select);
-
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = btnClass + ' custom-select-btn';
-        btn.setAttribute('aria-haspopup', 'listbox');
-        btn.setAttribute('aria-expanded', 'false');
-        btn.innerHTML = '<span class="custom-select-label"></span><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>';
-        wrap.appendChild(btn);
-
-        const panel = document.createElement('div');
-        panel.className = 'custom-select-panel hidden';
-        panel.setAttribute('role', 'listbox');
-        wrap.appendChild(panel);
-
-        function renderOptions() {
-            panel.innerHTML = '';
-            Array.from(select.options).forEach(opt => {
-                const item = document.createElement('div');
-                item.className = 'custom-select-option' + (opt.value === select.value ? ' active' : '');
-                item.textContent = opt.textContent;
-                item.setAttribute('role', 'option');
-                item.setAttribute('tabindex', '0');
-                item.setAttribute('aria-selected', opt.value === select.value ? 'true' : 'false');
-                const choose = () => {
-                    select.value = opt.value;
-                    select.dispatchEvent(new Event('change'));
-                    syncLabel();
-                    closePanel();
-                    btn.focus();
-                };
-                item.addEventListener('click', choose);
-                item.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(); }
-                    else if (e.key === 'Escape') { closePanel(); btn.focus(); }
-                    else if (e.key === 'ArrowDown') { e.preventDefault(); (item.nextElementSibling || panel.firstElementChild)?.focus(); }
-                    else if (e.key === 'ArrowUp') { e.preventDefault(); (item.previousElementSibling || panel.lastElementChild)?.focus(); }
-                });
-                panel.appendChild(item);
-            });
-        }
-        function syncLabel() {
-            const selectedOpt = select.options[select.selectedIndex];
-            btn.querySelector('.custom-select-label').textContent = selectedOpt ? selectedOpt.textContent : '';
-            panel.querySelectorAll('.custom-select-option').forEach((el, i) => {
-                el.classList.toggle('active', select.options[i] && select.options[i].value === select.value);
-                el.setAttribute('aria-selected', select.options[i] && select.options[i].value === select.value ? 'true' : 'false');
-            });
-        }
-        function openPanel() {
-            document.querySelectorAll('.custom-select-panel').forEach(p => { if (p !== panel) p.classList.add('hidden'); });
-            renderOptions();
-            panel.classList.remove('hidden');
-            btn.setAttribute('aria-expanded', 'true');
-            panel.querySelector('.custom-select-option.active')?.focus();
-        }
-        function closePanel() { panel.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); }
-
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (panel.classList.contains('hidden')) openPanel(); else closePanel();
-        });
-        btn.addEventListener('keydown', (e) => {
-            if ((e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') && panel.classList.contains('hidden')) {
-                e.preventDefault();
-                openPanel();
-            }
-        });
-        panel.addEventListener('click', (e) => e.stopPropagation());
-        document.addEventListener('click', closePanel);
-
-        select._syncCustomLabel = syncLabel;
-        renderOptions();
-        syncLabel();
-    }
-    function refreshEnhancedSelect(select) {
-        if (select && select._syncCustomLabel) select._syncCustomLabel();
-    }
+    // enhanceSelect/refreshEnhancedSelect (кастомний <select> замість квадратного
+    // системного спливаючого меню, з опційним пошуком через data-searchable="1")
+    // тепер у ../shared/enhance-select.js — та сама реалізація, що й у складі.
     enhanceSelect(yearSelect);
     enhanceSelect(monthSelect);
 
