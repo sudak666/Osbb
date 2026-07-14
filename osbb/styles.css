@@ -211,3 +211,17 @@
 
         /* prefers-reduced-motion і [data-tip]-тултіпи тепер у ../shared/ui.css
            (ідентичні у всіх трьох модулях, підключено через <link> у <head>) */
+
+        /* ==========================================
+           ACCESSIBILITY: більший текст і touch target для літньої аудиторії.
+           Tailwind CDN генерує .text-xs/.text-[Npx] у рантаймі — перебиваємо
+           через !important (той самий патерн, що вже є для bottom-nav вище).
+           Декоративні мітки/бейджі не рівняємо до одного розміру — лише
+           піднімаємо загальну підлогу.
+           ========================================== */
+        .text-xs { font-size: 14px !important; line-height: 1.4 !important; }
+        .text-\[10px\] { font-size: 12px !important; }
+        .text-\[11px\] { font-size: 13px !important; }
+        .text-\[9px\] { font-size: 11px !important; }
+        .mob-tab { min-height: 48px !important; }
+        .tab-btn { min-height: 44px !important; }

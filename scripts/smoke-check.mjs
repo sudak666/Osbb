@@ -537,8 +537,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     '.topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}',
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-    '.topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}',
-    '.topbar .btn:not(.topbar-right-excel) .ms{font-size:20px!important;vertical-align:middle!important;margin:0!important;}',
+    '.topbar .btn:not(.topbar-right-excel){width:48px;min-width:48px;height:48px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}',
+    '.topbar .btn:not(.topbar-right-excel) .ms{font-size:22px!important;vertical-align:middle!important;margin:0!important;}',
     '.topbar [data-sklad-action="theme"]{display:none!important;}',
   ];
   const missing = required.filter(needle => !text.includes(needle));

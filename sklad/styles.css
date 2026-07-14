@@ -625,8 +625,8 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}
   .topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .topbar>div{gap:6px!important;flex-shrink:0;}
-  .topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}
-  .topbar .btn:not(.topbar-right-excel) .ms{font-size:20px!important;vertical-align:middle!important;margin:0!important;}
+  .topbar .btn:not(.topbar-right-excel){width:48px;min-width:48px;height:48px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}
+  .topbar .btn:not(.topbar-right-excel) .ms{font-size:22px!important;vertical-align:middle!important;margin:0!important;}
   .topbar [data-sklad-action="theme"]{display:none!important;}
   .topbar-right-excel{display:none!important;}
   .page{padding:14px 12px;}
@@ -825,4 +825,24 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 /* Skeleton-заглушки на час першого завантаження даних */
 @keyframes skel-shimmer { 0% { background-position: -160% 0; } 100% { background-position: 160% 0; } }
 .skel { background: linear-gradient(90deg, var(--ios-gray6) 25%, var(--ios-sep) 37%, var(--ios-gray6) 63%); background-size: 400% 100%; animation: skel-shimmer 1.4s ease-in-out infinite; border-radius: 6px; display: inline-block; height: 12px; }
+
+/* ==========================================
+   ACCESSIBILITY: більший текст і touch target для літньої аудиторії.
+   Піднімаємо мінімальний розмір найчастіше читаного/натискуваного —
+   основні кнопки, поля вводу, навігація, рядки видач/приходів.
+   Декоративні бейджі, лічильники й мікро-мітки лишаємо як є навмисно.
+   !important — щоб гарантовано перебити конкретні правила вище
+   (той самий підхід, що вже узаконений для bottom-nav у CLAUDE.md).
+   ========================================== */
+.btn { min-height: 48px !important; font-size: 15px !important; }
+/* .btn-sm звичайно менша навмисно, але кнопки-ярлики (напр. "Видати"/"Поповнити"
+   на головному екрані мають class="btn ... btn-sm") — теж часто натискувані,
+   тому не опускаємо їх нижче цільового порогу 48px. */
+.btn-sm { min-height: 48px !important; font-size: 14px !important; }
+.inp { min-height: 48px !important; }
+.ni { min-height: 44px !important; }
+.bn-item { font-size: 11px !important; min-height: 48px !important; }
+.preset-chip { min-height: 36px !important; font-size: 13px !important; }
+.log-row-title, .log-row-qty { font-size: 14px !important; }
+.log-row-meta { font-size: 12px !important; }
 
