@@ -202,6 +202,14 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .table-modern tbody tr:hover{background:color-mix(in srgb,var(--accent) 7%,transparent);}
 .table-modern tbody td:first-child,.table-modern thead th:first-child{padding-left:20px;}
 .table-modern tbody td:last-child,.table-modern thead th:last-child{padding-right:20px;}
+.table-idx-cell{color:#a5b4fc;font-size:12px;}
+.table-name-cell{font-weight:600;color:var(--ios-label);max-width:280px;}
+.table-unit-cell{color:var(--ios-label3);font-size:12px;}
+.table-qty-unit{color:#a5b4fc;font-size:11px;}
+.table-row-actions{display:flex;gap:6px;}
+.badge-internal{background:color-mix(in srgb,var(--warning) 22%,var(--surface-1));color:color-mix(in srgb,var(--warning) 70%,#3a2100);}
+.empty-icon{margin-bottom:10px;}
+.empty-compact{padding:32px;}
 
 /* WORKFLOW FORMS */
 .workflow-card{padding:26px;}
@@ -2270,9 +2278,9 @@ function renderItems(){
   // Desktop table
   const tb=document.getElementById('itemsTable');
   if(!items.length){
-    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div style="margin-bottom:10px;"><span class="ms" style="font-size:40px;">search_off</span></div>Нічого не знайдено</div></td></tr>';
+    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"><span class="ms" style="font-size:40px;">search_off</span></div>Нічого не знайдено</div></td></tr>';
     const mc=document.getElementById('mobileCards');
-    if(mc) mc.innerHTML='<div class="empty" style="padding:32px;"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div>';
+    if(mc) mc.innerHTML='<div class="empty empty-compact"><span class="ms" style="font-size:16px;vertical-align:-3px;">search_off</span> Нічого не знайдено</div>';
     return;
   }
   tb.innerHTML=items.map((item,idx)=>{
@@ -2286,14 +2294,14 @@ function renderItems(){
       ? `<img src="${safePhoto}" class="photo-thumb tip-up" data-item-action="lightbox" data-item-id="${id}" data-photo-url="${safePhoto}" data-tip="Переглянути" alt="Фото товару ${name}">`
       : `<div class="photo-ph tip-up" data-item-action="photo" data-item-id="${id}" data-tip="Додати фото" role="button" tabindex="0" aria-label="Додати фото"><span class="ms" style="font-size:18px;">photo_camera</span></div>`;
     return `<tr>
-      <td style="color:#a5b4fc;font-size:12px;">${idx+1}</td>
-      <td style="font-weight:600;color:var(--ios-label);max-width:280px;">${name}${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</td>
+      <td class="table-idx-cell">${idx+1}</td>
+      <td class="table-name-cell">${name}${item.is_internal?' <span class="badge badge-internal">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</td>
       <td><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span></td>
-      <td style="color:var(--ios-label3);font-size:12px;">${unit}</td>
+      <td class="table-unit-cell">${unit}</td>
       <td>${photoCell}</td>
-      <td><span class="${qc}">${escapeHtml(String(item.quantity??0))}</span> <span style="color:#a5b4fc;font-size:11px;">${unit}</span></td>
+      <td><span class="${qc}">${escapeHtml(String(item.quantity??0))}</span> <span class="table-qty-unit">${unit}</span></td>
       <td>${priceBadge(item)}</td>
-      <td><div style="display:flex;gap:6px;">
+      <td><div class="table-row-actions">
         <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">output</span> Видати</button>
         <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms" style="font-size:15px;vertical-align:-3px;">history</span> Історія</button>
         <button type="button" class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"><span class="ms" style="font-size:16px;">photo_camera</span></button>
@@ -2321,7 +2329,7 @@ function renderItems(){
       <div class="m-card-head">
         <div class="m-card-main">
           <div class="m-card-title">${name}</div>
-          <div class="m-card-meta"><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span>${item.is_internal?' <span class="badge" style="background:#FEF3C7;color:#92400E;">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</div>
+          <div class="m-card-meta"><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span>${item.is_internal?' <span class="badge badge-internal">'+msIcon('home_repair_service','11px')+' внутрішнє</span>':''}</div>
           <div class="m-card-price">${priceBadge(item)}</div>
         </div>
         <div class="m-card-side">
