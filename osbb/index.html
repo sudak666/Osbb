@@ -239,6 +239,11 @@
         .skel { background: linear-gradient(90deg, var(--bg-input) 25%, var(--border) 37%, var(--bg-input) 63%); background-size: 400% 100%; animation: skel-shimmer 1.4s ease-in-out infinite; border-radius: 8px; }
         .skel-row td { padding: 12px 16px; }
         .skel-bar { height: 12px; border-radius: 6px; }
+        .skel-w-date { width: 70px; }
+        .skel-w-day { width: 90px; }
+        .skel-w-count { width: 40px; }
+        .skel-w-main { width: 80%; }
+        .skel-w-actions { width: 90%; }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
@@ -501,9 +506,9 @@
     </div>
 
     <div id="mobile-cards" class="mobile-day-card mb-4">
-        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar" style="width:90px;"></span><span class="skel skel-bar" style="width:40px;"></span></div></div>
-        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar" style="width:90px;"></span><span class="skel skel-bar" style="width:40px;"></span></div></div>
-        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar" style="width:90px;"></span><span class="skel skel-bar" style="width:40px;"></span></div></div>
+        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar skel-w-day"></span><span class="skel skel-bar skel-w-count"></span></div></div>
+        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar skel-w-day"></span><span class="skel skel-bar skel-w-count"></span></div></div>
+        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar skel-w-day"></span><span class="skel skel-bar skel-w-count"></span></div></div>
     </div>
 
     <div id="section-journal" class="desktop-table print-card journal-table-shell overflow-hidden">
@@ -525,9 +530,9 @@
                     </tr>
                 </thead>
                 <tbody id="calendar-body" class="divide-y divide-[var(--border)] text-sm">
-                    <tr class="skel-row"><td><span class="skel skel-bar" style="width:70px;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td class="no-print"><span class="skel skel-bar" style="width:90%;"></span></td></tr>
-                    <tr class="skel-row"><td><span class="skel skel-bar" style="width:70px;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td class="no-print"><span class="skel skel-bar" style="width:90%;"></span></td></tr>
-                    <tr class="skel-row"><td><span class="skel skel-bar" style="width:70px;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td><span class="skel skel-bar" style="width:80%;"></span></td><td class="no-print"><span class="skel skel-bar" style="width:90%;"></span></td></tr>
+                    <tr class="skel-row"><td><span class="skel skel-bar skel-w-date"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td class="no-print"><span class="skel skel-bar skel-w-actions"></span></td></tr>
+                    <tr class="skel-row"><td><span class="skel skel-bar skel-w-date"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td class="no-print"><span class="skel skel-bar skel-w-actions"></span></td></tr>
+                    <tr class="skel-row"><td><span class="skel skel-bar skel-w-date"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td class="no-print"><span class="skel skel-bar skel-w-actions"></span></td></tr>
                 </tbody>
             </table>
         </div>
@@ -1777,6 +1782,9 @@
         const themeColors = { 'theme-light': '#22c55e', 'theme-dark': '#000000' };
         const metaColor = document.getElementById('meta-theme-color');
         if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#22c55e');
+    }
+    function toggleTheme() {
+        changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
     }
     function toggleTheme() {
         changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
