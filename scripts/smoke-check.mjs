@@ -1645,6 +1645,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="status-label"',
     'class="status-label is-tight"',
     '<link rel="stylesheet" href="../shared/ui.css">',
+    '<script src="../shared/enhance-select.js"></script>',
+    '// Кастомний select підключено зі shared/enhance-select.js.',
     '.journal-mini-stats.is-two {',
     'class="journal-mini-stats is-two"',
     'class="stat-card journal-stat-card journal-mini-stat role-garbage',
@@ -2101,7 +2103,8 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad operational forms (issue/refill/add/audit/log search) should be wired by
 // the centralized static control binder rather than inline handlers.
 {
-  const text = readSkladCombined();
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const sharedSelectText = existsSync('shared/enhance-select.js') ? readFileSync('shared/enhance-select.js', 'utf8') : '';
   const label = 'sklad operational forms use centralized event bindings';
   const forbidden = [
     'onclick="setPerson',
@@ -2136,7 +2139,9 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'data-render-receipts-input',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
-  const missing = required.filter(needle => !text.includes(needle));
+  const haystack = `${text}
+${sharedSelectText}`;
+  const missing = required.filter(needle => !haystack.includes(needle));
   if (hasForbidden || missing.length) {
     failed += 1;
     console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
@@ -2438,6 +2443,29 @@ for (const file of ['index.html', 'osbb/index.html']) {
   }
 }
 
+
+
+// Shared enhance-select helper should be used by journal and sklad instead of duplicated inline copies.
+{
+  const missing = [];
+  if (!existsSync('shared/enhance-select.js')) missing.push('shared/enhance-select.js');
+  for (const file of ['osbb/index.html', 'sklad/index.html']) {
+    const text = readFileSync(file, 'utf8');
+    if (!text.includes('src="../shared/enhance-select.js"')) missing.push(`${file}:script`);
+    if (text.includes('function enhanceSelect(')) missing.push(`${file}:inline enhanceSelect`);
+  }
+  const helper = existsSync('shared/enhance-select.js') ? readFileSync('shared/enhance-select.js', 'utf8') : '';
+  for (const marker of ['window.enhanceSelect = enhanceSelect;', 'window.refreshEnhancedSelect = refreshEnhancedSelect;', 'custom-select-arrow', 'custom-select-empty']) {
+    if (!helper.includes(marker)) missing.push(`shared/enhance-select.js:${marker}`);
+  }
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - shared/enhance-select.js exists, is linked, and not re-duplicated inline (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log('ok - shared/enhance-select.js exists, is linked, and not re-duplicated inline');
+  }
+}
 
 // Shared UI stylesheet should be available to all entrypoints.
 {

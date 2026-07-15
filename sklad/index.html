@@ -26,6 +26,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="../shared/enhance-select.js"></script>
 <script>
 const {createClient}=window.supabase;
 const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9');
@@ -3414,10 +3415,7 @@ function populateSels(){
   ['issueItemSel','refillSel'].forEach(k=>{const el=document.getElementById(k);if(el){el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;refreshEnhancedSelect(el);}});
 }
 
-// enhanceSelect/refreshEnhancedSelect (кастомний <select> замість квадратного
-// системного спливаючого меню, з опційним пошуком через data-searchable="1")
-// тепер у ../shared/enhance-select.js — та сама реалізація, що й у журналі.
-
+// Кастомний select підключено зі shared/enhance-select.js.
 // ===== MODAL =====
 const focusableModalSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 const modalFocusReturn = new Map();

@@ -29,7 +29,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../shared/enhance-select.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -967,9 +966,7 @@
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
     document.getElementById('fun-quote').innerHTML = quotes[Math.floor(Math.random() * quotes.length)];
 
-    // enhanceSelect/refreshEnhancedSelect (кастомний <select> замість квадратного
-    // системного спливаючого меню, з опційним пошуком через data-searchable="1")
-    // тепер у ../shared/enhance-select.js — та сама реалізація, що й у складі.
+    // Кастомний select підключено зі shared/enhance-select.js.
     enhanceSelect(yearSelect);
     enhanceSelect(monthSelect);
 
@@ -1817,6 +1814,9 @@
         const themeColors = { 'theme-light': '#22c55e', 'theme-dark': '#000000' };
         const metaColor = document.getElementById('meta-theme-color');
         if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#22c55e');
+    }
+    function toggleTheme() {
+        changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
     }
     function toggleTheme() {
         changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');

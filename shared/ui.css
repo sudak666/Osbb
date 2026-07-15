@@ -20,3 +20,13 @@
   outline-offset: 2px;
   box-shadow: var(--shared-focus-ring);
 }
+
+.custom-select-arrow {
+  flex-shrink: 0;
+  margin-left: 6px;
+  opacity: 0.65;
+}
+
+.custom-select-empty {
+  padding: 12px;
+}
