@@ -250,32 +250,163 @@ The item price badge renderer now uses class-based markup for both priced and un
 - priced rows use `price-badge-btn has-price`, `price-badge-value`, and `price-badge-source`;
 - smoke checks guard the dynamic price badge renderer classes.
 
+### Sklad items table/card cleanup
+
+The desktop items table and mobile item cards now use class-based cells instead of inline color/layout styles:
+
+- index, name, unit, and quantity-unit cells use `table-idx-cell`, `table-name-cell`, `table-unit-cell`, `table-qty-unit`;
+- the desktop row action wrapper uses `table-row-actions`;
+- the "internal use" badge (desktop table + mobile card) uses `badge-internal` instead of a hardcoded hex background/color;
+- smoke checks guard the class-based cells and flag regressions back to the old inline strings.
+
+### OSBB journal sync-status/joke-icon cleanup
+
+The journal's `setSyncStatus`/`gSetStatus` renderers and the dispatcher joke-message array repeated the same inline-flex/vertical-align style strings dozens of times:
+
+- `journal-status-icon-row` / `journal-status-icon-row-tight` replace the repeated `style="display:inline-flex;align-items:center;gap:5px/4px;"` wrapper on every sync-status icon+label span (44 + 5 call sites across `osbb/index.html`);
+- `journal-joke-icon` replaces the repeated `vertical-align:-2px` inline style on the 10 dispatcher joke-message icons;
+- `journal-daytype-icon` replaces the one-off day-type icon inline style;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
+### Sklad log/receipts table cell cleanup
+
+`renderLog()` and `renderReceipts()` shared near-identical inline-styled `<td>` cells for date, item name, quantity, person/supplier, and note columns:
+
+- `log-date-cell`, `log-name-cell`, `log-cat-badge`, `log-person-cell`, `log-note-cell` replace the per-cell inline color/size styles in both renderers;
+- `log-qty-out` (indigo, issue log) / `log-qty-in` (green, receipts) plus a shared `log-unit-suffix` replace the inline quantity/unit styling;
+- the row action wrapper now reuses the existing `table-row-actions` class instead of a duplicate inline `display:flex;gap:6px`;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
+### Sklad audit finish-summary cleanup
+
+`openAuditConfirm()`'s 2x2 stat grid (counted/uncounted/surplus/shortage) built every tile from inline grid/color/padding styles:
+
+- `audit-summary-grid`, `audit-summary-tile`, `audit-summary-value` (with `counted`/`uncounted`/`surplus`/`shortage` color modifiers), `audit-summary-label`, and `audit-summary-warning` replace the inline styles;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
+### OSBB journal task-toggle dot cleanup
+
+The day-card and table task checkboxes (per-role task dots) built their `border`/`background` colors inline from `isChecked` on every render:
+
+- `task-check-dot` holds the static shape/transition properties, `is-checked` toggles the checked-state border/background color;
+- smoke checks guard the class-based markup and flag regressions back to the old inline ternary style string.
+
+### OSBB garbage yearly chart bar cleanup
+
+The yearly garbage chart rebuilt each bar's full `height`/`width`/`border-radius`/gradient as one inline style string on every render:
+
+- `g-chart-bar` holds the static width/radius/default gradient, `is-current` swaps in the current-month gradient, and only the per-bar `height` stays inline (it's genuinely per-instance data);
+- the bar column wrapper now uses the existing Tailwind `flex-1` utility instead of an inline `style="flex:1"`;
+- smoke checks guard the new classes and flag regressions back to the old inline ternary.
+
+### Sklad recent-issues panel and new-product match cleanup
+
+The issue-screen "Останні видачі" side-panel rows and the add-product "Схожі товари" match rows were built entirely from inline color/layout styles:
+
+- `log-row-main`/`log-row-title`/`log-row-meta`/`log-row-qty` (reusing the existing `log-qty-out` color class) replace the recent-issues row styles;
+- `match-empty`, `match-heading`, `match-row`, `match-row-main`, `match-row-title`, `match-row-meta`, `match-row-actions`, and `match-row-btn` replace the similar-item match card styles in `renderNewProductMatches()`;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
+### Sklad add-page and stats-page list cleanup
+
+The add-page low-stock sidebar and the stats-page category breakdown, low-stock list, and unpriced-items list all built rows from inline color/layout styles:
+
+- `add-low-empty`/`add-low-row`/`add-low-name` replace `renderAddLow()`'s inline styles;
+- `stat-cat-row-head`/`stat-cat-name`/`stat-cat-count` replace the category-breakdown header inline styles (the per-category progress-bar width/color stay inline since they're genuinely per-instance data);
+- `stat-low-row`/`stat-low-name`/`stat-low-qty`/`stat-low-empty` replace the low-stock list inline styles;
+- `stat-unpriced-row`/`stat-unpriced-main`/`stat-unpriced-title`/`stat-unpriced-meta`/`stat-unpriced-btn`/`stat-unpriced-more` replace the unpriced-items list inline styles, reusing `stat-low-empty` for its "all priced" empty state;
+- smoke checks guard the new classes and flag regressions back to the old inline strings.
+
+### Sklad icon-size utility sweep
+
+Started the larger, file-wide cleanup flagged in the previous pass: the Material Symbols `<span class="ms" style="font-size:...;vertical-align:...;">` pattern was repeated ~63 times across `sklad/index.html` (buttons, empty states, headings, badges).
+
+- Added a small set of reusable size utility classes (`ic-10`, `ic-12-2`, `ic-13-2`, `ic-14-2`, `ic-15`, `ic-15-3`, `ic-16`, `ic-16-3`, `ic-18`, `ic-20`, `ic-40`, `ic-48`) covering every distinct font-size/vertical-align combination found in the file;
+- mechanically replaced all matching `class="ms" style="font-size:...(;vertical-align:...)?;"` occurrences (and the one `class="badge ..." style="font-size:10px;"` badge) with `class="ms ic-XX[-Y]"`;
+- also cleaned the stats-page recent-activity log rows (`renderStats()`'s `statLog` list) into `stat-log-row`/`stat-log-name`/`stat-log-person`/`stat-log-date` classes;
+- `msIcon(name,size)` (the helper that builds ad-hoc sized icon spans from a JS parameter) intentionally keeps its inline `style` — the size is a genuine runtime parameter, not a fixed set of values;
+- smoke checks guard the new utility classes and flag regressions back to the old inline strings.
+- Remaining `style="` in `sklad/index.html` after this pass is skeleton-loader widths, `display:none` state toggles, per-instance dynamic bar widths/colors, and a couple of genuinely one-off styles (e.g. the PIN-screen brand icon) — not more repeated noise.
+- `osbb/index.html` did not have this exact `<span class="ms" style="font-size:...">` icon pattern (its icons are inline `<svg>` with per-instance `stroke`/paths, already handled case-by-case in earlier passes); its remaining `style="` is dominated by the lock-screen/PIN-modal branding (intentionally custom) and skeleton widths.
+
+### OSBB dispatcher task-dot and PIN-modal icon cleanup
+
+Found while auditing what was left in `osbb/index.html` after the Sklad icon sweep:
+
+- the dispatcher card had its own third copy of the task-toggle dot inline-style ternary (identical to the two already cleaned in the journal day-card/table views) — now reuses the existing `task-check-dot`/`is-checked` classes;
+- the PIN-modal's lock/trash/check/x icon circles (`pin-modal-icon`) repeated the same `width:40px;height:40px;border-radius:50%` wrapper with only the `background` rgba color varying — replaced with `pin-modal-icon-wrap` plus `is-indigo`/`is-red`/`is-green`/`is-green-soft` color modifiers (the static initial markup used a slightly different opacity than the JS-set states, preserved exactly as `is-green-soft`);
+- smoke checks guard both and flag regressions back to the old inline strings.
+
+### OSBB task-toggle keyboard accessibility
+
+The `task-check-dot` spans (journal day-card/table and dispatcher task checkboxes) were purely mouse-driven custom controls — plain `<span>`s inside a `<label>` with no real `<input>`, so keyboard users could not reach or activate them:
+
+- added `role="checkbox"`, `aria-checked`, `aria-label` (the task name), and `tabindex="0"`/`"-1"` (following the existing disabled state) to all three render call sites;
+- added a matching `keydown` handler (Enter/Space) next to each existing `click` delegation, calling the same `toggleTask()`/`dispToggleTask()` functions;
+- verified end-to-end with a headless Playwright run that dispatches a real `keydown` on the element and confirms the underlying task data and `aria-checked` flip correctly (this environment's Tailwind-CDN block prevents visual/layout verification, so the check goes through the DOM/data state directly — see Testing section);
+- the day-expand toggle (dispatcher card header, a separate `<div>` control) has the same gap and is still open — flagged below, not fixed in this pass to keep the change scoped to the checkbox pattern.
+
+### OSBB day-card/dispatcher/garbage disclosure header accessibility (+ a real bug fix)
+
+Followed up the task-toggle keyboard pass by auditing the three "accordion" disclosure headers that expand/collapse a day's content: the journal mobile day-card header, the dispatcher card header, and the garbage day-row header. All three were plain `<div>`s with only a `click` listener — no `tabindex`, `role`, or `aria-expanded`, so keyboard users could not open them at all.
+
+- added `role="button"`, `tabindex="0"`, `aria-expanded`, and `aria-controls` to all three headers, plus a `keydown` (Enter/Space) handler beside each existing click handler (delegated for dispatcher/garbage, direct listener for the journal day-card since that one isn't built through the shared delegation helper);
+- **found and fixed a real, pre-existing bug while testing this**, unrelated to accessibility: `dispRender()`'s `isOpen` check compared `dispOpenDays.has(d)` where `d` is a numeric loop variable, against values added via `dispToggleDay(trigger.dataset.dispDayKey)` which are always strings (dataset values). `Set.has()` is type-strict, so this comparison silently failed for every non-today day — meaning **the dispatcher's per-day disclosure could never actually expand for any day except today, by mouse or keyboard**, even though the toggle state was being tracked correctly internally. Fixed by comparing `dispOpenDays.has(String(d))`. (The equivalent `gOpenDays`/garbage-tracker check was already type-consistent, no bug there.)
+- verified all three via the same headless-Playwright `dispatchEvent(keydown)` approach used in the previous pass, confirming both the `aria-expanded` state and the actual expand/collapse behavior (DOM class/`display`/`hidden` state) after a keyboard trigger.
+
+### Modal focus-trap audit (Sklad delPinModal + both lightboxes)
+
+Audited every modal/dialog's focus handling against the shared `openModal`/`closeModal` pattern (Sklad) and the bespoke lightbox implementations (both files):
+
+- **Sklad `delPinModal`**: all three close paths (`delPinModalCancel()`, the success path, and the failure-timeout path in `deletePinPress()`) called `document.getElementById('delPinModal').classList.remove('open')` directly instead of `closeModal('delPinModal')` — this skipped `restoreModalFocus()`, so focus only returned to the opener when the modal happened to close via the global Escape handler. All three now call `closeModal('delPinModal')`.
+- **Sklad `#lightbox`**: has its own hand-rolled open/close (correct focus set/restore, correct Escape handling) but isn't a `.modal-bg` dialog, so it was invisible to `trapModalFocus()`'s Tab-cycling — Tab could move focus to page content behind the overlay. Extended `trapModalFocus()` to also treat `#lightbox.open` as a trappable dialog, without touching its existing CSS/class structure.
+- **OSBB `#lightbox`**: same gap — Escape/arrow-key navigation already worked, but there was no Tab-key handling at all. Added a Tab-cycle handler (prev/next/close buttons) alongside the existing keydown listener.
+- All three verified end-to-end with headless Playwright: dispatched Tab/Shift+Tab and confirmed focus wraps between first/last focusable elements with `preventDefault()`, and confirmed `delPinModal`'s cancel path now returns focus to the actual opener element.
+- The other 14 Sklad `.modal-bg` dialogs and OSBB's `pin-modal` were already correct — no changes needed there.
+
+## Real-device review (July 2026)
+
+User reviewed the current state of both `sklad/index.html` and `osbb/index.html` (items/issue/log/receipt/audit screens, journal header, dispatcher, garbage dashboard) on a real device after the accessibility/inline-style cleanup rounds above. Verdict: looks good, no visual changes requested. The hero-copy/topbar-overflow/`Прихід`/`Інвентаризація` review items below are considered closed — no action needed unless something new comes up.
+
 ## Next implementation priorities
 
 ### 1. Sklad items screen redesign
 
-Continue after this items/issue/log redesign pass:
-
-- Tighten the hero copy/CTA labels after real-device review and decide whether topbar secondary actions should move into an overflow.
-- Continue removing remaining inline styles from items filters/table actions and issue preset chips after the visual direction is accepted.
-- Consider moving topbar secondary actions into a compact overflow on mobile if real-device review still feels crowded.
-- Review `Прихід` and `Інвентаризація` on real devices now that their workflow shells have been refreshed.
+- ~~Tighten hero copy/CTA labels, topbar overflow, review Прихід/Інвентаризація~~ — done, confirmed on real device, no changes needed (see "Real-device review" above).
+- ~~The `#a5b4fc` muted-text color and icon `font-size`/`vertical-align` spans...~~ done — see the "Sklad icon-size utility sweep" pass above; remaining `style="` in `sklad/index.html` is skeleton widths, `display:none` toggles, and one-off values.
 
 ### 2. OSBB journal follow-up
 
-- Review the simplified journal header on real devices, especially the title/status row and export actions on narrow screens.
+- ~~Review the simplified journal header on real devices~~ — done, confirmed on real device, no changes needed.
 - Continue reducing remaining inline utility-heavy markup in journal sections only in small guarded passes, prioritizing one static shell/list area at a time.
 
 ### 3. Component extraction
 
-After the visual direction stabilizes, begin small extraction PRs:
+Visual direction confirmed stable (real-device sign-off above), so extraction started. User asked for this in larger chunks rather than many tiny PRs, so the split is one whole `<style>` block per app instead of the originally-sketched tokens/components/sklad three-way split — sklad and osbb each author their own independent `:root` token set today (not a shared file), so forcing them into a common `styles/tokens.css` now would mean reconciling two designs that only happen to agree on values, not a mechanical move. Revisit a shared-tokens split later if the two token sets are deliberately unified.
 
-- `styles/tokens.css`;
-- `styles/components.css`;
-- `styles/sklad.css`;
-- later, lightweight JS modules for shared UI helpers.
+- **Sklad**: `sklad/index.html`'s entire `<style>` block (836 lines) moved verbatim to `sklad/styles.css`, referenced via `<link rel="stylesheet" href="styles.css">` in the exact same `<head>` position. `scripts/smoke-check.mjs` now has a `readSkladCombined()` helper (`sklad/index.html` + `sklad/styles.css` concatenated) that the ~45 existing Sklad checks route through, so both HTML-markup and CSS-rule-text assertions keep working without reclassifying every check by hand.
+- Verified: byte-for-byte diff between the extracted block and the new file: identical. `node scripts/smoke-check.mjs` still green. Tag balance and inline-`<script>` syntax unaffected (only CSS moved). Headless Playwright screenshot after the extraction shows the page rendering identically (colors, gradients, layout, tokens all resolve correctly from the external file) — the only thing not rendering is Material Symbols icon glyphs, which is the pre-existing, unrelated Google-Fonts-CDN sandbox block documented in `CLAUDE.md`.
+- Checked PWA/offline impact: the only *registered* service worker is the shell's root `sw.js` (from `index.html`), which explicitly does not intercept `/sklad/*` requests — so `sklad/styles.css` has the same (lack of) offline-cache coverage as the rest of the Sklad app already had. `sklad/sw.js` exists in the repo but is never registered anywhere (dead code, pre-existing) — not touched.
+- **OSBB**: same treatment — `osbb/index.html`'s 222-line `<style>` block moved verbatim to `osbb/styles.css`, linked in the same `<head>` position (after the Google Fonts `<link>`, same as before). Added a matching `readOsbbCombined()` helper and routed the ~20 affected OSBB checks through it. Same verification: byte-identical diff, 169/169 smoke checks, tag balance/script syntax unaffected, headless Playwright screenshot shows identical rendering (theme colors, cards, badges, dashboard panels all correct). Same offline-caching conclusion: `osbb/sw.js` is also never registered (dead code), and the active shell `sw.js` excludes `/osbb/*`, so no regression.
+- **Shell**: `index.html`'s 162-line `<style>` block moved to a root-level `styles.css`, same `<link>`-in-place treatment. No `smoke-check.mjs` combined-read helper was needed here — the only two shell checks that read `index.html` assert JS/markup (onclick-attribute regex, auth-TTL logic), not CSS rule text.
+  - **Important difference from the sklad/osbb extractions**: the root `sw.js` (registered from `index.html`) is the *only* service worker actually active in this app — unlike `osbb/sw.js`/`sklad/sw.js`, which are dead code. It precaches the shell (`urlsToCache`) for offline use and network-first/cache-fallback serves `index.html`, so extracting the CSS into a separate, uncached file would have made the offline-fallback shell render unstyled. Fixed by adding `/Osbb/styles.css` to `urlsToCache` (precached on install) and to the cache-first `isShellStatic` branch, and bumping `CACHE_NAME` to `osbb-shell-v2` so existing installs pick up the new asset on next activation. Added a smoke-check guard for both.
+  - Verified: byte-identical diff, 170/170 smoke checks (169 + the new sw.js guard), tag balance/script syntax unaffected, headless Playwright screenshot of the PIN lock screen renders identically to before.
+- All three `<style>` blocks (Sklad, OSBB, shell) are now extracted.
 
-Do not perform a large rewrite until smoke checks cover the extracted files.
+### OSBB accent/token color alignment with Sklad (July 2026)
+
+User explicitly asked to align colors, using Sklad as the canonical source ("зроби так як у складі"). This was a real visual change, not a mechanical move — flagged and confirmed before making it.
+
+- Investigated first: OSBB's green accent is **not** primarily driven by the `--accent` CSS variable — it's hardcoded as the literal `#34c759` in ~47 places across `osbb/index.html` and `osbb/styles.css` (icons, buttons, badges, gradients), with only 5 places actually reading `var(--accent)`. Aligning only the variable definition would have left the app two-tone (a few elements shifting color, most staying the old green) — so the fix replaced the literal everywhere, not just the token.
+- `34c759` → `22c55e` (Sklad's light-mode `--brand`/`--accent`) across both files, all ~47 occurrences.
+- `248a3d` (OSBB's `--accent-dark`, theme-invariant) → `16a34a` (Sklad's light-mode `--brand-dark`/`--accent-strong`) across both files, 3 occurrences.
+- Dark-mode accent (`#30d158`) was **already** identical to Sklad's dark `--brand`/`--accent` (`#30D158`, case-insensitive) — no change needed there.
+- Updated the `.theme-light`/`.theme-dark` token blocks in `osbb/styles.css` so `--surface-2`, `--border-subtle`, `--shadow-sm`, and `--shadow-md` now match Sklad's `:root`/`.theme-dark` values exactly (`--surface-1` was already `#ffffff` in light mode, matching; dark-mode `--surface-1` updated `#1e1e21` → `#111821` to match). Sklad's shadow tokens are theme-invariant (same value in light/dark), so OSBB's shadow tokens became invariant too, matching.
+- Did **not** rename OSBB's other variables (`--bg-app`, `--bg-card`, `--text-main`, etc.) to Sklad's `--ios-*` naming — that's a much larger, separate refactor (every `var()` reference in the file), not part of "align colors."
+- Updated two smoke-check needles (`.task-check-dot.is-checked`, `.g-chart-bar`) that had the old `#34c759` hardcoded from an earlier pass this session.
+- Verified: 170/170 smoke checks, tag balance/script syntax unaffected, headless Playwright screenshots of both light and dark themes after the change show correct, unbroken rendering with the new green shade applied consistently. `sklad/` was not touched (verified zero diff).
+
+Next: reconsider a shared `styles/tokens.css` file now that the shared-name tokens (`--accent`, `--surface-1/2`, `--border-subtle`, `--shadow-sm/md`) actually agree in value between the two apps — the remaining OSBB-only variables (`--bg-app` etc.) would stay in `osbb/styles.css`.
 
 ## Guardrails for future sessions
 

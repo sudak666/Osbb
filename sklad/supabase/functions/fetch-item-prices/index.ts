@@ -13,18 +13,35 @@
 //   # optional fallback/provider depending on account:
 //   supabase secrets set SHOPAPIS_KEY=... --project-ref vkwkyhjjjmcpmiakxohw
 
-const CORS_HEADERS = {
+const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-type PriceResult = {
+interface PriceResult {
   title: string;
   price: number;
   source: string;
   link?: string;
-};
+}
+
+interface PriceRequestBody {
+  name?: unknown;
+  category?: unknown;
+  unit?: unknown;
+}
+
+// Обидва провайдери повертають довільні JSON-структури залежно від плану/платформи
+// (див. коментарі в searchSerpApi/searchShopApis) — тому лишаємо це як "сирий рядок",
+// а не намагаємось точно типізувати чужий API, який сам не документує стабільну схему.
+interface ProviderApiResponse {
+  error?: string;
+  message?: string;
+  shopping_results?: unknown[];
+  results?: unknown[];
+  items?: unknown[];
+}
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -81,9 +98,9 @@ async function searchSerpApi(query: string): Promise<PriceResult[]> {
   url.searchParams.set('q', query);
   url.searchParams.set('api_key', key);
   const res = await fetch(url);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error || `SerpApi error ${res.status}`);
-  return normalizeResults(data?.shopping_results || [], 'Google Shopping');
+  const data = await res.json() as ProviderApiResponse;
+  if (!res.ok) throw new Error(data.error || `SerpApi error ${res.status}`);
+  return normalizeResults(data.shopping_results || [], 'Google Shopping');
 }
 
 async function searchShopApis(query: string): Promise<PriceResult[]> {
@@ -96,18 +113,18 @@ async function searchShopApis(query: string): Promise<PriceResult[]> {
   url.searchParams.set('q', query);
   url.searchParams.set('country', 'ua');
   const res = await fetch(url, { headers: { Authorization: `Bearer ${key}` } });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error || data?.message || `ShopAPIS error ${res.status}`);
-  return normalizeResults(data?.results || data?.items || [], 'ShopAPIS');
+  const data = await res.json() as ProviderApiResponse;
+  if (!res.ok) throw new Error(data.error || data.message || `ShopAPIS error ${res.status}`);
+  return normalizeResults(data.results || data.items || [], 'ShopAPIS');
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
-  let body: Record<string, unknown>;
+  let body: PriceRequestBody;
   try {
-    body = await req.json();
+    body = await req.json() as PriceRequestBody;
   } catch {
     return json({ error: 'Invalid JSON body' }, 400);
   }
