@@ -4,7 +4,7 @@
 -- замінюємо на RPC delete_chat_message(), яка повторно перевіряє PIN.
 --
 -- Виконати в тому ж Supabase-проєкті, де знаходиться таблиця chat і
--- функція verify_reset_pin(attempt) з setup_pin_auth.sql.
+-- функція verify_reset_pin(attempt) з 001_setup_pin_auth.sql.
 
 -- Лишаємо читання/створення/оновлення доступними для застосунку, але
 -- прибираємо пряме видалення через REST/JS SDK.
