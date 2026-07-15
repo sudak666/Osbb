@@ -16,20 +16,36 @@
 // ключів Supabase (sb_publishable_...), який не є JWT і не пройде стандартну
 // перевірку Supabase Edge Functions.
 
-const CORS_HEADERS = {
+const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-function json(body: unknown, status = 200) {
+// https://core.telegram.org/bots/api#making-requests — тільки поля, які реально читаємо.
+interface TelegramApiResponse {
+  ok: boolean;
+  description?: string;
+  error_code?: number;
+  result?: unknown;
+}
+
+interface NotifyRequestBody {
+  text?: unknown;
+}
+
+function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
   });
 }
 
-Deno.serve(async (req) => {
+function isNotifyRequestBody(value: unknown): value is NotifyRequestBody {
+  return typeof value === 'object' && value !== null;
+}
+
+Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS_HEADERS });
   }
@@ -48,8 +64,8 @@ Deno.serve(async (req) => {
     const raw = (await req.text()).trim();
     if (raw) {
       try {
-        const body = JSON.parse(raw);
-        text = typeof body?.text === 'string' ? body.text.trim() : '';
+        const parsed: unknown = JSON.parse(raw);
+        text = isNotifyRequestBody(parsed) && typeof parsed.text === 'string' ? parsed.text.trim() : '';
       } catch {
         if (raw.startsWith('text=')) {
           text = decodeURIComponent(raw.slice(5).replace(/\+/g, ' ')).trim();
@@ -70,7 +86,7 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text }),
     });
-    const tgData = await tgRes.json();
+    const tgData = await tgRes.json() as TelegramApiResponse;
     if (!tgRes.ok || !tgData.ok) {
       return json({ error: tgData.description || 'Telegram API error' }, 502);
     }
