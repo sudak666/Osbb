@@ -3,6 +3,22 @@ import { readFileSync } from 'node:fs';
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
+// sklad/index.html's <style> block was extracted to sklad/styles.css (see
+// "Component extraction" pass). Most of the sklad-specific checks below
+// assert both HTML markup (still in index.html) and CSS rule text (now in
+// styles.css) in the same block, so we search the concatenation of both
+// files instead of re-classifying every check individually.
+const SHARED_JS_CSS = '\n' + readFileSync('shared/ui.css', 'utf8') + '\n' + readFileSync('shared/enhance-select.js', 'utf8');
+
+function readSkladCombined() {
+  return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8') + SHARED_JS_CSS;
+}
+
+// Same story for osbb/index.html's extracted <style> block -> osbb/styles.css.
+function readOsbbCombined() {
+  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + SHARED_JS_CSS;
+}
+
 const checks = [
   ['index.html', 'verify_lock_pin', 'shell PIN uses server RPC'],
   ['index.html', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
@@ -79,11 +95,14 @@ const checks = [
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
 
-  ['supabase/setup_pin_auth.sql', 'app_pin_attempts', 'OSBB PIN attempts table exists'],
-  ['supabase/setup_pin_auth.sql', 'locked_until', 'OSBB PIN lockout is present'],
-  ['supabase/harden_chat_photos_delete.sql', 'delete_chat_message', 'chat delete RPC exists'],
-  ['supabase/harden_chat_photos_delete.sql', 'delete_photo', 'photo delete RPC exists'],
-  ['sklad/supabase/setup_pin_auth.sql', 'app_pin_attempts', 'sklad PIN attempts table exists'],
+  ['supabase/001_setup_pin_auth.sql', 'app_pin_attempts', 'OSBB PIN attempts table exists (historical archive)'],
+  ['supabase/001_setup_pin_auth.sql', 'locked_until', 'OSBB PIN lockout is present (historical archive)'],
+  ['supabase/003_harden_chat_photos_delete.sql', 'delete_chat_message', 'chat delete RPC exists (historical archive)'],
+  ['supabase/003_harden_chat_photos_delete.sql', 'delete_photo', 'photo delete RPC exists (historical archive)'],
+  ['sklad/supabase/001_setup_pin_auth.sql', 'app_pin_attempts', 'sklad PIN attempts table exists'],
+  ['sklad/supabase/005_merge_osbb_journal.sql', 'delete_chat_message', 'merged project has chat delete RPC'],
+  ['sklad/supabase/005_merge_osbb_journal.sql', 'delete_photo', 'merged project has photo delete RPC'],
+  ['sklad/supabase/005_merge_osbb_journal.sql', 'osbb_telegram_config', 'merged project has osbb telegram config table'],
 ];
 
 const ignoredDirs = new Set(['.git', 'node_modules', '.cache', 'dist', 'build']);
@@ -127,6 +146,28 @@ for (const [file, needle, label] of checks) {
 }
 
 
+
+// The shell's <style> block was extracted the same way, but unlike
+// osbb/sw.js and sklad/sw.js, the root sw.js IS the one actively registered
+// service worker (from index.html) and it precaches the shell for offline
+// use — so it must precache and cache-first serve the new styles.css, or
+// an offline user gets an unstyled shell.
+{
+  const text = readFileSync('sw.js', 'utf8');
+  const label = 'shell service worker precaches and cache-first serves styles.css';
+  const required = [
+    "'/Osbb/styles.css',",
+    "url.pathname === '/Osbb/styles.css' ||",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
 
 // Shell controls should be wired with event listeners rather than inline onclick
 // attributes so markup stays separate from behavior and CSP hardening remains possible.
@@ -211,7 +252,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB static controls should also avoid inline event attributes. Dynamic rows still
 // have legacy inline handlers, but the PIN/key navigation controls are now bound centrally.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal static controls use centralized event bindings';
   const forbidden = [
     "lockPress('",
@@ -242,7 +283,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB lightbox, chat, month reset and photo container actions should use
 // central bindings so URLs/messages are not serialized into inline JS calls.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal shell actions use centralized event bindings';
   const forbidden = [
     'onclick="lightboxPrev',
@@ -286,7 +327,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB PIN confirmation modal and lightbox should expose dialog semantics and
 // move focus into the active overlay when opened.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal overlays expose accessible dialog semantics';
   const required = [
     'role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1"',
@@ -309,7 +350,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal day cards/table rows should use data hooks for role tasks, shifts,
 // ticket counts, comments and photo uploads instead of inline event attributes.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal day entries use delegated data bindings';
   const forbidden = [
     'onclick="if(!${disabled}) toggleTask',
@@ -374,7 +415,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB garbage/dispatcher dynamic lists should also rely on delegated data
 // hooks now that journal day entries have been centralized.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal garbage and dispatcher lists use delegated data bindings';
   const forbidden = [
     'onclick="gToggleDay',
@@ -411,7 +452,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB text escaping should use the shared escapeHtml helper rather than ad-hoc
 // `<` replacement so ampersands/quotes are handled consistently in renderers.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal renderers use shared escapeHtml helper';
   const forbidden = [
     "replace(/</g,'&lt;')",
@@ -442,7 +483,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Dynamic values inside HTML attributes should use escapeAttr, not raw stored
 // values from offline/database state.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal dynamic input attributes are escaped';
   const required = [
     'value="${escapeAttr(String(state.ticketCount||\'\'))}"',
@@ -465,7 +506,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Mobile item overflow menus should behave like transient menus: only one open
 // at a time, close on outside click, and return focus to the summary on Escape.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad mobile item overflow menus close predictably';
   const required = [
     'function setItemMenuExpanded',
@@ -493,13 +534,13 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad mobile topbar should reserve flexible title space while keeping the
 // remaining icon actions compact enough to avoid overflow on narrow screens.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad mobile topbar keeps compact actions and flexible title';
   const required = [
     '.topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}',
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-    '.topbar .btn:not(.topbar-right-excel){width:42px;min-width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}',
-    '.topbar .btn:not(.topbar-right-excel) .ms{font-size:20px!important;vertical-align:middle!important;margin:0!important;}',
+    '.topbar .btn:not(.topbar-right-excel){width:48px;min-width:48px;height:48px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}',
+    '.topbar .btn:not(.topbar-right-excel) .ms{font-size:22px!important;vertical-align:middle!important;margin:0!important;}',
     '.topbar [data-sklad-action="theme"]{display:none!important;}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -524,7 +565,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad visual redesign foundation should keep semantic design tokens for future
 // component passes.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad exposes foundational UI design tokens';
   const required = [
     '--surface-0:',
@@ -550,7 +591,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // The first visual redesign pass should make the Sklad items page feel like a
 // deliberate workflow rather than a loose stack of controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad items screen exposes redesigned hero and filter layout';
   const required = [
     'class="items-hero"',
@@ -586,7 +627,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad issue flow should share the redesigned workflow form primitives instead
 // of reverting to inline-heavy card markup.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad issue screen uses workflow form primitives';
   const required = [
     'class="card workflow-card"',
@@ -616,7 +657,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad log screen should share the calm list toolbar/table/mobile-list
 // primitives introduced during the visual redesign.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad log screen uses redesigned list primitives';
   const required = [
     'class="list-toolbar"',
@@ -659,7 +700,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Dynamic item price badges should use class-based rows instead of inline
 // sizing/color style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price badges use class-based renderer';
   const required = [
     'class="btn btn-ghost btn-sm price-badge-btn"',
@@ -681,10 +722,475 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+// Dynamic item table rows/cards should use class-based cells instead of
+// inline color/layout style strings.
+{
+  const text = readSkladCombined();
+  const label = 'sklad item table rows use class-based cells';
+  const required = [
+    'class="table-idx-cell"',
+    'class="table-name-cell"',
+    'class="table-unit-cell"',
+    'class="table-qty-unit"',
+    'class="table-row-actions"',
+    'class="badge badge-internal"',
+    '.table-idx-cell{color:',
+    '.table-name-cell{font-weight:600;',
+    '.table-row-actions{display:flex;',
+    '.badge-internal{background:',
+  ];
+  const forbidden = [
+    'style="color:#a5b4fc;font-size:12px;">${idx+1}',
+    'style="font-weight:600;color:var(--ios-label);max-width:280px;"',
+    'style="background:#FEF3C7;color:#92400E;"',
+    'style="display:flex;gap:6px;">\n        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad log/receipts table rows should use class-based cells instead of
+// inline color/layout style strings.
+{
+  const text = readSkladCombined();
+  const label = 'sklad log/receipts rows use class-based cells';
+  const required = [
+    'class="log-date-cell"',
+    'class="log-name-cell"',
+    'class="log-qty-out"',
+    'class="log-qty-in"',
+    'class="log-unit-suffix"',
+    'class="log-person-cell"',
+    'class="log-note-cell"',
+    '.log-date-cell{font-size:12px;',
+    '.log-qty-out{font-weight:800;color:#6366f1;}',
+    '.log-qty-in{font-weight:800;color:var(--ios-green);}',
+  ];
+  const forbidden = [
+    'style="font-weight:800;color:#6366f1;"',
+    'style="font-weight:800;color:var(--ios-green);"',
+    'style="font-weight:400;color:#a5b4fc;font-size:11px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// The audit finish-confirmation summary grid should use class-based tiles
+// instead of inline grid/color style strings.
+{
+  const text = readSkladCombined();
+  const label = 'sklad audit summary uses class-based tiles';
+  const required = [
+    'class="audit-summary-grid"',
+    'class="audit-summary-tile"',
+    'class="audit-summary-value counted"',
+    'class="audit-summary-value uncounted"',
+    'class="audit-summary-value surplus"',
+    'class="audit-summary-value shortage"',
+    'class="audit-summary-warning"',
+    '.audit-summary-grid{display:grid;',
+  ];
+  const forbidden = [
+    'style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"',
+    'style="background:var(--ios-card);border-radius:10px;padding:10px;text-align:center;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Journal task-toggle dots should use a class-based checked state instead of
+// inline border/background color strings driven by isChecked.
+{
+  const text = readOsbbCombined();
+  const label = 'osbb task-toggle dots use class-based checked state';
+  const required = [
+    '.task-check-dot { width:20px; height:20px; border-radius:50%;',
+    '.task-check-dot.is-checked { border-color:#22c55e; background:#22c55e; }',
+    "class=\"task-check-dot${isChecked?' is-checked':''}\"",
+  ];
+  const forbidden = [
+    "style=\"width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Garbage yearly chart bars should use a class-based gradient with only the
+// per-bar height left inline, instead of a full inline gradient ternary.
+{
+  const text = readOsbbCombined();
+  const label = 'osbb garbage chart bars use class-based gradient';
+  const required = [
+    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#22c55e,#28a745); }',
+    '.g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }',
+    "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
+  ];
+  const forbidden = [
+    "style=\"height:${h}px;width:100%;border-radius:6px 6px 0 0;background:${isCur ?",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Recent-issues side panel and new-product similar-item matches should use
+// class-based rows instead of inline color/layout style strings.
+{
+  const text = readSkladCombined();
+  const label = 'sklad recent-issues/new-product-match rows use class-based markup';
+  const required = [
+    'class="log-row-main"',
+    'class="log-row-title"',
+    'class="log-row-meta"',
+    'class="log-row-qty log-qty-out"',
+    'class="match-empty"',
+    'class="match-heading"',
+    'class="match-row"',
+    'class="match-row-main"',
+    'class="match-row-title"',
+    'class="match-row-meta"',
+    'class="match-row-actions"',
+    'class="btn btn-ghost btn-sm match-row-btn"',
+  ];
+  const forbidden = [
+    'style="font-size:13px;font-weight:800;color:#6366f1;"',
+    'style="font-size:11px;font-weight:800;color:var(--brand);margin-bottom:6px;"',
+    'style="padding:6px 8px;font-size:12px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Add-page low-stock list and stats-page category/low-stock lists should use
+// class-based rows instead of inline color/layout style strings.
+{
+  const text = readSkladCombined();
+  const label = 'sklad add-low and stats low/category lists use class-based rows';
+  const required = [
+    'class="add-low-empty"',
+    'class="add-low-row"',
+    'class="add-low-name"',
+    'class="stat-cat-row-head"',
+    'class="stat-cat-name"',
+    'class="stat-cat-count"',
+    'class="stat-low-row"',
+    'class="stat-low-name"',
+    'class="stat-low-empty"',
+    'class="stat-unpriced-row"',
+    'class="stat-unpriced-main"',
+    'class="stat-unpriced-title"',
+    'class="btn btn-ghost btn-sm stat-unpriced-btn"',
+  ];
+  const forbidden = [
+    "el.innerHTML='<div style=\"font-size:13px;color:#10b981;font-weight:600;\">",
+    'style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"',
+    "'<div style=\"color:#10b981;font-weight:600;font-size:13px;\">",
+    'style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Sklad Material Symbol icons should use shared size utility classes
+// instead of repeated inline font-size/vertical-align style strings, and
+// the stats-page recent-activity log rows should use class-based cells.
+{
+  const text = readSkladCombined();
+  const label = 'sklad icons use ic-* size utilities; stats log uses class-based rows';
+  const required = [
+    '.ic-16-3{font-size:16px;vertical-align:-3px;}',
+    '.ic-15-3{font-size:15px;vertical-align:-3px;}',
+    '.ic-14-2{font-size:14px;vertical-align:-2px;}',
+    '.ic-13-2{font-size:13px;vertical-align:-2px;}',
+    '.ic-12-2{font-size:12px;vertical-align:-2px;}',
+    '.ic-16{font-size:16px;}',
+    '.ic-18{font-size:18px;}',
+    '.ic-15{font-size:15px;}',
+    '.ic-48{font-size:48px;}',
+    '.ic-40{font-size:40px;}',
+    '.ic-20{font-size:20px;}',
+    'class="stat-log-row"',
+    'class="stat-log-name"',
+    'class="stat-log-person"',
+    'class="stat-log-date"',
+  ];
+  const forbidden = [
+    'style="font-size:16px;vertical-align:-3px;"',
+    'style="font-size:15px;vertical-align:-3px;"',
+    'style="font-size:14px;vertical-align:-2px;"',
+    'style="font-size:13px;vertical-align:-2px;"',
+    'style="font-size:12px;vertical-align:-2px;"',
+    "<div style=\"display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--ios-sep);font-size:13px;\">",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// The dispatcher card's task-toggle dot and the PIN-modal icon circles
+// should use class-based markup instead of repeated inline style strings.
+{
+  const text = readOsbbCombined();
+  const label = 'osbb dispatcher task dot and PIN-modal icons use class-based markup';
+  const required = [
+    "class=\"task-check-dot${row.tasks?.[t.id]?' is-checked':''}\"",
+    '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
+    '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
+    '.pin-modal-icon-wrap.is-red { background:rgba(239,68,68,0.2); }',
+    '.pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }',
+    '.pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }',
+    'class="pin-modal-icon-wrap is-indigo"',
+    'class="pin-modal-icon-wrap is-red"',
+    'class="pin-modal-icon-wrap is-green"',
+    'class="pin-modal-icon-wrap is-green-soft"',
+  ];
+  const forbidden = [
+    "style=\"width:20px;height:20px;border-radius:50%;border:2px solid ${row.tasks?.[t.id]?",
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(129,140,248,0.2);',
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.2);',
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.2);',
+    'style="display:inline-flex;width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.15);',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Journal "other tasks" print summary and dispatcher call-count badge must
+// escape their Supabase-sourced free-text/JSONB values before injecting
+// them into innerHTML templates.
+{
+  const text = readOsbbCombined();
+  const label = 'osbb print-summary and dispatcher call badge escape dynamic text';
+  const required = [
+    'printSummary.push(escapeHtml(state.other))',
+    '${escapeHtml(String(row.calls))}</span>` : \'\'}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Icon-only Sklad log/receipt/category-filter/delete buttons must expose an
+// aria-label since their only visible content is a Material Symbols icon.
+{
+  const text = readSkladCombined();
+  const label = 'sklad icon-only log/receipt/filter/delete buttons expose aria-label';
+  const required = [
+    'data-log-category-filter="Прибирання" aria-label="Фільтр за категорією: Прибирання"',
+    'data-log-category-filter="Ремонт" aria-label="Фільтр за категорією: Ремонт"',
+    'data-log-category-filter="Електрика" aria-label="Фільтр за категорією: Електрика"',
+    'data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка"',
+    'data-item-action="delete" data-item-id="${id}" aria-label="Видалити товар"',
+    'data-log-action="edit" data-log-id="${l.id}" aria-label="Редагувати запис видачі"',
+    'data-log-action="delete" data-log-id="${l.id}" aria-label="Видалити запис видачі"',
+    'data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"',
+    'data-receipt-action="delete" data-receipt-id="${r.id}" aria-label="Видалити прихід"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Journal/dispatcher task-toggle checkboxes are custom <span> controls, not
+// native inputs — they must expose checkbox semantics and be keyboard
+// operable (tabindex/role/aria-checked plus an Enter/Space handler).
+{
+  const text = readOsbbCombined();
+  const label = 'osbb task-toggle dots expose checkbox semantics and keyboard support';
+  const required = [
+    'role="checkbox" aria-checked="${isChecked?\'true\':\'false\'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?\'-1\':\'0\'}"',
+    'role="checkbox" aria-checked="${row.tasks?.[t.id]?\'true\':\'false\'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?\'0\':\'-1\'}"',
+    "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-journal-action=\"task-toggle\"]');",
+    "container.addEventListener('keydown', (event) => {\n            if (event.key !== 'Enter' && event.key !== ' ') return;\n            const trigger = event.target.closest('[data-disp-action=\"task-toggle\"],[data-disp-action=\"toggle-day\"]');",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// The journal day-card, dispatcher card, and garbage day-row disclosure
+// headers are custom <div> "accordion" triggers, not native <button>/
+// <details> — they must expose button/expanded semantics and be keyboard
+// operable, and dispatcher's open-state check must compare same-typed
+// values (a stringified dataset key vs a numeric loop variable is a real
+// bug, not just an a11y gap: it silently never expands).
+{
+  const text = readOsbbCombined();
+  const label = 'osbb day-card/dispatcher/garbage disclosure headers are keyboard accessible';
+  const required = [
+    "header.setAttribute('role', 'button');",
+    "header.setAttribute('aria-controls', `card-body-${d}`);",
+    'const toggleDayCard = () => {',
+    "header.setAttribute('role', 'button');\n            header.setAttribute('tabindex', '0');\n            header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');\n            header.setAttribute('aria-controls', `disp-body-${d}`);",
+    'role="button" tabindex="0" aria-expanded="${isOpen ? \'true\' : \'false\'}" aria-controls="g-body-${day}"',
+    "const trigger = event.target.closest('[data-g-action=\"toggle-day\"]');",
+    'dispOpenDays.has(String(d))',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// delPinModal must close through the shared closeModal() helper (which
+// restores focus to the opener) on every path, not via a direct
+// classList.remove('open') that bypasses focus restoration; and the
+// sklad lightbox (which has its own bespoke open/close, not the shared
+// modal-bg pattern) must still be covered by the Tab focus trap.
+{
+  const text = readSkladCombined();
+  const label = 'sklad delPinModal always closes via closeModal(); lightbox is Tab-trapped';
+  const required = [
+    "closeModal('delPinModal');",
+    "if(lightbox && lightbox.classList.contains('open')) openModals.push(lightbox);",
+    'modalBg.matches(\'[role="dialog"]\') ? modalBg : modalBg.querySelector(\'[role="dialog"]\')',
+  ];
+  const forbidden = [
+    "document.getElementById('delPinModal').classList.remove('open');",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// The OSBB lightbox has its own bespoke open/close (no shared modal
+// helper in this file) — it must have a Tab focus trap alongside its
+// existing Escape/arrow-key handling.
+{
+  const text = readOsbbCombined();
+  const label = 'osbb lightbox has a Tab focus trap';
+  const required = [
+    "if (e.key === 'Tab') {",
+    'const focusables = [...lb.querySelectorAll(\'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])\')].filter(el => el.offsetParent !== null);',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Journal sync-status/joke-icon spans should use class-based helpers instead
+// of the repeated inline-flex/vertical-align style strings.
+{
+  const text = readOsbbCombined();
+  const label = 'osbb journal status/icon spans use class-based helpers';
+  const required = [
+    '.journal-status-icon-row { display:inline-flex; align-items:center; gap:5px; }',
+    '.journal-status-icon-row-tight { display:inline-flex; align-items:center; gap:4px; }',
+    '.journal-joke-icon { display:inline-block; vertical-align:-2px; }',
+    '.journal-daytype-icon { display:inline-block; vertical-align:middle; margin-right:3px; }',
+  ];
+  const forbidden = [
+    'style="display:inline-flex;align-items:center;gap:5px;"',
+    'style="display:inline-flex;align-items:center;gap:4px;"',
+    'style="display:inline-block;vertical-align:-2px;"',
+    'style="display:inline-block;vertical-align:middle;margin-right:3px;"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Sklad topbar should use class-based title/action/icon helpers instead of
 // dense inline styles on the header controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad topbar uses class-based title and action controls';
   const required = [
     'id="pageTitle" class="topbar-title"',
@@ -713,7 +1219,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad lightbox and dynamic current-photo preview should use class-based image
 // and empty-state shells rather than inline style strings.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad lightbox and photo preview use class-based shells';
   const required = [
     'class="btn btn-danger btn-sm lightbox-delete-btn"',
@@ -738,7 +1244,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Edit movement modals (issue log and receipt edits) should share the same
 // class-based edit shell, and receipt delete should reuse confirm-modal.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad edit movement modals use class-based shells';
   const required = [
     'class="modal edit-movement-modal"',
@@ -768,7 +1274,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Delete, delete-log, delete-PIN and audit confirmation modals should use
 // reusable class-based confirmation shells.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad confirmation modals use class-based shells';
   const required = [
     'class="modal confirm-modal"',
@@ -802,7 +1308,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Quick issue and photo modals should use class-based shells instead of
 // inline-heavy modal chrome.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad quick issue and photo modals use class-based shells';
   const required = [
     'id="qmName" class="quick-issue-title"',
@@ -837,7 +1343,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad stats page should use class-based panels/grids and keep a single
 // low-stock stats target for renderStats().
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad stats page uses class-based panels';
   const required = [
     'class="card stats-panel"',
@@ -869,7 +1375,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad add/refill page should use class-based form/card helpers instead of
 // inline-heavy add-page chrome.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad add and refill page uses class-based shell';
   const required = [
     'class="card add-card"',
@@ -905,7 +1411,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // QR scanner and chart modal chrome should use small class-based shells
 // instead of inline title/action styles.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad qr and chart modals use class-based shells';
   const required = [
     'class="qr-modal-title"',
@@ -932,7 +1438,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Barcode add modal should use class-based scanner/manual-entry controls
 // instead of inline layout styles.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad barcode modal uses class-based shell';
   const required = [
     'class="barcode-modal-title"',
@@ -959,7 +1465,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Item history modal should use class-based title/subtitle/list/state rows
 // instead of inline layout styles.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad history modal uses class-based shell';
   const required = [
     'class="history-modal-title"',
@@ -986,7 +1492,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Internet price lookup results should render with reusable result-row classes,
 // while keeping links sanitized and apply actions data-driven.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price lookup results use class-based rows';
   const required = [
     '.price-results-state{padding:18px;',
@@ -1013,7 +1519,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Price lookup modal should use the same class-based shell as manual price
 // instead of embedding its grid/results/actions layout inline.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price lookup modal uses class-based shell';
   const required = [
     'class="modal price-lookup-modal"',
@@ -1037,7 +1543,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Manual price modal should not open with accidental blue text selection; it
 // clears stale selections and focuses the price input without selecting modal text.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad manual price modal clears accidental text selection';
   const required = [
     'class="modal manual-price-modal"',
@@ -1065,7 +1571,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Sklad receipt and audit screens should follow the same calm workflow/list
 // primitives as items, issue, and log instead of reverting to ad-hoc inline rows.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad receipts and audit screens use redesigned workflow primitives';
   const required = [
     'class="receipts-toolbar"',
@@ -1096,7 +1602,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB journal header should be split into clear title/status, calendar/action,
 // and tab rows so the controls do not collapse into one dense visual band.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal header uses separated title action and tab rows';
   const required = [
     'class="no-print journal-shell-header"',
@@ -1227,7 +1733,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // OSBB static icon/action markup should keep moving repeated inline layout
 // styles into reusable classes instead of duplicating SVG layout style strings.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal static icons and header actions use reusable style classes';
   const required = [
     '.journal-inline-icon {',
@@ -1251,7 +1757,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Dynamic journal/garbage/dispatcher form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal dynamic controls expose aria-labels';
   const required = [
     'aria-label="Зміна ${roleNames[role]} за день ${d}"',
@@ -1367,7 +1873,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // templates; keep them explicit non-submit controls unless a future form needs
 // a real submit button.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad buttons declare explicit button type';
   const missingType = text.match(/<button(?![^>]*\btype=)/g) || [];
   if (missingType.length) {
@@ -1383,7 +1889,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // HTML strings, and the mobile bottom nav should expose semantic navigation and
 // stable labels for icon-heavy buttons.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad navigation titles and mobile nav are semantic';
   const forbidden = [
     "document.getElementById('pageTitle').innerHTML=pageTitles[page]||''",
@@ -1411,7 +1917,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Quantity values rendered in HTML contexts should be string-escaped too; these
 // can be stale/offline/database values rather than guaranteed numbers.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad HTML quantity renderers escape values';
   const required = [
     '${escapeHtml(String(item.quantity??0))} ${unit}',
@@ -1458,7 +1964,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // only defined in other renderers (this previously broke the Journal page with
 // `safeCat is not defined`).
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const start = text.indexOf('function renderLog()');
   const end = text.indexOf('// ===== EDIT / DELETE LOG =====');
   const body = start >= 0 && end > start ? text.slice(start, end) : '';
@@ -1476,7 +1982,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Regression guard: the Sklad receipts page must define safeUnit in its own
 // renderer before using it in desktop/mobile receipt rows.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const start = text.indexOf('function renderReceipts()');
   const end = text.indexOf('let deleteReceiptId=');
   const body = start >= 0 && end > start ? text.slice(start, end) : '';
@@ -1511,7 +2017,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad static controls should use centralized data-attribute bindings for auth,
 // navigation, topbar actions, stock/category filters, and common search controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad static controls use centralized event bindings';
   const forbidden = [
     "onclick=\"pinPress('",
@@ -1556,7 +2062,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad item rows/cards should use delegated data-item-action controls instead of
 // embedding per-row inline handlers for every rendered item action.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const start = text.indexOf('function handleItemActionClick');
   const end = text.indexOf('function updateStats()');
   const body = start >= 0 && end > start ? text.slice(start, end) : '';
@@ -1592,7 +2098,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad operational forms (issue/refill/add/audit/log search) should be wired by
 // the centralized static control binder rather than inline handlers.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad operational forms use centralized event bindings';
   const forbidden = [
     'onclick="setPerson',
@@ -1620,7 +2126,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'data-search-placeholder="Пошук товару для поповнення..."',
     'id="manualPriceItemSel" data-searchable="1"',
     'data-search-placeholder="Пошук товару для ручної ціни..."',
-    "className='inp custom-select-search'",
+    "className = 'inp custom-select-search'",
     '.custom-select-search{margin:8px;',
     'data-new-product-input',
     'data-render-audit-input',
@@ -1641,7 +2147,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad modal controls should use data attributes and the central binder, including
 // destructive confirmation PIN keys and lightbox controls.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad modal controls use centralized event bindings';
   const forbidden = [
     'onclick="closeModal',
@@ -1687,7 +2193,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad modal dialogs should expose dialog semantics and be opened through the
 // shared helper so keyboard focus lands inside the active modal.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad modals expose accessible dialog semantics';
   const modalCount = (text.match(/<div class="modal(?:\s[^"]*)?"/g) || []).length;
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
@@ -1721,7 +2227,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Price result actions can contain merchant/source/link text with apostrophes, so
 // they must not be serialized into inline JS argument lists.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price result apply buttons avoid inline JS arguments';
   if (text.includes('onclick="applyFoundPrice') || !text.includes('function bindPriceResultActions') || !text.includes('data-price-result-action="apply"')) {
     failed += 1;
@@ -1735,7 +2241,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Price search links come from an Edge Function response. Only http(s) URLs
 // should be rendered into href/data-url values.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad price result links are URL-sanitized';
   const required = [
     'function safeExternalUrl',
@@ -1763,7 +2269,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // scrollable and keep the close action sticky, while using solid light cards for
 // cleaner contrast in the item list.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad mobile price modal is scrollable and closeable';
   const required = [
     '#priceModal .modal{display:flex',
@@ -1821,7 +2327,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // data hooks keep generated markup safer when item names/URLs contain quotes and
 // make refreshed lists keep the same behavior without rebinding every row.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad dynamic renderers avoid inline event attributes';
   const forbidden = [
     'onclick="openManualPriceModal',
@@ -1865,7 +2371,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // logs, receipts) — easy to silently regress when a new page/collection is
 // added and this function isn't updated to match.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const m = text.match(/async function refreshAll\(\)\s*\{([^}]*)\}/);
   const label = 'sklad refreshAll() reloads items, logs and receipts';
   if (!m) {
@@ -1887,7 +2393,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // central item lookup prevents modal handlers from crashing on `item.name` /
 // `item.unit` when a row no longer exists in the latest `allItems` collection.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad item actions guard missing/stale item rows';
   const required = [
     'function findItemForAction',
@@ -1926,6 +2432,76 @@ for (const file of ['index.html', 'osbb/index.html']) {
         console.error(`not ok - ${label} (no such file in the repo)`);
       }
     }
+  }
+}
+
+// Atomic stock RPCs: catches a regression back to the old client
+// read-check-write race (two separate .update()/.insert() calls).
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad issue/refill use atomic RPCs, not read-check-write';
+  const required = ["db.rpc('issue_item'", "db.rpc('receive_item'"];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Realtime: both modules should subscribe to postgres_changes so a manual
+// "Оновити" isn't the only way to see another device's edits.
+{
+  const label = 'osbb and sklad subscribe to Realtime postgres_changes';
+  const osbbText = readFileSync('osbb/index.html', 'utf8');
+  const skladText = readFileSync('sklad/index.html', 'utf8');
+  const ok = osbbText.includes("postgres_changes") && skladText.includes("postgres_changes");
+  if (ok) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
+// Shared CSS: shared/ui.css must exist and be linked from all three entrypoints,
+// otherwise a future edit could silently duplicate the tooltip/motion rules again.
+{
+  const label = 'shared/ui.css exists and is linked from all three entrypoints';
+  const sharedExists = allFiles.includes('shared/ui.css');
+  const linked = ['index.html', 'osbb/index.html', 'sklad/index.html'].every(src =>
+    readFileSync(src, 'utf8').includes('shared/ui.css')
+  );
+  if (sharedExists && linked) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
+// Same guard for shared/enhance-select.js: it must exist, be linked from both
+// modules, and neither module should have re-introduced its own inline copy
+// of enhanceSelect (that's exactly the drift this extraction was meant to end).
+{
+  const label = 'shared/enhance-select.js exists, is linked, and not re-duplicated inline';
+  const sharedExists = allFiles.includes('shared/enhance-select.js');
+  const linked = ['osbb/index.html', 'sklad/index.html'].every(src =>
+    readFileSync(src, 'utf8').includes('shared/enhance-select.js')
+  );
+  const notReDuplicated = ['osbb/index.html', 'sklad/index.html'].every(src =>
+    !readFileSync(src, 'utf8').includes('function enhanceSelect(')
+  );
+  if (sharedExists && linked && notReDuplicated) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
   }
 }
 
