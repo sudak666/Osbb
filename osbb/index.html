@@ -207,6 +207,37 @@
         .intro-name { color: white; font-size: 1.5rem; font-weight: 800; margin-top: 1rem; text-align: center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.5s; opacity:0; }
         .intro-sub { color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; text-align:center; animation: intro-text-in 0.6s ease forwards; animation-delay: 0.8s; opacity:0; }
         .pulse-ring { position: absolute; width: 180px; height: 180px; border-radius: 50%; border: 2px solid rgba(52,199,89,0.5); animation: pulse-ring 1.5s cubic-bezier(0.215,0.61,0.355,1) infinite; }
+        .lock-screen { position:fixed; inset:0; background:#1c1c1e; z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; }
+        .lock-panel { display:flex; flex-direction:column; align-items:center; width:100%; max-width:320px; padding:0 24px; }
+        .lock-logo { width:72px; height:72px; border-radius:22px; background:linear-gradient(135deg,#34c759,#248a3d); display:flex; align-items:center; justify-content:center; margin-bottom:16px; box-shadow:0 8px 24px rgba(52,199,89,0.35); }
+        .lock-title { color:#fff; font-size:1.15rem; font-weight:700; margin-bottom:4px; letter-spacing:-0.3px; }
+        .lock-subtitle { color:#98989d; font-size:0.8rem; margin-bottom:36px; }
+        .pin-dots { display:flex; gap:16px; justify-content:center; margin-bottom:8px; }
+        .pin-dot { width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all .18s ease; }
+        .pin-dot-lg { width:14px; height:14px; background:rgba(255,255,255,0.2); transition:all .2s; }
+        .lock-error { color:#ff453a; font-size:0.72rem; min-height:20px; margin-bottom:28px; text-align:center; }
+        .pin-keypad { display:grid; grid-template-columns:repeat(3,80px); grid-template-rows:repeat(4,80px); gap:8px; }
+        .pin-modal-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
+        .pin-key-label { display:flex; flex-direction:column; align-items:center; line-height:1.1; }
+        .pin-key-number { font-size:1.5rem; font-weight:300; }
+        .pin-key-letters { font-size:0.5rem; letter-spacing:0.1em; color:rgba(255,255,255,0.35); }
+        .pin-key-letters.is-empty { height:8px; }
+        .pin-key-action { width:80px; height:80px; border-radius:50%; border:0; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+        .pin-key-delete { background:transparent; color:rgba(255,255,255,0.85); font-size:0.75rem; font-weight:400; letter-spacing:0.01em; }
+        .pin-key-cancel { background:rgba(239,68,68,0.15); border:1.5px solid rgba(239,68,68,0.3); font-size:0.85rem; font-weight:700; color:#fca5a5; }
+        .pin-key-backspace { background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.12); font-size:1.1rem; font-weight:700; color:#94a3b8; }
+        .ios-toast { position:fixed; bottom:calc(80px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(20px); background:rgba(30,30,32,0.92); color:#fff; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; z-index:9999; pointer-events:none; opacity:0; transition:all 0.3s cubic-bezier(.22,1,.36,1); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); white-space:nowrap; display:flex; align-items:center; gap:8px; box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+        .toast-icon-badge { width:18px; height:18px; border-radius:50%; background:rgba(52,199,89,0.3); display:inline-flex; align-items:center; justify-content:center; font-size:11px; }
+        .pin-modal-overlay { display:none; position:fixed; inset:0; background:rgba(15,10,40,0.6); backdrop-filter:blur(6px); z-index:9500; align-items:center; justify-content:center; }
+        .pin-modal-dialog { background:linear-gradient(135deg,#1e1b4b,#312e81); border-radius:24px; padding:32px 28px; width:300px; text-align:center; box-shadow:0 24px 60px rgba(52,199,89,0.4); border:1px solid rgba(255,255,255,0.12); }
+        .pin-modal-icon { font-size:2.5rem; margin-bottom:8px; }
+        .pin-modal-title { color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px; }
+        .pin-modal-sub { color:#94a3b8; font-size:0.75rem; margin-bottom:20px; }
+        .pin-modal-error { color:#fca5a5; font-size:0.75rem; min-height:18px; margin-bottom:10px; }
+        .pin-icon-badge { display:inline-flex; width:40px; height:40px; border-radius:50%; background:rgba(52,199,89,0.15); align-items:center; justify-content:center; }
+        .pin-icon-badge.is-lock { background:rgba(129,140,248,0.2); }
+        .pin-icon-badge.is-success { background:rgba(52,199,89,0.2); }
+        .pin-icon-badge.is-danger { background:rgba(239,68,68,0.2); }
         .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:300; color:#fff; cursor:pointer; transition:background .12s ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
         .pin-mb-btn:active { background:rgba(255,255,255,0.22); }
         .pulse-ring2 { animation-delay: 0.5s; }
@@ -271,36 +302,36 @@
 </svg>
 
 <!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
-<div id="app-lock-screen" style="position:fixed;inset:0;background:#1c1c1e;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
-    <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;padding:0 24px;">
+<div id="app-lock-screen" class="lock-screen">
+    <div class="lock-panel">
         <!-- Лого -->
-        <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(52,199,89,0.35);"><svg aria-hidden="true" focusable="false" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
-        <div style="color:#fff;font-size:1.15rem;font-weight:700;margin-bottom:4px;letter-spacing:-0.3px;">ОСББ "Микитська Слобода"</div>
-        <div style="color:#98989d;font-size:0.8rem;margin-bottom:36px;">Введіть PIN для входу</div>
+        <div class="lock-logo"><svg aria-hidden="true" focusable="false" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
+        <div class="lock-title">ОСББ "Микитська Слобода"</div>
+        <div class="lock-subtitle">Введіть PIN для входу</div>
 
         <!-- Крапки -->
-        <div style="display:flex;gap:16px;margin-bottom:8px;">
-            <div id="lock-d0" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
-            <div id="lock-d1" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
-            <div id="lock-d2" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
-            <div id="lock-d3" style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .18s ease;"></div>
+        <div class="pin-dots">
+            <div id="lock-d0" class="pin-dot"></div>
+            <div id="lock-d1" class="pin-dot"></div>
+            <div id="lock-d2" class="pin-dot"></div>
+            <div id="lock-d3" class="pin-dot"></div>
         </div>
-        <div id="lock-err" style="color:#ff453a;font-size:0.72rem;min-height:20px;margin-bottom:28px;text-align:center;"></div>
+        <div id="lock-err" class="lock-error"></div>
 
         <!-- Клавіатура — 3 колонки по 80px -->
-        <div style="display:grid;grid-template-columns:repeat(3,80px);grid-template-rows:repeat(4,80px);gap:8px;">
-            <button type="button" class="pin-mb-btn" data-lock-digit="1"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">1</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);height:8px;"> </span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="2"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">2</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">ABC</span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="3"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">3</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">DEF</span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="4"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">4</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">GHI</span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="5"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">5</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">JKL</span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="6"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">6</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">MNO</span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="7"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">7</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">PQRS</span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="8"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">8</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">TUV</span></span></button>
-            <button type="button" class="pin-mb-btn" data-lock-digit="9"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.1;"><span style="font-size:1.5rem;font-weight:300;">9</span><span style="font-size:0.5rem;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">WXYZ</span></span></button>
+        <div class="pin-keypad">
+            <button type="button" class="pin-mb-btn" data-lock-digit="1"><span class="pin-key-label"><span class="pin-key-number">1</span><span class="pin-key-letters is-empty"> </span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="2"><span class="pin-key-label"><span class="pin-key-number">2</span><span class="pin-key-letters">ABC</span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="3"><span class="pin-key-label"><span class="pin-key-number">3</span><span class="pin-key-letters">DEF</span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="4"><span class="pin-key-label"><span class="pin-key-number">4</span><span class="pin-key-letters">GHI</span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="5"><span class="pin-key-label"><span class="pin-key-number">5</span><span class="pin-key-letters">JKL</span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="6"><span class="pin-key-label"><span class="pin-key-number">6</span><span class="pin-key-letters">MNO</span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="7"><span class="pin-key-label"><span class="pin-key-number">7</span><span class="pin-key-letters">PQRS</span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="8"><span class="pin-key-label"><span class="pin-key-number">8</span><span class="pin-key-letters">TUV</span></span></button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="9"><span class="pin-key-label"><span class="pin-key-number">9</span><span class="pin-key-letters">WXYZ</span></span></button>
             <div></div>
-            <button type="button" class="pin-mb-btn" data-lock-digit="0"><span style="font-size:1.5rem;font-weight:300;">0</span></button>
-            <button type="button" data-lock-delete style="width:80px;height:80px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;color:rgba(255,255,255,0.85);font-size:0.75rem;font-weight:400;letter-spacing:0.01em;">Видалити</button>
+            <button type="button" class="pin-mb-btn" data-lock-digit="0"><span class="pin-key-number">0</span></button>
+            <button type="button" data-lock-delete class="pin-key-action pin-key-delete">Видалити</button>
         </div>
     </div>
 </div>
@@ -323,7 +354,7 @@
 
 
 <!-- iOS TOAST -->
-<div id="ios-toast" role="status" aria-live="polite" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,32,0.92);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;pointer-events:none;opacity:0;transition:all 0.3s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,0.3);"></div>
+<div id="ios-toast" role="status" aria-live="polite" class="ios-toast"></div>
 
 <div id="intro-splash">
     <div class="pulse-ring"></div>
@@ -335,19 +366,19 @@
 
 
 <!-- PIN MODAL для скидання -->
-<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(15,10,40,0.6);backdrop-filter:blur(6px);z-index:9500;align-items:center;justify-content:center;">
-    <div role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1" style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 60px rgba(52,199,89,0.4);border:1px solid rgba(255,255,255,0.12);">
-        <div style="font-size:2.5rem;margin-bottom:8px;" id="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
-        <div style="color:#fff;font-size:1rem;font-weight:800;margin-bottom:4px;" id="pin-modal-title">Пароль для скидання</div>
-        <div style="color:#94a3b8;font-size:0.75rem;margin-bottom:20px;" id="pin-modal-sub">Введіть 4-значний PIN</div>
-        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;">
-            <div id="pin-d0" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
-            <div id="pin-d1" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
-            <div id="pin-d2" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
-            <div id="pin-d3" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .2s;"></div>
+<div id="pin-modal" class="pin-modal-overlay">
+    <div class="pin-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1">
+        <div class="pin-modal-icon" id="pin-modal-icon"><span class="pin-icon-badge is-success"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+        <div class="pin-modal-title" id="pin-modal-title">Пароль для скидання</div>
+        <div class="pin-modal-sub" id="pin-modal-sub">Введіть 4-значний PIN</div>
+        <div class="pin-dots">
+            <div id="pin-d0" class="pin-dot pin-dot-lg"></div>
+            <div id="pin-d1" class="pin-dot pin-dot-lg"></div>
+            <div id="pin-d2" class="pin-dot pin-dot-lg"></div>
+            <div id="pin-d3" class="pin-dot pin-dot-lg"></div>
         </div>
-        <div id="pin-err" role="alert" aria-live="assertive" style="color:#fca5a5;font-size:0.75rem;min-height:18px;margin-bottom:10px;"></div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
+        <div id="pin-err" role="alert" aria-live="assertive" class="pin-modal-error"></div>
+        <div class="pin-modal-keypad">
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="1">1</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="2">2</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="3">3</button>
@@ -357,9 +388,9 @@
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="7">7</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="8">8</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="9">9</button>
-            <button type="button" data-pin-modal-cancel aria-label="Скасувати введення PIN" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.3);border-radius:50%;width:80px;height:80px;font-size:0.85rem;font-weight:700;color:#fca5a5;cursor:pointer;display:flex;align-items:center;justify-content:center;">Скас.</button>
+            <button type="button" data-pin-modal-cancel aria-label="Скасувати введення PIN" class="pin-key-action pin-key-cancel">Скас.</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="0">0</button>
-            <button type="button" data-pin-modal-delete aria-label="Видалити цифру" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:50%;width:80px;height:80px;font-size:1.1rem;font-weight:700;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg aria-hidden="true" focusable="false" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            <button type="button" data-pin-modal-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру"><svg aria-hidden="true" focusable="false" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
     </div>
 </div>
@@ -1801,6 +1832,9 @@
     function toggleTheme() {
         changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
     }
+    function toggleTheme() {
+        changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
+    }
     function showOverlay(show, text = '') {
         const overlay = document.getElementById('loading-overlay');
         if (show) { overlay.classList.remove('opacity-0','pointer-events-none'); document.getElementById('loading-text').innerText = text; }
@@ -2528,8 +2562,8 @@
         pinModalCallback = callback;
         document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
         document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
-        const lockIcon  = '<span class="pin-modal-icon-wrap is-indigo"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
-        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
+        const lockIcon  = '<span class="pin-icon-badge is-lock"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+        const trashIcon = '<span class="pin-icon-badge is-danger"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
         document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
@@ -2568,7 +2602,7 @@
             let ok = false;
             try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
             if (ok) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-icon-badge is-success"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
@@ -2577,7 +2611,7 @@
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
             } else {
                 document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-icon-badge is-danger"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
                 pinModalBuf = '';
                 pinUpdateDots();
                 // Тряска
@@ -2966,7 +3000,7 @@
     function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
         const el = document.getElementById('ios-toast');
         if (!el) return;
-        el.innerHTML = `<span style="width:18px;height:18px;border-radius:50%;background:rgba(52,199,89,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;">${icon}</span>${escapeHtml(msg)}`;
+        el.innerHTML = `<span class="toast-icon-badge">${icon}</span>${escapeHtml(msg)}`;
         el.style.opacity = '1';
         el.style.transform = 'translateX(-50%) translateY(0)';
         clearTimeout(toastTimer);
