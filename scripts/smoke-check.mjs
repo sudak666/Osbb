@@ -1627,6 +1627,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-stat-card {',
     '.journal-panel {',
     '.journal-table-shell {',
+    '.garbage-chart { height:80px; }',
+    'class="garbage-chart flex items-end justify-between gap-1"',
     'class="journal-panel"',
     'class="desktop-table print-card journal-table-shell overflow-hidden"',
     'class="journal-dashboard-panel"',
