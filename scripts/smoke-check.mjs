@@ -1653,7 +1653,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal theme toggle should avoid colored emoji glyphs and use the compact
 // monochrome control style matching Sklad more closely.
 {
-  const text = readOsbbCombined();
+  const text = readFileSync('osbb/index.html', 'utf8');
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
     'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true">◐</span>',
@@ -1675,7 +1675,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Garbage dashboard chart should load the full selected year from Supabase, not
 // only whatever months happen to exist in localStorage.
 {
-  const text = readOsbbCombined();
+  const text = readFileSync('osbb/index.html', 'utf8');
   const label = 'journal garbage chart fetches yearly cloud data';
   const required = [
     'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
@@ -1714,6 +1714,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-action-btn journal-action-btn-primary"',
     'class="journal-action-btn journal-action-btn-danger"',
     'class="journal-inline-icon"',
+    '<span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span>',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
