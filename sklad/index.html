@@ -14,7 +14,8 @@
     <meta name="apple-mobile-web-app-title" content="Склад ОСББ">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../shared/ui.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Склад ОСББ</title>
 <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -24,6 +25,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="../shared/enhance-select.js"></script>
 <script>
 const {createClient}=window.supabase;
 const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9');
@@ -187,6 +189,14 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-filter-row + .items-filter-row{margin-top:10px;}
 .items-search-row{display:grid;grid-template-columns:minmax(220px,360px) minmax(160px,1fr) auto;gap:10px;align-items:center;}
 .items-summary{font-size:12px;color:var(--ios-label3);font-weight:700;line-height:1.35;}
+.items-filter-pill{display:inline-flex;align-items:center;gap:4px;}
+.items-filter-pill.is-success{border-color:var(--ios-green);color:var(--ios-green);}
+.items-filter-pill.is-warning{border-color:var(--ios-orange);color:var(--ios-orange);}
+.items-filter-icon{font-size:16px;}
+.category-pill-icon{font-size:15px;vertical-align:-3px;}
+.items-search-field{width:250px;min-width:160px;}
+.items-reset-btn{display:none;padding:7px 10px;}
+.items-reset-icon{font-size:14px;vertical-align:-2px;}
 .table-modern{overflow:hidden;}
 .table-modern table{border-collapse:separate;border-spacing:0;}
 .table-modern thead th{background:linear-gradient(180deg,var(--surface-2),var(--ios-gray6));}
@@ -561,6 +571,11 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .bn-icon .ms{font-size:24px;}
 #logMobileList{display:none;}
 #recMobileList{display:none;}
+
+@media(max-width:1180px){
+  .items-hero{grid-template-columns:1fr;align-items:start;}
+  .items-hero-actions{justify-content:flex-start;}
+}
 
 @media(max-width:960px){
   .split{grid-template-columns:1fr!important;}
@@ -946,14 +961,14 @@ async function checkPin(attempt){
   <div id="page-items" class="page active">
     <section class="items-hero" aria-labelledby="itemsHeroTitle">
       <div>
-        <div class="items-hero-kicker"><span class="ms" style="font-size:15px;">auto_awesome</span> Операційний центр складу</div>
-        <h1 class="items-hero-title" id="itemsHeroTitle">Швидко бачимо ризики, знаходимо товар і видаємо без зайвих кроків.</h1>
-        <div class="items-hero-copy">Нижче — ключові залишки, фільтри та живий пошук. Найважливіші дії винесені вгору, а детальні операції залишаються в контексті картки або рядка товару.</div>
+        <div class="items-hero-kicker"><span class="ms category-pill-icon" aria-hidden="true">auto_awesome</span> Операційний центр складу</div>
+        <h1 class="items-hero-title" id="itemsHeroTitle">Товари на складі</h1>
+        <div class="items-hero-copy">Залишки, пошук і основні дії в одному місці.</div>
       </div>
       <div class="items-hero-actions" aria-label="Швидкі дії складу">
-        <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms" aria-hidden="true" style="font-size:16px;">output</span> Видати</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-page="add"><span class="ms" aria-hidden="true" style="font-size:16px;">add_circle</span> Поповнити</button>
-        <div class="items-quick-note"><span class="ms" aria-hidden="true" style="font-size:15px;">tips_and_updates</span> Фокус: спершу критичні залишки</div>
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms items-filter-icon" aria-hidden="true">output</span> Видати</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-sklad-page="add"><span class="ms items-filter-icon" aria-hidden="true">add_circle</span> Поповнити</button>
+        <div class="items-quick-note"><span class="ms category-pill-icon" aria-hidden="true">tips_and_updates</span> Фокус: спершу критичні залишки</div>
       </div>
     </section>
     <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
@@ -967,23 +982,23 @@ async function checkPin(attempt){
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
-        <button type="button" class="pill" id="inStockPill" data-filter-toggle="in-stock" style="border-color:var(--ios-green);color:var(--ios-green);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">check_circle</span> Тільки в наявності</button>
-        <button type="button" class="pill" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Без внутрішніх</button>
-        <button type="button" class="pill" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)" style="border-color:var(--ios-orange);color:var(--ios-orange);display:flex;align-items:center;gap:4px;"><span class="ms" style="font-size:16px;">home_repair_service</span> Тільки внутрішні</button>
+        <button type="button" class="pill items-filter-pill is-success" id="inStockPill" data-filter-toggle="in-stock"><span class="ms items-filter-icon" aria-hidden="true">check_circle</span> Тільки в наявності</button>
+        <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Без внутрішніх</button>
+        <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Тільки внутрішні</button>
       </div>
       <div class="items-filter-row pills-wrap" id="catPills">
         <button type="button" class="pill active" data-category-filter="">Всі</button>
-        <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms" style="font-size:15px;vertical-align:-3px;">cleaning_services</span> Прибирання</button>
-        <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms" style="font-size:15px;vertical-align:-3px;">build</span> Ремонт</button>
-        <button type="button" class="pill" data-category-filter="Електрика"><span class="ms" style="font-size:15px;vertical-align:-3px;">bolt</span> Електрика</button>
-        <button type="button" class="pill" data-category-filter="Сантехніка"><span class="ms" style="font-size:15px;vertical-align:-3px;">plumbing</span> Сантехніка</button>
-        <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms" style="font-size:15px;vertical-align:-3px;">videocam</span> Відео</button>
-        <button type="button" class="pill" data-category-filter="Інше"><span class="ms" style="font-size:15px;vertical-align:-3px;">inventory_2</span> Інше</button>
+        <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms category-pill-icon" aria-hidden="true">cleaning_services</span> Прибирання</button>
+        <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms category-pill-icon" aria-hidden="true">build</span> Ремонт</button>
+        <button type="button" class="pill" data-category-filter="Електрика"><span class="ms category-pill-icon" aria-hidden="true">bolt</span> Електрика</button>
+        <button type="button" class="pill" data-category-filter="Сантехніка"><span class="ms category-pill-icon" aria-hidden="true">plumbing</span> Сантехніка</button>
+        <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms category-pill-icon" aria-hidden="true">videocam</span> Відео</button>
+        <button type="button" class="pill" data-category-filter="Інше"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
       </div>
       <div class="items-filter-row items-search-row">
-        <div class="sw" style="width:250px;min-width:160px;"><span class="si"><span class="ms" style="font-size:18px;">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
+        <div class="sw items-search-field"><span class="si"><span class="ms" style="font-size:18px;" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
-        <button type="button" class="btn btn-ghost btn-sm" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters" style="display:none;padding:7px 10px;"><span class="ms" style="font-size:14px;vertical-align:-2px;">filter_alt_off</span> Скинути</button>
+        <button type="button" class="btn btn-ghost btn-sm items-reset-btn" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters"><span class="ms items-reset-icon" aria-hidden="true">filter_alt_off</span> Скинути</button>
       </div>
     </div>
     <div class="card desktop-table table-modern">
@@ -3380,144 +3395,7 @@ function populateSels(){
   ['issueItemSel','refillSel'].forEach(k=>{const el=document.getElementById(k);if(el){el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;refreshEnhancedSelect(el);}});
 }
 
-// Замінює нативний <select> (квадратне системне спливаюче меню) на кастомний
-// заокруглений список у стилі застосунку. Сам <select> лишається в DOM
-// (прихований) — існуючий код (.value, onchange) працює без змін, бо клік
-// по кастомній опції виставляє select.value і породжує справжню подію 'change'.
-function enhanceSelect(select){
-  if(!select||select.dataset.enhanced) return;
-  select.dataset.enhanced='1';
-  const btnClass=select.className;
-  const searchable=select.dataset.searchable==='1';
-  let selectSearchTerm='';
-  select.style.display='none';
-
-  const wrap=document.createElement('div');
-  wrap.className='custom-select-wrap';
-  select.parentNode.insertBefore(wrap,select);
-  wrap.appendChild(select);
-
-  const btn=document.createElement('button');
-  btn.type='button';
-  btn.className=btnClass+' custom-select-btn';
-  btn.setAttribute('aria-haspopup','listbox');
-  btn.setAttribute('aria-expanded','false');
-  btn.innerHTML='<span class="custom-select-label"></span><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.55;"><polyline points="6 9 12 15 18 9"/></svg>';
-  wrap.appendChild(btn);
-
-  const panel=document.createElement('div');
-  panel.className='custom-select-panel hidden';
-  panel.setAttribute('role','listbox');
-  wrap.appendChild(panel);
-
-  function optionMatches(opt){
-    if(!searchable||!selectSearchTerm) return true;
-    if(!opt.value) return true;
-    return normalizeSearchText(opt.textContent).includes(normalizeSearchText(selectSearchTerm));
-  }
-  function renderOptions(){
-    panel.innerHTML='';
-    let searchInput=null;
-    if(searchable){
-      searchInput=document.createElement('input');
-      searchInput.className='inp custom-select-search';
-      searchInput.type='search';
-      searchInput.placeholder=select.dataset.searchPlaceholder||'Пошук...';
-      searchInput.value=selectSearchTerm;
-      searchInput.addEventListener('input',()=>{
-        selectSearchTerm=searchInput.value;
-        renderOptions();
-        const next=panel.querySelector('input[type="search"]');
-        if(next){next.focus();next.setSelectionRange(next.value.length,next.value.length);}
-      });
-      searchInput.addEventListener('keydown',(e)=>{
-        if(e.key==='Escape'){e.preventDefault();closePanel();btn.focus();}
-        if(e.key==='ArrowDown'){e.preventDefault();panel.querySelector('.custom-select-option')?.focus();}
-      });
-      panel.appendChild(searchInput);
-    }
-    const visibleOptions=Array.from(select.options).filter(optionMatches);
-    visibleOptions.forEach(opt=>{
-      const item=document.createElement('div');
-      item.className='custom-select-option'+(opt.value===select.value?' active':'');
-      item.textContent=opt.textContent;
-      item.setAttribute('role','option');
-      item.setAttribute('tabindex','0');
-      item.setAttribute('aria-selected',opt.value===select.value?'true':'false');
-      const choose=()=>{
-        select.value=opt.value;
-        select.dispatchEvent(new Event('change'));
-        selectSearchTerm='';
-        syncLabel();
-        closePanel();
-        btn.focus();
-      };
-      item.addEventListener('click',choose);
-      item.addEventListener('keydown',(e)=>{
-        if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}
-        else if(e.key==='Escape'){closePanel();btn.focus();}
-        else if(e.key==='ArrowDown'){e.preventDefault();(item.nextElementSibling||panel.querySelector('.custom-select-option'))?.focus();}
-        else if(e.key==='ArrowUp'){
-          e.preventDefault();
-          const prev=item.previousElementSibling;
-          if(prev&&prev.classList.contains('custom-select-option')) prev.focus();
-          else panel.querySelector('input[type="search"]')?.focus();
-        }
-      });
-      panel.appendChild(item);
-    });
-    if(searchable && !visibleOptions.some(o=>o.value)){
-      const empty=document.createElement('div');
-      empty.className='empty';
-      empty.style.padding='12px';
-      empty.textContent='Товар не знайдено';
-      panel.appendChild(empty);
-    }
-  }
-  function syncLabel(){
-    const selectedOpt=select.options[select.selectedIndex];
-    btn.querySelector('.custom-select-label').textContent=selectedOpt?selectedOpt.textContent:'';
-    panel.querySelectorAll('.custom-select-option').forEach(el=>{
-      const opt=Array.from(select.options).find(o=>o.textContent===el.textContent);
-      el.classList.toggle('active',opt&&opt.value===select.value);
-      el.setAttribute('aria-selected',opt&&opt.value===select.value?'true':'false');
-    });
-  }
-  function openPanel(){
-    document.querySelectorAll('.custom-select-panel').forEach(p=>{if(p!==panel) p.classList.add('hidden');});
-    renderOptions();
-    panel.classList.remove('hidden');
-    btn.setAttribute('aria-expanded','true');
-    if(searchable) panel.querySelector('input[type="search"]')?.focus();
-    else panel.querySelector('.custom-select-option.active')?.focus();
-  }
-  function closePanel(){panel.classList.add('hidden');btn.setAttribute('aria-expanded','false');}
-
-  btn.addEventListener('click',(e)=>{
-    e.stopPropagation();
-    if(panel.classList.contains('hidden')) openPanel(); else closePanel();
-  });
-  btn.addEventListener('keydown',(e)=>{
-    if((e.key==='ArrowDown'||e.key==='Enter'||e.key===' ')&&panel.classList.contains('hidden')){
-      e.preventDefault();
-      openPanel();
-    } else if(searchable && e.key.length===1 && !e.ctrlKey && !e.metaKey && !e.altKey){
-      e.preventDefault();
-      selectSearchTerm=e.key;
-      openPanel();
-    }
-  });
-  panel.addEventListener('click',(e)=>e.stopPropagation());
-  document.addEventListener('click',closePanel);
-
-  select._syncCustomLabel=syncLabel;
-  renderOptions();
-  syncLabel();
-}
-function refreshEnhancedSelect(select){
-  if(select&&select._syncCustomLabel) select._syncCustomLabel();
-}
-
+// Кастомний select підключено зі shared/enhance-select.js.
 // ===== MODAL =====
 const focusableModalSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 const modalFocusReturn = new Map();
