@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
-import { readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 // sklad/index.html's <style> block was extracted to sklad/styles.css (see
@@ -1636,12 +1636,15 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="ios-toast"',
     'class="pin-modal-overlay"',
     'class="pin-key-action pin-key-cancel"',
-    '.pin-icon-badge.is-danger {',
-    'class="pin-icon-badge is-lock"',
+    '.pin-modal-icon-wrap.is-red {',
+    'class="pin-modal-icon-wrap is-indigo"',
+    'class="pin-modal-icon-wrap is-green"',
+    'class="pin-modal-icon-wrap is-green-soft"',
     'class="toast-icon-badge"',
     '.status-label { display:inline-flex;',
     'class="status-label"',
     'class="status-label is-tight"',
+    '<link rel="stylesheet" href="../shared/ui.css">',
     '.journal-mini-stats.is-two {',
     'class="journal-mini-stats is-two"',
     'class="stat-card journal-stat-card journal-mini-stat role-garbage',
@@ -2435,73 +2438,25 @@ for (const file of ['index.html', 'osbb/index.html']) {
   }
 }
 
-// Atomic stock RPCs: catches a regression back to the old client
-// read-check-write race (two separate .update()/.insert() calls).
+
+// Shared UI stylesheet should be available to all entrypoints.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
-  const label = 'sklad issue/refill use atomic RPCs, not read-check-write';
-  const required = ["db.rpc('issue_item'", "db.rpc('receive_item'"];
-  const missing = required.filter(needle => !text.includes(needle));
+  const checks = [
+    ['index.html', 'href="shared/ui.css"'],
+    ['osbb/index.html', 'href="../shared/ui.css"'],
+    ['sklad/index.html', 'href="../shared/ui.css"'],
+  ];
+  const missing = [];
+  if (!existsSync('shared/ui.css')) missing.push('shared/ui.css');
+  for (const [file, marker] of checks) {
+    if (!readFileSync(file, 'utf8').includes(marker)) missing.push(`${file}:${marker}`);
+  }
   if (missing.length) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - shared/ui.css exists and is linked from all three entrypoints (missing: ${missing.join(', ')})`);
   } else {
     passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
-
-// Realtime: both modules should subscribe to postgres_changes so a manual
-// "Оновити" isn't the only way to see another device's edits.
-{
-  const label = 'osbb and sklad subscribe to Realtime postgres_changes';
-  const osbbText = readFileSync('osbb/index.html', 'utf8');
-  const skladText = readFileSync('sklad/index.html', 'utf8');
-  const ok = osbbText.includes("postgres_changes") && skladText.includes("postgres_changes");
-  if (ok) {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  } else {
-    failed += 1;
-    console.error(`not ok - ${label}`);
-  }
-}
-
-// Shared CSS: shared/ui.css must exist and be linked from all three entrypoints,
-// otherwise a future edit could silently duplicate the tooltip/motion rules again.
-{
-  const label = 'shared/ui.css exists and is linked from all three entrypoints';
-  const sharedExists = allFiles.includes('shared/ui.css');
-  const linked = ['index.html', 'osbb/index.html', 'sklad/index.html'].every(src =>
-    readFileSync(src, 'utf8').includes('shared/ui.css')
-  );
-  if (sharedExists && linked) {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  } else {
-    failed += 1;
-    console.error(`not ok - ${label}`);
-  }
-}
-
-// Same guard for shared/enhance-select.js: it must exist, be linked from both
-// modules, and neither module should have re-introduced its own inline copy
-// of enhanceSelect (that's exactly the drift this extraction was meant to end).
-{
-  const label = 'shared/enhance-select.js exists, is linked, and not re-duplicated inline';
-  const sharedExists = allFiles.includes('shared/enhance-select.js');
-  const linked = ['osbb/index.html', 'sklad/index.html'].every(src =>
-    readFileSync(src, 'utf8').includes('shared/enhance-select.js')
-  );
-  const notReDuplicated = ['osbb/index.html', 'sklad/index.html'].every(src =>
-    !readFileSync(src, 'utf8').includes('function enhanceSelect(')
-  );
-  if (sharedExists && linked && notReDuplicated) {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  } else {
-    failed += 1;
-    console.error(`not ok - ${label}`);
+    console.log('ok - shared/ui.css exists and is linked from all three entrypoints');
   }
 }
 

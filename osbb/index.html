@@ -14,7 +14,8 @@
     <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
     <link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2322c55e'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='%2322c55e'/></svg>">
     <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../shared/ui.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал ОСББ "Микитська Слобода"</title>
     <script>
         // Придушуємо Tailwind CDN warning
@@ -236,10 +237,11 @@
         .pin-modal-title { color:#fff; font-size:1rem; font-weight:800; margin-bottom:4px; }
         .pin-modal-sub { color:#94a3b8; font-size:0.75rem; margin-bottom:20px; }
         .pin-modal-error { color:#fca5a5; font-size:0.75rem; min-height:18px; margin-bottom:10px; }
-        .pin-icon-badge { display:inline-flex; width:40px; height:40px; border-radius:50%; background:rgba(52,199,89,0.15); align-items:center; justify-content:center; }
-        .pin-icon-badge.is-lock { background:rgba(129,140,248,0.2); }
-        .pin-icon-badge.is-success { background:rgba(52,199,89,0.2); }
-        .pin-icon-badge.is-danger { background:rgba(239,68,68,0.2); }
+        .pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; background:rgba(52,199,89,0.15); align-items:center; justify-content:center; }
+        .pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }
+        .pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }
+        .pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }
+        .pin-modal-icon-wrap.is-red { background:rgba(239,68,68,0.2); }
         .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:300; color:#fff; cursor:pointer; transition:background .12s ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
         .pin-mb-btn:active { background:rgba(255,255,255,0.22); }
         .pulse-ring2 { animation-delay: 0.5s; }
@@ -370,7 +372,7 @@
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" class="pin-modal-overlay">
     <div class="pin-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1">
-        <div class="pin-modal-icon" id="pin-modal-icon"><span class="pin-icon-badge is-success"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+        <div class="pin-modal-icon" id="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
         <div class="pin-modal-title" id="pin-modal-title">Пароль для скидання</div>
         <div class="pin-modal-sub" id="pin-modal-sub">Введіть 4-значний PIN</div>
         <div class="pin-dots">
@@ -1840,6 +1842,9 @@
     function toggleTheme() {
         changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
     }
+    function toggleTheme() {
+        changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
+    }
     function showOverlay(show, text = '') {
         const overlay = document.getElementById('loading-overlay');
         if (show) { overlay.classList.remove('opacity-0','pointer-events-none'); document.getElementById('loading-text').innerText = text; }
@@ -2567,8 +2572,8 @@
         pinModalCallback = callback;
         document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
         document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
-        const lockIcon  = '<span class="pin-icon-badge is-lock"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
-        const trashIcon = '<span class="pin-icon-badge is-danger"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
+        const lockIcon  = '<span class="pin-modal-icon-wrap is-indigo"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
         document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
@@ -2607,7 +2612,7 @@
             let ok = false;
             try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
             if (ok) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-icon-badge is-success"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
@@ -2616,7 +2621,7 @@
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
             } else {
                 document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-icon-badge is-danger"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
                 pinModalBuf = '';
                 pinUpdateDots();
                 // Тряска
