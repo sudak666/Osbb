@@ -497,6 +497,16 @@ Left the now-unused `.journal-joke-icon { display:inline-block; vertical-align:-
 
 Verified: 175/175 smoke checks, div/svg/button/label tag balance, and `node --check`-equivalent syntax validation of all three inline `<script>` blocks in `osbb/index.html` (no leftover references to `fun-quote` or `quotes` anywhere in the file).
 
+## Role-card humorous status badges removed (July 2026)
+
+Same instinct as the joke banner above, applied to the "Статус:" line under each of the three role cards (Електрик/Двірник/Сантехнік) in the monthly monitoring panel — humorous tier titles ("Початківець іскри", "Генерал Мітли та Грабель", "Гроза Засмічень", "Заслужений відпочинок", etc.) driven by shift count thresholds. User asked to remove these too.
+
+- Removed the `<div class="mt-2 pt-2 border-t ... text-xs">Статус: <span id="badge-{role}">...</span></div>` row from all three role cards — including its `border-t` divider, since there's nothing left to divide once the row is gone.
+- Removed `getWorkerBadge(role, count)` entirely (the icon/title-generating function, ~19 lines with per-role SVG icon constants) and the `document.getElementById(\`badge-${role}\`).innerHTML = getWorkerBadge(...)` call inside `updateStats()` — that function had no other callers.
+- Each role card now shows only the role name and the shift count (`stats-{role}`), nothing else.
+
+Verified: 175/175 smoke checks, div/svg/button/label/span tag balance, and syntax validation of all inline `<script>` blocks. Grepped for `getWorkerBadge`/`badge-electrician`/`badge-janitor`/`badge-plumber`/`Статус:`/`Заслужений відпочинок` — no remaining references anywhere in the file.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.
