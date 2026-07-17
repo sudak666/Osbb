@@ -17,6 +17,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `005_merge_osbb_journal.sql`). |
 | `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
 | `sklad/supabase/functions/fetch-item-prices` | Supabase Edge Function для пошуку орієнтовних цін товарів складу в інтернеті без розкриття API-ключів у фронтенді. |
+| `sklad/supabase/functions/ai-assistant` | Supabase Edge Function — ШІ-асистент журналу та складу (Claude API), відповідає на запитання простою мовою на основі поточних даних. Read-only, нічого не пише в базу. |
 
 ## Як працює авторизація
 
@@ -105,6 +106,23 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 ```
 
 У списку secrets мають бути `TELEGRAM_BOT_TOKEN` і `TELEGRAM_CHAT_ID`. Успішний тест повертає `{"ok":true}` і надсилає повідомлення в Telegram.
+
+## ШІ-асистент журналу та складу
+
+І `osbb/index.html`, і `sklad/index.html` мають рядок швидкого запиту ("Запитайте про журнал: «хто чергує завтра?»…" / "…про склад: «що закінчується?»…") — не окремий чат-екран, а ambient-поле над основним контентом сторінки. Питання йде в спільну Edge Function `ai-assistant`, яка сама читає актуальні дані (`schedule`/`dispatcher`/`garbage` для журналу, `inventory_items` для складу) сервісним ключем і передає їх як контекст у Claude API (Anthropic), повертаючи готову відповідь українською.
+
+Це **read-only** інструмент: асистент лише відповідає на запитання, нічого не пише в базу і не створює заявки/записи. Дії з побічними ефектами (наприклад, "створи заявку голосом") — свідомо окрема, значно ризикованіша задача на майбутнє, не частина цього проходу.
+
+Налаштування (один раз, у єдиному проєкті `vkwkyhjjjmcpmiakxohw`):
+
+```bash
+supabase functions deploy ai-assistant --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-ваш_ключ_з_console.anthropic.com --project-ref vkwkyhjjjmcpmiakxohw
+```
+
+`SUPABASE_URL` і `SUPABASE_SERVICE_ROLE_KEY` Supabase підставляє в кожну Edge Function автоматично — окремо задавати не треба. `--no-verify-jwt` потрібен з тієї ж причини, що й для інших функцій: клієнт авторизується новим форматом ключів Supabase (`sb_publishable_...`), який не є JWT.
+
+**До деплою і без секрету `ANTHROPIC_API_KEY` рядок запиту в застосунку лишається видимим, але при спробі запитати покаже зрозумілу помилку** ("AI assistant is not configured..."), а не мовчки провалиться — фронтенд не падає без бекенду.
 
 ## Автоматичні smoke-перевірки
 

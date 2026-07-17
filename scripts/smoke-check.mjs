@@ -2520,6 +2520,40 @@ ${sharedSelectText}`;
   }
 }
 
+// AI assistant: both apps should expose the ambient query bar, call the
+// shared ai-assistant Edge Function with the correct scope, and render the
+// answer via textContent (never innerHTML) since it's LLM-generated text.
+{
+  const label = 'AI assistant bar wired in both apps (correct scope, textContent-only rendering)';
+  const missing = [];
+  if (!existsSync('sklad/supabase/functions/ai-assistant/index.ts')) missing.push('sklad/supabase/functions/ai-assistant/index.ts');
+  const osbbText = readOsbbCombined();
+  const skladText = readSkladCombined();
+  const osbbRequired = [
+    'class="ai-bar',
+    "AI_ASSISTANT_URL = SUPABASE_URL + '/functions/v1/ai-assistant'",
+    "scope: 'journal'",
+    'box.textContent = data.answer',
+  ];
+  const skladRequired = [
+    'class="ai-bar"',
+    "const AI_ASSISTANT_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/ai-assistant'",
+    "scope:'sklad'",
+    'box.textContent=data.answer',
+  ];
+  osbbRequired.filter(needle => !osbbText.includes(needle)).forEach(needle => missing.push(`osbb:${needle}`));
+  skladRequired.filter(needle => !skladText.includes(needle)).forEach(needle => missing.push(`sklad:${needle}`));
+  const forbidden = ["box.innerHTML=data.answer", 'box.innerHTML = data.answer'];
+  const present = forbidden.filter(needle => osbbText.includes(needle) || skladText.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
