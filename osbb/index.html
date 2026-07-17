@@ -229,15 +229,12 @@
         <div class="journal-stats-grid">
             <div class="stat-card journal-stat-card role-electrician p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-semibold text-sm text-amber-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></span><span id="stats-electrician" class="text-2xl font-black text-amber-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-amber-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-electrician" class="font-bold text-amber-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card journal-stat-card role-janitor p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-semibold text-sm text-emerald-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></span><span id="stats-janitor" class="text-2xl font-black text-emerald-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-janitor" class="font-bold text-emerald-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
             <div class="stat-card journal-stat-card role-plumber p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-semibold text-sm text-blue-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></span><span id="stats-plumber" class="text-2xl font-black text-blue-600">0 змін</span></div>
-                <div class="mt-2 pt-2 border-t border-blue-500/20 text-xs"><span class="text-[var(--text-sub)]">Статус:</span> <span id="badge-plumber" class="font-bold text-blue-800"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Заслужений відпочинок</span></div>
             </div>
         </div>
 
@@ -1486,27 +1483,7 @@
     function updateStats() {
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
         Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day][role]?.working) counts[role]++; }); });
-        roles.forEach(role => { animateNumber(document.getElementById(`stats-${role}`), counts[role], { suffix: ' змін' }); document.getElementById(`badge-${role}`).innerHTML = getWorkerBadge(role, counts[role]); });
-    }
-
-    function getWorkerBadge(role, count) {
-        function svg(path, color) {
-            return `<svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="journal-daytype-icon">${path}</svg>`;
-        }
-        const moon    = svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',                                                                                   '#94a3b8');
-        const zap     = svg('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',                                                                                     '#f59e0b');
-        const crown   = svg('<path d="M2 4l3 12h14l3-12-6 4.5L12 2 8 8.5 2 4z"/><line x1="2" y1="20" x2="22" y2="20"/>',                                                   '#f59e0b');
-        const leaf    = svg('<path d="M2 22c0-9.4 7.6-17 17-17h3l-3.5 3.5A12 12 0 0 1 5 22H2z"/>',                                                                          '#22c55e');
-        const wind    = svg('<path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>',                                   '#22c55e');
-        const shield  = svg('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',                                                                                      '#22c55e');
-        const drops   = svg('<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>',  '#3b82f6');
-        const wrench  = svg('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>','#3b82f6');
-        const anchor  = svg('<circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="23"/><path d="M5 15H2a10 10 0 0 0 20 0h-3"/>',                                 '#3b82f6');
-
-        if (count === 0) return moon + 'Заслужений відпочинок';
-        if (role === 'electrician') return count < 8 ? zap+'Початківець іскри' : count < 18 ? zap+'Магістр Струму' : crown+'Володар Блискавок Слободи';
-        if (role === 'janitor')     return count < 8 ? leaf+'Чистороб-стажер'  : count < 18 ? wind+'Генерал Мітли та Грабель' : shield+'Охоронець Чистоти';
-        if (role === 'plumber')     return count < 8 ? drops+'Водолій'         : count < 18 ? wrench+'Гроза Засмічень' : anchor+'Нептун Микитської Слободи';
+        roles.forEach(role => { animateNumber(document.getElementById(`stats-${role}`), counts[role], { suffix: ' змін' }); });
     }
 
     function exportExcel() {
