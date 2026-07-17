@@ -224,6 +224,20 @@
         </button>
     </div>
 
+    <div class="ai-bar no-print">
+        <div class="ai-bar-row">
+            <span class="ai-orb" aria-hidden="true"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg></span>
+            <input type="text" id="aiQuestion" class="ai-input" placeholder="Запитайте про журнал: «хто чергує завтра?», «скільки заявок у сантехніка?»…" aria-label="Запитання ШІ-асистенту журналу" data-ai-submit-on-enter>
+            <button type="button" class="journal-action-btn journal-action-btn-primary" data-action="ai-ask"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Запитати</button>
+        </div>
+        <div class="ai-chip-row">
+            <button type="button" class="ai-chip" data-action="ai-ask" data-ai-question="Хто чергує завтра і які в них незакриті завдання?">Хто чергує завтра?</button>
+            <button type="button" class="ai-chip" data-action="ai-ask" data-ai-question="Скільки заявок у кожного працівника цього місяця?">Заявки за місяць</button>
+            <button type="button" class="ai-chip" data-action="ai-ask" data-ai-question="Скільки баків сміття вивезено цього місяця і яке середнє за 3 місяці?">Стан по сміттю</button>
+        </div>
+        <div class="ai-answer" id="aiAnswer" style="display:none;" role="status" aria-live="polite"></div>
+    </div>
+
     <div class="journal-dashboard-panel">
         <div class="no-print journal-note mb-4 p-3 flex items-center gap-3">
             <span class="w-7 h-7 rounded-full bg-amber-400/20 flex items-center justify-center shrink-0"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span>
@@ -1625,10 +1639,14 @@
             'chat-send': chatSend,
             'go-today': goToday,
             'refresh-data': refreshData,
+            'ai-ask': askAssistant,
         };
         document.querySelectorAll('[data-action]').forEach((button) => {
             const handler = actionHandlers[button.dataset.action];
             if (handler) button.addEventListener('click', handler);
+        });
+        document.querySelector('[data-ai-submit-on-enter]')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') { event.preventDefault(); askAssistant(); }
         });
 
         document.querySelector('[data-chat-author]')?.addEventListener('focus', (event) => event.target.removeAttribute('readonly'));
@@ -2594,6 +2612,36 @@
             dispSetStatus('ok', '<span class="status-label"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Скинуто</span>');
             dispRender();
         }, true);
+    }
+
+    // ==========================================
+    // ШІ-АСИСТЕНТ ЖУРНАЛУ
+    // ==========================================
+    const AI_ASSISTANT_URL = SUPABASE_URL + '/functions/v1/ai-assistant';
+    async function askAssistant(event) {
+        const input = document.getElementById('aiQuestion');
+        const trigger = event?.currentTarget;
+        const question = (trigger?.dataset?.aiQuestion) || input.value.trim();
+        if (!question) return input.focus();
+        input.value = question;
+        const box = document.getElementById('aiAnswer');
+        box.style.display = 'block';
+        box.className = 'ai-answer is-loading';
+        box.textContent = 'Шукаю відповідь...';
+        try {
+            const res = await fetch(AI_ASSISTANT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
+                body: JSON.stringify({ question, scope: 'journal' }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Помилка асистента');
+            box.className = 'ai-answer';
+            box.textContent = data.answer || 'Асистент не дав відповіді.';
+        } catch (e) {
+            box.className = 'ai-answer is-error';
+            box.textContent = (e.message || String(e)) + ' — перевірте деплой Edge Function ai-assistant і секрет ANTHROPIC_API_KEY.';
+        }
     }
 
     // ==========================================

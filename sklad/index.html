@@ -205,6 +205,19 @@ async function checkPin(attempt){
         <div class="items-quick-note"><span class="ms category-pill-icon" aria-hidden="true">tips_and_updates</span> Фокус: спершу критичні залишки</div>
       </div>
     </section>
+    <div class="ai-bar">
+      <div class="ai-bar-row">
+        <span class="ai-orb" aria-hidden="true"><span class="ms">auto_awesome</span></span>
+        <input type="text" id="aiQuestion" class="ai-input" placeholder="Запитайте про склад: «що закінчується?», «скільки лампочок?»…" aria-label="Запитання ШІ-асистенту складу" data-ai-submit-on-enter>
+        <button type="button" class="btn btn-primary btn-sm" data-sklad-action="ai-ask"><span class="ms ic-15-3" aria-hidden="true">send</span> Запитати</button>
+      </div>
+      <div class="ai-chip-row">
+        <button type="button" class="ai-chip" data-sklad-action="ai-ask" data-ai-question="Що закінчується найближчим часом і потребує поповнення?">Що закінчується?</button>
+        <button type="button" class="ai-chip" data-sklad-action="ai-ask" data-ai-question="Скільки товарів позначено для внутрішнього використання і які саме?">Внутрішнє використання</button>
+        <button type="button" class="ai-chip" data-sklad-action="ai-ask" data-ai-question="Яка категорія товарів найбільша за кількістю позицій?">Найбільша категорія</button>
+      </div>
+      <div class="ai-answer" id="aiAnswer" style="display:none;" role="status" aria-live="polite"></div>
+    </div>
     <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
       <div class="alert-banner"><span class="ms ic-16-3">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
     </div>
@@ -762,6 +775,31 @@ Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Товари на складі'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Прихід товару'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
+const AI_ASSISTANT_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/ai-assistant';
+async function askAssistant(trigger){
+  const input=document.getElementById('aiQuestion');
+  const question=(trigger&&trigger.dataset&&trigger.dataset.aiQuestion)||input.value.trim();
+  if(!question) return input.focus();
+  input.value=question;
+  const box=document.getElementById('aiAnswer');
+  box.style.display='block';
+  box.className='ai-answer is-loading';
+  box.textContent='Шукаю відповідь...';
+  try{
+    const res=await fetch(AI_ASSISTANT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9','Authorization':'Bearer sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9'},
+      body:JSON.stringify({question,scope:'sklad'})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||'Помилка асистента');
+    box.className='ai-answer';
+    box.textContent=data.answer||'Асистент не дав відповіді.';
+  }catch(e){
+    box.className='ai-answer is-error';
+    box.textContent=(e.message||String(e))+' — перевірте деплой Edge Function ai-assistant і секрет ANTHROPIC_API_KEY.';
+  }
+}
 function money(v){
   const n=Number(v);
   if(!isFinite(n)||n<=0) return '—';
@@ -1305,6 +1343,7 @@ function bindSkladStaticControls(){
     'export-excel':exportExcel,
     'refresh':refreshAll,
     'theme':toggleTheme,
+    'ai-ask':(button)=>askAssistant(button),
     'reset-item-filters':resetItemFilters,
     'issue-submit':(button)=>doIssue(button),
     'refill-submit':(button)=>doRefill(button),
@@ -1334,6 +1373,9 @@ function bindSkladStaticControls(){
   document.querySelectorAll('[data-sklad-action]').forEach(button=>{
     const handler=actionHandlers[button.dataset.skladAction];
     if(handler) button.addEventListener('click',(event)=>handler(button,event));
+  });
+  document.querySelector('[data-ai-submit-on-enter]')?.addEventListener('keydown',(event)=>{
+    if(event.key==='Enter'){event.preventDefault();askAssistant();}
   });
   const filterHandlers={
     'in-stock':toggleInStock,
