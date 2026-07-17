@@ -225,10 +225,6 @@
     </div>
 
     <div class="journal-dashboard-panel">
-        <div class="no-print journal-note mb-6 p-3 flex items-center gap-3">
-            <span class="w-7 h-7 rounded-full bg-amber-400/20 flex items-center justify-center shrink-0"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span>
-            <p id="fun-quote" class="text-xs font-semibold"></p>
-        </div>
         <h3 class="journal-section-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg> Моніторинг за місяць</h3>
         <div class="journal-stats-grid">
             <div class="stat-card journal-stat-card role-electrician p-4 flex flex-col justify-between">
@@ -653,18 +649,6 @@
     const roles = ['electrician', 'janitor', 'plumber'];
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
-    const quotes = [
-        `Чистий під'їзд починається не з мітли, а з посмішки! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>`,
-        `Електрик вміє вмикати гарний настрій навіть без генератора! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-        `Наші сантехніки контролюють ситуацію краще, ніж Нептун! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="23"/><path d="M5 15H2a10 10 0 0 0 20 0h-3"/></svg>`,
-        `Сьогодні чудовий день підстригти газон! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><path d="M2 22c0-9.4 7.6-17 17-17h3l-3.5 3.5A12 12 0 0 1 5 22H2z"/></svg>`,
-        `Порядок у будинку — спокій у душі. <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/></svg>`,
-        `Директор каже: «Хто рано встає — тому й мітла дістається нова!» <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>`,
-        `Пам'ятайте: навіть Супермен іноді міняв лампочки! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
-        `Кожна виконана заявка — це крок до ідеального ОСББ! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg>`,
-        `Директор нагадує: «Завдання не виконаються самі... або виконаються?» <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-        `Якість роботи визначається не тільки мітлою, а й душею! <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-joke-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
-    ];
     const roleTasksConfig = {
         electrician: [{ id: 'lamps', label: 'Заміна ламп' }],
         plumber:     [{ id: 'sewer', label: 'Прочистка каналізації' }],
@@ -705,7 +689,6 @@
 
     for (let y = 2025; y <= 2030; y++) { const o = document.createElement('option'); o.value = y; o.innerText = y; if (y === now.getFullYear()) o.selected = true; yearSelect.appendChild(o); }
     monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
-    document.getElementById('fun-quote').innerHTML = quotes[Math.floor(Math.random() * quotes.length)];
 
     // Кастомний select підключено зі shared/enhance-select.js.
     enhanceSelect(yearSelect);

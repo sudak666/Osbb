@@ -485,6 +485,18 @@ User pasted the full original findings list back and pointed out most of it (eve
 
 Verified: 175/175 smoke checks (one guard updated to match the `-ghost` button class swap), tag/brace balance, `node --check`, and headless Playwright screenshots confirming the radial-gradient card corners no longer show a hard clip line and the garbage total now reads left-to-right on one axis.
 
+## Joke banner removed entirely (July 2026)
+
+Earlier passes only *restyled* the jokes banner (dropped `italic`, bumped weight/spacing — see above). User then said outright it's no longer needed at all — not "fix it", but remove it. Deleted all three pieces:
+
+- The `#fun-quote` banner `<div class="no-print journal-note ...">` block in the dashboard header.
+- The `const quotes = [...]` array (10 humorous strings with inline `journal-joke-icon`-classed SVGs).
+- The runtime assignment `document.getElementById('fun-quote').innerHTML = quotes[...]` inside the calendar-init code — this was the one piece missed in the first pass of this edit; leaving it in would have thrown `quotes is not defined` on every page load.
+
+Left the now-unused `.journal-joke-icon { display:inline-block; vertical-align:-2px; }` rule in `osbb/styles.css` — `scripts/smoke-check.mjs` asserts this exact CSS text exists, and touching a smoke-check guard for a one-line dead-CSS cleanup isn't worth it.
+
+Verified: 175/175 smoke checks, div/svg/button/label tag balance, and `node --check`-equivalent syntax validation of all three inline `<script>` blocks in `osbb/index.html` (no leftover references to `fun-quote` or `quotes` anywhere in the file).
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.
