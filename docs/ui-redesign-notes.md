@@ -462,6 +462,16 @@ Audited **every** `<select>` and every `type="time"/"date"/"week"/"month"/"color
 
 Verified: 175/175 smoke checks, tag balance, `node --check`, and a headless Playwright screenshot with the worker dropdown open confirming a fully rounded custom panel (matching `.custom-select-panel`/`.custom-select-option` styling used everywhere else) instead of the native square one.
 
+## Day-card checklist density/hierarchy, actually finished (July 2026)
+
+The "Перемикачі, чекліст і лічильник заявок стиснуті в одну щільну колонку" finding from the redesign teardown was only *partially* addressed in the "3 highest-severity findings" pass — that pass gave the shift toggle a tactile shadow but never touched the checklist's own density or the "all task rows look the same regardless of status" complaint. User asked directly whether this one was done; it wasn't, so finished it properly this time, in both places this markup is duplicated (mobile day-card and desktop table role column):
+
+- Added a `Завдання N/M` progress line above each role's task checklist (`tasksProgress`/`checkBoxesProgress`), turning emerald green once `N === M` — lets you tell at a glance whether a role's checklist is fully done without reading every row. Computed from the same `state.tasks?.[task.id]` lookup the checkbox dots already use, so it can't drift out of sync with them.
+- Gave the "Заявок:" ticket-count row its own `border-t` separator (`mt-2 pt-2 border-t border-[var(--border-subtle)]`, replacing the old bare `mt-1.5`) so it reads as a distinct field, not another checklist row.
+- The individual task rows' checked/unchecked text styling (`font-semibold` vs `text-[var(--text-sub)]`) already existed before this session — that part of the original complaint was already handled, just not obvious enough on its own without the progress summary.
+
+Verified the counting logic with real task IDs from `roleTasksConfig` (`lamps`/`sewer`/`garden`/`lawn`/`bins`/`stairs`) via a headless Playwright text-content check — e.g. electrician with `{lamps:true}` correctly showed `1/1`, janitor with 2 of 4 tasks true showed `2/4`. Could not visually confirm the `flex justify-between` spacing renders correctly in this sandbox specifically (Tailwind CDN is blocked here, a pre-existing, documented limitation — see "Testing" in `CLAUDE.md`), but the classes used are the same standard Tailwind utilities used everywhere else in this file that do render correctly for the user on a real device.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.
