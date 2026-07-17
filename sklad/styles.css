@@ -846,3 +846,12 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 .log-row-title, .log-row-qty { font-size: 14px !important; }
 .log-row-meta { font-size: 12px !important; }
 
+/* Нативні браузерні контроли (спінер числа, календар дати) не йшли в тон
+   застосунку — стрілочки спінера ховаємо, кольорову схему пікера ведемо
+   за темою через color-scheme нижче. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.theme-light { color-scheme: light; }
+.theme-dark { color-scheme: dark; }
+
