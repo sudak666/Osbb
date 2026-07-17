@@ -30,3 +30,42 @@
 .custom-select-empty {
   padding: 12px;
 }
+
+/* TOOLTIP — заміна нативного title, у якого браузер сам малює квадратну підказку. */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: rgba(28, 28, 30, 0.92);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 200;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+[data-tip]:hover::after, [data-tip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.tip-up::after { top: auto; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(4px); }
+.tip-up:hover::after, .tip-up:focus-visible::after { transform: translateX(-50%) translateY(0); }
+@media (hover: none) { [data-tip]::after { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

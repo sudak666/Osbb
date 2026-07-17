@@ -2103,7 +2103,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // Sklad operational forms (issue/refill/add/audit/log search) should be wired by
 // the centralized static control binder rather than inline handlers.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const sharedSelectText = existsSync('shared/enhance-select.js') ? readFileSync('shared/enhance-select.js', 'utf8') : '';
   const label = 'sklad operational forms use centralized event bindings';
   const forbidden = [
