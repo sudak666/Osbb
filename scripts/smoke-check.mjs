@@ -1748,7 +1748,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-inline-icon {',
     '.journal-action-label {',
     '.journal-action-btn {',
-    'class="journal-action-btn journal-action-btn-primary"',
+    'class="journal-action-btn journal-action-btn-ghost"',
     'class="journal-action-btn journal-action-btn-danger"',
     'class="journal-inline-icon"',
     '<span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span>',

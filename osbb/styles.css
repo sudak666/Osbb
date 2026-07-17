@@ -112,6 +112,8 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .journal-action-btn-primary:hover { background:#047857; }
 .journal-action-btn-danger { color:#dc2626; border:1px solid rgba(248,113,113,.35); }
 .journal-action-btn-danger:hover { background:rgba(239,68,68,.10); }
+.journal-action-btn-ghost { background:var(--surface-1); color:var(--text-main); border:1px solid var(--border-subtle); }
+.journal-action-btn-ghost:hover { background:var(--bg-input); }
 
 .day-card, .role-card, .mobile-day-card, .stat-card { border-radius: var(--radius-lg) !important; box-shadow: var(--soft-shadow); }
 .day-card, .mobile-day-card { background: var(--glass-card) !important; backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px); border-color: rgba(255,255,255,0.55) !important; }
