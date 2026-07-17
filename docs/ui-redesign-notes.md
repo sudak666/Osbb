@@ -521,6 +521,18 @@ One finding was deliberately **not** treated as simple dead code: `initRealtime(
 
 Verified: 175/175 smoke checks, div/svg/button/label/span tag balance on both entrypoints, syntax validation of every inline `<script>` block in both `osbb/index.html` and `sklad/index.html`, and a final grep confirming zero remaining references to any removed identifier/class/id.
 
+## Item kebab menu floating disconnected from its row, fixed (July 2026)
+
+User sent a screenshot of `.item-more-menu` (the "•••" kebab dropdown on a sklad item row) rendering as a large box floating far above its trigger, overlapping the sticky `.items-filter-bar`/table header and looking completely disconnected from the row it belonged to.
+
+Root cause: `.item-more-menu` always opens **upward** (`bottom: calc(100% + 8px)`, unconditionally) — a fixed choice made when the kebab menu was first built, presumably to avoid the menu getting clipped by the table's bottom edge for rows near the end of a long list. That works fine for rows near the bottom of the scrolled viewport, but for any row near the *top* (which is common — it's the first visible row after any scroll, and the sticky `.items-filter-bar` sits right there with `position:sticky;top:74px`), opening upward pushes the menu behind/through the sticky bar with nowhere real to render, producing exactly the floating disconnected box in the screenshot.
+
+Reproduced locally (Playwright, mock `allItems` injected directly since Supabase is network-blocked in this sandbox — see "Testing" in `CLAUDE.md`) in both the desktop table and mobile card layouts, confirming the same collision in both.
+
+Fix: added `positionItemMenu(menu)`, called from the existing `handleItemMenuToggle` delegated `toggle` listener right when a menu opens. It measures the real available space above the trigger — using `.items-filter-bar`'s `getBoundingClientRect().bottom` as the effective ceiling (not `0`/viewport-top, since the sticky bar itself occupies that region) — and adds an `.opens-down` class when there isn't enough room, which a new CSS rule (`.item-more.opens-down .item-more-menu{bottom:auto;top:calc(100% + 8px);}`) flips to open downward instead. Rows with enough space above (the original common case — later rows in a scrolled list) are unaffected and still open upward exactly as before.
+
+Verified via Playwright: near-top rows in both layouts now correctly get `.opens-down` and render cleanly anchored below their trigger with zero overlap; a middle/bottom row still opens upward with no `.opens-down` class, confirming no regression to the original working case. 175/175 smoke checks, tag balance, and inline-script syntax also re-checked.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.
