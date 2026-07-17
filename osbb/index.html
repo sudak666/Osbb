@@ -1726,9 +1726,27 @@
         });
     }
 
+    function formatTimeMaskInput(input) {
+        const digits = input.value.replace(/\D/g, '').slice(0, 4);
+        if (digits.length <= 2) { input.value = digits; return; }
+        let h = digits.slice(0, 2);
+        let m = digits.slice(2, 4);
+        if (Number(h) > 23) h = '23';
+        if (m.length === 2 && Number(m) > 59) m = '59';
+        input.value = `${h}:${m}`;
+    }
+
     function bindGarbageEntryActions() {
         const container = document.getElementById('g-days-list');
         if (!container) return;
+        container.addEventListener('input', (event) => {
+            if (event.target.matches('[data-time-mask]')) formatTimeMaskInput(event.target);
+        });
+        container.addEventListener('blur', (event) => {
+            const field = event.target;
+            if (!field.matches?.('[data-time-mask]')) return;
+            if (field.value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(field.value)) field.value = '';
+        }, true);
         container.addEventListener('click', (event) => {
             const trigger = event.target.closest('[data-g-action="toggle-day"]');
             if (!trigger) return;
@@ -2139,7 +2157,7 @@
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
                             <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
-                            <input type="time" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" aria-label="Час вивозу сміття за день ${day}"
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" data-time-mask aria-label="Час вивозу сміття за день ${day}"
                                 class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
                         </div>
                         <div>
@@ -2175,6 +2193,7 @@
                 </div>`;
             container.appendChild(wrap);
         }
+        container.querySelectorAll('select[data-g-field="worker"]').forEach((sel) => enhanceSelect(sel));
     }
 
     function gRenderStats() {
