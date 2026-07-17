@@ -1220,6 +1220,8 @@
             roles.forEach(role => {
                 const state = currentMonthData[d][role];
                 const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
+                const tasksTotal = roleTasksConfig[role].length;
+                const tasksDone = roleTasksConfig[role].filter(task => state.tasks?.[task.id]).length;
                 let tasksHtml = roleTasksConfig[role].map(task => {
                     const isChecked = state.tasks?.[task.id];
                     const disabled = !state.working;
@@ -1231,6 +1233,7 @@
                         <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
                 }).join('');
+                const tasksProgress = tasksTotal ? `<div class="flex items-center justify-between text-[10px] font-bold mt-1 ${tasksDone===tasksTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${tasksDone}/${tasksTotal}</span></div>` : '';
 
                 bodyHtml += `<div class="role-card ${roleColors[role]} mb-2">
                     <div class="flex items-center justify-between mb-1">
@@ -1241,8 +1244,9 @@
                         </label>
                     </div>
                     <div class="${!state.working?'opacity-40 pointer-events-none':''}">
+                        ${tasksProgress}
                         ${tasksHtml}
-                        <div class="flex items-center gap-2 mt-1.5">
+                        <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
                             <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
                             <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                         </div>
@@ -1381,6 +1385,9 @@
                         <span class="${isChecked?'font-semibold text-[var(--text-main)]':'text-[var(--text-sub)]'}">${task.label}</span>
                     </label>`;
                 });
+                const checkBoxesTotal = roleTasksConfig[role].length;
+                const checkBoxesDone = roleTasksConfig[role].filter(task => state.tasks && state.tasks[task.id]).length;
+                const checkBoxesProgress = checkBoxesTotal ? `<div class="flex items-center justify-between text-[10px] font-bold ${checkBoxesDone===checkBoxesTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${checkBoxesDone}/${checkBoxesTotal}</span></div>` : '';
                 let printSummary = [];
                 if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks&&state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(escapeHtml(state.other)); if (!printSummary.length) printSummary.push('Зміна'); } else printSummary.push('—');
 
@@ -1394,8 +1401,9 @@
                             </label>
                         </div>
                         <div class="no-print flex flex-col gap-1 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
+                            ${checkBoxesProgress}
                             ${checkBoxesHtml}
-                            <div class="flex items-center gap-2 mt-1.5">
+                            <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
                                 <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
                                 <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
                             </div>
