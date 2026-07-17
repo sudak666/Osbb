@@ -810,6 +810,7 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .item-more summary{list-style:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(116,116,128,.10);color:var(--brand);cursor:pointer;}
 .item-more summary::-webkit-details-marker{display:none;}
 .item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:16px;box-shadow:0 14px 34px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:2px;}
+.item-more.opens-down .item-more-menu{bottom:auto;top:calc(100% + 8px);}
 .item-more-menu button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--ios-label);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;text-align:left;}
 .item-more-menu button:active,.item-more-menu button:hover{background:var(--ios-gray6);}
 .item-more-menu button.danger{color:var(--ios-red);}

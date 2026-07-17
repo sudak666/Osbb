@@ -1419,11 +1419,23 @@ function closeOpenItemMenus(except=null){
     }
   });
 }
+function positionItemMenu(menu){
+  const panel=menu.querySelector('.item-more-menu');
+  if(!panel) return;
+  menu.classList.remove('opens-down');
+  const summaryRect=menu.getBoundingClientRect();
+  const panelHeight=panel.offsetHeight;
+  const filterBar=document.querySelector('.items-filter-bar');
+  const topBoundary=filterBar?Math.max(0,filterBar.getBoundingClientRect().bottom):0;
+  const spaceAbove=summaryRect.top-topBoundary;
+  const spaceBelow=window.innerHeight-summaryRect.bottom;
+  if(spaceAbove<panelHeight+16 && spaceBelow>spaceAbove) menu.classList.add('opens-down');
+}
 function handleItemMenuToggle(event){
   const menu=event.target;
   if(!menu.matches?.('details.item-more')) return;
   setItemMenuExpanded(menu,menu.open);
-  if(menu.open) closeOpenItemMenus(menu);
+  if(menu.open){ closeOpenItemMenus(menu); positionItemMenu(menu); }
 }
 function handleItemMenuOutsideClick(event){
   if(!event.target.closest?.('details.item-more')) closeOpenItemMenus();
