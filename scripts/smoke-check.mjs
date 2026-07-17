@@ -503,15 +503,17 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 
 
-// Mobile item overflow menus should behave like transient menus: only one open
-// at a time, close on outside click, and return focus to the summary on Escape.
+// Item overflow menus (mobile cards AND the desktop table's kebab menu, which
+// reuses the same details.item-more pattern) should behave like transient
+// menus: only one open at a time, close on outside click, and return focus to
+// the summary on Escape.
 {
   const text = readSkladCombined();
-  const label = 'sklad mobile item overflow menus close predictably';
+  const label = 'sklad item overflow menus close predictably';
   const required = [
     'function setItemMenuExpanded',
     'function closeOpenItemMenus',
-    "document.querySelectorAll('#mobileCards details.item-more[open]')",
+    "document.querySelectorAll('details.item-more[open]')",
     'function handleItemMenuToggle',
     'function handleItemMenuOutsideClick',
     'aria-haspopup="menu" aria-expanded="false"',
@@ -1038,6 +1040,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 // Icon-only Sklad log/receipt/category-filter/delete buttons must expose an
 // aria-label since their only visible content is a Material Symbols icon.
+// (The desktop item-row delete action moved into the item-more menu — see
+// the "table-modern"/kebab-menu pass — where it's a text+icon menuitem, not
+// icon-only, so it no longer needs its own aria-label; not guarded here.)
 {
   const text = readSkladCombined();
   const label = 'sklad icon-only log/receipt/filter/delete buttons expose aria-label';
@@ -1046,7 +1051,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-log-category-filter="Ремонт" aria-label="Фільтр за категорією: Ремонт"',
     'data-log-category-filter="Електрика" aria-label="Фільтр за категорією: Електрика"',
     'data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка"',
-    'data-item-action="delete" data-item-id="${id}" aria-label="Видалити товар"',
     'data-log-action="edit" data-log-id="${l.id}" aria-label="Редагувати запис видачі"',
     'data-log-action="delete" data-log-id="${l.id}" aria-label="Видалити запис видачі"',
     'data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"',
@@ -2485,6 +2489,34 @@ ${sharedSelectText}`;
   } else {
     passed += 1;
     console.log('ok - shared/ui.css exists and is linked from all three entrypoints');
+  }
+}
+
+// Desktop item table row should collapse secondary actions into the same
+// item-more kebab menu the mobile cards already use, instead of a dense row
+// of 7 icon-only buttons — and .table-modern must not clip that menu.
+{
+  const text = readSkladCombined();
+  const label = 'sklad desktop item row uses the shared item-more kebab menu, not a dense icon row';
+  const required = [
+    'data-item-action="quick" data-item-id="${id}"><span class="ms ic-15-3">output</span> Видати',
+    'data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія',
+    '<details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false">',
+    '.table-modern{overflow:visible;}',
+    '.table-modern thead tr:first-child th:first-child{border-top-left-radius:var(--radius-xl);}',
+  ];
+  const forbidden = [
+    'class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"',
+    '.table-modern{overflow:hidden;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || present.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
   }
 }
 

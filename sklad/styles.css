@@ -163,7 +163,13 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-search-field{width:250px;min-width:160px;}
 .items-reset-btn{display:none;padding:7px 10px;}
 .items-reset-icon{font-size:14px;vertical-align:-2px;}
-.table-modern{overflow:hidden;}
+.table-modern{overflow:visible;}
+/* Радіус картки досягається через кути таблиці, а не overflow:hidden — інакше
+   випадне меню дій рядка (.item-more-menu) обрізалось би межею картки. */
+.table-modern thead tr:first-child th:first-child{border-top-left-radius:var(--radius-xl);}
+.table-modern thead tr:first-child th:last-child{border-top-right-radius:var(--radius-xl);}
+.table-modern tbody tr:last-child td:first-child{border-bottom-left-radius:var(--radius-xl);}
+.table-modern tbody tr:last-child td:last-child{border-bottom-right-radius:var(--radius-xl);}
 .table-modern table{border-collapse:separate;border-spacing:0;}
 .table-modern thead th{background:linear-gradient(180deg,var(--surface-2),var(--ios-gray6));}
 .table-modern tbody tr{transition:background var(--motion-base) ease,transform var(--motion-base) var(--ease-out);}

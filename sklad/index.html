@@ -1117,11 +1117,10 @@ function checkAlerts(){
     if(sb){sb.style.display='inline-block';sb.textContent=total;}
     if(bnA){bnA.style.display='inline-block';bnA.textContent=total;}
     banner.style.display='block';
-    let txt='';
-    if(zero>0) txt+=zero+' товар(ів) закінчились';
-    if(zero>0&&low>0) txt+=', ';
-    if(low>0) txt+=low+' товар(ів) на межі';
-    document.getElementById('alertText').textContent=txt;
+    // Розбивку "закінчились"/"на межі" не повторюємо тут словами — вона вже
+    // видна цифрами в картках нижче (insight-grid). Банер лишає одне число й
+    // веде на Статистику, а не дублює той самий факт другий раз.
+    document.getElementById('alertText').textContent='Потребує уваги: '+total+' позицій';
   } else {
     if(sb) sb.style.display='none';
     if(bnA) bnA.style.display='none';
@@ -1388,7 +1387,7 @@ function setItemMenuExpanded(menu,expanded){
   menu?.querySelector('summary')?.setAttribute('aria-expanded', String(expanded));
 }
 function closeOpenItemMenus(except=null){
-  document.querySelectorAll('#mobileCards details.item-more[open]').forEach(menu=>{
+  document.querySelectorAll('details.item-more[open]').forEach(menu=>{
     if(menu!==except){
       menu.removeAttribute('open');
       setItemMenuExpanded(menu,false);
@@ -1397,12 +1396,12 @@ function closeOpenItemMenus(except=null){
 }
 function handleItemMenuToggle(event){
   const menu=event.target;
-  if(!menu.matches?.('#mobileCards details.item-more')) return;
+  if(!menu.matches?.('details.item-more')) return;
   setItemMenuExpanded(menu,menu.open);
   if(menu.open) closeOpenItemMenus(menu);
 }
 function handleItemMenuOutsideClick(event){
-  if(!event.target.closest?.('#mobileCards details.item-more')) closeOpenItemMenus();
+  if(!event.target.closest?.('details.item-more')) closeOpenItemMenus();
 }
 function bindItemActionDelegation(){
   ['itemsTable','mobileCards'].forEach(id=>{
@@ -1557,11 +1556,15 @@ function renderItems(){
       <td><div class="table-row-actions">
         <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms ic-15-3">output</span> Видати</button>
         <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"><span class="ms ic-16">photo_camera</span></button>
-        <button type="button" class="btn ${item.is_internal?'btn-warning':'btn-ghost'} btn-sm tip-up" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}" data-tip="${item.is_internal?'Внутрішнє використання — клік, щоб повернути в баланс':'Позначити: внутрішнє використання (хознужди)'}" aria-label="Внутрішнє використання"><span class="ms ic-16" aria-hidden="true">home_repair_service</span></button>
-        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="manual-price" data-item-id="${id}" data-tip="Ціна" aria-label="Ціна"><span class="ms ic-16">sell</span></button>
-        <button type="button" class="btn btn-ghost btn-sm tip-up" data-item-action="price-lookup" data-item-id="${id}" data-tip="Підтягнути ціну з інтернету" aria-label="Підтягнути ціну з інтернету"><span class="ms ic-16">travel_explore</span></button>
-        <button type="button" class="btn btn-danger btn-sm" data-item-action="delete" data-item-id="${id}" aria-label="Видалити товар"><span class="ms ic-16">delete</span></button>
+        <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
+          <div class="item-more-menu" role="menu">
+            <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
+            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
+            <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
+            <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
+          </div>
+        </details>
       </div></td>
     </tr>`;
   }).join('');
@@ -2890,7 +2893,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key==='Escape'){
-    const openItemMenu=document.querySelector('#mobileCards details.item-more[open]');
+    const openItemMenu=document.querySelector('details.item-more[open]');
     closeOpenItemMenus();
     openItemMenu?.querySelector('summary')?.focus({preventScroll:true});
     closeOpenModals();
