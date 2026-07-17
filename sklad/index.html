@@ -1259,6 +1259,31 @@ function debounce(fn,wait){
     timer=setTimeout(()=>fn(...args),wait);
   };
 }
+const prefersReducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+// Плавно "перемотує" число від поточного значення до нового замість миттєвої
+// заміни тексту — і на першому завантаженні, і на маленьких дельтах після
+// одиничної дії, однаково коротка (380мс) відчутна анімація.
+function animateNumber(el,target,{prefix='',suffix=''}={}){
+  if(!el) return;
+  const targetNum=Number(target)||0;
+  const startNum=Number(el.dataset.animRaw??String(el.textContent||'').replace(/[^\d.-]/g,''))||0;
+  if(prefersReducedMotion()||startNum===targetNum){
+    el.textContent=prefix+targetNum+suffix;
+    el.dataset.animRaw=String(targetNum);
+    return;
+  }
+  const t0=performance.now();
+  const dur=380;
+  function step(now){
+    const p=Math.min(1,(now-t0)/dur);
+    const eased=1-Math.pow(1-p,3);
+    const val=Math.round(startNum+(targetNum-startNum)*eased);
+    el.textContent=prefix+val+suffix;
+    if(p<1) requestAnimationFrame(step);
+    else el.dataset.animRaw=String(targetNum);
+  }
+  requestAnimationFrame(step);
+}
 function bindSkladStaticControls(){
   document.querySelectorAll('[data-auth-pin-key]').forEach(button=>{
     button.addEventListener('click',()=>pinPress(button.dataset.authPinKey));
@@ -1614,10 +1639,10 @@ function renderItems(){
 }
 
 function updateStats(){
-  document.getElementById('st-total').textContent=allItems.length;
-  document.getElementById('st-zero').textContent=allItems.filter(i=>i.quantity==0).length;
-  document.getElementById('st-low').textContent=allItems.filter(i=>i.quantity>0&&i.quantity<=3).length;
-  document.getElementById('st-ok').textContent=allItems.filter(i=>i.quantity>3).length;
+  animateNumber(document.getElementById('st-total'),allItems.length);
+  animateNumber(document.getElementById('st-zero'),allItems.filter(i=>i.quantity==0).length);
+  animateNumber(document.getElementById('st-low'),allItems.filter(i=>i.quantity>0&&i.quantity<=3).length);
+  animateNumber(document.getElementById('st-ok'),allItems.filter(i=>i.quantity>3).length);
 }
 
 // ===== QUICK MODAL =====
