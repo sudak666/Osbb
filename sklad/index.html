@@ -43,7 +43,7 @@ const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable
     <div style="margin-bottom:12px;"><span class="ms ic-48">storefront</span></div>
     <h1>Склад ОСББ</h1>
     <p>Микитська Слобода</p>
-    <div class="auth-dots" id="authDots">
+    <div class="auth-dots">
       <div class="auth-dot" id="d0"></div>
       <div class="auth-dot" id="d1"></div>
       <div class="auth-dot" id="d2"></div>
@@ -330,7 +330,7 @@ async function checkPin(attempt){
         <div class="add-new-section">
           <h3 class="add-section-title"><span class="ms" aria-hidden="true">fiber_new</span> Новий товар</h3>
           <div class="add-new-stack">
-            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" class="new-name-matches"></div><button type="button" class="btn btn-ghost add-scanner-btn" data-sklad-action="barcode-add-open"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканувати штрих-код товару</button><div id="barcodeAddStatus" class="barcode-add-status"></div></div>
+            <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" class="new-name-matches"></div><button type="button" class="btn btn-ghost add-scanner-btn" data-sklad-action="barcode-add-open"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканувати штрих-код товару</button></div>
             <div class="two-col">
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
@@ -2823,9 +2823,6 @@ function safeExternalUrl(value){
   }catch(_){
     return '';
   }
-}
-function jsString(s){
-  return JSON.stringify(String(s ?? ''));
 }
 const toastIcons={success:'check_circle',error:'error',info:'info'};
 function toast(msg,type=''){

@@ -1392,7 +1392,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="add-new-stack"',
     'id="newNameMatches" class="new-name-matches"',
     'class="btn btn-ghost add-scanner-btn"',
-    'id="barcodeAddStatus" class="barcode-add-status"',
     'class="internal-use-toggle"',
     'class="add-side-stack pc-only"',
     'class="card add-help-card"',
