@@ -252,22 +252,6 @@
             </div>
         </div>
 
-        <h3 class="journal-section-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Сміття за місяць</h3>
-        <div class="stat-card journal-stat-card journal-garbage-card p-4 mb-6">
-            <!-- Головний показник — Баки: усе на одній лівій осі, без відриву числа до правого краю -->
-            <div class="mb-3">
-                <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Баків вивезено</span></div>
-                <div class="flex items-baseline gap-2">
-                    <span id="dash-garbage-bins" class="text-4xl font-black text-emerald-500">0</span>
-                    <span class="text-xs text-[var(--text-sub)]">Всього за місяць: <span id="dash-garbage-total" class="font-bold text-[var(--text-main)]">0</span></span>
-                </div>
-            </div>
-            <div class="flex items-center justify-between mb-2 pt-2 border-t border-emerald-500/20 text-xs text-[var(--text-sub)]">
-                <span>Середнє за 3 міс:</span>
-                <span id="dash-garbage-avg" class="font-bold text-emerald-600">—</span>
-            </div>
-            <div id="dash-garbage-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
-        </div>
     </div>
 
     <div id="section-charts" class="hidden mb-6">
@@ -2020,18 +2004,17 @@
         gRenderDaysList();
         gRenderStats();
         gRenderChart();
-        dashGarbageRender();
     }
 
-    // Незалежне завантаження даних сміття для дашборду (без перемикання вкладки)
+    // Незалежне завантаження даних сміття для дашборду (без перемикання вкладки) —
+    // прогріває gData заздалегідь, щоб вкладка "Сміття" відкривалась без затримки.
     async function gInitDashboard() {
         const offlineMig = gMigrateOldData(gLoadOffline());
         const offline = offlineMig.data;
-        if (offline && !gLoaded) { gData = offline; dashGarbageRender(); }
+        if (offline && !gLoaded) gData = offline;
         if (currentTab === 'garbage') return; // вже завантажується через gInitTab
         if (IS_PREVIEW) {
             if (!gLoaded) gData = offline || {};
-            dashGarbageRender();
             return;
         }
         try {
@@ -2045,57 +2028,6 @@
             gData = offline || {};
         }
         await gLoadGarbageYearFromCloud(currentYear);
-        dashGarbageRender();
-    }
-
-    function dashGarbageRender() {
-        const totalEl = document.getElementById('dash-garbage-total');
-        const binsEl = document.getElementById('dash-garbage-bins');
-        const breakdownEl = document.getElementById('dash-garbage-breakdown');
-        const avgEl = document.getElementById('dash-garbage-avg');
-        if (!totalEl || !breakdownEl) return;
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        let total = 0;
-        const byType = {};
-        for (let d = 1; d <= daysInMonth; d++) {
-            const day = String(d).padStart(2,'0');
-            const row = gData[day];
-            if (!row || !row.types) continue;
-            Object.entries(row.types).forEach(([type, cnt]) => {
-                const n = parseInt(cnt) || 0;
-                if (n <= 0) return;
-                if (type === 'bins') total += n;
-                byType[type] = (byType[type] || 0) + n;
-            });
-        }
-        animateNumber(totalEl, total);
-        if (binsEl) animateNumber(binsEl, byType.bins || 0);
-
-        // Середнє за останні 3 місяці (з localStorage)
-        if (avgEl) {
-            let sum3 = 0, count3 = 0;
-            for (let offset = 1; offset <= 3; offset++) {
-                let m = currentMonth - offset;
-                let y = currentYear;
-                if (m < 0) { m += 12; y--; }
-                try {
-                    const d = JSON.parse(localStorage.getItem(`garbage_${y}_${m}`) || '{}');
-                    let monthBins = 0;
-                    Object.values(d).forEach(r => { if (r.types) monthBins += parseInt(r.types.bins)||0; });
-                    if (monthBins > 0) { sum3 += monthBins; count3++; }
-                } catch(e) {}
-            }
-            avgEl.textContent = count3 > 0 ? Math.round(sum3 / count3) : '—';
-        }
-
-        // Решта типів (без баків)
-        const restTypes = { ...byType };
-        delete restTypes.bins;
-        breakdownEl.innerHTML = Object.keys(restTypes).length
-            ? Object.entries(restTypes).sort((a,b) => b[1]-a[1]).map(([k,v]) =>
-                `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">${escapeHtml(gTypeLabels[k]||k)} <span class="font-black">${v}</span></span>`
-              ).join('')
-            : '<span class="text-[var(--text-sub)]">Інших типів немає</span>';
     }
 
     function gToggleDay(day) {

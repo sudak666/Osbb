@@ -1690,7 +1690,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-dashboard-panel"',
     'class="journal-stats-grid"',
     'class="stat-card journal-stat-card role-electrician',
-    'class="stat-card journal-stat-card journal-garbage-card',
     '.journal-title-row {',
     '.journal-action-row {',
     '.journal-tabs-row {',
@@ -1972,11 +1971,9 @@ for (const file of ['index.html', 'osbb/index.html']) {
 
 // Chart/stat renderers should escape labels that can come from stored data.
 {
-  const osbb = readFileSync('osbb/index.html', 'utf8');
   const sklad = readFileSync('sklad/index.html', 'utf8');
   const label = 'dashboard stat labels escape stored text';
   const required = [
-    [osbb, 'escapeHtml(gTypeLabels[k]||k)'],
     [sklad, "const safeCat=escapeHtml(cat||'—');"],
     [sklad, '${safeCat}</span>'],
   ];
