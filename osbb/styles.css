@@ -128,10 +128,17 @@ button.tab-btn:active, button[onclick]:active { transform: scale(0.96); opacity:
 .shadow-md, .shadow-xl, .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; }
 select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2322c55e' stroke-width='2'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 12px; padding-right: 28px !important; }
 
-.mobile-day-card { display: none; }
+/* Календарна сітка днів — тепер основний екранний вигляд Журналу на будь-якій ширині
+   (раніше сітка була лише на мобілці, а десктоп бачив старий таблично-акордеонний список).
+   Стару таблицю лишаємо в DOM (Excel-експорт читає дані напряму з currentMonthData, не з
+   таблиці) і показуємо лише при друку/PDF, де акуратна таблиця зручніша за сітку. */
+.mobile-day-card { display: block; }
+.desktop-table { display: none; }
+@media print {
+    .mobile-day-card { display: none !important; }
+    .desktop-table { display: block !important; }
+}
 @media (max-width: 640px) {
-    .desktop-table { display: none !important; }
-    .mobile-day-card { display: block; }
     body { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
     #desktop-tabs { display: none !important; }
     #bottom-nav { display: flex !important; }
@@ -180,11 +187,13 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
 .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
 .role-card-plumber { background: rgba(59,130,246,0.08); border: 1.5px solid rgba(59,130,246,0.3); }
-/* КАЛЕНДАРНА СІТКА (мобільна) — замінює список карток-акордеонів по днях. Натискання
-   на прямокутник дня відкриває day-detail-modal з усіма ролями/завданнями за цей день. */
-.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 6px; }
+/* КАЛЕНДАРНА СІТКА — основний вигляд Журналу на будь-якій ширині екрана (мобільній і
+   десктопній). Натискання на прямокутник дня відкриває day-detail-modal з усіма
+   ролями/завданнями за цей день. На широких екранах сітка обмежена шириною, щоб клітинки
+   не розтягувались у величезні квадрати. */
+.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 92px)); gap: 6px; margin-bottom: 6px; justify-content: center; }
 .month-grid-weekdays span { text-align: center; font-size: 10px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
-.month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 92px)); gap: 6px; justify-content: center; }
 .month-grid-cell { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
 .month-grid-cell:active { transform: scale(.95); }
