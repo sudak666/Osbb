@@ -988,24 +988,7 @@ function renderAuditList(){
   }).join('');
 }
 
-function onAuditInput(itemId, val){
-  const num=parseFloat(val);
-  auditData[itemId]=(val===''||isNaN(num))?null:num;
-  // перерендеримо тільки stats без повного перерендеру (щоб не загубити фокус)
-  const item=allItems.find(i=>i.id===itemId);
-  if(!item) return;
-  const actual=auditData[itemId];
-  const isCounted=actual!==null;
-  const diff=isCounted?actual-item.quantity:null;
-  const el=document.getElementById('audit_'+itemId);
-  if(!el) return;
-  const row=el.closest('div[style*="border-radius:14px"]');
-  if(!row) return;
-  if(!isCounted){row.style.background='var(--ios-gray6)';row.style.borderColor='var(--ios-sep)';}
-  else if(diff>0){row.style.background='#f0fdf4';row.style.borderColor='#86efac';}
-  else if(diff<0){row.style.background='#fef2f2';row.style.borderColor='#fca5a5';}
-  else{row.style.background='#f0fdf4';row.style.borderColor='#86efac';}
-  // оновлюємо лічильник
+function updateAuditStats(){
   let counted=0,surplus=0,shortage=0;
   allItems.forEach(i=>{
     const v=auditData[i.id];
@@ -1015,8 +998,46 @@ function onAuditInput(itemId, val){
     if(d>0) surplus++;
     else if(d<0) shortage++;
   });
-  document.getElementById('auditStats').textContent=
+  const stats=document.getElementById('auditStats');
+  if(stats) stats.textContent=
     `Перераховано: ${counted}/${allItems.length} · ▲ Надлишок: ${surplus} · ▼ Нестача: ${shortage}`;
+
+  const progress=Math.round((counted/Math.max(allItems.length,1))*100);
+  const progressFill=document.getElementById('auditProgressFill');
+  const progressWrap=document.getElementById('auditProgress');
+  if(progressFill) progressFill.style.width=progress+'%';
+  if(progressWrap) progressWrap.setAttribute('aria-valuenow',String(progress));
+}
+
+function onAuditInput(itemId, val){
+  const num=parseFloat(val);
+  auditData[itemId]=(val===''||isNaN(num))?null:num;
+  // Оновлюємо тільки поточний рядок і статистику, щоб не втрачати фокус у полі вводу.
+  const item=allItems.find(i=>String(i.id)===String(itemId));
+  if(!item){ updateAuditStats(); return; }
+  const actual=auditData[itemId];
+  const isCounted=actual!==null;
+  const diff=isCounted?actual-item.quantity:null;
+  const el=document.getElementById('audit_'+itemId);
+  const row=el?.closest('.audit-item');
+  if(row){
+    row.classList.remove('is-pending','is-surplus','is-shortage','is-match');
+    row.classList.add(!isCounted?'is-pending':diff>0?'is-surplus':diff<0?'is-shortage':'is-match');
+
+    const meta=row.querySelector('.audit-item-meta');
+    const oldDiff=meta?.querySelector('.audit-diff');
+    if(oldDiff) oldDiff.remove();
+    if(meta && isCounted){
+      const diffEl=document.createElement('span');
+      diffEl.className='audit-diff '+(diff<0?'bad':'good');
+      if(diff>0) diffEl.textContent=`▲ +${diff}`;
+      else if(diff<0) diffEl.textContent=`▼ ${diff}`;
+      else diffEl.innerHTML='<span class="ms ic-13-2">check</span> Збігається';
+      meta.appendChild(diffEl);
+      hydrateIcons(diffEl);
+    }
+  }
+  updateAuditStats();
 }
 
 function clearAuditItem(itemId){
