@@ -742,12 +742,6 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .bn-badge{position:absolute;top:4px;right:calc(50% - 20px);background:var(--ios-red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;}
 .bn-label{font-size:10px;letter-spacing:-.1px;}
 
-/* Головна дія (Видача) виділена піднятим заповненим гуртком — щоб у ряду з 5 однакових
-   кнопок око й палець одразу знаходили найчастішу дію, а не читали всі підписи. */
-.bottom-nav .bn-item.bn-item-primary .bn-icon-wrap{width:52px;height:52px;margin-top:-24px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-dark));box-shadow:0 10px 22px rgba(34,197,94,.38),0 2px 6px rgba(0,0,0,.14);}
-.bottom-nav .bn-item.bn-item-primary .bn-icon{color:#fff;font-size:24px;}
-.bn-item-primary .bn-label{font-weight:750;}
-
 /* Mobile item card */
 .m-card{background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.7);backdrop-filter:saturate(160%) blur(18px);-webkit-backdrop-filter:saturate(160%) blur(18px);border-radius:20px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--ios-shadow),0 1px 0 var(--ios-sep);}
 .theme-light .m-card{background:#fff;border-color:rgba(60,60,67,.14);box-shadow:0 8px 22px rgba(15,23,42,.08),0 1px 0 rgba(255,255,255,.8);backdrop-filter:none;-webkit-backdrop-filter:none;}

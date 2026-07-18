@@ -1713,8 +1713,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync('osbb/index.html', 'utf8');
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
-    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true">◐</span>',
-    "document.getElementById('journalThemeIcon').textContent = '◐'",
+    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><svg',
+    'fill="currentColor" stroke="none"/></svg></span><span id="journalThemeLabel"',
   ];
   const forbidden = ['☀️', '🌙'];
   const missing = required.filter(needle => !text.includes(needle));
