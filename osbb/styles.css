@@ -139,7 +139,10 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     .desktop-table { display: block !important; }
 }
 @media (max-width: 640px) {
-    body { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+    /* +24px запасу над висотою самої панелі — розрахунок мав враховувати ще й підняту
+       кнопку "Журнал", яка виступає над баром: без запасу останній ряд календаря
+       заходив під неї. */
+    body { padding-bottom: calc(116px + env(safe-area-inset-bottom)); }
     #desktop-tabs { display: none !important; }
     #bottom-nav { display: flex !important; }
     .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
@@ -163,7 +166,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 /* Головна вкладка (Журнал) виділена піднятим заповненим гуртком — щоб у ряду з 5 однакових
    вкладок око й палець одразу знаходили найчастішу дію, а не читали всі підписи. */
 .mob-tab-icon-wrap { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; }
-#bottom-nav .mob-tab.mob-tab-primary .mob-tab-icon-wrap { width: 44px; height: 44px; margin-top: -20px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); box-shadow: 0 10px 22px rgba(52,199,89,.38), 0 2px 6px rgba(0,0,0,.14); color: #fff; }
+#bottom-nav .mob-tab.mob-tab-primary .mob-tab-icon-wrap { width: 40px; height: 40px; margin-top: -10px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); box-shadow: 0 8px 18px rgba(52,199,89,.34), 0 2px 6px rgba(0,0,0,.14); color: #fff; }
 .mob-tab-primary { font-weight: 800 !important; }
 
 /* Плаваюча заокруглена нижня панель (як капсула), а не суцільна смуга по краю екрана */
