@@ -58,7 +58,7 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 /* Власний sr-only (не покладаємось на Tailwind CDN) — підпис лишається для скрінрідерів,
    але візуально кнопка тепер лише іконка, як у Складі. */
 .journal-theme-toggle .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-.journal-theme-icon { font-size:18px; line-height:1; }
+.journal-theme-icon { font-size:24px; line-height:1; }
 .journal-action-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; position:relative; z-index:1; }
 .journal-calendar-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
 .journal-export-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
@@ -138,9 +138,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     .desktop-table { display: block !important; }
 }
 @media (max-width: 640px) {
-    /* Щедрий запас під плаваючою панеллю — попередніх 116px виявилось замало на
+    /* Щедрий запас під плаваючою панеллю — попередні 92px і 116px виявились замало на
        реальному пристрої (запас краще з надлишком, ніж контент під панеллю). */
-    body { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+    body { padding-bottom: calc(220px + env(safe-area-inset-bottom)); }
     #desktop-tabs { display: none !important; }
     #bottom-nav { display: flex !important; }
     .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
@@ -194,7 +194,10 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
    не розтягувались у величезні квадрати. */
 .month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 92px)); gap: 6px; margin-bottom: 6px; justify-content: center; }
 .month-grid-weekdays span { text-align: center; font-size: 10px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
-.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 92px)); gap: 6px; justify-content: center; margin-bottom: 24px; }
+.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 92px)); gap: 6px; justify-content: center; margin-bottom: 40px; }
+@media (max-width: 640px) {
+    .mobile-day-card { padding-bottom: 40px; }
+}
 .month-grid-cell { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
 .month-grid-cell:active { transform: scale(.95); }
