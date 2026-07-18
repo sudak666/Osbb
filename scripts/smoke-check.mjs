@@ -1090,23 +1090,44 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// The journal day-card, dispatcher card, and garbage day-row disclosure
-// headers are custom <div> "accordion" triggers, not native <button>/
-// <details> — they must expose button/expanded semantics and be keyboard
-// operable, and dispatcher's open-state check must compare same-typed
-// values (a stringified dataset key vs a numeric loop variable is a real
-// bug, not just an a11y gap: it silently never expands).
+// The dispatcher card and garbage day-row disclosure headers are custom
+// <div> "accordion" triggers, not native <button>/<details> — they must
+// expose button/expanded semantics and be keyboard operable, and
+// dispatcher's open-state check must compare same-typed values (a
+// stringified dataset key vs a numeric loop variable is a real bug, not
+// just an a11y gap: it silently never expands).
 {
   const text = readOsbbCombined();
-  const label = 'osbb day-card/dispatcher/garbage disclosure headers are keyboard accessible';
+  const label = 'osbb dispatcher/garbage disclosure headers are keyboard accessible';
   const required = [
-    "header.setAttribute('role', 'button');",
-    "header.setAttribute('aria-controls', `card-body-${d}`);",
-    'const toggleDayCard = () => {',
     "header.setAttribute('role', 'button');\n            header.setAttribute('tabindex', '0');\n            header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');\n            header.setAttribute('aria-controls', `disp-body-${d}`);",
     'role="button" tabindex="0" aria-expanded="${isOpen ? \'true\' : \'false\'}" aria-controls="g-body-${day}"',
     "const trigger = event.target.closest('[data-g-action=\"toggle-day\"]');",
     'dispOpenDays.has(String(d))',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Journal switched from a day-card accordion list to a calendar grid: each
+// day is a native <button> (keyboard-operable for free, no manual
+// role/tabindex plumbing needed) that opens a day-detail-modal dialog.
+{
+  const text = readOsbbCombined();
+  const label = 'osbb journal calendar grid opens an accessible day-detail dialog';
+  const required = [
+    "cell.type = 'button';",
+    "cell.setAttribute('aria-haspopup', 'dialog');",
+    'id="day-detail-modal" class="day-detail-overlay no-print" data-day-detail-backdrop role="dialog" aria-modal="true"',
+    'function openDayDetail(d) {',
+    'function closeDayDetail() {',
+    "if (event.key === 'Escape' && document.getElementById('day-detail-modal')?.classList.contains('open')) closeDayDetail();",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1633,7 +1654,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-mini-stats {',
     '.journal-mini-stat {',
     '.skel-w-date { width: 70px; }',
-    'class="skel skel-bar skel-w-day"',
     'class="skel skel-bar skel-w-main"',
     '.lock-screen { position:fixed;',
     'class="lock-screen"',

@@ -149,6 +149,18 @@
     <button type="button" data-lightbox-action="close" aria-label="Закрити перегляд фото" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-9 h-9 rounded-full flex items-center justify-center transition z-10">✕</button>
 </div>
 
+<!-- МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — відкривається з календарної сітки (sm:hidden), показує зміни/завдання/заявки/фото/коментар обраного дня -->
+<div id="day-detail-modal" class="day-detail-overlay no-print" data-day-detail-backdrop role="dialog" aria-modal="true" aria-labelledby="day-detail-title" tabindex="-1">
+    <div class="day-detail-sheet">
+        <div class="day-detail-sheet-handle" aria-hidden="true"></div>
+        <div class="day-detail-header">
+            <h3 id="day-detail-title" class="day-detail-title"></h3>
+            <button type="button" data-day-detail-close aria-label="Закрити день" class="day-detail-close">✕</button>
+        </div>
+        <div id="day-detail-body" class="day-detail-body"></div>
+    </div>
+</div>
+
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
@@ -191,14 +203,14 @@
             <button type="button" data-osbb-tab="journal" id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-journal"/></svg> Журнал
             </button>
+            <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
+                <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-dispatcher"/></svg> Диспетчер
+            </button>
             <button type="button" data-osbb-tab="charts" id="tab-charts" role="tab" aria-selected="false" aria-controls="section-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-charts"/></svg> Графіки
             </button>
             <button type="button" data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-garbage"/></svg> Сміття
-            </button>
-            <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-dispatcher"/></svg> Диспетчер
             </button>
             <button type="button" data-osbb-tab="chat" id="tab-chat" role="tab" aria-selected="false" aria-controls="section-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
                 <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-chat"/></svg> Чат
@@ -212,14 +224,14 @@
         <button type="button" data-osbb-tab="journal" id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="mob-tab mob-tab-primary flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] mob-active">
             <span class="mob-tab-icon-wrap"><svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-journal"/></svg></span> Журнал
         </button>
+        <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
+            <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-dispatcher"/></svg> Диспетчер
+        </button>
         <button type="button" data-osbb-tab="charts" id="tab-charts-m" role="tab" aria-selected="false" aria-controls="section-charts" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-charts"/></svg> Графіки
         </button>
         <button type="button" data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-garbage"/></svg> Сміття
-        </button>
-        <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-dispatcher"/></svg> Диспетчер
         </button>
         <button type="button" data-osbb-tab="chat" id="tab-chat-m" role="tab" aria-selected="false" aria-controls="section-chat" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
             <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-chat"/></svg> Чат
@@ -276,9 +288,11 @@
     </div>
 
     <div id="mobile-cards" class="mobile-day-card mb-4">
-        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar skel-w-day"></span><span class="skel skel-bar skel-w-count"></span></div></div>
-        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar skel-w-day"></span><span class="skel skel-bar skel-w-count"></span></div></div>
-        <div class="day-card"><div class="day-card-header"><span class="skel skel-bar skel-w-day"></span><span class="skel skel-bar skel-w-count"></span></div></div>
+        <div class="month-grid-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span></div>
+        <div class="month-grid">
+            <div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div>
+            <div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div>
+        </div>
     </div>
 
     <div id="section-journal" class="desktop-table print-card journal-table-shell overflow-hidden">
@@ -1133,150 +1147,144 @@
         });
     })();
 
+    const dayGridRoleColors = { electrician: 'role-card-electrician', janitor: 'role-card-janitor', plumber: 'role-card-plumber' };
+    const dayGridAccentColors = { electrician: 'text-amber-600', janitor: 'text-emerald-600', plumber: 'text-blue-600' };
+
+    // Розмітка для одного дня (ролі + завдання + заявки + фото + коментар) — раніше
+    // рендерилась інлайн під заголовком картки в акордеоні, тепер спільна: викликається
+    // і для модалки календарної сітки (openDayDetail).
+    function buildDayBodyHtml(d) {
+        if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
+        let bodyHtml = '';
+        roles.forEach(role => {
+            const state = currentMonthData[d][role];
+            const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
+            const tasksTotal = roleTasksConfig[role].length;
+            const tasksDone = roleTasksConfig[role].filter(task => state.tasks?.[task.id]).length;
+            let tasksHtml = roleTasksConfig[role].map(task => {
+                const isChecked = state.tasks?.[task.id];
+                const disabled = !state.working;
+                return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
+                    <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
+                        role="checkbox" aria-checked="${isChecked?'true':'false'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?'-1':'0'}"
+                        class="task-check-dot${isChecked?' is-checked':''}">
+                    </span>
+                    <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
+                </label>`;
+            }).join('');
+            const tasksProgress = tasksTotal ? `<div class="flex items-center justify-between text-[10px] font-bold mt-1 ${tasksDone===tasksTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${tasksDone}/${tasksTotal}</span></div>` : '';
+
+            bodyHtml += `<div class="role-card ${dayGridRoleColors[role]} mb-2">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-bold ${dayGridAccentColors[role]}">${roleNames[role]}</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
+                        <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md ${toggleColor} shadow-inner"></div>
+                    </label>
+                </div>
+                <div class="${!state.working?'opacity-40 pointer-events-none':''}">
+                    ${tasksProgress}
+                    ${tasksHtml}
+                    <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
+                        <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
+                        <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
+                    </div>
+                    ${renderOtherField(d, role, state, 'm')}
+                    ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
+                        <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
+                            Камера
+                            <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
+                        </label>
+                        <label class="cursor-pointer text-xs text-purple-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-purple-200 bg-purple-50 active:bg-purple-100">
+                            Галерея
+                            <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
+                        </label>
+                    </div>
+                    <div id="mobile-photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
+                </div>
+            </div>`;
+        });
+
+        bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
+            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
+            <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
+        </div>`;
+        return bodyHtml;
+    }
+
+    function renderDayDetailPhotos(d) {
+        roles.forEach(role => {
+            if (currentMonthData[d]?.[role]?.working) {
+                const photos = getPhotosFromCache(d, role);
+                const cont = document.getElementById(`mobile-photos-${d}-${role}`);
+                if (cont && photos.length) renderPhotoContainer(cont, photos, d, role, true);
+            }
+        });
+    }
+
+    function openDayDetail(d) {
+        const modal = document.getElementById('day-detail-modal');
+        const titleEl = document.getElementById('day-detail-title');
+        const bodyEl = document.getElementById('day-detail-body');
+        if (!modal || !titleEl || !bodyEl) return;
+        const dateObj = new Date(currentYear, currentMonth, d);
+        const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+        titleEl.innerHTML = `${String(d).padStart(2,'0')} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
+        bodyEl.innerHTML = buildDayBodyHtml(d);
+        modal.dataset.day = String(d);
+        modal.classList.add('open');
+        renderDayDetailPhotos(d);
+    }
+
+    function closeDayDetail() {
+        document.getElementById('day-detail-modal')?.classList.remove('open');
+    }
+
     function renderMobileCards() {
         const container = document.getElementById('mobile-cards');
         if (!container) return;
         container.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const roleColors = { electrician: 'role-card-electrician', janitor: 'role-card-janitor', plumber: 'role-card-plumber' };
-        const accentColors = { electrician: 'text-amber-600', janitor: 'text-emerald-600', plumber: 'text-blue-600' };
+        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+        const leadingBlanks = (firstDow + 6) % 7; // тиждень з понеділка
 
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateObj = new Date(currentYear, currentMonth, d);
-            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
-            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
+        const weekdayRow = document.createElement('div');
+        weekdayRow.className = 'month-grid-weekdays';
+        weekdayRow.innerHTML = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map(w => `<span>${w}</span>`).join('');
+        container.appendChild(weekdayRow);
 
-            const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
-            const workingCount = roles.filter(r => currentMonthData[d][r]?.working).length;
+        const grid = document.createElement('div');
+        grid.className = 'month-grid';
+        container.appendChild(grid);
 
-            const isToday  = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            const isFuture = !isToday && new Date(currentYear, currentMonth, d) > new Date(todayYear, todayMonth, todayDay);
-
-            const card = document.createElement('div');
-            card.className = 'day-card' + (isToday ? ' day-card-today' : '');
-
-            const header = document.createElement('div');
-            header.className = `day-card-header ${isWeekend ? 'text-red-500' : ''}`;
-            let statusBadge = '';
-            if (isToday) {
-                statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>СЬОГОДНІ</span>';
-            } else if (isFuture) {
-                statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>Попереду</span>';
-            } else if (anyWorking) {
-                statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingCount} на зміні</span>`;
-            } else {
-                statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
-            }
-            header.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <span>${String(d).padStart(2,'0')} ${dayName.toUpperCase()}</span>
-                    ${statusBadge}
-                </div>
-                <span class="text-xs text-[var(--text-sub)] transition-transform" id="arrow-${d}">▼</span>`;
-            header.setAttribute('role', 'button');
-            header.tabIndex = 0;
-            header.setAttribute('aria-controls', `card-body-${d}`);
-            header.setAttribute('aria-expanded', isToday ? 'true' : 'false');
-            const toggleDayCard = () => {
-                const body = document.getElementById(`card-body-${d}`);
-                const arrow = document.getElementById(`arrow-${d}`);
-                body.classList.toggle('open');
-                const nowOpen = body.classList.contains('open');
-                arrow.style.transform = nowOpen ? 'rotate(180deg)' : '';
-                header.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
-            };
-            header.addEventListener('click', toggleDayCard);
-            header.addEventListener('keydown', (event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                event.preventDefault();
-                toggleDayCard();
-            });
-            card.appendChild(header);
-
-            const body = document.createElement('div');
-            body.className = 'day-card-body';
-            body.id = `card-body-${d}`;
-
-            let bodyHtml = '';
-            roles.forEach(role => {
-                const state = currentMonthData[d][role];
-                const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
-                const tasksTotal = roleTasksConfig[role].length;
-                const tasksDone = roleTasksConfig[role].filter(task => state.tasks?.[task.id]).length;
-                let tasksHtml = roleTasksConfig[role].map(task => {
-                    const isChecked = state.tasks?.[task.id];
-                    const disabled = !state.working;
-                    return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
-                        <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
-                            role="checkbox" aria-checked="${isChecked?'true':'false'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?'-1':'0'}"
-                            class="task-check-dot${isChecked?' is-checked':''}">
-                        </span>
-                        <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
-                    </label>`;
-                }).join('');
-                const tasksProgress = tasksTotal ? `<div class="flex items-center justify-between text-[10px] font-bold mt-1 ${tasksDone===tasksTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${tasksDone}/${tasksTotal}</span></div>` : '';
-
-                bodyHtml += `<div class="role-card ${roleColors[role]} mb-2">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs font-bold ${accentColors[role]}">${roleNames[role]}</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
-                            <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md ${toggleColor} shadow-inner"></div>
-                        </label>
-                    </div>
-                    <div class="${!state.working?'opacity-40 pointer-events-none':''}">
-                        ${tasksProgress}
-                        ${tasksHtml}
-                        <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
-                            <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                            <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
-                        </div>
-                        ${renderOtherField(d, role, state, 'm')}
-                        ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
-                            <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
-                                Камера
-                                <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
-                            </label>
-                            <label class="cursor-pointer text-xs text-purple-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-purple-200 bg-purple-50 active:bg-purple-100">
-                                Галерея
-                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
-                            </label>
-                        </div>
-                        <div id="mobile-photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
-                    </div>
-                </div>`;
-            });
-
-            bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
-                <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
-                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
-            </div>`;
-
-            body.innerHTML = bodyHtml;
-
-            // Сьогоднішній день — відкритий; минулі та майбутні — закриті
-            if (isToday) {
-                body.classList.add('open');
-                // Стрілка теж повертається
-                setTimeout(() => {
-                    const arr = document.getElementById('arrow-' + d);
-                    if (arr) arr.style.transform = 'rotate(180deg)';
-                }, 0);
-            }
-
-            card.appendChild(body);
-            container.appendChild(card);
+        for (let i = 0; i < leadingBlanks; i++) {
+            const blank = document.createElement('div');
+            blank.className = 'month-grid-cell is-empty';
+            blank.setAttribute('aria-hidden', 'true');
+            grid.appendChild(blank);
         }
 
         for (let d = 1; d <= daysInMonth; d++) {
-            roles.forEach(role => {
-                if (currentMonthData[d]?.[role]?.working) {
-                    const photos = getPhotosFromCache(d, role);
-                    const cont = document.getElementById(`mobile-photos-${d}-${role}`);
-                    if (cont && photos.length) renderPhotoContainer(cont, photos, d, role, true);
-                }
-            });
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
+            const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
+            const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+            const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (anyWorking ? ' has-shifts' : '');
+            cell.setAttribute('aria-label', `${d} ${dowLabel}${anyWorking ? ', є зміни' : ', вихідний'} — відкрити день`);
+            cell.setAttribute('aria-haspopup', 'dialog');
+
+            const dotsHtml = roles.filter(r => currentMonthData[d][r]?.working)
+                .map(r => `<span class="month-grid-dot month-grid-dot-${r}"></span>`).join('');
+
+            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${dotsHtml}</span>`;
+            cell.addEventListener('click', () => openDayDetail(d));
+            grid.appendChild(cell);
         }
     }
 
@@ -1614,6 +1622,13 @@
             const handler = handlers[button.dataset.lightboxAction];
             if (handler) button.addEventListener('click', handler);
         });
+        document.querySelector('[data-day-detail-backdrop]')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) closeDayDetail();
+        });
+        document.querySelector('[data-day-detail-close]')?.addEventListener('click', closeDayDetail);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && document.getElementById('day-detail-modal')?.classList.contains('open')) closeDayDetail();
+        });
     }
 
     function bindOsbbPhotoActions() {
@@ -1646,7 +1661,7 @@
     }
 
     function bindJournalEntryActions() {
-        ['mobile-cards', 'calendar-body'].forEach((id) => {
+        ['mobile-cards', 'calendar-body', 'day-detail-body'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('click', (event) => {
