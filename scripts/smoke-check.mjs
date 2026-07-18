@@ -543,7 +543,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
     '.topbar .btn:not(.topbar-right-excel){width:48px;min-width:48px;height:48px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}',
     '.topbar .btn:not(.topbar-right-excel) .ms{font-size:22px!important;vertical-align:middle!important;margin:0!important;}',
-    '.topbar [data-sklad-action="theme"]{display:none!important;}',
+    // Секондарні дії (графік/оцінка цін/прихід/тема) згорнуті в overflow-меню замість
+    // окремих кнопок в ряд — це саме те, що фіксить попередній баг "тема недоступна на мобілці".
+    '<details class="item-more topbar-more">',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1200,10 +1202,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'id="pageTitle" class="topbar-title"',
     'class="ms topbar-title-icon"',
     'class="topbar-actions"',
-    'class="btn btn-ghost btn-sm topbar-right-excel topbar-icon-btn"',
-    'class="btn btn-ghost btn-sm topbar-icon-btn"',
+    'class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr"',
     'class="ms topbar-excel-icon"',
     'class="btn btn-ghost btn-sm topbar-refresh"',
+    '<details class="item-more topbar-more">',
     "icon.className='ms topbar-title-icon'",
     '.topbar-title{white-space:nowrap;',
     '.topbar-actions{display:flex;',
