@@ -2587,7 +2587,7 @@
             const color = colors[Math.abs((msg.author||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
             const isMine = myName && msg.author === myName;
             const deleteBtn = isMine
-                ? `<button type="button" data-chat-delete-id="${msg.id}" title="Видалити" style="margin-left:4px;" class="chat-del-btn text-red-500 hover:text-red-700 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-50 hover:bg-red-100">Видалити</button>`
+                ? `<button type="button" data-chat-delete-id="${msg.id}" data-tip="Видалити" style="margin-left:4px;" class="chat-del-btn text-red-500 hover:text-red-700 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-50 hover:bg-red-100">Видалити</button>`
                 : '';
             return `<div class="flex items-start gap-2.5 group" style="${isMine?'flex-direction:row-reverse;':''}">
                 <div class="w-8 h-8 rounded-full ${color} flex items-center justify-center text-white text-xs font-bold shrink-0">${initials}</div>

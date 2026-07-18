@@ -40,13 +40,16 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `005_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `008_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
 3. `003_add_internal_use_flag.sql` — додає поле `is_internal` до `inventory_items`. Без нього кнопка "Додати товар" впаде з помилкою.
 4. `004_add_price_tracking.sql` — опційні поля ціни (`price_unit`, джерело, URL, час перевірки) в `inventory_items`.
 5. `005_merge_osbb_journal.sql` — увесь журнал ОСББ (`schedule`/`garbage`/`dispatcher`/`chat`/`photos` + PIN-и + RPC + тригер сповіщень чату) в тому ж проєкті.
+6. `006_atomic_stock_issue_receive.sql` — атомарні RPC `issue_item`/`receive_item` для видачі/приходу складу.
+7. `007_enable_realtime.sql` — вмикає Supabase Realtime (`postgres_changes`) на робочих таблицях журналу й складу.
+8. `008_document_undocumented_functions.sql` — документує RPC (`delete_inventory_item`/-`log`/-`receipt`) і Telegram-тригери (`trg_notify_low_stock`/-`log`/-`receipt`), які вже існували в живій базі без SQL-файлу; прибирає мертву таблицю `inventory` (не плутати з `inventory_items`) і переносить розширення `pg_net` зі схеми `public` у `extensions`.
 
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
