@@ -114,8 +114,8 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .journal-action-btn-ghost { background:var(--surface-1); color:var(--text-main); border:1px solid var(--border-subtle); }
 .journal-action-btn-ghost:hover { background:var(--bg-input); }
 
-.day-card, .role-card, .mobile-day-card, .stat-card { border-radius: var(--radius-lg) !important; box-shadow: var(--soft-shadow); }
-.day-card, .mobile-day-card { background: var(--glass-card) !important; backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px); border-color: rgba(255,255,255,0.55) !important; }
+.role-card, .mobile-day-card, .stat-card { border-radius: var(--radius-lg) !important; box-shadow: var(--soft-shadow); }
+.mobile-day-card { background: var(--glass-card) !important; backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px); border-color: rgba(255,255,255,0.55) !important; padding: 14px; }
 input, select, textarea { border-radius: 14px !important; background-color: var(--bg-input) !important; }
 button, .tab-btn, .mob-tab { border-radius: 14px; }
 .lightbox { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
@@ -180,10 +180,38 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
 .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
 .role-card-plumber { background: rgba(59,130,246,0.08); border: 1.5px solid rgba(59,130,246,0.3); }
-.day-card { border-radius: var(--radius-md); overflow: hidden; margin-bottom: 12px; border: 1px solid var(--border); background: var(--bg-card); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.day-card-header { padding: 10px 14px; background: var(--table-header); font-weight: 700; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-.day-card-body { padding: 10px 14px; display: none; }
-.day-card-body.open { display: block; }
+/* КАЛЕНДАРНА СІТКА (мобільна) — замінює список карток-акордеонів по днях. Натискання
+   на прямокутник дня відкриває day-detail-modal з усіма ролями/завданнями за цей день. */
+.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 6px; }
+.month-grid-weekdays span { text-align: center; font-size: 10px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
+.month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.month-grid-cell { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
+.month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
+.month-grid-cell:active { transform: scale(.95); }
+.month-grid-cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.month-grid-cell.is-empty { visibility: hidden; pointer-events: none; cursor: default; }
+.month-grid-cell.is-weekend .month-grid-day { color: #ef4444; }
+.month-grid-cell.is-today { border: 2px solid var(--accent); box-shadow: 0 0 0 3px rgba(52,199,89,.18); }
+.month-grid-cell.has-shifts { background: rgba(52,199,89,.07); }
+.month-grid-day { font-size: 13px; font-weight: 800; line-height: 1; }
+.month-grid-dots { display: flex; gap: 2px; min-height: 5px; }
+.month-grid-dot { width: 5px; height: 5px; border-radius: 50%; }
+.month-grid-dot-electrician { background: #f59e0b; }
+.month-grid-dot-janitor { background: #10b981; }
+.month-grid-dot-plumber { background: #3b82f6; }
+
+/* МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ */
+.day-detail-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 210; align-items: flex-end; justify-content: center; }
+.day-detail-overlay.open { display: flex; }
+.day-detail-sheet { background: var(--bg-card); width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; border-radius: 24px 24px 0 0; padding: 10px 18px 24px; box-shadow: 0 -12px 40px rgba(0,0,0,.25); }
+.day-detail-sheet-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 12px; }
+.day-detail-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; position: sticky; top: 0; background: var(--bg-card); padding-bottom: 8px; z-index: 1; }
+.day-detail-title { font-size: 15px; font-weight: 800; text-transform: capitalize; }
+.day-detail-close { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--surface-1); display: flex; align-items: center; justify-content: center; color: var(--text-sub); }
+@media (min-width: 641px) {
+    .day-detail-overlay { align-items: center; }
+    .day-detail-sheet { border-radius: 24px; max-height: 80vh; }
+}
 .swipe-hint { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.65); color: #fff; padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.9rem; font-weight: 700; pointer-events: none; z-index: 8000; opacity: 0; transition: opacity 0.3s; }
 .swipe-hint.show { opacity: 1; }
 @media print { .no-print { display: none !important; } body { background: white !important; color: black !important; padding: 0 !important; } table { width: 100% !important; border-collapse: collapse !important; } th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; } }
@@ -234,10 +262,6 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 
 /* Підсвічування поточного дня на десктопі — через data-атрибут, щоб уникнути конфлікту з Tailwind */
 tr[data-today="1"] td { background: rgba(52, 199, 89, 0.13) !important; }
-/* Мобільна картка сьогодні */
-.day-card-today { border: 2.5px solid #22c55e !important; box-shadow: 0 0 0 4px rgba(52,199,89,0.18) !important; }
-.day-card-today .day-card-header { background: rgba(52,199,89,0.12) !important; color: #1f7a3d; }
-
 /* Кастомний випадний список — заміна нативного <select>, у якого браузер
    сам малює квадратне спливаюче меню, що не піддається стилізації. */
 .custom-select-wrap { position: relative; display: inline-flex; }
