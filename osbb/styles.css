@@ -103,8 +103,11 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }
 .journal-action-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 12px; border-radius:14px; font-size:14px; font-weight:800; transition:transform .15s ease, background .15s ease, opacity .15s ease; box-shadow:0 1px 2px rgba(0,0,0,.05); }
 .journal-action-btn:hover { transform:scale(1.03); }
-.journal-action-btn-danger { color:#dc2626; border:1px solid rgba(248,113,113,.35); }
+.journal-action-btn-danger { color:#dc2626; border:1px solid rgba(248,113,113,.35); margin-left:6px; }
 .journal-action-btn-danger:hover { background:rgba(239,68,68,.10); }
+/* Дистанціюємо небезпечну дію (Скинути) від нейтральних Excel/PDF, щоб не натиснути її
+   помилково поруч — тонкий розділювач + додатковий відступ, без зміни логіки підтвердження. */
+.journal-action-divider { width:1px; align-self:stretch; min-height:22px; background:var(--border-subtle); margin:0 2px; }
 .journal-action-btn-ghost { background:var(--surface-1); color:var(--text-main); border:1px solid var(--border-subtle); }
 .journal-action-btn-ghost:hover { background:var(--bg-input); }
 
@@ -146,6 +149,12 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .mob-tab { transition: color 0.15s, background 0.15s; -webkit-tap-highlight-color: transparent; }
 .mob-tab.mob-active { color: #22c55e; }
 .mob-tab.mob-active i { stroke: #22c55e; }
+
+/* Головна вкладка (Журнал) виділена піднятим заповненим гуртком — щоб у ряду з 5 однакових
+   вкладок око й палець одразу знаходили найчастішу дію, а не читали всі підписи. */
+.mob-tab-icon-wrap { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; }
+#bottom-nav .mob-tab.mob-tab-primary .mob-tab-icon-wrap { width: 44px; height: 44px; margin-top: -20px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); box-shadow: 0 10px 22px rgba(52,199,89,.38), 0 2px 6px rgba(0,0,0,.14); color: #fff; }
+.mob-tab-primary { font-weight: 800 !important; }
 
 /* Плаваюча заокруглена нижня панель (як капсула), а не суцільна смуга по краю екрана */
 #bottom-nav {
@@ -198,10 +207,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .lock-error { color:#ff453a; font-size:0.72rem; min-height:20px; margin-bottom:28px; text-align:center; }
 .pin-keypad { display:grid; grid-template-columns:repeat(3,80px); grid-template-rows:repeat(4,80px); gap:8px; }
 .pin-modal-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
-.pin-key-label { display:flex; flex-direction:column; align-items:center; line-height:1.1; }
 .pin-key-number { font-size:1.5rem; font-weight:300; }
-.pin-key-letters { font-size:0.5rem; letter-spacing:0.1em; color:rgba(255,255,255,0.35); }
-.pin-key-letters.is-empty { height:8px; }
 .pin-key-action { width:80px; height:80px; border-radius:50%; border:0; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
 .pin-key-delete { background:transparent; color:rgba(255,255,255,0.85); font-size:0.75rem; font-weight:400; letter-spacing:0.01em; }
 .pin-key-cancel { background:rgba(239,68,68,0.15); border:1.5px solid rgba(239,68,68,0.3); font-size:0.85rem; font-weight:700; color:#fca5a5; }
