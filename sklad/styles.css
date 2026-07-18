@@ -446,16 +446,16 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
    тож вона займає весь верхній ряд великою карткою, решта — дрібніша сітка нижче,
    замість 4 однакових прямокутників в ряд. */
 .items-metrics.g4{grid-template-columns:repeat(3,1fr);grid-template-areas:"hero hero hero" "total low ok";}
-.items-metrics .stat-hero{grid-area:hero;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:16px;min-height:auto;padding:22px 26px;}
+.items-metrics .stat-hero{grid-area:hero;min-height:auto;padding:26px 84px 26px 26px;}
 .items-metrics .stat-hero .big{font-size:40px;}
-.items-metrics .stat-hero .lbl{margin-top:0;font-size:13px;max-width:220px;}
+.items-metrics .stat-hero .lbl{font-size:13px;}
 .items-metrics [data-stock-filter="all"]{grid-area:total;}
 .items-metrics [data-stock-filter="low"]{grid-area:low;}
 .items-metrics [data-stock-filter="ok"]{grid-area:ok;}
 @media(max-width:768px){
-  .items-metrics .stat-hero{padding:16px 18px;}
+  .items-metrics .stat-hero{padding:18px 66px 18px 18px;}
   .items-metrics .stat-hero .big{font-size:30px;}
-  .items-metrics .stat-hero .lbl{font-size:11px;max-width:150px;}
+  .items-metrics .stat-hero .lbl{font-size:11px;}
 }
 
 /* TABLE */
