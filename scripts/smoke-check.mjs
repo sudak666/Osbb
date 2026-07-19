@@ -19,11 +19,15 @@ function readOsbbCombined() {
   return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + SHARED_JS_CSS;
 }
 
+function readShellCombined() {
+  return readFileSync('index.html', 'utf8') + '\n' + readFileSync('src/shell.ts', 'utf8') + '\n' + readFileSync('styles.css', 'utf8') + SHARED_JS_CSS;
+}
+
 const checks = [
-  ['index.html', 'verify_lock_pin', 'shell PIN uses server RPC'],
-  ['index.html', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
-  ['index.html', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
-  ['index.html', 'navigator.serviceWorker.register', 'shell registers service worker'],
+  ['shell', 'verify_lock_pin', 'shell PIN uses server RPC'],
+  ['shell', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
+  ['shell', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
+  ['shell', 'navigator.serviceWorker.register', 'shell registers service worker'],
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
@@ -36,8 +40,8 @@ const checks = [
   ['index.html', 'role="tablist" aria-label="Розділи застосунку"', 'shell tabs expose tablist semantics'],
   ['index.html', 'data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page"', 'shell active tab exposes tab semantics'],
   ['index.html', 'role="tabpanel" aria-labelledby="shell-tab-journal"', 'shell frame exposes tabpanel semantics'],
-  ['index.html', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
-  ['index.html', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
+  ['shell', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
+  ['shell', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
   ['osbb/index.html', 'id="desktop-tabs" class="flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
@@ -135,7 +139,7 @@ for (const file of allFiles) {
 }
 
 for (const [file, needle, label] of checks) {
-  const text = readFileSync(file, 'utf8');
+  const text = file === 'shell' ? readShellCombined() : readFileSync(file, 'utf8');
   if (text.includes(needle)) {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -187,7 +191,7 @@ for (const [file, needle, label] of checks) {
 // records when auth was granted, validates the timestamp before unlock, and
 // clears both keys when the session is stale or explicitly locked.
 {
-  const text = readFileSync('index.html', 'utf8');
+  const text = readShellCombined();
   const label = 'shell auth session has TTL';
   const required = [
     'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
