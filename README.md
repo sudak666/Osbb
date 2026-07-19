@@ -8,9 +8,12 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 | Шлях | Призначення |
 | --- | --- |
-| `index.html` | Головна shell-оболонка з PIN-входом, вкладками та iframe-завантаженням модулів. |
+| `index.html` | Головна shell-оболонка з PIN-входом, вкладками та iframe-завантаженням модулів; підключає TypeScript entrypoint `src/shell.ts` через Vite. |
 | `osbb/index.html` | Журнал ОСББ: чергування, сміття, диспетчер, фото, чат і локальний офлайн-кеш. |
 | `sklad/index.html` | Склад: товари, видача, приходи, інвентаризація, фото, QR, графіки та Excel-експорт. |
+| `src/shell.ts`, `src/shell-state.ts`, `src/auth-session.ts`, `src/supabase-api.ts` | TypeScript-шар головної shell-оболонки: DOM-контролер, стор стану, TTL сесії та typed RPC helper. |
+| `src/database.types.ts` | Базові TypeScript-типи Supabase-сутностей і RPC, підготовлені до заміни на автоматично згенеровані типи зі схеми. |
+| `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
@@ -111,7 +114,41 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 
 ## Автоматичні smoke-перевірки
 
-У репозиторії є легкий smoke-check без залежностей, який перевіряє наявність критичних RPC, PIN-flow, iframe-завантаження модулів і scoped service-worker cleanup:
+У репозиторії є легкий smoke-check без залежностей, який перевіряє наявність критичних RPC, PIN-flow, iframe-завантаження модулів і scoped service-worker cleanup. Після старту міграції shell-оболонки на Vite + TypeScript частина перевірок читає і `index.html`, і `src/shell.ts`:
 
 ```bash
 node scripts/smoke-check.mjs
+```
+
+Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. `test:unit` запускає перші реальні unit-тести для pure auth/store логіки без зовнішніх залежностей, а `build` збирає `dist/` для GitHub Pages:
+
+```bash
+npm install
+npm run typecheck
+npm run test:unit
+npm run smoke
+npm run build
+```
+
+## GitHub Pages deploy
+
+`.github/workflows/pages.yml` на кожен PR збирає preview-artifact (`npm install` → `npm run test` → `npm run build` → upload `dist/`), а після push у `main` деплоїть той самий `dist/` через GitHub Pages. Після Vite-міграції це важливо: production має отримувати зібраний JavaScript, а не сирий `src/shell.ts`.
+
+`npm run build` після `vite build` запускає `scripts/copy-static-assets.mjs`, який докладає до `dist/` PWA/service-worker файли (`sw.js`, `manifest.json`, іконки та відповідні файли `osbb/`/`sklad/`).
+
+## Можливий професійний перепис
+
+Проєкт почав поступовий перехід на сучасний production-стек із shell-оболонки: її runtime-логіку винесено в `src/shell.ts`, стан і сесію розділено в окремі TypeScript-модулі, а Vite + TypeScript додані як build-шар. Повний перенос журналу й складу все ще не є точковим рефакторингом поточних HTML-файлів, а окремим етапом перепису. Поточна архітектура навмисно проста: статичні сторінки без збірки, спільний PIN і ручне виконання SQL-файлів. Для масштабу одного будинку це зменшує вартість підтримки, але має зрозумілі межі.
+
+Раціональний цільовий стек для такого перепису:
+
+- **Vite + TypeScript** замість Tailwind CDN і inline JavaScript. TypeScript-типи варто генерувати зі схеми Supabase, щоб `inventory_items`, `schedule`, `garbage`, `dispatcher`, `chat` та інші сутності не описувались вручну.
+- **Компонентний UI** на React/Vue/Svelte. У цьому масштабі Svelte був би достатньо легким варіантом: `CustomSelect`, `Tooltip`, `StatTile`, skeleton-заглушки, нижня навігація та інші патерни стали б компонентами замість повторюваних HTML-шаблонів у `renderX()`.
+- **Явний стан застосунку** замість глобальних змінних на кшталт `allItems`, `currentMonth`, `hideInternal`, `onlyInternal`. Для Svelte це можуть бути вбудовані stores; для React — Zustand або інший малий стор.
+- **Нормальні тести**: Vitest для чистої логіки, Testing Library для компонентів і Playwright для e2e-сценаріїв на кшталт входу по PIN, видачі зі складу, інвентаризації та скидання місяця.
+- **CI/CD** у GitHub Actions: lint, typecheck, unit/component/e2e тести й preview-деплой на кожен PR.
+- **Supabase Auth і реальні RLS-політики** замість спільного PIN та `using(true)`: користувачі, ролі, `auth.uid()`, аудит конкретної особи, яка виконала дію.
+- **Supabase CLI migrations** у стандартній папці `supabase/migrations/` з timestamp-файлами, які накочуються автоматично, замість ручного копіювання `sklad/supabase/00X_*.sql` у SQL Editor.
+- **Секрети в Supabase Edge Function secrets** для серверних токенів, зокрема Telegram bot-токена, а не в таблицях бази.
+
+Головний компроміс — вартість. Такий перехід має сенс, якщо зʼявляються кілька будинків, більше співробітників, вимога аудиту дій, регулярні релізи або потреба безпечно делегувати доступ різним ролям. Якщо ж застосунок лишається інструментом для одного ОСББ і малої довіреної команди, поточний підхід може бути виправданим, а безпечніший шлях — робити точкові покращення: не дублювати спільний UI, додавати smoke-перевірки, документувати SQL-зміни й поступово виносити найризикованішу логіку на серверні RPC.
