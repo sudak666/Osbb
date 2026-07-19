@@ -17,6 +17,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:runtime
       - run: npm run test:unit
+      - run: npm run test:migrations
       - run: npm run smoke
 
   typecheck-edge-functions:

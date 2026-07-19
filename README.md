@@ -54,6 +54,8 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 7. `007_enable_realtime.sql` — вмикає Supabase Realtime (`postgres_changes`) на робочих таблицях журналу й складу.
 8. `008_document_undocumented_functions.sql` — документує RPC (`delete_inventory_item`/-`log`/-`receipt`) і Telegram-тригери (`trg_notify_low_stock`/-`log`/-`receipt`), які вже існували в живій базі без SQL-файлу; прибирає мертву таблицю `inventory` (не плутати з `inventory_items`) і переносить розширення `pg_net` зі схеми `public` у `extensions`.
 
+`supabase/migrations/` тепер містить timestamp-дзеркала цих самих `001_...` → `008_...` SQL-файлів у форматі Supabase CLI. Поки історичні файли в `sklad/supabase/` лишаються основним людським джерелом правди, `npm run test:migrations` перевіряє, що CLI-міграції не роз'їхались із ними. Коли проєкт повністю перейде на Supabase CLI, нові зміни БД треба додавати одразу як нові timestamp-файли в `supabase/migrations/`, а не як ручні SQL snippets.
+
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
 Перед production-використанням замініть прикладові PIN-и у SQL-файлах на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), скидання місяця, видалення фото/чату та видалення складських записів.
