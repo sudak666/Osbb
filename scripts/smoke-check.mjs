@@ -23,6 +23,7 @@ function readShellCombined() {
   return [
     'index.html',
     'src/shell.ts',
+    'src/shell-controller.ts',
     'src/shell-state.ts',
     'src/auth-session.ts',
     'src/supabase-api.ts',
@@ -2507,7 +2508,7 @@ ${sharedSelectText}`;
 {
   const label = 'shell uses browser-runnable JavaScript runtime fallback';
   const index = readFileSync('index.html', 'utf8');
-  const requiredFiles = ['src/shell.js', 'src/auth-session.js', 'src/shell-state.js', 'src/supabase-api.js'];
+  const requiredFiles = ['src/shell.js', 'src/shell-controller.js', 'src/auth-session.js', 'src/shell-state.js', 'src/supabase-api.js'];
   const missing = [];
   if (!index.includes('src="src/shell.js"')) missing.push('index.html:src/shell.js');
   if (index.includes('src="/src/shell.ts"') || index.includes('src="src/shell.ts"')) missing.push('index.html:raw TypeScript module');
