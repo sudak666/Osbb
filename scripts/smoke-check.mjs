@@ -2478,6 +2478,40 @@ ${sharedSelectText}`;
 
 
 
+
+// Vite/GitHub Pages build invariants: GitHub Pages serves this project under
+// /Osbb/, and the Vite build must include all three HTML entrypoints plus the
+// PWA/service-worker files copied into dist/ after bundling.
+{
+  const label = 'Vite Pages build uses /Osbb/ base, MPA inputs, and postbuild static copy';
+  const vite = readFileSync('vite.config.ts', 'utf8');
+  const pkg = readFileSync('package.json', 'utf8');
+  const pages = readFileSync('.github/workflows/pages.yml', 'utf8');
+  const copy = readFileSync('scripts/copy-static-assets.mjs', 'utf8');
+  const required = [
+    [vite, "base: '/Osbb/'", 'vite.config.ts:base'],
+    [vite, "main: 'index.html'", 'vite.config.ts:main input'],
+    [vite, "osbb: 'osbb/index.html'", 'vite.config.ts:osbb input'],
+    [vite, "sklad: 'sklad/index.html'", 'vite.config.ts:sklad input'],
+    [pkg, 'vite build && node scripts/copy-static-assets.mjs', 'package.json:postbuild copy'],
+    [pages, 'npm run test', '.github/workflows/pages.yml:test'],
+    [pages, 'npm run build', '.github/workflows/pages.yml:build'],
+    [pages, 'actions/upload-pages-artifact@v3', '.github/workflows/pages.yml:artifact'],
+    [pages, 'actions/deploy-pages@v4', '.github/workflows/pages.yml:deploy'],
+    [copy, "'sw.js'", 'copy-static-assets.mjs:root sw'],
+    [copy, "'osbb/sw.js'", 'copy-static-assets.mjs:osbb sw'],
+    [copy, "'sklad/sw.js'", 'copy-static-assets.mjs:sklad sw'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, , name]) => name);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shared enhance-select helper should be used by journal and sklad instead of duplicated inline copies.
 {
   const missing = [];
