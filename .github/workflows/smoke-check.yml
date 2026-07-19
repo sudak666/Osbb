@@ -6,14 +6,17 @@ on:
   pull_request:
 
 jobs:
-  smoke-check:
+  frontend-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: node scripts/smoke-check.mjs
+          node-version: 24
+      - run: npm install -g typescript
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run smoke
 
   typecheck-edge-functions:
     runs-on: ubuntu-latest
@@ -26,7 +29,7 @@ jobs:
       - name: tsc --strict against a minimal Deno shim (no Deno CLI needed)
         run: |
           cd sklad/supabase/functions
-          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
+          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck --ignoreConfig \
             _typecheck/deno-shim.d.ts notify-telegram/index.ts
-          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
+          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck --ignoreConfig \
             _typecheck/deno-shim.d.ts fetch-item-prices/index.ts
