@@ -13,7 +13,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `sklad/index.html` | Склад: товари, видача, приходи, інвентаризація, фото, QR, графіки та Excel-експорт. |
 | `src/shell.ts`, `src/shell-state.ts`, `src/auth-session.ts`, `src/supabase-api.ts` | TypeScript-шар головної shell-оболонки: DOM-контролер, стор стану, TTL сесії та typed RPC helper. |
 | `src/database.types.ts` | Базові TypeScript-типи Supabase-сутностей і RPC, підготовлені до заміни на автоматично згенеровані типи зі схеми. |
-| `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки. |
+| `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
@@ -120,7 +120,7 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 node scripts/smoke-check.mjs
 ```
 
-Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. `test:unit` запускає перші реальні unit-тести для pure auth/store логіки без зовнішніх залежностей:
+Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. `test:unit` запускає перші реальні unit-тести для pure auth/store логіки без зовнішніх залежностей, а `build` збирає `dist/` для GitHub Pages:
 
 ```bash
 npm install
@@ -129,6 +129,12 @@ npm run test:unit
 npm run smoke
 npm run build
 ```
+
+## GitHub Pages deploy
+
+`.github/workflows/pages.yml` на кожен PR збирає preview-artifact (`npm install` → `npm run test` → `npm run build` → upload `dist/`), а після push у `main` деплоїть той самий `dist/` через GitHub Pages. Після Vite-міграції це важливо: production має отримувати зібраний JavaScript, а не сирий `src/shell.ts`.
+
+`npm run build` після `vite build` запускає `scripts/copy-static-assets.mjs`, який докладає до `dist/` PWA/service-worker файли (`sw.js`, `manifest.json`, іконки та відповідні файли `osbb/`/`sklad/`).
 
 ## Можливий професійний перепис
 
