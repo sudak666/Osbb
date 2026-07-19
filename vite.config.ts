@@ -6,6 +6,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
+        osbb: 'osbb/index.html',
+        sklad: 'sklad/index.html',
       },
     },
   },
