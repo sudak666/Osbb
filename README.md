@@ -120,11 +120,13 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 node scripts/smoke-check.mjs
 ```
 
-Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти:
+Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. `test:unit` запускає перші реальні unit-тести для pure auth/store логіки без зовнішніх залежностей:
 
 ```bash
 npm install
 npm run typecheck
+npm run test:unit
+npm run smoke
 npm run build
 ```
 

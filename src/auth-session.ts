@@ -1,4 +1,4 @@
-import { AUTH_TTL_MS } from './shell-state';
+import { AUTH_TTL_MS } from './shell-state.ts';
 
 const AUTH_KEY = 'auth';
 const AUTH_AT_KEY = 'auth_at';

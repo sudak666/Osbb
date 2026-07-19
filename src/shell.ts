@@ -1,6 +1,6 @@
-import { clearAuthSession, isAuthSessionValid, setAuthSession } from './auth-session';
-import { rpc } from './supabase-api';
-import { IDLE_LOCK_MS, isShellTabName, ShellStore, type ShellTabName, TAB_SRC } from './shell-state';
+import { clearAuthSession, isAuthSessionValid, setAuthSession } from './auth-session.ts';
+import { rpc } from './supabase-api.ts';
+import { IDLE_LOCK_MS, isShellTabName, ShellStore, type ShellTabName, TAB_SRC } from './shell-state.ts';
 
 const store = new ShellStore();
 
