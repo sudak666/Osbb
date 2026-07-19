@@ -2480,6 +2480,26 @@ ${sharedSelectText}`;
 
 
 
+
+// Build tooling should not float on latest: a TypeScript/Vite major release can
+// break CI without any repository change. Keep exact versions until dependency
+// updates are handled deliberately.
+{
+  const label = 'frontend build tooling uses pinned devDependency versions';
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+  const deps = pkg.devDependencies || {};
+  const offenders = Object.entries(deps)
+    .filter(([name, version]) => ['typescript', 'vite'].includes(name) && (version === 'latest' || String(version).startsWith('^') || String(version).startsWith('~')))
+    .map(([name, version]) => `${name}@${version}`);
+  if (offenders.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (floating: ${offenders.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // The production shell must have a plain-JavaScript runtime fallback because
 // GitHub Pages may briefly serve repository-root files before/without the
 // Actions-built dist artifact. If index.html points at raw .ts, PIN buttons do

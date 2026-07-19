@@ -14,7 +14,7 @@
     "test:runtime": "node --check src/shell.js && node --check src/auth-session.js && node --check src/shell-state.js && node --check src/supabase-api.js"
   },
   "devDependencies": {
-    "typescript": "latest",
-    "vite": "latest"
+    "typescript": "5.8.3",
+    "vite": "6.3.5"
   }
 }

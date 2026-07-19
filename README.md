@@ -120,7 +120,7 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 node scripts/smoke-check.mjs
 ```
 
-Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. `test:runtime` перевіряє browser-runnable JS fallback для shell, `test:unit` запускає unit-тести для pure auth/store логіки без зовнішніх залежностей, а `build` збирає `dist/` для GitHub Pages:
+Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. DevDependencies навмисно pinned exact versions, а не `latest`, щоб CI не ламався від неочікуваних major-релізів TypeScript/Vite. `test:runtime` перевіряє browser-runnable JS fallback для shell, `test:unit` запускає unit-тести для pure auth/store логіки без зовнішніх залежностей, а `build` збирає `dist/` для GitHub Pages:
 
 ```bash
 npm install
