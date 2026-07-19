@@ -15,6 +15,7 @@ jobs:
           node-version: 24
       - run: npm install -g typescript
       - run: npm run typecheck
+      - run: npm run test:runtime
       - run: npm run test:unit
       - run: npm run smoke
 
