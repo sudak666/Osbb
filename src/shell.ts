@@ -46,7 +46,7 @@ async function lockPress(digit: string | undefined): Promise<void> {
         const attempt = store.lockBuf;
         store.setBusy(true);
         let ok = false;
-        try { ok = Boolean(await rpc<boolean>('verify_lock_pin', { attempt })); } catch { ok = false; }
+        try { ok = Boolean(await rpc('verify_lock_pin', { attempt })); } catch { ok = false; }
 
         if (ok) {
             store.resetFailures();
