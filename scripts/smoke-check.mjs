@@ -20,7 +20,14 @@ function readOsbbCombined() {
 }
 
 function readShellCombined() {
-  return readFileSync('index.html', 'utf8') + '\n' + readFileSync('src/shell.ts', 'utf8') + '\n' + readFileSync('styles.css', 'utf8') + SHARED_JS_CSS;
+  return [
+    'index.html',
+    'src/shell.ts',
+    'src/shell-state.ts',
+    'src/auth-session.ts',
+    'src/supabase-api.ts',
+    'styles.css'
+  ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
 
 const checks = [
@@ -195,9 +202,9 @@ for (const [file, needle, label] of checks) {
   const label = 'shell auth session has TTL';
   const required = [
     'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
-    "sessionStorage.setItem('auth_at', String(Date.now()))",
+    "storage.setItem(AUTH_AT_KEY, String(now))",
     'function isAuthSessionValid',
-    'Date.now() - authAt >= AUTH_TTL_MS',
+    'now - authAt >= AUTH_TTL_MS',
     'clearAuthSession();',
     'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',

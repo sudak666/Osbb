@@ -9,7 +9,7 @@
 - `osbb/index.html` (~2600 рядків) — Журнал: чергування, сміття, диспетчер, чат. Акцент — зелений (`#34c759` світла тема / `#30d158` темна).
 - `sklad/index.html` (~2100+ рядків) — Склад: товари, видача, інвентаризація. Теж зелений акцент (уніфіковано в липні 2026, раніше був синій).
 
-Для shell-оболонки є мінімальний build-step (`package.json`, `tsconfig.json`, `vite.config.ts`, `src/shell.ts`). `osbb/index.html` і `sklad/index.html` поки лишаються великими HTML-файлами без компонентного фреймворку; не переносити їх на React/Vue/Svelte без явного запиту, бо це вже повний rewrite.
+Для shell-оболонки є мінімальний build-step (`package.json`, `tsconfig.json`, `vite.config.ts`) і typed modules (`src/shell.ts`, `src/shell-state.ts`, `src/auth-session.ts`, `src/supabase-api.ts`, `src/database.types.ts`). `osbb/index.html` і `sklad/index.html` поки лишаються великими HTML-файлами без компонентного фреймворку; не переносити їх на React/Vue/Svelte без явного запиту, бо це вже повний rewrite.
 
 ## Усталені патерни дизайн-системи (не винаходити заново)
 

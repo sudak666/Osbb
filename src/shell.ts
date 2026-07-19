@@ -1,51 +1,13 @@
-type ShellTabName = 'journal' | 'sklad';
-type RpcParams = Record<string, unknown>;
+import { clearAuthSession, isAuthSessionValid, setAuthSession } from './auth-session';
+import { rpc } from './supabase-api';
+import { IDLE_LOCK_MS, isShellTabName, ShellStore, type ShellTabName, TAB_SRC } from './shell-state';
 
-const SUPABASE_URL = 'https://vkwkyhjjjmcpmiakxohw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9';
-
-async function rpc<T = unknown>(fn: string, params: RpcParams = {}): Promise<T | null> {
-    const r = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
-        method: 'POST',
-        headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(params)
-    });
-    const txt = await r.text();
-    if (!r.ok) throw new Error(txt || r.statusText);
-    return txt ? JSON.parse(txt) as T : null;
-}
-
-const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
-let lockBuf = '';
-let lockBusy = false;
-let lockFails = 0;
+const store = new ShellStore();
 
 function requireElement<T extends HTMLElement>(id: string): T {
     const element = document.getElementById(id);
     if (!element) throw new Error(`Missing shell element: ${id}`);
     return element as T;
-}
-
-function setAuthSession(): void {
-    sessionStorage.setItem('auth', 'ok');
-    sessionStorage.setItem('auth_at', String(Date.now()));
-}
-function clearAuthSession(): void {
-    sessionStorage.removeItem('auth');
-    sessionStorage.removeItem('auth_at');
-}
-function isAuthSessionValid(): boolean {
-    if (sessionStorage.getItem('auth') !== 'ok') return false;
-    const authAt = Number(sessionStorage.getItem('auth_at') || 0);
-    if (!authAt || Date.now() - authAt >= AUTH_TTL_MS) {
-        clearAuthSession();
-        return false;
-    }
-    return true;
 }
 
 function unlockShell(): void {
@@ -60,7 +22,7 @@ function lockUpdateDots(): void {
     for (let i = 0; i < 4; i++) {
         const dot = document.getElementById('lock-d' + i);
         if (!dot) continue;
-        if (i < lockBuf.length) {
+        if (i < store.lockBuf.length) {
             dot.classList.add('filled');
         } else {
             dot.classList.remove('filled');
@@ -69,36 +31,35 @@ function lockUpdateDots(): void {
 }
 
 function lockDel(): void {
-    if (lockBusy) return;
-    if (lockBuf.length > 0) lockBuf = lockBuf.slice(0, -1);
+    store.deleteDigit();
     const err = document.getElementById('lock-err');
     if (err) err.textContent = '';
     lockUpdateDots();
 }
 
 async function lockPress(digit: string | undefined): Promise<void> {
-    if (!digit || lockBusy || lockBuf.length >= 4) return;
-    lockBuf += digit;
+    if (!digit || store.lockBusy || store.lockBuf.length >= 4) return;
+    store.pushDigit(digit);
     lockUpdateDots();
 
-    if (lockBuf.length === 4) {
-        const attempt = lockBuf;
-        lockBusy = true;
+    if (store.lockBuf.length === 4) {
+        const attempt = store.lockBuf;
+        store.setBusy(true);
         let ok = false;
         try { ok = Boolean(await rpc<boolean>('verify_lock_pin', { attempt })); } catch { ok = false; }
 
         if (ok) {
-            lockFails = 0;
-            lockBusy = false;
+            store.resetFailures();
+            store.setBusy(false);
             setAuthSession();
             resetIdleLockTimer();
-            lockBuf = '';
+            store.clearPin();
             unlockShell();
         } else {
             const err = document.getElementById('lock-err');
             if (err) err.textContent = 'Невірний PIN, спробуйте ще';
-            lockFails++;
-            lockBuf = '';
+            const lockFails = store.recordFailure();
+            store.clearPin();
             lockUpdateDots();
 
             // Нативний ефект трясіння крапок пароля при помилці
@@ -112,7 +73,7 @@ async function lockPress(digit: string | undefined): Promise<void> {
 
             const lockout = Math.min(lockFails * 500, 5000);
             setTimeout(() => {
-                lockBusy = false;
+                store.setBusy(false);
                 const currentErr = document.getElementById('lock-err');
                 if (currentErr) currentErr.textContent = '';
             }, lockout);
@@ -120,28 +81,17 @@ async function lockPress(digit: string | undefined): Promise<void> {
     }
 }
 
-const TAB_SRC: Record<ShellTabName, string> = {
-    journal: 'osbb/index.html?embed=1',
-    sklad: 'sklad/index.html?embed=1'
-};
-const loadedTabs: Partial<Record<ShellTabName, boolean>> = {};
-
-function isShellTabName(name: string | undefined): name is ShellTabName {
-    return name === 'journal' || name === 'sklad';
-}
-
 function loadTab(name: ShellTabName): void {
     const frame = document.getElementById('frame-' + name) as HTMLIFrameElement | null;
-    if (frame && !loadedTabs[name]) {
+    if (frame && !store.isTabLoaded(name)) {
         frame.src = TAB_SRC[name];
-        loadedTabs[name] = true;
+        store.markTabLoaded(name);
     }
 }
 
 function lockShellNow(): void {
     clearAuthSession();
-    lockBuf = '';
-    lockBusy = false;
+    store.resetLock();
     lockUpdateDots();
     const err = document.getElementById('lock-err');
     if (err) err.textContent = '';
@@ -150,7 +100,6 @@ function lockShellNow(): void {
     if (lockScreen) lockScreen.style.display = 'flex';
 }
 
-const IDLE_LOCK_MS = 15 * 60 * 1000;
 let idleLockTimer: ReturnType<typeof setTimeout> | undefined;
 function resetIdleLockTimer(): void {
     if (idleLockTimer) clearTimeout(idleLockTimer);
