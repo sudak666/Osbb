@@ -1,0 +1,7 @@
+project_id = "vkwkyhjjjmcpmiakxohw"
+
+[functions.notify-telegram]
+verify_jwt = false
+
+[functions.fetch-item-prices]
+verify_jwt = false
