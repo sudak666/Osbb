@@ -6,6 +6,7 @@ const fallbackPairs = [
   ['src/auth-session.ts', 'src/auth-session.js'],
   ['src/shell-state.ts', 'src/shell-state.js'],
   ['src/supabase-api.ts', 'src/supabase-api.js'],
+  ['src/shell-controller.ts', 'src/shell-controller.js'],
   ['src/shell.ts', 'src/shell.js'],
 ];
 
