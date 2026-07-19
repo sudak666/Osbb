@@ -120,11 +120,12 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 node scripts/smoke-check.mjs
 ```
 
-Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. `test:unit` запускає перші реальні unit-тести для pure auth/store логіки без зовнішніх залежностей, а `build` збирає `dist/` для GitHub Pages:
+Для нового TypeScript-шару shell-оболонки також доступні npm-скрипти. `test:runtime` перевіряє browser-runnable JS fallback для shell, `test:unit` запускає unit-тести для pure auth/store логіки без зовнішніх залежностей, а `build` збирає `dist/` для GitHub Pages:
 
 ```bash
 npm install
 npm run typecheck
+npm run test:runtime
 npm run test:unit
 npm run smoke
 npm run build
@@ -132,7 +133,7 @@ npm run build
 
 ## GitHub Pages deploy
 
-`.github/workflows/pages.yml` на кожен PR збирає preview-artifact (`npm install` → `npm run test` → `npm run build` → upload `dist/`), а після push у `main` деплоїть той самий `dist/` через GitHub Pages. Vite збирається з `base: '/Osbb/'`, бо це project site під шляхом `/Osbb/`, а не root-домен. Після Vite-міграції це важливо: production має отримувати зібраний JavaScript, а не сирий `src/shell.ts`.
+`.github/workflows/pages.yml` на кожен PR збирає preview-artifact (`npm install` → `npm run test` → `npm run build` → upload `dist/`), а після push у `main` деплоїть той самий `dist/` через GitHub Pages. Vite збирається з `base: '/Osbb/'`, бо це project site під шляхом `/Osbb/`, а не root-домен. Після Vite-міграції це важливо: production має отримувати зібраний JavaScript, а не сирий `src/shell.ts`. До повного перемикання Pages на Actions `index.html` підключає browser-runnable fallback `src/shell.js`, щоб PIN-екран не лишався без обробників.
 
 `npm run build` після `vite build` запускає `scripts/copy-static-assets.mjs`, який докладає до `dist/` PWA/service-worker файли (`sw.js`, `manifest.json`, іконки та відповідні файли `osbb/`/`sklad/`).
 

@@ -2479,6 +2479,30 @@ ${sharedSelectText}`;
 
 
 
+
+// The production shell must have a plain-JavaScript runtime fallback because
+// GitHub Pages may briefly serve repository-root files before/without the
+// Actions-built dist artifact. If index.html points at raw .ts, PIN buttons do
+// not get bound in browsers.
+{
+  const label = 'shell uses browser-runnable JavaScript runtime fallback';
+  const index = readFileSync('index.html', 'utf8');
+  const requiredFiles = ['src/shell.js', 'src/auth-session.js', 'src/shell-state.js', 'src/supabase-api.js'];
+  const missing = [];
+  if (!index.includes('src="src/shell.js"')) missing.push('index.html:src/shell.js');
+  if (index.includes('src="/src/shell.ts"') || index.includes('src="src/shell.ts"')) missing.push('index.html:raw TypeScript module');
+  for (const file of requiredFiles) {
+    if (!existsSync(file)) missing.push(file);
+  }
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Vite/GitHub Pages build invariants: GitHub Pages serves this project under
 // /Osbb/, and the Vite build must include all three HTML entrypoints plus the
 // PWA/service-worker files copied into dist/ after bundling.
