@@ -19,11 +19,22 @@ function readOsbbCombined() {
   return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + SHARED_JS_CSS;
 }
 
+function readShellCombined() {
+  return [
+    'index.html',
+    'src/shell.ts',
+    'src/shell-state.ts',
+    'src/auth-session.ts',
+    'src/supabase-api.ts',
+    'styles.css'
+  ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
+}
+
 const checks = [
-  ['index.html', 'verify_lock_pin', 'shell PIN uses server RPC'],
-  ['index.html', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
-  ['index.html', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
-  ['index.html', 'navigator.serviceWorker.register', 'shell registers service worker'],
+  ['shell', 'verify_lock_pin', 'shell PIN uses server RPC'],
+  ['shell', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
+  ['shell', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
+  ['shell', 'navigator.serviceWorker.register', 'shell registers service worker'],
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
@@ -36,8 +47,8 @@ const checks = [
   ['index.html', 'role="tablist" aria-label="Розділи застосунку"', 'shell tabs expose tablist semantics'],
   ['index.html', 'data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page"', 'shell active tab exposes tab semantics'],
   ['index.html', 'role="tabpanel" aria-labelledby="shell-tab-journal"', 'shell frame exposes tabpanel semantics'],
-  ['index.html', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
-  ['index.html', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
+  ['shell', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
+  ['shell', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
   ['osbb/index.html', 'id="desktop-tabs" class="flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
@@ -135,7 +146,7 @@ for (const file of allFiles) {
 }
 
 for (const [file, needle, label] of checks) {
-  const text = readFileSync(file, 'utf8');
+  const text = file === 'shell' ? readShellCombined() : readFileSync(file, 'utf8');
   if (text.includes(needle)) {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -187,13 +198,13 @@ for (const [file, needle, label] of checks) {
 // records when auth was granted, validates the timestamp before unlock, and
 // clears both keys when the session is stale or explicitly locked.
 {
-  const text = readFileSync('index.html', 'utf8');
+  const text = readShellCombined();
   const label = 'shell auth session has TTL';
   const required = [
     'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
-    "sessionStorage.setItem('auth_at', String(Date.now()))",
+    "storage.setItem(AUTH_AT_KEY, String(now))",
     'function isAuthSessionValid',
-    'Date.now() - authAt >= AUTH_TTL_MS',
+    'now - authAt >= AUTH_TTL_MS',
     'clearAuthSession();',
     'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
@@ -2466,6 +2477,64 @@ ${sharedSelectText}`;
 }
 
 
+
+
+
+// The production shell must have a plain-JavaScript runtime fallback because
+// GitHub Pages may briefly serve repository-root files before/without the
+// Actions-built dist artifact. If index.html points at raw .ts, PIN buttons do
+// not get bound in browsers.
+{
+  const label = 'shell uses browser-runnable JavaScript runtime fallback';
+  const index = readFileSync('index.html', 'utf8');
+  const requiredFiles = ['src/shell.js', 'src/auth-session.js', 'src/shell-state.js', 'src/supabase-api.js'];
+  const missing = [];
+  if (!index.includes('src="src/shell.js"')) missing.push('index.html:src/shell.js');
+  if (index.includes('src="/src/shell.ts"') || index.includes('src="src/shell.ts"')) missing.push('index.html:raw TypeScript module');
+  for (const file of requiredFiles) {
+    if (!existsSync(file)) missing.push(file);
+  }
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Vite/GitHub Pages build invariants: GitHub Pages serves this project under
+// /Osbb/, and the Vite build must include all three HTML entrypoints plus the
+// PWA/service-worker files copied into dist/ after bundling.
+{
+  const label = 'Vite Pages build uses /Osbb/ base, MPA inputs, and postbuild static copy';
+  const vite = readFileSync('vite.config.ts', 'utf8');
+  const pkg = readFileSync('package.json', 'utf8');
+  const pages = readFileSync('.github/workflows/pages.yml', 'utf8');
+  const copy = readFileSync('scripts/copy-static-assets.mjs', 'utf8');
+  const required = [
+    [vite, "base: '/Osbb/'", 'vite.config.ts:base'],
+    [vite, "main: 'index.html'", 'vite.config.ts:main input'],
+    [vite, "osbb: 'osbb/index.html'", 'vite.config.ts:osbb input'],
+    [vite, "sklad: 'sklad/index.html'", 'vite.config.ts:sklad input'],
+    [pkg, 'vite build && node scripts/copy-static-assets.mjs', 'package.json:postbuild copy'],
+    [pages, 'npm run test', '.github/workflows/pages.yml:test'],
+    [pages, 'npm run build', '.github/workflows/pages.yml:build'],
+    [pages, 'actions/upload-pages-artifact@v3', '.github/workflows/pages.yml:artifact'],
+    [pages, 'actions/deploy-pages@v4', '.github/workflows/pages.yml:deploy'],
+    [copy, "'sw.js'", 'copy-static-assets.mjs:root sw'],
+    [copy, "'osbb/sw.js'", 'copy-static-assets.mjs:osbb sw'],
+    [copy, "'sklad/sw.js'", 'copy-static-assets.mjs:sklad sw'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, , name]) => name);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
 
 // Shared enhance-select helper should be used by journal and sklad instead of duplicated inline copies.
 {
