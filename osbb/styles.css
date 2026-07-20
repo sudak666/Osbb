@@ -191,7 +191,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-weekdays span { text-align: center; font-size: 11px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
 .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 120px)); gap: 8px; justify-content: center; margin-bottom: 40px; }
 @media (max-width: 640px) {
-    .mobile-day-card { padding-bottom: 40px; }
+    .mobile-day-card { padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
+    .month-grid-weekdays, .month-grid { gap: 5px; }
+    .month-grid-day { font-size: 15px; }
 }
 .month-grid-cell { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
