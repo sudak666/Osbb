@@ -38,7 +38,7 @@
 
     function chooseOption(opt) {
       select.value = opt.value;
-      select.dispatchEvent(new Event('change'));
+      select.dispatchEvent(new Event('change', { bubbles: true }));
       selectSearchTerm = '';
       syncLabel();
       closePanel();

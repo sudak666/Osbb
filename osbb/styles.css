@@ -187,13 +187,15 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
    десктопній). Натискання на прямокутник дня відкриває day-detail-modal з усіма
    ролями/завданнями за цей день. На широких екранах сітка обмежена шириною, щоб клітинки
    не розтягувались у величезні квадрати. */
-.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 92px)); gap: 6px; margin-bottom: 6px; justify-content: center; }
-.month-grid-weekdays span { text-align: center; font-size: 10px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
-.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 92px)); gap: 6px; justify-content: center; margin-bottom: 40px; }
+.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 120px)); gap: 8px; margin-bottom: 8px; justify-content: center; }
+.month-grid-weekdays span { text-align: center; font-size: 11px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
+.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 120px)); gap: 8px; justify-content: center; margin-bottom: 40px; }
 @media (max-width: 640px) {
-    .mobile-day-card { padding-bottom: 40px; }
+    .mobile-day-card { padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
+    .month-grid-weekdays, .month-grid { gap: 5px; }
+    .month-grid-day { font-size: 15px; }
 }
-.month-grid-cell { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
+.month-grid-cell { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
 .month-grid-cell:active { transform: scale(.95); }
 .month-grid-cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -201,9 +203,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-cell.is-weekend .month-grid-day { color: #ef4444; }
 .month-grid-cell.is-today { border: 2px solid var(--accent); box-shadow: 0 0 0 3px rgba(52,199,89,.18); }
 .month-grid-cell.has-shifts { background: rgba(52,199,89,.07); }
-.month-grid-day { font-size: 13px; font-weight: 800; line-height: 1; }
-.month-grid-dots { display: flex; gap: 2px; min-height: 5px; }
-.month-grid-dot { width: 5px; height: 5px; border-radius: 50%; }
+.month-grid-day { font-size: 16px; font-weight: 800; line-height: 1; }
+.month-grid-dots { display: flex; gap: 3px; min-height: 6px; }
+.month-grid-dot { width: 6px; height: 6px; border-radius: 50%; }
 .month-grid-dot-electrician { background: #f59e0b; }
 .month-grid-dot-janitor { background: #10b981; }
 .month-grid-dot-plumber { background: #3b82f6; }
