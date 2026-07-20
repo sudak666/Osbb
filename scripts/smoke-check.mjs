@@ -441,11 +441,12 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'function bindGarbageEntryActions',
     'function bindDispatcherEntryActions',
-    'data-g-action="toggle-day"',
+    'function gOpenDayDetail',
+    'function dispOpenDayDetail',
+    'function refreshOpenDayDetail',
     'data-g-action="row-update"',
     'data-g-action="type-toggle"',
     'data-g-action="type-count"',
-    'data-disp-action="toggle-day"',
     'data-disp-action="shift-toggle"',
     'data-disp-action="task-toggle"',
     'data-disp-action="field-update"',
@@ -1032,15 +1033,15 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Journal "other tasks" print summary and dispatcher call-count badge must
+// Journal "other tasks" print summary and dispatcher call-count field must
 // escape their Supabase-sourced free-text/JSONB values before injecting
 // them into innerHTML templates.
 {
   const text = readOsbbCombined();
-  const label = 'osbb print-summary and dispatcher call badge escape dynamic text';
+  const label = 'osbb print-summary and dispatcher call count escape dynamic text';
   const required = [
     'printSummary.push(escapeHtml(state.other))',
-    '${escapeHtml(String(row.calls))}</span>` : \'\'}',
+    'value="${escapeAttr(String(row.calls||\'\'))}" placeholder="0"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1090,7 +1091,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'role="checkbox" aria-checked="${isChecked?\'true\':\'false\'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?\'-1\':\'0\'}"',
     'role="checkbox" aria-checked="${row.tasks?.[t.id]?\'true\':\'false\'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?\'0\':\'-1\'}"',
     "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-journal-action=\"task-toggle\"]');",
-    "container.addEventListener('keydown', (event) => {\n            if (event.key !== 'Enter' && event.key !== ' ') return;\n            const trigger = event.target.closest('[data-disp-action=\"task-toggle\"],[data-disp-action=\"toggle-day\"]');",
+    "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-disp-action=\"task-toggle\"]');",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1102,20 +1103,21 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// The dispatcher card and garbage day-row disclosure headers are custom
-// <div> "accordion" triggers, not native <button>/<details> — they must
-// expose button/expanded semantics and be keyboard operable, and
-// dispatcher's open-state check must compare same-typed values (a
-// stringified dataset key vs a numeric loop variable is a real bug, not
-// just an a11y gap: it silently never expands).
+// Dispatcher and garbage also switched from a day-card accordion list to a
+// calendar grid (same pattern as journal): each day is a native <button>
+// that opens the shared day-detail-modal, and edits made inside that modal
+// refresh the still-open modal via refreshOpenDayDetail() so toggled
+// checkboxes/selects don't look stale until the modal is closed and reopened.
 {
   const text = readOsbbCombined();
-  const label = 'osbb dispatcher/garbage disclosure headers are keyboard accessible';
+  const label = 'osbb dispatcher/garbage calendar grids open an accessible day-detail dialog';
   const required = [
-    "header.setAttribute('role', 'button');\n            header.setAttribute('tabindex', '0');\n            header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');\n            header.setAttribute('aria-controls', `disp-body-${d}`);",
-    'role="button" tabindex="0" aria-expanded="${isOpen ? \'true\' : \'false\'}" aria-controls="g-body-${day}"',
-    "const trigger = event.target.closest('[data-g-action=\"toggle-day\"]');",
-    'dispOpenDays.has(String(d))',
+    "cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday2 ? ' is-today' : '') + (hasAny ? ' has-shifts' : '');",
+    "cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (row.working ? ' has-shifts' : '');",
+    "cell.setAttribute('aria-haspopup', 'dialog');",
+    'function gOpenDayDetail(day) {',
+    'function dispOpenDayDetail(d) {',
+    "function refreshOpenDayDetail(context, day) {",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {

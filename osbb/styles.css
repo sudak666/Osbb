@@ -187,13 +187,13 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
    десктопній). Натискання на прямокутник дня відкриває day-detail-modal з усіма
    ролями/завданнями за цей день. На широких екранах сітка обмежена шириною, щоб клітинки
    не розтягувались у величезні квадрати. */
-.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 120px)); gap: 8px; margin-bottom: 8px; justify-content: center; }
-.month-grid-weekdays span { text-align: center; font-size: 11px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
-.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 120px)); gap: 8px; justify-content: center; margin-bottom: 40px; }
+.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 136px)); gap: 8px; margin-bottom: 8px; justify-content: center; }
+.month-grid-weekdays span { text-align: center; font-size: 13px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
+.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 136px)); gap: 8px; justify-content: center; margin-bottom: 0; }
 @media (max-width: 640px) {
-    .mobile-day-card { padding-bottom: 40px; padding-left: 10px; padding-right: 10px; }
-    .month-grid-weekdays, .month-grid { gap: 5px; }
-    .month-grid-day { font-size: 15px; }
+    .mobile-day-card { padding-bottom: 40px; padding-left: 8px; padding-right: 8px; }
+    .month-grid-weekdays, .month-grid { gap: 4px; }
+    .month-grid-day { font-size: 17px; }
 }
 .month-grid-cell { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
@@ -203,22 +203,24 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-cell.is-weekend .month-grid-day { color: #ef4444; }
 .month-grid-cell.is-today { border: 2px solid var(--accent); box-shadow: 0 0 0 3px rgba(52,199,89,.18); }
 .month-grid-cell.has-shifts { background: rgba(52,199,89,.07); }
-.month-grid-day { font-size: 16px; font-weight: 800; line-height: 1; }
+.month-grid-day { font-size: 18px; font-weight: 800; line-height: 1; }
 .month-grid-dots { display: flex; gap: 3px; min-height: 6px; }
 .month-grid-dot { width: 6px; height: 6px; border-radius: 50%; }
 .month-grid-dot-electrician { background: #f59e0b; }
 .month-grid-dot-janitor { background: #10b981; }
 .month-grid-dot-plumber { background: #3b82f6; }
+.month-grid-dot-garbage { background: var(--accent); }
+.month-grid-dot-dispatcher { background: #8b5cf6; }
 
 /* МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — .day-detail-sheet сам не скролиться (overflow:hidden), інакше
    нативний скролбар обрізає заокруглені кути і робить верх "гострим". Скрол — лише на
    внутрішньому .day-detail-body, з власним тонким стилізованим скролбаром. */
 .day-detail-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 210; align-items: flex-end; justify-content: center; }
 .day-detail-overlay.open { display: flex; }
-.day-detail-sheet { background: var(--bg-card); width: 100%; max-width: 640px; max-height: 88vh; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column; overflow: hidden; }
-.day-detail-sheet-handle { flex-shrink: 0; width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 10px auto 2px; }
-.day-detail-header { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 18px 10px; }
-.day-detail-title { font-size: 15px; font-weight: 800; text-transform: capitalize; }
+.day-detail-sheet { background: var(--bg-card); width: 100%; max-width: 640px; max-height: 88vh; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column; overflow: hidden; transition: transform .25s ease; }
+.day-detail-sheet-handle { flex-shrink: 0; width: 44px; height: 5px; border-radius: 3px; background: var(--border); margin: 12px auto 4px; touch-action: none; cursor: grab; }
+.day-detail-header { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 18px 10px; touch-action: none; }
+.day-detail-title { font-size: 18px; font-weight: 800; text-transform: capitalize; }
 .day-detail-close { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--surface-1); display: flex; align-items: center; justify-content: center; color: var(--text-sub); }
 .day-detail-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 18px 24px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 .day-detail-body::-webkit-scrollbar { width: 7px; }
