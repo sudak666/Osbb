@@ -97,7 +97,8 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .journal-mini-stat { padding:16px; align-items:center; text-align:center; }
 .garbage-chart { height:80px; }
 
-.journal-inline-icon { display:inline-block; vertical-align:middle; flex-shrink:0; }
+.journal-inline-icon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; flex-shrink:0; }
+.mdi.journal-inline-icon::before { font-size:1em; line-height:1; }
 .journal-action-label { display:inline-flex; align-items:center; gap:6px; }
 .status-label { display:inline-flex; align-items:center; gap:5px; }
 .status-label.is-tight { gap:4px; }
