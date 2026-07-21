@@ -27,7 +27,6 @@
     <link rel="preconnect" href="https://vkwkyhjjjmcpmiakxohw.supabase.co" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="../shared/enhance-select.js"></script>
@@ -748,14 +747,6 @@
         if (tab === 'chat') chatInitTab();
     }
 
-    function fireConfetti(x, y) {
-        // confetti() приходить із зовнішнього CDN-скрипта — якщо він заблокований/не
-        // встиг завантажитись, виклик не повинен обривати виконання функції, що його
-        // викликала (toggleShift/toggleTask і т.д.), бо після цього рядка йде збереження.
-        try {
-            confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
-        } catch (e) {}
-    }
     function animateStatCards() {
         document.querySelectorAll('.stat-card').forEach((el, i) => {
             setTimeout(() => { el.classList.add('animate-pop'); setTimeout(() => el.classList.remove('animate-pop'), 400); }, i * 100);
@@ -1498,7 +1489,6 @@
         const snap = snapshotDay(day);
         currentMonthData[day][role].working = !currentMonthData[day][role].working;
         if (!currentMonthData[day][role].working) { currentMonthData[day][role].tasks = {}; currentMonthData[day][role].other = ''; }
-        else if (event) fireConfetti(event.clientX, event.clientY);
         renderTable(); renderMobileCards(); updateStats(); animateStatCards();
         refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
@@ -1507,7 +1497,6 @@
         const snap = snapshotDay(day);
         if (!currentMonthData[day][role].tasks) currentMonthData[day][role].tasks = {};
         currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId];
-        if (currentMonthData[day][role].tasks[taskId] && event) fireConfetti(event.clientX, event.clientY);
         const allTasks = roleTasksConfig[role];
 
         renderTable(); renderMobileCards(); updateStats();
@@ -1837,7 +1826,7 @@
                 if (!field) return;
                 if (field.dataset.dispAction === 'shift-toggle') {
                     const day = Number(field.dataset.dispDay);
-                    dispToggleShift(day, field.checked, event);
+                    dispToggleShift(day, field.checked);
                     refreshOpenDayDetail('dispatcher', day);
                 }
             });
@@ -2479,9 +2468,8 @@
         dispUpdateStats();
     }
 
-    function dispToggleShift(d, val, ev) {
+    function dispToggleShift(d, val) {
         dispGetDay(d).working = val;
-        if (val && ev) fireConfetti(ev.clientX, ev.clientY);
         dispScheduleSave();
         dispRender();
     }
