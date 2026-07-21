@@ -80,12 +80,13 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .journal-table-shell { border:1px solid var(--border-subtle)!important; background:var(--surface-1)!important; border-radius:24px!important; box-shadow:var(--shadow-sm)!important; }
 .journal-table-shell thead tr { background:linear-gradient(180deg,var(--surface-2),var(--table-header))!important; }
 .garbage-chart-panel { padding:16px; margin-bottom:16px; }
-/* journal-list-shell (обгортка "Журнал вивозу сміття"/"Журнал Диспетчера") мусить сама
-   мати той самий border-radius, що й .journal-panel, з !important — інакше клітинка
-   .journal-list-head (власний прямокутний фон+бордер) не обрізається по заокругленому
-   куту через overflow:hidden і в кутку видно гострий прямий край. */
 .journal-list-shell { overflow:hidden; border-radius:32px!important; }
-.journal-list-head { padding:16px; background:var(--table-header); border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+/* .journal-list-head сидить не впритул до краю .journal-list-shell, а всередині його
+   власного padding (16-22px) — тому заокруглений кут ЗОВНІШНЬОЇ панелі його кутів
+   не торкається і overflow:hidden тут ні до чого. Сіра смуга заголовка сама по собі —
+   окремий прямокутний блок з власним фоном, і без власного border-radius її верхні
+   кути лишаються гострими, навіть коли зовнішня панель навколо заокруглена. */
+.journal-list-head { padding:16px; background:var(--table-header); border-bottom:1px solid var(--border); border-radius:18px 18px 0 0; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
 .journal-mini-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
 .journal-mini-stats.is-two { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .journal-mini-stat { padding:16px; align-items:center; text-align:center; }
