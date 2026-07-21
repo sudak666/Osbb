@@ -657,7 +657,6 @@
     let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
     let gSaveTimer = null;
     let gLoaded = false;
-    let gOpenDays = new Set(); // дні, розгорнуті вручну користувачем (крім сьогодні, яке завжди відкрите за замовчуванням)
 
     const gMonths = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const gWorkerNames = {
@@ -1152,11 +1151,11 @@
                     <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
                 </label>`;
             }).join('');
-            const tasksProgress = tasksTotal ? `<div class="flex items-center justify-between text-[10px] font-bold mt-1 ${tasksDone===tasksTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${tasksDone}/${tasksTotal}</span></div>` : '';
+            const tasksProgress = tasksTotal ? `<div class="flex items-center justify-between text-xs font-bold mt-1 ${tasksDone===tasksTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${tasksDone}/${tasksTotal}</span></div>` : '';
 
             bodyHtml += `<div class="role-card ${dayGridRoleColors[role]} mb-2">
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs font-bold ${dayGridAccentColors[role]}">${roleNames[role]}</span>
+                    <span class="text-sm font-bold ${dayGridAccentColors[role]}">${roleNames[role]}</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
                         <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md ${toggleColor} shadow-inner"></div>
@@ -1166,8 +1165,8 @@
                     ${tasksProgress}
                     ${tasksHtml}
                     <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
-                        <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                        <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
+                        <span class="text-xs text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
+                        <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-sm p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
                     </div>
                     ${renderOtherField(d, role, state, 'm')}
                     ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
@@ -1186,8 +1185,8 @@
         });
 
         bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
-            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
-            <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
+            <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
+            <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-sm p-2.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
         </div>`;
         return bodyHtml;
     }
@@ -1213,12 +1212,61 @@
         titleEl.innerHTML = `${String(d).padStart(2,'0')} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
         bodyEl.innerHTML = buildDayBodyHtml(d);
         modal.dataset.day = String(d);
+        modal.dataset.context = 'journal';
         modal.classList.add('open');
         renderDayDetailPhotos(d);
     }
 
     function closeDayDetail() {
         document.getElementById('day-detail-modal')?.classList.remove('open');
+    }
+
+    // Спільний хелпер: якщо модалка деталізації дня зараз відкрита саме для цього
+    // контексту/дня — перебудувати її вміст (щоб чекбокси/поля всередині модалки одразу
+    // відображали ефект щойно зробленої зміни, а не лише після закриття й повторного відкриття).
+    function refreshOpenDayDetail(context, day) {
+        const modal = document.getElementById('day-detail-modal');
+        if (!modal || !modal.classList.contains('open')) return;
+        if (modal.dataset.context !== context || modal.dataset.day !== String(day)) return;
+        if (context === 'garbage') gOpenDayDetail(day);
+        else if (context === 'dispatcher') dispOpenDayDetail(Number(day));
+    }
+
+    // СВАЙП-ЗАКРИТТЯ модалки дня — тягнеш за ручку або заголовок вниз, відпускаєш —
+    // якщо протягнув достатньо (або досить швидко) — закривається, інакше повертається на місце.
+    function bindDayDetailSwipe() {
+        const sheet = document.querySelector('.day-detail-sheet');
+        const dragZones = [document.querySelector('.day-detail-sheet-handle'), document.querySelector('.day-detail-header')].filter(Boolean);
+        if (!sheet || !dragZones.length) return;
+        let startY = 0, deltaY = 0, dragging = false, startTime = 0;
+
+        function onStart(e) {
+            dragging = true;
+            startY = e.touches[0].clientY;
+            deltaY = 0;
+            startTime = Date.now();
+            sheet.style.transition = 'none';
+        }
+        function onMove(e) {
+            if (!dragging) return;
+            deltaY = Math.max(0, e.touches[0].clientY - startY);
+            sheet.style.transform = `translateY(${deltaY}px)`;
+        }
+        function onEnd() {
+            if (!dragging) return;
+            dragging = false;
+            sheet.style.transition = '';
+            const elapsed = Date.now() - startTime;
+            const velocity = deltaY / Math.max(elapsed, 1);
+            sheet.style.transform = '';
+            if (deltaY > 110 || velocity > 0.55) closeDayDetail();
+        }
+        dragZones.forEach((zone) => {
+            zone.addEventListener('touchstart', onStart, { passive: true });
+            zone.addEventListener('touchmove', onMove, { passive: true });
+            zone.addEventListener('touchend', onEnd);
+            zone.addEventListener('touchcancel', onEnd);
+        });
     }
 
     function renderMobileCards() {
@@ -1701,89 +1749,75 @@
     }
 
     function bindGarbageEntryActions() {
-        const container = document.getElementById('g-days-list');
-        if (!container) return;
-        container.addEventListener('input', (event) => {
-            if (event.target.matches('[data-time-mask]')) formatTimeMaskInput(event.target);
-        });
-        container.addEventListener('blur', (event) => {
-            const field = event.target;
-            if (!field.matches?.('[data-time-mask]')) return;
-            if (field.value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(field.value)) field.value = '';
-        }, true);
-        container.addEventListener('click', (event) => {
-            const trigger = event.target.closest('[data-g-action="toggle-day"]');
-            if (!trigger) return;
-            event.preventDefault();
-            gToggleDay(trigger.dataset.gDayKey);
-        });
-        container.addEventListener('keydown', (event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return;
-            const trigger = event.target.closest('[data-g-action="toggle-day"]');
-            if (!trigger) return;
-            event.preventDefault();
-            gToggleDay(trigger.dataset.gDayKey);
-        });
-        container.addEventListener('change', (event) => {
-            const field = event.target.closest('[data-g-action]');
-            if (!field) return;
-            const day = field.dataset.gDay;
-            const type = field.dataset.gType;
-            if (field.dataset.gAction === 'row-update') {
-                gUpdateRow(day, field.dataset.gField, field.value);
-            }
-            if (field.dataset.gAction === 'type-toggle') {
-                const countInput = document.getElementById(`g-cnt-${day}-${type}`);
-                const nextValue = field.checked
-                    ? (field.dataset.gHasCount === '1' ? (countInput?.value || 1) : 1)
-                    : 0;
-                gUpdateType(day, type, nextValue);
-                gRenderDaysList();
-            }
-            if (field.dataset.gAction === 'type-count') {
-                gUpdateType(day, type, field.value);
-            }
+        ['g-days-list', 'day-detail-body'].forEach((id) => {
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.addEventListener('input', (event) => {
+                if (event.target.matches('[data-time-mask]')) formatTimeMaskInput(event.target);
+            });
+            container.addEventListener('blur', (event) => {
+                const field = event.target;
+                if (!field.matches?.('[data-time-mask]')) return;
+                if (field.value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(field.value)) field.value = '';
+            }, true);
+            container.addEventListener('change', (event) => {
+                const field = event.target.closest('[data-g-action]');
+                if (!field) return;
+                const day = field.dataset.gDay;
+                const type = field.dataset.gType;
+                if (field.dataset.gAction === 'row-update') {
+                    gUpdateRow(day, field.dataset.gField, field.value);
+                }
+                if (field.dataset.gAction === 'type-toggle') {
+                    const countInput = document.getElementById(`g-cnt-${day}-${type}`);
+                    const nextValue = field.checked
+                        ? (field.dataset.gHasCount === '1' ? (countInput?.value || 1) : 1)
+                        : 0;
+                    gUpdateType(day, type, nextValue);
+                }
+                if (field.dataset.gAction === 'type-count') {
+                    gUpdateType(day, type, field.value);
+                }
+                refreshOpenDayDetail('garbage', day);
+            });
         });
     }
 
     function bindDispatcherEntryActions() {
-        const container = document.getElementById('disp-cards');
-        if (!container) return;
-        container.addEventListener('click', (event) => {
-            const trigger = event.target.closest('[data-disp-action="toggle-day"],[data-disp-action="task-toggle"]');
-            if (!trigger) return;
-            if (trigger.dataset.dispAction === 'toggle-day') {
+        ['disp-cards', 'day-detail-body'].forEach((id) => {
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.addEventListener('click', (event) => {
+                const trigger = event.target.closest('[data-disp-action="task-toggle"]');
+                if (!trigger) return;
                 event.preventDefault();
-                dispToggleDay(trigger.dataset.dispDayKey);
-            }
-            if (trigger.dataset.dispAction === 'task-toggle') {
+                const day = Number(trigger.dataset.dispDay);
+                dispToggleTask(day, trigger.dataset.dispTaskId, trigger.dataset.dispNext === 'true');
+                refreshOpenDayDetail('dispatcher', day);
+            });
+            container.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                const trigger = event.target.closest('[data-disp-action="task-toggle"]');
+                if (!trigger) return;
                 event.preventDefault();
-                dispToggleTask(Number(trigger.dataset.dispDay), trigger.dataset.dispTaskId, trigger.dataset.dispNext === 'true');
-            }
-        });
-        container.addEventListener('keydown', (event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return;
-            const trigger = event.target.closest('[data-disp-action="task-toggle"],[data-disp-action="toggle-day"]');
-            if (!trigger) return;
-            event.preventDefault();
-            if (trigger.dataset.dispAction === 'task-toggle') {
-                dispToggleTask(Number(trigger.dataset.dispDay), trigger.dataset.dispTaskId, trigger.dataset.dispNext === 'true');
-            }
-            if (trigger.dataset.dispAction === 'toggle-day') {
-                dispToggleDay(trigger.dataset.dispDayKey);
-            }
-        });
-        container.addEventListener('change', (event) => {
-            const field = event.target.closest('[data-disp-action]');
-            if (!field) return;
-            if (field.dataset.dispAction === 'shift-toggle') {
-                dispToggleShift(Number(field.dataset.dispDay), field.checked, event);
-            }
-        });
-        container.addEventListener('input', (event) => {
-            const field = event.target.closest('[data-disp-action="field-update"]');
-            if (!field) return;
-            dispUpdate(Number(field.dataset.dispDay), field.dataset.dispField, field.value);
+                const day = Number(trigger.dataset.dispDay);
+                dispToggleTask(day, trigger.dataset.dispTaskId, trigger.dataset.dispNext === 'true');
+                refreshOpenDayDetail('dispatcher', day);
+            });
+            container.addEventListener('change', (event) => {
+                const field = event.target.closest('[data-disp-action]');
+                if (!field) return;
+                if (field.dataset.dispAction === 'shift-toggle') {
+                    const day = Number(field.dataset.dispDay);
+                    dispToggleShift(day, field.checked, event);
+                    refreshOpenDayDetail('dispatcher', day);
+                }
+            });
+            container.addEventListener('input', (event) => {
+                const field = event.target.closest('[data-disp-action="field-update"]');
+                if (!field) return;
+                dispUpdate(Number(field.dataset.dispDay), field.dataset.dispField, field.value);
+            });
         });
     }
 
@@ -1793,6 +1827,7 @@
     bindJournalEntryActions();
     bindGarbageEntryActions();
     bindDispatcherEntryActions();
+    bindDayDetailSwipe();
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     changeTheme(savedTheme);
@@ -2029,16 +2064,92 @@
         await gLoadGarbageYearFromCloud(currentYear);
     }
 
-    function gToggleDay(day) {
-        if (gOpenDays.has(day)) gOpenDays.delete(day); else gOpenDays.add(day);
-        gRenderDaysList();
+    // Розмітка для одного дня сміття (час/працівник/типи) — використовується лише в
+    // модалці деталізації дня (gOpenDayDetail), сам календар показує тільки квадрати.
+    function gBuildDayBodyHtml(day) {
+        const row = gData[day] || { time:'', worker:'', types:{} };
+        const types = row.types || {};
+        return `
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
+                    <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" data-time-mask aria-label="Час вивозу сміття за день ${day}"
+                        class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
+                </div>
+                <div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Працівник</div>
+                    <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker" aria-label="Працівник сміття за день ${day}"
+                        class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                        <option value="">—</option>
+                        ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Типи сміття (можна декілька одразу)</div>
+            <div class="grid grid-cols-3 gap-2">
+                ${Object.entries(gTypeLabels).map(([k,label]) => {
+                    const checked = (parseInt(types[k]) || 0) > 0;
+                    const val = types[k] || '';
+                    const hasCount = k === 'bins';
+                    return `
+                    <div class="flex flex-col gap-1 p-2 rounded-lg border ${checked ? 'border-emerald-400 bg-emerald-500/5' : 'border-[var(--border)]'}">
+                        <label class="flex items-center gap-1.5 text-sm font-semibold cursor-pointer">
+                            <input type="checkbox" ${checked?'checked':''}
+                                data-g-action="type-toggle" data-g-day="${day}" data-g-type="${k}" data-g-has-count="${hasCount ? '1' : '0'}"
+                                class="round-checkbox">
+                            ${label}
+                        </label>
+                        ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${escapeAttr(String(val))}"
+                            data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
+                            ${checked ? '' : 'disabled'}
+                            class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">` : ''}
+                    </div>`;
+                }).join('')}
+            </div>`;
     }
 
+    function gOpenDayDetail(day) {
+        const modal = document.getElementById('day-detail-modal');
+        const titleEl = document.getElementById('day-detail-title');
+        const bodyEl = document.getElementById('day-detail-body');
+        if (!modal || !titleEl || !bodyEl) return;
+        const d = parseInt(day, 10);
+        const dateObj = new Date(currentYear, currentMonth, d);
+        const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+        titleEl.innerHTML = `${day} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
+        bodyEl.innerHTML = gBuildDayBodyHtml(day);
+        bodyEl.querySelectorAll('select[data-g-field="worker"]').forEach((sel) => enhanceSelect(sel));
+        modal.dataset.day = day;
+        modal.dataset.context = 'garbage';
+        modal.classList.add('open');
+    }
+
+    // Календарна сітка сміття — той самий вигляд, що й у Журналі: квадрати днів,
+    // клік відкриває day-detail-modal з часом/працівником/типами сміття за цей день.
     function gRenderDaysList() {
         const container = document.getElementById('g-days-list');
         if (!container) return;
         container.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+        const leadingBlanks = (firstDow + 6) % 7;
+
+        const weekdayRow = document.createElement('div');
+        weekdayRow.className = 'month-grid-weekdays';
+        weekdayRow.innerHTML = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map(w => `<span>${w}</span>`).join('');
+        container.appendChild(weekdayRow);
+
+        const grid = document.createElement('div');
+        grid.className = 'month-grid';
+        container.appendChild(grid);
+
+        for (let i = 0; i < leadingBlanks; i++) {
+            const blank = document.createElement('div');
+            blank.className = 'month-grid-cell is-empty';
+            blank.setAttribute('aria-hidden', 'true');
+            grid.appendChild(blank);
+        }
 
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
@@ -2046,66 +2157,19 @@
             const types = row.types || {};
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
-            const dayTotal = parseInt(types.bins) || 0;
-            const hasData = dayTotal > 0;
             const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            const isOpen = isToday2 ? !gOpenDays.has('CLOSED_' + day) : gOpenDays.has(day);
+            const hasAny = Object.values(types).some((v) => (parseInt(v) || 0) > 0);
+            const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
 
-            const wrap = document.createElement('div');
-            wrap.className = `${isToday2 ? 'bg-emerald-500/5' : ''} ${isWeekend && !isToday2 ? 'bg-red-500/5' : ''}`;
-
-            wrap.innerHTML = `
-                <div class="flex items-center justify-between p-3 cursor-pointer select-none" data-g-action="toggle-day" data-g-day-key="${isToday2 ? 'CLOSED_' + day : day}" role="button" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" aria-controls="g-body-${day}">
-                    <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${day} <span class="text-xs opacity-60 uppercase">${dayName}</span>
-                        ${isToday2 ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>сьогодні</span>' : ''}
-                    </span>
-                    <div class="flex items-center gap-2">
-                        ${hasData ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${dayTotal} баків</span>` : '<span class="text-[10px] text-gray-400">порожньо</span>'}
-                        <span class="text-xs opacity-50 transition-transform" style="display:inline-block; transform: rotate(${isOpen ? '180deg' : '0deg'})">▾</span>
-                    </div>
-                </div>
-                <div id="g-body-${day}" class="px-3 pb-3 ${isOpen ? '' : 'hidden'}">
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <div>
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
-                            <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" data-time-mask aria-label="Час вивозу сміття за день ${day}"
-                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
-                        </div>
-                        <div>
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Працівник</div>
-                            <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker" aria-label="Працівник сміття за день ${day}"
-                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
-                                <option value="">—</option>
-                                ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Типи сміття (можна декілька одразу)</div>
-                    <div class="grid grid-cols-3 gap-2">
-                        ${Object.entries(gTypeLabels).map(([k,label]) => {
-                            const checked = (parseInt(types[k]) || 0) > 0;
-                            const val = types[k] || '';
-                            const hasCount = k === 'bins';
-                            return `
-                            <div class="flex flex-col gap-1 p-2 rounded-lg border ${checked ? 'border-emerald-400 bg-emerald-500/5' : 'border-[var(--border)]'}">
-                                <label class="flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
-                                    <input type="checkbox" ${checked?'checked':''}
-                                        data-g-action="type-toggle" data-g-day="${day}" data-g-type="${k}" data-g-has-count="${hasCount ? '1' : '0'}"
-                                        class="round-checkbox">
-                                    ${label}
-                                </label>
-                                ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${escapeAttr(String(val))}"
-                                    data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
-                                    ${checked ? '' : 'disabled'}
-                                    class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">` : ''}
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
-            container.appendChild(wrap);
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday2 ? ' is-today' : '') + (hasAny ? ' has-shifts' : '');
+            cell.setAttribute('aria-label', `${d} ${dowLabel}${hasAny ? ', є вивіз сміття' : ', порожньо'} — відкрити день`);
+            cell.setAttribute('aria-haspopup', 'dialog');
+            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${hasAny ? '<span class="month-grid-dot month-grid-dot-garbage"></span>' : ''}</span>`;
+            cell.addEventListener('click', () => gOpenDayDetail(day));
+            grid.appendChild(cell);
         }
-        container.querySelectorAll('select[data-g-field="worker"]').forEach((sel) => enhanceSelect(sel));
     }
 
     function gRenderStats() {
@@ -2311,13 +2375,7 @@
     // ==========================================
     let dispData = {};
     let dispSaveTimer = null;
-    let dispOpenDays = new Set(); // дні, розгорнуті вручну користувачем (крім сьогодні, яке завжди відкрите за замовчуванням)
     const dispWorkerName = 'Диспетчер';
-
-    function dispToggleDay(key) {
-        if (dispOpenDays.has(key)) dispOpenDays.delete(key); else dispOpenDays.add(key);
-        dispRender();
-    }
 
     function dispKey() { return `${currentYear}-${currentMonth}`; }
     function dispOfflineKey() { return `dispatcher_${currentYear}_${currentMonth}`; }
@@ -2421,96 +2479,104 @@
         Object.entries(els).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.textContent = val; });
     }
 
+    const dispTasks = [
+        { id: 'territory', label: 'Прибирання' },
+    ];
+
+    // Розмітка для одного дня диспетчера (зміна/завдання/дзвінки/коментар) — тільки
+    // для модалки деталізації дня (dispOpenDayDetail).
+    function dispBuildDayBodyHtml(d) {
+        const row = dispGetDay(d);
+        return `<div class="rounded-xl p-3 mb-1" style="background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.25);">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-purple-700 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Диспетчер</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" ${row.working?'checked':''} data-disp-action="shift-toggle" data-disp-day="${d}" aria-label="Зміна диспетчера за день ${d}">
+                    <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md peer-checked:bg-purple-500 shadow-inner"></div>
+                </label>
+            </div>
+            <div class="${!row.working ? 'opacity-40 pointer-events-none' : ''}">
+                <div class="mb-2">${dispTasks.map(t => `
+                    <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
+                        <span data-disp-action="task-toggle" data-disp-day="${d}" data-disp-task-id="${t.id}" data-disp-next="${!row.tasks?.[t.id]}"
+                            role="checkbox" aria-checked="${row.tasks?.[t.id]?'true':'false'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?'0':'-1'}"
+                            class="task-check-dot${row.tasks?.[t.id]?' is-checked':''}">
+                        </span>
+                        <span class="${row.tasks?.[t.id]?'font-semibold':'text-[var(--text-sub)]'}">${t.label}</span>
+                    </label>`).join('')}
+                </div>
+                <div class="mt-3">
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Дзвінків:</div>
+                    <input type="number" min="0" max="999" value="${escapeAttr(String(row.calls||''))}" placeholder="0"
+                        data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls" aria-label="Кількість дзвінків диспетчера за день ${d}"
+                        class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
+                </div>
+                <div class="mt-3">
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Коментар / події дня:</div>
+                    <textarea rows="4" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment" aria-label="Коментар диспетчера за день ${d}"
+                        placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
+                        class="w-full text-sm p-2.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed">${escapeHtml(row.comment||'')}</textarea>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function dispOpenDayDetail(d) {
+        const modal = document.getElementById('day-detail-modal');
+        const titleEl = document.getElementById('day-detail-title');
+        const bodyEl = document.getElementById('day-detail-body');
+        if (!modal || !titleEl || !bodyEl) return;
+        const dateObj = new Date(currentYear, currentMonth, d);
+        const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+        titleEl.innerHTML = `${String(d).padStart(2,'0')} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
+        bodyEl.innerHTML = dispBuildDayBodyHtml(d);
+        modal.dataset.day = String(d);
+        modal.dataset.context = 'dispatcher';
+        modal.classList.add('open');
+    }
+
+    // Календарна сітка диспетчера — той самий вигляд, що й у Журналі: квадрати днів,
+    // клік відкриває day-detail-modal зі зміною/завданнями/дзвінками/коментарем за цей день.
     function dispRender() {
         const container = document.getElementById('disp-cards');
         if (!container) return;
         container.innerHTML = '';
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+        const leadingBlanks = (firstDow + 6) % 7;
+
+        const weekdayRow = document.createElement('div');
+        weekdayRow.className = 'month-grid-weekdays';
+        weekdayRow.innerHTML = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map(w => `<span>${w}</span>`).join('');
+        container.appendChild(weekdayRow);
+
+        const grid = document.createElement('div');
+        grid.className = 'month-grid';
+        container.appendChild(grid);
+
+        for (let i = 0; i < leadingBlanks; i++) {
+            const blank = document.createElement('div');
+            blank.className = 'month-grid-cell is-empty';
+            blank.setAttribute('aria-hidden', 'true');
+            grid.appendChild(blank);
+        }
 
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
-            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            const isFuture = !isToday && dateObj > new Date(todayYear, todayMonth, todayDay);
             const row = dispGetDay(d);
-            const isOpen = isToday ? !dispOpenDays.has('CLOSED_' + d) : dispOpenDays.has(String(d));
+            const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
 
-            let statusBadge = '';
-            if (isToday) statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>СЬОГОДНІ</span>';
-            else if (isFuture) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-500 px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>Попереду</span>';
-            else if (row.working) statusBadge = '<span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>На зміні</span>';
-            else statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
-
-            const card = document.createElement('div');
-            card.className = `border-b border-[var(--border)] last:border-0 ${isToday ? 'bg-emerald-500/5' : ''} ${isWeekend && !isToday ? 'bg-red-500/[0.03]' : ''}`;
-
-            const header = document.createElement('div');
-            header.className = 'px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[var(--table-header)] transition select-none';
-            header.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm ${isWeekend ? 'text-red-500' : ''}">${String(d).padStart(2,'0')} ${dayName.toUpperCase()}</span>
-                    ${statusBadge}
-                    ${row.calls ? `<span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>${escapeHtml(String(row.calls))}</span>` : ''}
-                </div>
-                <span class="text-xs text-[var(--text-sub)] transition-transform" id="disp-arrow-${d}" style="${isOpen ? 'transform:rotate(180deg)' : ''}">▼</span>`;
-            header.dataset.dispAction = 'toggle-day';
-            header.dataset.dispDayKey = isToday ? 'CLOSED_' + d : String(d);
-            header.setAttribute('role', 'button');
-            header.setAttribute('tabindex', '0');
-            header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            header.setAttribute('aria-controls', `disp-body-${d}`);
-            card.appendChild(header);
-
-            const body = document.createElement('div');
-            body.id = `disp-body-${d}`;
-            body.style.display = isOpen ? 'block' : 'none';
-
-            const dispTasks = [
-                { id: 'territory', label: 'Прибирання' },
-            ];
-
-            body.innerHTML = `<div class="px-4 pb-4">
-                <div class="rounded-xl p-3 mb-3" style="background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.25);">
-                    <!-- Перемикач зміни -->
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-purple-700 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Диспетчер</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" ${row.working?'checked':''} data-disp-action="shift-toggle" data-disp-day="${d}" aria-label="Зміна диспетчера за день ${d}">
-                            <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md peer-checked:bg-purple-500 shadow-inner"></div>
-                        </label>
-                    </div>
-                    <!-- Завдання -->
-                    <div class="${!row.working ? 'opacity-40 pointer-events-none' : ''}">
-                        <div class="mb-2">${dispTasks.map(t => `
-                            <label class="flex items-center gap-2 text-sm cursor-pointer mt-2">
-                                <span data-disp-action="task-toggle" data-disp-day="${d}" data-disp-task-id="${t.id}" data-disp-next="${!row.tasks?.[t.id]}"
-                                    role="checkbox" aria-checked="${row.tasks?.[t.id]?'true':'false'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?'0':'-1'}"
-                                    class="task-check-dot${row.tasks?.[t.id]?' is-checked':''}">
-                                </span>
-                                <span class="${row.tasks?.[t.id]?'font-semibold':'text-[var(--text-sub)]'}">${t.label}</span>
-                            </label>`).join('')}
-                        </div>
-                        <!-- Дзвінки -->
-                        <div class="mt-3">
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>Дзвінків:</div>
-                            <input type="number" min="0" max="999" value="${escapeAttr(String(row.calls||''))}" placeholder="0"
-                                data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls" aria-label="Кількість дзвінків диспетчера за день ${d}"
-                                class="w-full text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
-                        </div>
-                        <!-- Коментар дня (розширений) -->
-                        <div class="mt-3">
-                            <div class="text-[10px] text-[var(--text-sub)] font-semibold mb-1">Коментар / події дня:</div>
-                            <textarea rows="4" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment" aria-label="Коментар диспетчера за день ${d}"
-                                placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
-                                class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed">${escapeHtml(row.comment||'')}</textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-
-            card.appendChild(body);
-            container.appendChild(card);
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (row.working ? ' has-shifts' : '');
+            cell.setAttribute('aria-label', `${d} ${dowLabel}${row.working ? ', диспетчер на зміні' : ', вихідний'} — відкрити день`);
+            cell.setAttribute('aria-haspopup', 'dialog');
+            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${row.working ? '<span class="month-grid-dot month-grid-dot-dispatcher"></span>' : ''}</span>`;
+            cell.addEventListener('click', () => dispOpenDayDetail(d));
+            grid.appendChild(cell);
         }
         dispUpdateStats();
     }
