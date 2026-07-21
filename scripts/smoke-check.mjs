@@ -1683,8 +1683,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.status-label { display:inline-flex;',
     'class="status-label"',
     'class="status-label is-tight"',
-    '<link rel="stylesheet" href="../shared/ui.css">',
-    '<script src="../shared/enhance-select.js"></script>',
+    '<link rel="stylesheet" href="/Osbb/shared/ui.css">',
+    '<script src="/Osbb/shared/enhance-select.js"></script>',
     '// Кастомний select підключено зі shared/enhance-select.js.',
     '.journal-mini-stats.is-two {',
     'class="journal-mini-stats is-two"',
@@ -2565,7 +2565,7 @@ ${sharedSelectText}`;
   if (!existsSync('shared/enhance-select.js')) missing.push('shared/enhance-select.js');
   for (const file of ['osbb/index.html', 'sklad/index.html']) {
     const text = readFileSync(file, 'utf8');
-    if (!text.includes('src="../shared/enhance-select.js"')) missing.push(`${file}:script`);
+    if (!text.includes('src="/Osbb/shared/enhance-select.js"')) missing.push(`${file}:script`);
     if (text.includes('function enhanceSelect(')) missing.push(`${file}:inline enhanceSelect`);
   }
   const helper = existsSync('shared/enhance-select.js') ? readFileSync('shared/enhance-select.js', 'utf8') : '';
@@ -2581,24 +2581,25 @@ ${sharedSelectText}`;
   }
 }
 
-// Shared UI stylesheet should be available to all entrypoints.
+// Shared stylesheets should be available to all entrypoints.
 {
-  const checks = [
-    ['index.html', 'href="shared/ui.css"'],
-    ['osbb/index.html', 'href="../shared/ui.css"'],
-    ['sklad/index.html', 'href="../shared/ui.css"'],
-  ];
+  const sharedStyles = ['ui.css', 'material-tokens.css'];
+  const files = ['index.html', 'osbb/index.html', 'sklad/index.html'];
   const missing = [];
-  if (!existsSync('shared/ui.css')) missing.push('shared/ui.css');
-  for (const [file, marker] of checks) {
-    if (!readFileSync(file, 'utf8').includes(marker)) missing.push(`${file}:${marker}`);
+  for (const stylesheet of sharedStyles) {
+    const path = `shared/${stylesheet}`;
+    if (!existsSync(path)) missing.push(path);
+    for (const file of files) {
+      const marker = `href="/Osbb/shared/${stylesheet}"`;
+      if (!readFileSync(file, 'utf8').includes(marker)) missing.push(`${file}:${marker}`);
+    }
   }
   if (missing.length) {
     failed += 1;
-    console.error(`not ok - shared/ui.css exists and is linked from all three entrypoints (missing: ${missing.join(', ')})`);
+    console.error(`not ok - shared stylesheets exist and are linked from all three entrypoints (missing: ${missing.join(', ')})`);
   } else {
     passed += 1;
-    console.log('ok - shared/ui.css exists and is linked from all three entrypoints');
+    console.log('ok - shared stylesheets exist and are linked from all three entrypoints');
   }
 }
 
