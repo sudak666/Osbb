@@ -875,14 +875,16 @@
             backgroundColor: colors[role] + '99',
             borderColor: colors[role],
             borderWidth: 1,
-            borderRadius: 4
+            borderRadius: Number.MAX_VALUE,
+            borderSkipped: false,
+            borderJoinStyle: 'round'
         }));
 
         if (chartDaily) chartDaily.destroy();
         chartDaily = new Chart(document.getElementById('chart-daily'), {
             type: 'bar',
             data: { labels, datasets: dailyDatasets },
-            options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { max: 1, ticks: { stepSize: 1 } } } }
+            options: { responsive: true, plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } } }, scales: { y: { max: 1, ticks: { stepSize: 1 } } } }
         });
 
         const totals = roles.map(role => Object.keys(currentMonthData).filter(d => currentMonthData[d]?.[role]?.working).length);
@@ -891,9 +893,9 @@
             type: 'doughnut',
             data: {
                 labels: roles.map(r => roleNamesClean[r]),
-                datasets: [{ data: totals, backgroundColor: ['#f59e0b','#10b981','#3b82f6'], borderWidth: 2 }]
+                datasets: [{ data: totals, backgroundColor: ['#f59e0b','#10b981','#3b82f6'], borderWidth: 2, borderRadius: 12, spacing: 4 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: { responsive: true, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
         });
 
         const weeks = ['Тиж 1','Тиж 2','Тиж 3','Тиж 4','Тиж 5'];
@@ -907,14 +909,16 @@
                 return count;
             }),
             borderColor: colors[role], backgroundColor: colors[role] + '33',
-            tension: 0.4, fill: true, borderWidth: 2, pointRadius: 4
+            tension: 0.42, fill: true, borderWidth: 2, pointRadius: 4,
+            pointStyle: 'circle', pointBorderWidth: 2, pointHoverRadius: 6,
+            borderCapStyle: 'round', borderJoinStyle: 'round'
         }));
 
         if (chartWeekly) chartWeekly.destroy();
         chartWeekly = new Chart(document.getElementById('chart-weekly'), {
             type: 'line',
             data: { labels: weeks, datasets: weeklyDatasets },
-            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            options: { responsive: true, elements: { line: { borderCapStyle: 'round', borderJoinStyle: 'round' }, point: { pointStyle: 'circle' } }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
         });
     }
 
