@@ -1,0 +1,123 @@
+/* Material Design 3 token layer shared by shell, journal and sklad.
+   Keep these as semantic aliases; feature CSS should consume tokens gradually. */
+:root {
+  color-scheme: light;
+
+  /* Shape scale */
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 999px;
+
+  /* Type scale */
+  --md-sys-typescale-label-small-size: 11px;
+  --md-sys-typescale-label-medium-size: 12px;
+  --md-sys-typescale-label-large-size: 14px;
+  --md-sys-typescale-body-medium-size: 14px;
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-title-small-size: 14px;
+  --md-sys-typescale-title-medium-size: 16px;
+  --md-sys-typescale-title-large-size: 22px;
+  --md-sys-typescale-headline-small-size: 24px;
+  --md-sys-typescale-headline-medium-size: 28px;
+  --md-sys-typescale-display-small-size: 32px;
+  --md-sys-typescale-label-weight: 700;
+  --md-sys-typescale-title-weight: 800;
+
+  /* Motion */
+  --md-sys-motion-duration-short2: 120ms;
+  --md-sys-motion-duration-short4: 180ms;
+  --md-sys-motion-duration-medium2: 260ms;
+  --md-sys-motion-easing-standard: cubic-bezier(.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(.2, .8, .2, 1);
+
+  /* Elevation */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0 1px 2px rgba(15, 23, 42, .05), 0 1px 3px rgba(15, 23, 42, .08);
+  --md-sys-elevation-level2: 0 6px 18px rgba(15, 23, 42, .08);
+  --md-sys-elevation-level3: 0 12px 32px rgba(15, 23, 42, .12);
+  --md-sys-elevation-level4: 0 20px 52px rgba(15, 23, 42, .16);
+  --md-sys-elevation-level5: 0 28px 80px rgba(15, 23, 42, .20);
+
+  /* State layers */
+  --md-sys-state-hover-opacity: .08;
+  --md-sys-state-focus-opacity: .12;
+  --md-sys-state-pressed-opacity: .12;
+  --md-sys-state-dragged-opacity: .16;
+}
+
+.theme-light, :root:not(.theme-dark) {
+  color-scheme: light;
+  --md-sys-color-primary: #22c55e;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #dcfce7;
+  --md-sys-color-on-primary-container: #052e16;
+  --md-sys-color-secondary: #2563eb;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-tertiary: #f59e0b;
+  --md-sys-color-on-tertiary: #111827;
+  --md-sys-color-error: #ef4444;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-background: #f4f7fb;
+  --md-sys-color-on-background: #0f172a;
+  --md-sys-color-surface: #ffffff;
+  --md-sys-color-on-surface: #0f172a;
+  --md-sys-color-surface-variant: #eef2f7;
+  --md-sys-color-on-surface-variant: #475569;
+  --md-sys-color-surface-container-low: #ffffff;
+  --md-sys-color-surface-container: #f8fafc;
+  --md-sys-color-surface-container-high: #f1f5f9;
+  --md-sys-color-outline: rgba(15, 23, 42, .14);
+  --md-sys-color-outline-variant: rgba(15, 23, 42, .08);
+  --md-sys-color-shadow: rgba(15, 23, 42, .16);
+}
+
+.theme-dark {
+  color-scheme: dark;
+  --md-sys-color-primary: #30d158;
+  --md-sys-color-on-primary: #031b0b;
+  --md-sys-color-primary-container: #064e24;
+  --md-sys-color-on-primary-container: #dcfce7;
+  --md-sys-color-secondary: #93c5fd;
+  --md-sys-color-on-secondary: #0f172a;
+  --md-sys-color-tertiary: #fbbf24;
+  --md-sys-color-on-tertiary: #111827;
+  --md-sys-color-error: #f87171;
+  --md-sys-color-on-error: #1f0505;
+  --md-sys-color-background: #121214;
+  --md-sys-color-on-background: #ececed;
+  --md-sys-color-surface: #1e1e21;
+  --md-sys-color-on-surface: #ececed;
+  --md-sys-color-surface-variant: #29292c;
+  --md-sys-color-on-surface-variant: #cbd5e1;
+  --md-sys-color-surface-container-low: #17171a;
+  --md-sys-color-surface-container: #1e1e21;
+  --md-sys-color-surface-container-high: #29292c;
+  --md-sys-color-outline: rgba(148, 163, 184, .24);
+  --md-sys-color-outline-variant: rgba(148, 163, 184, .14);
+  --md-sys-color-shadow: rgba(0, 0, 0, .5);
+}
+
+.md-state-layer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.md-state-layer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+  z-index: -1;
+}
+
+.md-state-layer:hover::before { opacity: var(--md-sys-state-hover-opacity); }
+.md-state-layer:focus-visible::before { opacity: var(--md-sys-state-focus-opacity); }
+.md-state-layer:active::before { opacity: var(--md-sys-state-pressed-opacity); }

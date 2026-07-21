@@ -2581,24 +2581,25 @@ ${sharedSelectText}`;
   }
 }
 
-// Shared UI stylesheet should be available to all entrypoints.
+// Shared stylesheets should be available to all entrypoints.
 {
-  const checks = [
-    ['index.html', 'href="/Osbb/shared/ui.css"'],
-    ['osbb/index.html', 'href="/Osbb/shared/ui.css"'],
-    ['sklad/index.html', 'href="/Osbb/shared/ui.css"'],
-  ];
+  const sharedStyles = ['ui.css', 'material-tokens.css'];
+  const files = ['index.html', 'osbb/index.html', 'sklad/index.html'];
   const missing = [];
-  if (!existsSync('shared/ui.css')) missing.push('shared/ui.css');
-  for (const [file, marker] of checks) {
-    if (!readFileSync(file, 'utf8').includes(marker)) missing.push(`${file}:${marker}`);
+  for (const stylesheet of sharedStyles) {
+    const path = `shared/${stylesheet}`;
+    if (!existsSync(path)) missing.push(path);
+    for (const file of files) {
+      const marker = `href="/Osbb/shared/${stylesheet}"`;
+      if (!readFileSync(file, 'utf8').includes(marker)) missing.push(`${file}:${marker}`);
+    }
   }
   if (missing.length) {
     failed += 1;
-    console.error(`not ok - shared/ui.css exists and is linked from all three entrypoints (missing: ${missing.join(', ')})`);
+    console.error(`not ok - shared stylesheets exist and are linked from all three entrypoints (missing: ${missing.join(', ')})`);
   } else {
     passed += 1;
-    console.log('ok - shared/ui.css exists and is linked from all three entrypoints');
+    console.log('ok - shared stylesheets exist and are linked from all three entrypoints');
   }
 }
 
