@@ -749,7 +749,12 @@
     }
 
     function fireConfetti(x, y) {
-        confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
+        // confetti() приходить із зовнішнього CDN-скрипта — якщо він заблокований/не
+        // встиг завантажитись, виклик не повинен обривати виконання функції, що його
+        // викликала (toggleShift/toggleTask і т.д.), бо після цього рядка йде збереження.
+        try {
+            confetti({ particleCount: 40, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight }, colors: ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'], scalar: 0.8, gravity: 1.2 });
+        } catch (e) {}
     }
     function animateStatCards() {
         document.querySelectorAll('.stat-card').forEach((el, i) => {
@@ -1230,27 +1235,42 @@
         if (modal.dataset.context !== context || modal.dataset.day !== String(day)) return;
         if (context === 'garbage') gOpenDayDetail(day);
         else if (context === 'dispatcher') dispOpenDayDetail(Number(day));
+        else if (context === 'journal') openDayDetail(Number(day));
     }
 
     // СВАЙП-ЗАКРИТТЯ модалки дня — тягнеш за ручку або заголовок вниз, відпускаєш —
     // якщо протягнув достатньо (або досить швидко) — закривається, інакше повертається на місце.
     function bindDayDetailSwipe() {
         const sheet = document.querySelector('.day-detail-sheet');
-        const dragZones = [document.querySelector('.day-detail-sheet-handle'), document.querySelector('.day-detail-header')].filter(Boolean);
-        if (!sheet || !dragZones.length) return;
-        let startY = 0, deltaY = 0, dragging = false, startTime = 0;
+        const body = document.querySelector('.day-detail-body');
+        const handleZones = [document.querySelector('.day-detail-sheet-handle'), document.querySelector('.day-detail-header')].filter(Boolean);
+        if (!sheet) return;
+        let startY = 0, deltaY = 0, dragging = false, fromBody = false, startTime = 0;
 
-        function onStart(e) {
-            dragging = true;
-            startY = e.touches[0].clientY;
-            deltaY = 0;
-            startTime = Date.now();
-            sheet.style.transition = 'none';
+        // Ручка/заголовок завжди тягнуться. .day-detail-body теж — але лише коли він
+        // прокручений до самого верху (інакше свайп вниз означав би "прокрутити вміст",
+        // а не "закрити день"): якщо перший рух пальця вгору (гортання вниз по списку),
+        // перемикаємось назад на звичайний скрол замість закриття.
+        function onStart(isBody) {
+            return (e) => {
+                if (isBody && body.scrollTop > 0) { dragging = false; return; }
+                dragging = true;
+                fromBody = isBody;
+                startY = e.touches[0].clientY;
+                deltaY = 0;
+                startTime = Date.now();
+                sheet.style.transition = 'none';
+            };
         }
         function onMove(e) {
             if (!dragging) return;
-            deltaY = Math.max(0, e.touches[0].clientY - startY);
-            sheet.style.transform = `translateY(${deltaY}px)`;
+            const rawDelta = e.touches[0].clientY - startY;
+            if (fromBody && rawDelta < 0) { dragging = false; sheet.style.transform = ''; return; }
+            deltaY = Math.max(0, rawDelta);
+            if (deltaY > 0) {
+                if (fromBody && e.cancelable) e.preventDefault();
+                sheet.style.transform = `translateY(${deltaY}px)`;
+            }
         }
         function onEnd() {
             if (!dragging) return;
@@ -1259,14 +1279,20 @@
             const elapsed = Date.now() - startTime;
             const velocity = deltaY / Math.max(elapsed, 1);
             sheet.style.transform = '';
-            if (deltaY > 110 || velocity > 0.55) closeDayDetail();
+            if (deltaY > 110 || (deltaY > 24 && velocity > 0.55)) closeDayDetail();
         }
-        dragZones.forEach((zone) => {
-            zone.addEventListener('touchstart', onStart, { passive: true });
+        handleZones.forEach((zone) => {
+            zone.addEventListener('touchstart', onStart(false), { passive: true });
             zone.addEventListener('touchmove', onMove, { passive: true });
             zone.addEventListener('touchend', onEnd);
             zone.addEventListener('touchcancel', onEnd);
         });
+        if (body) {
+            body.addEventListener('touchstart', onStart(true), { passive: true });
+            body.addEventListener('touchmove', onMove, { passive: false });
+            body.addEventListener('touchend', onEnd);
+            body.addEventListener('touchcancel', onEnd);
+        }
     }
 
     function renderMobileCards() {
@@ -1474,6 +1500,7 @@
         if (!currentMonthData[day][role].working) { currentMonthData[day][role].tasks = {}; currentMonthData[day][role].other = ''; }
         else if (event) fireConfetti(event.clientX, event.clientY);
         renderTable(); renderMobileCards(); updateStats(); animateStatCards();
+        refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
     }
     function toggleTask(day, role, taskId, event) {
@@ -1482,8 +1509,9 @@
         currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId];
         if (currentMonthData[day][role].tasks[taskId] && event) fireConfetti(event.clientX, event.clientY);
         const allTasks = roleTasksConfig[role];
-        
+
         renderTable(); renderMobileCards(); updateStats();
+        refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
     }
     function updateTicketCount(day, role, val) {
