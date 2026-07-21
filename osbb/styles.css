@@ -150,7 +150,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     #bottom-nav { display: flex !important; }
     .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
     .journal-dashboard-panel { padding:16px; border-radius:var(--radius-lg); }
-    .journal-panel, .journal-list-shell { padding:16px; border-radius:28px!important; }
+    .journal-panel, .journal-list-shell { padding:12px; border-radius:28px!important; }
     .journal-stats-grid, .journal-mini-stats { grid-template-columns:1fr; gap:10px; }
     .journal-title-row, .journal-action-row { flex-direction:column; align-items:stretch; }
     .journal-title-actions, .journal-export-actions, .journal-calendar-controls { justify-content:flex-start; }
@@ -195,11 +195,6 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 136px)); gap: 8px; margin-bottom: 8px; justify-content: center; }
 .month-grid-weekdays span { text-align: center; font-size: 13px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
 .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 136px)); gap: 8px; justify-content: center; margin-bottom: 0; }
-@media (max-width: 640px) {
-    .mobile-day-card { padding-bottom: 40px; padding-left: 8px; padding-right: 8px; }
-    .month-grid-weekdays, .month-grid { gap: 4px; }
-    .month-grid-day { font-size: 24px; }
-}
 .month-grid-cell { aspect-ratio: 1; border-radius: 22px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
 .month-grid-cell:active { transform: scale(.95); }
@@ -209,10 +204,21 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-cell.is-today { border: 2px solid var(--accent); box-shadow: 0 0 0 3px rgba(52,199,89,.18); }
 .month-grid-cell.has-shifts { background: rgba(52,199,89,.07); }
 .month-grid-day { font-size: 30px; font-weight: 800; line-height: 1; }
+/* Медіа-запит навмисно ПІСЛЯ базових .month-grid-cell/.month-grid-day правил вище —
+   інакше при однаковій специфічності (простий однокласовий селектор і там, і там)
+   порядок у файлі вирішує каскад, і пізніше "безумовне" правило (30px) переб'є
+   раніше оголошений мобільний override незалежно від ширини екрана. Це реально
+   траплялось: мобільний кеп на числа дня мовчки ігнорувався через цей порядок. */
+@media (max-width: 640px) {
+    .mobile-day-card { padding-bottom: 40px; padding-left: 8px; padding-right: 8px; }
+    .month-grid-weekdays, .month-grid { gap: 4px; }
+    .month-grid-day { font-size: 18px; }
+}
 /* Сміття/Диспетчер: календарна сітка сидить одразу під .journal-list-head (панель зі
    статусом синхронізації і кнопкою "Скинути"), яка має свій нижній бордер — без відступу
-   зверху перший ряд квадратів впритик торкався б цієї лінії. */
-#g-days-list, #disp-cards { padding-top: 18px; }
+   зверху перший ряд квадратів впритик торкався б цієї лінії. Знизу теж потрібен запас,
+   інакше останній ряд (27-31) впритул до нижнього краю панелі виглядає затиснутим. */
+#g-days-list, #disp-cards { padding-top: 18px; padding-bottom: 8px; }
 .month-grid-dots { display: flex; gap: 3px; min-height: 6px; }
 .month-grid-dot { width: 6px; height: 6px; border-radius: 50%; }
 .month-grid-dot-electrician { background: #f59e0b; }
