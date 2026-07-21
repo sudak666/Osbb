@@ -1693,7 +1693,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-panel {',
     '.journal-table-shell {',
     '.garbage-chart-panel { padding:16px;',
-    '.journal-list-shell { overflow:hidden; }',
+    '.journal-list-shell { overflow:hidden; border-radius:28px!important; }',
     '.journal-list-head { padding:16px;',
     '.garbage-chart { height:80px; }',
     'class="journal-panel garbage-chart-panel"',
