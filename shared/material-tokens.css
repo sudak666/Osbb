@@ -72,6 +72,12 @@
   --md-sys-color-outline: rgba(15, 23, 42, .14);
   --md-sys-color-outline-variant: rgba(15, 23, 42, .08);
   --md-sys-color-shadow: rgba(15, 23, 42, .16);
+
+  /* Domain role accents */
+  --md-ref-role-electrician: #f59e0b;
+  --md-ref-role-janitor: #10b981;
+  --md-ref-role-plumber: #3b82f6;
+  --md-ref-role-dispatcher: #8b5cf6;
 }
 
 .theme-dark {
@@ -98,6 +104,12 @@
   --md-sys-color-outline: rgba(148, 163, 184, .24);
   --md-sys-color-outline-variant: rgba(148, 163, 184, .14);
   --md-sys-color-shadow: rgba(0, 0, 0, .5);
+
+  /* Domain role accents */
+  --md-ref-role-electrician: #fbbf24;
+  --md-ref-role-janitor: #34d399;
+  --md-ref-role-plumber: #60a5fa;
+  --md-ref-role-dispatcher: #a78bfa;
 }
 
 .md-state-layer {

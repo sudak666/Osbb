@@ -866,15 +866,32 @@
         }
     }
 
+    function getCssToken(name, fallback) {
+        const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return value || fallback;
+    }
+
+    function colorWithAlpha(color, alphaHex) {
+        return /^#[0-9a-f]{6}$/i.test(color) ? `${color}${alphaHex}` : color;
+    }
+
+    function getRoleChartColors() {
+        return {
+            electrician: getCssToken('--md-ref-role-electrician', '#f59e0b'),
+            janitor: getCssToken('--md-ref-role-janitor', '#10b981'),
+            plumber: getCssToken('--md-ref-role-plumber', '#3b82f6'),
+        };
+    }
+
     function renderCharts() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const labels = Array.from({length: daysInMonth}, (_, i) => i + 1);
-        const colors = { electrician: '#f59e0b', janitor: '#10b981', plumber: '#3b82f6' };
+        const colors = getRoleChartColors();
 
         const dailyDatasets = roles.map(role => ({
             label: roleNamesClean[role],
             data: labels.map(d => currentMonthData[d]?.[role]?.working ? 1 : 0),
-            backgroundColor: colors[role] + '99',
+            backgroundColor: colorWithAlpha(colors[role], '99'),
             borderColor: colors[role],
             borderWidth: 1,
             borderRadius: Number.MAX_VALUE,
@@ -895,7 +912,7 @@
             type: 'doughnut',
             data: {
                 labels: roles.map(r => roleNamesClean[r]),
-                datasets: [{ data: totals, backgroundColor: ['#f59e0b','#10b981','#3b82f6'], borderWidth: 2, borderRadius: 12, spacing: 4 }]
+                datasets: [{ data: totals, backgroundColor: roles.map(role => colors[role]), borderWidth: 2, borderRadius: 12, spacing: 4 }]
             },
             options: { responsive: true, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
         });
@@ -910,7 +927,7 @@
                 }
                 return count;
             }),
-            borderColor: colors[role], backgroundColor: colors[role] + '33',
+            borderColor: colors[role], backgroundColor: colorWithAlpha(colors[role], '33'),
             tension: 0.42, fill: true, borderWidth: 2, pointRadius: 4,
             pointStyle: 'circle', pointBorderWidth: 2, pointHoverRadius: 6,
             borderCapStyle: 'round', borderJoinStyle: 'round'
