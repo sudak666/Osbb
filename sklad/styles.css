@@ -619,7 +619,8 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 .empty{text-align:center;padding:48px;color:var(--ios-gray);}
 .ms{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;width:1em;height:1em;font-size:22px;line-height:1;user-select:none;-webkit-user-select:none;vertical-align:middle;}
-.ms svg{width:1em;height:1em;display:block;fill:none;stroke:currentColor;}
+.ms svg,.ms .mdi{width:1em;height:1em;display:inline-flex;align-items:center;justify-content:center;fill:none;stroke:currentColor;}
+.ms .mdi::before{font-size:1em;line-height:1;}
 .ni-icon .ms{font-size:20px;}
 .bn-icon .ms{font-size:24px;}
 #logMobileList{display:none;}
