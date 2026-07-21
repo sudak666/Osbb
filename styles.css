@@ -32,14 +32,18 @@
     .app-icon-squircle {
         width: 68px;
         height: 68px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #34c759, #248a3d);
+        border-radius: var(--md-sys-shape-corner-large, 16px);
+        background: linear-gradient(135deg, var(--md-sys-color-primary, #34c759), var(--md-sys-color-primary-fixed-dim, #248a3d));
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 16px;
-        box-shadow: 0 8px 24px rgba(52, 199, 89, 0.3);
+        box-shadow: var(--md-sys-elevation-level2, 0 8px 24px rgba(52, 199, 89, 0.3));
     }
+
+    .shell-mdi-logo { font-size: 34px; line-height: 1; color: #fff; }
+    .shell-mdi-icon { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; font-size:14px; line-height:1; }
+    .shell-mdi-icon::before, .shell-mdi-logo::before { line-height:1; }
     .lock-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
     .lock-subtitle { color: #8e8e93; font-size: 0.82rem; margin-bottom: 32px; }
 
@@ -114,7 +118,7 @@
         display: flex;
         width: 100%;
         background: rgba(116, 116, 128, 0.16);
-        border-radius: 14px; /* Повністю закруглений контейнер без гострих кутів */
+        border-radius: var(--md-sys-shape-corner-large, 14px); /* Повністю закруглений контейнер без гострих кутів */
         padding: 3px;
         gap: 3px;
         box-shadow: inset 0 0 0 0.5px rgba(60, 60, 67, 0.10);
@@ -126,23 +130,23 @@
         justify-content: center;
         gap: 5px;
         padding: 9px 4px;
-        border-radius: 11px; /* Округлі внутрішні сегменти */
+        border-radius: var(--md-sys-shape-corner-medium, 11px); /* Округлі внутрішні сегменти */
         border: none;
         background: transparent;
         color: #6e6e73;
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background var(--md-sys-motion-duration-medium2, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), color var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), box-shadow var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), transform var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
         -webkit-tap-highlight-color: transparent;
         box-sizing: border-box;
         text-decoration: none;
     }
     /* Активний сегмент із фірмовою тінню Apple */
     .shell-tab-btn.active {
-        background: linear-gradient(180deg, #34c759, #248a3d);
-        color: #fff;
-        box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.24), 0px 1px 2px rgba(0, 0, 0, 0.12);
+        background: var(--md-sys-color-primary, #34c759);
+        color: var(--md-sys-color-on-primary, #fff);
+        box-shadow: var(--md-sys-elevation-level2, 0px 3px 8px rgba(0, 0, 0, 0.24));
     }
     .shell-tab-btn:active {
         transform: scale(0.97);
@@ -156,5 +160,5 @@
     .shell-lock-btn { flex: 0 0 auto; min-width: 74px; color: #ff3b30; }
 
     /* Видимий фокус лише для клавіатурної навігації (не заважає кліку мишею/тапу) */
-    :focus-visible { outline: 2px solid #34c759; outline-offset: 2px; }
+    :focus-visible { outline: 2px solid var(--md-sys-color-primary, #34c759); outline-offset: 2px; }
     .pin-btn:focus-visible, .pin-text-btn:focus-visible { outline-color: #fff; }

@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "typescript": "5.8.3",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "@mdi/js": "7.4.47"
   }
 }
