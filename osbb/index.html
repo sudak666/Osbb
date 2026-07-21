@@ -6,7 +6,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- cache-bust-1784387092271433146 -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/Osbb/osbb/manifest.json">
     <meta name="theme-color" content="#22c55e" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +14,8 @@
     <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
     <link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2322c55e'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='%2322c55e'/></svg>">
     <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
-    <link rel="stylesheet" href="../shared/ui.css">
+    <link rel="stylesheet" href="/Osbb/shared/ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал ОСББ "Микитська Слобода"</title>
     <script>
@@ -29,7 +30,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="../shared/enhance-select.js"></script>
+    <script src="/Osbb/shared/enhance-select.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -193,26 +194,26 @@
                 <button type="button" data-action="export-excel" class="journal-action-btn journal-action-btn-ghost"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg> Excel</span></button>
                 <button type="button" data-action="print-page" class="journal-action-btn journal-action-btn-ghost"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</span></button>
                 <span class="journal-action-divider" aria-hidden="true"></span>
-                <button type="button" data-action="clear-current-month" class="journal-action-btn journal-action-btn-danger"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
+                <button type="button" data-action="clear-current-month" class="journal-action-btn journal-action-btn-danger"><span class="journal-action-label"><span class="mdi mdi-restore journal-inline-icon" aria-hidden="true"></span> Скинути</span></button>
             </div>
         </div>
 
         <div class="journal-tabs-row">
         <div id="desktop-tabs" class="flex gap-1.5" role="tablist" aria-label="Розділи журналу">
             <button type="button" data-osbb-tab="journal" id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="tab-btn active text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-journal"/></svg> Журнал
+                <span class="mdi mdi-clipboard-text-outline journal-inline-icon" aria-hidden="true"></span> Журнал
             </button>
             <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-dispatcher"/></svg> Диспетчер
+                <span class="mdi mdi-phone-outline journal-inline-icon" aria-hidden="true"></span> Диспетчер
             </button>
             <button type="button" data-osbb-tab="charts" id="tab-charts" role="tab" aria-selected="false" aria-controls="section-charts" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-charts"/></svg> Графіки
+                <span class="mdi mdi-chart-bar journal-inline-icon" aria-hidden="true"></span> Графіки
             </button>
             <button type="button" data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-garbage"/></svg> Сміття
+                <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
             </button>
             <button type="button" data-osbb-tab="chat" id="tab-chat" role="tab" aria-selected="false" aria-controls="section-chat" class="tab-btn text-xs font-bold px-3 py-2 rounded-xl border border-[var(--border)] flex items-center gap-1.5">
-                <svg aria-hidden="true" focusable="false" width="14" height="14" class="journal-inline-icon"><use href="#i-chat"/></svg> Чат
+                <span class="mdi mdi-message-outline journal-inline-icon" aria-hidden="true"></span> Чат
             </button>
         </div>
     </div>
@@ -221,19 +222,19 @@
     <!-- BOTTOM NAV — тільки на мобілці -->
     <div id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу" class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-card)] border-t border-[var(--border)] no-print" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
         <button type="button" data-osbb-tab="journal" id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)] mob-active">
-            <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-journal"/></svg> Журнал
+            <span class="mdi mdi-clipboard-text-outline journal-inline-icon" aria-hidden="true"></span> Журнал
         </button>
         <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-dispatcher"/></svg> Диспетчер
+            <span class="mdi mdi-phone-outline journal-inline-icon" aria-hidden="true"></span> Диспетчер
         </button>
         <button type="button" data-osbb-tab="charts" id="tab-charts-m" role="tab" aria-selected="false" aria-controls="section-charts" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-charts"/></svg> Графіки
+            <span class="mdi mdi-chart-bar journal-inline-icon" aria-hidden="true"></span> Графіки
         </button>
         <button type="button" data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-garbage"/></svg> Сміття
+            <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
         </button>
         <button type="button" data-osbb-tab="chat" id="tab-chat-m" role="tab" aria-selected="false" aria-controls="section-chat" class="mob-tab flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-semibold text-[var(--text-sub)]">
-            <svg aria-hidden="true" focusable="false" width="20" height="20" class="journal-inline-icon"><use href="#i-chat"/></svg> Чат
+            <span class="mdi mdi-message-outline journal-inline-icon" aria-hidden="true"></span> Чат
         </button>
     </div>
 
@@ -332,7 +333,7 @@
                 <span class="text-sm font-bold journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Журнал вивозу сміття</span>
                 <div class="flex items-center gap-2">
                     <span id="g-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
-                    <button type="button" data-action="garbage-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
+                    <button type="button" data-action="garbage-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span class="journal-action-label"><span class="mdi mdi-restore journal-inline-icon" aria-hidden="true"></span> Скинути</span></button>
                 </div>
             </div>
 
@@ -362,7 +363,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="disp-sync-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-500"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>
-                    <button type="button" data-action="dispatcher-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg> Скинути</span></button>
+                    <button type="button" data-action="dispatcher-clear-month" class="text-xs text-red-600 hover:bg-red-500/10 px-3 py-1.5 rounded-xl font-medium border border-red-200/30 transition"><span class="journal-action-label"><span class="mdi mdi-restore journal-inline-icon" aria-hidden="true"></span> Скинути</span></button>
                 </div>
             </div>
             <div id="disp-cards"></div>
@@ -875,14 +876,16 @@
             backgroundColor: colors[role] + '99',
             borderColor: colors[role],
             borderWidth: 1,
-            borderRadius: 4
+            borderRadius: Number.MAX_VALUE,
+            borderSkipped: false,
+            borderJoinStyle: 'round'
         }));
 
         if (chartDaily) chartDaily.destroy();
         chartDaily = new Chart(document.getElementById('chart-daily'), {
             type: 'bar',
             data: { labels, datasets: dailyDatasets },
-            options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { max: 1, ticks: { stepSize: 1 } } } }
+            options: { responsive: true, plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } } }, scales: { y: { max: 1, ticks: { stepSize: 1 } } } }
         });
 
         const totals = roles.map(role => Object.keys(currentMonthData).filter(d => currentMonthData[d]?.[role]?.working).length);
@@ -891,9 +894,9 @@
             type: 'doughnut',
             data: {
                 labels: roles.map(r => roleNamesClean[r]),
-                datasets: [{ data: totals, backgroundColor: ['#f59e0b','#10b981','#3b82f6'], borderWidth: 2 }]
+                datasets: [{ data: totals, backgroundColor: ['#f59e0b','#10b981','#3b82f6'], borderWidth: 2, borderRadius: 12, spacing: 4 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: { responsive: true, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
         });
 
         const weeks = ['Тиж 1','Тиж 2','Тиж 3','Тиж 4','Тиж 5'];
@@ -907,14 +910,16 @@
                 return count;
             }),
             borderColor: colors[role], backgroundColor: colors[role] + '33',
-            tension: 0.4, fill: true, borderWidth: 2, pointRadius: 4
+            tension: 0.42, fill: true, borderWidth: 2, pointRadius: 4,
+            pointStyle: 'circle', pointBorderWidth: 2, pointHoverRadius: 6,
+            borderCapStyle: 'round', borderJoinStyle: 'round'
         }));
 
         if (chartWeekly) chartWeekly.destroy();
         chartWeekly = new Chart(document.getElementById('chart-weekly'), {
             type: 'line',
             data: { labels: weeks, datasets: weeklyDatasets },
-            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            options: { responsive: true, elements: { line: { borderCapStyle: 'round', borderJoinStyle: 'round' }, point: { pointStyle: 'circle' } }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
         });
     }
 

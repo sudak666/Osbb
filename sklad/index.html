@@ -12,9 +12,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Склад ОСББ">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/Osbb/sklad/manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="stylesheet" href="../shared/ui.css">
+    <link rel="stylesheet" href="/Osbb/shared/ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Склад ОСББ</title>
 <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
@@ -22,7 +23,7 @@
 <link rel="preconnect" href="https://vkwkyhjjjmcpmiakxohw.supabase.co" crossorigin>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../shared/enhance-select.js"></script>
+<script src="/Osbb/shared/enhance-select.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -36,72 +37,29 @@ const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable
 <body class="theme-light">
 <script>document.body.className = localStorage.getItem('sklad_theme') || 'theme-light';</script>
 
-<!-- ІКОНКИ — inline SVG-спрайт замість шрифту Material Symbols (був крихкий: одна зовнішня
-     залежність від fonts.googleapis.com ламала одразу всі іконки застосунку, якщо мережа
-     блокує Google Fonts). Той самий підхід, що вже є в journal (symbol/use). -->
-<svg aria-hidden="true" focusable="false" style="display:none">
-  <defs>
-    <symbol id="micon-account_balance" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="5" y1="10" x2="5" y2="19"/><line x1="9" y1="10" x2="9" y2="19"/><line x1="15" y1="10" x2="15" y2="19"/><line x1="19" y1="10" x2="19" y2="19"/><line x1="3" y1="21" x2="21" y2="21"/></symbol>
-    <symbol id="micon-add" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
-    <symbol id="micon-add_circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></symbol>
-    <symbol id="micon-auto_awesome" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></symbol>
-    <symbol id="micon-backspace" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-6-7z"/><line x1="14" y1="9" x2="18" y2="15"/><line x1="18" y1="9" x2="14" y2="15"/></symbol>
-    <symbol id="micon-bar_chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="12"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="9"/></symbol>
-    <symbol id="micon-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
-    <symbol id="micon-build" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
-    <symbol id="micon-cancel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></symbol>
-    <symbol id="micon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></symbol>
-    <symbol id="micon-check_circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 11 15.5 16 9"/></symbol>
-    <symbol id="micon-cleaning_services" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="3" x2="11" y2="11"/><path d="M11 11 5 17c-1 1-1 3 0 4 1 1 3 1 4 0l6-6"/><path d="M5 17 3 21m4-2-1 3m4-5-1 3"/></symbol>
-    <symbol id="micon-clear_all" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="16" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></symbol>
-    <symbol id="micon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
-    <symbol id="micon-content_paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></symbol>
-    <symbol id="micon-dark_mode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></symbol>
-    <symbol id="micon-light_mode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></symbol>
-    <symbol id="micon-delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
-    <symbol id="micon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
-    <symbol id="micon-fact_check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><polyline points="9 13 11 15 15 10.5"/></symbol>
-    <symbol id="micon-fiber_new" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
-    <symbol id="micon-filter_alt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16l-6 8v6l-4 2v-8z"/></symbol>
-    <symbol id="micon-filter_alt_off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16l-6 8v6l-4 2v-8z"/><line x1="3" y1="3" x2="21" y2="21"/></symbol>
-    <symbol id="micon-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 15 15"/><path d="M4.5 7.5A8 8 0 0 1 12 5"/><polyline points="2 5 4.5 7.5 7 5"/></symbol>
-    <symbol id="micon-home_repair_service" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3"/><line x1="3" y1="14" x2="21" y2="14"/><line x1="10" y1="12" x2="10" y2="16"/><line x1="14" y1="12" x2="14" y2="16"/></symbol>
-    <symbol id="micon-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h5l2 3h4l2-3h5"/><path d="M5 5h14l2 7v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6z"/></symbol>
-    <symbol id="micon-inventory_2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18"/><path d="M9 15h6"/><path d="M7 7 9 3h6l2 4"/></symbol>
-    <symbol id="micon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2.3h6c0-1.1.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
-    <symbol id="micon-more_horiz" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></symbol>
-    <symbol id="micon-move_to_inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9"/><polyline points="8 8 12 12 16 8"/><path d="M4 13l1 6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2l1-6"/><path d="M4 13h5l1.5 2h3L15 13h5"/></symbol>
-    <symbol id="micon-notifications" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17h12l-1.5-2v-4a4.5 4.5 0 0 0-9 0v4z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
-    <symbol id="micon-output" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 12H4"/><polyline points="10 8 14 12 10 16"/><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/></symbol>
-    <symbol id="micon-payments" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="10" r="6"/><circle cx="15" cy="15" r="6"/></symbol>
-    <symbol id="micon-photo_camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="14" r="4"/></symbol>
-    <symbol id="micon-plumbing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/></symbol>
-    <symbol id="micon-production_quantity_limits" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.3" r="0.9" fill="currentColor" stroke="none"/></symbol>
-    <symbol id="micon-qr_code_scanner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3"/><path d="M20 8V5a1 1 0 0 0-1-1h-3"/><path d="M4 16v3a1 1 0 0 0 1 1h3"/><path d="M20 16v3a1 1 0 0 1-1 1h-3"/><line x1="4" y1="12" x2="20" y2="12"/></symbol>
-    <symbol id="micon-receipt_long" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v19l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></symbol>
-    <symbol id="micon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
-    <symbol id="micon-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
-    <symbol id="micon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
-    <symbol id="micon-search_off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="4" y1="4" x2="20" y2="20"/></symbol>
-    <symbol id="micon-sell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.59 2H4a2 2 0 0 0-2 2v8.59c0 .53.21 1.04.59 1.41l9 9a2 2 0 0 0 2.83 0l8.59-8.59a2 2 0 0 0 0-2.83l-9-9c-.37-.38-.88-.59-1.41-.59z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/></symbol>
-    <symbol id="micon-storefront" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M4 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/></symbol>
-    <symbol id="micon-sync" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8 8 0 0 0 6.3 6.3L4 8.6"/><polyline points="4 4 4 8.6 8.6 8.6"/><path d="M4 13a8 8 0 0 0 13.7 4.7L20 15.4"/><polyline points="20 20 20 15.4 15.4 15.4"/></symbol>
-    <symbol id="micon-tips_and_updates" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 16h4"/><path d="M9.5 20h3"/><path d="M11 2a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.9h5.4c0-.9.3-1.5.8-1.9A6 6 0 0 0 11 2z"/><path d="M19 3l.6 1.6L21 5l-1.4.6L19 7l-.6-1.4L17 5l1.4-.4z"/></symbol>
-    <symbol id="micon-travel_explore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="M10 3a10 10 0 0 1 0 14"/><path d="M10 3a10 10 0 0 0 0 14"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></symbol>
-    <symbol id="micon-upload_file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="11"/><polyline points="9 14 12 11 15 14"/></symbol>
-    <symbol id="micon-videocam" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3z"/></symbol>
-    <symbol id="micon-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 22 20H2z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.2" r="0.9" fill="currentColor" stroke="none"/></symbol>
-  </defs>
-</svg>
 <script>
-// Гідрація .ms-іконок у SVG замість тексту-ліґатури шрифту. Іконки часто рендеряться
-// динамічно (рядки товарів/логів через innerHTML) — тому спостерігаємо DOM, а не лише
-// один прохід при завантаженні.
+// Гідрація .ms-іконок у Material Design Icons-класи замість старих Material Symbols назв.
+// Іконки часто рендеряться динамічно (рядки товарів/логів через innerHTML) — тому
+// спостерігаємо DOM, а не лише один прохід при завантаженні.
+const mdiIconMap={
+  account_balance:'bank', add:'plus', add_circle:'plus-circle', auto_awesome:'auto-fix', backspace:'backspace-outline',
+  bar_chart:'chart-bar', bolt:'lightning-bolt', build:'hammer-wrench', cancel:'close-circle-outline', check:'check',
+  check_circle:'check-circle-outline', cleaning_services:'spray-bottle', clear_all:'format-align-left', close:'close',
+  content_paste:'clipboard-text-outline', dark_mode:'weather-night', light_mode:'white-balance-sunny', delete:'trash-can-outline',
+  edit:'pencil', fact_check:'clipboard-check-outline', fiber_new:'new-box', filter_alt:'filter', filter_alt_off:'filter-off',
+  history:'history', home_repair_service:'home-wrench', inbox:'inbox', inventory_2:'package-variant-closed', lightbulb:'lightbulb-outline',
+  more_horiz:'dots-horizontal', move_to_inbox:'inbox-arrow-down', notifications:'bell-outline', output:'logout-variant',
+  payments:'cash-multiple', photo_camera:'camera-outline', plumbing:'pipe-wrench', production_quantity_limits:'package-variant-remove',
+  qr_code_scanner:'qrcode-scan', receipt_long:'receipt-text-outline', refresh:'refresh', save:'content-save-outline', search:'magnify',
+  search_off:'magnify-close', sell:'tag-outline', storefront:'storefront-outline', sync:'sync', tips_and_updates:'lightbulb-on-outline',
+  travel_explore:'web', upload_file:'file-upload-outline', videocam:'video-outline', warning:'alert-outline'
+};
 function renderIcon(el){
   const name=(el.dataset.msIcon||el.textContent||'').trim();
   if(!name) return;
   el.dataset.msIcon=name;
-  el.innerHTML='<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#micon-'+name+'"></use></svg>';
+  const mdiName=mdiIconMap[name]||name.replace(/_/g,'-');
+  el.innerHTML='<span class="mdi mdi-'+mdiName+'" aria-hidden="true"></span>';
 }
 function setIcon(el,name){
   if(!el) return;
@@ -109,7 +67,7 @@ function setIcon(el,name){
   renderIcon(el);
 }
 function hydrateIcons(root){
-  (root||document).querySelectorAll('.ms').forEach(el=>{ if(!el.querySelector('svg')) renderIcon(el); });
+  (root||document).querySelectorAll('.ms').forEach(el=>{ if(!el.querySelector('.mdi')) renderIcon(el); });
 }
 hydrateIcons();
 new MutationObserver(muts=>{
@@ -117,7 +75,7 @@ new MutationObserver(muts=>{
     m.addedNodes.forEach(node=>{
       if(node.nodeType!==1) return;
       if(node.matches && node.matches('.ms')) renderIcon(node);
-      if(node.querySelectorAll) node.querySelectorAll('.ms').forEach(el=>{ if(!el.querySelector('svg')) renderIcon(el); });
+      if(node.querySelectorAll) node.querySelectorAll('.ms').forEach(el=>{ if(!el.querySelector('.mdi')) renderIcon(el); });
     });
   }
 }).observe(document.documentElement,{childList:true,subtree:true});
