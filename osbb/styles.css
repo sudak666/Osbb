@@ -98,6 +98,7 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .garbage-chart { height:80px; }
 
 .journal-inline-icon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; flex-shrink:0; }
+.journal-splash-icon { font-size:80px; line-height:1; color:var(--md-sys-color-primary, var(--accent)); }
 .mdi.journal-inline-icon::before { font-size:1em; line-height:1; }
 .journal-action-label { display:inline-flex; align-items:center; gap:6px; }
 .status-label { display:inline-flex; align-items:center; gap:5px; }
