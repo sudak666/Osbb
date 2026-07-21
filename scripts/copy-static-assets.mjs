@@ -7,6 +7,8 @@ const files = [
   'sw.js',
   'icon-192.png',
   'icon-512.png',
+  'shared/ui.css',
+  'shared/enhance-select.js',
   'osbb/manifest.json',
   'osbb/sw.js',
   'osbb/icon-192.png',

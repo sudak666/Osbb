@@ -40,6 +40,10 @@
         margin-bottom: 16px;
         box-shadow: 0 8px 24px rgba(52, 199, 89, 0.3);
     }
+
+    .shell-mdi-logo { font-size: 34px; line-height: 1; color: #fff; }
+    .shell-mdi-icon { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; font-size:14px; line-height:1; }
+    .shell-mdi-icon::before, .shell-mdi-logo::before { line-height:1; }
     .lock-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
     .lock-subtitle { color: #8e8e93; font-size: 0.82rem; margin-bottom: 32px; }
 
