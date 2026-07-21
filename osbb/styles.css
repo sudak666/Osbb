@@ -193,9 +193,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 @media (max-width: 640px) {
     .mobile-day-card { padding-bottom: 40px; padding-left: 8px; padding-right: 8px; }
     .month-grid-weekdays, .month-grid { gap: 4px; }
-    .month-grid-day { font-size: 17px; }
+    .month-grid-day { font-size: 19px; }
 }
-.month-grid-cell { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
+.month-grid-cell { aspect-ratio: 1; border-radius: 18px; border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 2px; transition: transform .15s ease, box-shadow .15s ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.08); }
 .month-grid-cell:active { transform: scale(.95); }
 .month-grid-cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -203,7 +203,11 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-cell.is-weekend .month-grid-day { color: #ef4444; }
 .month-grid-cell.is-today { border: 2px solid var(--accent); box-shadow: 0 0 0 3px rgba(52,199,89,.18); }
 .month-grid-cell.has-shifts { background: rgba(52,199,89,.07); }
-.month-grid-day { font-size: 18px; font-weight: 800; line-height: 1; }
+.month-grid-day { font-size: 20px; font-weight: 800; line-height: 1; }
+/* Сміття/Диспетчер: календарна сітка сидить одразу під .journal-list-head (панель зі
+   статусом синхронізації і кнопкою "Скинути"), яка має свій нижній бордер — без відступу
+   зверху перший ряд квадратів впритик торкався б цієї лінії. */
+#g-days-list, #disp-cards { padding-top: 18px; }
 .month-grid-dots { display: flex; gap: 3px; min-height: 6px; }
 .month-grid-dot { width: 6px; height: 6px; border-radius: 50%; }
 .month-grid-dot-electrician { background: #f59e0b; }
