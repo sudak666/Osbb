@@ -80,13 +80,17 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .journal-table-shell { border:1px solid var(--border-subtle)!important; background:var(--surface-1)!important; border-radius:24px!important; box-shadow:var(--shadow-sm)!important; }
 .journal-table-shell thead tr { background:linear-gradient(180deg,var(--surface-2),var(--table-header))!important; }
 .garbage-chart-panel { padding:16px; margin-bottom:16px; }
-.journal-list-shell { overflow:hidden; border-radius:32px!important; }
-/* .journal-list-head сидить не впритул до краю .journal-list-shell, а всередині його
-   власного padding (16-22px) — тому заокруглений кут ЗОВНІШНЬОЇ панелі його кутів
-   не торкається і overflow:hidden тут ні до чого. Сіра смуга заголовка сама по собі —
-   окремий прямокутний блок з власним фоном, і без власного border-radius її верхні
-   кути лишаються гострими, навіть коли зовнішня панель навколо заокруглена. */
-.journal-list-head { padding:16px; background:var(--table-header); border-bottom:1px solid var(--border); border-radius:26px 26px 0 0; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+/* .journal-list-shell навмисно БЕЗ padding (на відміну від .journal-panel, з яким
+   комбінується) — .journal-list-head раніше сидів усередині успадкованого відступу
+   панелі (16-22px), окремим прямокутним блоком зі своїм фоном і своїм border-radius,
+   вкладеним у заокруглений кут панелі. Це давало видиму білу смужку-зазор між двома
+   різними заокругленнями (панелі й самої смуги) — саме той "білий залишок" на світлій
+   темі. Тепер .journal-list-head впритул до країв .journal-list-shell, без власного
+   border-radius — його кути заокруглюються самим overflow:hidden шелу, суцільно з
+   рештою панелі, без шва. Горизонтальний/нижній відступ під календар перенесено на
+   #g-days-list/#disp-cards нижче. */
+.journal-list-shell { overflow:hidden; border-radius:32px!important; padding:0!important; }
+.journal-list-head { padding:16px 22px; background:var(--table-header); border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
 .journal-mini-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
 .journal-mini-stats.is-two { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .journal-mini-stat { padding:16px; align-items:center; text-align:center; }
@@ -121,7 +125,7 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .role-card, .mobile-day-card, .stat-card { border-radius: var(--radius-lg) !important; box-shadow: var(--soft-shadow); }
 .mobile-day-card { background: var(--glass-card) !important; backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px); border-color: rgba(255,255,255,0.55) !important; padding: 14px; }
 input, select, textarea { border-radius: 14px !important; background-color: var(--bg-input) !important; }
-button, .tab-btn, .mob-tab { border-radius: 14px; }
+button, .tab-btn, .mob-tab { border-radius: 18px; }
 .lightbox { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .lightbox img { border-radius: var(--radius-lg); }
 .rounded-2xl { border-radius: 18px !important; }
@@ -150,7 +154,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     #bottom-nav { display: flex !important; }
     .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
     .journal-dashboard-panel { padding:16px; border-radius:var(--radius-lg); }
-    .journal-panel, .journal-list-shell { padding:12px; border-radius:28px!important; }
+    .journal-panel { padding:12px; border-radius:28px!important; }
+    .journal-list-shell { padding:0!important; border-radius:28px!important; }
+    .journal-list-head { padding:14px 12px; }
     .journal-stats-grid, .journal-mini-stats { grid-template-columns:1fr; gap:10px; }
     .journal-title-row, .journal-action-row { flex-direction:column; align-items:stretch; }
     .journal-title-actions, .journal-export-actions, .journal-calendar-controls { justify-content:flex-start; }
@@ -217,8 +223,14 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 /* Сміття/Диспетчер: календарна сітка сидить одразу під .journal-list-head (панель зі
    статусом синхронізації і кнопкою "Скинути"), яка має свій нижній бордер — без відступу
    зверху перший ряд квадратів впритик торкався б цієї лінії. Знизу теж потрібен запас,
-   інакше останній ряд (27-31) впритул до нижнього краю панелі виглядає затиснутим. */
-#g-days-list, #disp-cards { padding-top: 18px; padding-bottom: 8px; }
+   інакше останній ряд (27-31) впритул до нижнього краю панелі виглядає затиснутим.
+   Горизонтальний відступ теж тут — .journal-list-shell тепер сам без padding (див.
+   коментар вище про безшовний .journal-list-head), тож бокові поля календаря треба
+   задавати явно, а не покладатись на успадкований відступ панелі. */
+#g-days-list, #disp-cards { padding: 18px 22px 8px; }
+@media (max-width: 640px) {
+    #g-days-list, #disp-cards { padding: 18px 12px 8px; }
+}
 .month-grid-dots { display: flex; gap: 3px; min-height: 6px; }
 .month-grid-dot { width: 6px; height: 6px; border-radius: 50%; }
 .month-grid-dot-electrician { background: #f59e0b; }
