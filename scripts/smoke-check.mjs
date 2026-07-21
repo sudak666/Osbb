@@ -843,7 +843,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'osbb task-toggle dots use class-based checked state';
   const required = [
     '.task-check-dot { width:20px; height:20px; border-radius:50%;',
-    '.task-check-dot.is-checked { border-color:#22c55e; background:#22c55e; }',
+    '.task-check-dot.is-checked { border-color:var(--md-sys-color-primary, #22c55e); background:var(--md-sys-color-primary, #22c55e); }',
     "class=\"task-check-dot${isChecked?' is-checked':''}\"",
   ];
   const forbidden = [
@@ -1693,7 +1693,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-panel {',
     '.journal-table-shell {',
     '.garbage-chart-panel { padding:16px;',
-    '.journal-list-shell { overflow:hidden; border-radius:32px!important; padding:0!important; }',
+    '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large, 32px)!important; padding:0!important; }',
     '.journal-list-head { padding:16px 22px;',
     '.garbage-chart { height:80px; }',
     'class="journal-panel garbage-chart-panel"',
