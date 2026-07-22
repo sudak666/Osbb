@@ -1498,13 +1498,21 @@ function positionItemMenu(menu){
   const panel=menu.querySelector('.item-more-menu');
   if(!panel) return;
   menu.classList.remove('opens-down');
+  panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
-  const panelHeight=panel.offsetHeight;
   const filterBar=document.querySelector('.items-filter-bar');
+  const bottomNav=document.querySelector('.bottom-nav');
   const topBoundary=filterBar?Math.max(0,filterBar.getBoundingClientRect().bottom):0;
-  const spaceAbove=summaryRect.top-topBoundary;
-  const spaceBelow=window.innerHeight-summaryRect.bottom;
-  if(spaceAbove<panelHeight+16 && spaceBelow>spaceAbove) menu.classList.add('opens-down');
+  const bottomBoundary=bottomNav && getComputedStyle(bottomNav).display!=='none'
+    ? Math.min(window.innerHeight,bottomNav.getBoundingClientRect().top)
+    : window.innerHeight;
+  const panelHeight=panel.offsetHeight;
+  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-12);
+  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-12);
+  const opensDown=spaceBelow>=Math.min(panelHeight,360) || spaceBelow>spaceAbove;
+  const available=opensDown?spaceBelow:spaceAbove;
+  if(opensDown) menu.classList.add('opens-down');
+  panel.style.maxHeight=Math.max(160,Math.min(360,available))+'px';
 }
 function handleItemMenuToggle(event){
   const menu=event.target;
