@@ -44,15 +44,15 @@ const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable
 // спостерігаємо DOM, а не лише один прохід при завантаженні.
 const mdiIconMap={
   account_balance:'bank', add:'plus', add_circle:'plus-circle', auto_awesome:'auto-fix', backspace:'backspace-outline',
-  bar_chart:'chart-bar', bolt:'lightning-bolt', build:'hammer-wrench', cancel:'close-circle-outline', check:'check',
+  bar_chart:'chart-bar', barcode_scanner:'line-scan', bolt:'lightning-bolt', build:'hammer-wrench', cancel:'close-circle-outline', check:'check',
   check_circle:'check-circle-outline', cleaning_services:'spray-bottle', clear_all:'format-align-left', close:'close',
   content_paste:'clipboard-text-outline', dark_mode:'weather-night', light_mode:'white-balance-sunny', delete:'trash-can-outline',
   edit:'pencil', fact_check:'clipboard-check-outline', fiber_new:'new-box', filter_alt:'filter', filter_alt_off:'filter-off',
   history:'history', home_repair_service:'home-wrench', inbox:'inbox', inventory_2:'package-variant-closed', lightbulb:'lightbulb-outline',
   more_horiz:'dots-horizontal', move_to_inbox:'inbox-arrow-down', notifications:'bell-outline', output:'logout-variant',
-  payments:'cash-multiple', photo_camera:'camera-outline', plumbing:'pipe-wrench', production_quantity_limits:'package-variant-remove',
+  payments:'cash-multiple', photo_camera:'camera-outline', plumbing:'pipe-wrench', production_quantity_limits:'alert-circle-outline',
   qr_code_scanner:'qrcode-scan', receipt_long:'receipt-text-outline', refresh:'refresh', save:'content-save-outline', search:'magnify',
-  search_off:'magnify-close', sell:'tag-outline', storefront:'storefront-outline', sync:'sync', tips_and_updates:'lightbulb-on-outline',
+  search_off:'magnify-close', sell:'tag-outline', storefront:'storefront-outline', swap_horizontal_circle:'swap-horizontal-circle-outline', sync:'sync', tips_and_updates:'lightbulb-on-outline',
   travel_explore:'web', upload_file:'file-upload-outline', videocam:'video-outline', warning:'alert-outline'
 };
 function renderIcon(el){
@@ -226,7 +226,7 @@ async function checkPin(attempt){
     <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Товари на складі</h2>
     <div class="topbar-actions">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
-      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr" data-tip="Сканер" aria-label="Сканер QR-коду"><span class="ms" aria-hidden="true">qr_code_scanner</span></button>
+      <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr" data-tip="Сканер" aria-label="Сканер штрих-коду"><span class="ms" aria-hidden="true">barcode_scanner</span></button>
       <button type="button" class="btn btn-excel btn-sm" data-sklad-action="export-excel"><span class="ms topbar-excel-icon" aria-hidden="true">upload_file</span> Excel</button>
       <button type="button" class="btn btn-ghost btn-sm topbar-refresh" id="refreshBtn" data-sklad-action="refresh"><span class="ms" aria-hidden="true">sync</span> Оновити</button>
       <!-- Другорядні дії — щоб не перевантажувати головний ряд однаковими за вагою кнопками
@@ -1484,6 +1484,7 @@ function handleItemActionKeydown(event){
 }
 function setItemMenuExpanded(menu,expanded){
   menu?.querySelector('summary')?.setAttribute('aria-expanded', String(expanded));
+  menu?.closest?.('.m-card,tr')?.classList.toggle('has-open-menu', Boolean(expanded));
 }
 function closeOpenItemMenus(except=null){
   document.querySelectorAll('details.item-more[open]').forEach(menu=>{
@@ -1670,7 +1671,7 @@ function renderItems(){
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
-            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
             <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
             <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
@@ -1713,7 +1714,7 @@ function renderItems(){
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
-            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
             <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
             <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
