@@ -181,6 +181,61 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Shared Material Design 3 tokens must stay wired into every entrypoint and
+// consumed by the three UI surfaces. This prevents future polish passes from
+// drifting back to isolated hardcoded theme islands.
+{
+  const label = 'shared Material tokens are linked from all app entrypoints';
+  const files = ['index.html', 'osbb/index.html', 'sklad/index.html'];
+  const missing = files.filter(file => !readFileSync(file, 'utf8').includes('/Osbb/shared/material-tokens.css'));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const label = 'shared Material token layer exposes color shape elevation and motion roles';
+  const text = readFileSync('shared/material-tokens.css', 'utf8');
+  const required = [
+    '--md-sys-color-primary',
+    '--md-sys-color-surface',
+    '--md-sys-color-scrim',
+    '--md-sys-shape-corner-medium',
+    '--md-sys-elevation-level2',
+    '--md-sys-motion-duration-short4',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const label = 'shell journal and sklad consume Material token aliases';
+  const surfaces = [
+    ['shell', readShellCombined(), ['--md-sys-color-scrim', '--md-sys-color-surface-container-high', '--md-sys-motion-duration-short2']],
+    ['journal', readOsbbCombined(), ['--md-sys-color-background', '--md-sys-color-surface', '--md-sys-elevation-level2']],
+    ['sklad', readSkladCombined(), ['--md-sys-color-primary', '--md-sys-shape-corner-extra-large', '--md-sys-motion-duration-short4']],
+  ];
+  const missing = surfaces.flatMap(([name, text, needles]) => needles.filter(needle => !text.includes(needle)).map(needle => `${name}:${needle}`));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shell controls should be wired with event listeners rather than inline onclick
 // attributes so markup stays separate from behavior and CSP hardening remains possible.
 {
