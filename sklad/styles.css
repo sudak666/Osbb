@@ -161,6 +161,7 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-filter-icon{font-size:16px;}
 .category-pill-icon{font-size:15px;vertical-align:-3px;}
 .items-search-field{width:250px;min-width:160px;}
+.log-search-field{width:240px;}
 .items-reset-btn{display:none;padding:7px 10px;}
 .items-reset-icon{font-size:14px;vertical-align:-2px;}
 .table-modern{overflow:visible;}
@@ -481,6 +482,9 @@ tbody tr:last-child{border-bottom:none;}
 .ic-20{font-size:20px;}
 .ic-40{font-size:40px;}
 .ic-48{font-size:48px;}
+.auth-logo{margin-bottom:12px;}
+.sidebar-logo-mark{margin-bottom:6px;}
+.sidebar-logo-icon{font-size:32px;color:var(--brand);}
 
 /* BADGES */
 .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
@@ -855,6 +859,17 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 /* Skeleton-заглушки на час першого завантаження даних */
 @keyframes skel-shimmer { 0% { background-position: -160% 0; } 100% { background-position: 160% 0; } }
 .skel { background: linear-gradient(90deg, var(--ios-gray6) 25%, var(--ios-sep) 37%, var(--ios-gray6) 63%); background-size: 400% 100%; animation: skel-shimmer 1.4s ease-in-out infinite; border-radius: 6px; display: inline-block; height: 12px; }
+.skel-xs{width:20px;}
+.skel-sm{width:30px;}
+.skel-md{width:40px;}
+.skel-lg{width:60px;}
+.skel-xl{width:70px;}
+.skel-fluid-md{width:60%;}
+.skel-fluid-lg{width:70%;}
+.skel-fluid-xl{width:80%;}
+.skel-photo{width:36px;height:36px;border-radius:8px;}
+.receipt-table-card{margin-bottom:16px;}
+.receipt-mobile-list{margin-bottom:16px;padding:0;}
 
 /* ==========================================
    ACCESSIBILITY: більший текст і touch target для літньої аудиторії.
