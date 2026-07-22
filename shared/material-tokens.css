@@ -72,6 +72,8 @@
   --md-sys-color-outline: rgba(15, 23, 42, .14);
   --md-sys-color-outline-variant: rgba(15, 23, 42, .08);
   --md-sys-color-shadow: rgba(15, 23, 42, .16);
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-inverse-on-surface: #ffffff;
 
   /* Domain role accents */
   --md-ref-role-electrician: #f59e0b;
@@ -104,6 +106,8 @@
   --md-sys-color-outline: rgba(148, 163, 184, .24);
   --md-sys-color-outline-variant: rgba(148, 163, 184, .14);
   --md-sys-color-shadow: rgba(0, 0, 0, .5);
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-inverse-on-surface: #ffffff;
 
   /* Domain role accents */
   --md-ref-role-electrician: #fbbf24;
