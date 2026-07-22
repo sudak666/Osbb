@@ -2268,6 +2268,37 @@ ${sharedSelectText}`;
   }
 }
 
+
+// Mobile item overflow menus must stay inside the usable viewport. This guards
+// the positioning logic that accounts for the sticky filter toolbar, floating
+// bottom nav, and viewport changes on mobile browsers.
+{
+  const text = readSkladCombined();
+  const label = 'sklad item menus account for mobile viewport boundaries';
+  const required = [
+    "const bottomNav=document.querySelector('.bottom-nav')",
+    "getComputedStyle(bottomNav).display!=='none'",
+    'bottomNav.getBoundingClientRect().top',
+    'const spaceAbove=Math.max(0,summaryRect.top-topBoundary-12)',
+    'const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-12)',
+    "panel.style.maxHeight=Math.max(160,Math.min(360,available))+'px'",
+    'function repositionOpenItemMenus',
+    'itemMenuRepositionFrame=requestAnimationFrame',
+    "document.addEventListener('scroll',repositionOpenItemMenus,{passive:true,capture:true})",
+    "window.visualViewport?.addEventListener('resize',repositionOpenItemMenus,{passive:true})",
+    '.m-card.has-open-menu,.table-modern tr.has-open-menu{position:relative;z-index:90;}',
+    '.item-more[open]{z-index:100;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Price result actions can contain merchant/source/link text with apostrophes, so
 // they must not be serialized into inline JS argument lists.
 {
