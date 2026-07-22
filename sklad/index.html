@@ -1484,6 +1484,7 @@ function handleItemActionKeydown(event){
 }
 function setItemMenuExpanded(menu,expanded){
   menu?.querySelector('summary')?.setAttribute('aria-expanded', String(expanded));
+  menu?.closest?.('.m-card,tr')?.classList.toggle('has-open-menu', Boolean(expanded));
 }
 function closeOpenItemMenus(except=null){
   document.querySelectorAll('details.item-more[open]').forEach(menu=>{

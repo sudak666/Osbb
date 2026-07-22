@@ -832,7 +832,9 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .hist-person{font-weight:700;color:var(--ios-label);}
 .hist-meta{font-size:11px;color:var(--ios-label3);}
 
-.item-more{position:relative;flex-shrink:0;}
+.m-card.has-open-menu,.table-modern tr.has-open-menu{position:relative;z-index:90;}
+.item-more{position:relative;flex-shrink:0;z-index:1;}
+.item-more[open]{z-index:100;}
 .item-more summary{list-style:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:var(--md-sys-shape-corner-medium,14px);background:var(--md-sys-color-surface-container,rgba(116,116,128,.10));color:var(--md-sys-color-primary,var(--brand));cursor:pointer;}
 .item-more summary::-webkit-details-marker{display:none;}
 .item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level3,0 14px 34px rgba(0,0,0,.18));padding:6px;display:flex;flex-direction:column;gap:2px;}
