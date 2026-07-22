@@ -236,6 +236,28 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+{
+  const label = 'shell and journal primary controls use Material state layers';
+  const required = [
+    ['index.html', 'class="shell-tab-btn md-state-layer active"'],
+    ['index.html', 'class="pin-btn md-state-layer"'],
+    ['osbb/index.html', 'class="journal-theme-toggle md-state-layer"'],
+    ['osbb/index.html', 'class="journal-action-btn journal-action-btn-ghost md-state-layer"'],
+    ['osbb/index.html', 'class="tab-btn md-state-layer active'],
+    ['osbb/index.html', 'class="mob-tab md-state-layer'],
+    ['shared/material-tokens.css', '.md-state-layer:hover::before'],
+  ];
+  const missing = required.filter(([file, needle]) => !readFileSync(file, 'utf8').includes(needle)).map(([file, needle]) => `${file}:${needle}`);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shell controls should be wired with event listeners rather than inline onclick
 // attributes so markup stays separate from behavior and CSP hardening remains possible.
 {
@@ -1715,7 +1737,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '--surface-1:',
     '--shadow-md:',
     '.journal-theme-toggle {',
-    'class="journal-theme-toggle" data-theme-toggle',
+    'class="journal-theme-toggle md-state-layer" data-theme-toggle',
     'function toggleTheme()',
     '.journal-dashboard-panel {',
     '.journal-stats-grid {',
@@ -1837,8 +1859,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-inline-icon {',
     '.journal-action-label {',
     '.journal-action-btn {',
-    'class="journal-action-btn journal-action-btn-ghost"',
-    'class="journal-action-btn journal-action-btn-danger"',
+    'class="journal-action-btn journal-action-btn-ghost md-state-layer"',
+    'class="journal-action-btn journal-action-btn-danger md-state-layer"',
     'class="journal-inline-icon"',
     '<span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span>',
   ];

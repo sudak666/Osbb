@@ -131,8 +131,10 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-  z-index: -1;
+  z-index: 0;
 }
+
+.md-state-layer > * { position: relative; z-index: 1; }
 
 .md-state-layer:hover::before { opacity: var(--md-sys-state-hover-opacity); }
 .md-state-layer:focus-visible::before { opacity: var(--md-sys-state-focus-opacity); }
