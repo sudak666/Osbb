@@ -52,7 +52,7 @@ const mdiIconMap={
   more_horiz:'dots-horizontal', move_to_inbox:'inbox-arrow-down', notifications:'bell-outline', output:'logout-variant',
   payments:'cash-multiple', photo_camera:'camera-outline', plumbing:'pipe-wrench', production_quantity_limits:'package-variant-remove',
   qr_code_scanner:'qrcode-scan', receipt_long:'receipt-text-outline', refresh:'refresh', save:'content-save-outline', search:'magnify',
-  search_off:'magnify-close', sell:'tag-outline', storefront:'storefront-outline', sync:'sync', tips_and_updates:'lightbulb-on-outline',
+  search_off:'magnify-close', sell:'tag-outline', storefront:'storefront-outline', swap_horizontal_circle:'swap-horizontal-circle-outline', sync:'sync', tips_and_updates:'lightbulb-on-outline',
   travel_explore:'web', upload_file:'file-upload-outline', videocam:'video-outline', warning:'alert-outline'
 };
 function renderIcon(el){
@@ -1670,7 +1670,7 @@ function renderItems(){
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
-            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
             <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
             <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
@@ -1713,7 +1713,7 @@ function renderItems(){
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
-            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">home_repair_service</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
+            <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
             <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
             <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
