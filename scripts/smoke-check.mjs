@@ -258,6 +258,27 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+{
+  const label = 'Sklad controls use token-driven Material state layers';
+  const text = readSkladCombined();
+  const required = [
+    '.btn,.pill,.ni,.bn-item,.item-more summary{position:relative;overflow:hidden;isolation:isolate;}',
+    '.btn::before,.pill::before,.ni::before,.bn-item::before,.item-more summary::before',
+    '--md-sys-state-hover-opacity',
+    '--md-sys-state-focus-opacity',
+    '--md-sys-state-pressed-opacity',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shell controls should be wired with event listeners rather than inline onclick
 // attributes so markup stays separate from behavior and CSP hardening remains possible.
 {
