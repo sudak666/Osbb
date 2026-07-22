@@ -1523,8 +1523,13 @@ function handleItemMenuToggle(event){
 function handleItemMenuOutsideClick(event){
   if(!event.target.closest?.('details.item-more')) closeOpenItemMenus();
 }
+let itemMenuRepositionFrame=0;
 function repositionOpenItemMenus(){
-  document.querySelectorAll('details.item-more[open]').forEach(positionItemMenu);
+  if(itemMenuRepositionFrame) return;
+  itemMenuRepositionFrame=requestAnimationFrame(()=>{
+    itemMenuRepositionFrame=0;
+    document.querySelectorAll('details.item-more[open]').forEach(positionItemMenu);
+  });
 }
 function bindItemActionDelegation(){
   ['itemsTable','mobileCards'].forEach(id=>{
