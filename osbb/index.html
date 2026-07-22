@@ -842,7 +842,7 @@
     let pendingRollback = null;
 
     function scheduleSave(day = null, snapshot = null) {
-        setSyncStatus('loading', '<span class="status-label is-tight"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
+        setSyncStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-content-save-outline journal-inline-icon" aria-hidden="true"></span>Зберігаю...</span>');
         saveOffline();
         clearTimeout(saveTimer);
         if (day !== null && snapshot !== null) pendingRollback = { day, snapshot };
@@ -985,7 +985,7 @@
 
     async function uploadPhoto(day, role, file) {
         if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>'); return; }
-        setSyncStatus('loading', '<span class="status-label is-tight"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Завантажую...</span>');
+        setSyncStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-cloud-upload-outline journal-inline-icon" aria-hidden="true"></span>Завантажую...</span>');
         try {
             const compressed = await compressImage(file);
             const ext = 'jpg';
@@ -2032,7 +2032,7 @@
     }
 
     function gScheduleSave() {
-        gSetStatus('loading', '<span class="status-label is-tight"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
+        gSetStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-content-save-outline journal-inline-icon" aria-hidden="true"></span>Зберігаю...</span>');
         gSaveOffline();
         clearTimeout(gSaveTimer);
         gSaveTimer = setTimeout(gSaveCloud, 1200);
@@ -2462,7 +2462,7 @@
     }
 
     function dispScheduleSave() {
-        dispSetStatus('loading', '<span class="status-label is-tight"><svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Зберігаю...</span>');
+        dispSetStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-content-save-outline journal-inline-icon" aria-hidden="true"></span>Зберігаю...</span>');
         dispSaveOffline();
         clearTimeout(dispSaveTimer);
         dispSaveTimer = setTimeout(dispSaveCloud, 1200);
@@ -2779,10 +2779,10 @@
     // iOS TOAST повідомлення
     // ============================================================
     let toastTimer = null;
-    const TOAST_ICON_CHECK = '<svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    const TOAST_ICON_WARN  = '<svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-    const TOAST_ICON_TRASH = '<svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
-    const TOAST_ICON_ERROR = '<svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    const TOAST_ICON_CHECK = '<span class="mdi mdi-check-bold journal-inline-icon" aria-hidden="true"></span>';
+    const TOAST_ICON_WARN  = '<span class="mdi mdi-alert-outline journal-inline-icon" aria-hidden="true"></span>';
+    const TOAST_ICON_TRASH = '<span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span>';
+    const TOAST_ICON_ERROR = '<span class="mdi mdi-close-thick journal-inline-icon" aria-hidden="true"></span>';
     function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
         const el = document.getElementById('ios-toast');
         if (!el) return;
