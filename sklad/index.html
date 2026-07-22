@@ -1523,6 +1523,9 @@ function handleItemMenuToggle(event){
 function handleItemMenuOutsideClick(event){
   if(!event.target.closest?.('details.item-more')) closeOpenItemMenus();
 }
+function repositionOpenItemMenus(){
+  document.querySelectorAll('details.item-more[open]').forEach(positionItemMenu);
+}
 function bindItemActionDelegation(){
   ['itemsTable','mobileCards'].forEach(id=>{
     const el=document.getElementById(id);
@@ -1532,6 +1535,9 @@ function bindItemActionDelegation(){
   });
   document.addEventListener('toggle',handleItemMenuToggle,true);
   document.addEventListener('click',handleItemMenuOutsideClick);
+  document.addEventListener('scroll',repositionOpenItemMenus,{passive:true,capture:true});
+  window.addEventListener('resize',repositionOpenItemMenus,{passive:true});
+  window.visualViewport?.addEventListener('resize',repositionOpenItemMenus,{passive:true});
 }
 
 function bindPriceBadgeActions(){
