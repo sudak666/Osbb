@@ -1463,7 +1463,11 @@ function handleItemActionClick(event){
   event.preventDefault();
   const id=Number(trigger.dataset.itemId);
   if(!id) return;
-  trigger.closest('details')?.removeAttribute('open');
+  const menu=trigger.closest('details.item-more');
+  if(menu){
+    menu.removeAttribute('open');
+    setItemMenuExpanded(menu,false);
+  }
   switch(trigger.dataset.itemAction){
     case 'quick': openQuick(id); break;
     case 'history': openHistory(id); break;
