@@ -178,8 +178,8 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 
 /* Плаваюча заокруглена нижня панель (як капсула), а не суцільна смуга по краю екрана */
 #bottom-nav {
-    left: 12px !important;
-    right: 12px !important;
+    left: 6px !important;
+    right: 6px !important;
     bottom: calc(12px + env(safe-area-inset-bottom)) !important;
     border-radius: 26px !important;
     border: 1px solid var(--border) !important;
@@ -188,7 +188,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     padding-top: 4px;
 }
 .theme-dark #bottom-nav { box-shadow: 0 10px 32px rgba(0,0,0,0.5), 0 2px 10px rgba(0,0,0,0.3) !important; }
-.mob-tab { border-radius: var(--md-sys-shape-corner-large, var(--radius-md)); margin: 4px 3px; }
+.mob-tab { border-radius: var(--md-sys-shape-corner-large, var(--radius-md)); margin: 4px 1px; }
+#bottom-nav .mdi::before { font-size: 24px; }
+#bottom-nav .mob-tab { gap: 3px; }
 .mob-tab.mob-active { background: var(--md-sys-color-secondary-container, rgba(52,199,89,0.12)); }
 .theme-dark .mob-tab.mob-active { background: rgba(48,209,88,0.18); }
 .round-checkbox { appearance:none; -webkit-appearance:none; width:18px; height:18px; border-radius:50%; border:2px solid #d1d5db; background:transparent; cursor:pointer; transition:border-color var(--md-sys-motion-duration-short3, .15s), background var(--md-sys-motion-duration-short3, .15s), transform var(--md-sys-motion-duration-short3, .15s); flex-shrink:0; vertical-align:middle; }
@@ -219,8 +221,8 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
    раніше оголошений мобільний override незалежно від ширини екрана. Це реально
    траплялось: мобільний кеп на числа дня мовчки ігнорувався через цей порядок. */
 @media (max-width: 640px) {
-    .mobile-day-card { padding-bottom: 40px; padding-left: 8px; padding-right: 8px; }
-    .month-grid-weekdays, .month-grid { gap: 4px; }
+    .mobile-day-card { padding-bottom: 40px; padding-left: 4px; padding-right: 4px; }
+    .month-grid-weekdays, .month-grid { gap: 3px; }
     .month-grid-day { font-size: 18px; }
 }
 /* Сміття/Диспетчер: календарна сітка сидить одразу під .journal-list-head (панель зі
@@ -232,7 +234,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
    задавати явно, а не покладатись на успадкований відступ панелі. */
 #g-days-list, #disp-cards { padding: 18px 22px 8px; }
 @media (max-width: 640px) {
-    #g-days-list, #disp-cards { padding: 18px 12px 8px; }
+    #g-days-list, #disp-cards { padding: 18px 6px 8px; }
 }
 .month-grid-dots { display: flex; gap: 3px; min-height: 6px; }
 .month-grid-dot { width: 6px; height: 6px; border-radius: 50%; }
