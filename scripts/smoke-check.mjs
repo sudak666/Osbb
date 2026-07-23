@@ -279,6 +279,26 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+{
+  const label = 'journal calendar controls use Material state layers';
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const required = [
+    'data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="md-state-layer',
+    'data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="md-state-layer',
+    'data-action="go-today" id="btn-today" class="md-state-layer',
+    'data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="md-state-layer',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shell controls should be wired with event listeners rather than inline onclick
 // attributes so markup stays separate from behavior and CSP hardening remains possible.
 {
