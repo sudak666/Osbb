@@ -1,10 +1,10 @@
     /* Базові системні налаштування iOS */
-    html, body { height: 100%; margin: 0; overflow: hidden; background: #000; }
+    html, body { height: 100%; min-height: 100dvh; margin: 0; overflow: hidden; background: var(--md-sys-color-scrim, #000); }
     body {
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        color: #fff;
+        color: var(--md-sys-color-inverse-on-surface, #fff);
     }
     /* Не блокуємо виділення тексту глобально — лише на кнопках/навігації, як у нативних застосунках */
     button, .shell-tab-btn, .pin-btn, .pin-text-btn { user-select: none; -webkit-user-select: none; }
@@ -15,7 +15,7 @@
     #app-lock-screen {
         position: fixed;
         inset: 0;
-        background: #000;
+        background: var(--md-sys-color-scrim, #000);
         z-index: 99999;
         display: flex;
         flex-direction: column;
@@ -41,11 +41,11 @@
         box-shadow: var(--md-sys-elevation-level2, 0 8px 24px rgba(52, 199, 89, 0.3));
     }
 
-    .shell-mdi-logo { font-size: 34px; line-height: 1; color: #fff; }
+    .shell-mdi-logo { font-size: 34px; line-height: 1; color: var(--md-sys-color-on-primary, #fff); }
     .shell-mdi-icon { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; font-size:14px; line-height:1; }
     .shell-mdi-icon::before, .shell-mdi-logo::before { line-height:1; }
     .lock-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
-    .lock-subtitle { color: #8e8e93; font-size: 0.82rem; margin-bottom: 32px; }
+    .lock-subtitle { color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 58%, transparent); font-size: 0.82rem; margin-bottom: 32px; }
 
     /* Індикатор крапок пароля */
     .pin-dots-wrapper { display: flex; gap: 20px; margin-bottom: 12px; min-height: 14px; }
@@ -53,33 +53,33 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        border: 1.5px solid rgba(255, 255, 255, 0.4);
+        border: 1.5px solid color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 40%, transparent);
         background: transparent;
-        transition: background 0.12s ease, border-color 0.12s, transform 0.12s;
+        transition: background var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-standard, ease), border-color var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-standard, ease), transform var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-emphasized, ease);
         box-sizing: border-box;
     }
-    .pin-dot.filled { background: #fff; border-color: #fff; transform: scale(1.1); }
-    .lock-error-text { color: #ff453a; font-size: 0.78rem; min-height: 18px; margin-bottom: 24px; text-align: center; font-weight: 500; }
+    .pin-dot.filled { background: var(--md-sys-color-inverse-on-surface, #fff); border-color: var(--md-sys-color-inverse-on-surface, #fff); transform: scale(1.1); }
+    .lock-error-text { color: var(--md-sys-color-error, #ff453a); font-size: 0.78rem; min-height: 18px; margin-bottom: 24px; text-align: center; font-weight: 500; }
 
     /* Кругла цифрова клавіатура iPhone */
     .pin-keyboard { display: grid; grid-template-columns: repeat(3, 76px); gap: 16px 20px; justify-content: center; }
     .pin-btn {
-        background: rgba(255, 255, 255, 0.08);
+        background: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 8%, transparent);
         border: none;
         border-radius: 50%;
         width: 76px;
         height: 76px;
         font-size: 1.9rem;
         font-weight: 400;
-        color: #fff;
+        color: var(--md-sys-color-inverse-on-surface, #fff);
         cursor: pointer;
-        transition: background 0.1s ease;
+        transition: background var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-standard, ease);
         -webkit-tap-highlight-color: transparent;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    .pin-btn:active { background: rgba(255, 255, 255, 0.22); }
+    .pin-btn:active { background: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 22%, transparent); }
     .pin-text-btn {
         background: transparent;
         border: none;
@@ -88,11 +88,11 @@
         align-items: center;
         justify-content: center;
         -webkit-tap-highlight-color: transparent;
-        color: #aeaeb2;
+        color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 68%, transparent);
         font-size: 0.85rem;
         font-weight: 400;
     }
-    .pin-text-btn:active { color: #fff; }
+    .pin-text-btn:active { color: var(--md-sys-color-inverse-on-surface, #fff); }
 
     /* Вібрація крапок при помилці (iOS Shake) */
     .shake { animation: ios-dot-shake 0.35s ease-in-out; }
@@ -103,13 +103,13 @@
     }
 
     /* ОСНОВНА ОБОЛОНКА (iOS Segmented Control) */
-    #shell-main { display: none; flex-direction: column; height: 100%; }
+    #shell-main { display: none; flex-direction: column; height: 100%; min-height: 100dvh; }
     #shell-tabs {
         display: flex;
-        padding: 10px 16px;
+        padding: 10px 12px;
         padding-top: calc(10px + env(safe-area-inset-top));
-        background: rgba(242, 242, 247, 0.82);
-        border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+        background: color-mix(in srgb, var(--md-sys-color-surface-container-high, #f2f2f7) 82%, transparent);
+        border-bottom: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.12));
         backdrop-filter: saturate(180%) blur(24px);
         -webkit-backdrop-filter: saturate(180%) blur(24px);
         flex-shrink: 0;
@@ -117,11 +117,11 @@
     .ios-segmented-control {
         display: flex;
         width: 100%;
-        background: rgba(116, 116, 128, 0.16);
+        background: color-mix(in srgb, var(--md-sys-color-on-surface-variant, #747480) 16%, transparent);
         border-radius: var(--md-sys-shape-corner-large, 14px); /* Повністю закруглений контейнер без гострих кутів */
         padding: 3px;
         gap: 3px;
-        box-shadow: inset 0 0 0 0.5px rgba(60, 60, 67, 0.10);
+        box-shadow: inset 0 0 0 0.5px var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.10));
     }
     .shell-tab-btn {
         flex: 1;
@@ -133,7 +133,7 @@
         border-radius: var(--md-sys-shape-corner-medium, 11px); /* Округлі внутрішні сегменти */
         border: none;
         background: transparent;
-        color: #6e6e73;
+        color: var(--md-sys-color-on-surface-variant, #6e6e73);
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
@@ -154,11 +154,17 @@
     }
 
     /* Контейнер для фреймів */
-    #shell-frames { position: relative; flex: 1; min-height: 0; background: #f2f2f7; }
-    #shell-frames iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; background: #fff; }
+    #shell-frames { position: relative; flex: 1; min-height: 0; background: var(--md-sys-color-background, #f2f2f7); }
+    #shell-frames iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; background: var(--md-sys-color-surface, #fff); }
     #shell-frames iframe.active { display: block; }
-    .shell-lock-btn { flex: 0 0 auto; min-width: 74px; color: #ff3b30; }
+    .shell-lock-btn { flex: 0 0 auto; min-width: 74px; color: var(--md-sys-color-error, #ff3b30); }
 
     /* Видимий фокус лише для клавіатурної навігації (не заважає кліку мишею/тапу) */
     :focus-visible { outline: 2px solid var(--md-sys-color-primary, #34c759); outline-offset: 2px; }
-    .pin-btn:focus-visible, .pin-text-btn:focus-visible { outline-color: #fff; }
+    .pin-btn:focus-visible, .pin-text-btn:focus-visible { outline-color: var(--md-sys-color-inverse-on-surface, #fff); }
+
+
+@media (max-width: 640px) {
+    #shell-tabs { padding-left: 8px; padding-right: 8px; }
+    #shell-frames { min-height: 0; }
+}
