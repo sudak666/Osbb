@@ -673,10 +673,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readSkladCombined();
   const label = 'sklad mobile topbar keeps compact actions and flexible title';
   const required = [
-    '.topbar{padding:0 12px;height:56px;border-radius:0 0 18px 18px;gap:8px;}',
+    '.topbar{padding:0 8px;height:56px;border-radius:0 0 18px 18px;gap:6px;}',
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-    '.topbar .btn:not(.topbar-right-excel){width:48px;min-width:48px;height:48px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}',
-    '.topbar .btn:not(.topbar-right-excel) .ms{font-size:22px!important;vertical-align:middle!important;margin:0!important;}',
+    '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;line-height:1!important;}',
+    '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid!important;place-items:center!important;width:1em!important;height:1em!important;font-size:21px!important;line-height:1!important;margin:0!important;}',
     // Секондарні дії (графік/оцінка цін/прихід/тема) згорнуті в overflow-меню замість
     // окремих кнопок в ряд — це саме те, що фіксить попередній баг "тема недоступна на мобілці".
     '<details class="item-more topbar-more">',

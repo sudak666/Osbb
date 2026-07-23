@@ -1,5 +1,5 @@
     /* Базові системні налаштування iOS */
-    html, body { height: 100%; margin: 0; overflow: hidden; background: var(--md-sys-color-scrim, #000); }
+    html, body { height: 100%; min-height: 100dvh; margin: 0; overflow: hidden; background: var(--md-sys-color-scrim, #000); }
     body {
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -103,10 +103,10 @@
     }
 
     /* ОСНОВНА ОБОЛОНКА (iOS Segmented Control) */
-    #shell-main { display: none; flex-direction: column; height: 100%; }
+    #shell-main { display: none; flex-direction: column; height: 100%; min-height: 100dvh; }
     #shell-tabs {
         display: flex;
-        padding: 10px 16px;
+        padding: 10px 12px;
         padding-top: calc(10px + env(safe-area-inset-top));
         background: color-mix(in srgb, var(--md-sys-color-surface-container-high, #f2f2f7) 82%, transparent);
         border-bottom: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.12));
@@ -162,3 +162,9 @@
     /* Видимий фокус лише для клавіатурної навігації (не заважає кліку мишею/тапу) */
     :focus-visible { outline: 2px solid var(--md-sys-color-primary, #34c759); outline-offset: 2px; }
     .pin-btn:focus-visible, .pin-text-btn:focus-visible { outline-color: var(--md-sys-color-inverse-on-surface, #fff); }
+
+
+@media (max-width: 640px) {
+    #shell-tabs { padding-left: 8px; padding-right: 8px; }
+    #shell-frames { min-height: 0; }
+}
