@@ -761,7 +761,8 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 .bn-item:focus{outline:none;box-shadow:none;}
 .bn-item:focus-visible{outline:2px solid var(--brand);outline-offset:-2px;box-shadow:none;}
 .bn-icon-wrap{width:44px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .15s;background:transparent;}
-.bn-icon{font-size:20px;line-height:1;}
+.bn-icon{font-size:20px;line-height:1;display:inline-flex;align-items:center;justify-content:center;}
+.bn-icon .ms{display:inline-flex;align-items:center;justify-content:center;margin:0;}
 .bn-badge{position:absolute;top:4px;right:calc(50% - 20px);background:var(--ios-red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;}
 .bn-label{font-size:10px;letter-spacing:-.1px;}
 
