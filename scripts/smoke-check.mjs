@@ -908,7 +908,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="log-person-cell"',
     'class="log-note-cell"',
     '.log-date-cell{font-size:12px;',
-    '.log-qty-out{font-weight:800;color:#6366f1;}',
+    '.log-qty-out{font-weight:800;color:var(--md-sys-color-secondary,#6366f1);}',
     '.log-qty-in{font-weight:800;color:var(--ios-green);}',
   ];
   const forbidden = [
