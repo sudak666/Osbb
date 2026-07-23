@@ -85,7 +85,7 @@ new MutationObserver(muts=>{
 <!-- AUTH SCREEN -->
 <div id="authScreen">
   <div class="auth-box">
-    <div style="margin-bottom:12px;"><span class="ms ic-48">storefront</span></div>
+    <div class="auth-logo"><span class="ms ic-48">storefront</span></div>
     <h1>Склад ОСББ</h1>
     <p>Микитська Слобода</p>
     <div class="auth-dots">
@@ -201,7 +201,7 @@ async function checkPin(attempt){
 
 <div class="sidebar">
   <div class="sb-logo">
-    <div style="margin-bottom:6px;"><span class="ms" style="font-size:32px;color:var(--brand);">storefront</span></div>
+    <div class="sidebar-logo-mark"><span class="ms sidebar-logo-icon">storefront</span></div>
     <h1>Склад ОСББ</h1>
     <p>Микитська Слобода</p>
     <span class="sb-ver">v3.1</span>
@@ -283,7 +283,7 @@ async function checkPin(attempt){
         <button type="button" class="pill" data-category-filter="Інше"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
       </div>
       <div class="items-filter-row items-search-row">
-        <div class="sw items-search-field"><span class="si"><span class="ms" style="font-size:18px;" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
+        <div class="sw items-search-field"><span class="si"><span class="ms ic-18" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
         <button type="button" class="btn btn-ghost btn-sm items-reset-btn" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters"><span class="ms items-reset-icon" aria-hidden="true">filter_alt_off</span> Скинути</button>
       </div>
@@ -292,15 +292,15 @@ async function checkPin(attempt){
       <table>
         <thead><tr><th>#</th><th>Назва товару</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
         <tbody id="itemsTable">
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:20px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:36px;height:36px;border-radius:8px;"></span></td><td><span class="skel" style="width:40px;"></span></td><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:60px;"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
         </tbody>
       </table>
     </div>
     <!-- MOBILE CARDS -->
-    <div class="mobile-cards" style="display:none;" id="mobileCards"></div>
+    <div class="mobile-cards" id="mobileCards"></div>
   </div>
 
   <!-- ISSUE -->
@@ -347,7 +347,7 @@ async function checkPin(attempt){
         <button type="button" class="pill" data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка"><span class="ms ic-15">plumbing</span></button>
       </div>
       <div class="list-toolbar-row list-search-row">
-        <div class="sw" style="width:240px;"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
+        <div class="sw log-search-field"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
         <div id="logResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
@@ -355,9 +355,9 @@ async function checkPin(attempt){
       <table>
         <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Кому</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="logTable">
-          <tr><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:30px;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:80%;"></span></td><td><span class="skel" style="width:40px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:30px;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:80%;"></span></td><td><span class="skel" style="width:40px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:30px;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:80%;"></span></td><td><span class="skel" style="width:40px;"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
         </tbody>
       </table>
       <div id="logMobileList"></div>
@@ -459,17 +459,17 @@ async function checkPin(attempt){
         <div id="recResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
-    <div class="card desktop-table table-modern" style="overflow:hidden;margin-bottom:16px;">
+    <div class="card desktop-table table-modern receipt-table-card">
       <table>
         <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Постачальник</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="recTable">
-          <tr><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:30px;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:80%;"></span></td><td><span class="skel" style="width:40px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:30px;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:80%;"></span></td><td><span class="skel" style="width:40px;"></span></td></tr>
-          <tr><td><span class="skel" style="width:70px;"></span></td><td><span class="skel" style="width:70%;"></span></td><td><span class="skel" style="width:30px;"></span></td><td><span class="skel" style="width:60%;"></span></td><td><span class="skel" style="width:80%;"></span></td><td><span class="skel" style="width:40px;"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
         </tbody>
       </table>
     </div>
-    <div id="recMobileList" class="card" style="overflow:hidden;margin-bottom:16px;padding:0;"></div>
+    <div id="recMobileList" class="card receipt-mobile-list"></div>
   </div>
 
   <!-- STATS -->
