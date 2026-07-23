@@ -210,9 +210,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
    десктопній). Натискання на прямокутник дня відкриває day-detail-modal з усіма
    ролями/завданнями за цей день. На широких екранах сітка обмежена шириною, щоб клітинки
    не розтягувались у величезні квадрати. */
-.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 136px)); gap: 8px; margin-bottom: 8px; justify-content: center; }
+.month-grid-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 1000px; margin: 0 auto 8px; }
 .month-grid-weekdays span { text-align: center; font-size: 13px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: .03em; }
-.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 136px)); gap: 8px; justify-content: center; margin-bottom: 0; }
+.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 1000px; margin: 0 auto; }
 .month-grid-cell { aspect-ratio: 1; border-radius: var(--md-sys-shape-corner-large, 22px); border: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 2px; transition: transform var(--md-sys-motion-duration-short3, .15s) var(--md-sys-motion-easing-emphasized, ease), box-shadow var(--md-sys-motion-duration-short3, .15s) ease; }
 .month-grid-cell:hover { transform: translateY(-1px); box-shadow: var(--md-sys-elevation-level1, 0 4px 10px rgba(0,0,0,.08)); }
 .month-grid-cell:active { transform: scale(.95); }
