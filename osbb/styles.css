@@ -111,7 +111,7 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, color-mix(in srgb
 .journal-status-icon-row-tight { display:inline-flex; align-items:center; gap:4px; }
 .journal-joke-icon { display:inline-block; vertical-align:-2px; }
 .journal-daytype-icon { display:inline-block; vertical-align:middle; margin-right:3px; }
-.task-check-dot { width:20px; height:20px; border-radius:50%; border:2px solid #d1d5db; background:transparent; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:border-color var(--md-sys-motion-duration-short3, .15s), background var(--md-sys-motion-duration-short3, .15s), transform var(--md-sys-motion-duration-short3, .15s); cursor:pointer; }
+.task-check-dot { width:20px; height:20px; border-radius:50%; border:2px solid var(--md-sys-color-outline-variant, #d1d5db); background:transparent; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:border-color var(--md-sys-motion-duration-short3, .15s), background var(--md-sys-motion-duration-short3, .15s), transform var(--md-sys-motion-duration-short3, .15s); cursor:pointer; }
 .task-check-dot.is-checked { border-color:var(--md-sys-color-primary, #22c55e); background:var(--md-sys-color-primary, #22c55e); }
 .g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }
 .g-chart-bar.is-current { background:linear-gradient(var(--md-sys-color-tertiary,#fbbf24),color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 82%,#000)); }
@@ -192,12 +192,12 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 #bottom-nav .mdi::before { font-size: 24px; }
 #bottom-nav .mob-tab { gap: 3px; }
 .mob-tab.mob-active { background: var(--md-sys-color-secondary-container, color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 12%,transparent)); }
-.theme-dark .mob-tab.mob-active { background: rgba(48,209,88,0.18); }
-.round-checkbox { appearance:none; -webkit-appearance:none; width:18px; height:18px; border-radius:50%; border:2px solid #d1d5db; background:transparent; cursor:pointer; transition:border-color var(--md-sys-motion-duration-short3, .15s), background var(--md-sys-motion-duration-short3, .15s), transform var(--md-sys-motion-duration-short3, .15s); flex-shrink:0; vertical-align:middle; }
+.theme-dark .mob-tab.mob-active { background: var(--md-sys-color-primary-container, rgba(48,209,88,0.18)); color: var(--md-sys-color-on-primary-container, var(--accent)); }
+.round-checkbox { appearance:none; -webkit-appearance:none; width:18px; height:18px; border-radius:50%; border:2px solid var(--md-sys-color-outline-variant, #d1d5db); background:transparent; cursor:pointer; transition:border-color var(--md-sys-motion-duration-short3, .15s), background var(--md-sys-motion-duration-short3, .15s), transform var(--md-sys-motion-duration-short3, .15s); flex-shrink:0; vertical-align:middle; }
 .round-checkbox:checked { background:var(--md-sys-color-primary, #22c55e); border-color:var(--md-sys-color-primary, #22c55e); }
 .role-card { border-radius: var(--radius-sm); padding: 10px; margin-bottom: 8px; }
-.role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
-.role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
+.role-card-electrician { background: color-mix(in srgb, var(--md-ref-role-electrician, #f59e0b) 8%, transparent); border: 1.5px solid color-mix(in srgb, var(--md-ref-role-electrician, #f59e0b) 30%, transparent); }
+.role-card-janitor { background: color-mix(in srgb, var(--md-ref-role-janitor, #10b981) 8%, transparent); border: 1.5px solid color-mix(in srgb, var(--md-ref-role-janitor, #10b981) 30%, transparent); }
 .role-card-plumber { background: var(--md-sys-color-secondary-container, color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 8%,transparent)); border: 1.5px solid color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 30%,transparent); color: var(--md-sys-color-on-secondary-container, inherit); }
 /* КАЛЕНДАРНА СІТКА — основний вигляд Журналу на будь-якій ширині екрана (мобільній і
    десктопній). Натискання на прямокутник дня відкриває day-detail-modal з усіма

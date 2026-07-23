@@ -17,7 +17,7 @@ button:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
   --danger:var(--md-sys-color-error,#E05252);
   --success:var(--md-sys-color-primary,#26B864);
   --ios-blue:var(--md-sys-color-secondary,#007AFF);
-  --ios-blue-light:#EBF5FF;
+  --ios-blue-light:var(--md-sys-color-secondary-container,#EBF5FF);
   --ios-green:var(--md-sys-color-primary,#34C759);
   --ios-red:var(--md-sys-color-error,#FF3B30);
   --ios-orange:var(--md-sys-color-tertiary,#E58B24);
