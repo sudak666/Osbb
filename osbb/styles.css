@@ -117,8 +117,8 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, rgba(48,209,88,0.
 .g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }
 .journal-action-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 12px; border-radius:var(--md-sys-shape-corner-full, 14px); font-size:14px; font-weight:800; transition:transform var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-emphasized, ease), background var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, ease), opacity var(--md-sys-motion-duration-short3, 150ms) ease, box-shadow var(--md-sys-motion-duration-short4, 200ms) ease; box-shadow:var(--md-sys-elevation-level1, 0 1px 2px rgba(0,0,0,.05)); }
 .journal-action-btn:hover { transform:scale(1.03); }
-.journal-action-btn-danger { color:#dc2626; border:1px solid rgba(248,113,113,.35); margin-left:6px; }
-.journal-action-btn-danger:hover { background:rgba(239,68,68,.10); }
+.journal-action-btn-danger { color:var(--md-sys-color-error,#dc2626); border:1px solid color-mix(in srgb,var(--md-sys-color-error,#ef4444) 35%,transparent); margin-left:6px; }
+.journal-action-btn-danger:hover { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 10%,transparent); }
 /* Дистанціюємо небезпечну дію (Скинути) від нейтральних Excel/PDF, щоб не натиснути її
    помилково поруч — тонкий розділювач + додатковий відступ, без зміни логіки підтвердження. */
 .journal-action-divider { width:1px; align-self:stretch; min-height:22px; background:var(--border-subtle); margin:0 2px; }
@@ -211,7 +211,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-cell:active { transform: scale(.95); }
 .month-grid-cell:focus-visible { outline: 2px solid var(--md-sys-color-primary, var(--accent)); outline-offset: 2px; }
 .month-grid-cell.is-empty { visibility: hidden; pointer-events: none; cursor: default; }
-.month-grid-cell.is-weekend .month-grid-day { color: #ef4444; }
+.month-grid-cell.is-weekend .month-grid-day { color: var(--md-sys-color-error,#ef4444); }
 .month-grid-cell.is-today { border: 2px solid var(--md-sys-color-primary, var(--accent)); box-shadow: 0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary, var(--accent)) 18%,transparent); }
 .month-grid-cell.has-shifts { background: rgba(52,199,89,.07); }
 .month-grid-day { font-size: 30px; font-weight: 800; line-height: 1; }
@@ -292,7 +292,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .pin-key-number { font-size:1.5rem; font-weight:300; }
 .pin-key-action { width:80px; height:80px; border-radius:50%; border:0; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
 .pin-key-delete { background:transparent; color:rgba(255,255,255,0.85); font-size:0.75rem; font-weight:400; letter-spacing:0.01em; }
-.pin-key-cancel { background:rgba(239,68,68,0.15); border:1.5px solid rgba(239,68,68,0.3); font-size:0.85rem; font-weight:700; color:#fca5a5; }
+.pin-key-cancel { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 15%,transparent); border:1.5px solid color-mix(in srgb,var(--md-sys-color-error,#ef4444) 30%,transparent); font-size:0.85rem; font-weight:700; color:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 45%,#fff); }
 .pin-key-backspace { background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.12); font-size:1.1rem; font-weight:700; color:#94a3b8; }
 .ios-toast { position:fixed; bottom:calc(80px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(20px); background:rgba(30,30,32,0.92); color:#fff; padding:10px 20px; border-radius:var(--md-sys-shape-corner-large, 20px); font-size:13px; font-weight:600; z-index:9999; pointer-events:none; opacity:0; transition:transform var(--md-sys-motion-duration-medium2, 0.3s) var(--md-sys-motion-easing-emphasized, cubic-bezier(.22,1,.36,1)), opacity var(--md-sys-motion-duration-medium2, 0.3s) ease; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); white-space:nowrap; display:flex; align-items:center; gap:8px; box-shadow:var(--md-sys-elevation-level3, 0 4px 24px rgba(0,0,0,0.3)); }
 .toast-icon-badge { width:18px; height:18px; border-radius:50%; background:rgba(52,199,89,0.3); display:inline-flex; align-items:center; justify-content:center; font-size:11px; }
@@ -304,7 +304,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .pin-modal-error { color:#fca5a5; font-size:0.75rem; min-height:18px; margin-bottom:10px; }
 .pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }
 .pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }
-.pin-modal-icon-wrap.is-red { background:rgba(239,68,68,0.2); }
+.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }
 .pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }
 .pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }
 .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:300; color:#fff; cursor:pointer; transition:background var(--motion-fast) ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }

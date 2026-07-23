@@ -1125,7 +1125,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     "class=\"task-check-dot${row.tasks?.[t.id]?' is-checked':''}\"",
     '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
     '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
-    '.pin-modal-icon-wrap.is-red { background:rgba(239,68,68,0.2); }',
+    '.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }',
     '.pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }',
     '.pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }',
     'class="pin-modal-icon-wrap is-indigo"',
