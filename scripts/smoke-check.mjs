@@ -984,7 +984,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb garbage chart bars use class-based gradient';
   const required = [
-    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#22c55e,#28a745); }',
+    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
     '.g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }',
     "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
   ];
@@ -1126,8 +1126,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
     '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
     '.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }',
-    '.pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }',
-    '.pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }',
+    '.pin-modal-icon-wrap.is-green { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 20%,transparent); }',
+    '.pin-modal-icon-wrap.is-green-soft { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 15%,transparent); }',
     'class="pin-modal-icon-wrap is-indigo"',
     'class="pin-modal-icon-wrap is-red"',
     'class="pin-modal-icon-wrap is-green"',
