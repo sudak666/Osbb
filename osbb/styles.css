@@ -152,12 +152,13 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 @media (max-width: 640px) {
     /* Щедрий запас під плаваючою панеллю — попередні 92px і 116px виявились замало на
        реальному пристрої (запас краще з надлишком, ніж контент під панеллю). */
-    body { padding-bottom: calc(220px + env(safe-area-inset-bottom)); }
+    body { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
     #desktop-tabs { display: none !important; }
     #bottom-nav { display: flex !important; }
+    .max-w-7xl.mx-auto { padding-left:4px!important; padding-right:4px!important; }
     .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
-    .journal-dashboard-panel { padding:16px; border-radius:var(--radius-lg); }
-    .journal-panel { padding:12px; border-radius:28px!important; }
+    .journal-dashboard-panel { padding:14px; border-radius:var(--radius-lg); }
+    .journal-panel { padding:10px; border-radius:24px!important; }
     .journal-list-shell { padding:0!important; border-radius:28px!important; }
     .journal-list-head { padding:14px 12px; }
     .journal-stats-grid, .journal-mini-stats { grid-template-columns:1fr; gap:10px; }
@@ -178,8 +179,8 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 
 /* Плаваюча заокруглена нижня панель (як капсула), а не суцільна смуга по краю екрана */
 #bottom-nav {
-    left: 6px !important;
-    right: 6px !important;
+    left: 4px !important;
+    right: 4px !important;
     bottom: calc(12px + env(safe-area-inset-bottom)) !important;
     border-radius: 26px !important;
     border: 1px solid var(--border) !important;
