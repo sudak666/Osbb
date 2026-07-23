@@ -181,6 +181,127 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+
+// Shared Material Design 3 tokens must stay wired into every entrypoint and
+// consumed by the three UI surfaces. This prevents future polish passes from
+// drifting back to isolated hardcoded theme islands.
+{
+  const label = 'shared Material tokens are linked from all app entrypoints';
+  const files = ['index.html', 'osbb/index.html', 'sklad/index.html'];
+  const missing = files.filter(file => !readFileSync(file, 'utf8').includes('/Osbb/shared/material-tokens.css'));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const label = 'shared Material token layer exposes color shape elevation and motion roles';
+  const text = readFileSync('shared/material-tokens.css', 'utf8');
+  const required = [
+    '--md-sys-color-primary',
+    '--md-sys-color-surface',
+    '--md-sys-color-secondary-container',
+    '--md-sys-color-tertiary-container',
+    '--md-sys-color-error-container',
+    '--md-sys-color-scrim',
+    '--md-sys-shape-corner-medium',
+    '--md-sys-elevation-level2',
+    '--md-sys-motion-duration-short4',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const label = 'shell journal and sklad consume Material token aliases';
+  const surfaces = [
+    ['shell', readShellCombined(), ['--md-sys-color-scrim', '--md-sys-color-surface-container-high', '--md-sys-motion-duration-short2']],
+    ['journal', readOsbbCombined(), ['--md-sys-color-background', '--md-sys-color-surface', '--md-sys-elevation-level2']],
+    ['sklad', readSkladCombined(), ['--md-sys-color-primary', '--md-sys-shape-corner-extra-large', '--md-sys-motion-duration-short4']],
+  ];
+  const missing = surfaces.flatMap(([name, text, needles]) => needles.filter(needle => !text.includes(needle)).map(needle => `${name}:${needle}`));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+{
+  const label = 'shell and journal primary controls use Material state layers';
+  const required = [
+    ['index.html', 'class="shell-tab-btn md-state-layer active"'],
+    ['index.html', 'class="pin-btn md-state-layer"'],
+    ['osbb/index.html', 'class="journal-theme-toggle md-state-layer"'],
+    ['osbb/index.html', 'class="journal-action-btn journal-action-btn-ghost md-state-layer"'],
+    ['osbb/index.html', 'class="tab-btn md-state-layer active'],
+    ['osbb/index.html', 'class="mob-tab md-state-layer'],
+    ['shared/material-tokens.css', '.md-state-layer:hover::before'],
+  ];
+  const missing = required.filter(([file, needle]) => !readFileSync(file, 'utf8').includes(needle)).map(([file, needle]) => `${file}:${needle}`);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+{
+  const label = 'Sklad controls use token-driven Material state layers';
+  const text = readSkladCombined();
+  const required = [
+    '.btn,.pill,.ni,.bn-item,.item-more summary{position:relative;overflow:hidden;isolation:isolate;}',
+    '.btn::before,.pill::before,.ni::before,.bn-item::before,.item-more summary::before',
+    '--md-sys-state-hover-opacity',
+    '--md-sys-state-focus-opacity',
+    '--md-sys-state-pressed-opacity',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
+{
+  const label = 'journal calendar controls use Material state layers';
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const required = [
+    'data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="md-state-layer',
+    'data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="md-state-layer',
+    'data-action="go-today" id="btn-today" class="md-state-layer',
+    'data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="md-state-layer',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Shell controls should be wired with event listeners rather than inline onclick
 // attributes so markup stays separate from behavior and CSP hardening remains possible.
 {
@@ -866,8 +987,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb garbage chart bars use class-based gradient';
   const required = [
-    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(#22c55e,#28a745); }',
-    '.g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }',
+    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
+    '.g-chart-bar.is-current { background:linear-gradient(var(--md-sys-color-tertiary,#fbbf24),color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 82%,#000)); }',
     "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
   ];
   const forbidden = [
@@ -1007,9 +1128,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     "class=\"task-check-dot${row.tasks?.[t.id]?' is-checked':''}\"",
     '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
     '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
-    '.pin-modal-icon-wrap.is-red { background:rgba(239,68,68,0.2); }',
-    '.pin-modal-icon-wrap.is-green { background:rgba(52,199,89,0.2); }',
-    '.pin-modal-icon-wrap.is-green-soft { background:rgba(52,199,89,0.15); }',
+    '.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }',
+    '.pin-modal-icon-wrap.is-green { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 20%,transparent); }',
+    '.pin-modal-icon-wrap.is-green-soft { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 15%,transparent); }',
     'class="pin-modal-icon-wrap is-indigo"',
     'class="pin-modal-icon-wrap is-red"',
     'class="pin-modal-icon-wrap is-green"',
@@ -1660,7 +1781,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '--surface-1:',
     '--shadow-md:',
     '.journal-theme-toggle {',
-    'class="journal-theme-toggle" data-theme-toggle',
+    'class="journal-theme-toggle md-state-layer" data-theme-toggle',
     'function toggleTheme()',
     '.journal-dashboard-panel {',
     '.journal-stats-grid {',
@@ -1782,8 +1903,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-inline-icon {',
     '.journal-action-label {',
     '.journal-action-btn {',
-    'class="journal-action-btn journal-action-btn-ghost"',
-    'class="journal-action-btn journal-action-btn-danger"',
+    'class="journal-action-btn journal-action-btn-ghost md-state-layer"',
+    'class="journal-action-btn journal-action-btn-danger md-state-layer"',
     'class="journal-inline-icon"',
     '<span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span>',
   ];
