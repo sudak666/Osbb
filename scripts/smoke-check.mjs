@@ -985,7 +985,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'osbb garbage chart bars use class-based gradient';
   const required = [
     '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
-    '.g-chart-bar.is-current { background:linear-gradient(#fbbf24,#f59e0b); }',
+    '.g-chart-bar.is-current { background:linear-gradient(var(--md-sys-color-tertiary,#fbbf24),color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 82%,#000)); }',
     "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
   ];
   const forbidden = [
