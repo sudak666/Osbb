@@ -198,7 +198,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .role-card { border-radius: var(--radius-sm); padding: 10px; margin-bottom: 8px; }
 .role-card-electrician { background: rgba(245,158,11,0.08); border: 1.5px solid rgba(245,158,11,0.3); }
 .role-card-janitor { background: rgba(16,185,129,0.08); border: 1.5px solid rgba(16,185,129,0.3); }
-.role-card-plumber { background: color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 8%,transparent); border: 1.5px solid color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 30%,transparent); }
+.role-card-plumber { background: var(--md-sys-color-secondary-container, color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 8%,transparent)); border: 1.5px solid color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 30%,transparent); color: var(--md-sys-color-on-secondary-container, inherit); }
 /* КАЛЕНДАРНА СІТКА — основний вигляд Журналу на будь-якій ширині екрана (мобільній і
    десктопній). Натискання на прямокутник дня відкриває day-detail-modal з усіма
    ролями/завданнями за цей день. На широких екранах сітка обмежена шириною, щоб клітинки
