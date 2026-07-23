@@ -53,9 +53,9 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        border: 1.5px solid rgba(255, 255, 255, 0.4);
+        border: 1.5px solid color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 40%, transparent);
         background: transparent;
-        transition: background 0.12s ease, border-color 0.12s, transform 0.12s;
+        transition: background var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-standard, ease), border-color var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-standard, ease), transform var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-emphasized, ease);
         box-sizing: border-box;
     }
     .pin-dot.filled { background: var(--md-sys-color-inverse-on-surface, #fff); border-color: var(--md-sys-color-inverse-on-surface, #fff); transform: scale(1.1); }
@@ -64,7 +64,7 @@
     /* Кругла цифрова клавіатура iPhone */
     .pin-keyboard { display: grid; grid-template-columns: repeat(3, 76px); gap: 16px 20px; justify-content: center; }
     .pin-btn {
-        background: rgba(255, 255, 255, 0.08);
+        background: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 8%, transparent);
         border: none;
         border-radius: 50%;
         width: 76px;
@@ -79,7 +79,7 @@
         align-items: center;
         justify-content: center;
     }
-    .pin-btn:active { background: rgba(255, 255, 255, 0.22); }
+    .pin-btn:active { background: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 22%, transparent); }
     .pin-text-btn {
         background: transparent;
         border: none;
