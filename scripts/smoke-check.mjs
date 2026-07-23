@@ -204,6 +204,9 @@ for (const [file, needle, label] of checks) {
   const required = [
     '--md-sys-color-primary',
     '--md-sys-color-surface',
+    '--md-sys-color-secondary-container',
+    '--md-sys-color-tertiary-container',
+    '--md-sys-color-error-container',
     '--md-sys-color-scrim',
     '--md-sys-shape-corner-medium',
     '--md-sys-elevation-level2',
