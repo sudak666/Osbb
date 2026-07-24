@@ -2728,6 +2728,22 @@
         Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
 
+
+    function dispRenderStats() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const totals = { events: 0, urgent: 0, progress: 0, done: 0 };
+        for (let d = 1; d <= daysInMonth; d++) {
+            const row = dispGetDay(d);
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || getPhotosFromCache(d, 'dispatcher').length > 0;
+            if (hasEvent) totals.events++;
+            if (row.status === 'urgent') totals.urgent++;
+            if (row.status === 'in_progress') totals.progress++;
+            if (row.status === 'done') totals.done++;
+        }
+        const map = { 'disp-stat-events': totals.events, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
+        Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
+    }
+
     async function dispClearMonth() {
         showPinModal('Скидання диспетчера', 'PIN для очищення місяця', async (pin) => {
             dispData = {};
