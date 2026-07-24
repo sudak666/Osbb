@@ -1867,6 +1867,10 @@
                     event.preventDefault();
                     dispAppendTemplate(Number(action.dataset.dispDay), action.dataset.dispTemplate || '');
                 }
+                if (action.dataset.dispAction === 'location-set') {
+                    event.preventDefault();
+                    dispSetLocation(Number(action.dataset.dispDay), action.dataset.dispLocation || '');
+                }
                 if (action.dataset.dispAction === 'copy-prev') {
                     event.preventDefault();
                     dispCopyFromPreviousDay(Number(action.dataset.dispDay));
@@ -2479,6 +2483,7 @@
         'Потрібен огляд майстра',
         'Питання по прибиранню'
     ];
+    const dispQuickLocations = ['Підʼїзд 1', 'Підʼїзд 2', 'Двір', 'Підвал', 'Дах', 'Ліфт'];
 
     function dispKey() { return `${currentYear}-${currentMonth}`; }
     function dispOfflineKey() { return `dispatcher_${currentYear}_${currentMonth}`; }
@@ -2574,6 +2579,15 @@
         showToast('Шаблон додано');
     }
 
+    function dispSetLocation(d, location) {
+        const row = dispGetDay(d);
+        row.location = location;
+        dispScheduleSave();
+        dispRender();
+        dispOpenDayDetail(Number(d));
+        showToast('Локацію додано');
+    }
+
     function dispCopyFromPreviousDay(d) {
         const day = Number(d);
         if (day <= 1) { showToast('Немає попереднього дня'); return; }
@@ -2600,12 +2614,14 @@
         const row = dispGetDay(d);
         const statusOptions = Object.entries(dispStatuses).map(([value, item]) => `<option value="${value}" ${row.status === value ? 'selected' : ''}>${item.label}</option>`).join('');
         const templateButtons = dispQuickTemplates.map(text => `<button type="button" class="dispatcher-template-chip md-state-layer" data-disp-action="template-add" data-disp-day="${d}" data-disp-template="${escapeAttr(text)}">${escapeHtml(text)}</button>`).join('');
+        const locationButtons = dispQuickLocations.map(location => `<button type="button" class="dispatcher-location-chip md-state-layer" data-disp-action="location-set" data-disp-day="${d}" data-disp-location="${escapeAttr(location)}">${escapeHtml(location)}</button>`).join('');
         return `<div class="journal-event-sheet role-dispatcher">
             <div class="journal-event-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Події диспетчера</div>
             <div class="dispatcher-editor-grid">
                 <label><span class="journal-field-label">Статус:</span><select data-disp-action="field-update" data-disp-day="${d}" data-disp-field="status" class="journal-select dispatcher-status-select" aria-label="Статус дня диспетчера ${d}">${statusOptions}</select></label>
                 <label><span class="journal-field-label">Локація:</span><input type="text" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="location" value="${escapeAttr(row.location||'')}" placeholder="Підʼїзд, поверх, квартира..." class="dispatcher-location-input" aria-label="Локація події диспетчера за день ${d}"></label>
             </div>
+            <div class="dispatcher-location-row" aria-label="Швидкі локації">${locationButtons}</div>
             <div class="dispatcher-template-row" aria-label="Швидкі шаблони">${templateButtons}</div>
             <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="copy-prev" data-disp-day="${d}"><span class="mdi mdi-content-copy journal-inline-icon" aria-hidden="true"></span> Повторити з учора</button>
             <div class="journal-field-label">Коментар / події дня:</div>
@@ -2712,22 +2728,6 @@
         if (summary) summary.textContent = (hasSearch || hasFilter) ? `Знайдено: ${visibleMatches} з ${daysInMonth}` : 'Показано всі дні';
         if (reset) reset.hidden = !(hasSearch || hasFilter);
     }
-
-    function dispRenderStats() {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const totals = { events: 0, urgent: 0, progress: 0, done: 0 };
-        for (let d = 1; d <= daysInMonth; d++) {
-            const row = dispGetDay(d);
-            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || getPhotosFromCache(d, 'dispatcher').length > 0;
-            if (hasEvent) totals.events++;
-            if (row.status === 'urgent') totals.urgent++;
-            if (row.status === 'in_progress') totals.progress++;
-            if (row.status === 'done') totals.done++;
-        }
-        const map = { 'disp-stat-events': totals.events, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
-        Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
-    }
-
 
     function dispRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
