@@ -287,10 +287,10 @@ for (const [file, needle, label] of checks) {
   const label = 'journal calendar controls use Material state layers';
   const text = readFileSync('osbb/index.html', 'utf8');
   const required = [
-    'data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="md-state-layer',
-    'data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="md-state-layer',
-    'data-action="go-today" id="btn-today" class="md-state-layer',
-    'data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="md-state-layer',
+    'data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="journal-icon-btn md-state-layer',
+    'data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="journal-icon-btn md-state-layer',
+    'data-action="go-today" id="btn-today" class="journal-tonal-btn md-state-layer',
+    'data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="journal-icon-btn md-state-layer',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -568,9 +568,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-g-action="row-update"',
     'data-g-action="type-toggle"',
     'data-g-action="type-count"',
-    'data-disp-action="shift-toggle"',
-    'data-disp-action="task-toggle"',
     'data-disp-action="field-update"',
+    'data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher"',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));
@@ -623,7 +622,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'value="${escapeAttr(String(state.ticketCount||\'\'))}"',
     'value="${escapeAttr(row.time||\'\')}" data-g-action="row-update"',
     'value="${escapeAttr(String(val))}"',
-    'value="${escapeAttr(String(row.calls||\'\'))}" placeholder="0"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1119,13 +1117,11 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// The dispatcher card's task-toggle dot and the PIN-modal icon circles
-// should use class-based markup instead of repeated inline style strings.
+// The PIN-modal icon circles should use class-based markup instead of repeated inline style strings.
 {
   const text = readOsbbCombined();
-  const label = 'osbb dispatcher task dot and PIN-modal icons use class-based markup';
+  const label = 'osbb PIN-modal icons use class-based markup';
   const required = [
-    "class=\"task-check-dot${row.tasks?.[t.id]?' is-checked':''}\"",
     '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
     '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
     '.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }',
@@ -1162,7 +1158,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'osbb print-summary and dispatcher call count escape dynamic text';
   const required = [
     'printSummary.push(escapeHtml(state.other))',
-    'value="${escapeAttr(String(row.calls||\'\'))}" placeholder="0"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1202,17 +1197,14 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Journal/dispatcher task-toggle checkboxes are custom <span> controls, not
-// native inputs — they must expose checkbox semantics and be keyboard
-// operable (tabindex/role/aria-checked plus an Enter/Space handler).
+// Journal task-toggle checkboxes are custom <span> controls, not native inputs —
+// they must expose checkbox semantics and be keyboard-operable.
 {
   const text = readOsbbCombined();
   const label = 'osbb task-toggle dots expose checkbox semantics and keyboard support';
   const required = [
     'role="checkbox" aria-checked="${isChecked?\'true\':\'false\'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?\'-1\':\'0\'}"',
-    'role="checkbox" aria-checked="${row.tasks?.[t.id]?\'true\':\'false\'}" aria-label="${escapeAttr(t.label)}" tabindex="${row.working?\'0\':\'-1\'}"',
     "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-journal-action=\"task-toggle\"]');",
-    "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-disp-action=\"task-toggle\"]');",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1234,7 +1226,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'osbb dispatcher/garbage calendar grids open an accessible day-detail dialog';
   const required = [
     "cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday2 ? ' is-today' : '') + (hasAny ? ' has-shifts' : '');",
-    "cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (row.working ? ' has-shifts' : '');",
+    "cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (hasEvent ? ' has-shifts' : '');",
     "cell.setAttribute('aria-haspopup', 'dialog');",
     'function gOpenDayDetail(day) {',
     'function dispOpenDayDetail(d) {',
@@ -1807,15 +1799,24 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '<link rel="stylesheet" href="/Osbb/shared/ui.css">',
     '<script src="/Osbb/shared/enhance-select.js"></script>',
     '// Кастомний select підключено зі shared/enhance-select.js.',
-    '.journal-mini-stats.is-two {',
-    'class="journal-mini-stats is-two"',
     'class="stat-card journal-stat-card journal-mini-stat role-garbage',
-    'class="stat-card journal-stat-card journal-mini-stat role-dispatcher',
     '.journal-panel {',
     '.journal-table-shell {',
     '.garbage-chart-panel { padding:16px;',
     '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large, 32px)!important; padding:0!important; }',
     '.journal-list-head { padding:16px 22px;',
+    '.journal-status-chip {',
+    '.journal-icon-btn {',
+    '.journal-tonal-btn {',
+    '.journal-select {',
+    'class="journal-status-chip"',
+    'class="journal-select"',
+    '.journal-event-sheet {',
+    '.journal-textarea {',
+    '.journal-photo-action {',
+    'class="journal-event-sheet role-dispatcher"',
+    'class="journal-photo-action md-state-layer"',
+    'class="journal-photo-action is-secondary md-state-layer"',
     '.garbage-chart { height:80px; }',
     'class="journal-panel garbage-chart-panel"',
     'class="journal-panel journal-list-shell"',
@@ -1932,9 +1933,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'aria-label="Час вивозу сміття за день ${day}"',
     'aria-label="Працівник сміття за день ${day}"',
     'aria-label="Кількість баків за день ${day}"',
-    'aria-label="Зміна диспетчера за день ${d}"',
-    'aria-label="Кількість дзвінків диспетчера за день ${d}"',
-    'aria-label="Коментар диспетчера за день ${d}"',
+    'aria-label="Події диспетчера за день ${d}"',
+    'aria-label="Додати фото диспетчера за день ${d}"',
+    'aria-label="Додати фото диспетчера з галереї за день ${d}"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
