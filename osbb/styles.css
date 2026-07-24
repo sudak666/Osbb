@@ -257,7 +257,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-dot-electrician { background: var(--md-ref-role-electrician, #f59e0b); }
 .month-grid-dot-janitor { background: var(--md-ref-role-janitor, #10b981); }
 .month-grid-dot-plumber { background: var(--md-ref-role-plumber, #3b82f6); }
-.month-grid-dot-garbage { background: var(--accent); }
+.month-grid-dot-garbage, .month-grid-dot-garbage-bins { background: var(--accent); }
+.month-grid-dot-garbage-plastic { background: var(--md-sys-color-tertiary, #f59e0b); }
+.month-grid-dot-garbage-glass { background: var(--md-sys-color-secondary, #3b82f6); }
 .month-grid-dot-dispatcher { background: var(--md-ref-role-dispatcher, #8b5cf6); }
 
 /* МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — .day-detail-sheet сам не скролиться (overflow:hidden), інакше
@@ -275,6 +277,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .day-detail-body::-webkit-scrollbar-track { background: transparent; }
 .day-detail-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
 .day-detail-body::-webkit-scrollbar-thumb:hover { background: var(--text-sub); }
+@media (max-width: 640px) {
+    .day-detail-close { display: none; }
+}
 @media (min-width: 641px) {
     .day-detail-overlay { align-items: center; }
     .day-detail-sheet { border-radius: var(--md-sys-shape-corner-extra-large, 24px); max-height: 80vh; }

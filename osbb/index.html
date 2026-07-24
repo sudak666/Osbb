@@ -2198,15 +2198,22 @@
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            const hasAny = Object.values(types).some((v) => (parseInt(v) || 0) > 0);
+            const activeTypes = Object.entries(types).filter(([, value]) => (parseInt(value) || 0) > 0);
+            const hasAny = activeTypes.length > 0;
+            const typeSummary = activeTypes.map(([type, value]) => {
+                const count = parseInt(value) || 0;
+                const label = gTypeLabels[type] || type;
+                return type === 'bins' && count > 0 ? `${label}: ${count}` : label;
+            }).join(', ');
+            const typeDots = activeTypes.map(([type]) => `<span class="month-grid-dot month-grid-dot-garbage-${escapeAttr(type)}" aria-hidden="true"></span>`).join('');
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
 
             const cell = document.createElement('button');
             cell.type = 'button';
             cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday2 ? ' is-today' : '') + (hasAny ? ' has-shifts' : '');
-            cell.setAttribute('aria-label', `${d} ${dowLabel}${hasAny ? ', є вивіз сміття' : ', порожньо'} — відкрити день`);
+            cell.setAttribute('aria-label', `${d} ${dowLabel}${hasAny ? `, є вивіз сміття: ${typeSummary}` : ', порожньо'} — відкрити день`);
             cell.setAttribute('aria-haspopup', 'dialog');
-            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${hasAny ? '<span class="month-grid-dot month-grid-dot-garbage"></span>' : ''}</span>`;
+            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${typeDots}</span>`;
             cell.addEventListener('click', () => gOpenDayDetail(day));
             grid.appendChild(cell);
         }
