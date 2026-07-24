@@ -661,8 +661,9 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
   .topbar{padding:0 8px;height:56px;border-radius:0 0 18px 18px;gap:6px;}
   .topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .topbar>div{gap:6px!important;flex-shrink:0;}
-  .topbar .btn:not(.topbar-right-excel){width:48px;min-width:48px;height:48px;padding:0!important;justify-content:center;font-size:0!important;overflow:hidden;}
-  .topbar .btn:not(.topbar-right-excel) .ms{width:48px!important;height:48px!important;font-size:22px!important;line-height:1!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;vertical-align:middle!important;margin:0!important;}
+  .topbar .btn:not(.topbar-right-excel){width:48px;min-width:48px;height:48px;padding:0!important;justify-content:center;font-size:0!important;gap:0!important;overflow:hidden;}
+  .topbar .btn:not(.topbar-right-excel) .ms{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;font-size:22px!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;vertical-align:middle!important;margin:0!important;}
+  .topbar .btn:not(.topbar-right-excel) .ms .mdi{display:flex!important;align-items:center!important;justify-content:center!important;width:1em!important;height:1em!important;}
   .topbar .btn:not(.topbar-right-excel) .ms .mdi::before{font-size:1em!important;line-height:1!important;}
   .topbar-right-excel{display:none!important;}
   .page{padding:12px 8px;}
