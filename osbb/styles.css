@@ -154,6 +154,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 @media (max-width: 640px) {
     /* Щедрий запас під плаваючою панеллю — попередні 92px і 116px виявились замало на
        реальному пристрої (запас краще з надлишком, ніж контент під панеллю). */
+    html { scroll-padding-bottom: calc(180px + env(safe-area-inset-bottom)); }
     #desktop-tabs { display: none !important; }
     #bottom-nav { display: flex !important; }
     .max-w-7xl.mx-auto { padding-left:4px!important; padding-right:4px!important; padding-bottom:calc(180px + env(safe-area-inset-bottom))!important; }

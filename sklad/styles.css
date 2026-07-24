@@ -656,6 +656,7 @@ label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margi
 
 /* ===MOBILE === */
 @media(max-width:768px){
+  html{scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom));}
   .sidebar{display:none!important;}
   .main{margin-left:0!important;padding-bottom:calc(88px + env(safe-area-inset-bottom));}
   .topbar{padding:0 8px;height:56px;border-radius:0 0 18px 18px;gap:6px;}
