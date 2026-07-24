@@ -156,7 +156,7 @@
         <div class="day-detail-sheet-handle" aria-hidden="true"></div>
         <div class="day-detail-header">
             <h3 id="day-detail-title" class="day-detail-title"></h3>
-            <button type="button" data-day-detail-close aria-label="Закрити день" class="day-detail-close">✕</button>
+            <button type="button" data-day-detail-close aria-label="Закрити день" class="day-detail-close md-state-layer">✕</button>
         </div>
         <div id="day-detail-body" class="day-detail-body"></div>
     </div>
@@ -352,18 +352,6 @@
 
     <!-- ===== СЕКЦІЯ ДИСПЕТЧЕР ===== -->
     <div id="section-dispatcher" class="hidden mb-6">
-        <!-- Статистика зверху -->
-        <div class="journal-mini-stats is-two">
-            <div class="stat-card journal-stat-card journal-mini-stat role-dispatcher flex flex-col justify-center">
-                <div class="text-3xl font-black text-purple-600" id="disp-total-shifts">0</div>
-                <div class="text-xs font-bold text-purple-700 mt-1">Днів з подіями</div>
-            </div>
-            <div class="stat-card journal-stat-card journal-mini-stat role-janitor flex flex-col justify-center">
-                <div class="text-3xl font-black text-emerald-600" id="disp-total-calls">0</div>
-                <div class="text-xs font-bold text-emerald-700 mt-1">Фото за місяць</div>
-            </div>
-        </div>
-
         <!-- Картки днів диспетчера -->
         <div class="journal-panel journal-list-shell">
             <div class="journal-list-head">
@@ -2485,54 +2473,26 @@
     function dispUpdate(d, field, value) {
         dispGetDay(d)[field] = value;
         dispScheduleSave();
-        dispUpdateStats();
-    }
-
-    function dispToggleShift(d, val) {
-        dispGetDay(d).working = val;
-        dispScheduleSave();
-        dispRender();
-    }
-
-    function dispToggleTask(d, taskId, val) {
-        const day = dispGetDay(d);
-        if (!day.tasks) day.tasks = {};
-        day.tasks[taskId] = val;
-        dispScheduleSave();
-        dispRender();
-    }
-
-    function dispUpdateStats() {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        let eventDays = 0, photos = 0;
-        for (let d = 1; d <= daysInMonth; d++) {
-            const row = dispData[d];
-            const dayPhotos = getPhotosFromCache(d, 'dispatcher').length;
-            if ((row?.comment || '').trim() || dayPhotos > 0) eventDays++;
-            photos += dayPhotos;
-        }
-        const els = { 'disp-total-shifts': eventDays, 'disp-total-calls': photos };
-        Object.entries(els).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.textContent = val; });
     }
 
     // Розмітка для одного дня диспетчера: тільки події дня та фото.
     function dispBuildDayBodyHtml(d) {
         const row = dispGetDay(d);
-        return `<div class="rounded-xl p-3 mb-1" style="background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.25);">
-            <div class="text-sm font-bold text-purple-700 inline-flex items-center gap-1 mb-3"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Події диспетчера</div>
-            <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Коментар / події дня:</div>
+        return `<div class="journal-event-sheet role-dispatcher">
+            <div class="journal-event-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Події диспетчера</div>
+            <div class="journal-field-label">Коментар / події дня:</div>
             <textarea rows="5" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment" aria-label="Події диспетчера за день ${d}"
                 placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
-                class="w-full text-sm p-2.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-y leading-relaxed">${escapeHtml(row.comment||'')}</textarea>
-            <div class="mt-3">
-                <div class="text-xs text-[var(--text-sub)] font-semibold mb-2">Фото подій:</div>
+                class="journal-textarea">${escapeHtml(row.comment||'')}</textarea>
+            <div class="journal-photo-section">
+                <div class="journal-field-label">Фото подій:</div>
                 <div id="mobile-photos-${d}-dispatcher" class="flex gap-2 flex-wrap mb-2"></div>
                 <div class="flex gap-2 flex-wrap">
-                    <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-sm font-bold border border-emerald-200">
+                    <label class="journal-photo-action md-state-layer">
                         <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Камера
                         <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера за день ${d}">
                     </label>
-                    <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-50 text-purple-700 text-sm font-bold border border-purple-200">
+                    <label class="journal-photo-action is-secondary md-state-layer">
                         Галерея
                         <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера з галереї за день ${d}">
                     </label>
@@ -2559,7 +2519,7 @@
     }
 
     // Календарна сітка диспетчера — той самий вигляд, що й у Журналі: квадрати днів,
-    // клік відкриває day-detail-modal зі зміною/завданнями/дзвінками/коментарем за цей день.
+    // клік відкриває day-detail-modal з подіями та фото за цей день.
     function dispRender() {
         const container = document.getElementById('disp-cards');
         if (!container) return;
@@ -2601,7 +2561,6 @@
             cell.addEventListener('click', () => dispOpenDayDetail(d));
             grid.appendChild(cell);
         }
-        dispUpdateStats();
     }
 
     async function dispClearMonth() {

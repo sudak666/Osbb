@@ -97,7 +97,6 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, color-mix(in srgb
 .journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large, 32px)!important; padding:0!important; }
 .journal-list-head { padding:16px 22px; background:var(--table-header); border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
 .journal-mini-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
-.journal-mini-stats.is-two { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .journal-mini-stats.is-four { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .journal-mini-stat { padding:16px; align-items:center; text-align:center; }
 .garbage-chart { height:80px; }
@@ -110,6 +109,14 @@ button svg.journal-inline-icon { display:block; }
 .journal-action-label { display:inline-flex; align-items:center; gap:6px; }
 .status-label { display:inline-flex; align-items:center; gap:5px; }
 .status-label.is-tight { gap:4px; }
+.journal-event-sheet { padding:14px; margin-bottom:4px; border-radius:var(--md-sys-shape-corner-large, 16px); border:1px solid color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 28%,transparent); background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 9%,var(--md-sys-color-surface,var(--bg-card))); box-shadow:var(--md-sys-elevation-level1,0 1px 3px rgba(0,0,0,.12)); }
+.journal-event-title { display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; color:var(--md-ref-role-dispatcher,#8b5cf6); font-size:14px; font-weight:850; }
+.journal-field-label { margin-bottom:6px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:750; }
+.journal-textarea { width:100%; min-height:128px; padding:12px; border-radius:var(--md-sys-shape-corner-medium,12px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface,var(--text-main)); outline:none; resize:vertical; line-height:1.45; transition:border-color var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease), box-shadow var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease), background var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease); }
+.journal-textarea:focus { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 16%,transparent); background:var(--md-sys-color-surface,var(--bg-card)); }
+.journal-photo-section { margin-top:14px; }
+.journal-photo-action { cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; padding:9px 14px; border-radius:var(--md-sys-shape-corner-full,999px); border:1px solid color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 24%,transparent); background:var(--md-sys-color-primary-container,#dcfce7); color:var(--md-sys-color-on-primary-container,#052e16); font-size:14px; font-weight:800; }
+.journal-photo-action.is-secondary { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 28%,transparent); background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 14%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); }
 /* journal-status-icon-row(-tight) — те саме, що status-label(.is-tight) вище.
    Живий JS сьогодні емітить лише status-label; ці два імені лишені як
    алiас-правила, бо документована історія редизайну (docs/ui-redesign-notes.md)
@@ -269,13 +276,13 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 /* МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — .day-detail-sheet сам не скролиться (overflow:hidden), інакше
    нативний скролбар обрізає заокруглені кути і робить верх "гострим". Скрол — лише на
    внутрішньому .day-detail-body, з власним тонким стилізованим скролбаром. */
-.day-detail-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 210; align-items: flex-end; justify-content: center; }
+.day-detail-overlay { display: none; position: fixed; inset: 0; background: color-mix(in srgb,var(--md-sys-color-scrim,#000) 54%,transparent); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 210; align-items: flex-end; justify-content: center; }
 .day-detail-overlay.open { display: flex; }
-.day-detail-sheet { background: var(--bg-card); width: 100%; max-width: 640px; max-height: 88vh; border-radius: var(--md-sys-shape-corner-extra-large, 24px) var(--md-sys-shape-corner-extra-large, 24px) 0 0; box-shadow: var(--md-sys-elevation-level3, 0 -12px 40px rgba(0,0,0,.25)); display: flex; flex-direction: column; overflow: hidden; transition: transform var(--md-sys-motion-duration-medium2, .25s) var(--md-sys-motion-easing-emphasized, ease); }
-.day-detail-sheet-handle { flex-shrink: 0; width: 44px; height: 5px; border-radius: 3px; background: var(--border); margin: 12px auto 4px; touch-action: none; cursor: grab; }
+.day-detail-sheet { background: var(--md-sys-color-surface,var(--bg-card)); width: 100%; max-width: 640px; max-height: 88vh; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius: var(--md-sys-shape-corner-extra-large, 24px) var(--md-sys-shape-corner-extra-large, 24px) 0 0; box-shadow: var(--md-sys-elevation-level3, 0 -12px 40px rgba(0,0,0,.25)); display: flex; flex-direction: column; overflow: hidden; transition: transform var(--md-sys-motion-duration-medium2, .25s) var(--md-sys-motion-easing-emphasized, ease); }
+.day-detail-sheet-handle { flex-shrink: 0; width: 44px; height: 5px; border-radius: var(--md-sys-shape-corner-full,999px); background: var(--md-sys-color-outline-variant,var(--border)); margin: 12px auto 4px; touch-action: none; cursor: grab; }
 .day-detail-header { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 18px 10px; touch-action: none; }
 .day-detail-title { font-size: 18px; font-weight: 800; text-transform: capitalize; }
-.day-detail-close { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--surface-1); display: flex; align-items: center; justify-content: center; color: var(--text-sub); }
+.day-detail-close { flex-shrink: 0; width: 36px; height: 36px; border-radius: var(--md-sys-shape-corner-full,999px); border: 1px solid var(--md-sys-color-outline-variant,var(--border-subtle)); background: var(--md-sys-color-surface-container-high,var(--surface-1)); display: flex; align-items: center; justify-content: center; color: var(--md-sys-color-on-surface-variant,var(--text-sub)); }
 .day-detail-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 18px 24px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 .day-detail-body::-webkit-scrollbar { width: 7px; }
 .day-detail-body::-webkit-scrollbar-track { background: transparent; }
