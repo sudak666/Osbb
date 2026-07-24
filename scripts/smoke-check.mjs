@@ -287,10 +287,10 @@ for (const [file, needle, label] of checks) {
   const label = 'journal calendar controls use Material state layers';
   const text = readFileSync('osbb/index.html', 'utf8');
   const required = [
-    'data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="md-state-layer',
-    'data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="md-state-layer',
-    'data-action="go-today" id="btn-today" class="md-state-layer',
-    'data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="md-state-layer',
+    'data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="journal-icon-btn md-state-layer',
+    'data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="journal-icon-btn md-state-layer',
+    'data-action="go-today" id="btn-today" class="journal-tonal-btn md-state-layer',
+    'data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="journal-icon-btn md-state-layer',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1805,6 +1805,12 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.garbage-chart-panel { padding:16px;',
     '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large, 32px)!important; padding:0!important; }',
     '.journal-list-head { padding:16px 22px;',
+    '.journal-status-chip {',
+    '.journal-icon-btn {',
+    '.journal-tonal-btn {',
+    '.journal-select {',
+    'class="journal-status-chip"',
+    'class="journal-select"',
     '.journal-event-sheet {',
     '.journal-textarea {',
     '.journal-photo-action {',
