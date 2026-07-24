@@ -373,7 +373,12 @@
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="has_event">З подіями</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="urgent">Термінові</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="in_progress">В роботі</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="unresolved">Невирішені</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="done">Виконані</button>
+                </div>
+                <div class="dispatcher-result-row" aria-live="polite">
+                    <span id="disp-result-summary" class="dispatcher-result-summary">Показано всі дні</span>
+                    <button type="button" class="dispatcher-reset-btn md-state-layer" data-disp-reset hidden>Скинути</button>
                 </div>
             </div>
             <div class="journal-mini-stats is-four dispatcher-summary" aria-label="Підсумок диспетчера">
@@ -1874,6 +1879,14 @@
         dispSearchQuery = event.target.value || '';
         dispRender();
     });
+    document.querySelector('[data-disp-reset]')?.addEventListener('click', () => {
+        dispSearchQuery = '';
+        dispFilter = 'all';
+        const search = document.querySelector('[data-disp-search]');
+        if (search) search.value = '';
+        document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
+        dispRender();
+    });
     document.querySelectorAll('[data-disp-filter]').forEach((button) => {
         button.addEventListener('click', () => {
             dispFilter = button.dataset.dispFilter || 'all';
@@ -2577,6 +2590,7 @@
         if (dispFilter === 'has_event') return hasEvent;
         if (dispFilter === 'urgent') return row.status === 'urgent';
         if (dispFilter === 'in_progress') return row.status === 'in_progress';
+        if (dispFilter === 'unresolved') return row.status === 'urgent' || row.status === 'in_progress';
         if (dispFilter === 'done') return row.status === 'done';
         return true;
     }
@@ -2642,6 +2656,7 @@
         const firstDow = new Date(currentYear, currentMonth, 1).getDay();
         const leadingBlanks = (firstDow + 6) % 7;
         dispRenderStats();
+        let visibleMatches = 0;
 
         const weekdayRow = document.createElement('div');
         weekdayRow.className = 'month-grid-weekdays';
@@ -2671,6 +2686,7 @@
             const matchesSearch = !query || searchText.includes(query);
             const matchesFilter = dispMatchesFilter(row, hasEvent);
             const isDimmed = !matchesSearch || !matchesFilter;
+            if (!isDimmed) visibleMatches++;
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
             const statusDot = dispStatuses[row.status]?.dot || 'dispatcher';
             const locationBadge = row.location ? `<span class="dispatcher-location-badge">${escapeHtml(row.location).slice(0, 18)}</span>` : '';
@@ -2685,6 +2701,31 @@
             cell.addEventListener('click', () => dispOpenDayDetail(d));
             grid.appendChild(cell);
         }
+        dispRenderResultSummary(visibleMatches, daysInMonth);
+    }
+
+    function dispRenderResultSummary(visibleMatches, daysInMonth) {
+        const summary = document.getElementById('disp-result-summary');
+        const reset = document.querySelector('[data-disp-reset]');
+        const hasSearch = Boolean(dispSearchQuery.trim());
+        const hasFilter = dispFilter !== 'all';
+        if (summary) summary.textContent = (hasSearch || hasFilter) ? `Знайдено: ${visibleMatches} з ${daysInMonth}` : 'Показано всі дні';
+        if (reset) reset.hidden = !(hasSearch || hasFilter);
+    }
+
+    function dispRenderStats() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const totals = { events: 0, urgent: 0, progress: 0, done: 0 };
+        for (let d = 1; d <= daysInMonth; d++) {
+            const row = dispGetDay(d);
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || getPhotosFromCache(d, 'dispatcher').length > 0;
+            if (hasEvent) totals.events++;
+            if (row.status === 'urgent') totals.urgent++;
+            if (row.status === 'in_progress') totals.progress++;
+            if (row.status === 'done') totals.done++;
+        }
+        const map = { 'disp-stat-events': totals.events, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
+        Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
 
 
