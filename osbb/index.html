@@ -311,7 +311,7 @@
     <div id="section-garbage" class="hidden mb-6">
 
         <!-- Статистика зверху -->
-        <div class="journal-mini-stats is-two">
+        <div class="journal-mini-stats is-four">
             <div class="stat-card journal-stat-card journal-mini-stat role-garbage flex flex-col justify-center">
                 <div class="text-3xl font-black text-emerald-600" id="g-total-month">0</div>
                 <div class="text-xs font-bold text-emerald-700 mt-1">Баків за місяць</div>
@@ -319,6 +319,14 @@
             <div class="stat-card journal-stat-card journal-mini-stat role-info flex flex-col justify-center">
                 <div class="text-3xl font-black text-blue-600" id="g-total-days">0</div>
                 <div class="text-xs font-bold text-blue-700 mt-1">Вивозів за місяць</div>
+            </div>
+            <div class="stat-card journal-stat-card journal-mini-stat role-plastic flex flex-col justify-center">
+                <div class="text-3xl font-black text-amber-500" id="g-total-plastic">0</div>
+                <div class="text-xs font-bold text-amber-600 mt-1">Пластик, днів</div>
+            </div>
+            <div class="stat-card journal-stat-card journal-mini-stat role-glass flex flex-col justify-center">
+                <div class="text-3xl font-black text-sky-500" id="g-total-glass">0</div>
+                <div class="text-xs font-bold text-sky-600 mt-1">Скло, днів</div>
             </div>
         </div>
 
@@ -2221,18 +2229,24 @@
 
     function gRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        let total = 0, days = 0;
+        let total = 0, days = 0, plasticDays = 0, glassDays = 0;
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
             const row = gData[day];
             if (!row || !row.types) continue;
             const dayTotal = parseInt(row.types.bins) || 0;
             if (dayTotal > 0) { total += dayTotal; days++; }
+            if ((parseInt(row.types.plastic) || 0) > 0) plasticDays++;
+            if ((parseInt(row.types.glass) || 0) > 0) glassDays++;
         }
         const totalEl = document.getElementById('g-total-month');
         const daysEl = document.getElementById('g-total-days');
+        const plasticEl = document.getElementById('g-total-plastic');
+        const glassEl = document.getElementById('g-total-glass');
         if (totalEl) totalEl.textContent = total;
         if (daysEl) daysEl.textContent = days;
+        if (plasticEl) plasticEl.textContent = plasticDays;
+        if (glassEl) glassEl.textContent = glassDays;
     }
 
     async function gLoadGarbageYearFromCloud(year) {
