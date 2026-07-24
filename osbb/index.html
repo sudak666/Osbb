@@ -328,14 +328,6 @@
                 <div class="journal-metric-value" id="g-total-glass">0</div>
                 <div class="journal-metric-label">Скло</div>
             </div>
-            <div class="stat-card journal-stat-card journal-mini-stat role-plastic flex flex-col justify-center">
-                <div class="text-3xl font-black text-amber-500" id="g-total-plastic">0</div>
-                <div class="text-xs font-bold text-amber-600 mt-1">Пластик</div>
-            </div>
-            <div class="stat-card journal-stat-card journal-mini-stat role-glass flex flex-col justify-center">
-                <div class="text-3xl font-black text-sky-500" id="g-total-glass">0</div>
-                <div class="text-xs font-bold text-sky-600 mt-1">Скло</div>
-            </div>
         </div>
 
         <!-- Графік по місяцях -->
@@ -370,6 +362,30 @@
                     <span id="disp-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
                     <button type="button" data-action="dispatcher-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="mdi mdi-restore journal-inline-icon" aria-hidden="true"></span> Скинути</span></button>
                 </div>
+            </div>
+            <div class="dispatcher-toolbar no-print">
+                <label class="dispatcher-search-wrap">
+                    <span class="mdi mdi-magnify journal-inline-icon" aria-hidden="true"></span>
+                    <input id="disp-search" type="search" placeholder="Пошук: ліфт, лампа, кв. 45..." aria-label="Пошук по записах диспетчера" class="dispatcher-search-input" data-disp-search>
+                </label>
+                <div class="dispatcher-filter-chips" role="group" aria-label="Фільтр записів диспетчера">
+                    <button type="button" class="dispatcher-filter-chip md-state-layer is-active" data-disp-filter="all">Усі</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="has_event">З подіями</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="urgent">Термінові</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="in_progress">В роботі</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="unresolved">Невирішені</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="done">Виконані</button>
+                </div>
+                <div class="dispatcher-result-row" aria-live="polite">
+                    <span id="disp-result-summary" class="dispatcher-result-summary">Показано всі дні</span>
+                    <button type="button" class="dispatcher-reset-btn md-state-layer" data-disp-reset hidden>Скинути</button>
+                </div>
+            </div>
+            <div class="journal-mini-stats is-four dispatcher-summary" aria-label="Підсумок диспетчера">
+                <div class="stat-card journal-stat-card journal-mini-stat role-dispatcher"><div class="journal-metric-value" id="disp-stat-events">0</div><div class="journal-metric-label">Днів із подіями</div></div>
+                <div class="stat-card journal-stat-card journal-mini-stat role-danger"><div class="journal-metric-value" id="disp-stat-urgent">0</div><div class="journal-metric-label">Термінових</div></div>
+                <div class="stat-card journal-stat-card journal-mini-stat role-info"><div class="journal-metric-value" id="disp-stat-progress">0</div><div class="journal-metric-label">В роботі</div></div>
+                <div class="stat-card journal-stat-card journal-mini-stat role-janitor"><div class="journal-metric-value" id="disp-stat-done">0</div><div class="journal-metric-label">Виконано</div></div>
             </div>
             <div id="disp-cards"></div>
         </div>
@@ -1838,8 +1854,54 @@
                 if (!field) return;
                 dispUpdate(Number(field.dataset.dispDay), field.dataset.dispField, field.value);
             });
+            container.addEventListener('change', (event) => {
+                const field = event.target.closest('[data-disp-action="field-update"]');
+                if (!field) return;
+                dispUpdate(Number(field.dataset.dispDay), field.dataset.dispField, field.value);
+                dispRender();
+            });
+            container.addEventListener('click', (event) => {
+                const action = event.target.closest('[data-disp-action]');
+                if (!action) return;
+                if (action.dataset.dispAction === 'template-add') {
+                    event.preventDefault();
+                    dispAppendTemplate(Number(action.dataset.dispDay), action.dataset.dispTemplate || '');
+                }
+                if (action.dataset.dispAction === 'location-set') {
+                    event.preventDefault();
+                    dispSetLocation(Number(action.dataset.dispDay), action.dataset.dispLocation || '');
+                }
+                if (action.dataset.dispAction === 'status-set') {
+                    event.preventDefault();
+                    dispSetDayStatus(Number(action.dataset.dispDay), action.dataset.dispStatus || 'new');
+                }
+                if (action.dataset.dispAction === 'copy-prev') {
+                    event.preventDefault();
+                    dispCopyFromPreviousDay(Number(action.dataset.dispDay));
+                }
+            });
         });
     }
+
+    document.querySelector('[data-disp-search]')?.addEventListener('input', (event) => {
+        dispSearchQuery = event.target.value || '';
+        dispRender();
+    });
+    document.querySelector('[data-disp-reset]')?.addEventListener('click', () => {
+        dispSearchQuery = '';
+        dispFilter = 'all';
+        const search = document.querySelector('[data-disp-search]');
+        if (search) search.value = '';
+        document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
+        dispRender();
+    });
+    document.querySelectorAll('[data-disp-filter]').forEach((button) => {
+        button.addEventListener('click', () => {
+            dispFilter = button.dataset.dispFilter || 'all';
+            document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn === button));
+            dispRender();
+        });
+    });
 
     bindOsbbStaticControls();
     bindOsbbPhotoActions();
@@ -2408,7 +2470,25 @@
     // ==========================================
     let dispData = {};
     let dispSaveTimer = null;
+    let dispSearchQuery = '';
+    let dispFilter = 'all';
     const dispWorkerName = 'Диспетчер';
+    const dispStatuses = {
+        new: { label: 'Нове', dot: 'dispatcher' },
+        in_progress: { label: 'В роботі', dot: 'dispatcher-progress' },
+        done: { label: 'Виконано', dot: 'dispatcher-done' },
+        urgent: { label: 'Терміново', dot: 'dispatcher-urgent' }
+    };
+    const dispQuickTemplates = [
+        'Скарга мешканця',
+        'Перегоріла лампа',
+        'Проблема з ліфтом',
+        'Сантехнічна заявка',
+        'Потрібен огляд майстра',
+        'Питання по прибиранню'
+    ];
+    const dispQuickLocations = ['Підʼїзд 1', 'Підʼїзд 2', 'Двір', 'Підвал', 'Дах', 'Ліфт'];
+    const dispQuickStatusOrder = ['urgent', 'in_progress', 'done', 'new'];
 
     function dispKey() { return `${currentYear}-${currentMonth}`; }
     function dispOfflineKey() { return `dispatcher_${currentYear}_${currentMonth}`; }
@@ -2473,21 +2553,93 @@
         }
     }
 
+    function dispNormalizeDay(row = {}) {
+        return {
+            working: Boolean(row.working),
+            calls: row.calls || '',
+            tickets: row.tickets || '',
+            location: row.location || '',
+            status: dispStatuses[row.status] ? row.status : 'new',
+            comment: row.comment || '',
+            tasks: row.tasks || {}
+        };
+    }
+
     function dispGetDay(d) {
-        if (!dispData[d]) dispData[d] = { working: false, calls: '', tickets: '', comment: '', tasks: {} };
+        dispData[d] = dispNormalizeDay(dispData[d]);
         return dispData[d];
     }
 
     function dispUpdate(d, field, value) {
         dispGetDay(d)[field] = value;
         dispScheduleSave();
+        dispRenderStats();
     }
 
-    // Розмітка для одного дня диспетчера: тільки події дня та фото.
+    function dispAppendTemplate(d, text) {
+        const row = dispGetDay(d);
+        row.comment = [row.comment, text].filter(Boolean).join(row.comment ? '\n' : '');
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+        showToast('Шаблон додано');
+    }
+
+    function dispSetLocation(d, location) {
+        const row = dispGetDay(d);
+        row.location = location;
+        dispScheduleSave();
+        dispRender();
+        dispOpenDayDetail(Number(d));
+        showToast('Локацію додано');
+    }
+
+    function dispSetDayStatus(d, status) {
+        if (!dispStatuses[status]) return;
+        dispGetDay(d).status = status;
+        dispScheduleSave();
+        dispRender();
+        dispOpenDayDetail(Number(d));
+        showToast(`Статус: ${dispStatuses[status].label}`);
+    }
+
+    function dispCopyFromPreviousDay(d) {
+        const day = Number(d);
+        if (day <= 1) { showToast('Немає попереднього дня'); return; }
+        const prev = dispData[day - 1] ? dispNormalizeDay(dispData[day - 1]) : null;
+        if (!prev || (!prev.comment && !prev.location && prev.status === 'new')) { showToast('Попередній день порожній'); return; }
+        dispData[day] = { ...dispGetDay(day), comment: prev.comment, location: prev.location, status: prev.status, calls: prev.calls, tickets: prev.tickets, tasks: { ...prev.tasks } };
+        dispScheduleSave();
+        dispRender();
+        dispOpenDayDetail(day);
+        showToast('Скопійовано з учора');
+    }
+
+    function dispMatchesFilter(row, hasEvent) {
+        if (dispFilter === 'has_event') return hasEvent;
+        if (dispFilter === 'urgent') return row.status === 'urgent';
+        if (dispFilter === 'in_progress') return row.status === 'in_progress';
+        if (dispFilter === 'unresolved') return row.status === 'urgent' || row.status === 'in_progress';
+        if (dispFilter === 'done') return row.status === 'done';
+        return true;
+    }
+
+    // Розмітка для одного дня диспетчера: події, локація, статус, шаблони та фото.
     function dispBuildDayBodyHtml(d) {
         const row = dispGetDay(d);
+        const statusOptions = Object.entries(dispStatuses).map(([value, item]) => `<option value="${value}" ${row.status === value ? 'selected' : ''}>${item.label}</option>`).join('');
+        const templateButtons = dispQuickTemplates.map(text => `<button type="button" class="dispatcher-template-chip md-state-layer" data-disp-action="template-add" data-disp-day="${d}" data-disp-template="${escapeAttr(text)}">${escapeHtml(text)}</button>`).join('');
+        const locationButtons = dispQuickLocations.map(location => `<button type="button" class="dispatcher-location-chip md-state-layer" data-disp-action="location-set" data-disp-day="${d}" data-disp-location="${escapeAttr(location)}">${escapeHtml(location)}</button>`).join('');
+        const statusButtons = dispQuickStatusOrder.map(status => `<button type="button" class="dispatcher-status-chip md-state-layer ${row.status === status ? 'is-active' : ''}" data-disp-action="status-set" data-disp-day="${d}" data-disp-status="${status}">${escapeHtml(dispStatuses[status].label)}</button>`).join('');
         return `<div class="journal-event-sheet role-dispatcher">
             <div class="journal-event-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Події диспетчера</div>
+            <div class="dispatcher-editor-grid">
+                <label><span class="journal-field-label">Статус:</span><select data-disp-action="field-update" data-disp-day="${d}" data-disp-field="status" class="journal-select dispatcher-status-select" aria-label="Статус дня диспетчера ${d}">${statusOptions}</select></label>
+                <label><span class="journal-field-label">Локація:</span><input type="text" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="location" value="${escapeAttr(row.location||'')}" placeholder="Підʼїзд, поверх, квартира..." class="dispatcher-location-input" aria-label="Локація події диспетчера за день ${d}"></label>
+            </div>
+            <div class="dispatcher-status-row" aria-label="Швидкі статуси">${statusButtons}</div>
+            <div class="dispatcher-location-row" aria-label="Швидкі локації">${locationButtons}</div>
+            <div class="dispatcher-template-row" aria-label="Швидкі шаблони">${templateButtons}</div>
+            <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="copy-prev" data-disp-day="${d}"><span class="mdi mdi-content-copy journal-inline-icon" aria-hidden="true"></span> Повторити з учора</button>
             <div class="journal-field-label">Коментар / події дня:</div>
             <textarea rows="5" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment" aria-label="Події диспетчера за день ${d}"
                 placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
@@ -2535,6 +2687,8 @@
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const firstDow = new Date(currentYear, currentMonth, 1).getDay();
         const leadingBlanks = (firstDow + 6) % 7;
+        dispRenderStats();
+        let visibleMatches = 0;
 
         const weekdayRow = document.createElement('div');
         weekdayRow.className = 'month-grid-weekdays';
@@ -2557,18 +2711,53 @@
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const row = dispGetDay(d);
-            const hasEvent = Boolean((row.comment || '').trim()) || getPhotosFromCache(d, 'dispatcher').length > 0;
+            const photosCount = getPhotosFromCache(d, 'dispatcher').length;
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || photosCount > 0;
+            const query = dispSearchQuery.trim().toLowerCase();
+            const searchText = `${row.comment || ''} ${row.location || ''} ${dispStatuses[row.status]?.label || ''}`.toLowerCase();
+            const matchesSearch = !query || searchText.includes(query);
+            const matchesFilter = dispMatchesFilter(row, hasEvent);
+            const isDimmed = !matchesSearch || !matchesFilter;
+            if (!isDimmed) visibleMatches++;
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+            const statusDot = dispStatuses[row.status]?.dot || 'dispatcher';
+            const locationBadge = row.location ? `<span class="dispatcher-location-badge">${escapeHtml(row.location).slice(0, 18)}</span>` : '';
 
             const cell = document.createElement('button');
             cell.type = 'button';
             cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (hasEvent ? ' has-shifts' : '');
-            cell.setAttribute('aria-label', `${d} ${dowLabel}${hasEvent ? ', є події диспетчера' : ', подій немає'} — відкрити день`);
+            cell.className += ' dispatcher-grid-cell' + (isDimmed ? ' is-dimmed' : '') + ` disp-status-${row.status}`;
+            cell.setAttribute('aria-label', `${d} ${dowLabel}${hasEvent ? ', є події диспетчера' : ', подій немає'}, статус: ${dispStatuses[row.status]?.label || 'Нове'} — відкрити день`);
             cell.setAttribute('aria-haspopup', 'dialog');
-            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${hasEvent ? '<span class="month-grid-dot month-grid-dot-dispatcher"></span>' : ''}</span>`;
+            cell.innerHTML = `<span class="month-grid-day">${d}</span>${locationBadge}<span class="month-grid-dots">${hasEvent ? `<span class="month-grid-dot month-grid-dot-${statusDot}"></span>` : ''}</span>`;
             cell.addEventListener('click', () => dispOpenDayDetail(d));
             grid.appendChild(cell);
         }
+        dispRenderResultSummary(visibleMatches, daysInMonth);
+    }
+
+    function dispRenderResultSummary(visibleMatches, daysInMonth) {
+        const summary = document.getElementById('disp-result-summary');
+        const reset = document.querySelector('[data-disp-reset]');
+        const hasSearch = Boolean(dispSearchQuery.trim());
+        const hasFilter = dispFilter !== 'all';
+        if (summary) summary.textContent = (hasSearch || hasFilter) ? `Знайдено: ${visibleMatches} з ${daysInMonth}` : 'Показано всі дні';
+        if (reset) reset.hidden = !(hasSearch || hasFilter);
+    }
+
+    function dispRenderStats() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const totals = { events: 0, urgent: 0, progress: 0, done: 0 };
+        for (let d = 1; d <= daysInMonth; d++) {
+            const row = dispGetDay(d);
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || getPhotosFromCache(d, 'dispatcher').length > 0;
+            if (hasEvent) totals.events++;
+            if (row.status === 'urgent') totals.urgent++;
+            if (row.status === 'in_progress') totals.progress++;
+            if (row.status === 'done') totals.done++;
+        }
+        const map = { 'disp-stat-events': totals.events, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
+        Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
 
     async function dispClearMonth() {
