@@ -312,13 +312,21 @@
 
         <!-- Статистика зверху -->
         <div class="journal-mini-stats is-four">
-            <div class="stat-card journal-stat-card journal-mini-stat role-garbage flex flex-col justify-center">
-                <div class="text-3xl font-black text-emerald-600" id="g-total-month">0</div>
-                <div class="text-xs font-bold text-emerald-700 mt-1">Баків за місяць</div>
+            <div class="stat-card journal-stat-card journal-mini-stat role-garbage">
+                <div class="journal-metric-value" id="g-total-month">0</div>
+                <div class="journal-metric-label">Баків без пластику/скла</div>
             </div>
-            <div class="stat-card journal-stat-card journal-mini-stat role-info flex flex-col justify-center">
-                <div class="text-3xl font-black text-blue-600" id="g-total-days">0</div>
-                <div class="text-xs font-bold text-blue-700 mt-1">Вивозів за місяць</div>
+            <div class="stat-card journal-stat-card journal-mini-stat role-info">
+                <div class="journal-metric-value" id="g-total-days">0</div>
+                <div class="journal-metric-label">Вивозів за місяць</div>
+            </div>
+            <div class="stat-card journal-stat-card journal-mini-stat role-plastic">
+                <div class="journal-metric-value" id="g-total-plastic">0</div>
+                <div class="journal-metric-label">Пластик</div>
+            </div>
+            <div class="stat-card journal-stat-card journal-mini-stat role-glass">
+                <div class="journal-metric-value" id="g-total-glass">0</div>
+                <div class="journal-metric-label">Скло</div>
             </div>
             <div class="stat-card journal-stat-card journal-mini-stat role-plastic flex flex-col justify-center">
                 <div class="text-3xl font-black text-amber-500" id="g-total-plastic">0</div>
