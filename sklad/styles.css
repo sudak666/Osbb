@@ -919,6 +919,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .topbar-actions{gap:4px!important;}
   .topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;line-height:1!important;}
   .topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid!important;place-items:center!important;width:1em!important;height:1em!important;font-size:21px!important;line-height:1!important;margin:0!important;}
+  .topbar .btn:not(.topbar-right-excel){gap:0!important;}
+  .topbar .btn:not(.topbar-right-excel) .ms{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+  .topbar .btn:not(.topbar-right-excel) .ms .mdi{display:flex!important;align-items:center!important;justify-content:center!important;width:1em!important;height:1em!important;}
   .topbar .btn:not(.topbar-right-excel) .ms .mdi::before{display:block!important;line-height:1!important;}
   .topbar-icon-btn .ms svg{transform:scale(.94);}
   .topbar-more summary{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:44px;height:44px;min-height:44px;line-height:1!important;}

@@ -1,5 +1,6 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 html { overflow-x: hidden; }
+*, *::before, *::after { box-sizing: border-box; }
 :root {
   /* Радіус/моушн-шкала вирівняна зі sklad (docs/ui-redesign-notes.md) —
      тільки ті значення, що вже збігаються з наявними хардкодами в цьому
