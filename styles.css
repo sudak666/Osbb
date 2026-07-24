@@ -7,7 +7,7 @@
         color: var(--md-sys-color-inverse-on-surface, #fff);
     }
     /* Не блокуємо виділення тексту глобально — лише на кнопках/навігації, як у нативних застосунках */
-    button, .shell-tab-btn, .pin-btn, .pin-text-btn { user-select: none; -webkit-user-select: none; }
+    button, .shell-tab-btn, .pin-btn, .pin-text-btn { user-select: none; -webkit-user-select: none; touch-action: manipulation; }
 
     /* prefers-reduced-motion тепер у shared/ui.css */
 
@@ -140,6 +140,7 @@
         transition: background var(--md-sys-motion-duration-medium2, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), color var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), box-shadow var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), transform var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
         -webkit-tap-highlight-color: transparent;
         box-sizing: border-box;
+        min-width: 0;
         text-decoration: none;
     }
     /* Активний сегмент із фірмовою тінню Apple */

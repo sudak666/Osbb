@@ -50,6 +50,7 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, color-mix(in srgb
 .journal-shell-header { display:flex; flex-direction:column; gap:12px; margin-bottom:1.5rem; padding:20px; border:1px solid var(--border-subtle); background:radial-gradient(circle at 8% 0%, color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 16%,transparent), transparent 34%), linear-gradient(135deg,var(--surface-1),var(--surface-2)); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); backdrop-filter:saturate(140%) blur(14px); -webkit-backdrop-filter:saturate(140%) blur(14px); position:relative; overflow:hidden; }
 .journal-shell-header::after { content:''; position:absolute; right:-44px; top:-58px; width:176px; height:176px; border-radius:50%; background:linear-gradient(135deg, color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent), color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 10%,transparent)); pointer-events:none; }
 .journal-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle); position:relative; z-index:1; }
+.journal-title-row > *, .journal-action-row > * { min-width:0; }
 .journal-title-block { min-width:0; }
 .journal-title-heading { color:var(--text-main); font-size:clamp(1.35rem,2.6vw,2rem); line-height:1.05; font-weight:900; letter-spacing:-.06em; }
 .journal-title-copy { color:var(--text-sub); font-size:13px; font-weight:650; margin-top:6px; max-width:560px; line-height:1.45; }
@@ -137,6 +138,7 @@ button, .tab-btn, .mob-tab { border-radius: var(--md-sys-shape-corner-full, 18px
 .rounded-2xl { border-radius: var(--md-sys-shape-corner-large, 18px) !important; }
 .rounded-xl { border-radius: var(--md-sys-shape-corner-medium, 14px) !important; }
 button, select, input { -webkit-tap-highlight-color: transparent; }
+button, .tab-btn, .mob-tab, .journal-action-btn { touch-action: manipulation; }
 button.tab-btn, button[onclick] { transition: transform var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-emphasized, ease), opacity var(--md-sys-motion-duration-short3, 150ms) ease; }
 button.tab-btn:active, button[onclick]:active { transform: scale(0.96); opacity: 0.85; }
 .shadow-md, .shadow-xl, .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; }
