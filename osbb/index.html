@@ -2719,7 +2719,8 @@
         'Потрібен огляд майстра',
         'Питання по прибиранню'
     ];
-    const dispQuickLocations = ['Підʼїзд 1', 'Підʼїзд 2', 'Двір', 'Підвал', 'Дах', 'Ліфт'];
+    const buildingEntrances = Array.from({ length: 5 }, (_, index) => `Підʼїзд ${index + 1}`);
+    const dispQuickLocations = [...buildingEntrances, 'Двір', 'Підвал', 'Дах', 'Ліфт'];
     const dispQuickStatusOrder = ['urgent', 'in_progress', 'done', 'new'];
 
     function dispKey() { return `${currentYear}-${currentMonth}`; }
