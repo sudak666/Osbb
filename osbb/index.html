@@ -366,7 +366,7 @@
             <div class="dispatcher-toolbar no-print">
                 <label class="dispatcher-search-wrap">
                     <span class="mdi mdi-magnify journal-inline-icon" aria-hidden="true"></span>
-                    <input id="disp-search" type="search" placeholder="Пошук: ліфт, лампа, кв. 45..." aria-label="Пошук по записах диспетчера" class="dispatcher-search-input" data-disp-search>
+                    <input id="disp-search" type="search" placeholder="Пошук: ліфт, лампа, кв. 45..." aria-label="Пошук по записах диспетчера" aria-keyshortcuts="/ Escape" class="dispatcher-search-input" data-disp-search>
                 </label>
                 <div class="dispatcher-filter-chips" role="group" aria-label="Фільтр записів диспетчера">
                     <button type="button" class="dispatcher-filter-chip md-state-layer is-active" data-disp-filter="all">Усі</button>
@@ -1897,20 +1897,40 @@
         dispSearchQuery = event.target.value || '';
         dispRender();
     });
-    document.querySelector('[data-disp-reset]')?.addEventListener('click', () => {
+
+    function dispResetSearchAndFilters() {
         dispSearchQuery = '';
         dispFilter = 'all';
         const search = document.querySelector('[data-disp-search]');
         if (search) search.value = '';
         document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
         dispRender();
-    });
+    }
+
+    document.querySelector('[data-disp-reset]')?.addEventListener('click', dispResetSearchAndFilters);
     document.querySelectorAll('[data-disp-filter]').forEach((button) => {
         button.addEventListener('click', () => {
             dispFilter = button.dataset.dispFilter || 'all';
             document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn === button));
             dispRender();
         });
+    });
+    document.addEventListener('keydown', (event) => {
+        const search = document.querySelector('[data-disp-search]');
+        const section = document.getElementById('section-dispatcher');
+        if (!search || !section || section.classList.contains('hidden')) return;
+        const target = event.target;
+        const isEditing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+        if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditing) {
+            event.preventDefault();
+            search.focus();
+            search.select();
+        }
+        if (event.key === 'Escape' && document.activeElement === search && (search.value || dispFilter !== 'all')) {
+            event.preventDefault();
+            dispResetSearchAndFilters();
+            search.focus();
+        }
     });
 
     bindOsbbStaticControls();
