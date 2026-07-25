@@ -2650,6 +2650,10 @@
                 <label><span class="journal-field-label">Статус:</span><select data-disp-action="field-update" data-disp-day="${d}" data-disp-field="status" class="journal-select dispatcher-status-select" aria-label="Статус дня диспетчера ${d}">${statusOptions}</select></label>
                 <label><span class="journal-field-label">Локація:</span><input type="text" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="location" value="${escapeAttr(row.location||'')}" placeholder="Підʼїзд, поверх, квартира..." class="dispatcher-location-input" aria-label="Локація події диспетчера за день ${d}"></label>
             </div>
+            <div class="dispatcher-counter-grid">
+                <label><span class="journal-field-label">Дзвінки:</span><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls" value="${escapeAttr(String(row.calls || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість дзвінків за день ${d}"></label>
+                <label><span class="journal-field-label">Заявки:</span><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="tickets" value="${escapeAttr(String(row.tickets || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість заявок за день ${d}"></label>
+            </div>
             <div class="dispatcher-status-row" aria-label="Швидкі статуси">${statusButtons}</div>
             <div class="dispatcher-location-row" aria-label="Швидкі локації">${locationButtons}</div>
             <div class="dispatcher-template-row" aria-label="Швидкі шаблони">${templateButtons}</div>
@@ -2729,7 +2733,7 @@
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const row = dispGetDay(d);
             const photosCount = getPhotosFromCache(d, 'dispatcher').length;
-            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || photosCount > 0;
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || Number(row.calls) > 0 || Number(row.tickets) > 0 || photosCount > 0;
             const query = dispSearchQuery.trim().toLowerCase();
             const searchText = `${row.comment || ''} ${row.location || ''} ${dispStatuses[row.status]?.label || ''}`.toLowerCase();
             const matchesSearch = !query || searchText.includes(query);
@@ -2767,7 +2771,7 @@
         const totals = { events: 0, urgent: 0, progress: 0, done: 0 };
         for (let d = 1; d <= daysInMonth; d++) {
             const row = dispGetDay(d);
-            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || getPhotosFromCache(d, 'dispatcher').length > 0;
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || Number(row.calls) > 0 || Number(row.tickets) > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
             if (hasEvent) totals.events++;
             if (row.status === 'urgent') totals.urgent++;
             if (row.status === 'in_progress') totals.progress++;

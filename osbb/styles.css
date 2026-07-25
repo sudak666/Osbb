@@ -430,8 +430,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .dispatcher-reset-btn { min-height:30px; padding:5px 10px; background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-ref-role-dispatcher,#8b5cf6); }
 .dispatcher-summary { padding:14px 22px 0; margin-bottom:0; }
 .dispatcher-editor-grid { display:grid; grid-template-columns:minmax(130px,.5fr) minmax(0,1fr); gap:10px; }
-.dispatcher-status-select, .dispatcher-location-input { width:100%; min-height:42px; border-radius:var(--md-sys-shape-corner-large,16px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface,var(--text-main)); padding:8px 12px; font-size:13px; font-weight:700; outline:0; }
-.dispatcher-status-select:focus, .dispatcher-location-input:focus, .dispatcher-search-wrap:focus-within { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 55%,transparent); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 14%,transparent); }
+.dispatcher-counter-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.dispatcher-status-select, .dispatcher-location-input, .dispatcher-counter-input { width:100%; min-height:42px; border-radius:var(--md-sys-shape-corner-large,16px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface,var(--text-main)); padding:8px 12px; font-size:13px; font-weight:700; outline:0; }
+.dispatcher-counter-input { text-align:center; font-variant-numeric:tabular-nums; }
+.dispatcher-status-select:focus, .dispatcher-location-input:focus, .dispatcher-counter-input:focus, .dispatcher-search-wrap:focus-within { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 55%,transparent); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 14%,transparent); }
 .dispatcher-status-row, .dispatcher-location-row { gap:8px; margin:-2px 0 2px; }
 .dispatcher-template-row { margin:2px 0 4px; }
 .dispatcher-status-chip, .dispatcher-location-chip { min-height:30px; padding:5px 10px; }
