@@ -1879,6 +1879,10 @@
                     event.preventDefault();
                     dispCopyFromPreviousDay(Number(action.dataset.dispDay));
                 }
+                if (action.dataset.dispAction === 'insert-time') {
+                    event.preventDefault();
+                    dispInsertCurrentTime(Number(action.dataset.dispDay));
+                }
             });
         });
     }
@@ -2584,6 +2588,16 @@
         showToast('Шаблон додано');
     }
 
+    function dispInsertCurrentTime(d) {
+        const now = new Date();
+        const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const row = dispGetDay(d);
+        row.comment = [row.comment, `[${time}] `].filter(Boolean).join(row.comment ? '\n' : '');
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+        showToast(`Час ${time} додано`);
+    }
+
     function dispSetLocation(d, location) {
         const row = dispGetDay(d);
         row.location = location;
@@ -2639,7 +2653,10 @@
             <div class="dispatcher-status-row" aria-label="Швидкі статуси">${statusButtons}</div>
             <div class="dispatcher-location-row" aria-label="Швидкі локації">${locationButtons}</div>
             <div class="dispatcher-template-row" aria-label="Швидкі шаблони">${templateButtons}</div>
-            <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="copy-prev" data-disp-day="${d}"><span class="mdi mdi-content-copy journal-inline-icon" aria-hidden="true"></span> Повторити з учора</button>
+            <div class="dispatcher-entry-actions">
+                <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="insert-time" data-disp-day="${d}"><span class="mdi mdi-clock-outline journal-inline-icon" aria-hidden="true"></span> Додати час</button>
+                <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="copy-prev" data-disp-day="${d}"><span class="mdi mdi-content-copy journal-inline-icon" aria-hidden="true"></span> Повторити з учора</button>
+            </div>
             <div class="journal-field-label">Коментар / події дня:</div>
             <textarea rows="5" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment" aria-label="Події диспетчера за день ${d}"
                 placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
