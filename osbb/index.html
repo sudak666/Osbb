@@ -704,6 +704,11 @@
         plumber:     [{ id: 'sewer', label: 'Прочистка каналізації' }, { id: 'leaks', label: 'Усунення протікань' }, { id: 'pipes_check', label: 'Огляд труб і кранів' }],
         janitor:     [{ id: 'territory', label: 'Прибирання території' }, { id: 'entrances', label: 'Прибирання підʼїздів' }, { id: 'garden', label: 'Садові роботи' }, { id: 'lawn', label: 'Стрижка газонів' }, { id: 'bins', label: 'Мийка баків' }, { id: 'stairs', label: 'Мийка сходів' }]
     };
+    const roleQuickWorkTemplates = {
+        electrician: ['Заміна автомата', 'Ремонт освітлення', 'Перевірка проводки'],
+        janitor: ['Прибирання після ремонту', 'Вивіз гілля', 'Посипання доріжок'],
+        plumber: ['Заміна крана', 'Ремонт стояка', 'Заміна змішувача']
+    };
 
     let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
     let chartDaily = null, chartPie = null, chartWeekly = null;
@@ -1246,6 +1251,7 @@
                     ${tasksProgress}
                     ${renderRoleDutyActions(d, role, state)}
                     ${renderRoleEntranceSelector(d, role, state)}
+                    ${renderRoleQuickTemplates(d, role, state)}
                     ${tasksHtml}
                     ${renderRoleTicketControl(d, role, state)}
                     ${renderOtherField(d, role, state, 'm')}
@@ -1594,6 +1600,7 @@
                             ${checkBoxesProgress}
                             ${renderRoleDutyActions(d, role, state)}
                             ${renderRoleEntranceSelector(d, role, state)}
+                            ${renderRoleQuickTemplates(d, role, state)}
                             ${checkBoxesHtml}
                             ${renderRoleTicketControl(d, role, state)}
                             ${renderOtherField(d, role, state, 'd')}
@@ -1730,6 +1737,26 @@
         renderTable(); renderMobileCards();
         refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
+    }
+
+    function renderRoleQuickTemplates(day, role, state) {
+        if (!state.working) return '';
+        const templates = roleQuickWorkTemplates[role] || [];
+        const buttons = templates.map(text => `<button type="button" class="journal-role-template md-state-layer" data-journal-action="role-template-add" data-day="${day}" data-role="${role}" data-template="${escapeAttr(text)}">${escapeHtml(text)}</button>`).join('');
+        return `<details class="journal-role-templates"><summary>Швидко додати роботу</summary><div>${buttons}</div></details>`;
+    }
+
+    function addRoleWorkTemplate(day, role, text) {
+        const state = currentMonthData[day]?.[role];
+        if (!state?.working || !(roleQuickWorkTemplates[role] || []).includes(text)) return;
+        const existingLines = String(state.other || '').split('\n').map(line => line.trim()).filter(Boolean);
+        if (existingLines.includes(text)) { showToast('Ця робота вже додана'); return; }
+        const snap = snapshotDay(day);
+        state.other = [...existingLines, text].join('\n');
+        renderTable(); renderMobileCards();
+        refreshOpenDayDetail('journal', day);
+        scheduleSave(day, snap);
+        showToast('Роботу додано');
     }
 
     function toggleAllRoleDuties(day, role) {
@@ -2001,7 +2028,7 @@
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('click', (event) => {
-                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"],[data-journal-action="entrance-toggle"],[data-journal-action="day-copy-prev"]');
+                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"],[data-journal-action="entrance-toggle"],[data-journal-action="day-copy-prev"],[data-journal-action="role-template-add"]');
                 if (!trigger) return;
                 if (trigger.dataset.journalAction === 'task-toggle') {
                     event.preventDefault();
@@ -2030,6 +2057,10 @@
                 if (trigger.dataset.journalAction === 'day-copy-prev') {
                     event.preventDefault();
                     copyPreviousJournalDay(Number(trigger.dataset.day));
+                }
+                if (trigger.dataset.journalAction === 'role-template-add') {
+                    event.preventDefault();
+                    addRoleWorkTemplate(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.template || '');
                 }
             });
             container.addEventListener('keydown', (event) => {
