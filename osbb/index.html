@@ -370,6 +370,8 @@
                 </label>
                 <div class="dispatcher-filter-chips" role="group" aria-label="Фільтр записів диспетчера">
                     <button type="button" class="dispatcher-filter-chip md-state-layer is-active" data-disp-filter="all">Усі</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="today">Сьогодні</button>
+                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="current_week">Цей тиждень</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="has_event">З подіями</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="urgent">Термінові</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="in_progress">В роботі</button>
@@ -2664,7 +2666,22 @@
         showToast('Скопійовано з учора');
     }
 
-    function dispMatchesFilter(row, hasEvent) {
+    function dispMatchesCurrentDateFilter(d, filter) {
+        const dayDate = new Date(currentYear, currentMonth, d);
+        const today = new Date();
+        dayDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        if (filter === 'today') return dayDate.getTime() === today.getTime();
+        if (filter !== 'current_week') return true;
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        return dayDate >= weekStart && dayDate <= weekEnd;
+    }
+
+    function dispMatchesFilter(row, hasEvent, d) {
+        if (dispFilter === 'today' || dispFilter === 'current_week') return dispMatchesCurrentDateFilter(d, dispFilter);
         if (dispFilter === 'has_event') return hasEvent;
         if (dispFilter === 'urgent') return row.status === 'urgent';
         if (dispFilter === 'in_progress') return row.status === 'in_progress';
@@ -2773,7 +2790,7 @@
             const query = dispSearchQuery.trim().toLowerCase();
             const searchText = `${row.comment || ''} ${row.location || ''} ${dispStatuses[row.status]?.label || ''}`.toLowerCase();
             const matchesSearch = !query || searchText.includes(query);
-            const matchesFilter = dispMatchesFilter(row, hasEvent);
+            const matchesFilter = dispMatchesFilter(row, hasEvent, d);
             const isDimmed = !matchesSearch || !matchesFilter;
             if (!isDimmed) visibleMatches++;
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
