@@ -137,6 +137,12 @@ button svg.journal-inline-icon { display:block; }
 .journal-photo-action { cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; padding:9px 14px; border-radius:var(--md-sys-shape-corner-full,999px); border:1px solid color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 24%,transparent); background:var(--md-sys-color-primary-container,#dcfce7); color:var(--md-sys-color-on-primary-container,#052e16); font-size:14px; font-weight:800; }
 .journal-photo-action.is-secondary { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 28%,transparent); background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 14%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); }
 .journal-duty-progress { display:flex; flex-direction:column; gap:5px; margin:6px 0 2px; }
+.journal-role-heading { display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+.journal-role-status { display:inline-flex; align-items:center; min-height:24px; padding:3px 8px; border-radius:var(--md-sys-shape-corner-full,999px); font-size:10px; line-height:1.2; font-weight:850; letter-spacing:.01em; text-transform:none; }
+.journal-role-status.is-off { background:var(--md-sys-color-surface-container-highest,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
+.journal-role-status.is-active { background:color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 14%,transparent); color:var(--md-sys-color-secondary,#3b82f6); }
+.journal-role-status.is-progress { background:color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 16%,transparent); color:var(--md-sys-color-tertiary,#d97706); }
+.journal-role-status.is-done { background:color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 15%,transparent); color:var(--md-sys-color-primary,#16a34a); }
 .journal-duty-progress-head { display:flex; align-items:center; justify-content:space-between; gap:8px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; line-height:1.25; font-weight:750; }
 .journal-duty-progress-head strong { color:inherit; font-variant-numeric:tabular-nums; }
 .journal-duty-progress.is-complete .journal-duty-progress-head { color:var(--md-sys-color-primary,var(--accent)); }

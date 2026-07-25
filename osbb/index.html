@@ -1215,7 +1215,7 @@
 
             bodyHtml += `<div class="role-card ${dayGridRoleColors[role]} mb-2">
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-sm font-bold ${dayGridAccentColors[role]}">${roleNames[role]}</span>
+                    <div class="journal-role-heading"><span class="text-sm font-bold ${dayGridAccentColors[role]}">${roleNames[role]}</span>${renderRoleWorkStatus(role, state)}</div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
                         <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md ${toggleColor} shadow-inner"></div>
@@ -1517,7 +1517,7 @@
                 rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top ${!state.working?'opacity-60':''}">
                     <div class="flex flex-col gap-2">
                         <div class="flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 no-print">
-                            <span class="text-[10px] font-extrabold uppercase tracking-wider ${state.working?accentText:'text-slate-400'}">${state.working?'НА ЗМІНІ':'ВИХІДНИЙ'}</span>
+                            ${renderRoleWorkStatus(role, state)}
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
                                 <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md ${toggleColor} shadow-inner"></div>
@@ -1587,6 +1587,15 @@
         renderTable(); renderMobileCards(); updateStats();
         refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
+    }
+
+    function renderRoleWorkStatus(role, state) {
+        if (!state.working) return '<span class="journal-role-status is-off">Вихідний</span>';
+        const tasks = roleTasksConfig[role] || [];
+        const done = tasks.filter(task => state.tasks?.[task.id]).length;
+        if (tasks.length && done === tasks.length) return '<span class="journal-role-status is-done">Виконано</span>';
+        const hasProgress = done > 0 || Number(state.ticketCount) > 0 || Boolean(String(state.other || '').trim());
+        return `<span class="journal-role-status ${hasProgress ? 'is-progress' : 'is-active'}">${hasProgress ? 'У процесі' : 'На зміні'}</span>`;
     }
 
     function renderRoleTaskProgress(done, total) {
