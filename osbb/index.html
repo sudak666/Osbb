@@ -668,9 +668,9 @@
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const roleTasksConfig = {
-        electrician: [{ id: 'lamps', label: 'Заміна ламп' }],
-        plumber:     [{ id: 'sewer', label: 'Прочистка каналізації' }],
-        janitor:     [{ id: 'garden', label: 'Садові роботи' }, { id: 'lawn', label: 'Стрижка газонів' }, { id: 'bins', label: 'Мийка баків' }, { id: 'stairs', label: 'Мийка сходів' }]
+        electrician: [{ id: 'lamps', label: 'Заміна ламп' }, { id: 'lighting_check', label: 'Огляд освітлення' }, { id: 'panels_check', label: 'Огляд електрощитових' }],
+        plumber:     [{ id: 'sewer', label: 'Прочистка каналізації' }, { id: 'leaks', label: 'Усунення протікань' }, { id: 'pipes_check', label: 'Огляд труб і кранів' }],
+        janitor:     [{ id: 'territory', label: 'Прибирання території' }, { id: 'entrances', label: 'Прибирання підʼїздів' }, { id: 'garden', label: 'Садові роботи' }, { id: 'lawn', label: 'Стрижка газонів' }, { id: 'bins', label: 'Мийка баків' }, { id: 'stairs', label: 'Мийка сходів' }]
     };
 
     let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
@@ -1208,6 +1208,7 @@
                 </div>
                 <div class="${!state.working?'opacity-40 pointer-events-none':''}">
                     ${tasksProgress}
+                    ${renderRoleDutyActions(d, role, state)}
                     ${tasksHtml}
                     <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
                         <span class="text-xs text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
@@ -1486,6 +1487,7 @@
                         </div>
                         <div class="no-print flex flex-col gap-1 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
                             ${checkBoxesProgress}
+                            ${renderRoleDutyActions(d, role, state)}
                             ${checkBoxesHtml}
                             <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
                                 <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
@@ -1537,7 +1539,6 @@
     function toggleShift(day, role, event) {
         const snap = snapshotDay(day);
         currentMonthData[day][role].working = !currentMonthData[day][role].working;
-        if (!currentMonthData[day][role].working) { currentMonthData[day][role].tasks = {}; currentMonthData[day][role].other = ''; }
         renderTable(); renderMobileCards(); updateStats(); animateStatCards();
         refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
@@ -1551,6 +1552,42 @@
         renderTable(); renderMobileCards(); updateStats();
         refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
+    }
+
+    function renderRoleDutyActions(day, role, state) {
+        if (!state.working) return '';
+        const tasks = roleTasksConfig[role] || [];
+        const allDone = tasks.length > 0 && tasks.every(task => state.tasks?.[task.id]);
+        return `<div class="journal-duty-actions no-print">
+            <button type="button" class="journal-duty-chip md-state-layer${allDone ? ' is-reset' : ''}" data-journal-action="duties-toggle-all" data-day="${day}" data-role="${role}">${allDone ? 'Скинути відмітки' : 'Виконати всі'}</button>
+            <button type="button" class="journal-duty-chip md-state-layer" data-journal-action="duties-copy-prev" data-day="${day}" data-role="${role}">Повторити з учора</button>
+        </div>`;
+    }
+
+    function toggleAllRoleDuties(day, role) {
+        const state = currentMonthData[day]?.[role];
+        const tasks = roleTasksConfig[role];
+        if (!state?.working || !tasks) return;
+        const snap = snapshotDay(day);
+        const nextValue = !tasks.every(task => state.tasks?.[task.id]);
+        state.tasks = Object.fromEntries(tasks.map(task => [task.id, nextValue]));
+        renderTable(); renderMobileCards(); updateStats();
+        refreshOpenDayDetail('journal', day);
+        scheduleSave(day, snap);
+    }
+
+    function copyPreviousRoleDuties(day, role) {
+        const state = currentMonthData[day]?.[role];
+        const previous = day > 1 ? currentMonthData[day - 1]?.[role] : null;
+        if (!state?.working) { showToast('Спочатку увімкніть зміну'); return; }
+        if (!previous || (!Object.values(previous.tasks || {}).some(Boolean) && !previous.other)) { showToast('Учора немає записаних робіт'); return; }
+        const snap = snapshotDay(day);
+        state.tasks = { ...(previous.tasks || {}) };
+        state.other = previous.other || '';
+        renderTable(); renderMobileCards(); updateStats();
+        refreshOpenDayDetail('journal', day);
+        scheduleSave(day, snap);
+        showToast('Роботи скопійовано з учора');
     }
     function updateTicketCount(day, role, val) {
         currentMonthData[day][role].ticketCount = parseInt(val) || 0;
@@ -1758,7 +1795,7 @@
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('click', (event) => {
-                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"]');
+                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"]');
                 if (!trigger) return;
                 if (trigger.dataset.journalAction === 'task-toggle') {
                     event.preventDefault();
@@ -1767,6 +1804,14 @@
                 if (trigger.dataset.journalAction === 'other-expand') {
                     event.preventDefault();
                     toggleOtherExpand(trigger.dataset.otherTarget, trigger);
+                }
+                if (trigger.dataset.journalAction === 'duties-toggle-all') {
+                    event.preventDefault();
+                    toggleAllRoleDuties(Number(trigger.dataset.day), trigger.dataset.role);
+                }
+                if (trigger.dataset.journalAction === 'duties-copy-prev') {
+                    event.preventDefault();
+                    copyPreviousRoleDuties(Number(trigger.dataset.day), trigger.dataset.role);
                 }
             });
             container.addEventListener('keydown', (event) => {
