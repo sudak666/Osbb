@@ -139,6 +139,14 @@ button svg.journal-inline-icon { display:block; }
 .journal-duty-actions { display:flex; flex-wrap:wrap; gap:6px; margin:7px 0 2px; }
 .journal-duty-chip { position:relative; overflow:hidden; min-height:30px; padding:5px 10px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); font-size:10px; line-height:1.2; font-weight:800; }
 .journal-duty-chip.is-reset { color:var(--md-sys-color-error,#ef4444); }
+.journal-ticket-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; padding-top:8px; border-top:1px solid var(--border-subtle); }
+.journal-ticket-label { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; font-weight:750; }
+.journal-ticket-control { display:grid; grid-template-columns:auto minmax(44px,64px) auto; gap:5px; }
+.journal-ticket-control.is-disabled { opacity:.4; }
+.journal-ticket-input, .journal-ticket-step { min-height:36px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-medium,12px); background:var(--md-sys-color-surface-container,var(--bg-card)); text-align:center; font-size:12px; font-weight:850; }
+.journal-ticket-input { width:100%; min-width:0; padding:6px; color:var(--md-sys-color-on-surface,var(--text-main)); outline:0; font-variant-numeric:tabular-nums; }
+.journal-ticket-step { position:relative; overflow:hidden; min-width:38px; padding:0 7px; color:var(--md-sys-color-primary,var(--accent)); background:var(--md-sys-color-primary-container,var(--bg-input)); }
+.journal-ticket-input:focus { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
 /* journal-status-icon-row(-tight) — те саме, що status-label(.is-tight) вище.
    Живий JS сьогодні емітить лише status-label; ці два імені лишені як
    алiас-правила, бо документована історія редизайну (docs/ui-redesign-notes.md)

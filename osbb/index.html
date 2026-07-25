@@ -1210,10 +1210,7 @@
                     ${tasksProgress}
                     ${renderRoleDutyActions(d, role, state)}
                     ${tasksHtml}
-                    <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
-                        <span class="text-xs text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                        <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-sm p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none text-center font-bold">
-                    </div>
+                    ${renderRoleTicketControl(d, role, state)}
                     ${renderOtherField(d, role, state, 'm')}
                     ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
                         <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
@@ -1489,10 +1486,7 @@
                             ${checkBoxesProgress}
                             ${renderRoleDutyActions(d, role, state)}
                             ${checkBoxesHtml}
-                            <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-subtle)]">
-                                <span class="text-[10px] text-[var(--text-sub)] font-semibold whitespace-nowrap">Заявок:</span>
-                                <input type="number" min="0" max="999" value="${escapeAttr(String(state.ticketCount||''))}" ${!state.working?'disabled':''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="w-16 text-xs p-1.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300 text-center font-bold">
-                            </div>
+                            ${renderRoleTicketControl(d, role, state)}
                             ${renderOtherField(d, role, state, 'd')}
                             ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
                                 <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Фото
@@ -1589,8 +1583,32 @@
         scheduleSave(day, snap);
         showToast('Роботи скопійовано з учора');
     }
+
+    function renderRoleTicketControl(d, role, state) {
+        const disabled = !state.working;
+        return `<div class="journal-ticket-row">
+            <span class="journal-ticket-label">Заявок:</span>
+            <div class="journal-ticket-control${disabled ? ' is-disabled' : ''}">
+                <button type="button" class="journal-ticket-step md-state-layer" ${disabled ? 'disabled' : ''} data-journal-action="ticket-adjust" data-day="${d}" data-role="${role}" data-ticket-delta="-1" aria-label="Відняти одну заявку ${roleNames[role]}">−1</button>
+                <input type="number" min="0" max="999" inputmode="numeric" value="${escapeAttr(String(state.ticketCount||''))}" ${disabled ? 'disabled' : ''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="journal-ticket-input">
+                <button type="button" class="journal-ticket-step md-state-layer" ${disabled ? 'disabled' : ''} data-journal-action="ticket-adjust" data-day="${d}" data-role="${role}" data-ticket-delta="1" aria-label="Додати одну заявку ${roleNames[role]}">+1</button>
+            </div>
+        </div>`;
+    }
+
+    function adjustRoleTicketCount(day, role, delta) {
+        const state = currentMonthData[day]?.[role];
+        if (!state?.working || (delta !== -1 && delta !== 1)) return;
+        const snap = snapshotDay(day);
+        const currentValue = Number.parseInt(state.ticketCount, 10);
+        state.ticketCount = Math.max(0, Math.min(999, (Number.isFinite(currentValue) ? currentValue : 0) + delta));
+        renderTable(); renderMobileCards(); updateStats();
+        refreshOpenDayDetail('journal', day);
+        scheduleSave(day, snap);
+    }
+
     function updateTicketCount(day, role, val) {
-        currentMonthData[day][role].ticketCount = parseInt(val) || 0;
+        currentMonthData[day][role].ticketCount = Math.max(0, Math.min(999, parseInt(val, 10) || 0));
         scheduleSave();
     }
     function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
@@ -1795,7 +1813,7 @@
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('click', (event) => {
-                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"]');
+                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"]');
                 if (!trigger) return;
                 if (trigger.dataset.journalAction === 'task-toggle') {
                     event.preventDefault();
@@ -1812,6 +1830,10 @@
                 if (trigger.dataset.journalAction === 'duties-copy-prev') {
                     event.preventDefault();
                     copyPreviousRoleDuties(Number(trigger.dataset.day), trigger.dataset.role);
+                }
+                if (trigger.dataset.journalAction === 'ticket-adjust') {
+                    event.preventDefault();
+                    adjustRoleTicketCount(Number(trigger.dataset.day), trigger.dataset.role, Number(trigger.dataset.ticketDelta));
                 }
             });
             container.addEventListener('keydown', (event) => {
