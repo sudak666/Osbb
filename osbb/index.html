@@ -381,8 +381,10 @@
                     <button type="button" class="dispatcher-reset-btn md-state-layer" data-disp-reset hidden>Скинути</button>
                 </div>
             </div>
-            <div class="journal-mini-stats is-four dispatcher-summary" aria-label="Підсумок диспетчера">
+            <div class="journal-mini-stats is-six dispatcher-summary" aria-label="Підсумок диспетчера">
                 <div class="stat-card journal-stat-card journal-mini-stat role-dispatcher"><div class="journal-metric-value" id="disp-stat-events">0</div><div class="journal-metric-label">Днів із подіями</div></div>
+                <div class="stat-card journal-stat-card journal-mini-stat role-info"><div class="journal-metric-value" id="disp-stat-calls">0</div><div class="journal-metric-label">Дзвінків</div></div>
+                <div class="stat-card journal-stat-card journal-mini-stat role-plumber"><div class="journal-metric-value" id="disp-stat-tickets">0</div><div class="journal-metric-label">Заявок</div></div>
                 <div class="stat-card journal-stat-card journal-mini-stat role-danger"><div class="journal-metric-value" id="disp-stat-urgent">0</div><div class="journal-metric-label">Термінових</div></div>
                 <div class="stat-card journal-stat-card journal-mini-stat role-info"><div class="journal-metric-value" id="disp-stat-progress">0</div><div class="journal-metric-label">В роботі</div></div>
                 <div class="stat-card journal-stat-card journal-mini-stat role-janitor"><div class="journal-metric-value" id="disp-stat-done">0</div><div class="journal-metric-label">Виконано</div></div>
@@ -2782,16 +2784,18 @@
 
     function dispRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const totals = { events: 0, urgent: 0, progress: 0, done: 0 };
+        const totals = { events: 0, calls: 0, tickets: 0, urgent: 0, progress: 0, done: 0 };
         for (let d = 1; d <= daysInMonth; d++) {
             const row = dispGetDay(d);
             const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || Number(row.calls) > 0 || Number(row.tickets) > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
             if (hasEvent) totals.events++;
+            totals.calls += Math.max(0, Number.parseInt(row.calls, 10) || 0);
+            totals.tickets += Math.max(0, Number.parseInt(row.tickets, 10) || 0);
             if (row.status === 'urgent') totals.urgent++;
             if (row.status === 'in_progress') totals.progress++;
             if (row.status === 'done') totals.done++;
         }
-        const map = { 'disp-stat-events': totals.events, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
+        const map = { 'disp-stat-events': totals.events, 'disp-stat-calls': totals.calls, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
         Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
 
