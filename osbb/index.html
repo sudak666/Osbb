@@ -1883,6 +1883,10 @@
                     event.preventDefault();
                     dispInsertCurrentTime(Number(action.dataset.dispDay));
                 }
+                if (action.dataset.dispAction === 'counter-increment') {
+                    event.preventDefault();
+                    dispIncrementCounter(Number(action.dataset.dispDay), action.dataset.dispField || '');
+                }
             });
         });
     }
@@ -2598,6 +2602,16 @@
         showToast(`Час ${time} додано`);
     }
 
+    function dispIncrementCounter(d, field) {
+        if (field !== 'calls' && field !== 'tickets') return;
+        const row = dispGetDay(d);
+        const currentValue = Number.parseInt(row[field], 10);
+        row[field] = String(Math.min(999, (Number.isFinite(currentValue) ? currentValue : 0) + 1));
+        dispScheduleSave();
+        dispRenderStats();
+        dispOpenDayDetail(Number(d));
+    }
+
     function dispSetLocation(d, location) {
         const row = dispGetDay(d);
         row.location = location;
@@ -2651,8 +2665,8 @@
                 <label><span class="journal-field-label">Локація:</span><input type="text" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="location" value="${escapeAttr(row.location||'')}" placeholder="Підʼїзд, поверх, квартира..." class="dispatcher-location-input" aria-label="Локація події диспетчера за день ${d}"></label>
             </div>
             <div class="dispatcher-counter-grid">
-                <label><span class="journal-field-label">Дзвінки:</span><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls" value="${escapeAttr(String(row.calls || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість дзвінків за день ${d}"></label>
-                <label><span class="journal-field-label">Заявки:</span><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="tickets" value="${escapeAttr(String(row.tickets || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість заявок за день ${d}"></label>
+                <label><span class="journal-field-label">Дзвінки:</span><span class="dispatcher-counter-control"><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls" value="${escapeAttr(String(row.calls || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість дзвінків за день ${d}"><button type="button" class="dispatcher-counter-add md-state-layer" data-disp-action="counter-increment" data-disp-field="calls" data-disp-day="${d}" aria-label="Додати один дзвінок">+1</button></span></label>
+                <label><span class="journal-field-label">Заявки:</span><span class="dispatcher-counter-control"><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="tickets" value="${escapeAttr(String(row.tickets || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість заявок за день ${d}"><button type="button" class="dispatcher-counter-add md-state-layer" data-disp-action="counter-increment" data-disp-field="tickets" data-disp-day="${d}" aria-label="Додати одну заявку">+1</button></span></label>
             </div>
             <div class="dispatcher-status-row" aria-label="Швидкі статуси">${statusButtons}</div>
             <div class="dispatcher-location-row" aria-label="Швидкі локації">${locationButtons}</div>

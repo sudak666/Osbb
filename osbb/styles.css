@@ -429,19 +429,23 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .dispatcher-result-summary { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
 .dispatcher-reset-btn { min-height:30px; padding:5px 10px; background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-ref-role-dispatcher,#8b5cf6); }
 .dispatcher-summary { padding:14px 22px 0; margin-bottom:0; }
+.journal-event-sheet.role-dispatcher { display:flex; flex-direction:column; gap:10px; }
+.journal-event-sheet.role-dispatcher > .journal-event-title, .journal-event-sheet.role-dispatcher > .journal-photo-section { margin:0; }
+.journal-event-sheet.role-dispatcher > .journal-field-label { margin:0; }
 .dispatcher-editor-grid { display:grid; grid-template-columns:minmax(130px,.5fr) minmax(0,1fr); gap:10px; }
 .dispatcher-counter-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.dispatcher-counter-control { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px; }
 .dispatcher-status-select, .dispatcher-location-input, .dispatcher-counter-input { width:100%; min-height:42px; border-radius:var(--md-sys-shape-corner-large,16px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface,var(--text-main)); padding:8px 12px; font-size:13px; font-weight:700; outline:0; }
 .dispatcher-counter-input { text-align:center; font-variant-numeric:tabular-nums; }
+.dispatcher-counter-add { position:relative; overflow:hidden; min-width:42px; min-height:42px; padding:0 10px; border:1px solid color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 30%,transparent); border-radius:var(--md-sys-shape-corner-large,16px); background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 14%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); font-size:13px; font-weight:850; }
 .dispatcher-status-select:focus, .dispatcher-location-input:focus, .dispatcher-counter-input:focus, .dispatcher-search-wrap:focus-within { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 55%,transparent); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 14%,transparent); }
-.dispatcher-status-row, .dispatcher-location-row { gap:8px; margin:-2px 0 2px; }
-.dispatcher-template-row { margin:2px 0 4px; }
+.dispatcher-status-row, .dispatcher-location-row, .dispatcher-template-row { gap:8px; margin:0; }
 .dispatcher-status-chip, .dispatcher-location-chip { min-height:30px; padding:5px 10px; }
 .dispatcher-status-chip { background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 9%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); }
 .dispatcher-status-chip.is-active { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 45%,transparent); background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 18%,var(--md-sys-color-surface,var(--bg-card))); }
 .dispatcher-location-chip { background:color-mix(in srgb,var(--md-sys-color-secondary,#3b82f6) 10%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-sys-color-secondary,#3b82f6); }
 .dispatcher-template-chip { max-width:100%; white-space:normal; text-align:left; background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 10%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); }
-.dispatcher-entry-actions { display:flex; flex-wrap:wrap; gap:8px; margin:2px 0 4px; }
+.dispatcher-entry-actions { display:flex; flex-wrap:wrap; gap:8px; margin:0; }
 .dispatcher-copy-btn, .dispatcher-time-btn { display:inline-flex; align-items:center; gap:6px; }
 .dispatcher-copy-btn { background:var(--md-sys-color-secondary-container,#dbeafe); color:var(--md-sys-color-on-secondary-container,#1e3a8a); }
 .dispatcher-time-btn { background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 14%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); }
