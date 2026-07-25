@@ -173,6 +173,11 @@ button svg.journal-inline-icon { display:block; }
 .journal-work-result { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
 .journal-work-result-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .journal-work-reset { position:relative; overflow:hidden; min-height:30px; padding:5px 10px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); font-size:11px; font-weight:800; }
+.journal-work-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.journal-work-summary > span { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:58px; padding:8px; border:1px solid color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 22%,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 8%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:10px; font-weight:750; text-align:center; }
+.journal-work-summary strong { margin-bottom:3px; color:var(--md-sys-color-primary,var(--accent)); font-size:20px; line-height:1; font-variant-numeric:tabular-nums; }
+.journal-work-summary .is-pending strong { color:var(--md-sys-color-tertiary,#d97706); }
+.journal-work-summary .is-tickets strong { color:var(--md-sys-color-secondary,#3b82f6); }
 .journal-work-grid-cell { transition:opacity var(--motion-fast),filter var(--motion-fast); }
 .journal-work-grid-cell.is-dimmed { opacity:.3; filter:saturate(.45); }
 .journal-role-locations { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:6px 0 2px; }
@@ -180,6 +185,8 @@ button svg.journal-inline-icon { display:block; }
 .journal-role-locations > div { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:5px; }
 .journal-entrance-chip { position:relative; overflow:hidden; min-width:32px; min-height:32px; padding:5px 8px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; font-weight:850; }
 .journal-entrance-chip.is-active { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 44%,transparent); background:var(--md-sys-color-primary-container,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); }
+.journal-copy-day { position:relative; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:40px; margin:0 0 10px; padding:8px 14px; border:1px solid color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 30%,transparent); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary-container,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); font-size:12px; font-weight:850; }
+.journal-copy-day.is-compact { width:100%; min-height:34px; margin-bottom:8px; padding:6px 10px; font-size:11px; }
 /* journal-status-icon-row(-tight) — те саме, що status-label(.is-tight) вище.
    Живий JS сьогодні емітить лише status-label; ці два імені лишені як
    алiас-правила, бо документована історія редизайну (docs/ui-redesign-notes.md)

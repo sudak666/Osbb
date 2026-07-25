@@ -296,6 +296,11 @@
             <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 5">5</button>
         </div>
         <div class="journal-work-result-row"><div class="journal-work-result" data-journal-work-result aria-live="polite">Показано всі дні</div><button type="button" class="journal-work-reset md-state-layer" data-journal-work-reset hidden>Скинути</button></div>
+        <div class="journal-work-summary" aria-label="Підсумок відфільтрованих робіт">
+            <span><strong data-journal-summary-done>0</strong>Виконано</span>
+            <span class="is-pending"><strong data-journal-summary-pending>0</strong>Залишилося</span>
+            <span class="is-tickets"><strong data-journal-summary-tickets>0</strong>Заявок</span>
+        </div>
     </div>
 
     <div id="mobile-cards" class="mobile-day-card mb-4">
@@ -1210,7 +1215,7 @@
     // і для модалки календарної сітки (openDayDetail).
     function buildDayBodyHtml(d) {
         if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
-        let bodyHtml = '';
+        let bodyHtml = renderCopyPreviousDayButton(d);
         roles.forEach(role => {
             const state = currentMonthData[d][role];
             const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
@@ -1402,6 +1407,32 @@
         const hasFilters = Boolean(journalWorkSearch) || journalWorkFilter !== 'all' || journalEntranceFilter !== 'all';
         result.textContent = hasFilters ? `Знайдено: ${visible} з ${total}` : 'Показано всі дні';
         if (reset) reset.hidden = !hasFilters;
+        renderJournalWorkSummary(total);
+    }
+
+    function renderJournalWorkSummary(daysInMonth) {
+        const totals = { done: 0, pending: 0, tickets: 0 };
+        for (let day = 1; day <= daysInMonth; day++) {
+            if (!journalDayMatches(day)) continue;
+            const row = currentMonthData[day];
+            if (!row) continue;
+            roles.forEach(role => {
+                const state = row[role];
+                if (!state?.working) return;
+                if (roles.includes(journalWorkFilter) && role !== journalWorkFilter) return;
+                if (journalEntranceFilter !== 'all' && (!Array.isArray(state.locations) || !state.locations.includes(journalEntranceFilter))) return;
+                const tasks = roleTasksConfig[role] || [];
+                const completed = tasks.filter(task => state.tasks?.[task.id]).length;
+                totals.done += completed;
+                totals.pending += Math.max(0, tasks.length - completed);
+                totals.tickets += Math.max(0, Number.parseInt(state.ticketCount, 10) || 0);
+            });
+        }
+        const values = { '[data-journal-summary-done]': totals.done, '[data-journal-summary-pending]': totals.pending, '[data-journal-summary-tickets]': totals.tickets };
+        Object.entries(values).forEach(([selector, value]) => {
+            const element = document.querySelector(selector);
+            if (element) element.textContent = String(value);
+        });
     }
 
     function renderMobileCards() {
@@ -1581,6 +1612,7 @@
             });
 
             rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top no-print">
+                ${renderCopyPreviousDayButton(d, true)}
                 <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
             </td>`;
 
@@ -1601,6 +1633,33 @@
     }
 
     function snapshotDay(day) { return JSON.parse(JSON.stringify(currentMonthData[day])); }
+    function journalDayHasData(day) {
+        const row = currentMonthData[day];
+        if (!row) return false;
+        if (String(row.comment || '').trim()) return true;
+        return roles.some(role => {
+            const state = row[role];
+            return Boolean(state?.working) || Number(state?.ticketCount) > 0 || Boolean(String(state?.other || '').trim()) || Object.values(state?.tasks || {}).some(Boolean) || (Array.isArray(state?.locations) && state.locations.length > 0);
+        });
+    }
+
+    function renderCopyPreviousDayButton(day, compact = false) {
+        if (day <= 1) return '';
+        return `<button type="button" class="journal-copy-day md-state-layer${compact ? ' is-compact' : ''}" data-journal-action="day-copy-prev" data-day="${day}" aria-label="Скопіювати всю зміну з попереднього дня"><span class="mdi mdi-content-copy" aria-hidden="true"></span>${compact ? 'З учора' : 'Повторити весь день з учора'}</button>`;
+    }
+
+    function copyPreviousJournalDay(day) {
+        if (day <= 1 || !currentMonthData[day - 1]) { showToast('Немає даних за попередній день'); return; }
+        if (!journalDayHasData(day - 1)) { showToast('Попередній день порожній'); return; }
+        if (journalDayHasData(day)) { showToast('Цей день уже має записи'); return; }
+        const snap = snapshotDay(day);
+        currentMonthData[day] = JSON.parse(JSON.stringify(currentMonthData[day - 1]));
+        renderTable(); renderMobileCards(); updateStats();
+        refreshOpenDayDetail('journal', day);
+        scheduleSave(day, snap);
+        showToast('Весь день скопійовано з учора');
+    }
+
     function rollbackDay(day, snapshot) {
         currentMonthData[day] = snapshot;
         saveOffline();
@@ -1942,7 +2001,7 @@
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('click', (event) => {
-                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"],[data-journal-action="entrance-toggle"]');
+                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"],[data-journal-action="entrance-toggle"],[data-journal-action="day-copy-prev"]');
                 if (!trigger) return;
                 if (trigger.dataset.journalAction === 'task-toggle') {
                     event.preventDefault();
@@ -1967,6 +2026,10 @@
                 if (trigger.dataset.journalAction === 'entrance-toggle') {
                     event.preventDefault();
                     toggleRoleEntrance(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.location || '');
+                }
+                if (trigger.dataset.journalAction === 'day-copy-prev') {
+                    event.preventDefault();
+                    copyPreviousJournalDay(Number(trigger.dataset.day));
                 }
             });
             container.addEventListener('keydown', (event) => {
