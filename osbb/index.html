@@ -1211,7 +1211,7 @@
                     <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
                 </label>`;
             }).join('');
-            const tasksProgress = tasksTotal ? `<div class="flex items-center justify-between text-xs font-bold mt-1 ${tasksDone===tasksTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${tasksDone}/${tasksTotal}</span></div>` : '';
+            const tasksProgress = renderRoleTaskProgress(tasksDone, tasksTotal);
 
             bodyHtml += `<div class="role-card ${dayGridRoleColors[role]} mb-2">
                 <div class="flex items-center justify-between mb-1">
@@ -1510,7 +1510,7 @@
                 });
                 const checkBoxesTotal = roleTasksConfig[role].length;
                 const checkBoxesDone = roleTasksConfig[role].filter(task => state.tasks && state.tasks[task.id]).length;
-                const checkBoxesProgress = checkBoxesTotal ? `<div class="flex items-center justify-between text-[10px] font-bold ${checkBoxesDone===checkBoxesTotal?'text-emerald-600':'text-[var(--text-sub)]'}"><span>Завдання</span><span>${checkBoxesDone}/${checkBoxesTotal}</span></div>` : '';
+                const checkBoxesProgress = renderRoleTaskProgress(checkBoxesDone, checkBoxesTotal);
                 let printSummary = [];
                 if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks&&state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(escapeHtml(state.other)); if (!printSummary.length) printSummary.push('Зміна'); } else printSummary.push('—');
 
@@ -1589,13 +1589,22 @@
         scheduleSave(day, snap);
     }
 
+    function renderRoleTaskProgress(done, total) {
+        if (!total) return '';
+        const percent = Math.round((done / total) * 100);
+        return `<div class="journal-duty-progress${done === total ? ' is-complete' : ''}">
+            <div class="journal-duty-progress-head"><span>Обовʼязки</span><strong>${done} з ${total}</strong></div>
+            <div class="journal-duty-progress-track" role="progressbar" aria-label="Виконано обовʼязків" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><span style="width:${percent}%"></span></div>
+        </div>`;
+    }
+
     function renderRoleDutyActions(day, role, state) {
         if (!state.working) return '';
         const tasks = roleTasksConfig[role] || [];
         const allDone = tasks.length > 0 && tasks.every(task => state.tasks?.[task.id]);
         return `<div class="journal-duty-actions no-print">
-            <button type="button" class="journal-duty-chip md-state-layer${allDone ? ' is-reset' : ''}" data-journal-action="duties-toggle-all" data-day="${day}" data-role="${role}">${allDone ? 'Скинути відмітки' : 'Виконати всі'}</button>
-            <button type="button" class="journal-duty-chip md-state-layer" data-journal-action="duties-copy-prev" data-day="${day}" data-role="${role}">Повторити з учора</button>
+            <button type="button" class="journal-duty-chip md-state-layer${allDone ? ' is-reset' : ''}" data-journal-action="duties-toggle-all" data-day="${day}" data-role="${role}" aria-label="${allDone ? 'Очистити всі відмітки' : 'Позначити всі обовʼязки виконаними'}"><span class="mdi ${allDone ? 'mdi-backup-restore' : 'mdi-check-all'}" aria-hidden="true"></span>${allDone ? 'Очистити' : 'Позначити всі'}</button>
+            <button type="button" class="journal-duty-chip md-state-layer" data-journal-action="duties-copy-prev" data-day="${day}" data-role="${role}" aria-label="Скопіювати роботи з попереднього дня"><span class="mdi mdi-content-copy" aria-hidden="true"></span>З учора</button>
         </div>`;
     }
 
