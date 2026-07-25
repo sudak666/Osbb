@@ -147,6 +147,15 @@ button svg.journal-inline-icon { display:block; }
 .journal-ticket-input { width:100%; min-width:0; padding:6px; color:var(--md-sys-color-on-surface,var(--text-main)); outline:0; font-variant-numeric:tabular-nums; }
 .journal-ticket-step { position:relative; overflow:hidden; min-width:38px; padding:0 7px; color:var(--md-sys-color-primary,var(--accent)); background:var(--md-sys-color-primary-container,var(--bg-input)); }
 .journal-ticket-input:focus { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
+.journal-work-toolbar { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; padding:14px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,28px); background:var(--md-sys-color-surface-container,var(--surface-1)); }
+.journal-work-search-wrap { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,28px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
+.journal-work-search { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:14px; font-weight:650; }
+.journal-work-filters { display:flex; flex-wrap:wrap; gap:8px; }
+.journal-work-filter { position:relative; overflow:hidden; min-height:34px; padding:7px 12px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
+.journal-work-filter.is-active { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 42%,transparent); background:var(--md-sys-color-primary-container,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); }
+.journal-work-result { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
+.journal-work-grid-cell { transition:opacity var(--motion-fast),filter var(--motion-fast); }
+.journal-work-grid-cell.is-dimmed { opacity:.3; filter:saturate(.45); }
 /* journal-status-icon-row(-tight) — те саме, що status-label(.is-tight) вище.
    Живий JS сьогодні емітить лише status-label; ці два імені лишені як
    алiас-правила, бо документована історія редизайну (docs/ui-redesign-notes.md)
