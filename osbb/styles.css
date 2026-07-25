@@ -165,14 +165,21 @@ button svg.journal-inline-icon { display:block; }
 .journal-work-toolbar { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; padding:14px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,28px); background:var(--md-sys-color-surface-container,var(--surface-1)); }
 .journal-work-search-wrap { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,28px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
 .journal-work-search { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:14px; font-weight:650; }
-.journal-work-filters { display:flex; flex-wrap:wrap; gap:8px; }
-.journal-work-filter { position:relative; overflow:hidden; min-height:34px; padding:7px 12px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
-.journal-work-filter.is-active { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 42%,transparent); background:var(--md-sys-color-primary-container,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); }
+.journal-work-filters, .journal-entrance-filters { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.journal-work-filter, .journal-entrance-filter { position:relative; overflow:hidden; min-height:34px; padding:7px 12px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
+.journal-work-filter.is-active, .journal-entrance-filter.is-active { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 42%,transparent); background:var(--md-sys-color-primary-container,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); }
+.journal-filter-label { margin-right:2px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
+.journal-entrance-filter { min-width:34px; padding-inline:9px; }
 .journal-work-result { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
 .journal-work-result-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .journal-work-reset { position:relative; overflow:hidden; min-height:30px; padding:5px 10px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); font-size:11px; font-weight:800; }
 .journal-work-grid-cell { transition:opacity var(--motion-fast),filter var(--motion-fast); }
 .journal-work-grid-cell.is-dimmed { opacity:.3; filter:saturate(.45); }
+.journal-role-locations { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:6px 0 2px; }
+.journal-role-locations > span { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; font-weight:750; }
+.journal-role-locations > div { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:5px; }
+.journal-entrance-chip { position:relative; overflow:hidden; min-width:32px; min-height:32px; padding:5px 8px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; font-weight:850; }
+.journal-entrance-chip.is-active { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 44%,transparent); background:var(--md-sys-color-primary-container,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); }
 /* journal-status-icon-row(-tight) — те саме, що status-label(.is-tight) вище.
    Живий JS сьогодні емітить лише status-label; ці два імені лишені як
    алiас-правила, бо документована історія редизайну (docs/ui-redesign-notes.md)

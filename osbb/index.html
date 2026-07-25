@@ -286,6 +286,15 @@
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="janitor">Двірник</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="plumber">Сантехнік</button>
         </div>
+        <div class="journal-entrance-filters" role="group" aria-label="Фільтр за підʼїздом">
+            <span class="journal-filter-label">Підʼїзд:</span>
+            <button type="button" class="journal-entrance-filter md-state-layer is-active" data-journal-entrance-filter="all">Усі</button>
+            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 1">1</button>
+            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 2">2</button>
+            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 3">3</button>
+            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 4">4</button>
+            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 5">5</button>
+        </div>
         <div class="journal-work-result-row"><div class="journal-work-result" data-journal-work-result aria-live="polite">Показано всі дні</div><button type="button" class="journal-work-reset md-state-layer" data-journal-work-reset hidden>Скинути</button></div>
     </div>
 
@@ -684,6 +693,7 @@
     const roles = ['electrician', 'janitor', 'plumber'];
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
     const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
+    const buildingEntrances = Array.from({ length: 5 }, (_, index) => `Підʼїзд ${index + 1}`);
     const roleTasksConfig = {
         electrician: [{ id: 'lamps', label: 'Заміна ламп' }, { id: 'lighting_check', label: 'Огляд освітлення' }, { id: 'panels_check', label: 'Огляд електрощитових' }],
         plumber:     [{ id: 'sewer', label: 'Прочистка каналізації' }, { id: 'leaks', label: 'Усунення протікань' }, { id: 'pipes_check', label: 'Огляд труб і кранів' }],
@@ -695,6 +705,7 @@
     let currentTab = 'journal';
     let journalWorkSearch = '';
     let journalWorkFilter = 'all';
+    let journalEntranceFilter = 'all';
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
     let gData = {};          // { "1": {time,worker,types:{plastic:N,glass:N,bins:N}}, "2": {...}, ... }
@@ -1229,6 +1240,7 @@
                 <div class="${!state.working?'opacity-40 pointer-events-none':''}">
                     ${tasksProgress}
                     ${renderRoleDutyActions(d, role, state)}
+                    ${renderRoleEntranceSelector(d, role, state)}
                     ${tasksHtml}
                     ${renderRoleTicketControl(d, role, state)}
                     ${renderOtherField(d, role, state, 'm')}
@@ -1355,7 +1367,7 @@
 
     function journalDayMatches(day) {
         const row = currentMonthData[day];
-        if (!row) return journalWorkFilter === 'all' && !journalWorkSearch;
+        if (!row) return journalWorkFilter === 'all' && journalEntranceFilter === 'all' && !journalWorkSearch;
         if (journalWorkFilter === 'today' || journalWorkFilter === 'current_week') {
             const dayDate = new Date(currentYear, currentMonth, day);
             const currentDate = new Date();
@@ -1371,13 +1383,15 @@
             }
         }
         const workingRoles = roles.filter(role => row[role]?.working);
+        const selectedEntrances = roles.flatMap(role => Array.isArray(row[role]?.locations) ? row[role].locations : []);
+        if (journalEntranceFilter !== 'all' && !selectedEntrances.includes(journalEntranceFilter)) return false;
         const hasWork = workingRoles.length > 0 || roles.some(role => Number(row[role]?.ticketCount) > 0 || Object.values(row[role]?.tasks || {}).some(Boolean) || String(row[role]?.other || '').trim()) || Boolean(String(row.comment || '').trim());
         if (journalWorkFilter === 'has_work' && !hasWork) return false;
         if (roles.includes(journalWorkFilter) && !row[journalWorkFilter]?.working) return false;
         const query = journalWorkSearch.trim().toLocaleLowerCase('uk-UA');
         if (!query) return true;
         const taskLabels = roles.flatMap(role => roleTasksConfig[role].filter(task => row[role]?.tasks?.[task.id]).map(task => task.label));
-        const searchableText = [row.comment, ...roles.map(role => row[role]?.other), ...workingRoles.map(role => roleNames[role]), ...taskLabels].filter(Boolean).join(' ').toLocaleLowerCase('uk-UA');
+        const searchableText = [row.comment, ...roles.map(role => row[role]?.other), ...workingRoles.map(role => roleNames[role]), ...selectedEntrances, ...taskLabels].filter(Boolean).join(' ').toLocaleLowerCase('uk-UA');
         return searchableText.includes(query);
     }
 
@@ -1385,8 +1399,9 @@
         const result = document.querySelector('[data-journal-work-result]');
         const reset = document.querySelector('[data-journal-work-reset]');
         if (!result) return;
-        result.textContent = (journalWorkSearch || journalWorkFilter !== 'all') ? `Знайдено: ${visible} з ${total}` : 'Показано всі дні';
-        if (reset) reset.hidden = !(journalWorkSearch || journalWorkFilter !== 'all');
+        const hasFilters = Boolean(journalWorkSearch) || journalWorkFilter !== 'all' || journalEntranceFilter !== 'all';
+        result.textContent = hasFilters ? `Знайдено: ${visible} з ${total}` : 'Показано всі дні';
+        if (reset) reset.hidden = !hasFilters;
     }
 
     function renderMobileCards() {
@@ -1547,6 +1562,7 @@
                         <div class="no-print flex flex-col gap-1 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
                             ${checkBoxesProgress}
                             ${renderRoleDutyActions(d, role, state)}
+                            ${renderRoleEntranceSelector(d, role, state)}
                             ${checkBoxesHtml}
                             ${renderRoleTicketControl(d, role, state)}
                             ${renderOtherField(d, role, state, 'd')}
@@ -1638,6 +1654,25 @@
         </div>`;
     }
 
+    function renderRoleEntranceSelector(day, role, state) {
+        if (!state.working) return '';
+        const selected = Array.isArray(state.locations) ? state.locations : [];
+        const buttons = buildingEntrances.map(location => `<button type="button" class="journal-entrance-chip md-state-layer${selected.includes(location) ? ' is-active' : ''}" data-journal-action="entrance-toggle" data-day="${day}" data-role="${role}" data-location="${escapeAttr(location)}" aria-pressed="${selected.includes(location)}">${escapeHtml(location.replace('Підʼїзд ', ''))}</button>`).join('');
+        return `<div class="journal-role-locations"><span>Підʼїзди</span><div>${buttons}</div></div>`;
+    }
+
+    function toggleRoleEntrance(day, role, location) {
+        const state = currentMonthData[day]?.[role];
+        if (!state?.working || !buildingEntrances.includes(location)) return;
+        const snap = snapshotDay(day);
+        const selected = new Set(Array.isArray(state.locations) ? state.locations.filter(item => buildingEntrances.includes(item)) : []);
+        selected.has(location) ? selected.delete(location) : selected.add(location);
+        state.locations = [...selected];
+        renderTable(); renderMobileCards();
+        refreshOpenDayDetail('journal', day);
+        scheduleSave(day, snap);
+    }
+
     function toggleAllRoleDuties(day, role) {
         const state = currentMonthData[day]?.[role];
         const tasks = roleTasksConfig[role];
@@ -1654,10 +1689,11 @@
         const state = currentMonthData[day]?.[role];
         const previous = day > 1 ? currentMonthData[day - 1]?.[role] : null;
         if (!state?.working) { showToast('Спочатку увімкніть зміну'); return; }
-        if (!previous || (!Object.values(previous.tasks || {}).some(Boolean) && !previous.other)) { showToast('Учора немає записаних робіт'); return; }
+        if (!previous || (!Object.values(previous.tasks || {}).some(Boolean) && !previous.other && !previous.locations?.length)) { showToast('Учора немає записаних робіт'); return; }
         const snap = snapshotDay(day);
         state.tasks = { ...(previous.tasks || {}) };
         state.other = previous.other || '';
+        state.locations = Array.isArray(previous.locations) ? [...previous.locations] : [];
         renderTable(); renderMobileCards(); updateStats();
         refreshOpenDayDetail('journal', day);
         scheduleSave(day, snap);
@@ -1906,7 +1942,7 @@
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('click', (event) => {
-                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"]');
+                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"],[data-journal-action="entrance-toggle"]');
                 if (!trigger) return;
                 if (trigger.dataset.journalAction === 'task-toggle') {
                     event.preventDefault();
@@ -1927,6 +1963,10 @@
                 if (trigger.dataset.journalAction === 'ticket-adjust') {
                     event.preventDefault();
                     adjustRoleTicketCount(Number(trigger.dataset.day), trigger.dataset.role, Number(trigger.dataset.ticketDelta));
+                }
+                if (trigger.dataset.journalAction === 'entrance-toggle') {
+                    event.preventDefault();
+                    toggleRoleEntrance(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.location || '');
                 }
             });
             container.addEventListener('keydown', (event) => {
@@ -2085,9 +2125,11 @@
     function resetJournalWorkFilters() {
         journalWorkSearch = '';
         journalWorkFilter = 'all';
+        journalEntranceFilter = 'all';
         const search = document.querySelector('[data-journal-work-search]');
         if (search) search.value = '';
         document.querySelectorAll('[data-journal-work-filter]').forEach(item => item.classList.toggle('is-active', item.dataset.journalWorkFilter === 'all'));
+        document.querySelectorAll('[data-journal-entrance-filter]').forEach(item => item.classList.toggle('is-active', item.dataset.journalEntranceFilter === 'all'));
         renderTable();
         renderMobileCards();
     }
@@ -2096,6 +2138,14 @@
         button.addEventListener('click', () => {
             journalWorkFilter = button.dataset.journalWorkFilter || 'all';
             document.querySelectorAll('[data-journal-work-filter]').forEach(item => item.classList.toggle('is-active', item === button));
+            renderTable();
+            renderMobileCards();
+        });
+    });
+    document.querySelectorAll('[data-journal-entrance-filter]').forEach((button) => {
+        button.addEventListener('click', () => {
+            journalEntranceFilter = button.dataset.journalEntranceFilter || 'all';
+            document.querySelectorAll('[data-journal-entrance-filter]').forEach(item => item.classList.toggle('is-active', item === button));
             renderTable();
             renderMobileCards();
         });
@@ -2111,7 +2161,7 @@
             search.focus();
             search.select();
         }
-        if (event.key === 'Escape' && document.activeElement === search && (search.value || journalWorkFilter !== 'all')) {
+        if (event.key === 'Escape' && document.activeElement === search && (search.value || journalWorkFilter !== 'all' || journalEntranceFilter !== 'all')) {
             event.preventDefault();
             resetJournalWorkFilters();
             search.focus();
@@ -2719,7 +2769,6 @@
         'Потрібен огляд майстра',
         'Питання по прибиранню'
     ];
-    const buildingEntrances = Array.from({ length: 5 }, (_, index) => `Підʼїзд ${index + 1}`);
     const dispQuickLocations = [...buildingEntrances, 'Двір', 'Підвал', 'Дах', 'Ліфт'];
     const dispQuickStatusOrder = ['urgent', 'in_progress', 'done', 'new'];
 
