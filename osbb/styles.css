@@ -80,6 +80,9 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, color-mix(in srgb
 .journal-stat-card.role-info { border-top:3px solid var(--md-ref-role-plumber, #3b82f6)!important; }
 .journal-stat-card.role-plastic { border-top:3px solid var(--md-sys-color-tertiary, #f59e0b)!important; }
 .journal-stat-card.role-glass { border-top:3px solid var(--md-sys-color-secondary, #3b82f6)!important; }
+.journal-role-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:12px; padding-top:10px; border-top:1px solid var(--border-subtle); }
+.journal-role-metrics span { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; line-height:1.25; font-weight:700; }
+.journal-role-metrics strong { display:block; margin-bottom:2px; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:18px; font-variant-numeric:tabular-nums; }
 .journal-panel { padding:22px; border:1px solid var(--border-subtle); background:var(--surface-1); border-radius:var(--md-sys-shape-corner-extra-large, 32px)!important; box-shadow:var(--md-sys-elevation-level1, var(--shadow-sm)); }
 .journal-panel-title { display:flex; align-items:center; gap:7px; color:var(--text-main); font-size:14px; font-weight:850; margin-bottom:16px; }
 .journal-table-shell { border:1px solid var(--border-subtle)!important; background:var(--surface-1)!important; border-radius:var(--md-sys-shape-corner-extra-large, 24px)!important; box-shadow:var(--md-sys-elevation-level1, var(--shadow-sm))!important; }
@@ -166,6 +169,8 @@ button svg.journal-inline-icon { display:block; }
 .journal-work-filter { position:relative; overflow:hidden; min-height:34px; padding:7px 12px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
 .journal-work-filter.is-active { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 42%,transparent); background:var(--md-sys-color-primary-container,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); }
 .journal-work-result { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
+.journal-work-result-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.journal-work-reset { position:relative; overflow:hidden; min-height:30px; padding:5px 10px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-primary,var(--accent)); font-size:11px; font-weight:800; }
 .journal-work-grid-cell { transition:opacity var(--motion-fast),filter var(--motion-fast); }
 .journal-work-grid-cell.is-dimmed { opacity:.3; filter:saturate(.45); }
 /* journal-status-icon-row(-tight) — те саме, що status-label(.is-tight) вище.

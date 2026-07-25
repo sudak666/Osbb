@@ -244,12 +244,15 @@
         <div class="journal-stats-grid">
             <div class="stat-card journal-stat-card role-electrician p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-semibold text-sm text-amber-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></span><span id="stats-electrician" class="text-2xl font-black text-amber-600">0 змін</span></div>
+                <div class="journal-role-metrics"><span><strong id="stats-electrician-duties">0</strong> обовʼязків</span><span><strong id="stats-electrician-tickets">0</strong> заявок</span></div>
             </div>
             <div class="stat-card journal-stat-card role-janitor p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-semibold text-sm text-emerald-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></span><span id="stats-janitor" class="text-2xl font-black text-emerald-600">0 змін</span></div>
+                <div class="journal-role-metrics"><span><strong id="stats-janitor-duties">0</strong> обовʼязків</span><span><strong id="stats-janitor-tickets">0</strong> заявок</span></div>
             </div>
             <div class="stat-card journal-stat-card role-plumber p-4 flex flex-col justify-between">
                 <div class="flex items-center justify-between"><span class="font-semibold text-sm text-blue-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></span><span id="stats-plumber" class="text-2xl font-black text-blue-600">0 змін</span></div>
+                <div class="journal-role-metrics"><span><strong id="stats-plumber-duties">0</strong> обовʼязків</span><span><strong id="stats-plumber-tickets">0</strong> заявок</span></div>
             </div>
         </div>
 
@@ -273,15 +276,17 @@
     </div>
 
     <div id="journal-work-toolbar" class="journal-work-toolbar no-print">
-        <label class="journal-work-search-wrap"><span class="mdi mdi-magnify journal-inline-icon" aria-hidden="true"></span><input type="search" class="journal-work-search" placeholder="Пошук робіт і коментарів..." aria-label="Пошук у журналі робіт" data-journal-work-search></label>
+        <label class="journal-work-search-wrap"><span class="mdi mdi-magnify journal-inline-icon" aria-hidden="true"></span><input type="search" class="journal-work-search" placeholder="Пошук робіт і коментарів..." aria-label="Пошук у журналі робіт" aria-keyshortcuts="/ Escape" data-journal-work-search></label>
         <div class="journal-work-filters" role="group" aria-label="Фільтр журналу робіт">
             <button type="button" class="journal-work-filter md-state-layer is-active" data-journal-work-filter="all">Усі</button>
+            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="today">Сьогодні</button>
+            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="current_week">Цей тиждень</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="has_work">Є роботи</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="electrician">Електрик</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="janitor">Двірник</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="plumber">Сантехнік</button>
         </div>
-        <div class="journal-work-result" data-journal-work-result aria-live="polite">Показано всі дні</div>
+        <div class="journal-work-result-row"><div class="journal-work-result" data-journal-work-result aria-live="polite">Показано всі дні</div><button type="button" class="journal-work-reset md-state-layer" data-journal-work-reset hidden>Скинути</button></div>
     </div>
 
     <div id="mobile-cards" class="mobile-day-card mb-4">
@@ -1351,6 +1356,20 @@
     function journalDayMatches(day) {
         const row = currentMonthData[day];
         if (!row) return journalWorkFilter === 'all' && !journalWorkSearch;
+        if (journalWorkFilter === 'today' || journalWorkFilter === 'current_week') {
+            const dayDate = new Date(currentYear, currentMonth, day);
+            const currentDate = new Date();
+            dayDate.setHours(0, 0, 0, 0);
+            currentDate.setHours(0, 0, 0, 0);
+            if (journalWorkFilter === 'today' && dayDate.getTime() !== currentDate.getTime()) return false;
+            if (journalWorkFilter === 'current_week') {
+                const weekStart = new Date(currentDate);
+                weekStart.setDate(currentDate.getDate() - ((currentDate.getDay() + 6) % 7));
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                if (dayDate < weekStart || dayDate > weekEnd) return false;
+            }
+        }
         const workingRoles = roles.filter(role => row[role]?.working);
         const hasWork = workingRoles.length > 0 || roles.some(role => Number(row[role]?.ticketCount) > 0 || Object.values(row[role]?.tasks || {}).some(Boolean) || String(row[role]?.other || '').trim()) || Boolean(String(row.comment || '').trim());
         if (journalWorkFilter === 'has_work' && !hasWork) return false;
@@ -1364,8 +1383,10 @@
 
     function renderJournalWorkResult(visible, total) {
         const result = document.querySelector('[data-journal-work-result]');
+        const reset = document.querySelector('[data-journal-work-reset]');
         if (!result) return;
         result.textContent = (journalWorkSearch || journalWorkFilter !== 'all') ? `Знайдено: ${visible} з ${total}` : 'Показано всі дні';
+        if (reset) reset.hidden = !(journalWorkSearch || journalWorkFilter !== 'all');
     }
 
     function renderMobileCards() {
@@ -1700,8 +1721,21 @@
 
     function updateStats() {
         let counts = { electrician: 0, janitor: 0, plumber: 0 };
-        Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day][role]?.working) counts[role]++; }); });
-        roles.forEach(role => { animateNumber(document.getElementById(`stats-${role}`), counts[role], { suffix: ' змін' }); });
+        const duties = { electrician: 0, janitor: 0, plumber: 0 };
+        const tickets = { electrician: 0, janitor: 0, plumber: 0 };
+        Object.keys(currentMonthData).forEach(day => {
+            roles.forEach(role => {
+                const state = currentMonthData[day][role];
+                if (state?.working) counts[role]++;
+                duties[role] += roleTasksConfig[role].filter(task => state?.tasks?.[task.id]).length;
+                tickets[role] += Math.max(0, Number.parseInt(state?.ticketCount, 10) || 0);
+            });
+        });
+        roles.forEach(role => {
+            animateNumber(document.getElementById(`stats-${role}`), counts[role], { suffix: ' змін' });
+            animateNumber(document.getElementById(`stats-${role}-duties`), duties[role]);
+            animateNumber(document.getElementById(`stats-${role}-tickets`), tickets[role]);
+        });
     }
 
     function exportExcel() {
@@ -2048,6 +2082,16 @@
         renderTable();
         renderMobileCards();
     });
+    function resetJournalWorkFilters() {
+        journalWorkSearch = '';
+        journalWorkFilter = 'all';
+        const search = document.querySelector('[data-journal-work-search]');
+        if (search) search.value = '';
+        document.querySelectorAll('[data-journal-work-filter]').forEach(item => item.classList.toggle('is-active', item.dataset.journalWorkFilter === 'all'));
+        renderTable();
+        renderMobileCards();
+    }
+    document.querySelector('[data-journal-work-reset]')?.addEventListener('click', resetJournalWorkFilters);
     document.querySelectorAll('[data-journal-work-filter]').forEach((button) => {
         button.addEventListener('click', () => {
             journalWorkFilter = button.dataset.journalWorkFilter || 'all';
@@ -2055,6 +2099,23 @@
             renderTable();
             renderMobileCards();
         });
+    });
+    document.addEventListener('keydown', (event) => {
+        if (currentTab !== 'journal') return;
+        const search = document.querySelector('[data-journal-work-search]');
+        if (!search) return;
+        const target = event.target;
+        const isEditing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+        if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditing) {
+            event.preventDefault();
+            search.focus();
+            search.select();
+        }
+        if (event.key === 'Escape' && document.activeElement === search && (search.value || journalWorkFilter !== 'all')) {
+            event.preventDefault();
+            resetJournalWorkFilters();
+            search.focus();
+        }
     });
     document.addEventListener('keydown', (event) => {
         const search = document.querySelector('[data-disp-search]');
