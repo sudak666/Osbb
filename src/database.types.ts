@@ -43,6 +43,7 @@ export interface Database {
                 item_id: BigIntId | null;
                 item_name: string;
                 quantity: number;
+                purchase_price_unit: number | null;
                 supplier: string | null;
                 note: string | null;
                 received_at: Timestamp;
@@ -143,7 +144,7 @@ export interface Database {
                 Returns: Array<{ new_quantity: number; item_name: string; unit: string }>;
             };
             receive_item: {
-                Args: { p_item_id: BigIntId; p_qty: number; p_supplier?: string | null; p_note?: string | null; p_received_at?: Timestamp | null };
+                Args: { p_item_id: BigIntId; p_qty: number; p_supplier?: string | null; p_note?: string | null; p_received_at?: Timestamp | null; p_price_unit?: number | null };
                 Returns: Array<{ new_quantity: number; item_name: string; unit: string }>;
             };
             delete_inventory_item: {
