@@ -2521,7 +2521,7 @@ ${sharedSelectText}`;
     '.price-modal-actions{position:sticky',
     'class="price-search-row"',
     'class="price-modal-actions"',
-    '.theme-light .m-card{background:#fff',
+    '.theme-light .m-card{background:var(--md-sys-color-surface-container-low,#fff)',
     '.theme-light .m-card .btn-ghost',
   ];
   const missing = required.filter(needle => !text.includes(needle));
