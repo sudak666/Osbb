@@ -533,6 +533,18 @@ Fix: added `positionItemMenu(menu)`, called from the existing `handleItemMenuTog
 
 Verified via Playwright: near-top rows in both layouts now correctly get `.opens-down` and render cleanly anchored below their trigger with zero overlap; a middle/bottom row still opens upward with no `.opens-down` class, confirming no regression to the original working case. 175/175 smoke checks, tag balance, and inline-script syntax also re-checked.
 
+## OSBB chat Material 3 cleanup (July 2026)
+
+The chat section is now a fully class-based Material 3 surface: card, header, scroll area, composer, fields, send action, empty state, message rows, semantic avatars, bubbles, metadata, and delete action consume the shared color/shape/elevation/motion tokens. Dynamic ownership layout no longer uses inline style strings, and delete-action visibility is handled by CSS hover/focus states instead of attaching mouse listeners after every render. The dynamic delete id is escaped before insertion. A smoke guard prevents the old utility-heavy message shell and JS opacity handlers from returning.
+
+## OSBB journal table Material 3 cleanup (July 2026)
+
+The desktop journal table and its loading state now use dedicated class-based Material 3 primitives. Role headers use semantic role tokens and MDI icons instead of Tailwind color utilities and repeated inline SVG. The loading overlay consumes scrim, surface, shape, elevation, motion, and primary tokens; its visible state is a single `is-visible` class synchronized with `aria-hidden`. Smoke markers guard the new table and loading-state shell.
+
+## OSBB monitoring and charts Material 3 cleanup (July 2026)
+
+The monthly role summaries now use reusable class-based headers, names, counts, and semantic role accents instead of repeated Tailwind utility stacks. Monitoring and chart headings use MDI icons, while the chart layout is owned by a responsive `journal-charts-grid` with a named wide-panel variant. Smoke markers guard both shells.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.
