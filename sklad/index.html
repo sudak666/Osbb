@@ -898,6 +898,19 @@ function priceBadge(item){
   </button>`;
 }
 
+const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history']);
+function emptyState(icon,title,supportingText=''){
+  const safeIcon=emptyStateIcons.has(icon)?icon:'inbox';
+  const supporting=supportingText
+    ? `<div class="md-empty-state-supporting">${escapeHtml(supportingText)}</div>`
+    : '';
+  return `<div class="empty md-empty-state">
+    <span class="ms md-empty-state-icon" aria-hidden="true">${safeIcon}</span>
+    <div class="md-empty-state-title">${escapeHtml(title)}</div>
+    ${supporting}
+  </div>`;
+}
+
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
 if(isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
@@ -1716,6 +1729,14 @@ function positionItemMenu(menu){
   panel.style.top='';
   panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
+  // backdrop-filter у topbar створює власний containing block. `position: fixed`
+  // у ньому рахується не від viewport і виносить меню за межі екрана, тому
+  // верхнє меню позиціонуємо локально під кнопкою.
+  if(menu.classList.contains('topbar-more')){
+    menu.classList.add('opens-down');
+    panel.style.maxHeight=Math.max(120,window.innerHeight-summaryRect.bottom-16)+'px';
+    return;
+  }
   const bottomNav=document.querySelector('.bottom-nav');
   const viewportPadding=8;
   const topBoundary=viewportPadding;
@@ -1889,9 +1910,15 @@ function renderItems(){
   // Desktop table
   const tb=document.getElementById('itemsTable');
   if(!items.length){
-    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"><span class="ms ic-40">search_off</span></div>Нічого не знайдено</div></td></tr>';
+    const isFiltered=Boolean(s||curCat||stockFilter!=='all'||inStockOnly||hideInternal||onlyInternal);
+    const state=emptyState(
+      isFiltered?'search_off':'inventory_2',
+      isFiltered?'Товарів не знайдено':'Склад поки порожній',
+      isFiltered?'Змініть пошук або скиньте активні фільтри.':'Додайте перший товар, щоб почати облік залишків.'
+    );
+    tb.innerHTML=`<tr><td colspan="8">${state}</td></tr>`;
     const mc=document.getElementById('mobileCards');
-    if(mc) mc.innerHTML='<div class="empty empty-compact"><span class="ms ic-16-3">search_off</span> Нічого не знайдено</div>';
+    if(mc) mc.innerHTML=state;
     return;
   }
   tb.innerHTML=items.map((item,idx)=>{
@@ -2144,9 +2171,11 @@ function renderLog(){
   const tb=document.getElementById('logTable');
   const mb=document.getElementById('logMobileList');
   if(!logs.length){
-    const empty=s?'Нічого не знайдено':'Видач ще не було';
-    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div>`;
+    const state=s
+      ? emptyState('search_off','Записів не знайдено','Спробуйте змінити пошуковий запит.')
+      : emptyState('history','Видач ще не було','Нові операції видачі з’являться тут автоматично.');
+    tb.innerHTML=`<tr><td colspan="6">${state}</td></tr>`;
+    mb.innerHTML=state;
     return;
   }
   tb.innerHTML=logs.map(l=>{
@@ -2271,9 +2300,11 @@ function renderReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
   if(!recs.length){
-    const empty=s?'Нічого не знайдено':'Приходів ще не було';
-    tb.innerHTML=`<tr><td colspan="7"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div>`;
+    const state=s
+      ? emptyState('search_off','Приходів не знайдено','Спробуйте змінити пошуковий запит.')
+      : emptyState('inbox','Приходів ще не було','Після поповнення складу операції з’являться тут.');
+    tb.innerHTML=`<tr><td colspan="7">${state}</td></tr>`;
+    mb.innerHTML=state;
     return;
   }
   tb.innerHTML=recs.map(r=>{
