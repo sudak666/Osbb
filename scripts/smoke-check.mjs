@@ -678,7 +678,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'aria-haspopup="menu" aria-expanded="false"',
     'class="item-more-menu" role="menu"',
     'role="menuitem" data-item-action="photo"',
-    'z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;',
+    'z-index:60;min-width:208px;max-height:min(62dvh,360px);overflow-y:auto;',
+    "if(menu.classList.contains('topbar-more'))",
     "document.addEventListener('toggle',handleItemMenuToggle,true)",
     "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
   ];
@@ -870,10 +871,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="btn btn-ghost btn-sm price-badge-btn has-price"',
     'class="price-badge-value"',
     'class="price-badge-source"',
-    '.price-badge-btn{padding:6px 9px;',
+    '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
     '.price-badge-value{font-weight:900;',
-    '.price-badge-source{font-size:10px;',
+    '.price-badge-source{width:100%;font-size:10px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -2520,7 +2521,7 @@ ${sharedSelectText}`;
     '.price-modal-actions{position:sticky',
     'class="price-search-row"',
     'class="price-modal-actions"',
-    '.theme-light .m-card{background:#fff',
+    '.theme-light .m-card{background:var(--md-sys-color-surface-container-low,#fff)',
     '.theme-light .m-card .btn-ghost',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -2943,6 +2944,55 @@ ${sharedSelectText}`;
   if (missing.length || hasOldStrip) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; old strip: ${hasOldStrip})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Основні порожні списки використовують єдиний M3 empty state, а назви та
+// підказки проходять escapeHtml перед вставкою в DOM.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad list empty states use safe Material 3 structure';
+  const required = [
+    "const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history'])",
+    'function emptyState(icon,title,supportingText=',
+    'class="empty md-empty-state"',
+    'class="ms md-empty-state-icon"',
+    'class="md-empty-state-title"',
+    'escapeHtml(supportingText)',
+    "emptyState('history','Видач ще не було'",
+    "emptyState('inbox','Приходів ще не було'",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Повторні завантаження приходів, історії та пошуку цін не повинні повертати
+// текстову заглушку — усі три сценарії використовують M3 skeleton loaders.
+{
+  const text = readSkladCombined();
+  const label = 'sklad async views use reusable Material 3 skeleton loaders';
+  const required = [
+    'function skeletonRows(columns=1,rows=3)',
+    'function skeletonStack(rows=3)',
+    'tb.innerHTML=skeletonRows(7,3)',
+    'mb.innerHTML=skeletonStack(3)',
+    'aria-label="Пошук цін"',
+    "document.getElementById('histList').innerHTML=skeletonStack(3)",
+    '.skeleton-card{display:grid;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
