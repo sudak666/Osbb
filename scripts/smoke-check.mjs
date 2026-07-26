@@ -2854,7 +2854,11 @@ ${sharedSelectText}`;
     "r.purchase_price_unit||item?.price_unit||''",
     'function isPurchasePriceSchemaError(error)',
     "showPurchasePriceMigrationNotice()",
+    "console.info('Історія закупівельних цін стане доступною після міграції 009.')",
     "delete receiptRow.purchase_price_unit",
+    'data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI"',
+    'data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier"',
+    'function setSupplierPreset(button)',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (!migration.includes('add column if not exists purchase_price_unit numeric(12,2)') ||

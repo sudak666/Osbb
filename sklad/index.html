@@ -377,7 +377,7 @@ async function checkPin(attempt){
             <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
           </div>
           <div><label>Ціна закупівлі за одиницю <span class="form-note">(необов'язково)</span></label><input type="number" class="inp" id="refillPriceI" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
-          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
+          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="refillSupplierI">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="refillSupplierI">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="refillSupplierI">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="refillSupplierI">Місцевий</button></div></div>
           <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
           <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
         </div>
@@ -727,6 +727,7 @@ async function checkPin(attempt){
       <div>
         <label>Постачальник</label>
         <input type="text" class="inp" id="editReceiptSupplier">
+        <div class="supplier-tag-row" aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="editReceiptSupplier">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="editReceiptSupplier">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="editReceiptSupplier">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="editReceiptSupplier">Місцевий</button></div>
       </div>
       <div>
         <label>Примітка</label>
@@ -865,7 +866,7 @@ function isPurchasePriceSchemaError(error){
   return message.includes('purchase_price_unit')||message.includes('p_price_unit')||message.includes('receive_item');
 }
 function showPurchasePriceMigrationNotice(){
-  toast('Ціну товару збережено. Для історії цін застосуйте SQL 009_add_receipt_purchase_price.sql','info');
+  console.info('Історія закупівельних цін стане доступною після міграції 009.');
 }
 function priceValue(item){const n=Number(item?.price_unit);return isFinite(n)&&n>0?n:0;}
 function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
@@ -1472,6 +1473,12 @@ function bindSkladStaticControls(){
   document.querySelectorAll('[data-person-preset]').forEach(button=>{
     button.addEventListener('click',()=>setPerson(button.dataset.personPreset,button));
   });
+  document.querySelectorAll('[data-supplier-preset]').forEach(button=>{
+    button.addEventListener('click',()=>setSupplierPreset(button));
+  });
+  ['refillSupplierI','editReceiptSupplier'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input',(event)=>syncSupplierTags(id,event.target.value));
+  });
   document.querySelectorAll('[data-log-category-filter]').forEach(button=>{
     button.addEventListener('click',()=>filterLogCat(button,button.dataset.logCategoryFilter));
   });
@@ -1501,6 +1508,22 @@ function bindSkladStaticControls(){
 
 function validateUnitWordInput(input){
   if(/^\d+([.,]\d+)?$/.test(input.value.trim())) toast('Одиниця має бути словом, не числом!','error');
+}
+function setSupplierPreset(button){
+  const input=document.getElementById(button.dataset.supplierTarget||'');
+  const supplier=String(button.dataset.supplierPreset||'').trim();
+  if(!input||!supplier) return;
+  input.value=supplier;
+  syncSupplierTags(button.dataset.supplierTarget,supplier);
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function syncSupplierTags(targetId,value){
+  const normalized=String(value||'').trim().toLocaleLowerCase('uk-UA');
+  document.querySelectorAll(`[data-supplier-target="${targetId}"]`).forEach(tag=>{
+    const selected=String(tag.dataset.supplierPreset||'').toLocaleLowerCase('uk-UA')===normalized;
+    tag.classList.toggle('active',selected);
+    tag.setAttribute('aria-pressed',String(selected));
+  });
 }
 
 function handleItemActionClick(event){
@@ -2199,6 +2222,7 @@ function openEditReceipt(id){
   document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
   document.getElementById('editReceiptPrice').value=r.purchase_price_unit||item?.price_unit||'';
   document.getElementById('editReceiptSupplier').value=r.supplier||'';
+  syncSupplierTags('editReceiptSupplier',r.supplier||'');
   document.getElementById('editReceiptNote').value=r.note||'';
   openModal('editReceiptModal');
 }
@@ -2293,6 +2317,7 @@ async function doRefill(btn){
   document.getElementById('refillQtyI').value='';
   document.getElementById('refillPriceI').value='';
   document.getElementById('refillSupplierI').value='';
+  syncSupplierTags('refillSupplierI','');
   document.getElementById('refillNoteI').value='';
   document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
   document.getElementById('refillInfo').style.display='none';
