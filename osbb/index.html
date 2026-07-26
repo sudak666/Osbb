@@ -1863,7 +1863,8 @@
     function exportExcel() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const monthName = monthNames[currentMonth];
-        const rows = [['Дата', 'День', 'Електрик', 'Завдання Електрик', 'Двірник', 'Завдання Двірник', 'Сантехнік', 'Завдання Сантехнік', 'Коментар']];
+        const roleHeaders = roles.flatMap(role => [`${roleNames[role]}: статус`, `${roleNames[role]}: роботи`, `${roleNames[role]}: підʼїзди`, `${roleNames[role]}: заявки`]);
+        const rows = [['Дата', 'День', ...roleHeaders, 'Коментар']];
 
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
@@ -1872,12 +1873,16 @@
             roles.forEach(role => {
                 const state = currentMonthData[d]?.[role];
                 if (state?.working) {
-                    row.push('✓ На зміні');
                     const tasks = roleTasksConfig[role].filter(t => state.tasks?.[t.id]).map(t => t.label.replace(/[^\x00-\x7F\u0400-\u04FF\s]/g,'').trim());
                     if (state.other) tasks.push(state.other);
-                    row.push(tasks.join(', ') || 'Зміна');
+                    const allDone = roleTasksConfig[role].length > 0 && roleTasksConfig[role].every(task => state.tasks?.[task.id]);
+                    const hasProgress = tasks.length > 0 || Number(state.ticketCount) > 0;
+                    const status = allDone ? 'Виконано' : hasProgress ? 'У процесі' : 'На зміні';
+                    const locations = Array.isArray(state.locations) ? state.locations.filter(location => buildingEntrances.includes(location)).join(', ') : '';
+                    const ticketCount = Math.max(0, Number.parseInt(state.ticketCount, 10) || 0);
+                    row.push(status, tasks.join(', '), locations, ticketCount);
                 } else {
-                    row.push('Вихідний'); row.push('');
+                    row.push('Вихідний', '', '', 0);
                 }
             });
             row.push(currentMonthData[d]?.comment || '');
@@ -1886,15 +1891,20 @@
 
         rows.push([]);
         rows.push(['ПІДСУМОК МІСЯЦЯ', `${monthName} ${currentYear}`]);
-        let counts = { electrician: 0, janitor: 0, plumber: 0 };
-        Object.keys(currentMonthData).forEach(day => { roles.forEach(role => { if (currentMonthData[day]?.[role]?.working) counts[role]++; }); });
-        rows.push(['Електрик', `${counts.electrician} змін`]);
-        rows.push(['Двірник', `${counts.janitor} змін`]);
-        rows.push(['Сантехнік', `${counts.plumber} змін`]);
+        const summary = Object.fromEntries(roles.map(role => [role, { shifts: 0, duties: 0, tickets: 0 }]));
+        Object.values(currentMonthData).forEach(day => {
+            roles.forEach(role => {
+                const state = day?.[role];
+                if (state?.working) summary[role].shifts++;
+                summary[role].duties += roleTasksConfig[role].filter(task => state?.tasks?.[task.id]).length;
+                summary[role].tickets += Math.max(0, Number.parseInt(state?.ticketCount, 10) || 0);
+            });
+        });
+        roles.forEach(role => rows.push([roleNames[role], `${summary[role].shifts} змін`, `${summary[role].duties} обовʼязків`, `${summary[role].tickets} заявок`]));
 
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!cols'] = [{ wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 30 }, { wch: 14 }, { wch: 30 }, { wch: 14 }, { wch: 30 }, { wch: 40 }];
+        ws['!cols'] = [{ wch: 14 }, { wch: 14 }, ...roles.flatMap(() => [{ wch: 15 }, { wch: 34 }, { wch: 24 }, { wch: 12 }]), { wch: 40 }];
         XLSX.utils.book_append_sheet(wb, ws, `${monthName} ${currentYear}`);
         XLSX.writeFile(wb, `ОСББ_${monthName}_${currentYear}.xlsx`);
     }
