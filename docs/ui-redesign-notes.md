@@ -541,6 +541,10 @@ The chat section is now a fully class-based Material 3 surface: card, header, sc
 
 The desktop journal table and its loading state now use dedicated class-based Material 3 primitives. Role headers use semantic role tokens and MDI icons instead of Tailwind color utilities and repeated inline SVG. The loading overlay consumes scrim, surface, shape, elevation, motion, and primary tokens; its visible state is a single `is-visible` class synchronized with `aria-hidden`. Smoke markers guard the new table and loading-state shell.
 
+## OSBB monitoring and charts Material 3 cleanup (July 2026)
+
+The monthly role summaries now use reusable class-based headers, names, counts, and semantic role accents instead of repeated Tailwind utility stacks. Monitoring and chart headings use MDI icons, while the chart layout is owned by a responsive `journal-charts-grid` with a named wide-panel variant. Smoke markers guard both shells.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.

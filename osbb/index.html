@@ -240,18 +240,18 @@
     </div>
 
     <div class="journal-dashboard-panel">
-        <h3 class="journal-section-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="8 17 4 21 20 21 16 17"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4H2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4H7z"/><path d="M22 4h-5v4a5 5 0 0 1-5 5"/></svg> Моніторинг за місяць</h3>
+        <h3 class="journal-section-title"><span class="mdi mdi-trophy-outline journal-inline-icon" aria-hidden="true"></span>Моніторинг за місяць</h3>
         <div class="journal-stats-grid">
-            <div class="stat-card journal-stat-card role-electrician p-4 flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-semibold text-sm text-amber-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Електрик</span></span><span id="stats-electrician" class="text-2xl font-black text-amber-600">0 змін</span></div>
+            <div class="stat-card journal-stat-card journal-role-summary role-electrician">
+                <div class="journal-role-summary-head"><span class="journal-role-name"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</span><span id="stats-electrician" class="journal-role-count">0 змін</span></div>
                 <div class="journal-role-metrics"><span><strong id="stats-electrician-duties">0</strong> обовʼязків</span><span><strong id="stats-electrician-tickets">0</strong> заявок</span></div>
             </div>
-            <div class="stat-card journal-stat-card role-janitor p-4 flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-semibold text-sm text-emerald-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Двірник</span></span><span id="stats-janitor" class="text-2xl font-black text-emerald-600">0 змін</span></div>
+            <div class="stat-card journal-stat-card journal-role-summary role-janitor">
+                <div class="journal-role-summary-head"><span class="journal-role-name"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</span><span id="stats-janitor" class="journal-role-count">0 змін</span></div>
                 <div class="journal-role-metrics"><span><strong id="stats-janitor-duties">0</strong> обовʼязків</span><span><strong id="stats-janitor-tickets">0</strong> заявок</span></div>
             </div>
-            <div class="stat-card journal-stat-card role-plumber p-4 flex flex-col justify-between">
-                <div class="flex items-center justify-between"><span class="font-semibold text-sm text-blue-700"><span class="inline-flex items-center gap-1.5"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Сантехнік</span></span><span id="stats-plumber" class="text-2xl font-black text-blue-600">0 змін</span></div>
+            <div class="stat-card journal-stat-card journal-role-summary role-plumber">
+                <div class="journal-role-summary-head"><span class="journal-role-name"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</span><span id="stats-plumber" class="journal-role-count">0 змін</span></div>
                 <div class="journal-role-metrics"><span><strong id="stats-plumber-duties">0</strong> обовʼязків</span><span><strong id="stats-plumber-tickets">0</strong> заявок</span></div>
             </div>
         </div>
@@ -259,17 +259,17 @@
     </div>
 
     <div id="section-charts" class="hidden mb-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="journal-charts-grid">
             <div class="journal-panel">
-                <h3 class="journal-panel-title">Зміни по днях місяця</h3>
+                <h3 class="journal-panel-title"><span class="mdi mdi-chart-bar journal-inline-icon" aria-hidden="true"></span>Зміни по днях місяця</h3>
                 <canvas id="chart-daily" height="200"></canvas>
             </div>
             <div class="journal-panel">
-                <h3 class="journal-panel-title"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> Розподіл змін по ролях</span></h3>
+                <h3 class="journal-panel-title"><span class="mdi mdi-chart-donut journal-inline-icon" aria-hidden="true"></span>Розподіл змін по ролях</h3>
                 <canvas id="chart-pie" height="200"></canvas>
             </div>
-            <div class="journal-panel lg:col-span-2">
-                <h3 class="journal-panel-title"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Активність по тижнях</span></h3>
+            <div class="journal-panel journal-chart-wide">
+                <h3 class="journal-panel-title"><span class="mdi mdi-chart-line journal-inline-icon" aria-hidden="true"></span>Активність по тижнях</h3>
                 <canvas id="chart-weekly" height="120"></canvas>
             </div>
         </div>
