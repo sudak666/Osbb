@@ -3049,6 +3049,32 @@ ${sharedSelectText}`;
   }
 }
 
+// Поля та кастомні select-и Складу дотримуються M3 outlined/tonal розмірів:
+// 56px field, 48px option і secondary-container для вибраного значення.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad fields and selects use Material 3 sizing and states';
+  const required = [
+    '.inp{width:100%;border:1px solid var(--md-sys-color-outline',
+    'min-height:56px;font-size:16px;',
+    '.inp:focus{border:2px solid var(--md-sys-color-primary',
+    'background:var(--md-sys-color-surface-container-highest',
+    '.custom-select-panel{position:absolute;',
+    'background:var(--md-sys-color-surface-container-high',
+    '.custom-select-option{display:flex;align-items:center;min-height:48px;',
+    '.custom-select-option.active{background:var(--md-sys-color-secondary-container',
+    '.inp { min-height: 56px !important; }',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);

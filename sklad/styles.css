@@ -511,20 +511,20 @@ tbody tr:last-child{border-bottom:none;}
 .qty-zero{color:var(--ios-red);font-weight:700;}.qty-low{color:var(--ios-orange);font-weight:700;}.qty-ok{color:var(--ios-green);font-weight:600;}
 
 /* INPUTS */
-.inp{width:100%;border:1px solid var(--border-subtle);border-radius:var(--md-sys-shape-corner-medium,14px);padding:12px 14px;min-height:44px;font-size:15px;outline:none;transition:border-color var(--md-sys-motion-duration-short4,var(--motion-base)) ease,box-shadow var(--md-sys-motion-duration-short4,var(--motion-base)) ease,background var(--md-sys-motion-duration-short4,var(--motion-base)) ease;box-shadow:var(--md-sys-elevation-level0,var(--shadow-xs));background:var(--surface-1);color:var(--ios-label);}
-.inp:hover{border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 24%,var(--border-subtle));}.inp:focus{border-color:var(--md-sys-color-primary,var(--accent));box-shadow:0 0 0 4px var(--md-sys-color-secondary-container,var(--accent-soft)),var(--md-sys-elevation-level1,var(--shadow-xs));background:var(--surface-1);}
-label{display:block;font-size:12px;font-weight:600;color:var(--ios-label3);margin-bottom:6px;letter-spacing:.01em;}
+.inp{width:100%;border:1px solid var(--md-sys-color-outline,var(--border-subtle));border-radius:var(--md-sys-shape-corner-large,16px);padding:14px 16px;min-height:56px;font-size:16px;line-height:1.35;outline:none;transition:border-color var(--md-sys-motion-duration-short4,var(--motion-base)) ease,background var(--md-sys-motion-duration-short4,var(--motion-base)) ease;box-shadow:none;background:var(--md-sys-color-surface-container-highest,var(--surface-2));color:var(--md-sys-color-on-surface,var(--ios-label));}
+.inp:hover{border-color:var(--md-sys-color-on-surface-variant,var(--border-strong));}.inp:focus{border:2px solid var(--md-sys-color-primary,var(--accent));padding:13px 15px;box-shadow:none;background:var(--md-sys-color-surface-container-highest,var(--surface-2));}
+label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font-weight:700;color:var(--md-sys-color-on-surface-variant,var(--ios-label3));margin-bottom:8px;letter-spacing:.01em;}
 
 /* Кастомний випадний список — заміна нативного <select>, у якого браузер
    сам малює квадратне спливаюче меню, що не піддається стилізації. */
 .custom-select-wrap{position:relative;display:block;}
 .custom-select-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left;}
-.custom-select-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;background:var(--ios-card);border:1px solid var(--ios-sep);border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level3,0 12px 32px rgba(0,0,0,.16));padding:6px;max-height:280px;overflow-y:auto;}
+.custom-select-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;background:var(--md-sys-color-surface-container-high,var(--ios-card));border:1px solid var(--md-sys-color-outline-variant,var(--ios-sep));border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level2);padding:8px;max-height:320px;overflow-y:auto;}
 .custom-select-panel.hidden{display:none;}
 .custom-select-search{margin:8px;width:calc(100% - 16px);}
-.custom-select-option{padding:9px 12px;border-radius:var(--md-sys-shape-corner-medium,10px);font-size:14px;font-weight:600;cursor:pointer;color:var(--ios-label);transition:background var(--md-sys-motion-duration-short2,.12s);}
-.custom-select-option:hover,.custom-select-option:focus-visible{background:var(--ios-gray6);outline:none;}
-.custom-select-option.active{background:var(--md-sys-color-primary,var(--brand));color:var(--md-sys-color-on-primary,#fff);}
+.custom-select-option{display:flex;align-items:center;min-height:48px;padding:10px 12px;border-radius:var(--md-sys-shape-corner-medium,12px);font-size:14px;font-weight:600;cursor:pointer;color:var(--md-sys-color-on-surface,var(--ios-label));transition:background var(--md-sys-motion-duration-short2,.12s);}
+.custom-select-option:hover,.custom-select-option:focus-visible{background:var(--md-sys-color-surface-container-highest,var(--ios-gray6));outline:none;}
+.custom-select-option.active{background:var(--md-sys-color-secondary-container,var(--brand-light));color:var(--md-sys-color-on-secondary-container,var(--brand));}
 
 /* BUTTONS */
 .btn{min-height:42px;padding:0 16px;min-width:0;border-radius:var(--md-sys-shape-corner-full,14px);font-size:14px;font-weight:750;cursor:pointer;transition:transform var(--md-sys-motion-duration-short3,var(--motion-base)) var(--md-sys-motion-easing-emphasized,var(--ease-out)),opacity var(--md-sys-motion-duration-short3,var(--motion-base)) ease,box-shadow var(--md-sys-motion-duration-short4,var(--motion-base)) ease,background var(--md-sys-motion-duration-short4,var(--motion-base)) ease,border-color var(--md-sys-motion-duration-short4,var(--motion-base)) ease;border:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;letter-spacing:-.01em;}
@@ -924,7 +924,7 @@ canvas#stockChart{width:100%!important;max-height:300px;}
    на головному екрані мають class="btn ... btn-sm") — теж часто натискувані,
    тому не опускаємо їх нижче цільового порогу 48px. */
 .btn-sm { min-height: 48px !important; font-size: 14px !important; }
-.inp { min-height: 48px !important; }
+.inp { min-height: 56px !important; }
 .ni { min-height: 44px !important; }
 .bn-item { font-size: 11px !important; min-height: 48px !important; }
 .preset-chip { min-height: 36px !important; font-size: 13px !important; }
