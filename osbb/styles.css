@@ -323,6 +323,31 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     .journal-title-actions select { max-width:160px; }
     .journal-export-actions button { flex:1 1 auto; }
 }
+
+/* M3 tonal elevation: базові поверхні розрізняються контейнерним кольором,
+   а тінь використовується лише для плаваючої нижньої шторки. */
+.journal-dashboard-panel,
+.journal-panel,
+.journal-stat-card,
+.journal-chat-card,
+.journal-event-sheet,
+.role-card,
+.mobile-day-card,
+.stat-card {
+    box-shadow:none!important;
+}
+.journal-dashboard-panel,
+.journal-panel,
+.journal-chat-card { background:var(--md-sys-color-surface-container-low,var(--surface-1)); }
+.journal-stat-card,
+.mobile-day-card { background-color:var(--md-sys-color-surface-container,var(--surface-2))!important; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.journal-action-btn,
+.journal-tonal-btn,
+.tab-btn,
+.mob-tab { min-height:48px; }
+.journal-icon-btn,
+.day-detail-close { width:48px; height:48px; }
+.day-detail-sheet { background:var(--md-sys-color-surface-container-high,var(--bg-card)); box-shadow:var(--md-sys-elevation-level3); }
 @media (min-width: 641px) {
     select { font-size: 1rem; }
     select option { font-size: 1.05rem; }

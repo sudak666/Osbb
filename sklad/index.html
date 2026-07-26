@@ -1716,6 +1716,14 @@ function positionItemMenu(menu){
   panel.style.top='';
   panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
+  // backdrop-filter у topbar створює власний containing block. `position: fixed`
+  // у ньому рахується не від viewport і виносить меню за межі екрана, тому
+  // верхнє меню позиціонуємо локально під кнопкою.
+  if(menu.classList.contains('topbar-more')){
+    menu.classList.add('opens-down');
+    panel.style.maxHeight=Math.max(120,window.innerHeight-summaryRect.bottom-16)+'px';
+    return;
+  }
   const bottomNav=document.querySelector('.bottom-nav');
   const viewportPadding=8;
   const topBoundary=viewportPadding;
