@@ -2999,6 +2999,32 @@ ${sharedSelectText}`;
   }
 }
 
+// Складські filter chips мають M3 selected-check, центрований label і
+// aria-pressed; навігація місяців використовує центровані MDI chevrons.
+{
+  const sklad = readSkladCombined();
+  const journal = readFileSync('osbb/index.html', 'utf8');
+  const label = 'filter chips and month arrows use centered Material 3 controls';
+  const required = [
+    'function setFilterPillState(button,active)',
+    "button.setAttribute('aria-pressed',String(active))",
+    'class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label"',
+    '.items-filter-pill{display:inline-flex;align-items:center;justify-content:center;',
+    '.items-filter-pill.active .items-filter-icon{width:18px;',
+    'mdi mdi-chevron-left',
+    'mdi mdi-chevron-right',
+  ];
+  const combined = sklad + '\n' + journal;
+  const missing = required.filter(needle => !combined.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);

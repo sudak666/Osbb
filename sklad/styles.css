@@ -155,10 +155,14 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-filter-row + .items-filter-row{margin-top:6px;}
 .items-search-row{display:grid;grid-template-columns:minmax(220px,360px) minmax(160px,1fr) auto;gap:10px;align-items:center;}
 .items-summary{font-size:12px;color:var(--ios-label3);font-weight:700;line-height:1.35;}
-.items-filter-pill{display:inline-flex;align-items:center;gap:4px;}
-.items-filter-pill.is-success{border-color:var(--ios-green);color:var(--ios-green);}
-.items-filter-pill.is-warning{border-color:var(--ios-orange);color:var(--ios-orange);}
-.items-filter-icon{font-size:16px;}
+.items-filter-pill{display:inline-flex;align-items:center;justify-content:center;gap:0;min-height:48px;padding:0 18px;line-height:1;text-align:center;vertical-align:middle;}
+.items-filter-pill.is-success{border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--ios-green)) 48%,var(--md-sys-color-outline));color:var(--md-sys-color-primary,var(--ios-green));}
+.items-filter-pill.is-warning{border-color:color-mix(in srgb,var(--md-sys-color-tertiary,var(--ios-orange)) 48%,var(--md-sys-color-outline));color:var(--md-sys-color-tertiary,var(--ios-orange));}
+.items-filter-pill.is-success.active{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);}
+.items-filter-pill.is-warning.active{background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container);}
+.items-filter-icon{width:0;min-width:0;font-size:18px;opacity:0;overflow:hidden;transform:scale(.8);transition:width var(--motion-fast),min-width var(--motion-fast),opacity var(--motion-fast),transform var(--motion-fast);}
+.items-filter-pill.active .items-filter-icon{width:18px;min-width:18px;margin-right:8px;opacity:1;transform:scale(1);}
+.items-filter-label{display:inline-flex;align-items:center;justify-content:center;min-height:1em;line-height:1.2;white-space:nowrap;}
 .category-pill-icon{font-size:15px;vertical-align:-3px;}
 .items-search-field{width:250px;min-width:160px;}
 .log-search-field{width:240px;}
