@@ -564,6 +564,32 @@ async function checkPin(attempt){
   </div>
 </div>
 
+<!-- EDIT ITEM MODAL -->
+<div class="modal-bg" id="editItemModal" data-modal-backdrop="editItemModal">
+  <div class="modal edit-movement-modal" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="editItemTitle">
+    <h3 class="edit-movement-title" id="editItemTitle"><span class="ms" aria-hidden="true">edit</span> Редагувати товар</h3>
+    <div class="edit-movement-form">
+      <div>
+        <label for="editItemName">Назва / артикул</label>
+        <input type="text" class="inp" id="editItemName" maxlength="160" autocomplete="off" data-modal-initial-focus>
+      </div>
+      <div>
+        <label for="editItemCategory">Категорія</label>
+        <select class="inp" id="editItemCategory"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select>
+      </div>
+      <div>
+        <label for="editItemUnit">Одиниця виміру</label>
+        <input type="text" class="inp" id="editItemUnit" maxlength="24" placeholder="шт, уп., м.п." inputmode="text">
+      </div>
+    </div>
+    <p class="edit-movement-note">Залишок, ціна та історія руху товару не зміняться.</p>
+    <div class="edit-movement-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="editItemModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="edit-item-confirm"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
+    </div>
+  </div>
+</div>
+
 <!-- DELETE MODAL -->
 <div class="modal-bg" id="delModal" data-modal-backdrop="delModal">
   <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1">
@@ -802,7 +828,7 @@ async function checkPin(attempt){
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,deleteItemId=null,stockFilter='';
+let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
@@ -1390,6 +1416,7 @@ function bindSkladStaticControls(){
     'quick-issue-submit':(button)=>doQuickIssue(button),
     'photo-file-select':()=>document.getElementById('photoFileI').click(),
     'photo-delete':deletePhoto,
+    'edit-item-confirm':(button)=>confirmEditItem(button),
     'delete-confirm':confirmDelete,
     'audit-confirm-save':confirmAudit,
     'delete-log-confirm':confirmDeleteLog,
@@ -1471,6 +1498,7 @@ function handleItemActionClick(event){
   switch(trigger.dataset.itemAction){
     case 'quick': openQuick(id); break;
     case 'history': openHistory(id); break;
+    case 'edit': openEditItem(id); break;
     case 'photo': openPhotoModal(id); break;
     case 'internal': toggleInternal(id, trigger.dataset.internalNext==='true'); break;
     case 'manual-price': openManualPriceModal(id); break;
@@ -1502,21 +1530,36 @@ function positionItemMenu(menu){
   const panel=menu.querySelector('.item-more-menu');
   if(!panel) return;
   menu.classList.remove('opens-down');
+  panel.classList.remove('is-viewport-positioned');
+  panel.style.left='';
+  panel.style.top='';
   panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
-  const filterBar=document.querySelector('.items-filter-bar');
   const bottomNav=document.querySelector('.bottom-nav');
-  const topBoundary=filterBar?Math.max(0,filterBar.getBoundingClientRect().bottom):0;
+  const viewportPadding=8;
+  const topBoundary=viewportPadding;
   const bottomBoundary=bottomNav && getComputedStyle(bottomNav).display!=='none'
-    ? Math.min(window.innerHeight,bottomNav.getBoundingClientRect().top)
-    : window.innerHeight;
+    ? Math.min(window.innerHeight-viewportPadding,bottomNav.getBoundingClientRect().top-viewportPadding)
+    : window.innerHeight-viewportPadding;
   const panelHeight=panel.offsetHeight;
-  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-12);
-  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-12);
+  const panelWidth=panel.offsetWidth;
+  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-8);
+  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-8);
   const opensDown=spaceBelow>=Math.min(panelHeight,360) || spaceBelow>spaceAbove;
   const available=opensDown?spaceBelow:spaceAbove;
   if(opensDown) menu.classList.add('opens-down');
-  panel.style.maxHeight=Math.max(160,Math.min(360,available))+'px';
+  const visibleHeight=Math.max(0,Math.min(360,available));
+  const left=Math.min(
+    window.innerWidth-panelWidth-viewportPadding,
+    Math.max(viewportPadding,summaryRect.right-panelWidth)
+  );
+  const top=opensDown
+    ? summaryRect.bottom+8
+    : Math.max(topBoundary,summaryRect.top-8-Math.min(panelHeight,visibleHeight));
+  panel.classList.add('is-viewport-positioned');
+  panel.style.left=Math.max(viewportPadding,left)+'px';
+  panel.style.top=top+'px';
+  panel.style.maxHeight=visibleHeight+'px';
 }
 function handleItemMenuToggle(event){
   const menu=event.target;
@@ -1693,6 +1736,7 @@ function renderItems(){
         <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
+            <button type="button" role="menuitem" data-item-action="edit" data-item-id="${id}"><span class="ms">edit</span> Редагувати</button>
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
             <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
@@ -1736,6 +1780,7 @@ function renderItems(){
         <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Деталі</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
+            <button type="button" role="menuitem" data-item-action="edit" data-item-id="${id}"><span class="ms">edit</span> Редагувати</button>
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
             <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
@@ -2290,6 +2335,49 @@ function renderAddLow(){
     <span class="add-low-name">${escapeHtml(i.name||'—')}</span>
     <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
   </div>`).join('');
+}
+
+// ===== EDIT ITEM =====
+function openEditItem(id){
+  const item=findItemForAction(id,'редагування');
+  if(!item) return;
+  editItemId=Number(item.id);
+  document.getElementById('editItemName').value=item.name||'';
+  document.getElementById('editItemCategory').value=catBadge[item.category]?item.category:'Інше';
+  document.getElementById('editItemUnit').value=item.unit||'шт';
+  refreshEnhancedSelect(document.getElementById('editItemCategory'));
+  openModal('editItemModal');
+}
+async function confirmEditItem(button){
+  const item=findItemForAction(editItemId,'редагування');
+  if(!item) return closeModal('editItemModal');
+  const name=document.getElementById('editItemName').value.trim();
+  const category=document.getElementById('editItemCategory').value;
+  const unit=document.getElementById('editItemUnit').value.trim()||'шт';
+  if(!name) return toast('Введіть назву товару!','error');
+  if(name.length>160) return toast('Назва задовга — максимум 160 символів','error');
+  if(!catBadge[category]) return toast('Оберіть коректну категорію','error');
+  if(unit.length>24) return toast('Одиниця задовга — максимум 24 символи','error');
+  if(/^\d+([.,]\d+)?$/.test(unit)) return toast('Одиниця має бути словом, а не числом!','error');
+  const duplicate=allItems.find(candidate=>Number(candidate.id)!==Number(item.id)&&normalizeSearchText(candidate.name)===normalizeSearchText(name));
+  if(duplicate) return toast('Товар з такою назвою вже існує','error');
+  const done=setActionButtonLoading(button,'Зберігаю...');
+  if(!done) return;
+  try{
+    const {error}=await db.from('inventory_items').update({name,category,unit}).eq('id',item.id);
+    if(error) return toast('Не вдалося зберегти: '+error.message,'error');
+    editItemId=null;
+    closeModal('editItemModal');
+    await loadItems();
+    populateSels();
+    renderAddLow();
+    toast('Дані товару оновлено','success');
+  }catch(error){
+    console.error('item update failed',error);
+    toast('Не вдалося оновити товар','error');
+  }finally{
+    done();
+  }
 }
 
 // ===== DELETE =====
