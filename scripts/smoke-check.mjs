@@ -3025,6 +3025,30 @@ ${sharedSelectText}`;
   }
 }
 
+// Навігаційні поверхні Складу використовують M3 containers, а активна
+// мобільна іконка — стандартний 56px tonal indicator.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad navigation uses Material 3 tonal containers';
+  const required = [
+    '.sidebar{width:var(--sb);background:var(--md-sys-color-surface-container-low',
+    '.topbar{background:var(--md-sys-color-surface-container-low',
+    '/* === Material 3 navigation bar === */',
+    'background:var(--md-sys-color-surface-container-high',
+    '.bn-item.active{color:var(--md-sys-color-on-secondary-container',
+    '.bn-item.active .bn-icon-wrap{width:56px;background:var(--md-sys-color-secondary-container',
+    'box-shadow:var(--md-sys-elevation-level2)',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
