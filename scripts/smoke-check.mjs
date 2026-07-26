@@ -457,6 +457,33 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
+{
+  const label = 'journal chat uses class-based Material 3 surfaces';
+  const text = readOsbbCombined();
+  const required = [
+    'class="journal-chat-card"',
+    'class="journal-chat-messages"',
+    'class="journal-chat-send md-state-layer"',
+    'journal-chat-row${isMine',
+    '.journal-chat-bubble',
+    '.journal-chat-row:hover .chat-del-btn',
+    'data-chat-delete-id="${escapeAttr(msg.id)}"',
+  ];
+  const forbidden = [
+    'id="chat-messages" class="flex',
+    'btn.style.opacity',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const presentForbidden = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || presentForbidden.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${presentForbidden.length ? ` (forbidden: ${presentForbidden.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // OSBB PIN confirmation modal and lightbox should expose dialog semantics and
 // move focus into the active overlay when opened.
 {
