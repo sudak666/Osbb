@@ -67,3 +67,4 @@ revoke all on function receive_item(bigint, numeric, text, text, timestamptz, nu
 grant execute on function receive_item(bigint, numeric, text, text, timestamptz, numeric)
   to anon, authenticated;
 
+notify pgrst, 'reload schema';

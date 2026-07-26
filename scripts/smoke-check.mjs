@@ -2849,10 +2849,14 @@ ${sharedSelectText}`;
     'purchase_price_unit:purchasePrice',
     '<th>Ціна закупівлі</th>',
     'money(r.purchase_price_unit)',
+    'function isPurchasePriceSchemaError(error)',
+    "showPurchasePriceMigrationNotice()",
+    "delete receiptRow.purchase_price_unit",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (!migration.includes('add column if not exists purchase_price_unit numeric(12,2)') ||
       !migration.includes('p_price_unit numeric default null') ||
+      !migration.includes("notify pgrst, 'reload schema'") ||
       !types.includes('purchase_price_unit: number | null;') || missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);

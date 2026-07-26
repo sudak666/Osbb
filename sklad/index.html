@@ -860,6 +860,13 @@ function optionalPrice(value){
   const price=Number(raw);
   return Number.isFinite(price)&&price>0?Math.round(price*100)/100:NaN;
 }
+function isPurchasePriceSchemaError(error){
+  const message=String(error?.message||'').toLowerCase();
+  return message.includes('purchase_price_unit')||message.includes('p_price_unit')||message.includes('receive_item');
+}
+function showPurchasePriceMigrationNotice(){
+  toast('Ціну товару збережено. Для історії цін застосуйте SQL 009_add_receipt_purchase_price.sql','info');
+}
 function priceValue(item){const n=Number(item?.price_unit);return isFinite(n)&&n>0?n:0;}
 function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
 function priceBadge(item){
@@ -2216,12 +2223,20 @@ async function confirmEditReceipt(){
   const receiptPatch={quantity:newQty,purchase_price_unit:purchasePrice,supplier:supplier||null,note:note||null};
   const receivedAt=dateInputToTimestamp(receiptDate);
   if(receivedAt) receiptPatch.received_at=receivedAt;
-  const {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
+  let {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
+  let priceHistorySaved=true;
+  if(error&&isPurchasePriceSchemaError(error)){
+    priceHistorySaved=false;
+    const legacyPatch={quantity:newQty,supplier:supplier||null,note:note||null};
+    if(receivedAt) legacyPatch.received_at=receivedAt;
+    ({error}=await db.from('inventory_receipts').update(legacyPatch).eq('id',editReceiptId));
+  }
   if(error) return toast('Помилка: '+error.message,'error');
   toast('Прихід оновлено','success');
   closeModal('editReceiptModal');
   editReceiptId=null;
   await loadItems();await loadReceipts();
+  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
 }
 
 // ===== ADD PAGE =====
@@ -2251,9 +2266,22 @@ async function doRefill(btn){
   // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
   const receivedAt=dateInputToTimestamp(receiptDate);
-  const {data,error}=await db.rpc('receive_item',{
+  let {data,error}=await db.rpc('receive_item',{
     p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
   });
+  let priceHistorySaved=true;
+  if(error&&purchasePrice!==null&&isPurchasePriceSchemaError(error)){
+    priceHistorySaved=false;
+    ({data,error}=await db.rpc('receive_item',{
+      p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
+    }));
+    if(!error){
+      const {error:priceError}=await db.from('inventory_items').update({
+        price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()
+      }).eq('id',id);
+      if(priceError) return toast('Прихід збережено, але ціну не оновлено: '+priceError.message,'error');
+    }
+  }
   if(error) return toast('Помилка: '+error.message,'error');
   const row=data && data[0];
   const unit=row?.unit||item.unit;
@@ -2267,6 +2295,7 @@ async function doRefill(btn){
   document.getElementById('refillInfo').style.display='none';
   document.getElementById('refillSel').value='';
   await loadItems();populateSels();renderAddLow();
+  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
   }finally{
     done();
   }
@@ -2333,20 +2362,29 @@ async function doAddNew(btn){
   const priceFields=purchasePrice===null?{}:{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()};
   const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
+  let priceHistorySaved=true;
   // записуємо початковий прихід якщо кількість > 0
   if(quantity>0 && newItem){
     try{
-      await db.from('inventory_receipts').insert([{
+      const receiptRow={
         item_id:newItem.id,
         item_name:name,
         quantity,
         purchase_price_unit:purchasePrice,
         supplier:null,
         note:'Початковий залишок при додаванні товару'
-      }]);
+      };
+      let {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
+      if(receiptError&&isPurchasePriceSchemaError(receiptError)){
+        priceHistorySaved=false;
+        delete receiptRow.purchase_price_unit;
+        ({error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]));
+      }
+      if(receiptError) console.warn('receipt insert failed',receiptError);
     }catch(e){console.warn('receipt insert failed',e);}
   }
   toast('"'+name+'" додано!','success');
+  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty','newPrice'].forEach(k=>document.getElementById(k).value='');
   const matchesBox=document.getElementById('newNameMatches');
