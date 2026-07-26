@@ -1530,21 +1530,36 @@ function positionItemMenu(menu){
   const panel=menu.querySelector('.item-more-menu');
   if(!panel) return;
   menu.classList.remove('opens-down');
+  panel.classList.remove('is-viewport-positioned');
+  panel.style.left='';
+  panel.style.top='';
   panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
-  const filterBar=document.querySelector('.items-filter-bar');
   const bottomNav=document.querySelector('.bottom-nav');
-  const topBoundary=filterBar?Math.max(0,filterBar.getBoundingClientRect().bottom):0;
+  const viewportPadding=8;
+  const topBoundary=viewportPadding;
   const bottomBoundary=bottomNav && getComputedStyle(bottomNav).display!=='none'
-    ? Math.min(window.innerHeight,bottomNav.getBoundingClientRect().top)
-    : window.innerHeight;
+    ? Math.min(window.innerHeight-viewportPadding,bottomNav.getBoundingClientRect().top-viewportPadding)
+    : window.innerHeight-viewportPadding;
   const panelHeight=panel.offsetHeight;
-  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-12);
-  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-12);
+  const panelWidth=panel.offsetWidth;
+  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-8);
+  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-8);
   const opensDown=spaceBelow>=Math.min(panelHeight,360) || spaceBelow>spaceAbove;
   const available=opensDown?spaceBelow:spaceAbove;
   if(opensDown) menu.classList.add('opens-down');
-  panel.style.maxHeight=Math.max(160,Math.min(360,available))+'px';
+  const visibleHeight=Math.max(0,Math.min(360,available));
+  const left=Math.min(
+    window.innerWidth-panelWidth-viewportPadding,
+    Math.max(viewportPadding,summaryRect.right-panelWidth)
+  );
+  const top=opensDown
+    ? summaryRect.bottom+8
+    : Math.max(topBoundary,summaryRect.top-8-Math.min(panelHeight,visibleHeight));
+  panel.classList.add('is-viewport-positioned');
+  panel.style.left=Math.max(viewportPadding,left)+'px';
+  panel.style.top=top+'px';
+  panel.style.maxHeight=visibleHeight+'px';
 }
 function handleItemMenuToggle(event){
   const menu=event.target;

@@ -2395,9 +2395,8 @@ ${sharedSelectText}`;
 }
 
 
-// Mobile item overflow menus must stay inside the usable viewport. This guards
-// the positioning logic that accounts for the sticky filter toolbar, floating
-// bottom nav, and viewport changes on mobile browsers.
+// Item overflow menus must stay inside the usable viewport. This guards the
+// fixed positioning and scrollable-height calculation near every screen edge.
 {
   const text = readSkladCombined();
   const label = 'sklad item menus account for mobile viewport boundaries';
@@ -2405,9 +2404,10 @@ ${sharedSelectText}`;
     "const bottomNav=document.querySelector('.bottom-nav')",
     "getComputedStyle(bottomNav).display!=='none'",
     'bottomNav.getBoundingClientRect().top',
-    'const spaceAbove=Math.max(0,summaryRect.top-topBoundary-12)',
-    'const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-12)',
-    "panel.style.maxHeight=Math.max(160,Math.min(360,available))+'px'",
+    'const spaceAbove=Math.max(0,summaryRect.top-topBoundary-8)',
+    'const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-8)',
+    "panel.classList.add('is-viewport-positioned')",
+    "panel.style.maxHeight=visibleHeight+'px'",
     'function repositionOpenItemMenus',
     'itemMenuRepositionFrame=requestAnimationFrame',
     "document.addEventListener('scroll',repositionOpenItemMenus,{passive:true,capture:true})",
@@ -2772,6 +2772,8 @@ ${sharedSelectText}`;
     '<details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false">',
     '.table-modern{overflow:visible;}',
     '.table-modern thead tr:first-child th:first-child{border-top-left-radius:var(--radius-xl);}',
+    '.item-more-menu.is-viewport-positioned{position:fixed;right:auto;bottom:auto;}',
+    "panel.style.maxHeight=visibleHeight+'px';",
   ];
   const forbidden = [
     'class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"',
