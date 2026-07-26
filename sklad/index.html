@@ -2124,12 +2124,14 @@ function renderReceipts(){
     const safeUnit=escapeHtml(item?.unit||'');
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=escapeHtml(r.note||'—');
-    const purchasePrice=money(r.purchase_price_unit);
+    const hasReceiptPrice=Number(r.purchase_price_unit)>0;
+    const purchasePrice=money(hasReceiptPrice?r.purchase_price_unit:item?.price_unit);
+    const purchasePriceHtml=purchasePrice==='—'?'—':`${purchasePrice}${hasReceiptPrice?'':' <span class="price-origin-note">поточна</span>'}`;
     return `<tr>
       <td class="log-date-cell">${dt}</td>
       <td class="log-name-cell">${safeName}</td>
       <td class="log-qty-in">+${escapeHtml(String(r.quantity??0))} <span class="log-unit-suffix">${safeUnit}</span></td>
-      <td class="log-price-cell">${purchasePrice}</td>
+      <td class="log-price-cell">${purchasePriceHtml}</td>
       <td class="log-person-cell">${safeSupplier}</td>
       <td class="log-note-cell">${safeNote}</td>
       <td><div class="table-row-actions">
@@ -2146,12 +2148,13 @@ function renderReceipts(){
     const safeUnit=escapeHtml(item?.unit||'');
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=r.note?' · '+escapeHtml(r.note):'';
-    const purchasePrice=money(r.purchase_price_unit);
+    const hasReceiptPrice=Number(r.purchase_price_unit)>0;
+    const purchasePrice=money(hasReceiptPrice?r.purchase_price_unit:item?.price_unit);
     return `<div class="receipt-mobile-item">
       <div class="receipt-mobile-icon"><span class="ms ic-20">move_to_inbox</span></div>
       <div class="receipt-mobile-main">
         <div class="receipt-mobile-title">${safeName}</div>
-        <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}${purchasePrice!=='—'?' · '+purchasePrice+'/од.':''}</div>
+        <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}${purchasePrice!=='—'?' · '+purchasePrice+'/од.'+(hasReceiptPrice?'':' (поточна)'):''}</div>
       </div>
       <div class="receipt-mobile-side">
         +${escapeHtml(String(r.quantity??0))}<span class="receipt-mobile-unit"> ${safeUnit}</span>
@@ -2194,7 +2197,7 @@ function openEditReceipt(id){
   document.getElementById('editReceiptItemName').textContent=`${r.item_name}${item?' · поточний залишок: '+item.quantity+' '+item.unit:''}`;
   document.getElementById('editReceiptQty').value=r.quantity;
   document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
-  document.getElementById('editReceiptPrice').value=r.purchase_price_unit||'';
+  document.getElementById('editReceiptPrice').value=r.purchase_price_unit||item?.price_unit||'';
   document.getElementById('editReceiptSupplier').value=r.supplier||'';
   document.getElementById('editReceiptNote').value=r.note||'';
   openModal('editReceiptModal');
