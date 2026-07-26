@@ -214,6 +214,7 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .log-cat-badge{font-size:10px;}
 .log-qty-out{font-weight:800;color:var(--md-sys-color-secondary,#6366f1);}
 .log-qty-in{font-weight:800;color:var(--ios-green);}
+.log-price-cell{font-weight:800;color:var(--ios-label);white-space:nowrap;}
 .log-unit-suffix{font-weight:400;color:var(--md-sys-color-on-secondary-container,#a5b4fc);font-size:11px;}
 .log-person-cell{color:var(--ios-label2);}
 .log-note-cell{color:var(--ios-gray);font-size:12px;}

@@ -355,9 +355,9 @@ async function checkPin(attempt){
       <table>
         <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Кому</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="logTable">
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
         </tbody>
       </table>
       <div id="logMobileList"></div>
@@ -376,6 +376,7 @@ async function checkPin(attempt){
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
           </div>
+          <div><label>Ціна закупівлі за одиницю <span class="form-note">(необов'язково)</span></label><input type="number" class="inp" id="refillPriceI" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
           <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
           <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
           <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
@@ -388,7 +389,10 @@ async function checkPin(attempt){
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
             </div>
-            <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
+            <div class="two-col">
+              <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
+              <div><label>Ціна закупівлі / од.</label><input type="number" class="inp" id="newPrice" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
+            </div>
             <label class="internal-use-toggle">
               <input type="checkbox" id="newInternal">
               <span>Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
@@ -461,11 +465,11 @@ async function checkPin(attempt){
     </div>
     <div class="card desktop-table table-modern receipt-table-card">
       <table>
-        <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Постачальник</th><th>Примітка</th><th>Дії</th></tr></thead>
+        <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Ціна закупівлі</th><th>Постачальник</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="recTable">
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
         </tbody>
       </table>
     </div>
@@ -717,6 +721,10 @@ async function checkPin(attempt){
         <input type="date" class="inp" id="editReceiptDate">
       </div>
       <div>
+        <label>Ціна закупівлі за одиницю</label>
+        <input type="number" class="inp" id="editReceiptPrice" min="0.01" step="0.01" inputmode="decimal" placeholder="Не вказано">
+      </div>
+      <div>
         <label>Постачальник</label>
         <input type="text" class="inp" id="editReceiptSupplier">
       </div>
@@ -845,6 +853,12 @@ function money(v){
   const n=Number(v);
   if(!isFinite(n)||n<=0) return '—';
   return new Intl.NumberFormat('uk-UA',{style:'currency',currency:'UAH',maximumFractionDigits:n>=100?0:2}).format(n);
+}
+function optionalPrice(value){
+  const raw=String(value??'').trim().replace(',','.');
+  if(!raw) return null;
+  const price=Number(raw);
+  return Number.isFinite(price)&&price>0?Math.round(price*100)/100:NaN;
 }
 function priceValue(item){const n=Number(item?.price_unit);return isFinite(n)&&n>0?n:0;}
 function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
@@ -1170,11 +1184,11 @@ let allReceipts=[];
 async function loadReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
-  if(tb) tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--ios-gray);">Завантаження...</td></tr>';
+  if(tb) tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ios-gray);">Завантаження...</td></tr>';
   const {data,error}=await db.from('inventory_receipts').select('*').order('received_at',{ascending:false}).limit(200);
   if(error){
     const msg=msIcon('warning')+' '+error.message;
-    if(tb) tb.innerHTML=`<tr><td colspan="6"><div class="empty">${msg}</div></td></tr>`;
+    if(tb) tb.innerHTML=`<tr><td colspan="7"><div class="empty">${msg}</div></td></tr>`;
     if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--ios-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
     toast('Прихід: '+error.message,'error');
     return;
@@ -2091,7 +2105,7 @@ function renderReceipts(){
   const mb=document.getElementById('recMobileList');
   if(!recs.length){
     const empty=s?'Нічого не знайдено':'Приходів ще не було';
-    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
+    tb.innerHTML=`<tr><td colspan="7"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
     mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div>`;
     return;
   }
@@ -2103,10 +2117,12 @@ function renderReceipts(){
     const safeUnit=escapeHtml(item?.unit||'');
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=escapeHtml(r.note||'—');
+    const purchasePrice=money(r.purchase_price_unit);
     return `<tr>
       <td class="log-date-cell">${dt}</td>
       <td class="log-name-cell">${safeName}</td>
       <td class="log-qty-in">+${escapeHtml(String(r.quantity??0))} <span class="log-unit-suffix">${safeUnit}</span></td>
+      <td class="log-price-cell">${purchasePrice}</td>
       <td class="log-person-cell">${safeSupplier}</td>
       <td class="log-note-cell">${safeNote}</td>
       <td><div class="table-row-actions">
@@ -2123,11 +2139,12 @@ function renderReceipts(){
     const safeUnit=escapeHtml(item?.unit||'');
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=r.note?' · '+escapeHtml(r.note):'';
+    const purchasePrice=money(r.purchase_price_unit);
     return `<div class="receipt-mobile-item">
       <div class="receipt-mobile-icon"><span class="ms ic-20">move_to_inbox</span></div>
       <div class="receipt-mobile-main">
         <div class="receipt-mobile-title">${safeName}</div>
-        <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}</div>
+        <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}${purchasePrice!=='—'?' · '+purchasePrice+'/од.':''}</div>
       </div>
       <div class="receipt-mobile-side">
         +${escapeHtml(String(r.quantity??0))}<span class="receipt-mobile-unit"> ${safeUnit}</span>
@@ -2170,6 +2187,7 @@ function openEditReceipt(id){
   document.getElementById('editReceiptItemName').textContent=`${r.item_name}${item?' · поточний залишок: '+item.quantity+' '+item.unit:''}`;
   document.getElementById('editReceiptQty').value=r.quantity;
   document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
+  document.getElementById('editReceiptPrice').value=r.purchase_price_unit||'';
   document.getElementById('editReceiptSupplier').value=r.supplier||'';
   document.getElementById('editReceiptNote').value=r.note||'';
   openModal('editReceiptModal');
@@ -2180,17 +2198,22 @@ async function confirmEditReceipt(){
   if(!r) return closeModal('editReceiptModal');
   const newQty=parseFloat(document.getElementById('editReceiptQty').value);
   const receiptDate=document.getElementById('editReceiptDate').value;
+  const purchasePrice=optionalPrice(document.getElementById('editReceiptPrice').value);
   const supplier=document.getElementById('editReceiptSupplier').value.trim();
   const note=document.getElementById('editReceiptNote').value.trim();
   if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
+  if(Number.isNaN(purchasePrice)) return toast('Введіть коректну ціну закупівлі','error');
   const item=allItems.find(i=>i.id===r.item_id);
   if(item){
     const diff=newQty-r.quantity;
     const adjustedStock=Math.round((item.quantity+diff)*100)/100;
     if(adjustedStock<0) return toast('Це призведе до від\'ємного залишку','error');
-    await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
+    const itemPatch={quantity:adjustedStock};
+    if(purchasePrice!==null) Object.assign(itemPatch,{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()});
+    const {error:itemError}=await db.from('inventory_items').update(itemPatch).eq('id',item.id);
+    if(itemError) return toast('Не вдалося оновити товар: '+itemError.message,'error');
   }
-  const receiptPatch={quantity:newQty,supplier:supplier||null,note:note||null};
+  const receiptPatch={quantity:newQty,purchase_price_unit:purchasePrice,supplier:supplier||null,note:note||null};
   const receivedAt=dateInputToTimestamp(receiptDate);
   if(receivedAt) receiptPatch.received_at=receivedAt;
   const {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
@@ -2213,11 +2236,13 @@ function onRefillSel(){
 async function doRefill(btn){
   const id=parseInt(document.getElementById('refillSel').value);
   const qty=parseFloat(document.getElementById('refillQtyI').value);
+  const purchasePrice=optionalPrice(document.getElementById('refillPriceI').value);
   const supplier=document.getElementById('refillSupplierI').value.trim();
   const note=document.getElementById('refillNoteI').value.trim();
   const receiptDate=document.getElementById('refillDateI').value;
   if(!id) return toast('Оберіть товар!','error');
   if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
+  if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
   const item=findItemForAction(id,'прихід');
   if(!item) return;
   const done=setActionButtonLoading(btn,'Поповнюю...');
@@ -2227,7 +2252,7 @@ async function doRefill(btn){
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
   const receivedAt=dateInputToTimestamp(receiptDate);
   const {data,error}=await db.rpc('receive_item',{
-    p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null
+    p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
   });
   if(error) return toast('Помилка: '+error.message,'error');
   const row=data && data[0];
@@ -2235,6 +2260,7 @@ async function doRefill(btn){
   toast('Поповнено +'+qty+' '+unit,'success');
   notifyTelegram('📦 Прихід: '+item.name+' +'+qty+' '+item.unit+(supplier?' від '+supplier:'')+(note?' ('+note+')':''));
   document.getElementById('refillQtyI').value='';
+  document.getElementById('refillPriceI').value='';
   document.getElementById('refillSupplierI').value='';
   document.getElementById('refillNoteI').value='';
   document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
@@ -2296,13 +2322,16 @@ async function doAddNew(btn){
   const category=document.getElementById('newCat').value;
   const unit=document.getElementById('newUnit').value.trim()||'шт';
   const quantity=parseFloat(document.getElementById('newQty').value)||0;
+  const purchasePrice=optionalPrice(document.getElementById('newPrice').value);
   const is_internal=document.getElementById('newInternal').checked;
   if(!name) return toast('Введіть назву товару!','error');
+  if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
   if(/^\d+([.,]\d+)?$/.test(unit)) return toast('"Одиниця" має бути словом (напр. "шт", "уп."), а не числом!','error');
   const done=setActionButtonLoading(btn,'Додаю...');
   if(!done) return;
   try{
-  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal}]).select().single();
+  const priceFields=purchasePrice===null?{}:{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()};
+  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
   // записуємо початковий прихід якщо кількість > 0
   if(quantity>0 && newItem){
@@ -2311,6 +2340,7 @@ async function doAddNew(btn){
         item_id:newItem.id,
         item_name:name,
         quantity,
+        purchase_price_unit:purchasePrice,
         supplier:null,
         note:'Початковий залишок при додаванні товару'
       }]);
@@ -2318,7 +2348,7 @@ async function doAddNew(btn){
   }
   toast('"'+name+'" додано!','success');
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
-  ['newName','newUnit','newQty'].forEach(k=>document.getElementById(k).value='');
+  ['newName','newUnit','newQty','newPrice'].forEach(k=>document.getElementById(k).value='');
   const matchesBox=document.getElementById('newNameMatches');
   if(matchesBox){matchesBox.style.display='none';matchesBox.innerHTML='';}
   document.getElementById('newInternal').checked=false;

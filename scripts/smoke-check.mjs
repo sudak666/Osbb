@@ -2834,6 +2834,34 @@ ${sharedSelectText}`;
   }
 }
 
+// Purchase prices can be captured when creating or receiving stock and remain
+// visible/editable on the receipt that established the current item price.
+{
+  const text = readSkladCombined();
+  const migration = readFileSync('sklad/supabase/009_add_receipt_purchase_price.sql', 'utf8');
+  const types = readFileSync('src/database.types.ts', 'utf8');
+  const label = 'sklad captures purchase prices for new items and receipts';
+  const required = [
+    'id="newPrice" min="0.01" step="0.01"',
+    'id="refillPriceI" min="0.01" step="0.01"',
+    'id="editReceiptPrice" min="0.01" step="0.01"',
+    'p_price_unit:purchasePrice',
+    'purchase_price_unit:purchasePrice',
+    '<th>Ціна закупівлі</th>',
+    'money(r.purchase_price_unit)',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (!migration.includes('add column if not exists purchase_price_unit numeric(12,2)') ||
+      !migration.includes('p_price_unit numeric default null') ||
+      !types.includes('purchase_price_unit: number | null;') || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
