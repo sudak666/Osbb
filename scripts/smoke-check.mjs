@@ -678,7 +678,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'aria-haspopup="menu" aria-expanded="false"',
     'class="item-more-menu" role="menu"',
     'role="menuitem" data-item-action="photo"',
-    'z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;',
+    'z-index:60;min-width:208px;max-height:min(62dvh,360px);overflow-y:auto;',
+    "if(menu.classList.contains('topbar-more'))",
     "document.addEventListener('toggle',handleItemMenuToggle,true)",
     "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
   ];
@@ -870,10 +871,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="btn btn-ghost btn-sm price-badge-btn has-price"',
     'class="price-badge-value"',
     'class="price-badge-source"',
-    '.price-badge-btn{padding:6px 9px;',
+    '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
     '.price-badge-value{font-weight:900;',
-    '.price-badge-source{font-size:10px;',
+    '.price-badge-source{width:100%;font-size:10px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
