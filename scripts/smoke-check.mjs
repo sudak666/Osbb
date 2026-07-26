@@ -50,7 +50,7 @@ const checks = [
   ['index.html', 'role="tabpanel" aria-labelledby="shell-tab-journal"', 'shell frame exposes tabpanel semantics'],
   ['shell', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
   ['shell', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
-  ['osbb/index.html', 'id="desktop-tabs" class="flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
+  ['osbb/index.html', 'id="desktop-tabs" class="journal-tabs" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal mobile active tab exposes tab semantics'],
@@ -451,6 +451,33 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   if (hasForbidden || missing.length) {
     failed += 1;
     console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const label = 'journal chat uses class-based Material 3 surfaces';
+  const text = readOsbbCombined();
+  const required = [
+    'class="journal-chat-card"',
+    'class="journal-chat-messages"',
+    'class="journal-chat-send md-state-layer"',
+    'journal-chat-row${isMine',
+    '.journal-chat-bubble',
+    '.journal-chat-row:hover .chat-del-btn',
+    'data-chat-delete-id="${escapeAttr(msg.id)}"',
+  ];
+  const forbidden = [
+    'id="chat-messages" class="flex',
+    'btn.style.opacity',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const presentForbidden = forbidden.filter(needle => text.includes(needle));
+  if (missing.length || presentForbidden.length) {
+    failed += 1;
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${presentForbidden.length ? ` (forbidden: ${presentForbidden.join(', ')})` : ''}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -1826,13 +1853,28 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-panel journal-list-shell"',
     'class="garbage-chart flex items-end justify-between gap-1"',
     'class="journal-panel"',
-    'class="desktop-table print-card journal-table-shell overflow-hidden"',
+    'class="desktop-table print-card journal-table-shell"',
+    'class="journal-table"',
+    'class="journal-table-role is-electrician"',
+    'class="journal-loading-overlay no-print" role="status" aria-live="polite" aria-hidden="true"',
+    '.journal-loading-overlay.is-visible {',
+    "overlay.classList.toggle('is-visible', show);",
+    "overlay.setAttribute('aria-hidden', String(!show));",
     'class="journal-dashboard-panel"',
     'class="journal-stats-grid"',
-    'class="stat-card journal-stat-card role-electrician',
+    'class="stat-card journal-stat-card journal-role-summary role-electrician"',
+    'class="journal-role-summary-head"',
+    'class="journal-charts-grid"',
+    'class="journal-panel journal-chart-wide"',
+    '.journal-role-count {',
+    '.journal-chart-wide { grid-column:1 / -1; }',
     '.journal-title-row {',
     '.journal-action-row {',
     '.journal-tabs-row {',
+    'class="tab-btn md-state-layer active"',
+    'class="journal-bottom-nav no-print"',
+    'class="mob-tab md-state-layer mob-active"',
+    '.journal-tabs { display:flex;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1911,7 +1953,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-action-btn journal-action-btn-ghost md-state-layer"',
     'class="journal-action-btn journal-action-btn-danger md-state-layer"',
     'class="journal-inline-icon"',
-    '<span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span>',
+    '<th class="journal-table-role is-comment no-print"><span class="mdi mdi-comment-outline journal-inline-icon" aria-hidden="true"></span>Коментар</th>',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
