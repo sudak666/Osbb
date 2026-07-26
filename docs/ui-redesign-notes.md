@@ -545,6 +545,10 @@ The desktop journal table and its loading state now use dedicated class-based Ma
 
 The monthly role summaries now use reusable class-based headers, names, counts, and semantic role accents instead of repeated Tailwind utility stacks. Monitoring and chart headings use MDI icons, while the chart layout is owned by a responsive `journal-charts-grid` with a named wide-panel variant. Smoke markers guard both shells.
 
+## OSBB navigation Material 3 cleanup (July 2026)
+
+Desktop tabs and the floating mobile navigation now rely on their existing named components rather than duplicated Tailwind layout stacks. Desktop tabs consume Material surface, outline, shape, motion, and state-layer tokens; the bottom navigation owns its complete fixed layout in CSS and no longer requires an inline `display`/safe-area style. Smoke markers preserve the class-based tab shells and ARIA tablists.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.

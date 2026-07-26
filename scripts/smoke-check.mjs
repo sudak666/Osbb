@@ -50,7 +50,7 @@ const checks = [
   ['index.html', 'role="tabpanel" aria-labelledby="shell-tab-journal"', 'shell frame exposes tabpanel semantics'],
   ['shell', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
   ['shell', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
-  ['osbb/index.html', 'id="desktop-tabs" class="flex gap-1.5" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
+  ['osbb/index.html', 'id="desktop-tabs" class="journal-tabs" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal mobile active tab exposes tab semantics'],
@@ -1871,6 +1871,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-title-row {',
     '.journal-action-row {',
     '.journal-tabs-row {',
+    'class="tab-btn md-state-layer active"',
+    'class="journal-bottom-nav no-print"',
+    'class="mob-tab md-state-layer mob-active"',
+    '.journal-tabs { display:flex;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
