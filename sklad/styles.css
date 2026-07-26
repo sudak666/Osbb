@@ -901,6 +901,9 @@ canvas#stockChart{width:100%!important;max-height:300px;}
 .skel-fluid-lg{width:70%;}
 .skel-fluid-xl{width:80%;}
 .skel-photo{width:36px;height:36px;border-radius:8px;}
+.skeleton-stack{display:grid;gap:10px;width:100%;}
+.skeleton-card{display:grid;gap:10px;padding:16px;border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-surface-container,var(--surface-2));}
+.skeleton-card .skel{display:block;min-width:96px;}
 .receipt-table-card{margin-bottom:16px;}
 .receipt-mobile-list{margin-bottom:16px;padding:0;}
 

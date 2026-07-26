@@ -910,6 +910,22 @@ function emptyState(icon,title,supportingText=''){
     ${supporting}
   </div>`;
 }
+function skeletonRows(columns=1,rows=3){
+  const safeColumns=Math.min(8,Math.max(1,Math.trunc(columns)));
+  const safeRows=Math.min(6,Math.max(1,Math.trunc(rows)));
+  const cells=Array.from({length:safeColumns},(_,index)=>
+    `<td><span class="skel ${index%3===0?'skel-fluid-xl':'skel-fluid-md'}"></span></td>`
+  ).join('');
+  return Array.from({length:safeRows},()=>`<tr aria-hidden="true">${cells}</tr>`).join('');
+}
+function skeletonStack(rows=3){
+  const safeRows=Math.min(6,Math.max(1,Math.trunc(rows)));
+  return `<div class="skeleton-stack" aria-hidden="true">${Array.from({length:safeRows},()=>`
+    <div class="skeleton-card">
+      <span class="skel skel-fluid-xl"></span>
+      <span class="skel skel-fluid-md"></span>
+    </div>`).join('')}</div>`;
+}
 
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
@@ -1221,7 +1237,8 @@ let allReceipts=[];
 async function loadReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
-  if(tb) tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ios-gray);">Завантаження...</td></tr>';
+  if(tb) tb.innerHTML=skeletonRows(7,3);
+  if(mb) mb.innerHTML=skeletonStack(3);
   const {data,error}=await db.from('inventory_receipts').select('*').order('received_at',{ascending:false}).limit(200);
   if(error){
     const msg=msIcon('warning')+' '+error.message;
@@ -2973,7 +2990,7 @@ async function fetchItemPrice(){
   const item=allItems.find(i=>String(i.id)===String(id));
   if(!item) return toast('Оберіть товар','error');
   const box=document.getElementById('priceResults');
-  box.innerHTML='<div class="price-results-state is-loading"><span class="ms" aria-hidden="true">sync</span> Шукаю ціни...</div>';
+  box.innerHTML=`<div class="price-results-state is-loading" role="status" aria-label="Пошук цін">${skeletonStack(3)}</div>`;
   try{
     const res=await fetch(PRICE_LOOKUP_URL,{
       method:'POST',
@@ -3099,7 +3116,7 @@ async function openHistory(itemId){
   const unit=escapeHtml(item.unit||'');
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
-  document.getElementById('histList').innerHTML='<div class="history-modal-state">Завантаження...</div>';
+  document.getElementById('histList').innerHTML=skeletonStack(3);
   openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
   if(!data||!data.length){

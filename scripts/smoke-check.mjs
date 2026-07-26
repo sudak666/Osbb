@@ -2975,6 +2975,30 @@ ${sharedSelectText}`;
   }
 }
 
+// Повторні завантаження приходів, історії та пошуку цін не повинні повертати
+// текстову заглушку — усі три сценарії використовують M3 skeleton loaders.
+{
+  const text = readSkladCombined();
+  const label = 'sklad async views use reusable Material 3 skeleton loaders';
+  const required = [
+    'function skeletonRows(columns=1,rows=3)',
+    'function skeletonStack(rows=3)',
+    'tb.innerHTML=skeletonRows(7,3)',
+    'mb.innerHTML=skeletonStack(3)',
+    'aria-label="Пошук цін"',
+    "document.getElementById('histList').innerHTML=skeletonStack(3)",
+    '.skeleton-card{display:grid;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
