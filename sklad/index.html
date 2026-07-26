@@ -355,9 +355,9 @@ async function checkPin(attempt){
       <table>
         <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Кому</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="logTable">
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
         </tbody>
       </table>
       <div id="logMobileList"></div>
@@ -376,7 +376,8 @@ async function checkPin(attempt){
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
           </div>
-          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Напр.: Епіцентр, Епіцентр К"></div>
+          <div><label>Ціна закупівлі за одиницю <span class="form-note">(необов'язково)</span></label><input type="number" class="inp" id="refillPriceI" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
+          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="refillSupplierI">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="refillSupplierI">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="refillSupplierI">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="refillSupplierI">Місцевий</button></div><div class="supplier-tag-create"><input type="text" class="inp" id="newSupplierTag" maxlength="40" placeholder="Новий тег постачальника"><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="supplier-tag-add"><span class="ms" aria-hidden="true">add</span> Додати тег</button></div></div>
           <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
           <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
         </div>
@@ -388,7 +389,10 @@ async function checkPin(attempt){
               <div><label>Категорія</label><select class="inp" id="newCat"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select></div>
               <div><label>Одиниця</label><input type="text" class="inp" id="newUnit" placeholder="шт, уп., м.п." inputmode="text" data-unit-word-input></div>
             </div>
-            <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
+            <div class="two-col">
+              <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
+              <div><label>Ціна закупівлі / од.</label><input type="number" class="inp" id="newPrice" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
+            </div>
             <label class="internal-use-toggle">
               <input type="checkbox" id="newInternal">
               <span>Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
@@ -461,11 +465,11 @@ async function checkPin(attempt){
     </div>
     <div class="card desktop-table table-modern receipt-table-card">
       <table>
-        <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Постачальник</th><th>Примітка</th><th>Дії</th></tr></thead>
+        <thead><tr><th>Дата</th><th>Товар</th><th>К-сть</th><th>Ціна закупівлі</th><th>Постачальник</th><th>Примітка</th><th>Дії</th></tr></thead>
         <tbody id="recTable">
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
-          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
+          <tr><td><span class="skel skel-xl"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-sm"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-fluid-xl"></span></td><td><span class="skel skel-md"></span></td></tr>
         </tbody>
       </table>
     </div>
@@ -560,6 +564,32 @@ async function checkPin(attempt){
     <div class="photo-modal-actions">
       <button type="button" class="btn btn-danger btn-sm photo-delete-btn" id="delPhotoBtn" data-sklad-action="photo-delete"><span class="ms" aria-hidden="true">delete</span> Видалити фото</button>
       <button type="button" class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT ITEM MODAL -->
+<div class="modal-bg" id="editItemModal" data-modal-backdrop="editItemModal">
+  <div class="modal edit-movement-modal" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="editItemTitle">
+    <h3 class="edit-movement-title" id="editItemTitle"><span class="ms" aria-hidden="true">edit</span> Редагувати товар</h3>
+    <div class="edit-movement-form">
+      <div>
+        <label for="editItemName">Назва / артикул</label>
+        <input type="text" class="inp" id="editItemName" maxlength="160" autocomplete="off" data-modal-initial-focus>
+      </div>
+      <div>
+        <label for="editItemCategory">Категорія</label>
+        <select class="inp" id="editItemCategory"><option value="Прибирання">Прибирання</option><option value="Ремонт">Ремонт</option><option value="Електрика">Електрика</option><option value="Сантехніка">Сантехніка</option><option value="Відеоспостереження">Відеоспостереження</option><option value="Інше">Інше</option></select>
+      </div>
+      <div>
+        <label for="editItemUnit">Одиниця виміру</label>
+        <input type="text" class="inp" id="editItemUnit" maxlength="24" placeholder="шт, уп., м.п." inputmode="text">
+      </div>
+    </div>
+    <p class="edit-movement-note">Залишок, ціна та історія руху товару не зміняться.</p>
+    <div class="edit-movement-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="editItemModal">Скасувати</button>
+      <button type="button" class="btn btn-primary" data-sklad-action="edit-item-confirm"><span class="ms" aria-hidden="true">save</span> Зберегти</button>
     </div>
   </div>
 </div>
@@ -691,8 +721,13 @@ async function checkPin(attempt){
         <input type="date" class="inp" id="editReceiptDate">
       </div>
       <div>
+        <label>Ціна закупівлі за одиницю</label>
+        <input type="number" class="inp" id="editReceiptPrice" min="0.01" step="0.01" inputmode="decimal" placeholder="Не вказано">
+      </div>
+      <div>
         <label>Постачальник</label>
         <input type="text" class="inp" id="editReceiptSupplier">
+        <div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="editReceiptSupplier">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="editReceiptSupplier">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="editReceiptSupplier">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="editReceiptSupplier">Місцевий</button></div>
       </div>
       <div>
         <label>Примітка</label>
@@ -802,7 +837,7 @@ async function checkPin(attempt){
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,deleteItemId=null,stockFilter='';
+let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
@@ -815,10 +850,24 @@ Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Товари на складі'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Прихід товару'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
+const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
 function money(v){
   const n=Number(v);
   if(!isFinite(n)||n<=0) return '—';
   return new Intl.NumberFormat('uk-UA',{style:'currency',currency:'UAH',maximumFractionDigits:n>=100?0:2}).format(n);
+}
+function optionalPrice(value){
+  const raw=String(value??'').trim().replace(',','.');
+  if(!raw) return null;
+  const price=Number(raw);
+  return Number.isFinite(price)&&price>0?Math.round(price*100)/100:NaN;
+}
+function isPurchasePriceSchemaError(error){
+  const message=String(error?.message||'').toLowerCase();
+  return message.includes('purchase_price_unit')||message.includes('p_price_unit')||message.includes('receive_item');
+}
+function showPurchasePriceMigrationNotice(){
+  console.info('Історія закупівельних цін стане доступною після міграції 009.');
 }
 function priceValue(item){const n=Number(item?.price_unit);return isFinite(n)&&n>0?n:0;}
 function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
@@ -1144,11 +1193,11 @@ let allReceipts=[];
 async function loadReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
-  if(tb) tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--ios-gray);">Завантаження...</td></tr>';
+  if(tb) tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ios-gray);">Завантаження...</td></tr>';
   const {data,error}=await db.from('inventory_receipts').select('*').order('received_at',{ascending:false}).limit(200);
   if(error){
     const msg=msIcon('warning')+' '+error.message;
-    if(tb) tb.innerHTML=`<tr><td colspan="6"><div class="empty">${msg}</div></td></tr>`;
+    if(tb) tb.innerHTML=`<tr><td colspan="7"><div class="empty">${msg}</div></td></tr>`;
     if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--ios-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
     toast('Прихід: '+error.message,'error');
     return;
@@ -1390,6 +1439,7 @@ function bindSkladStaticControls(){
     'quick-issue-submit':(button)=>doQuickIssue(button),
     'photo-file-select':()=>document.getElementById('photoFileI').click(),
     'photo-delete':deletePhoto,
+    'edit-item-confirm':(button)=>confirmEditItem(button),
     'delete-confirm':confirmDelete,
     'audit-confirm-save':confirmAudit,
     'delete-log-confirm':confirmDeleteLog,
@@ -1403,6 +1453,7 @@ function bindSkladStaticControls(){
     'qr-close':()=>{stopQR();closeModal('qrModal');},
     'price-fetch':fetchItemPrice,
     'manual-price-save':saveManualPrice,
+    'supplier-tag-add':addCustomSupplierTag,
     'lightbox-delete-photo':(button,event)=>deleteLightboxPhoto(event),
   };
   document.querySelectorAll('[data-sklad-action]').forEach(button=>{
@@ -1424,6 +1475,16 @@ function bindSkladStaticControls(){
   document.querySelectorAll('[data-person-preset]').forEach(button=>{
     button.addEventListener('click',()=>setPerson(button.dataset.personPreset,button));
   });
+  document.querySelectorAll('[data-supplier-preset]').forEach(button=>{
+    button.addEventListener('click',()=>setSupplierPreset(button));
+  });
+  ['refillSupplierI','editReceiptSupplier'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input',(event)=>syncSupplierTags(id,event.target.value));
+  });
+  document.getElementById('newSupplierTag')?.addEventListener('keydown',(event)=>{
+    if(event.key==='Enter'){event.preventDefault();addCustomSupplierTag();}
+  });
+  renderCustomSupplierTags();
   document.querySelectorAll('[data-log-category-filter]').forEach(button=>{
     button.addEventListener('click',()=>filterLogCat(button,button.dataset.logCategoryFilter));
   });
@@ -1454,6 +1515,90 @@ function bindSkladStaticControls(){
 function validateUnitWordInput(input){
   if(/^\d+([.,]\d+)?$/.test(input.value.trim())) toast('Одиниця має бути словом, не числом!','error');
 }
+function setSupplierPreset(button){
+  const input=document.getElementById(button.dataset.supplierTarget||'');
+  const supplier=String(button.dataset.supplierPreset||'').trim();
+  if(!input||!supplier) return;
+  input.value=supplier;
+  syncSupplierTags(button.dataset.supplierTarget,supplier);
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function syncSupplierTags(targetId,value){
+  const normalized=String(value||'').trim().toLocaleLowerCase('uk-UA');
+  document.querySelectorAll(`[data-supplier-target="${targetId}"]`).forEach(tag=>{
+    const selected=String(tag.dataset.supplierPreset||'').toLocaleLowerCase('uk-UA')===normalized;
+    tag.classList.toggle('active',selected);
+    tag.setAttribute('aria-pressed',String(selected));
+  });
+}
+function loadCustomSupplierTags(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(SUPPLIER_TAGS_STORAGE_KEY)||'[]');
+    return Array.isArray(parsed)?parsed.filter(tag=>typeof tag==='string'&&tag.trim()).slice(0,12):[];
+  }catch(error){
+    console.warn('supplier tags load failed',error);
+    return [];
+  }
+}
+function saveCustomSupplierTags(tags){
+  try{
+    localStorage.setItem(SUPPLIER_TAGS_STORAGE_KEY,JSON.stringify(tags));
+    return true;
+  }catch(error){
+    console.warn('supplier tags save failed',error);
+    toast('Не вдалося зберегти тег у цьому браузері','error');
+    return false;
+  }
+}
+function renderCustomSupplierTags(){
+  const tags=loadCustomSupplierTags();
+  document.querySelectorAll('[data-supplier-tags]').forEach(row=>{
+    row.querySelectorAll('[data-custom-supplier-tag]').forEach(node=>node.remove());
+    const targetId=row.querySelector('[data-supplier-target]')?.dataset.supplierTarget;
+    if(!targetId) return;
+    tags.forEach(tag=>{
+      const group=document.createElement('span');
+      group.className='supplier-custom-tag';
+      group.dataset.customSupplierTag=tag;
+      const select=document.createElement('button');
+      select.type='button';
+      select.className='supplier-tag';
+      select.dataset.supplierPreset=tag;
+      select.dataset.supplierTarget=targetId;
+      select.textContent=tag;
+      select.addEventListener('click',()=>setSupplierPreset(select));
+      const remove=document.createElement('button');
+      remove.type='button';
+      remove.className='supplier-tag-remove';
+      remove.setAttribute('aria-label',`Видалити тег ${tag}`);
+      remove.innerHTML='<span class="ms" aria-hidden="true">close</span>';
+      remove.addEventListener('click',()=>removeCustomSupplierTag(tag));
+      group.append(select,remove);
+      row.append(group);
+    });
+    syncSupplierTags(targetId,document.getElementById(targetId)?.value||'');
+  });
+}
+function addCustomSupplierTag(){
+  const input=document.getElementById('newSupplierTag');
+  const tag=String(input?.value||'').trim().replace(/\s+/g,' ');
+  if(!tag) return toast('Введіть назву постачальника','error');
+  const tags=loadCustomSupplierTags();
+  const known=[...document.querySelectorAll('[data-supplier-preset]')].map(button=>String(button.dataset.supplierPreset||'').toLocaleLowerCase('uk-UA'));
+  if(known.includes(tag.toLocaleLowerCase('uk-UA'))) return toast('Такий тег уже є','info');
+  if(tags.length>=12) return toast('Можна зберегти до 12 власних тегів','info');
+  if(!saveCustomSupplierTags([...tags,tag])) return;
+  input.value='';
+  renderCustomSupplierTags();
+  const created=[...document.querySelectorAll('[data-supplier-target="refillSupplierI"][data-supplier-preset]')]
+    .find(button=>button.dataset.supplierPreset===tag);
+  if(created) setSupplierPreset(created);
+  toast('Тег постачальника додано','success');
+}
+function removeCustomSupplierTag(tag){
+  const tags=loadCustomSupplierTags().filter(saved=>saved!==tag);
+  if(saveCustomSupplierTags(tags)) renderCustomSupplierTags();
+}
 
 function handleItemActionClick(event){
   const trigger=event.target.closest('[data-item-action]');
@@ -1471,6 +1616,7 @@ function handleItemActionClick(event){
   switch(trigger.dataset.itemAction){
     case 'quick': openQuick(id); break;
     case 'history': openHistory(id); break;
+    case 'edit': openEditItem(id); break;
     case 'photo': openPhotoModal(id); break;
     case 'internal': toggleInternal(id, trigger.dataset.internalNext==='true'); break;
     case 'manual-price': openManualPriceModal(id); break;
@@ -1502,21 +1648,36 @@ function positionItemMenu(menu){
   const panel=menu.querySelector('.item-more-menu');
   if(!panel) return;
   menu.classList.remove('opens-down');
+  panel.classList.remove('is-viewport-positioned');
+  panel.style.left='';
+  panel.style.top='';
   panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
-  const filterBar=document.querySelector('.items-filter-bar');
   const bottomNav=document.querySelector('.bottom-nav');
-  const topBoundary=filterBar?Math.max(0,filterBar.getBoundingClientRect().bottom):0;
+  const viewportPadding=8;
+  const topBoundary=viewportPadding;
   const bottomBoundary=bottomNav && getComputedStyle(bottomNav).display!=='none'
-    ? Math.min(window.innerHeight,bottomNav.getBoundingClientRect().top)
-    : window.innerHeight;
+    ? Math.min(window.innerHeight-viewportPadding,bottomNav.getBoundingClientRect().top-viewportPadding)
+    : window.innerHeight-viewportPadding;
   const panelHeight=panel.offsetHeight;
-  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-12);
-  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-12);
+  const panelWidth=panel.offsetWidth;
+  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-8);
+  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-8);
   const opensDown=spaceBelow>=Math.min(panelHeight,360) || spaceBelow>spaceAbove;
   const available=opensDown?spaceBelow:spaceAbove;
   if(opensDown) menu.classList.add('opens-down');
-  panel.style.maxHeight=Math.max(160,Math.min(360,available))+'px';
+  const visibleHeight=Math.max(0,Math.min(360,available));
+  const left=Math.min(
+    window.innerWidth-panelWidth-viewportPadding,
+    Math.max(viewportPadding,summaryRect.right-panelWidth)
+  );
+  const top=opensDown
+    ? summaryRect.bottom+8
+    : Math.max(topBoundary,summaryRect.top-8-Math.min(panelHeight,visibleHeight));
+  panel.classList.add('is-viewport-positioned');
+  panel.style.left=Math.max(viewportPadding,left)+'px';
+  panel.style.top=top+'px';
+  panel.style.maxHeight=visibleHeight+'px';
 }
 function handleItemMenuToggle(event){
   const menu=event.target;
@@ -1693,6 +1854,7 @@ function renderItems(){
         <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
+            <button type="button" role="menuitem" data-item-action="edit" data-item-id="${id}"><span class="ms">edit</span> Редагувати</button>
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
             <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
@@ -1736,6 +1898,7 @@ function renderItems(){
         <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Деталі</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
+            <button type="button" role="menuitem" data-item-action="edit" data-item-id="${id}"><span class="ms">edit</span> Редагувати</button>
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
             <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
@@ -2046,7 +2209,7 @@ function renderReceipts(){
   const mb=document.getElementById('recMobileList');
   if(!recs.length){
     const empty=s?'Нічого не знайдено':'Приходів ще не було';
-    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
+    tb.innerHTML=`<tr><td colspan="7"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
     mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div>`;
     return;
   }
@@ -2058,10 +2221,14 @@ function renderReceipts(){
     const safeUnit=escapeHtml(item?.unit||'');
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=escapeHtml(r.note||'—');
+    const hasReceiptPrice=Number(r.purchase_price_unit)>0;
+    const purchasePrice=money(hasReceiptPrice?r.purchase_price_unit:item?.price_unit);
+    const purchasePriceHtml=purchasePrice==='—'?'—':`${purchasePrice}${hasReceiptPrice?'':' <span class="price-origin-note">поточна</span>'}`;
     return `<tr>
       <td class="log-date-cell">${dt}</td>
       <td class="log-name-cell">${safeName}</td>
       <td class="log-qty-in">+${escapeHtml(String(r.quantity??0))} <span class="log-unit-suffix">${safeUnit}</span></td>
+      <td class="log-price-cell">${purchasePriceHtml}</td>
       <td class="log-person-cell">${safeSupplier}</td>
       <td class="log-note-cell">${safeNote}</td>
       <td><div class="table-row-actions">
@@ -2078,11 +2245,13 @@ function renderReceipts(){
     const safeUnit=escapeHtml(item?.unit||'');
     const safeSupplier=escapeHtml(r.supplier||'—');
     const safeNote=r.note?' · '+escapeHtml(r.note):'';
+    const hasReceiptPrice=Number(r.purchase_price_unit)>0;
+    const purchasePrice=money(hasReceiptPrice?r.purchase_price_unit:item?.price_unit);
     return `<div class="receipt-mobile-item">
       <div class="receipt-mobile-icon"><span class="ms ic-20">move_to_inbox</span></div>
       <div class="receipt-mobile-main">
         <div class="receipt-mobile-title">${safeName}</div>
-        <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}</div>
+        <div class="receipt-mobile-meta">${safeSupplier} · ${dt}${safeNote}${purchasePrice!=='—'?' · '+purchasePrice+'/од.'+(hasReceiptPrice?'':' (поточна)'):''}</div>
       </div>
       <div class="receipt-mobile-side">
         +${escapeHtml(String(r.quantity??0))}<span class="receipt-mobile-unit"> ${safeUnit}</span>
@@ -2125,7 +2294,9 @@ function openEditReceipt(id){
   document.getElementById('editReceiptItemName').textContent=`${r.item_name}${item?' · поточний залишок: '+item.quantity+' '+item.unit:''}`;
   document.getElementById('editReceiptQty').value=r.quantity;
   document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
+  document.getElementById('editReceiptPrice').value=r.purchase_price_unit||item?.price_unit||'';
   document.getElementById('editReceiptSupplier').value=r.supplier||'';
+  syncSupplierTags('editReceiptSupplier',r.supplier||'');
   document.getElementById('editReceiptNote').value=r.note||'';
   openModal('editReceiptModal');
 }
@@ -2135,25 +2306,38 @@ async function confirmEditReceipt(){
   if(!r) return closeModal('editReceiptModal');
   const newQty=parseFloat(document.getElementById('editReceiptQty').value);
   const receiptDate=document.getElementById('editReceiptDate').value;
+  const purchasePrice=optionalPrice(document.getElementById('editReceiptPrice').value);
   const supplier=document.getElementById('editReceiptSupplier').value.trim();
   const note=document.getElementById('editReceiptNote').value.trim();
   if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
+  if(Number.isNaN(purchasePrice)) return toast('Введіть коректну ціну закупівлі','error');
   const item=allItems.find(i=>i.id===r.item_id);
   if(item){
     const diff=newQty-r.quantity;
     const adjustedStock=Math.round((item.quantity+diff)*100)/100;
     if(adjustedStock<0) return toast('Це призведе до від\'ємного залишку','error');
-    await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
+    const itemPatch={quantity:adjustedStock};
+    if(purchasePrice!==null) Object.assign(itemPatch,{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()});
+    const {error:itemError}=await db.from('inventory_items').update(itemPatch).eq('id',item.id);
+    if(itemError) return toast('Не вдалося оновити товар: '+itemError.message,'error');
   }
-  const receiptPatch={quantity:newQty,supplier:supplier||null,note:note||null};
+  const receiptPatch={quantity:newQty,purchase_price_unit:purchasePrice,supplier:supplier||null,note:note||null};
   const receivedAt=dateInputToTimestamp(receiptDate);
   if(receivedAt) receiptPatch.received_at=receivedAt;
-  const {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
+  let {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
+  let priceHistorySaved=true;
+  if(error&&isPurchasePriceSchemaError(error)){
+    priceHistorySaved=false;
+    const legacyPatch={quantity:newQty,supplier:supplier||null,note:note||null};
+    if(receivedAt) legacyPatch.received_at=receivedAt;
+    ({error}=await db.from('inventory_receipts').update(legacyPatch).eq('id',editReceiptId));
+  }
   if(error) return toast('Помилка: '+error.message,'error');
   toast('Прихід оновлено','success');
   closeModal('editReceiptModal');
   editReceiptId=null;
   await loadItems();await loadReceipts();
+  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
 }
 
 // ===== ADD PAGE =====
@@ -2168,11 +2352,13 @@ function onRefillSel(){
 async function doRefill(btn){
   const id=parseInt(document.getElementById('refillSel').value);
   const qty=parseFloat(document.getElementById('refillQtyI').value);
+  const purchasePrice=optionalPrice(document.getElementById('refillPriceI').value);
   const supplier=document.getElementById('refillSupplierI').value.trim();
   const note=document.getElementById('refillNoteI').value.trim();
   const receiptDate=document.getElementById('refillDateI').value;
   if(!id) return toast('Оберіть товар!','error');
   if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
+  if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
   const item=findItemForAction(id,'прихід');
   if(!item) return;
   const done=setActionButtonLoading(btn,'Поповнюю...');
@@ -2181,21 +2367,37 @@ async function doRefill(btn){
   // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
   const receivedAt=dateInputToTimestamp(receiptDate);
-  const {data,error}=await db.rpc('receive_item',{
-    p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null
+  let {data,error}=await db.rpc('receive_item',{
+    p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
   });
+  let priceHistorySaved=true;
+  if(error&&purchasePrice!==null&&isPurchasePriceSchemaError(error)){
+    priceHistorySaved=false;
+    ({data,error}=await db.rpc('receive_item',{
+      p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
+    }));
+    if(!error){
+      const {error:priceError}=await db.from('inventory_items').update({
+        price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()
+      }).eq('id',id);
+      if(priceError) return toast('Прихід збережено, але ціну не оновлено: '+priceError.message,'error');
+    }
+  }
   if(error) return toast('Помилка: '+error.message,'error');
   const row=data && data[0];
   const unit=row?.unit||item.unit;
   toast('Поповнено +'+qty+' '+unit,'success');
   notifyTelegram('📦 Прихід: '+item.name+' +'+qty+' '+item.unit+(supplier?' від '+supplier:'')+(note?' ('+note+')':''));
   document.getElementById('refillQtyI').value='';
+  document.getElementById('refillPriceI').value='';
   document.getElementById('refillSupplierI').value='';
+  syncSupplierTags('refillSupplierI','');
   document.getElementById('refillNoteI').value='';
   document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
   document.getElementById('refillInfo').style.display='none';
   document.getElementById('refillSel').value='';
   await loadItems();populateSels();renderAddLow();
+  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
   }finally{
     done();
   }
@@ -2251,29 +2453,42 @@ async function doAddNew(btn){
   const category=document.getElementById('newCat').value;
   const unit=document.getElementById('newUnit').value.trim()||'шт';
   const quantity=parseFloat(document.getElementById('newQty').value)||0;
+  const purchasePrice=optionalPrice(document.getElementById('newPrice').value);
   const is_internal=document.getElementById('newInternal').checked;
   if(!name) return toast('Введіть назву товару!','error');
+  if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
   if(/^\d+([.,]\d+)?$/.test(unit)) return toast('"Одиниця" має бути словом (напр. "шт", "уп."), а не числом!','error');
   const done=setActionButtonLoading(btn,'Додаю...');
   if(!done) return;
   try{
-  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal}]).select().single();
+  const priceFields=purchasePrice===null?{}:{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()};
+  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
+  let priceHistorySaved=true;
   // записуємо початковий прихід якщо кількість > 0
   if(quantity>0 && newItem){
     try{
-      await db.from('inventory_receipts').insert([{
+      const receiptRow={
         item_id:newItem.id,
         item_name:name,
         quantity,
+        purchase_price_unit:purchasePrice,
         supplier:null,
         note:'Початковий залишок при додаванні товару'
-      }]);
+      };
+      let {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
+      if(receiptError&&isPurchasePriceSchemaError(receiptError)){
+        priceHistorySaved=false;
+        delete receiptRow.purchase_price_unit;
+        ({error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]));
+      }
+      if(receiptError) console.warn('receipt insert failed',receiptError);
     }catch(e){console.warn('receipt insert failed',e);}
   }
   toast('"'+name+'" додано!','success');
+  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
-  ['newName','newUnit','newQty'].forEach(k=>document.getElementById(k).value='');
+  ['newName','newUnit','newQty','newPrice'].forEach(k=>document.getElementById(k).value='');
   const matchesBox=document.getElementById('newNameMatches');
   if(matchesBox){matchesBox.style.display='none';matchesBox.innerHTML='';}
   document.getElementById('newInternal').checked=false;
@@ -2290,6 +2505,49 @@ function renderAddLow(){
     <span class="add-low-name">${escapeHtml(i.name||'—')}</span>
     <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
   </div>`).join('');
+}
+
+// ===== EDIT ITEM =====
+function openEditItem(id){
+  const item=findItemForAction(id,'редагування');
+  if(!item) return;
+  editItemId=Number(item.id);
+  document.getElementById('editItemName').value=item.name||'';
+  document.getElementById('editItemCategory').value=catBadge[item.category]?item.category:'Інше';
+  document.getElementById('editItemUnit').value=item.unit||'шт';
+  refreshEnhancedSelect(document.getElementById('editItemCategory'));
+  openModal('editItemModal');
+}
+async function confirmEditItem(button){
+  const item=findItemForAction(editItemId,'редагування');
+  if(!item) return closeModal('editItemModal');
+  const name=document.getElementById('editItemName').value.trim();
+  const category=document.getElementById('editItemCategory').value;
+  const unit=document.getElementById('editItemUnit').value.trim()||'шт';
+  if(!name) return toast('Введіть назву товару!','error');
+  if(name.length>160) return toast('Назва задовга — максимум 160 символів','error');
+  if(!catBadge[category]) return toast('Оберіть коректну категорію','error');
+  if(unit.length>24) return toast('Одиниця задовга — максимум 24 символи','error');
+  if(/^\d+([.,]\d+)?$/.test(unit)) return toast('Одиниця має бути словом, а не числом!','error');
+  const duplicate=allItems.find(candidate=>Number(candidate.id)!==Number(item.id)&&normalizeSearchText(candidate.name)===normalizeSearchText(name));
+  if(duplicate) return toast('Товар з такою назвою вже існує','error');
+  const done=setActionButtonLoading(button,'Зберігаю...');
+  if(!done) return;
+  try{
+    const {error}=await db.from('inventory_items').update({name,category,unit}).eq('id',item.id);
+    if(error) return toast('Не вдалося зберегти: '+error.message,'error');
+    editItemId=null;
+    closeModal('editItemModal');
+    await loadItems();
+    populateSels();
+    renderAddLow();
+    toast('Дані товару оновлено','success');
+  }catch(error){
+    console.error('item update failed',error);
+    toast('Не вдалося оновити товар','error');
+  }finally{
+    done();
+  }
 }
 
 // ===== DELETE =====
