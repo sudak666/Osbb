@@ -1853,7 +1853,13 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-panel journal-list-shell"',
     'class="garbage-chart flex items-end justify-between gap-1"',
     'class="journal-panel"',
-    'class="desktop-table print-card journal-table-shell overflow-hidden"',
+    'class="desktop-table print-card journal-table-shell"',
+    'class="journal-table"',
+    'class="journal-table-role is-electrician"',
+    'class="journal-loading-overlay no-print" role="status" aria-live="polite" aria-hidden="true"',
+    '.journal-loading-overlay.is-visible {',
+    "overlay.classList.toggle('is-visible', show);",
+    "overlay.setAttribute('aria-hidden', String(!show));",
     'class="journal-dashboard-panel"',
     'class="journal-stats-grid"',
     'class="stat-card journal-stat-card role-electrician',
@@ -1938,7 +1944,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-action-btn journal-action-btn-ghost md-state-layer"',
     'class="journal-action-btn journal-action-btn-danger md-state-layer"',
     'class="journal-inline-icon"',
-    '<span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Коментар</span>',
+    '<th class="journal-table-role is-comment no-print"><span class="mdi mdi-comment-outline journal-inline-icon" aria-hidden="true"></span>Коментар</th>',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {

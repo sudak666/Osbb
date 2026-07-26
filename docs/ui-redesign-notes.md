@@ -537,6 +537,10 @@ Verified via Playwright: near-top rows in both layouts now correctly get `.opens
 
 The chat section is now a fully class-based Material 3 surface: card, header, scroll area, composer, fields, send action, empty state, message rows, semantic avatars, bubbles, metadata, and delete action consume the shared color/shape/elevation/motion tokens. Dynamic ownership layout no longer uses inline style strings, and delete-action visibility is handled by CSS hover/focus states instead of attaching mouse listeners after every render. The dynamic delete id is escaped before insertion. A smoke guard prevents the old utility-heavy message shell and JS opacity handlers from returning.
 
+## OSBB journal table Material 3 cleanup (July 2026)
+
+The desktop journal table and its loading state now use dedicated class-based Material 3 primitives. Role headers use semantic role tokens and MDI icons instead of Tailwind color utilities and repeated inline SVG. The loading overlay consumes scrim, surface, shape, elevation, motion, and primary tokens; its visible state is a single `is-visible` class synchronized with `aria-hidden`. Smoke markers guard the new table and loading-state shell.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.
