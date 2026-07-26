@@ -2859,6 +2859,11 @@ ${sharedSelectText}`;
     'data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI"',
     'data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier"',
     'function setSupplierPreset(button)',
+    'function addCustomSupplierTag()',
+    'function renderCustomSupplierTags()',
+    "const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1'",
+    'data-sklad-action="supplier-tag-add"',
+    '.insight-grid .stat-card::before{display:none;}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (!migration.includes('add column if not exists purchase_price_unit numeric(12,2)') ||

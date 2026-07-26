@@ -377,7 +377,7 @@ async function checkPin(attempt){
             <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
           </div>
           <div><label>Ціна закупівлі за одиницю <span class="form-note">(необов'язково)</span></label><input type="number" class="inp" id="refillPriceI" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
-          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="refillSupplierI">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="refillSupplierI">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="refillSupplierI">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="refillSupplierI">Місцевий</button></div></div>
+          <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="refillSupplierI">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="refillSupplierI">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="refillSupplierI">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="refillSupplierI">Місцевий</button></div><div class="supplier-tag-create"><input type="text" class="inp" id="newSupplierTag" maxlength="40" placeholder="Новий тег постачальника"><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="supplier-tag-add"><span class="ms" aria-hidden="true">add</span> Додати тег</button></div></div>
           <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
           <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
         </div>
@@ -727,7 +727,7 @@ async function checkPin(attempt){
       <div>
         <label>Постачальник</label>
         <input type="text" class="inp" id="editReceiptSupplier">
-        <div class="supplier-tag-row" aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="editReceiptSupplier">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="editReceiptSupplier">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="editReceiptSupplier">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="editReceiptSupplier">Місцевий</button></div>
+        <div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="editReceiptSupplier">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="editReceiptSupplier">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="editReceiptSupplier">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="editReceiptSupplier">Місцевий</button></div>
       </div>
       <div>
         <label>Примітка</label>
@@ -850,6 +850,7 @@ Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Товари на складі'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Прихід товару'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
+const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
 function money(v){
   const n=Number(v);
   if(!isFinite(n)||n<=0) return '—';
@@ -1452,6 +1453,7 @@ function bindSkladStaticControls(){
     'qr-close':()=>{stopQR();closeModal('qrModal');},
     'price-fetch':fetchItemPrice,
     'manual-price-save':saveManualPrice,
+    'supplier-tag-add':addCustomSupplierTag,
     'lightbox-delete-photo':(button,event)=>deleteLightboxPhoto(event),
   };
   document.querySelectorAll('[data-sklad-action]').forEach(button=>{
@@ -1479,6 +1481,10 @@ function bindSkladStaticControls(){
   ['refillSupplierI','editReceiptSupplier'].forEach(id=>{
     document.getElementById(id)?.addEventListener('input',(event)=>syncSupplierTags(id,event.target.value));
   });
+  document.getElementById('newSupplierTag')?.addEventListener('keydown',(event)=>{
+    if(event.key==='Enter'){event.preventDefault();addCustomSupplierTag();}
+  });
+  renderCustomSupplierTags();
   document.querySelectorAll('[data-log-category-filter]').forEach(button=>{
     button.addEventListener('click',()=>filterLogCat(button,button.dataset.logCategoryFilter));
   });
@@ -1524,6 +1530,74 @@ function syncSupplierTags(targetId,value){
     tag.classList.toggle('active',selected);
     tag.setAttribute('aria-pressed',String(selected));
   });
+}
+function loadCustomSupplierTags(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(SUPPLIER_TAGS_STORAGE_KEY)||'[]');
+    return Array.isArray(parsed)?parsed.filter(tag=>typeof tag==='string'&&tag.trim()).slice(0,12):[];
+  }catch(error){
+    console.warn('supplier tags load failed',error);
+    return [];
+  }
+}
+function saveCustomSupplierTags(tags){
+  try{
+    localStorage.setItem(SUPPLIER_TAGS_STORAGE_KEY,JSON.stringify(tags));
+    return true;
+  }catch(error){
+    console.warn('supplier tags save failed',error);
+    toast('Не вдалося зберегти тег у цьому браузері','error');
+    return false;
+  }
+}
+function renderCustomSupplierTags(){
+  const tags=loadCustomSupplierTags();
+  document.querySelectorAll('[data-supplier-tags]').forEach(row=>{
+    row.querySelectorAll('[data-custom-supplier-tag]').forEach(node=>node.remove());
+    const targetId=row.querySelector('[data-supplier-target]')?.dataset.supplierTarget;
+    if(!targetId) return;
+    tags.forEach(tag=>{
+      const group=document.createElement('span');
+      group.className='supplier-custom-tag';
+      group.dataset.customSupplierTag=tag;
+      const select=document.createElement('button');
+      select.type='button';
+      select.className='supplier-tag';
+      select.dataset.supplierPreset=tag;
+      select.dataset.supplierTarget=targetId;
+      select.textContent=tag;
+      select.addEventListener('click',()=>setSupplierPreset(select));
+      const remove=document.createElement('button');
+      remove.type='button';
+      remove.className='supplier-tag-remove';
+      remove.setAttribute('aria-label',`Видалити тег ${tag}`);
+      remove.innerHTML='<span class="ms" aria-hidden="true">close</span>';
+      remove.addEventListener('click',()=>removeCustomSupplierTag(tag));
+      group.append(select,remove);
+      row.append(group);
+    });
+    syncSupplierTags(targetId,document.getElementById(targetId)?.value||'');
+  });
+}
+function addCustomSupplierTag(){
+  const input=document.getElementById('newSupplierTag');
+  const tag=String(input?.value||'').trim().replace(/\s+/g,' ');
+  if(!tag) return toast('Введіть назву постачальника','error');
+  const tags=loadCustomSupplierTags();
+  const known=[...document.querySelectorAll('[data-supplier-preset]')].map(button=>String(button.dataset.supplierPreset||'').toLocaleLowerCase('uk-UA'));
+  if(known.includes(tag.toLocaleLowerCase('uk-UA'))) return toast('Такий тег уже є','info');
+  if(tags.length>=12) return toast('Можна зберегти до 12 власних тегів','info');
+  if(!saveCustomSupplierTags([...tags,tag])) return;
+  input.value='';
+  renderCustomSupplierTags();
+  const created=[...document.querySelectorAll('[data-supplier-target="refillSupplierI"][data-supplier-preset]')]
+    .find(button=>button.dataset.supplierPreset===tag);
+  if(created) setSupplierPreset(created);
+  toast('Тег постачальника додано','success');
+}
+function removeCustomSupplierTag(tag){
+  const tags=loadCustomSupplierTags().filter(saved=>saved!==tag);
+  if(saveCustomSupplierTags(tags)) renderCustomSupplierTags();
 }
 
 function handleItemActionClick(event){
