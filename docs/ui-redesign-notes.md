@@ -533,6 +533,10 @@ Fix: added `positionItemMenu(menu)`, called from the existing `handleItemMenuTog
 
 Verified via Playwright: near-top rows in both layouts now correctly get `.opens-down` and render cleanly anchored below their trigger with zero overlap; a middle/bottom row still opens upward with no `.opens-down` class, confirming no regression to the original working case. 175/175 smoke checks, tag balance, and inline-script syntax also re-checked.
 
+## OSBB chat Material 3 cleanup (July 2026)
+
+The chat section is now a fully class-based Material 3 surface: card, header, scroll area, composer, fields, send action, empty state, message rows, semantic avatars, bubbles, metadata, and delete action consume the shared color/shape/elevation/motion tokens. Dynamic ownership layout no longer uses inline style strings, and delete-action visibility is handled by CSS hover/focus states instead of attaching mouse listeners after every render. The dynamic delete id is escaped before insertion. A smoke guard prevents the old utility-heavy message shell and JS opacity handlers from returning.
+
 ## Guardrails for future sessions
 
 - When a `<style>` block is "extracted" to an external file, immediately grep the entrypoint HTML for `href="styles.css"` and confirm the inline `<style>` tag is actually gone — don't just trust the previous session's notes. This exact regression (link missing, inline block silently reintroduced, two files diverging) is what the section above describes.
