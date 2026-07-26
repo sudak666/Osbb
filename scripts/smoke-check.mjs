@@ -2950,6 +2950,31 @@ ${sharedSelectText}`;
   }
 }
 
+// Основні порожні списки використовують єдиний M3 empty state, а назви та
+// підказки проходять escapeHtml перед вставкою в DOM.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad list empty states use safe Material 3 structure';
+  const required = [
+    "const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history'])",
+    'function emptyState(icon,title,supportingText=',
+    'class="empty md-empty-state"',
+    'class="ms md-empty-state-icon"',
+    'class="md-empty-state-title"',
+    'escapeHtml(supportingText)',
+    "emptyState('history','Видач ще не було'",
+    "emptyState('inbox','Приходів ще не було'",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
