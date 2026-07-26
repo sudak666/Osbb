@@ -2788,6 +2788,50 @@ ${sharedSelectText}`;
   }
 }
 
+// Inventory cards are an alternative mobile representation of the desktop
+// table and must never render alongside it on a wide viewport.
+{
+  const css = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad inventory cards stay hidden on desktop and appear on mobile';
+  const desktopRule = '.mobile-cards{display:none;}';
+  const mobileRule = '.mobile-cards{display:block!important;}';
+  const mobileSectionIndex = css.indexOf('/* ===MOBILE === */');
+  const desktopIndex = css.indexOf(desktopRule);
+  const mobileMediaIndex = css.indexOf('@media(max-width:768px)', mobileSectionIndex);
+  const mobileIndex = css.indexOf(mobileRule, mobileMediaIndex);
+  if (mobileSectionIndex < 0 || desktopIndex < mobileSectionIndex || mobileMediaIndex < 0 || mobileIndex < mobileMediaIndex || desktopIndex > mobileMediaIndex) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Existing inventory items expose the same safe metadata editor from both
+// desktop and mobile menus without changing stock or movement history.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad inventory items can edit validated metadata';
+  const required = [
+    'id="editItemModal" data-modal-backdrop="editItemModal"',
+    'data-item-action="edit" data-item-id="${id}"',
+    "case 'edit': openEditItem(id); break;",
+    "async function confirmEditItem(button)",
+    ".update({name,category,unit}).eq('id',item.id)",
+    "normalizeSearchText(candidate.name)===normalizeSearchText(name)",
+    "'edit-item-confirm':(button)=>confirmEditItem(button)",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
