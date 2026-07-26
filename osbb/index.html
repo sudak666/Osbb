@@ -282,6 +282,8 @@
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="today">Сьогодні</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="current_week">Цей тиждень</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="has_work">Є роботи</button>
+            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="pending">Незавершені</button>
+            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="completed">Виконані</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="electrician">Електрик</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="janitor">Двірник</button>
             <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="plumber">Сантехнік</button>
@@ -1398,6 +1400,8 @@
         if (journalEntranceFilter !== 'all' && !selectedEntrances.includes(journalEntranceFilter)) return false;
         const hasWork = workingRoles.length > 0 || roles.some(role => Number(row[role]?.ticketCount) > 0 || Object.values(row[role]?.tasks || {}).some(Boolean) || String(row[role]?.other || '').trim()) || Boolean(String(row.comment || '').trim());
         if (journalWorkFilter === 'has_work' && !hasWork) return false;
+        if (journalWorkFilter === 'pending' && !workingRoles.some(role => roleTasksConfig[role].some(task => !row[role]?.tasks?.[task.id]))) return false;
+        if (journalWorkFilter === 'completed' && !workingRoles.some(role => roleTasksConfig[role].length > 0 && roleTasksConfig[role].every(task => row[role]?.tasks?.[task.id]))) return false;
         if (roles.includes(journalWorkFilter) && !row[journalWorkFilter]?.working) return false;
         const query = journalWorkSearch.trim().toLocaleLowerCase('uk-UA');
         if (!query) return true;
@@ -1471,6 +1475,11 @@
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
             const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
+            const pendingDuties = roles.reduce((total, role) => {
+                const state = currentMonthData[d][role];
+                if (!state?.working) return total;
+                return total + roleTasksConfig[role].filter(task => !state.tasks?.[task.id]).length;
+            }, 0);
             const matchesWorkFilter = journalDayMatches(d);
             if (matchesWorkFilter) visibleDays++;
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
@@ -1479,13 +1488,14 @@
             const cell = document.createElement('button');
             cell.type = 'button';
             cell.className = 'month-grid-cell journal-work-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (anyWorking ? ' has-shifts' : '') + (matchesWorkFilter ? '' : ' is-dimmed');
-            cell.setAttribute('aria-label', `${d} ${dowLabel}${anyWorking ? ', є зміни' : ', вихідний'} — відкрити день`);
+            cell.setAttribute('aria-label', `${d} ${dowLabel}${anyWorking ? ', є зміни' : ', вихідний'}${pendingDuties ? `, незавершено обовʼязків: ${pendingDuties}` : ''} — відкрити день`);
             cell.setAttribute('aria-haspopup', 'dialog');
 
             const dotsHtml = roles.filter(r => currentMonthData[d][r]?.working)
                 .map(r => `<span class="month-grid-dot month-grid-dot-${r}"></span>`).join('');
 
-            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${dotsHtml}</span>`;
+            const pendingBadge = pendingDuties ? `<span class="journal-grid-pending-badge" aria-hidden="true">${pendingDuties}</span>` : '';
+            cell.innerHTML = `<span class="month-grid-day">${d}</span>${pendingBadge}<span class="month-grid-dots">${dotsHtml}</span>`;
             cell.addEventListener('click', () => openDayDetail(d));
             grid.appendChild(cell);
         }
