@@ -48,6 +48,11 @@ export interface Database {
                 note: string | null;
                 received_at: Timestamp;
             }>;
+            inventory_supplier_tags: RowOperation<{
+                id: BigIntId;
+                name: string;
+                created_at: Timestamp;
+            }>;
             inventory_audits: RowOperation<{
                 id: BigIntId;
                 created_at: Timestamp;

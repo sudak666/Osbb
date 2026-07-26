@@ -2864,6 +2864,11 @@ ${sharedSelectText}`;
     "const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1'",
     'data-sklad-action="supplier-tag-add"',
     '.insight-grid .stat-card::before{display:none;}',
+    'id="newItemSupplier"',
+    'id="supplierTagDeleteModal"',
+    'function requestRemoveCustomSupplierTag(tag)',
+    "db.from('inventory_supplier_tags').select('name')",
+    "table:'inventory_supplier_tags'",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (!migration.includes('add column if not exists purchase_price_unit numeric(12,2)') ||
@@ -2872,6 +2877,30 @@ ${sharedSelectText}`;
       !types.includes('purchase_price_unit: number | null;') || missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Користувацькі постачальники синхронізуються через Supabase, а картки
+// журналу використовують тональні поверхні без декоративних верхніх смуг.
+{
+  const supplierMigration = readFileSync('sklad/supabase/010_add_supplier_tags.sql', 'utf8');
+  const journalCss = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'supplier tags sync across devices and journal cards have no color strips';
+  const required = [
+    'create table if not exists inventory_supplier_tags',
+    "alter publication supabase_realtime add table inventory_supplier_tags",
+    '.journal-stat-card { --role-accent:var(--accent);',
+    'color-mix(in srgb,var(--role-accent) 6%,var(--surface-1))',
+  ];
+  const combined = supplierMigration + '\n' + journalCss;
+  const missing = required.filter(needle => !combined.includes(needle));
+  const hasOldStrip = /\.journal-stat-card\.role-[^{]+\{[^}]*border-top:\s*3px/.test(journalCss);
+  if (missing.length || hasOldStrip) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; old strip: ${hasOldStrip})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);

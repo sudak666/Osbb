@@ -393,6 +393,7 @@ async function checkPin(attempt){
               <div><label>Початкова к-сть</label><input type="number" class="inp" id="newQty" min="0" step="0.1" placeholder="0"></div>
               <div><label>Ціна закупівлі / од.</label><input type="number" class="inp" id="newPrice" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
             </div>
+            <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="newItemSupplier" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="newItemSupplier">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="newItemSupplier">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="newItemSupplier">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="newItemSupplier">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="newItemSupplier">Місцевий</button></div></div>
             <label class="internal-use-toggle">
               <input type="checkbox" id="newInternal">
               <span>Внутрішнє використання (хознужди) — товар лишається на складі, але не входить у баланс видаткових товарів</span>
@@ -564,6 +565,19 @@ async function checkPin(attempt){
     <div class="photo-modal-actions">
       <button type="button" class="btn btn-danger btn-sm photo-delete-btn" id="delPhotoBtn" data-sklad-action="photo-delete"><span class="ms" aria-hidden="true">delete</span> Видалити фото</button>
       <button type="button" class="btn btn-ghost btn-sm" data-modal-close="photoModal">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM SUPPLIER TAG DELETE -->
+<div class="modal-bg" id="supplierTagDeleteModal" data-modal-backdrop="supplierTagDeleteModal">
+  <div class="modal confirm-modal" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="supplierTagDeleteTitle">
+    <h3 class="confirm-title is-danger" id="supplierTagDeleteTitle"><span class="ms" aria-hidden="true">delete</span> Видалити тег?</h3>
+    <p id="supplierTagDeleteName" class="confirm-target"></p>
+    <p class="confirm-copy">Тег зникне зі швидкого вибору на всіх синхронізованих пристроях.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close="supplierTagDeleteModal">Скасувати</button>
+      <button type="button" class="btn btn-danger" data-sklad-action="supplier-tag-delete-confirm"><span class="ms" aria-hidden="true">delete</span> Видалити</button>
     </div>
   </div>
 </div>
@@ -837,7 +851,7 @@ async function checkPin(attempt){
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='';
+let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
@@ -1151,6 +1165,7 @@ function initRealtime(){
       .on('postgres_changes',{event:'*',schema:'public',table:'inventory_items'},()=>realtimeSafeReload(loadItems))
       .on('postgres_changes',{event:'*',schema:'public',table:'inventory_logs'},()=>realtimeSafeReload(loadLogs))
       .on('postgres_changes',{event:'*',schema:'public',table:'inventory_receipts'},()=>realtimeSafeReload(loadReceipts))
+      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_supplier_tags'},()=>realtimeSafeReload(loadSupplierTagsCloud))
       .subscribe();
   }catch(e){ console.warn('sklad realtime init failed:',e); }
 }
@@ -1454,6 +1469,7 @@ function bindSkladStaticControls(){
     'price-fetch':fetchItemPrice,
     'manual-price-save':saveManualPrice,
     'supplier-tag-add':addCustomSupplierTag,
+    'supplier-tag-delete-confirm':confirmRemoveCustomSupplierTag,
     'lightbox-delete-photo':(button,event)=>deleteLightboxPhoto(event),
   };
   document.querySelectorAll('[data-sklad-action]').forEach(button=>{
@@ -1478,7 +1494,7 @@ function bindSkladStaticControls(){
   document.querySelectorAll('[data-supplier-preset]').forEach(button=>{
     button.addEventListener('click',()=>setSupplierPreset(button));
   });
-  ['refillSupplierI','editReceiptSupplier'].forEach(id=>{
+  ['refillSupplierI','editReceiptSupplier','newItemSupplier'].forEach(id=>{
     document.getElementById(id)?.addEventListener('input',(event)=>syncSupplierTags(id,event.target.value));
   });
   document.getElementById('newSupplierTag')?.addEventListener('keydown',(event)=>{
@@ -1534,11 +1550,35 @@ function syncSupplierTags(targetId,value){
 function loadCustomSupplierTags(){
   try{
     const parsed=JSON.parse(localStorage.getItem(SUPPLIER_TAGS_STORAGE_KEY)||'[]');
-    return Array.isArray(parsed)?parsed.filter(tag=>typeof tag==='string'&&tag.trim()).slice(0,12):[];
+    const local=Array.isArray(parsed)?parsed.filter(tag=>typeof tag==='string'&&tag.trim()):[];
+    return [...new Set([...cloudSupplierTags,...local])].slice(0,12);
   }catch(error){
     console.warn('supplier tags load failed',error);
     return [];
   }
+}
+async function loadSupplierTagsCloud(){
+  const {data,error}=await db.from('inventory_supplier_tags').select('name').order('name').limit(50);
+  if(error){
+    supplierTagsCloudAvailable=false;
+    console.info('Cloud supplier tags are unavailable; local tags remain active.');
+    renderCustomSupplierTags();
+    return;
+  }
+  supplierTagsCloudAvailable=true;
+  const localTags=loadCustomSupplierTags();
+  const remoteTags=(data||[]).map(row=>String(row.name||'').trim()).filter(Boolean);
+  const remoteNormalized=new Set(remoteTags.map(tag=>tag.toLocaleLowerCase('uk-UA')));
+  const missingRemote=localTags.filter(tag=>!remoteNormalized.has(tag.toLocaleLowerCase('uk-UA')));
+  if(missingRemote.length){
+    const {error:syncError}=await db.from('inventory_supplier_tags').insert(missingRemote.map(name=>({name})));
+    if(syncError) console.warn('supplier tags cloud merge failed',syncError);
+    else remoteTags.push(...missingRemote);
+  }
+  cloudSupplierTags=remoteTags;
+  const merged=loadCustomSupplierTags();
+  saveCustomSupplierTags(merged);
+  renderCustomSupplierTags();
 }
 function saveCustomSupplierTags(tags){
   try{
@@ -1572,14 +1612,14 @@ function renderCustomSupplierTags(){
       remove.className='supplier-tag-remove';
       remove.setAttribute('aria-label',`Видалити тег ${tag}`);
       remove.innerHTML='<span class="ms" aria-hidden="true">close</span>';
-      remove.addEventListener('click',()=>removeCustomSupplierTag(tag));
+      remove.addEventListener('click',()=>requestRemoveCustomSupplierTag(tag));
       group.append(select,remove);
       row.append(group);
     });
     syncSupplierTags(targetId,document.getElementById(targetId)?.value||'');
   });
 }
-function addCustomSupplierTag(){
+async function addCustomSupplierTag(){
   const input=document.getElementById('newSupplierTag');
   const tag=String(input?.value||'').trim().replace(/\s+/g,' ');
   if(!tag) return toast('Введіть назву постачальника','error');
@@ -1588,6 +1628,13 @@ function addCustomSupplierTag(){
   if(known.includes(tag.toLocaleLowerCase('uk-UA'))) return toast('Такий тег уже є','info');
   if(tags.length>=12) return toast('Можна зберегти до 12 власних тегів','info');
   if(!saveCustomSupplierTags([...tags,tag])) return;
+  if(supplierTagsCloudAvailable){
+    const {error}=await db.from('inventory_supplier_tags').insert([{name:tag}]);
+    if(error){
+      console.warn('supplier tag cloud save failed',error);
+      toast('Тег збережено на цьому пристрої, синхронізація недоступна','info');
+    }else cloudSupplierTags=[...new Set([...cloudSupplierTags,tag])];
+  }
   input.value='';
   renderCustomSupplierTags();
   const created=[...document.querySelectorAll('[data-supplier-target="refillSupplierI"][data-supplier-preset]')]
@@ -1595,9 +1642,25 @@ function addCustomSupplierTag(){
   if(created) setSupplierPreset(created);
   toast('Тег постачальника додано','success');
 }
-function removeCustomSupplierTag(tag){
+function requestRemoveCustomSupplierTag(tag){
+  pendingSupplierTagDelete=tag;
+  document.getElementById('supplierTagDeleteName').textContent=`«${tag}»`;
+  openModal('supplierTagDeleteModal');
+}
+async function confirmRemoveCustomSupplierTag(){
+  const tag=pendingSupplierTagDelete;
+  if(!tag) return closeModal('supplierTagDeleteModal');
+  if(supplierTagsCloudAvailable){
+    const {error}=await db.from('inventory_supplier_tags').delete().eq('name',tag);
+    if(error) return toast('Не вдалося видалити тег: '+error.message,'error');
+  }
+  cloudSupplierTags=cloudSupplierTags.filter(saved=>saved!==tag);
   const tags=loadCustomSupplierTags().filter(saved=>saved!==tag);
-  if(saveCustomSupplierTags(tags)) renderCustomSupplierTags();
+  if(!saveCustomSupplierTags(tags)) return;
+  pendingSupplierTagDelete=null;
+  closeModal('supplierTagDeleteModal');
+  renderCustomSupplierTags();
+  toast('Тег видалено','success');
 }
 
 function handleItemActionClick(event){
@@ -2454,6 +2517,7 @@ async function doAddNew(btn){
   const unit=document.getElementById('newUnit').value.trim()||'шт';
   const quantity=parseFloat(document.getElementById('newQty').value)||0;
   const purchasePrice=optionalPrice(document.getElementById('newPrice').value);
+  const supplier=document.getElementById('newItemSupplier').value.trim();
   const is_internal=document.getElementById('newInternal').checked;
   if(!name) return toast('Введіть назву товару!','error');
   if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
@@ -2473,7 +2537,7 @@ async function doAddNew(btn){
         item_name:name,
         quantity,
         purchase_price_unit:purchasePrice,
-        supplier:null,
+        supplier:supplier||null,
         note:'Початковий залишок при додаванні товару'
       };
       let {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
@@ -2488,7 +2552,8 @@ async function doAddNew(btn){
   toast('"'+name+'" додано!','success');
   if(!priceHistorySaved) showPurchasePriceMigrationNotice();
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
-  ['newName','newUnit','newQty','newPrice'].forEach(k=>document.getElementById(k).value='');
+  ['newName','newUnit','newQty','newPrice','newItemSupplier'].forEach(k=>document.getElementById(k).value='');
+  syncSupplierTags('newItemSupplier','');
   const matchesBox=document.getElementById('newNameMatches');
   if(matchesBox){matchesBox.style.display='none';matchesBox.innerHTML='';}
   document.getElementById('newInternal').checked=false;
@@ -3311,6 +3376,7 @@ loadItems()
     console.warn('initial sklad load failed:',e);
     setRefreshStatus('ready','Помилка завантаження');
   });
+loadSupplierTagsCloud().catch(error=>console.warn('supplier tags initial sync failed:',error));
 initRealtime();
 </script>
 

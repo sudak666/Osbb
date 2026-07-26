@@ -71,15 +71,15 @@ body.theme-dark { background: radial-gradient(circle at 0% 0%, color-mix(in srgb
 .journal-dashboard-panel { padding:22px; border:1px solid var(--border-subtle); background:linear-gradient(180deg,var(--surface-1),var(--surface-2)); border-radius:var(--radius-xl); box-shadow:var(--shadow-sm); margin-bottom:1.5rem; }
 .journal-section-title { display:inline-flex; align-items:center; gap:6px; color:var(--text-sub); font-size:11px; font-weight:850; text-transform:uppercase; letter-spacing:.11em; margin-bottom:12px; }
 .journal-stats-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:22px; }
-.journal-stat-card { border-radius:var(--md-sys-shape-corner-large, 20px)!important; border:1px solid var(--border-subtle)!important; background:var(--surface-1)!important; box-shadow:var(--md-sys-elevation-level1, var(--shadow-sm))!important; }
-.journal-stat-card.role-electrician { border-top:3px solid var(--md-ref-role-electrician, #f59e0b)!important; }
-.journal-stat-card.role-janitor { border-top:3px solid var(--md-ref-role-janitor, #10b981)!important; }
-.journal-stat-card.role-plumber { border-top:3px solid var(--md-ref-role-plumber, #3b82f6)!important; }
-.journal-stat-card.role-dispatcher { border-top:3px solid var(--md-ref-role-dispatcher, #8b5cf6)!important; }
-.journal-stat-card.role-garbage { border-top:3px solid var(--accent)!important; }
-.journal-stat-card.role-info { border-top:3px solid var(--md-ref-role-plumber, #3b82f6)!important; }
-.journal-stat-card.role-plastic { border-top:3px solid var(--md-sys-color-tertiary, #f59e0b)!important; }
-.journal-stat-card.role-glass { border-top:3px solid var(--md-sys-color-secondary, #3b82f6)!important; }
+.journal-stat-card { --role-accent:var(--accent); border-radius:var(--md-sys-shape-corner-large, 20px)!important; border:1px solid var(--border-subtle)!important; background:linear-gradient(135deg,color-mix(in srgb,var(--role-accent) 6%,var(--surface-1)),var(--surface-1) 54%,var(--surface-2))!important; box-shadow:var(--md-sys-elevation-level1, var(--shadow-sm))!important; }
+.journal-stat-card.role-electrician { --role-accent:var(--md-ref-role-electrician, #f59e0b); }
+.journal-stat-card.role-janitor { --role-accent:var(--md-ref-role-janitor, #10b981); }
+.journal-stat-card.role-plumber { --role-accent:var(--md-ref-role-plumber, #3b82f6); }
+.journal-stat-card.role-dispatcher { --role-accent:var(--md-ref-role-dispatcher, #8b5cf6); }
+.journal-stat-card.role-garbage { --role-accent:var(--accent); }
+.journal-stat-card.role-info { --role-accent:var(--md-ref-role-plumber, #3b82f6); }
+.journal-stat-card.role-plastic { --role-accent:var(--md-sys-color-tertiary, #f59e0b); }
+.journal-stat-card.role-glass { --role-accent:var(--md-sys-color-secondary, #3b82f6); }
 .journal-role-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:12px; padding-top:10px; border-top:1px solid var(--border-subtle); }
 .journal-role-metrics span { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; line-height:1.25; font-weight:700; }
 .journal-role-metrics strong { display:block; margin-bottom:2px; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:18px; font-variant-numeric:tabular-nums; }

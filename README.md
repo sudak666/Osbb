@@ -17,7 +17,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `009_add_receipt_purchase_price.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `010_add_supplier_tags.sql`). |
 | `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
 | `sklad/supabase/functions/fetch-item-prices` | Supabase Edge Function для пошуку орієнтовних цін товарів складу в інтернеті без розкриття API-ключів у фронтенді. |
 
@@ -54,6 +54,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 7. `007_enable_realtime.sql` — вмикає Supabase Realtime (`postgres_changes`) на робочих таблицях журналу й складу.
 8. `008_document_undocumented_functions.sql` — документує RPC (`delete_inventory_item`/-`log`/-`receipt`) і Telegram-тригери (`trg_notify_low_stock`/-`log`/-`receipt`), які вже існували в живій базі без SQL-файлу; прибирає мертву таблицю `inventory` (не плутати з `inventory_items`) і переносить розширення `pg_net` зі схеми `public` у `extensions`.
 9. `009_add_receipt_purchase_price.sql` — додає ціну закупівлі до історії приходів та атомарно оновлює поточну ціну товару під час поповнення.
+10. `010_add_supplier_tags.sql` — синхронізує власні теги постачальників між комп’ютером і мобільними пристроями.
 
 `supabase/migrations/` тепер містить timestamp-дзеркала цих самих `001_...` → `008_...` SQL-файлів у форматі Supabase CLI. Поки історичні файли в `sklad/supabase/` лишаються основним людським джерелом правди, `npm run test:migrations` перевіряє, що CLI-міграції не роз'їхались із ними. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта. Коли проєкт повністю перейде на Supabase CLI, нові зміни БД треба додавати одразу як нові timestamp-файли в `supabase/migrations/`, а функції — у `supabase/functions/`, а не як ручні snippets.
 
