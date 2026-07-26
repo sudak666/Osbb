@@ -2395,9 +2395,8 @@ ${sharedSelectText}`;
 }
 
 
-// Mobile item overflow menus must stay inside the usable viewport. This guards
-// the positioning logic that accounts for the sticky filter toolbar, floating
-// bottom nav, and viewport changes on mobile browsers.
+// Item overflow menus must stay inside the usable viewport. This guards the
+// fixed positioning and scrollable-height calculation near every screen edge.
 {
   const text = readSkladCombined();
   const label = 'sklad item menus account for mobile viewport boundaries';
@@ -2405,9 +2404,10 @@ ${sharedSelectText}`;
     "const bottomNav=document.querySelector('.bottom-nav')",
     "getComputedStyle(bottomNav).display!=='none'",
     'bottomNav.getBoundingClientRect().top',
-    'const spaceAbove=Math.max(0,summaryRect.top-topBoundary-12)',
-    'const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-12)',
-    "panel.style.maxHeight=Math.max(160,Math.min(360,available))+'px'",
+    'const spaceAbove=Math.max(0,summaryRect.top-topBoundary-8)',
+    'const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-8)',
+    "panel.classList.add('is-viewport-positioned')",
+    "panel.style.maxHeight=visibleHeight+'px'",
     'function repositionOpenItemMenus',
     'itemMenuRepositionFrame=requestAnimationFrame',
     "document.addEventListener('scroll',repositionOpenItemMenus,{passive:true,capture:true})",
@@ -2772,6 +2772,8 @@ ${sharedSelectText}`;
     '<details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false">',
     '.table-modern{overflow:visible;}',
     '.table-modern thead tr:first-child th:first-child{border-top-left-radius:var(--radius-xl);}',
+    '.item-more-menu.is-viewport-positioned{position:fixed;right:auto;bottom:auto;}',
+    "panel.style.maxHeight=visibleHeight+'px';",
   ];
   const forbidden = [
     'class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"',
@@ -2782,6 +2784,123 @@ ${sharedSelectText}`;
   if (missing.length || present.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Inventory cards are an alternative mobile representation of the desktop
+// table and must never render alongside it on a wide viewport.
+{
+  const css = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad inventory cards stay hidden on desktop and appear on mobile';
+  const desktopRule = '.mobile-cards{display:none;}';
+  const mobileRule = '.mobile-cards{display:block!important;}';
+  const mobileSectionIndex = css.indexOf('/* ===MOBILE === */');
+  const desktopIndex = css.indexOf(desktopRule);
+  const mobileMediaIndex = css.indexOf('@media(max-width:768px)', mobileSectionIndex);
+  const mobileIndex = css.indexOf(mobileRule, mobileMediaIndex);
+  if (mobileSectionIndex < 0 || desktopIndex < mobileSectionIndex || mobileMediaIndex < 0 || mobileIndex < mobileMediaIndex || desktopIndex > mobileMediaIndex) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Existing inventory items expose the same safe metadata editor from both
+// desktop and mobile menus without changing stock or movement history.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad inventory items can edit validated metadata';
+  const required = [
+    'id="editItemModal" data-modal-backdrop="editItemModal"',
+    'data-item-action="edit" data-item-id="${id}"',
+    "case 'edit': openEditItem(id); break;",
+    "async function confirmEditItem(button)",
+    ".update({name,category,unit}).eq('id',item.id)",
+    "normalizeSearchText(candidate.name)===normalizeSearchText(name)",
+    "'edit-item-confirm':(button)=>confirmEditItem(button)",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Purchase prices can be captured when creating or receiving stock and remain
+// visible/editable on the receipt that established the current item price.
+{
+  const text = readSkladCombined();
+  const migration = readFileSync('sklad/supabase/009_add_receipt_purchase_price.sql', 'utf8');
+  const types = readFileSync('src/database.types.ts', 'utf8');
+  const label = 'sklad captures purchase prices for new items and receipts';
+  const required = [
+    'id="newPrice" min="0.01" step="0.01"',
+    'id="refillPriceI" min="0.01" step="0.01"',
+    'id="editReceiptPrice" min="0.01" step="0.01"',
+    'p_price_unit:purchasePrice',
+    'purchase_price_unit:purchasePrice',
+    '<th>Ціна закупівлі</th>',
+    'money(hasReceiptPrice?r.purchase_price_unit:item?.price_unit)',
+    'hasReceiptPrice?r.purchase_price_unit:item?.price_unit',
+    'class="price-origin-note">поточна</span>',
+    "r.purchase_price_unit||item?.price_unit||''",
+    'function isPurchasePriceSchemaError(error)',
+    "showPurchasePriceMigrationNotice()",
+    "console.info('Історія закупівельних цін стане доступною після міграції 009.')",
+    "delete receiptRow.purchase_price_unit",
+    'data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI"',
+    'data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier"',
+    'function setSupplierPreset(button)',
+    'function addCustomSupplierTag()',
+    'function renderCustomSupplierTags()',
+    "const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1'",
+    'data-sklad-action="supplier-tag-add"',
+    '.insight-grid .stat-card::before{display:none;}',
+    'id="newItemSupplier"',
+    'id="supplierTagDeleteModal"',
+    'function requestRemoveCustomSupplierTag(tag)',
+    "db.from('inventory_supplier_tags').select('name')",
+    "table:'inventory_supplier_tags'",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (!migration.includes('add column if not exists purchase_price_unit numeric(12,2)') ||
+      !migration.includes('p_price_unit numeric default null') ||
+      !migration.includes("notify pgrst, 'reload schema'") ||
+      !types.includes('purchase_price_unit: number | null;') || missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Користувацькі постачальники синхронізуються через Supabase, а картки
+// журналу використовують тональні поверхні без декоративних верхніх смуг.
+{
+  const supplierMigration = readFileSync('sklad/supabase/010_add_supplier_tags.sql', 'utf8');
+  const journalCss = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'supplier tags sync across devices and journal cards have no color strips';
+  const required = [
+    'create table if not exists inventory_supplier_tags',
+    "alter publication supabase_realtime add table inventory_supplier_tags",
+    '.journal-stat-card { --role-accent:var(--accent);',
+    'color-mix(in srgb,var(--role-accent) 6%,var(--surface-1))',
+  ];
+  const combined = supplierMigration + '\n' + journalCss;
+  const missing = required.filter(needle => !combined.includes(needle));
+  const hasOldStrip = /\.journal-stat-card\.role-[^{]+\{[^}]*border-top:\s*3px/.test(journalCss);
+  if (missing.length || hasOldStrip) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; old strip: ${hasOldStrip})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
