@@ -208,8 +208,7 @@ async function checkPin(attempt){
   </div>
   <nav aria-label="Розділи складу">
     <button type="button" class="ni active" data-page="items" aria-current="page">
-      <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Товари</span>
-      <span class="ni-badge" id="sb-alert" style="display:none">!</span>
+      <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Запаси</span>
     </button>
     <button type="button" class="ni" data-page="issue"><span class="ni-icon"><span class="ms" aria-hidden="true">output</span></span><span class="nav-label">Видача</span></button>
     <button type="button" class="ni" data-page="log"><span class="ni-icon"><span class="ms" aria-hidden="true">receipt_long</span></span><span class="nav-label">Журнал</span></button>
@@ -227,7 +226,7 @@ async function checkPin(attempt){
     <span id="pullRefreshLabel" class="pull-refresh-label"></span>
   </div>
   <div class="topbar">
-    <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Товари на складі</h2>
+    <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Майно та матеріали</h2>
     <div class="topbar-actions">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
       <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr" data-tip="Сканер" aria-label="Сканер штрих-коду"><span class="ms" aria-hidden="true">barcode_scanner</span></button>
@@ -241,7 +240,7 @@ async function checkPin(attempt){
         <div class="item-more-menu" role="menu">
           <button type="button" role="menuitem" data-sklad-action="chart"><span class="ms" aria-hidden="true">bar_chart</span> Графік</button>
           <button type="button" role="menuitem" data-sklad-action="price-refresh"><span class="ms" aria-hidden="true">sell</span> Оцінка цін</button>
-          <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Прихід товару</button>
+          <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Надходження</button>
           <button type="button" role="menuitem" data-sklad-action="theme"><span class="ms" id="themeToggleIcon" aria-hidden="true">dark_mode</span> Тема</button>
         </div>
       </details>
@@ -253,8 +252,8 @@ async function checkPin(attempt){
     <section class="items-hero" aria-labelledby="itemsHeroTitle">
       <div>
         <div class="items-hero-kicker"><span class="ms category-pill-icon" aria-hidden="true">auto_awesome</span> Операційний центр складу</div>
-        <h1 class="items-hero-title" id="itemsHeroTitle">Товари на складі</h1>
-        <div class="items-hero-copy">Залишки, пошук і основні дії в одному місці.</div>
+        <h1 class="items-hero-title" id="itemsHeroTitle">Майно та матеріали</h1>
+        <div class="items-hero-copy">Найменування, кількість і вартість складських запасів.</div>
       </div>
       <div class="items-hero-actions" aria-label="Швидкі дії складу">
         <button type="button" class="btn btn-primary btn-sm items-hero-action" data-sklad-page="issue"><span class="ms hero-action-icon" aria-hidden="true">output</span><span class="btn-label">Видати</span></button>
@@ -262,12 +261,10 @@ async function checkPin(attempt){
         <div class="items-quick-note"><span class="ms category-pill-icon" aria-hidden="true">tips_and_updates</span> Фокус: спершу критичні залишки</div>
       </div>
     </section>
-    <button type="button" class="alert-banner md-state-layer" id="alertBanner" data-stock-filter="low" aria-label="Показати товари з низьким залишком" hidden><span class="ms ic-16-3" aria-hidden="true">warning</span><span><span id="alertText"></span> — переглянути</span></button>
-    <div class="g4 items-metrics insight-grid">
-      <button type="button" class="stat-card sc-red stat-hero" data-stock-filter="zero" aria-pressed="false"><span class="big" id="st-zero">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">production_quantity_limits</span> Закінчились</span><span class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></span></button>
-      <button type="button" class="stat-card sc-purple" data-stock-filter="all" aria-pressed="false"><span class="big" id="st-total">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">inventory_2</span> Всі позиції</span><span class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></span></button>
-      <button type="button" class="stat-card sc-orange" data-stock-filter="low" aria-pressed="false"><span class="big" id="st-low">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">warning</span> Мало залишилось</span><span class="stat-icon" aria-hidden="true"><span class="ms">warning</span></span></button>
-      <button type="button" class="stat-card sc-green" data-stock-filter="ok" aria-pressed="false"><span class="big" id="st-ok">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> В нормі</span><span class="stat-icon" aria-hidden="true"><span class="ms">check_circle</span></span></button>
+    <div class="g4 items-metrics insight-grid inventory-summary" aria-label="Підсумок складських запасів">
+      <article class="stat-card summary-card sc-green"><span class="big" id="st-available">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> Найменувань у наявності</span><span class="stat-icon" aria-hidden="true"><span class="ms">inventory</span></span></article>
+      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> Одиниць на складі</span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
+      <article class="stat-card summary-card sc-orange"><span class="big summary-money" id="st-value">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">payments</span> Орієнтовна вартість</span><span class="stat-icon" aria-hidden="true"><span class="ms">payments</span></span></article>
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
@@ -285,14 +282,14 @@ async function checkPin(attempt){
         <button type="button" class="pill" data-category-filter="Інше" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
       </div>
       <div class="items-filter-row items-search-row">
-        <div class="sw items-search-field"><span class="si"><span class="ms ic-18" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
+        <div class="sw items-search-field"><span class="si"><span class="ms ic-18" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук складських найменувань" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
         <button type="button" class="btn btn-ghost btn-sm items-reset-btn" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters"><span class="ms items-reset-icon" aria-hidden="true">filter_alt_off</span> Скинути</button>
       </div>
     </div>
     <div class="card desktop-table table-modern">
       <table>
-        <thead><tr><th>#</th><th>Назва товару</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
+        <thead><tr><th>#</th><th>Найменування</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
         <tbody id="itemsTable">
           <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
           <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
@@ -864,7 +861,7 @@ const catIconName={'Прибирання':'cleaning_services','Ремонт':'bu
 const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
-const pageTitles={items:{icon:'inventory_2',label:'Товари на складі'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Прихід товару'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
+const pageTitles={items:{icon:'inventory_2',label:'Майно та матеріали'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
 const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
 function money(v){
@@ -1224,7 +1221,7 @@ async function loadItems(){
     toast('Товари не завантажились: '+error.message,'error');
     throw error;
   }
-  if(data){allItems=data;renderItems();updateStats();checkAlerts();}
+  if(data){allItems=data;renderItems();updateStats();}
   markDataUpdated();
 }
 async function loadLogs(){
@@ -1344,29 +1341,6 @@ function initPullToRefresh(){
   },{passive:true});
 
   document.addEventListener('touchcancel',reset,{passive:true});
-}
-
-// ===== ALERTS =====
-function checkAlerts(){
-  const zero=allItems.filter(i=>i.quantity==0).length;
-  const low=allItems.filter(i=>i.quantity>0&&i.quantity<=3).length;
-  const total=zero+low;
-  const sb=document.getElementById('sb-alert');
-  const bnA=document.getElementById('bn-alert');
-  const banner=document.getElementById('alertBanner');
-  if(total>0){
-    if(sb){sb.style.display='inline-block';sb.textContent=total;}
-    if(bnA){bnA.style.display='inline-block';bnA.textContent=total;}
-    if(banner) banner.hidden=false;
-    // Розбивку "закінчились"/"на межі" не повторюємо тут словами — вона вже
-    // видна цифрами в картках нижче (insight-grid). Банер лишає одне число й
-    // веде на Статистику, а не дублює той самий факт другий раз.
-    document.getElementById('alertText').textContent='Потребує уваги: '+total+' позицій';
-  } else {
-    if(sb) sb.style.display='none';
-    if(bnA) bnA.style.display='none';
-    if(banner) banner.hidden=true;
-  }
 }
 
 // ===== STAT CARD FILTER =====
@@ -2087,10 +2061,13 @@ function renderItems(){
 }
 
 function updateStats(){
-  animateNumber(document.getElementById('st-total'),allItems.length);
-  animateNumber(document.getElementById('st-zero'),allItems.filter(i=>i.quantity==0).length);
-  animateNumber(document.getElementById('st-low'),allItems.filter(i=>i.quantity>0&&i.quantity<=3).length);
-  animateNumber(document.getElementById('st-ok'),allItems.filter(i=>i.quantity>3).length);
+  const available=allItems.filter(item=>Number(item.quantity)>0).length;
+  const units=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0),0);
+  const value=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0)*priceValue(item),0);
+  animateNumber(document.getElementById('st-available'),available);
+  animateNumber(document.getElementById('st-units'),units);
+  const valueElement=document.getElementById('st-value');
+  if(valueElement) valueElement.textContent=value>0?money(value):'0 грн';
 }
 
 // ===== QUICK MODAL =====
@@ -3499,10 +3476,9 @@ initRealtime();
 
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">
-  <button type="button" class="bn-item active" data-page="items" aria-current="page" aria-label="Товари">
+  <button type="button" class="bn-item active" data-page="items" aria-current="page" aria-label="Запаси">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">inventory_2</span></span></div>
-    <span class="bn-label">Товари</span>
-    <span class="bn-badge" id="bn-alert" style="display:none">!</span>
+    <span class="bn-label">Запаси</span>
   </button>
   <button type="button" class="bn-item" data-page="issue" aria-label="Видача">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">output</span></span></div>

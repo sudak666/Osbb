@@ -466,20 +466,14 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .insight-grid .sc-orange{--stat-accent:var(--warning);--stat-soft:color-mix(in srgb,var(--md-sys-color-tertiary,var(--warning)) 14%,transparent);}
 .insight-grid .sc-green{--stat-accent:var(--success);--stat-soft:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 12%,transparent);}
 
-/* BENTO-ІЄРАРХІЯ: "Закінчились" — єдина метрика, що справді вимагає негайної дії,
-   тож вона займає весь верхній ряд великою карткою, решта — дрібніша сітка нижче,
-   замість 4 однакових прямокутників в ряд. */
-.items-metrics.g4{grid-template-columns:repeat(3,1fr);grid-template-areas:"hero hero hero" "total low ok";}
-.items-metrics .stat-hero{grid-area:hero;min-height:auto;padding:26px 84px 26px 26px;}
-.items-metrics .stat-hero .big{font-size:40px;}
-.items-metrics .stat-hero .lbl{font-size:13px;}
-.items-metrics [data-stock-filter="all"]{grid-area:total;}
-.items-metrics [data-stock-filter="low"]{grid-area:low;}
-.items-metrics [data-stock-filter="ok"]{grid-area:ok;}
+/* Операційний підсумок ОСББ: найменування, фізична кількість і балансова оцінка. */
+.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));}
+.inventory-summary .summary-card{min-height:132px;cursor:default;user-select:text;}
+.inventory-summary .summary-card:hover{transform:none;background:linear-gradient(135deg,color-mix(in srgb,var(--stat-accent) 6%,var(--surface-1)),var(--surface-1) 48%,var(--surface-2));}
+.inventory-summary .summary-money{font-size:clamp(24px,3vw,38px);letter-spacing:-.04em;overflow-wrap:anywhere;}
 @media(max-width:768px){
-  .items-metrics .stat-hero{padding:18px 66px 18px 18px;}
-  .items-metrics .stat-hero .big{font-size:30px;}
-  .items-metrics .stat-hero .lbl{font-size:11px;}
+  .items-metrics.g4.inventory-summary{grid-template-columns:1fr;}
+  .inventory-summary .summary-card{min-height:108px;}
 }
 
 /* TABLE */

@@ -763,7 +763,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="items-hero-kicker"',
     'class="items-hero-actions"',
     'class="items-quick-note"',
-    'class="g4 items-metrics insight-grid"',
+    'class="g4 items-metrics insight-grid inventory-summary"',
     'class="items-filter-bar"',
     'class="items-filter-row items-search-row"',
     'class="pill items-filter-pill is-success"',
@@ -2001,7 +2001,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const sklad = readFileSync('sklad/index.html', 'utf8');
   const label = 'search and chat fields expose aria-labels';
   const required = [
-    [sklad, 'id="searchInp" aria-label="Пошук товарів"'],
+    [sklad, 'id="searchInp" aria-label="Пошук складських найменувань"'],
     [sklad, 'id="logSearch" aria-label="Пошук у журналі видач"'],
     [sklad, 'id="auditSearch" aria-label="Пошук товару для інвентаризації"'],
     [sklad, 'id="recSearch" aria-label="Пошук у приходах"'],
@@ -2112,7 +2112,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'function setPageTitle(page)',
     "target.append(icon,document.createTextNode(title.label));",
     '<nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">',
-    'data-page="items" aria-current="page" aria-label="Товари"',
+    'data-page="items" aria-current="page" aria-label="Запаси"',
     'data-page="add" aria-label="Додати або поповнити"',
     'class="ms" aria-hidden="true">fact_check</span>',
   ];
@@ -2254,7 +2254,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'function bindSkladStaticControls',
     'data-auth-pin-key="0"',
     'data-sklad-action="refresh"',
-    'data-stock-filter="zero"',
+    'id="st-available"',
     'data-category-filter="Прибирання"',
     'data-render-items-input',
     'data-stats-filter',
@@ -3258,53 +3258,51 @@ ${sharedSelectText}`;
   }
 }
 
-// Low-stock banner — справжня M3 tertiary action, а не error-colored div:
-// має button semantics, 48px target і запускає наявний stock filter.
+// Головний екран показує корисний для ОСББ підсумок запасів, а не магазинні
+// лічильники дефіциту та дубльовані червоні badges у навігації.
 {
   const text = readSkladCombined();
-  const label = 'sklad low-stock banner uses actionable Material 3 warning semantics';
+  const label = 'sklad inventory summary prioritizes availability quantity and value';
   const required = [
-    'class="alert-banner md-state-layer" id="alertBanner" data-stock-filter="low"',
-    'aria-label="Показати товари з низьким залишком" hidden',
-    'aria-label="Показати товари з низьким залишком"',
-    '.alert-banner{width:100%;min-height:48px;background:var(--md-sys-color-tertiary-container',
-    '.alert-banner[hidden]{display:none!important;}',
-    'color:var(--md-sys-color-on-tertiary-container',
-    'if(banner) banner.hidden=false',
-    'if(banner) banner.hidden=true',
-    '.qty-zero{color:var(--md-sys-color-error',
-    '.qty-low{color:var(--md-sys-color-tertiary',
-    '.qty-ok{color:var(--md-sys-color-primary',
+    'class="g4 items-metrics insight-grid inventory-summary"',
+    'id="st-available"',
+    'Найменувань у наявності',
+    'id="st-units"',
+    'Одиниць на складі',
+    'id="st-value"',
+    'Орієнтовна вартість',
+    "const available=allItems.filter(item=>Number(item.quantity)>0).length",
+    "const units=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0),0)",
+    "const value=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0)*priceValue(item),0)",
+    '.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
+  const hasLegacyCounters = ['id="st-zero"','id="st-low"','id="st-ok"','id="sb-alert"','id="bn-alert"','id="alertBanner"'].some(needle=>text.includes(needle));
+  if (missing.length || hasLegacyCounters) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; legacy counters: ${hasLegacyCounters})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
   }
 }
 
-// Metric filter cards є нативними кнопками з aria-pressed, а не div із
-// емульованою клавіатурною поведінкою; selected state синхронізується в JS.
+// Підсумкові метрики є семантичними статичними картками, а не фальшивими
+// кнопками-фільтрами: вони лише повідомляють агреговані дані.
 {
   const text = readSkladCombined();
-  const label = 'sklad metric filters use native Material 3 toggle buttons';
+  const label = 'sklad summary metrics use non-interactive Material 3 cards';
   const required = [
-    '<button type="button" class="stat-card sc-red stat-hero" data-stock-filter="zero" aria-pressed="false">',
-    '<button type="button" class="stat-card sc-purple" data-stock-filter="all" aria-pressed="false">',
-    '<button type="button" class="stat-card sc-orange" data-stock-filter="low" aria-pressed="false">',
-    '<button type="button" class="stat-card sc-green" data-stock-filter="ok" aria-pressed="false">',
-    "c.setAttribute('aria-pressed',String(active))",
-    "c.setAttribute('aria-pressed','false')",
-    '.stat-card{width:100%;appearance:none;text-align:left;font:inherit;',
+    '<article class="stat-card summary-card sc-green">',
+    '<article class="stat-card summary-card sc-purple">',
+    '<article class="stat-card summary-card sc-orange">',
+    '.inventory-summary .summary-card{min-height:132px;cursor:default;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
-  const hasLegacyRole = /class="stat-card[^"]*"[^>]*role="button"/.test(text);
-  if (missing.length || hasLegacyRole) {
+  const hasInteractiveSummary = /<(button)[^>]*class="[^"]*summary-card/.test(text);
+  if (missing.length || hasInteractiveSummary) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; legacy role: ${hasLegacyRole})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; interactive summary: ${hasInteractiveSummary})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
