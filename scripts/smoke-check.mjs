@@ -58,7 +58,7 @@ const checks = [
   ['osbb/index.html', "el.setAttribute('aria-selected', String(t === tab))", 'journal tab switch updates aria-selected'],
   ['sklad/index.html', '<nav aria-label="Розділи складу">', 'sklad sidebar exposes navigation label'],
   ['sklad/index.html', 'id="bottomNav" aria-label="Мобільні розділи складу"', 'sklad bottom nav exposes navigation label'],
-  ['sklad/index.html', 'data-page="items" role="button" tabindex="0" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
+  ['sklad/index.html', 'class="ni active" data-page="items" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
   ['sklad/index.html', 'class="bn-item active" data-page="items" aria-current="page"', 'sklad bottom nav active page exposes aria-current'],
   ['sklad/index.html', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
   ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
@@ -678,7 +678,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'aria-haspopup="menu" aria-expanded="false"',
     'class="item-more-menu" role="menu"',
     'role="menuitem" data-item-action="photo"',
-    'z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;',
+    'z-index:60;min-width:208px;max-height:min(62dvh,360px);overflow-y:auto;',
+    "if(menu.classList.contains('topbar-more'))",
     "document.addEventListener('toggle',handleItemMenuToggle,true)",
     "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
   ];
@@ -700,8 +701,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     '.topbar{padding:0 8px;height:56px;border-radius:0 0 18px 18px;gap:6px;}',
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-    '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;line-height:1!important;}',
+    '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;padding:0!important;line-height:1!important;}',
     '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid!important;place-items:center!important;width:1em!important;height:1em!important;font-size:21px!important;line-height:1!important;margin:0!important;}',
+    '.topbar-more summary{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px;height:48px;min-height:48px;padding:0;line-height:1!important;}',
     // Секондарні дії (графік/оцінка цін/прихід/тема) згорнуті в overflow-меню замість
     // окремих кнопок в ряд — це саме те, що фіксить попередній баг "тема недоступна на мобілці".
     '<details class="item-more topbar-more">',
@@ -772,7 +774,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="stat-icon" aria-hidden="true"',
     '.items-filter-bar{position:sticky;',
     '@media(max-width:1180px)',
-    '.items-filter-pill{display:inline-flex;',
+    '.items-filter-pill{position:relative;display:inline-grid;',
     '.items-search-field{width:250px;',
     '.insight-grid .stat-card',
     '.table-modern tbody tr:hover',
@@ -870,10 +872,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="btn btn-ghost btn-sm price-badge-btn has-price"',
     'class="price-badge-value"',
     'class="price-badge-source"',
-    '.price-badge-btn{padding:6px 9px;',
+    '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
     '.price-badge-value{font-weight:900;',
-    '.price-badge-source{font-size:10px;',
+    '.price-badge-source{width:100%;font-size:10px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -2520,7 +2522,7 @@ ${sharedSelectText}`;
     '.price-modal-actions{position:sticky',
     'class="price-search-row"',
     'class="price-modal-actions"',
-    '.theme-light .m-card{background:#fff',
+    '.theme-light .m-card{background:var(--md-sys-color-surface-container-low,#fff)',
     '.theme-light .m-card .btn-ghost',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -2629,6 +2631,31 @@ ${sharedSelectText}`;
       passed += 1;
       console.log(`ok - ${label}`);
     }
+  }
+}
+
+// Мобільний Pull-to-Refresh має використовувати наявний безпечний refreshAll,
+// запускатися лише з верхньої межі сторінки та не конфліктувати з модалами.
+{
+  const text = readSkladCombined();
+  const label = 'sklad mobile view exposes accessible pull-to-refresh';
+  const required = [
+    'id="pullRefresh" class="pull-refresh" role="status" aria-live="polite"',
+    'function initPullToRefresh()',
+    "window.scrollY>0 || refreshBusy",
+    "document.querySelector('.modal-bg.open,.lightbox.open')",
+    "document.addEventListener('touchmove',event=>",
+    "const success=await refreshAll()",
+    'initPullToRefresh();',
+    '.pull-refresh.is-refreshing .pull-refresh-glyph{animation:pull-refresh-spin .75s linear infinite;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
   }
 }
 
@@ -2943,6 +2970,405 @@ ${sharedSelectText}`;
   if (missing.length || hasOldStrip) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; old strip: ${hasOldStrip})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Основні порожні списки використовують єдиний M3 empty state, а назви та
+// підказки проходять escapeHtml перед вставкою в DOM.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad list empty states use safe Material 3 structure';
+  const required = [
+    "const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history'])",
+    'function emptyState(icon,title,supportingText=',
+    'class="empty md-empty-state"',
+    'class="ms md-empty-state-icon"',
+    'class="md-empty-state-title"',
+    'escapeHtml(supportingText)',
+    "emptyState('history','Видач ще не було'",
+    "emptyState('inbox','Приходів ще не було'",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Повторні завантаження приходів, історії та пошуку цін не повинні повертати
+// текстову заглушку — усі три сценарії використовують M3 skeleton loaders.
+{
+  const text = readSkladCombined();
+  const label = 'sklad async views use reusable Material 3 skeleton loaders';
+  const required = [
+    'function skeletonRows(columns=1,rows=3)',
+    'function skeletonStack(rows=3)',
+    'tb.innerHTML=skeletonRows(7,3)',
+    'mb.innerHTML=skeletonStack(3)',
+    'aria-label="Пошук цін"',
+    "document.getElementById('histList').innerHTML=skeletonStack(3)",
+    '.skeleton-card{display:grid;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Складські filter chips мають M3 selected-check, центрований label і
+// aria-pressed; навігація місяців використовує центровані MDI chevrons.
+{
+  const sklad = readSkladCombined();
+  const journal = readFileSync('osbb/index.html', 'utf8');
+  const label = 'filter chips and month arrows use centered Material 3 controls';
+  const required = [
+    'function setFilterPillState(button,active)',
+    "button.setAttribute('aria-pressed',String(active))",
+    'class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label"',
+    '.items-filter-pill{position:relative;display:inline-grid;place-items:center;height:48px;',
+    '.items-filter-pill.active .items-filter-icon{opacity:1;',
+    'mdi mdi-chevron-left',
+    'mdi mdi-chevron-right',
+  ];
+  const combined = sklad + '\n' + journal;
+  const missing = required.filter(needle => !combined.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Навігаційні поверхні Складу використовують M3 containers, а активна
+// мобільна іконка — стандартний 56px tonal indicator.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad navigation uses Material 3 tonal containers';
+  const required = [
+    '.sidebar{width:var(--sb);background:var(--md-sys-color-surface-container-low',
+    '.topbar{background:var(--md-sys-color-surface-container-low',
+    '/* === Material 3 navigation bar === */',
+    'background:var(--md-sys-color-surface-container-high',
+    '.bn-item.active{color:var(--md-sys-color-on-secondary-container',
+    '.bn-item.active .bn-icon-wrap{width:56px;background:var(--md-sys-color-secondary-container',
+    'box-shadow:var(--md-sys-elevation-level2)',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// На desktop-пристроях navigation rail розгортається разом із відступом основного
+// контенту, тому slide-out не накладається на робочу область.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad desktop sidebar expands without covering content';
+  const required = [
+    '@media(min-width:769px) and (hover:hover)',
+    '.sidebar:is(:hover,:focus-within){width:var(--sb);}',
+    '.sidebar:is(:hover,:focus-within) + .main{margin-left:var(--sb);}',
+    '.sidebar:is(:hover,:focus-within) .nav-label,',
+    'transition:margin-left var(--md-sys-motion-duration-medium2',
+    '.sidebar .ni-badge{position:absolute;top:5px;right:3px;min-width:22px;max-width:30px;',
+    '.sidebar:is(:hover,:focus-within) .ni-badge{position:static;min-width:0;max-width:none;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// smena-web інтегровано як нативну M3-вкладку Журналу на спільному Supabase,
+// без другого PIN, Firebase SDK або окремого service worker.
+{
+  const html = readFileSync('osbb/index.html', 'utf8');
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const migration = readFileSync('sklad/supabase/011_add_work_shifts.sql', 'utf8');
+  const importer = readFileSync('scripts/import-smena-firestore.mjs', 'utf8');
+  const readme = readFileSync('README.md', 'utf8');
+  const databaseTypes = readFileSync('src/database.types.ts', 'utf8');
+  const label = 'journal integrates smena schedule with Material 3 and Supabase';
+  const required = [
+    'data-osbb-tab="shifts" id="tab-shifts"',
+    'data-osbb-tab="shifts" id="tab-shifts-m"',
+    'id="section-shifts"',
+    "document.getElementById('journal-dashboard').classList.toggle('hidden', tab !== 'journal')",
+    'function shiftLoadMonth()',
+    "db.from('work_shifts').select('*').eq('month_key', shiftMonthKey())",
+    "db.from('work_shifts').upsert({ shift_date:shiftSelectedDate",
+    "db.rpc('reset_work_shifts_month'",
+    "table: 'work_shifts'",
+    "addEventListener('keydown', shiftTrapEditorFocus)",
+    '.shift-shell { display:grid;',
+    '.shift-editor-overlay.is-open { display:flex; }',
+    '.hidden { display:none!important; }',
+  ];
+  const combined = html + '\n' + css;
+  const missing = required.filter(needle => !combined.includes(needle));
+  const migrationReady = migration.includes('create table if not exists work_shifts')
+    && migration.includes('create or replace function reset_work_shifts_month');
+  const importerReady = importer.includes('firestore.googleapis.com') && importer.includes('/rest/v1/work_shifts?on_conflict=shift_date');
+  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('scripts/import-smena-firestore.mjs');
+  const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:');
+  if (missing.length || !migrationReady || !importerReady || !docsReady || !typesReady) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; migration: ${migrationReady}; importer: ${importerReady}; docs: ${docsReady}; types: ${typesReady})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Поля та кастомні select-и Складу дотримуються M3 outlined/tonal розмірів:
+// 56px field, 48px option і secondary-container для вибраного значення.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad fields and selects use Material 3 sizing and states';
+  const required = [
+    '.inp{width:100%;border:1px solid var(--md-sys-color-outline',
+    'min-height:56px;font-size:16px;',
+    '.inp:focus{border:2px solid var(--md-sys-color-primary',
+    'background:var(--md-sys-color-surface-container-highest',
+    '.custom-select-panel{position:absolute;',
+    'background:var(--md-sys-color-surface-container-high',
+    '.custom-select-option{display:flex;align-items:center;min-height:48px;',
+    '.custom-select-option.active{background:var(--md-sys-color-secondary-container',
+    '.inp { min-height: 56px !important; }',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// PIN-підтвердження журналу використовує M3 dialog на desktop і modal bottom
+// sheet на mobile; індикатор PIN керується класом, а не hardcoded кольором JS.
+{
+  const text = readOsbbCombined();
+  const label = 'journal PIN confirmation uses Material 3 dialog and bottom sheet';
+  const required = [
+    '.pin-modal-dialog { background:var(--md-sys-color-surface-container-high',
+    '.pin-modal-dialog .pin-mb-btn { background:var(--md-sys-color-surface-container-highest',
+    '.pin-modal-dialog .pin-dot.is-entered { background:var(--md-sys-color-primary',
+    '.pin-modal-overlay { align-items:flex-end; }',
+    '.pin-modal-dialog::before { content:',
+    "dot.classList.toggle('is-entered', i < pinModalBuf.length)",
+    'data-pin-modal-delete',
+    'stroke="currentColor"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Поля журналу та спільний custom select використовують ті самі M3 field
+// tokens, що й Склад: 56px, outlined focus і tonal selected option.
+{
+  const text = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'journal fields and selects use Material 3 sizing and states';
+  const required = [
+    '.journal-select { min-height:56px;',
+    'background-color:var(--md-sys-color-surface-container-highest',
+    '.journal-select:focus { border:2px solid var(--md-sys-color-primary',
+    '.journal-textarea { width:100%; min-height:128px; padding:16px;',
+    '.journal-chat-author, .journal-chat-input { width:100%; min-height:56px;',
+    '.custom-select-option { display:flex; align-items:center; min-height:48px;',
+    '.custom-select-option.active { background:var(--md-sys-color-secondary-container);',
+    'box-shadow:var(--md-sys-elevation-level2); padding:8px; max-height:320px;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Toast Складу відповідає M3 snackbar: inverse surface, 48px, semantic icon
+// colors і мобільне розміщення над navigation bar; modal scrim без blur.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad feedback uses Material 3 snackbar and scrim';
+  const required = [
+    '#toast{position:fixed;bottom:24px;right:24px;display:flex;align-items:center;',
+    'min-height:48px;',
+    'background:var(--md-sys-color-inverse-surface',
+    '#toast.success .ms{color:var(--md-sys-color-primary-fixed-dim',
+    '#toast.error .ms{color:var(--md-sys-color-error',
+    '#toast.info .ms{color:var(--md-sys-color-secondary',
+    '#toast{left:12px;right:12px;bottom:calc(100px + env(safe-area-inset-bottom))',
+    '.modal-bg{position:fixed;inset:0;background:color-mix(in srgb,var(--md-sys-color-scrim',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Low-stock banner — справжня M3 tertiary action, а не error-colored div:
+// має button semantics, 48px target і запускає наявний stock filter.
+{
+  const text = readSkladCombined();
+  const label = 'sklad low-stock banner uses actionable Material 3 warning semantics';
+  const required = [
+    'class="alert-banner md-state-layer" id="alertBanner" data-stock-filter="low"',
+    'aria-label="Показати товари з низьким залишком" hidden',
+    'aria-label="Показати товари з низьким залишком"',
+    '.alert-banner{width:100%;min-height:48px;background:var(--md-sys-color-tertiary-container',
+    '.alert-banner[hidden]{display:none!important;}',
+    'color:var(--md-sys-color-on-tertiary-container',
+    'if(banner) banner.hidden=false',
+    'if(banner) banner.hidden=true',
+    '.qty-zero{color:var(--md-sys-color-error',
+    '.qty-low{color:var(--md-sys-color-tertiary',
+    '.qty-ok{color:var(--md-sys-color-primary',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Metric filter cards є нативними кнопками з aria-pressed, а не div із
+// емульованою клавіатурною поведінкою; selected state синхронізується в JS.
+{
+  const text = readSkladCombined();
+  const label = 'sklad metric filters use native Material 3 toggle buttons';
+  const required = [
+    '<button type="button" class="stat-card sc-red stat-hero" data-stock-filter="zero" aria-pressed="false">',
+    '<button type="button" class="stat-card sc-purple" data-stock-filter="all" aria-pressed="false">',
+    '<button type="button" class="stat-card sc-orange" data-stock-filter="low" aria-pressed="false">',
+    '<button type="button" class="stat-card sc-green" data-stock-filter="ok" aria-pressed="false">',
+    "c.setAttribute('aria-pressed',String(active))",
+    "c.setAttribute('aria-pressed','false')",
+    '.stat-card{width:100%;appearance:none;text-align:left;font:inherit;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasLegacyRole = /class="stat-card[^"]*"[^>]*role="button"/.test(text);
+  if (missing.length || hasLegacyRole) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; legacy role: ${hasLegacyRole})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Category filter chips мають group semantics, 48px touch target та
+// синхронний aria-pressed у виборі й reset flow.
+{
+  const text = readSkladCombined();
+  const label = 'sklad category filters use accessible Material 3 chips';
+  const required = [
+    'id="catPills" role="group" aria-label="Фільтр за категорією"',
+    'data-category-filter="" aria-pressed="true"',
+    'data-category-filter="Прибирання" aria-pressed="false"',
+    "b.setAttribute('aria-pressed',String(active))",
+    '.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:48px;',
+    '.pill:hover{background:var(--md-sys-color-surface-container-high',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Button content не повинен використовувати прихований filter-check icon:
+// він залишав нульовий flex-item із gap і оптично зсував label від центру.
+{
+  const html = readFileSync('sklad/index.html', 'utf8');
+  const css = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad button labels and icons stay geometrically centered';
+  const required = [
+    'class="btn btn-primary btn-sm items-hero-action"',
+    'class="ms hero-action-icon" aria-hidden="true">output</span><span class="btn-label">Видати</span>',
+    'class="ms hero-action-icon" aria-hidden="true">add_circle</span><span class="btn-label">Поповнити</span>',
+    '.items-hero-action{position:relative;display:inline-grid;place-items:center;min-width:116px;',
+    '.hero-action-icon{position:absolute;left:14px;top:50%;width:18px;height:18px;',
+    'line-height:1.2;text-align:center;vertical-align:middle;',
+    '.btn .ms{align-self:center;margin:0;line-height:1;}',
+    '.btn-label{display:inline-flex;align-items:center;justify-content:center;',
+    '.btn.items-hero-action{display:inline-grid;place-items:center;min-width:116px;padding-inline:38px;}',
+    '.items-filter-icon{position:absolute;left:14px;top:50%;',
+    '.items-filter-label{display:grid;place-items:center;width:100%;height:100%;',
+    '.pill.items-filter-pill{display:inline-grid;place-items:center;padding:0 32px;}',
+    '.pill.items-filter-pill .items-filter-icon{position:absolute;}',
+    '.btn.items-hero-action .hero-action-icon{position:absolute;}',
+  ];
+  const combined = html + '\n' + css;
+  const missing = required.filter(needle => !combined.includes(needle));
+  const hiddenFilterIconInButton = /class="[^"]*\bbtn\b[^"]*"[^>]*>[\s\S]{0,160}class="[^"]*items-filter-icon/.test(html);
+  if (missing.length || hiddenFilterIconInButton) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; hidden filter icon: ${hiddenFilterIconInButton})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Desktop navigation Складу використовує нативні button controls замість
+// div role="button" і зберігає aria-current для активної сторінки.
+{
+  const text = readSkladCombined();
+  const label = 'sklad desktop navigation uses native Material 3 buttons';
+  const required = [
+    '<button type="button" class="ni active" data-page="items" aria-current="page">',
+    '<button type="button" class="ni" data-page="issue">',
+    '<button type="button" class="ni" data-page="stats">',
+    '.ni{display:flex;width:calc(100% - 16px);align-items:center;',
+    'font:inherit;font-size:14px;font-weight:600;line-height:1.2;text-align:left;',
+    "n.setAttribute('aria-current','page')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const legacyNav = /class="ni[^"]*"[^>]*role="button"/.test(text);
+  if (missing.length || legacyNav) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; legacy nav: ${legacyNav})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
