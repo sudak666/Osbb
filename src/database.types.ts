@@ -2,6 +2,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Timestamp = string;
 export type BigIntId = number;
+export type WorkShiftType = 'day' | 'night' | 'night_half2' | 'rest';
 
 export interface RowOperation<Row> {
     Row: Row;
@@ -96,6 +97,28 @@ export interface Database {
                 url: string;
                 created_at: Timestamp | null;
             }>;
+            work_shifts: RowOperation<{
+                shift_date: string;
+                month_key: string;
+                sergiy: WorkShiftType[];
+                oleksandr: WorkShiftType[];
+                updated_at: Timestamp;
+            }>;
+            work_shift_settings: RowOperation<{
+                id: number;
+                employee_one_name: string;
+                employee_two_name: string;
+            }>;
+            work_shift_auth: RowOperation<{
+                id: number;
+                pin_hash: string;
+            }>;
+            work_shift_pin_attempts: RowOperation<{
+                pin_name: string;
+                failed_count: number;
+                locked_until: Timestamp | null;
+                last_failed_at: Timestamp;
+            }>;
             app_auth: RowOperation<{
                 id: number;
                 pin_hash: string;
@@ -138,6 +161,22 @@ export interface Database {
             };
             reset_month: {
                 Args: { table_name: 'schedule' | 'garbage' | 'dispatcher'; p_month_key: string; attempt: string };
+                Returns: boolean;
+            };
+            reset_work_shifts_month: {
+                Args: { p_month_key: string; attempt: string };
+                Returns: boolean;
+            };
+            verify_work_shifts_pin: {
+                Args: { attempt: string };
+                Returns: boolean;
+            };
+            save_work_shift_day: {
+                Args: { p_shift_date: string; p_sergiy: WorkShiftType[]; p_oleksandr: WorkShiftType[]; attempt: string };
+                Returns: boolean;
+            };
+            update_work_shift_names: {
+                Args: { p_employee_one_name: string; p_employee_two_name: string; attempt: string };
                 Returns: boolean;
             };
             verify_pin: {
