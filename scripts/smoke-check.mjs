@@ -3178,6 +3178,54 @@ ${sharedSelectText}`;
   }
 }
 
+// Metric filter cards є нативними кнопками з aria-pressed, а не div із
+// емульованою клавіатурною поведінкою; selected state синхронізується в JS.
+{
+  const text = readSkladCombined();
+  const label = 'sklad metric filters use native Material 3 toggle buttons';
+  const required = [
+    '<button type="button" class="stat-card sc-red stat-hero" data-stock-filter="zero" aria-pressed="false">',
+    '<button type="button" class="stat-card sc-purple" data-stock-filter="all" aria-pressed="false">',
+    '<button type="button" class="stat-card sc-orange" data-stock-filter="low" aria-pressed="false">',
+    '<button type="button" class="stat-card sc-green" data-stock-filter="ok" aria-pressed="false">',
+    "c.setAttribute('aria-pressed',String(active))",
+    "c.setAttribute('aria-pressed','false')",
+    '.stat-card{width:100%;appearance:none;text-align:left;font:inherit;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasLegacyRole = /class="stat-card[^"]*"[^>]*role="button"/.test(text);
+  if (missing.length || hasLegacyRole) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; legacy role: ${hasLegacyRole})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Category filter chips мають group semantics, 48px touch target та
+// синхронний aria-pressed у виборі й reset flow.
+{
+  const text = readSkladCombined();
+  const label = 'sklad category filters use accessible Material 3 chips';
+  const required = [
+    'id="catPills" role="group" aria-label="Фільтр за категорією"',
+    'data-category-filter="" aria-pressed="true"',
+    'data-category-filter="Прибирання" aria-pressed="false"',
+    "b.setAttribute('aria-pressed',String(active))",
+    '.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:48px;',
+    '.pill:hover{background:var(--md-sys-color-surface-container-high',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);

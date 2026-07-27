@@ -260,10 +260,10 @@ async function checkPin(attempt){
     </section>
     <button type="button" class="alert-banner md-state-layer" id="alertBanner" data-stock-filter="low" aria-label="Показати товари з низьким залишком" hidden><span class="ms ic-16-3" aria-hidden="true">warning</span><span><span id="alertText"></span> — переглянути</span></button>
     <div class="g4 items-metrics insight-grid">
-      <div class="stat-card sc-red stat-hero" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms ic-13-2">production_quantity_limits</span> Закінчились</div><div class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></div></div>
-      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms ic-13-2">inventory_2</span> Всі позиції</div><div class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></div></div>
-      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms ic-13-2">warning</span> Мало залишилось</div><div class="stat-icon" aria-hidden="true"><span class="ms">warning</span></div></div>
-      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms ic-13-2">check_circle</span> В нормі</div><div class="stat-icon" aria-hidden="true"><span class="ms">check_circle</span></div></div>
+      <button type="button" class="stat-card sc-red stat-hero" data-stock-filter="zero" aria-pressed="false"><span class="big" id="st-zero">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">production_quantity_limits</span> Закінчились</span><span class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></span></button>
+      <button type="button" class="stat-card sc-purple" data-stock-filter="all" aria-pressed="false"><span class="big" id="st-total">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">inventory_2</span> Всі позиції</span><span class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></span></button>
+      <button type="button" class="stat-card sc-orange" data-stock-filter="low" aria-pressed="false"><span class="big" id="st-low">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">warning</span> Мало залишилось</span><span class="stat-icon" aria-hidden="true"><span class="ms">warning</span></span></button>
+      <button type="button" class="stat-card sc-green" data-stock-filter="ok" aria-pressed="false"><span class="big" id="st-ok">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> В нормі</span><span class="stat-icon" aria-hidden="true"><span class="ms">check_circle</span></span></button>
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
@@ -271,14 +271,14 @@ async function checkPin(attempt){
         <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" aria-pressed="false" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Без внутрішніх</span></button>
         <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" aria-pressed="false" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки внутрішні</span></button>
       </div>
-      <div class="items-filter-row pills-wrap" id="catPills">
-        <button type="button" class="pill active" data-category-filter="">Всі</button>
-        <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms category-pill-icon" aria-hidden="true">cleaning_services</span> Прибирання</button>
-        <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms category-pill-icon" aria-hidden="true">build</span> Ремонт</button>
-        <button type="button" class="pill" data-category-filter="Електрика"><span class="ms category-pill-icon" aria-hidden="true">bolt</span> Електрика</button>
-        <button type="button" class="pill" data-category-filter="Сантехніка"><span class="ms category-pill-icon" aria-hidden="true">plumbing</span> Сантехніка</button>
-        <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms category-pill-icon" aria-hidden="true">videocam</span> Відео</button>
-        <button type="button" class="pill" data-category-filter="Інше"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
+      <div class="items-filter-row pills-wrap" id="catPills" role="group" aria-label="Фільтр за категорією">
+        <button type="button" class="pill active" data-category-filter="" aria-pressed="true">Всі</button>
+        <button type="button" class="pill" data-category-filter="Прибирання" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">cleaning_services</span> Прибирання</button>
+        <button type="button" class="pill" data-category-filter="Ремонт" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">build</span> Ремонт</button>
+        <button type="button" class="pill" data-category-filter="Електрика" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">bolt</span> Електрика</button>
+        <button type="button" class="pill" data-category-filter="Сантехніка" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">plumbing</span> Сантехніка</button>
+        <button type="button" class="pill" data-category-filter="Відеоспостереження" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">videocam</span> Відео</button>
+        <button type="button" class="pill" data-category-filter="Інше" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
       </div>
       <div class="items-filter-row items-search-row">
         <div class="sw items-search-field"><span class="si"><span class="ms ic-18" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
@@ -1297,16 +1297,22 @@ function checkAlerts(){
 // ===== STAT CARD FILTER =====
 function filterByStock(mode,card){
   stockFilter=(stockFilter===mode)?'':mode;
-  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('sc-active'));
-  if(stockFilter) card.classList.add('sc-active');
+  document.querySelectorAll('.stat-card').forEach(c=>{
+    const active=Boolean(stockFilter)&&c===card;
+    c.classList.toggle('sc-active',active);
+    c.setAttribute('aria-pressed',String(active));
+  });
   renderItems();
   document.querySelector('.desktop-table,.mobile-cards')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ===== FILTER CAT =====
 function filterCat(btn,cat){
-  document.querySelectorAll('#catPills .pill').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('#catPills .pill').forEach(b=>{
+    const active=b===btn;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',String(active));
+  });
   curCat=cat;renderItems();
 }
 
@@ -1363,8 +1369,15 @@ function resetItemFilters(){
   onlyInternal=false;
   const search=document.getElementById('searchInp');
   if(search) search.value='';
-  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('sc-active'));
-  document.querySelectorAll('#catPills .pill').forEach((b,idx)=>b.classList.toggle('active',idx===0));
+  document.querySelectorAll('.stat-card').forEach(c=>{
+    c.classList.remove('sc-active');
+    c.setAttribute('aria-pressed','false');
+  });
+  document.querySelectorAll('#catPills .pill').forEach((b,idx)=>{
+    const active=idx===0;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',String(active));
+  });
   const inStock=document.getElementById('inStockPill');
   setFilterPillState(inStock,false);
   resetInternalPill('hideInternalPill');
