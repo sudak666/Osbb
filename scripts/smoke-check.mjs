@@ -3297,6 +3297,10 @@ ${sharedSelectText}`;
     '<article class="stat-card summary-card sc-purple">',
     '<article class="stat-card summary-card sc-orange">',
     '.inventory-summary .summary-card{min-height:132px;cursor:default;',
+    '.stat-icon{position:absolute;right:14px;top:14px;z-index:1;',
+    '.stat-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;',
+    '.sw .inp{padding-left:42px!important;}',
+    '.si svg{width:18px;height:18px;fill:none;stroke:currentColor;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const hasInteractiveSummary = /<(button)[^>]*class="[^"]*summary-card/.test(text);
