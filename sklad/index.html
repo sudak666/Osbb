@@ -33,7 +33,7 @@ const {createClient}=window.supabase;
 const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9');
 </script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=20260727-search-icons">
 </head>
 <body class="theme-light">
 <script>document.body.className = localStorage.getItem('sklad_theme') || 'theme-light';</script>
@@ -48,7 +48,7 @@ const mdiIconMap={
   check_circle:'check-circle-outline', cleaning_services:'spray-bottle', clear_all:'format-align-left', close:'close',
   content_paste:'clipboard-text-outline', dark_mode:'weather-night', light_mode:'white-balance-sunny', delete:'trash-can-outline',
   edit:'pencil', fact_check:'clipboard-check-outline', fiber_new:'new-box', filter_alt:'filter', filter_alt_off:'filter-off',
-  history:'history', home_repair_service:'home-wrench', inbox:'inbox', inventory_2:'package-variant-closed', lightbulb:'lightbulb-outline',
+  deployed_code:'cube-outline', history:'history', home_repair_service:'home-wrench', inbox:'inbox', inventory_2:'package-variant-closed', lightbulb:'lightbulb-outline',
   more_horiz:'dots-horizontal', move_to_inbox:'inbox-arrow-down', notifications:'bell-outline', output:'logout-variant',
   payments:'cash-multiple', photo_camera:'camera-outline', plumbing:'pipe-wrench', production_quantity_limits:'alert-circle-outline',
   qr_code_scanner:'qrcode-scan', receipt_long:'receipt-text-outline', refresh:'refresh', save:'content-save-outline', search:'magnify',
@@ -207,23 +207,26 @@ async function checkPin(attempt){
     <span class="sb-ver">v3.1</span>
   </div>
   <nav aria-label="Розділи складу">
-    <div class="ni active" data-page="items" role="button" tabindex="0" aria-current="page">
-      <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Товари</span>
-      <span class="ni-badge" id="sb-alert" style="display:none">!</span>
-    </div>
-    <div class="ni" data-page="issue" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">output</span></span><span class="nav-label">Видача</span></div>
-    <div class="ni" data-page="log" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">receipt_long</span></span><span class="nav-label">Журнал</span></div>
-    <div class="ni" data-page="add" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">add_circle</span></span><span class="nav-label">Додати</span></div>
-    <div class="ni" data-page="audit" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">fact_check</span></span><span class="nav-label">Інвентаризація</span></div>
-    <div class="ni" data-page="receipts" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">move_to_inbox</span></span><span class="nav-label">Прихід</span></div>
-    <div class="ni" data-page="stats" role="button" tabindex="0"><span class="ni-icon"><span class="ms" aria-hidden="true">bar_chart</span></span><span class="nav-label">Статистика</span></div>
+    <button type="button" class="ni active" data-page="items" aria-current="page">
+      <span class="ni-icon"><span class="ms" aria-hidden="true">inventory_2</span></span><span class="nav-label">Запаси</span>
+    </button>
+    <button type="button" class="ni" data-page="issue"><span class="ni-icon"><span class="ms" aria-hidden="true">output</span></span><span class="nav-label">Видача</span></button>
+    <button type="button" class="ni" data-page="log"><span class="ni-icon"><span class="ms" aria-hidden="true">receipt_long</span></span><span class="nav-label">Журнал</span></button>
+    <button type="button" class="ni" data-page="add"><span class="ni-icon"><span class="ms" aria-hidden="true">add_circle</span></span><span class="nav-label">Додати</span></button>
+    <button type="button" class="ni" data-page="audit"><span class="ni-icon"><span class="ms" aria-hidden="true">fact_check</span></span><span class="nav-label">Інвентаризація</span></button>
+    <button type="button" class="ni" data-page="receipts"><span class="ni-icon"><span class="ms" aria-hidden="true">move_to_inbox</span></span><span class="nav-label">Прихід</span></button>
+    <button type="button" class="ni" data-page="stats"><span class="ni-icon"><span class="ms" aria-hidden="true">bar_chart</span></span><span class="nav-label">Статистика</span></button>
   </nav>
   <div class="sb-bottom">ОСББ «Микитська Слобода»</div>
 </div>
 
 <div class="main">
+  <div id="pullRefresh" class="pull-refresh" role="status" aria-live="polite">
+    <span class="pull-refresh-indicator" aria-hidden="true"><span class="pull-refresh-glyph">↻</span></span>
+    <span id="pullRefreshLabel" class="pull-refresh-label"></span>
+  </div>
   <div class="topbar">
-    <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Товари на складі</h2>
+    <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Майно та матеріали</h2>
     <div class="topbar-actions">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
       <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr" data-tip="Сканер" aria-label="Сканер штрих-коду"><span class="ms" aria-hidden="true">barcode_scanner</span></button>
@@ -237,7 +240,7 @@ async function checkPin(attempt){
         <div class="item-more-menu" role="menu">
           <button type="button" role="menuitem" data-sklad-action="chart"><span class="ms" aria-hidden="true">bar_chart</span> Графік</button>
           <button type="button" role="menuitem" data-sklad-action="price-refresh"><span class="ms" aria-hidden="true">sell</span> Оцінка цін</button>
-          <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Прихід товару</button>
+          <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Надходження</button>
           <button type="button" role="menuitem" data-sklad-action="theme"><span class="ms" id="themeToggleIcon" aria-hidden="true">dark_mode</span> Тема</button>
         </div>
       </details>
@@ -249,48 +252,44 @@ async function checkPin(attempt){
     <section class="items-hero" aria-labelledby="itemsHeroTitle">
       <div>
         <div class="items-hero-kicker"><span class="ms category-pill-icon" aria-hidden="true">auto_awesome</span> Операційний центр складу</div>
-        <h1 class="items-hero-title" id="itemsHeroTitle">Товари на складі</h1>
-        <div class="items-hero-copy">Залишки, пошук і основні дії в одному місці.</div>
+        <h1 class="items-hero-title" id="itemsHeroTitle">Майно та матеріали</h1>
+        <div class="items-hero-copy">Найменування, кількість і вартість складських запасів.</div>
       </div>
       <div class="items-hero-actions" aria-label="Швидкі дії складу">
-        <button type="button" class="btn btn-primary btn-sm" data-sklad-page="issue"><span class="ms items-filter-icon" aria-hidden="true">output</span> Видати</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-page="add"><span class="ms items-filter-icon" aria-hidden="true">add_circle</span> Поповнити</button>
+        <button type="button" class="btn btn-primary btn-sm items-hero-action" data-sklad-page="issue"><span class="ms hero-action-icon" aria-hidden="true">output</span><span class="btn-label">Видати</span></button>
+        <button type="button" class="btn btn-ghost btn-sm items-hero-action" data-sklad-page="add"><span class="ms hero-action-icon" aria-hidden="true">add_circle</span><span class="btn-label">Поповнити</span></button>
         <div class="items-quick-note"><span class="ms category-pill-icon" aria-hidden="true">tips_and_updates</span> Фокус: спершу критичні залишки</div>
       </div>
     </section>
-    <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
-      <div class="alert-banner"><span class="ms ic-16-3">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
-    </div>
-    <div class="g4 items-metrics insight-grid">
-      <div class="stat-card sc-red stat-hero" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms ic-13-2">production_quantity_limits</span> Закінчились</div><div class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></div></div>
-      <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms ic-13-2">inventory_2</span> Всі позиції</div><div class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></div></div>
-      <div class="stat-card sc-orange" data-stock-filter="low" role="button" tabindex="0"><div class="big" id="st-low">—</div><div class="lbl"><span class="ms ic-13-2">warning</span> Мало залишилось</div><div class="stat-icon" aria-hidden="true"><span class="ms">warning</span></div></div>
-      <div class="stat-card sc-green" data-stock-filter="ok" role="button" tabindex="0"><div class="big" id="st-ok">—</div><div class="lbl"><span class="ms ic-13-2">check_circle</span> В нормі</div><div class="stat-icon" aria-hidden="true"><span class="ms">check_circle</span></div></div>
+    <div class="g4 items-metrics insight-grid inventory-summary" aria-label="Підсумок складських запасів">
+      <article class="stat-card summary-card sc-green"><span class="big" id="st-available">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> Найменувань у наявності</span><span class="stat-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span></article>
+      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> Одиниць на складі</span><span class="stat-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M4 8h7v7H4zM13 4h7v7h-7zM13 13h7v7h-7z"/></svg></span></article>
+      <article class="stat-card summary-card sc-orange"><span class="big summary-money" id="st-value">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">payments</span> Орієнтовна вартість</span><span class="stat-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M3 6h18v12H3zM7 9.5a2.5 2.5 0 0 1-2.5 2.5A2.5 2.5 0 0 1 7 14.5M17 9.5a2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0-2.5 2.5M12 9v6m2-4.5c-.5-1-3-.8-3 .5 0 1.8 3.5.7 3.5 2.5 0 1.3-2.8 1.5-3.5.3"/></svg></span></article>
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
-        <button type="button" class="pill items-filter-pill is-success" id="inStockPill" data-filter-toggle="in-stock"><span class="ms items-filter-icon" aria-hidden="true">check_circle</span> Тільки в наявності</button>
-        <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Без внутрішніх</button>
-        <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Тільки внутрішні</button>
+        <button type="button" class="pill items-filter-pill is-success" id="inStockPill" data-filter-toggle="in-stock" aria-pressed="false"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки в наявності</span></button>
+        <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" aria-pressed="false" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Без внутрішніх</span></button>
+        <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" aria-pressed="false" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки внутрішні</span></button>
       </div>
-      <div class="items-filter-row pills-wrap" id="catPills">
-        <button type="button" class="pill active" data-category-filter="">Всі</button>
-        <button type="button" class="pill" data-category-filter="Прибирання"><span class="ms category-pill-icon" aria-hidden="true">cleaning_services</span> Прибирання</button>
-        <button type="button" class="pill" data-category-filter="Ремонт"><span class="ms category-pill-icon" aria-hidden="true">build</span> Ремонт</button>
-        <button type="button" class="pill" data-category-filter="Електрика"><span class="ms category-pill-icon" aria-hidden="true">bolt</span> Електрика</button>
-        <button type="button" class="pill" data-category-filter="Сантехніка"><span class="ms category-pill-icon" aria-hidden="true">plumbing</span> Сантехніка</button>
-        <button type="button" class="pill" data-category-filter="Відеоспостереження"><span class="ms category-pill-icon" aria-hidden="true">videocam</span> Відео</button>
-        <button type="button" class="pill" data-category-filter="Інше"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
+      <div class="items-filter-row pills-wrap" id="catPills" role="group" aria-label="Фільтр за категорією">
+        <button type="button" class="pill active" data-category-filter="" aria-pressed="true">Всі</button>
+        <button type="button" class="pill" data-category-filter="Прибирання" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">cleaning_services</span> Прибирання</button>
+        <button type="button" class="pill" data-category-filter="Ремонт" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">build</span> Ремонт</button>
+        <button type="button" class="pill" data-category-filter="Електрика" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">bolt</span> Електрика</button>
+        <button type="button" class="pill" data-category-filter="Сантехніка" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">plumbing</span> Сантехніка</button>
+        <button type="button" class="pill" data-category-filter="Відеоспостереження" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">videocam</span> Відео</button>
+        <button type="button" class="pill" data-category-filter="Інше" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">inventory_2</span> Інше</button>
       </div>
       <div class="items-filter-row items-search-row">
-        <div class="sw items-search-field"><span class="si"><span class="ms ic-18" aria-hidden="true">search</span></span><input class="inp" id="searchInp" aria-label="Пошук товарів" placeholder="Пошук..." data-render-items-input></div>
+        <div class="sw items-search-field"><span class="si" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg></span><input class="inp" id="searchInp" aria-label="Пошук складських найменувань" placeholder="Пошук..." data-render-items-input></div>
         <div id="itemsResultSummary" class="items-summary" aria-live="polite"></div>
         <button type="button" class="btn btn-ghost btn-sm items-reset-btn" id="resetItemFiltersBtn" data-sklad-action="reset-item-filters"><span class="ms items-reset-icon" aria-hidden="true">filter_alt_off</span> Скинути</button>
       </div>
     </div>
     <div class="card desktop-table table-modern">
       <table>
-        <thead><tr><th>#</th><th>Назва товару</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
+        <thead><tr><th>#</th><th>Найменування</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
         <tbody id="itemsTable">
           <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
           <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
@@ -862,7 +861,7 @@ const catIconName={'Прибирання':'cleaning_services','Ремонт':'bu
 const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
-const pageTitles={items:{icon:'inventory_2',label:'Товари на складі'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Прихід товару'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
+const pageTitles={items:{icon:'inventory_2',label:'Майно та матеріали'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
 const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
 function money(v){
@@ -896,6 +895,35 @@ function priceBadge(item){
     <span class="price-badge-value">${money(price)}</span>
     <span class="price-badge-source">${src}</span>
   </button>`;
+}
+
+const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history']);
+function emptyState(icon,title,supportingText=''){
+  const safeIcon=emptyStateIcons.has(icon)?icon:'inbox';
+  const supporting=supportingText
+    ? `<div class="md-empty-state-supporting">${escapeHtml(supportingText)}</div>`
+    : '';
+  return `<div class="empty md-empty-state">
+    <span class="ms md-empty-state-icon" aria-hidden="true">${safeIcon}</span>
+    <div class="md-empty-state-title">${escapeHtml(title)}</div>
+    ${supporting}
+  </div>`;
+}
+function skeletonRows(columns=1,rows=3){
+  const safeColumns=Math.min(8,Math.max(1,Math.trunc(columns)));
+  const safeRows=Math.min(6,Math.max(1,Math.trunc(rows)));
+  const cells=Array.from({length:safeColumns},(_,index)=>
+    `<td><span class="skel ${index%3===0?'skel-fluid-xl':'skel-fluid-md'}"></span></td>`
+  ).join('');
+  return Array.from({length:safeRows},()=>`<tr aria-hidden="true">${cells}</tr>`).join('');
+}
+function skeletonStack(rows=3){
+  const safeRows=Math.min(6,Math.max(1,Math.trunc(rows)));
+  return `<div class="skeleton-stack" aria-hidden="true">${Array.from({length:safeRows},()=>`
+    <div class="skeleton-card">
+      <span class="skel skel-fluid-xl"></span>
+      <span class="skel skel-fluid-md"></span>
+    </div>`).join('')}</div>`;
 }
 
 
@@ -1193,7 +1221,7 @@ async function loadItems(){
     toast('Товари не завантажились: '+error.message,'error');
     throw error;
   }
-  if(data){allItems=data;renderItems();updateStats();checkAlerts();}
+  if(data){allItems=data;renderItems();updateStats();}
   markDataUpdated();
 }
 async function loadLogs(){
@@ -1208,7 +1236,8 @@ let allReceipts=[];
 async function loadReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
-  if(tb) tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ios-gray);">Завантаження...</td></tr>';
+  if(tb) tb.innerHTML=skeletonRows(7,3);
+  if(mb) mb.innerHTML=skeletonStack(3);
   const {data,error}=await db.from('inventory_receipts').select('*').order('received_at',{ascending:false}).limit(200);
   if(error){
     const msg=msIcon('warning')+' '+error.message;
@@ -1230,9 +1259,11 @@ async function refreshAll(){
     await loadReceipts();
     markDataUpdated();
     toast('Дані оновлено','success');
+    return true;
   }catch(e){
     console.warn('refreshAll failed:',e);
     setRefreshStatus('ready','Помилка оновлення');
+    return false;
   }finally{
     refreshBusy=false;
     const btn=document.getElementById('refreshBtn');
@@ -1243,58 +1274,107 @@ async function refreshAll(){
   }
 }
 
-// ===== ALERTS =====
-function checkAlerts(){
-  const zero=allItems.filter(i=>i.quantity==0).length;
-  const low=allItems.filter(i=>i.quantity>0&&i.quantity<=3).length;
-  const total=zero+low;
-  const sb=document.getElementById('sb-alert');
-  const bnA=document.getElementById('bn-alert');
-  const banner=document.getElementById('alertBanner');
-  if(total>0){
-    if(sb){sb.style.display='inline-block';sb.textContent=total;}
-    if(bnA){bnA.style.display='inline-block';bnA.textContent=total;}
-    banner.style.display='block';
-    // Розбивку "закінчились"/"на межі" не повторюємо тут словами — вона вже
-    // видна цифрами в картках нижче (insight-grid). Банер лишає одне число й
-    // веде на Статистику, а не дублює той самий факт другий раз.
-    document.getElementById('alertText').textContent='Потребує уваги: '+total+' позицій';
-  } else {
-    if(sb) sb.style.display='none';
-    if(bnA) bnA.style.display='none';
-    banner.style.display='none';
-  }
+function initPullToRefresh(){
+  const indicator=document.getElementById('pullRefresh');
+  const label=document.getElementById('pullRefreshLabel');
+  if(!indicator || !label || !window.matchMedia('(max-width: 768px)').matches) return;
+
+  const threshold=72;
+  let startX=0;
+  let startY=0;
+  let distance=0;
+  let tracking=false;
+
+  const reset=()=>{
+    tracking=false;
+    distance=0;
+    indicator.classList.remove('is-visible','is-ready','is-refreshing');
+    indicator.style.removeProperty('--pull-distance');
+    indicator.style.removeProperty('--pull-rotation');
+    label.textContent='';
+  };
+
+  document.addEventListener('touchstart',event=>{
+    if(event.touches.length!==1 || window.scrollY>0 || refreshBusy) return;
+    if(document.querySelector('.modal-bg.open,.lightbox.open')) return;
+    const touch=event.touches[0];
+    startX=touch.clientX;
+    startY=touch.clientY;
+    distance=0;
+    tracking=true;
+  },{passive:true});
+
+  document.addEventListener('touchmove',event=>{
+    if(!tracking || event.touches.length!==1) return;
+    const touch=event.touches[0];
+    const deltaX=touch.clientX-startX;
+    const deltaY=touch.clientY-startY;
+    if(deltaY<=0 || (Math.abs(deltaX)>Math.abs(deltaY) && distance<8)){
+      reset();
+      return;
+    }
+    if(event.cancelable) event.preventDefault();
+    distance=Math.min(112,deltaY*.55);
+    const ready=distance>=threshold;
+    indicator.style.setProperty('--pull-distance',`${distance}px`);
+    indicator.style.setProperty('--pull-rotation',`${Math.min(distance,threshold)*3}deg`);
+    indicator.classList.add('is-visible');
+    indicator.classList.toggle('is-ready',ready);
+    label.textContent=ready?'Відпустіть для оновлення':'Потягніть для оновлення';
+  },{passive:false});
+
+  document.addEventListener('touchend',async()=>{
+    if(!tracking) return;
+    const shouldRefresh=distance>=threshold;
+    tracking=false;
+    if(!shouldRefresh){
+      reset();
+      return;
+    }
+    indicator.classList.remove('is-ready');
+    indicator.classList.add('is-refreshing');
+    indicator.style.setProperty('--pull-distance',`${threshold}px`);
+    label.textContent='Оновлення даних…';
+    const success=await refreshAll();
+    label.textContent=success?'Дані оновлено':'Не вдалося оновити';
+    window.setTimeout(reset,600);
+  },{passive:true});
+
+  document.addEventListener('touchcancel',reset,{passive:true});
 }
 
 // ===== STAT CARD FILTER =====
 function filterByStock(mode,card){
   stockFilter=(stockFilter===mode)?'':mode;
-  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('sc-active'));
-  if(stockFilter) card.classList.add('sc-active');
+  document.querySelectorAll('.stat-card').forEach(c=>{
+    const active=Boolean(stockFilter)&&c===card;
+    c.classList.toggle('sc-active',active);
+    c.setAttribute('aria-pressed',String(active));
+  });
   renderItems();
   document.querySelector('.desktop-table,.mobile-cards')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ===== FILTER CAT =====
 function filterCat(btn,cat){
-  document.querySelectorAll('#catPills .pill').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('#catPills .pill').forEach(b=>{
+    const active=b===btn;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',String(active));
+  });
   curCat=cat;renderItems();
 }
 
 // ===== IN STOCK ONLY TOGGLE =====
 let inStockOnly=false;
+function setFilterPillState(button,active){
+  if(!button) return;
+  button.classList.toggle('active',active);
+  button.setAttribute('aria-pressed',String(active));
+}
 function toggleInStock(btn){
   inStockOnly=!inStockOnly;
-  if(inStockOnly){
-    btn.classList.add('active');
-    btn.style.background='var(--ios-green)';
-    btn.style.color='#fff';
-  } else {
-    btn.classList.remove('active');
-    btn.style.background='';
-    btn.style.color='var(--ios-green)';
-  }
+  setFilterPillState(btn,inStockOnly);
   renderItems();
 }
 
@@ -1304,25 +1384,18 @@ function toggleInStock(btn){
 // автоматично вимикає інший (див. toggleHideInternal/toggleOnlyInternal).
 let hideInternal=false;
 let onlyInternal=false;
-function resetInternalPill(id,color){
+function resetInternalPill(id){
   const btn=document.getElementById(id);
-  if(!btn) return;
-  btn.classList.remove('active');
-  btn.style.background='';
-  btn.style.color=color;
+  setFilterPillState(btn,false);
 }
 function toggleHideInternal(btn){
   hideInternal=!hideInternal;
   if(hideInternal){
     onlyInternal=false;
-    resetInternalPill('onlyInternalPill','var(--ios-orange)');
-    btn.classList.add('active');
-    btn.style.background='var(--ios-orange)';
-    btn.style.color='#fff';
+    resetInternalPill('onlyInternalPill');
+    setFilterPillState(btn,true);
   } else {
-    btn.classList.remove('active');
-    btn.style.background='';
-    btn.style.color='var(--ios-orange)';
+    setFilterPillState(btn,false);
   }
   renderItems();
 }
@@ -1330,14 +1403,10 @@ function toggleOnlyInternal(btn){
   onlyInternal=!onlyInternal;
   if(onlyInternal){
     hideInternal=false;
-    resetInternalPill('hideInternalPill','var(--ios-orange)');
-    btn.classList.add('active');
-    btn.style.background='var(--ios-orange)';
-    btn.style.color='#fff';
+    resetInternalPill('hideInternalPill');
+    setFilterPillState(btn,true);
   } else {
-    btn.classList.remove('active');
-    btn.style.background='';
-    btn.style.color='var(--ios-orange)';
+    setFilterPillState(btn,false);
   }
   renderItems();
 }
@@ -1349,16 +1418,19 @@ function resetItemFilters(){
   onlyInternal=false;
   const search=document.getElementById('searchInp');
   if(search) search.value='';
-  document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('sc-active'));
-  document.querySelectorAll('#catPills .pill').forEach((b,idx)=>b.classList.toggle('active',idx===0));
+  document.querySelectorAll('.stat-card').forEach(c=>{
+    c.classList.remove('sc-active');
+    c.setAttribute('aria-pressed','false');
+  });
+  document.querySelectorAll('#catPills .pill').forEach((b,idx)=>{
+    const active=idx===0;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',String(active));
+  });
   const inStock=document.getElementById('inStockPill');
-  if(inStock){
-    inStock.classList.remove('active');
-    inStock.style.background='';
-    inStock.style.color='var(--ios-green)';
-  }
-  resetInternalPill('hideInternalPill','var(--ios-orange)');
-  resetInternalPill('onlyInternalPill','var(--ios-orange)');
+  setFilterPillState(inStock,false);
+  resetInternalPill('hideInternalPill');
+  resetInternalPill('onlyInternalPill');
   renderItems();
   toast('Фільтри скинуто','info');
 }
@@ -1716,6 +1788,14 @@ function positionItemMenu(menu){
   panel.style.top='';
   panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
+  // backdrop-filter у topbar створює власний containing block. `position: fixed`
+  // у ньому рахується не від viewport і виносить меню за межі екрана, тому
+  // верхнє меню позиціонуємо локально під кнопкою.
+  if(menu.classList.contains('topbar-more')){
+    menu.classList.add('opens-down');
+    panel.style.maxHeight=Math.max(120,window.innerHeight-summaryRect.bottom-16)+'px';
+    return;
+  }
   const bottomNav=document.querySelector('.bottom-nav');
   const viewportPadding=8;
   const topBoundary=viewportPadding;
@@ -1889,9 +1969,15 @@ function renderItems(){
   // Desktop table
   const tb=document.getElementById('itemsTable');
   if(!items.length){
-    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"><span class="ms ic-40">search_off</span></div>Нічого не знайдено</div></td></tr>';
+    const isFiltered=Boolean(s||curCat||stockFilter!=='all'||inStockOnly||hideInternal||onlyInternal);
+    const state=emptyState(
+      isFiltered?'search_off':'inventory_2',
+      isFiltered?'Товарів не знайдено':'Склад поки порожній',
+      isFiltered?'Змініть пошук або скиньте активні фільтри.':'Додайте перший товар, щоб почати облік залишків.'
+    );
+    tb.innerHTML=`<tr><td colspan="8">${state}</td></tr>`;
     const mc=document.getElementById('mobileCards');
-    if(mc) mc.innerHTML='<div class="empty empty-compact"><span class="ms ic-16-3">search_off</span> Нічого не знайдено</div>';
+    if(mc) mc.innerHTML=state;
     return;
   }
   tb.innerHTML=items.map((item,idx)=>{
@@ -1975,10 +2061,13 @@ function renderItems(){
 }
 
 function updateStats(){
-  animateNumber(document.getElementById('st-total'),allItems.length);
-  animateNumber(document.getElementById('st-zero'),allItems.filter(i=>i.quantity==0).length);
-  animateNumber(document.getElementById('st-low'),allItems.filter(i=>i.quantity>0&&i.quantity<=3).length);
-  animateNumber(document.getElementById('st-ok'),allItems.filter(i=>i.quantity>3).length);
+  const available=allItems.filter(item=>Number(item.quantity)>0).length;
+  const units=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0),0);
+  const value=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0)*priceValue(item),0);
+  animateNumber(document.getElementById('st-available'),available);
+  animateNumber(document.getElementById('st-units'),units);
+  const valueElement=document.getElementById('st-value');
+  if(valueElement) valueElement.textContent=value>0?money(value):'0 грн';
 }
 
 // ===== QUICK MODAL =====
@@ -2144,9 +2233,11 @@ function renderLog(){
   const tb=document.getElementById('logTable');
   const mb=document.getElementById('logMobileList');
   if(!logs.length){
-    const empty=s?'Нічого не знайдено':'Видач ще не було';
-    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div>`;
+    const state=s
+      ? emptyState('search_off','Записів не знайдено','Спробуйте змінити пошуковий запит.')
+      : emptyState('history','Видач ще не було','Нові операції видачі з’являться тут автоматично.');
+    tb.innerHTML=`<tr><td colspan="6">${state}</td></tr>`;
+    mb.innerHTML=state;
     return;
   }
   tb.innerHTML=logs.map(l=>{
@@ -2271,9 +2362,11 @@ function renderReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
   if(!recs.length){
-    const empty=s?'Нічого не знайдено':'Приходів ще не було';
-    tb.innerHTML=`<tr><td colspan="7"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div>`;
+    const state=s
+      ? emptyState('search_off','Приходів не знайдено','Спробуйте змінити пошуковий запит.')
+      : emptyState('inbox','Приходів ще не було','Після поповнення складу операції з’являться тут.');
+    tb.innerHTML=`<tr><td colspan="7">${state}</td></tr>`;
+    mb.innerHTML=state;
     return;
   }
   tb.innerHTML=recs.map(r=>{
@@ -2942,7 +3035,7 @@ async function fetchItemPrice(){
   const item=allItems.find(i=>String(i.id)===String(id));
   if(!item) return toast('Оберіть товар','error');
   const box=document.getElementById('priceResults');
-  box.innerHTML='<div class="price-results-state is-loading"><span class="ms" aria-hidden="true">sync</span> Шукаю ціни...</div>';
+  box.innerHTML=`<div class="price-results-state is-loading" role="status" aria-label="Пошук цін">${skeletonStack(3)}</div>`;
   try{
     const res=await fetch(PRICE_LOOKUP_URL,{
       method:'POST',
@@ -3068,7 +3161,7 @@ async function openHistory(itemId){
   const unit=escapeHtml(item.unit||'');
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
-  document.getElementById('histList').innerHTML='<div class="history-modal-state">Завантаження...</div>';
+  document.getElementById('histList').innerHTML=skeletonStack(3);
   openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
   if(!data||!data.length){
@@ -3368,6 +3461,7 @@ bindNewProductMatchActions();
 bindPhotoCurrentActions();
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindSkladStaticControls,{once:true});
 else bindSkladStaticControls();
+initPullToRefresh();
 setRefreshStatus('syncing','Завантаження...');
 loadItems()
   .then(()=>loadLogs())
@@ -3382,10 +3476,9 @@ initRealtime();
 
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">
-  <button type="button" class="bn-item active" data-page="items" aria-current="page" aria-label="Товари">
+  <button type="button" class="bn-item active" data-page="items" aria-current="page" aria-label="Запаси">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">inventory_2</span></span></div>
-    <span class="bn-label">Товари</span>
-    <span class="bn-badge" id="bn-alert" style="display:none">!</span>
+    <span class="bn-label">Запаси</span>
   </button>
   <button type="button" class="bn-item" data-page="issue" aria-label="Видача">
     <div class="bn-icon-wrap"><span class="bn-icon"><span class="ms" aria-hidden="true">output</span></span></div>
