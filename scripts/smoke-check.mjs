@@ -58,7 +58,7 @@ const checks = [
   ['osbb/index.html', "el.setAttribute('aria-selected', String(t === tab))", 'journal tab switch updates aria-selected'],
   ['sklad/index.html', '<nav aria-label="Розділи складу">', 'sklad sidebar exposes navigation label'],
   ['sklad/index.html', 'id="bottomNav" aria-label="Мобільні розділи складу"', 'sklad bottom nav exposes navigation label'],
-  ['sklad/index.html', 'data-page="items" role="button" tabindex="0" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
+  ['sklad/index.html', 'class="ni active" data-page="items" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
   ['sklad/index.html', 'class="bn-item active" data-page="items" aria-current="page"', 'sklad bottom nav active page exposes aria-current'],
   ['sklad/index.html', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
   ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
@@ -701,8 +701,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     '.topbar{padding:0 8px;height:56px;border-radius:0 0 18px 18px;gap:6px;}',
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-    '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;line-height:1!important;}',
+    '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;padding:0!important;line-height:1!important;}',
     '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid!important;place-items:center!important;width:1em!important;height:1em!important;font-size:21px!important;line-height:1!important;margin:0!important;}',
+    '.topbar-more summary{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px;height:48px;min-height:48px;padding:0;line-height:1!important;}',
     // Секондарні дії (графік/оцінка цін/прихід/тема) згорнуті в overflow-меню замість
     // окремих кнопок в ряд — це саме те, що фіксить попередній баг "тема недоступна на мобілці".
     '<details class="item-more topbar-more">',
@@ -3254,6 +3255,30 @@ ${sharedSelectText}`;
   if (missing.length || hiddenFilterIconInButton) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; hidden filter icon: ${hiddenFilterIconInButton})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Desktop navigation Складу використовує нативні button controls замість
+// div role="button" і зберігає aria-current для активної сторінки.
+{
+  const text = readSkladCombined();
+  const label = 'sklad desktop navigation uses native Material 3 buttons';
+  const required = [
+    '<button type="button" class="ni active" data-page="items" aria-current="page">',
+    '<button type="button" class="ni" data-page="issue">',
+    '<button type="button" class="ni" data-page="stats">',
+    '.ni{display:flex;width:calc(100% - 16px);align-items:center;',
+    'font:inherit;font-size:14px;font-weight:600;line-height:1.2;text-align:left;',
+    "n.setAttribute('aria-current','page')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const legacyNav = /class="ni[^"]*"[^>]*role="button"/.test(text);
+  if (missing.length || legacyNav) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; legacy nav: ${legacyNav})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
