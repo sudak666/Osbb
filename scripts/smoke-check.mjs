@@ -3289,7 +3289,7 @@ ${sharedSelectText}`;
     'line-height:1.2;text-align:center;vertical-align:middle;',
     '.btn .ms{align-self:center;margin:0;line-height:1;}',
     '.btn-label{display:inline-flex;align-items:center;justify-content:center;',
-    '.btn.items-hero-action{display:inline-grid;place-items:center;}',
+    '.btn.items-hero-action{display:inline-grid;place-items:center;min-width:116px;padding-inline:38px;}',
     '.items-filter-icon{position:absolute;left:14px;top:50%;',
     '.items-filter-label{display:grid;place-items:center;width:100%;height:100%;',
     '.pill.items-filter-pill{display:inline-grid;place-items:center;padding:0 32px;}',
