@@ -24,7 +24,7 @@ alter table work_shift_auth enable row level security;
 
 -- Замініть 2468 на власний чотиризначний PIN перед виконанням міграції.
 insert into work_shift_auth (id, pin_hash)
-values (1, extensions.crypt('1980', extensions.gen_salt('bf')))
+values (1, extensions.crypt('2468', extensions.gen_salt('bf')))
 on conflict (id) do nothing;
 
 create table if not exists work_shift_pin_attempts (

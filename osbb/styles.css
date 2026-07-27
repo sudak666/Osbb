@@ -619,8 +619,12 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .shift-day-number { font-size:14px; font-weight:850; font-variant-numeric:tabular-nums; }
 .shift-day-indicators { display:flex; align-items:center; gap:5px; min-height:12px; }
 .shift-dot { display:inline-block; width:10px; height:10px; border-radius:50%; }
-.shift-dot.is-sergiy { background:var(--md-sys-color-primary,#22c55e); }
-.shift-dot.is-oleksandr { background:var(--md-sys-color-secondary,#3b82f6); }
+.shift-dot.is-sergiy { --shift-marker-color:var(--md-sys-color-primary,#22c55e); background:var(--shift-marker-color); }
+.shift-dot.is-oleksandr { --shift-marker-color:var(--md-sys-color-secondary,#3b82f6); background:var(--shift-marker-color); }
+.shift-dot.is-half { box-sizing:border-box; border:1px solid var(--shift-marker-color); background:linear-gradient(90deg,var(--shift-marker-color) 50%,transparent 50%); }
+.shift-type-mark { display:inline-block; box-sizing:border-box; width:10px; height:10px; border-radius:50%; border:1px solid var(--md-sys-color-on-surface-variant); }
+.shift-type-mark.is-full { background:var(--md-sys-color-on-surface-variant); }
+.shift-type-mark.is-half { background:linear-gradient(90deg,var(--md-sys-color-on-surface-variant) 50%,transparent 50%); }
 .shift-auto-mark { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--md-sys-color-outline); }
 .shift-legend { display:flex; flex-wrap:wrap; gap:14px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:750; }
 .shift-legend span { display:inline-flex; align-items:center; gap:6px; }

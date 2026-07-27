@@ -298,7 +298,7 @@
             </div>
             <div class="shift-weekdays" aria-hidden="true"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span></div>
             <div id="shift-calendar" class="shift-calendar" aria-label="Календар робочих змін"></div>
-            <div class="shift-legend" aria-label="Позначення працівників"><span><i class="shift-dot is-sergiy"></i><span id="shift-legend-sergiy">Сергій</span></span><span><i class="shift-dot is-oleksandr"></i><span id="shift-legend-oleksandr">Олександр</span></span><span><i class="shift-auto-mark"></i>Типовий графік</span></div>
+            <div class="shift-legend" aria-label="Позначення працівників"><span><i class="shift-dot is-sergiy"></i><span id="shift-legend-sergiy">Сергій</span></span><span><i class="shift-dot is-oleksandr"></i><span id="shift-legend-oleksandr">Олександр</span></span><span><i class="shift-type-mark is-full"></i>Ціла</span><span><i class="shift-type-mark is-half"></i>Пів зміни</span><span><i class="shift-auto-mark"></i>Типовий графік</span></div>
             <div class="shift-stats-grid">
                 <article class="shift-stat-card is-sergiy"><div class="shift-stat-head"><strong id="shift-stat-name-sergiy">Сергій</strong><span id="shift-money-sergiy">0 грн</span></div><p>Днів / Ночей / Пів ночі</p><strong id="shift-stats-sergiy" class="shift-stat-counts">0 / 0 / 0</strong></article>
                 <article class="shift-stat-card is-oleksandr"><div class="shift-stat-head"><strong id="shift-stat-name-oleksandr">Олександр</strong><span id="shift-money-oleksandr">0 грн</span></div><p>Днів / Ночей / Пів ночі</p><strong id="shift-stats-oleksandr" class="shift-stat-counts">0 / 0 / 0</strong></article>
@@ -836,6 +836,11 @@
         document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
+    function requestTab(tab) {
+        if (tab !== 'shifts') { setTab(tab); return; }
+        showPinModal('PIN графіка змін', 'Введіть окремий PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
+    }
+
     function setTab(tab) {
         currentTab = tab;
         document.getElementById('section-journal').classList.toggle('hidden', tab !== 'journal');
@@ -917,6 +922,32 @@
         return Array.isArray(values) && values.some(value => value !== 'rest');
     }
 
+    function shiftTypeDescription(values) {
+        if (!Array.isArray(values) || !shiftIsWorking(values)) return 'вихідний';
+        const hasFull = values.includes('day') || values.includes('night');
+        const hasHalf = values.includes('night_half2');
+        if (hasFull && hasHalf) return 'ціла і пів зміни';
+        if (hasHalf) return 'пів зміни';
+        return 'ціла зміна';
+    }
+
+    function shiftAppendIndicators(container, person, values) {
+        const hasFull = Array.isArray(values) && (values.includes('day') || values.includes('night'));
+        const hasHalf = Array.isArray(values) && values.includes('night_half2');
+        if (hasFull) {
+            const marker = document.createElement('i');
+            marker.className = `shift-dot is-${person} is-full`;
+            marker.setAttribute('aria-hidden','true');
+            container.appendChild(marker);
+        }
+        if (hasHalf) {
+            const marker = document.createElement('i');
+            marker.className = `shift-dot is-${person} is-half`;
+            marker.setAttribute('aria-hidden','true');
+            container.appendChild(marker);
+        }
+    }
+
     function shiftSetStatus(text, state='ready') {
         const status = document.getElementById('shift-sync-status');
         if (!status) return;
@@ -980,22 +1011,14 @@
             if (key === today) button.classList.add('is-today');
             if (!shiftRows[key] && key <= today) button.classList.add('is-auto');
             button.dataset.shiftDate = key;
-            button.setAttribute('aria-label', `${day} ${shiftMonths[month]}: ${shiftNames.sergiy} ${shiftIsWorking(data.sergiy)?'працює':'вихідний'}, ${shiftNames.oleksandr} ${shiftIsWorking(data.oleksandr)?'працює':'вихідний'}`);
+            button.setAttribute('aria-label', `${day} ${shiftMonths[month]}: ${shiftNames.sergiy} — ${shiftTypeDescription(data.sergiy)}, ${shiftNames.oleksandr} — ${shiftTypeDescription(data.oleksandr)}`);
             const number = document.createElement('span');
             number.className = 'shift-day-number';
             number.textContent = String(day);
             const indicators = document.createElement('span');
             indicators.className = 'shift-day-indicators';
-            if (shiftIsWorking(data.sergiy)) {
-                const dot = document.createElement('i');
-                dot.className = 'shift-dot is-sergiy';
-                indicators.appendChild(dot);
-            }
-            if (shiftIsWorking(data.oleksandr)) {
-                const dot = document.createElement('i');
-                dot.className = 'shift-dot is-oleksandr';
-                indicators.appendChild(dot);
-            }
+            shiftAppendIndicators(indicators, 'sergiy', data.sergiy);
+            shiftAppendIndicators(indicators, 'oleksandr', data.oleksandr);
             button.append(number, indicators);
             calendar.appendChild(button);
         }
@@ -2378,7 +2401,7 @@
             button.addEventListener('click', () => stepMonth(Number(button.dataset.monthStep)));
         });
         document.querySelectorAll('[data-osbb-tab]').forEach((button) => {
-            button.addEventListener('click', () => setTab(button.dataset.osbbTab));
+            button.addEventListener('click', () => requestTab(button.dataset.osbbTab));
         });
         document.querySelectorAll('[data-shift-action]').forEach((button) => {
             const handlers = {
