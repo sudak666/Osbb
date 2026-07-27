@@ -562,14 +562,15 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 /* [data-tip]-тултіпи тепер у ../shared/ui.css (ідентичні у всіх модулях) */
 
 /* TOAST */
-#toast{position:fixed;bottom:24px;right:24px;padding:13px 20px;border-radius:var(--md-sys-shape-corner-medium,14px);font-size:14px;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:transform var(--md-sys-motion-duration-medium2,.3s) var(--md-sys-motion-easing-emphasized,cubic-bezier(.34,1.56,.64,1)),opacity var(--md-sys-motion-duration-medium2,.3s) ease;pointer-events:none;box-shadow:var(--md-sys-elevation-level3,0 8px 32px rgba(0,0,0,.18));max-width:340px;backdrop-filter:blur(10px);}
+#toast{position:fixed;bottom:24px;right:24px;display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 16px;border-radius:var(--md-sys-shape-corner-small,8px);background:var(--md-sys-color-inverse-surface,#1e293b);color:var(--md-sys-color-inverse-on-surface,#fff);font-size:14px;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:transform var(--md-sys-motion-duration-medium2,.3s) var(--md-sys-motion-easing-emphasized,cubic-bezier(.2,0,0,1)),opacity var(--md-sys-motion-duration-medium2,.3s) ease;pointer-events:none;box-shadow:var(--md-sys-elevation-level3);max-width:340px;}
 #toast.show{transform:translateY(0);opacity:1;}
-#toast.success{background:var(--ios-green);color:#fff;}
-#toast.error{background:var(--md-sys-color-error,var(--ios-red));color:var(--md-sys-color-on-error,#fff);}
-#toast.info{background:var(--ios-blue);color:#fff;}
+#toast.success,#toast.error,#toast.info{background:var(--md-sys-color-inverse-surface,#1e293b);color:var(--md-sys-color-inverse-on-surface,#fff);}
+#toast.success .ms{color:var(--md-sys-color-primary-fixed-dim,var(--ios-green));}
+#toast.error .ms{color:var(--md-sys-color-error,#f87171);}
+#toast.info .ms{color:var(--md-sys-color-secondary,#93c5fd);}
 
 /* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:50;display:none;align-items:center;justify-content:center;}
+.modal-bg{position:fixed;inset:0;background:color-mix(in srgb,var(--md-sys-color-scrim,#000) 54%,transparent);z-index:50;display:none;align-items:center;justify-content:center;}
 .modal-bg.open{display:flex;}
 .modal{background:var(--md-sys-color-surface-container-high,var(--ios-card));border:0;border-radius:var(--md-sys-shape-corner-extra-large,28px);padding:24px;width:440px;max-width:95vw;box-shadow:var(--md-sys-elevation-level3);animation:popIn var(--md-sys-motion-duration-medium2,.26s) var(--md-sys-motion-easing-emphasized,var(--ease-spring));}
 @keyframes popIn{from{transform:translateY(10px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
@@ -944,6 +945,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 /* Mobile topbar: keep action icons centered and prevent crowding on narrow screens. */
 @media(max-width:768px){
   /* На мобільних усі робочі діалоги поводяться як M3 modal bottom sheet. */
+  #toast{left:12px;right:12px;bottom:calc(100px + env(safe-area-inset-bottom));max-width:none;justify-content:flex-start;}
   .modal-bg{align-items:flex-end!important;padding:64px 0 0!important;overflow:hidden!important;}
   .modal-bg .modal{position:relative;width:100%!important;max-width:100%!important;max-height:calc(92dvh - env(safe-area-inset-bottom))!important;margin:0!important;padding:24px 20px calc(20px + env(safe-area-inset-bottom))!important;border-radius:var(--md-sys-shape-corner-extra-large,28px) var(--md-sys-shape-corner-extra-large,28px) 0 0!important;overflow-y:auto!important;box-shadow:var(--md-sys-elevation-level3)!important;}
   .modal-bg .modal::before{content:'';display:block;width:32px;height:4px;margin:-12px auto 16px;border-radius:var(--md-sys-shape-corner-full,999px);background:var(--md-sys-color-on-surface-variant);opacity:.4;}

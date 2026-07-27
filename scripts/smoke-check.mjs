@@ -3125,6 +3125,31 @@ ${sharedSelectText}`;
   }
 }
 
+// Toast Складу відповідає M3 snackbar: inverse surface, 48px, semantic icon
+// colors і мобільне розміщення над navigation bar; modal scrim без blur.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad feedback uses Material 3 snackbar and scrim';
+  const required = [
+    '#toast{position:fixed;bottom:24px;right:24px;display:flex;align-items:center;',
+    'min-height:48px;',
+    'background:var(--md-sys-color-inverse-surface',
+    '#toast.success .ms{color:var(--md-sys-color-primary-fixed-dim',
+    '#toast.error .ms{color:var(--md-sys-color-error',
+    '#toast.info .ms{color:var(--md-sys-color-secondary',
+    '#toast{left:12px;right:12px;bottom:calc(100px + env(safe-area-inset-bottom))',
+    '.modal-bg{position:fixed;inset:0;background:color-mix(in srgb,var(--md-sys-color-scrim',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
