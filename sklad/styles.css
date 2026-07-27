@@ -687,8 +687,17 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 
 /* ===MOBILE === */
 .mobile-cards{display:none;}
+.pull-refresh{display:none;}
 
 @media(max-width:768px){
+  html,body{overscroll-behavior-y:contain;}
+  .pull-refresh{--pull-distance:0px;--pull-rotation:0deg;position:fixed;z-index:45;top:0;left:50%;display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 16px;border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-sys-shape-corner-full,999px);background:var(--md-sys-color-surface-container-high,var(--surface-2));color:var(--md-sys-color-on-surface,var(--text-1));box-shadow:var(--md-sys-elevation-level2);opacity:0;pointer-events:none;transform:translate(-50%,calc(var(--pull-distance) - 56px)) scale(.92);transition:opacity var(--motion-fast),transform var(--motion-base) var(--ease-out);}
+  .pull-refresh.is-visible{opacity:1;transform:translate(-50%,max(8px,calc(var(--pull-distance) - 56px))) scale(1);}
+  .pull-refresh-indicator{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);}
+  .pull-refresh-glyph{display:block;font-size:22px;font-weight:700;line-height:1;transform:rotate(var(--pull-rotation));transition:transform var(--motion-fast);}
+  .pull-refresh.is-ready .pull-refresh-indicator{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);}
+  .pull-refresh.is-refreshing .pull-refresh-glyph{animation:pull-refresh-spin .75s linear infinite;}
+  .pull-refresh-label{font-size:var(--md-sys-typescale-label-large-size,14px);font-weight:700;white-space:nowrap;}
   html{scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom));}
   .sidebar{display:none!important;}
   .main{margin-left:0!important;padding-bottom:calc(88px + env(safe-area-inset-bottom));}
@@ -787,6 +796,8 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   #page-audit .audit-toolbar .btn{font-size:12px!important;padding:6px 10px!important;}
   #auditList>div{padding:10px 12px!important;}
 }
+
+@keyframes pull-refresh-spin{to{transform:rotate(360deg);}}
 
 /* === Material 3 navigation bar === */
 .bottom-nav{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:12px;right:12px;background:var(--md-sys-color-surface-container-high,var(--surface-2));z-index:30;height:72px;align-items:stretch;border:1px solid var(--md-sys-color-outline-variant,var(--ios-sep));border-radius:var(--md-sys-shape-corner-extra-large,28px);box-shadow:var(--md-sys-elevation-level2);}

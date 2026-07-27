@@ -2634,6 +2634,31 @@ ${sharedSelectText}`;
   }
 }
 
+// Мобільний Pull-to-Refresh має використовувати наявний безпечний refreshAll,
+// запускатися лише з верхньої межі сторінки та не конфліктувати з модалами.
+{
+  const text = readSkladCombined();
+  const label = 'sklad mobile view exposes accessible pull-to-refresh';
+  const required = [
+    'id="pullRefresh" class="pull-refresh" role="status" aria-live="polite"',
+    'function initPullToRefresh()',
+    "window.scrollY>0 || refreshBusy",
+    "document.querySelector('.modal-bg.open,.lightbox.open')",
+    "document.addEventListener('touchmove',event=>",
+    "const success=await refreshAll()",
+    'initPullToRefresh();',
+    '.pull-refresh.is-refreshing .pull-refresh-glyph{animation:pull-refresh-spin .75s linear infinite;}',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Action buttons can be clicked from stale DOM after refreshes/deletes. Guarding
 // central item lookup prevents modal handlers from crashing on `item.name` /
 // `item.unit` when a row no longer exists in the latest `allItems` collection.
