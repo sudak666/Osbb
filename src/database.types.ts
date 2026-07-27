@@ -2,6 +2,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Timestamp = string;
 export type BigIntId = number;
+export type WorkShiftType = 'day' | 'night' | 'night_half2' | 'rest';
 
 export interface RowOperation<Row> {
     Row: Row;
@@ -96,6 +97,13 @@ export interface Database {
                 url: string;
                 created_at: Timestamp | null;
             }>;
+            work_shifts: RowOperation<{
+                shift_date: string;
+                month_key: string;
+                sergiy: WorkShiftType[];
+                oleksandr: WorkShiftType[];
+                updated_at: Timestamp;
+            }>;
             app_auth: RowOperation<{
                 id: number;
                 pin_hash: string;
@@ -138,6 +146,10 @@ export interface Database {
             };
             reset_month: {
                 Args: { table_name: 'schedule' | 'garbage' | 'dispatcher'; p_month_key: string; attempt: string };
+                Returns: boolean;
+            };
+            reset_work_shifts_month: {
+                Args: { p_month_key: string; attempt: string };
                 Returns: boolean;
             };
             verify_pin: {

@@ -3099,6 +3099,47 @@ ${sharedSelectText}`;
   }
 }
 
+// smena-web інтегровано як нативну M3-вкладку Журналу на спільному Supabase,
+// без другого PIN, Firebase SDK або окремого service worker.
+{
+  const html = readFileSync('osbb/index.html', 'utf8');
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const migration = readFileSync('sklad/supabase/011_add_work_shifts.sql', 'utf8');
+  const importer = readFileSync('scripts/import-smena-firestore.mjs', 'utf8');
+  const readme = readFileSync('README.md', 'utf8');
+  const databaseTypes = readFileSync('src/database.types.ts', 'utf8');
+  const label = 'journal integrates smena schedule with Material 3 and Supabase';
+  const required = [
+    'data-osbb-tab="shifts" id="tab-shifts"',
+    'data-osbb-tab="shifts" id="tab-shifts-m"',
+    'id="section-shifts"',
+    "document.getElementById('journal-dashboard').classList.toggle('hidden', tab !== 'journal')",
+    'function shiftLoadMonth()',
+    "db.from('work_shifts').select('*').eq('month_key', shiftMonthKey())",
+    "db.from('work_shifts').upsert({ shift_date:shiftSelectedDate",
+    "db.rpc('reset_work_shifts_month'",
+    "table: 'work_shifts'",
+    "addEventListener('keydown', shiftTrapEditorFocus)",
+    '.shift-shell { display:grid;',
+    '.shift-editor-overlay.is-open { display:flex; }',
+    '.hidden { display:none!important; }',
+  ];
+  const combined = html + '\n' + css;
+  const missing = required.filter(needle => !combined.includes(needle));
+  const migrationReady = migration.includes('create table if not exists work_shifts')
+    && migration.includes('create or replace function reset_work_shifts_month');
+  const importerReady = importer.includes('firestore.googleapis.com') && importer.includes('/rest/v1/work_shifts?on_conflict=shift_date');
+  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('scripts/import-smena-firestore.mjs');
+  const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:');
+  if (missing.length || !migrationReady || !importerReady || !docsReady || !typesReady) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; migration: ${migrationReady}; importer: ${importerReady}; docs: ${docsReady}; types: ${typesReady})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Поля та кастомні select-и Складу дотримуються M3 outlined/tonal розмірів:
 // 56px field, 48px option і secondary-container для вибраного значення.
 {
