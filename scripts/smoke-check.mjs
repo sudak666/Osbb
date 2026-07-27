@@ -3075,6 +3075,28 @@ ${sharedSelectText}`;
   }
 }
 
+// На планшетах navigation rail розгортається разом із відступом основного
+// контенту, тому slide-out не накладається на робочу область.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad tablet sidebar expands without covering content';
+  const required = [
+    '@media(min-width:769px) and (max-width:960px) and (hover:hover)',
+    '.sidebar:is(:hover,:focus-within){width:var(--sb);}',
+    '.sidebar:is(:hover,:focus-within) + .main{margin-left:var(--sb);}',
+    '.sidebar:is(:hover,:focus-within) .nav-label,',
+    'transition:margin-left var(--md-sys-motion-duration-medium2',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Поля та кастомні select-и Складу дотримуються M3 outlined/tonal розмірів:
 // 56px field, 48px option і secondary-container для вибраного значення.
 {
