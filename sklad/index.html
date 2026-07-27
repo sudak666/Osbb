@@ -269,9 +269,9 @@ async function checkPin(attempt){
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-row">
-        <button type="button" class="pill items-filter-pill is-success" id="inStockPill" data-filter-toggle="in-stock"><span class="ms items-filter-icon" aria-hidden="true">check_circle</span> Тільки в наявності</button>
-        <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Без внутрішніх</button>
-        <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">home_repair_service</span> Тільки внутрішні</button>
+        <button type="button" class="pill items-filter-pill is-success" id="inStockPill" data-filter-toggle="in-stock" aria-pressed="false"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки в наявності</span></button>
+        <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" aria-pressed="false" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Без внутрішніх</span></button>
+        <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" aria-pressed="false" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки внутрішні</span></button>
       </div>
       <div class="items-filter-row pills-wrap" id="catPills">
         <button type="button" class="pill active" data-category-filter="">Всі</button>
@@ -898,6 +898,35 @@ function priceBadge(item){
   </button>`;
 }
 
+const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history']);
+function emptyState(icon,title,supportingText=''){
+  const safeIcon=emptyStateIcons.has(icon)?icon:'inbox';
+  const supporting=supportingText
+    ? `<div class="md-empty-state-supporting">${escapeHtml(supportingText)}</div>`
+    : '';
+  return `<div class="empty md-empty-state">
+    <span class="ms md-empty-state-icon" aria-hidden="true">${safeIcon}</span>
+    <div class="md-empty-state-title">${escapeHtml(title)}</div>
+    ${supporting}
+  </div>`;
+}
+function skeletonRows(columns=1,rows=3){
+  const safeColumns=Math.min(8,Math.max(1,Math.trunc(columns)));
+  const safeRows=Math.min(6,Math.max(1,Math.trunc(rows)));
+  const cells=Array.from({length:safeColumns},(_,index)=>
+    `<td><span class="skel ${index%3===0?'skel-fluid-xl':'skel-fluid-md'}"></span></td>`
+  ).join('');
+  return Array.from({length:safeRows},()=>`<tr aria-hidden="true">${cells}</tr>`).join('');
+}
+function skeletonStack(rows=3){
+  const safeRows=Math.min(6,Math.max(1,Math.trunc(rows)));
+  return `<div class="skeleton-stack" aria-hidden="true">${Array.from({length:safeRows},()=>`
+    <div class="skeleton-card">
+      <span class="skel skel-fluid-xl"></span>
+      <span class="skel skel-fluid-md"></span>
+    </div>`).join('')}</div>`;
+}
+
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
 if(isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
@@ -1208,7 +1237,8 @@ let allReceipts=[];
 async function loadReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
-  if(tb) tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--ios-gray);">Завантаження...</td></tr>';
+  if(tb) tb.innerHTML=skeletonRows(7,3);
+  if(mb) mb.innerHTML=skeletonStack(3);
   const {data,error}=await db.from('inventory_receipts').select('*').order('received_at',{ascending:false}).limit(200);
   if(error){
     const msg=msIcon('warning')+' '+error.message;
@@ -1284,17 +1314,14 @@ function filterCat(btn,cat){
 
 // ===== IN STOCK ONLY TOGGLE =====
 let inStockOnly=false;
+function setFilterPillState(button,active){
+  if(!button) return;
+  button.classList.toggle('active',active);
+  button.setAttribute('aria-pressed',String(active));
+}
 function toggleInStock(btn){
   inStockOnly=!inStockOnly;
-  if(inStockOnly){
-    btn.classList.add('active');
-    btn.style.background='var(--ios-green)';
-    btn.style.color='#fff';
-  } else {
-    btn.classList.remove('active');
-    btn.style.background='';
-    btn.style.color='var(--ios-green)';
-  }
+  setFilterPillState(btn,inStockOnly);
   renderItems();
 }
 
@@ -1304,25 +1331,18 @@ function toggleInStock(btn){
 // автоматично вимикає інший (див. toggleHideInternal/toggleOnlyInternal).
 let hideInternal=false;
 let onlyInternal=false;
-function resetInternalPill(id,color){
+function resetInternalPill(id){
   const btn=document.getElementById(id);
-  if(!btn) return;
-  btn.classList.remove('active');
-  btn.style.background='';
-  btn.style.color=color;
+  setFilterPillState(btn,false);
 }
 function toggleHideInternal(btn){
   hideInternal=!hideInternal;
   if(hideInternal){
     onlyInternal=false;
-    resetInternalPill('onlyInternalPill','var(--ios-orange)');
-    btn.classList.add('active');
-    btn.style.background='var(--ios-orange)';
-    btn.style.color='#fff';
+    resetInternalPill('onlyInternalPill');
+    setFilterPillState(btn,true);
   } else {
-    btn.classList.remove('active');
-    btn.style.background='';
-    btn.style.color='var(--ios-orange)';
+    setFilterPillState(btn,false);
   }
   renderItems();
 }
@@ -1330,14 +1350,10 @@ function toggleOnlyInternal(btn){
   onlyInternal=!onlyInternal;
   if(onlyInternal){
     hideInternal=false;
-    resetInternalPill('hideInternalPill','var(--ios-orange)');
-    btn.classList.add('active');
-    btn.style.background='var(--ios-orange)';
-    btn.style.color='#fff';
+    resetInternalPill('hideInternalPill');
+    setFilterPillState(btn,true);
   } else {
-    btn.classList.remove('active');
-    btn.style.background='';
-    btn.style.color='var(--ios-orange)';
+    setFilterPillState(btn,false);
   }
   renderItems();
 }
@@ -1352,13 +1368,9 @@ function resetItemFilters(){
   document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('sc-active'));
   document.querySelectorAll('#catPills .pill').forEach((b,idx)=>b.classList.toggle('active',idx===0));
   const inStock=document.getElementById('inStockPill');
-  if(inStock){
-    inStock.classList.remove('active');
-    inStock.style.background='';
-    inStock.style.color='var(--ios-green)';
-  }
-  resetInternalPill('hideInternalPill','var(--ios-orange)');
-  resetInternalPill('onlyInternalPill','var(--ios-orange)');
+  setFilterPillState(inStock,false);
+  resetInternalPill('hideInternalPill');
+  resetInternalPill('onlyInternalPill');
   renderItems();
   toast('Фільтри скинуто','info');
 }
@@ -1716,6 +1728,14 @@ function positionItemMenu(menu){
   panel.style.top='';
   panel.style.maxHeight='';
   const summaryRect=menu.getBoundingClientRect();
+  // backdrop-filter у topbar створює власний containing block. `position: fixed`
+  // у ньому рахується не від viewport і виносить меню за межі екрана, тому
+  // верхнє меню позиціонуємо локально під кнопкою.
+  if(menu.classList.contains('topbar-more')){
+    menu.classList.add('opens-down');
+    panel.style.maxHeight=Math.max(120,window.innerHeight-summaryRect.bottom-16)+'px';
+    return;
+  }
   const bottomNav=document.querySelector('.bottom-nav');
   const viewportPadding=8;
   const topBoundary=viewportPadding;
@@ -1889,9 +1909,15 @@ function renderItems(){
   // Desktop table
   const tb=document.getElementById('itemsTable');
   if(!items.length){
-    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon"><span class="ms ic-40">search_off</span></div>Нічого не знайдено</div></td></tr>';
+    const isFiltered=Boolean(s||curCat||stockFilter!=='all'||inStockOnly||hideInternal||onlyInternal);
+    const state=emptyState(
+      isFiltered?'search_off':'inventory_2',
+      isFiltered?'Товарів не знайдено':'Склад поки порожній',
+      isFiltered?'Змініть пошук або скиньте активні фільтри.':'Додайте перший товар, щоб почати облік залишків.'
+    );
+    tb.innerHTML=`<tr><td colspan="8">${state}</td></tr>`;
     const mc=document.getElementById('mobileCards');
-    if(mc) mc.innerHTML='<div class="empty empty-compact"><span class="ms ic-16-3">search_off</span> Нічого не знайдено</div>';
+    if(mc) mc.innerHTML=state;
     return;
   }
   tb.innerHTML=items.map((item,idx)=>{
@@ -2144,9 +2170,11 @@ function renderLog(){
   const tb=document.getElementById('logTable');
   const mb=document.getElementById('logMobileList');
   if(!logs.length){
-    const empty=s?'Нічого не знайдено':'Видач ще не було';
-    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">search_off</span> ${empty}</div>`;
+    const state=s
+      ? emptyState('search_off','Записів не знайдено','Спробуйте змінити пошуковий запит.')
+      : emptyState('history','Видач ще не було','Нові операції видачі з’являться тут автоматично.');
+    tb.innerHTML=`<tr><td colspan="6">${state}</td></tr>`;
+    mb.innerHTML=state;
     return;
   }
   tb.innerHTML=logs.map(l=>{
@@ -2271,9 +2299,11 @@ function renderReceipts(){
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
   if(!recs.length){
-    const empty=s?'Нічого не знайдено':'Приходів ще не було';
-    tb.innerHTML=`<tr><td colspan="7"><div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div></td></tr>`;
-    mb.innerHTML=`<div class="empty"><span class="ms ic-16-3">inbox</span> ${empty}</div>`;
+    const state=s
+      ? emptyState('search_off','Приходів не знайдено','Спробуйте змінити пошуковий запит.')
+      : emptyState('inbox','Приходів ще не було','Після поповнення складу операції з’являться тут.');
+    tb.innerHTML=`<tr><td colspan="7">${state}</td></tr>`;
+    mb.innerHTML=state;
     return;
   }
   tb.innerHTML=recs.map(r=>{
@@ -2942,7 +2972,7 @@ async function fetchItemPrice(){
   const item=allItems.find(i=>String(i.id)===String(id));
   if(!item) return toast('Оберіть товар','error');
   const box=document.getElementById('priceResults');
-  box.innerHTML='<div class="price-results-state is-loading"><span class="ms" aria-hidden="true">sync</span> Шукаю ціни...</div>';
+  box.innerHTML=`<div class="price-results-state is-loading" role="status" aria-label="Пошук цін">${skeletonStack(3)}</div>`;
   try{
     const res=await fetch(PRICE_LOOKUP_URL,{
       method:'POST',
@@ -3068,7 +3098,7 @@ async function openHistory(itemId){
   const unit=escapeHtml(item.unit||'');
   document.getElementById('histTitle').textContent=item.name;
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
-  document.getElementById('histList').innerHTML='<div class="history-modal-state">Завантаження...</div>';
+  document.getElementById('histList').innerHTML=skeletonStack(3);
   openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
   if(!data||!data.length){
