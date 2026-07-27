@@ -699,6 +699,20 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .sidebar:is(:hover,:focus-within) .ni{justify-content:flex-start;padding-inline:14px;margin-inline:8px;}
 }
 
+/* На планшетах компактна navigation rail розгортається без перекриття контенту:
+   сусідній .main синхронно резервує повну ширину панелі. focus-within залишає
+   ту саму взаємодію доступною з клавіатури. */
+@media(min-width:769px) and (max-width:960px) and (hover:hover){
+  .sidebar:is(:hover,:focus-within){width:var(--sb);}
+  .sidebar:is(:hover,:focus-within) + .main{margin-left:var(--sb);}
+  .sidebar:is(:hover,:focus-within) .nav-label,
+  .sidebar:is(:hover,:focus-within) .sb-logo h1,
+  .sidebar:is(:hover,:focus-within) .sb-logo p,
+  .sidebar:is(:hover,:focus-within) .sb-ver,
+  .sidebar:is(:hover,:focus-within) .sb-bottom{display:block!important;}
+  .sidebar:is(:hover,:focus-within) .ni{justify-content:flex-start;padding-inline:14px;margin-inline:8px;}
+}
+
 /* ===MOBILE === */
 .mobile-cards{display:none;}
 .pull-refresh{display:none;}
