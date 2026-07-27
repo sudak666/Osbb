@@ -10,6 +10,35 @@
   padding: 12px;
 }
 
+/* Спільні M3 стани завантаження та порожнього контенту. */
+.md-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 32px 20px;
+  border-radius: var(--md-sys-shape-corner-extra-large, 28px);
+  background: var(--md-sys-color-surface-container, #f8fafc);
+  color: var(--md-sys-color-on-surface-variant, #475569);
+  text-align: center;
+}
+.md-empty-state-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--md-sys-shape-corner-large, 16px);
+  background: var(--md-sys-color-secondary-container, #dbeafe);
+  color: var(--md-sys-color-on-secondary-container, #1e3a8a);
+  font-size: 28px;
+}
+.md-empty-state-title { color: var(--md-sys-color-on-surface, #0f172a); font-size: 18px; font-weight: 700; }
+.md-empty-state-supporting { max-width: 34ch; font-size: 14px; line-height: 1.45; }
+
+.skel, .skel-bar {
+  background-color: var(--md-sys-color-surface-container-highest, #e7edf4);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
+}
+
 /* TOOLTIP — заміна нативного title, у якого браузер сам малює квадратну підказку. */
 [data-tip] { position: relative; }
 [data-tip]::after {
