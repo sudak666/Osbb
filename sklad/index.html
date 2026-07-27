@@ -258,9 +258,7 @@ async function checkPin(attempt){
         <div class="items-quick-note"><span class="ms category-pill-icon" aria-hidden="true">tips_and_updates</span> Фокус: спершу критичні залишки</div>
       </div>
     </section>
-    <div id="alertBanner" data-sklad-page="stats" role="button" tabindex="0" style="display:none;">
-      <div class="alert-banner"><span class="ms ic-16-3">notifications</span> <span id="alertText"></span> — натисніть щоб переглянути</div>
-    </div>
+    <button type="button" class="alert-banner md-state-layer" id="alertBanner" data-stock-filter="low" aria-label="Показати товари з низьким залишком" hidden><span class="ms ic-16-3" aria-hidden="true">warning</span><span><span id="alertText"></span> — переглянути</span></button>
     <div class="g4 items-metrics insight-grid">
       <div class="stat-card sc-red stat-hero" data-stock-filter="zero" role="button" tabindex="0"><div class="big" id="st-zero">—</div><div class="lbl"><span class="ms ic-13-2">production_quantity_limits</span> Закінчились</div><div class="stat-icon" aria-hidden="true"><span class="ms">production_quantity_limits</span></div></div>
       <div class="stat-card sc-purple" data-stock-filter="all" role="button" tabindex="0"><div class="big" id="st-total">—</div><div class="lbl"><span class="ms ic-13-2">inventory_2</span> Всі позиції</div><div class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></div></div>
@@ -1284,7 +1282,7 @@ function checkAlerts(){
   if(total>0){
     if(sb){sb.style.display='inline-block';sb.textContent=total;}
     if(bnA){bnA.style.display='inline-block';bnA.textContent=total;}
-    banner.style.display='block';
+    if(banner) banner.hidden=false;
     // Розбивку "закінчились"/"на межі" не повторюємо тут словами — вона вже
     // видна цифрами в картках нижче (insight-grid). Банер лишає одне число й
     // веде на Статистику, а не дублює той самий факт другий раз.
@@ -1292,7 +1290,7 @@ function checkAlerts(){
   } else {
     if(sb) sb.style.display='none';
     if(bnA) bnA.style.display='none';
-    banner.style.display='none';
+    if(banner) banner.hidden=true;
   }
 }
 

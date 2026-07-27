@@ -3150,6 +3150,34 @@ ${sharedSelectText}`;
   }
 }
 
+// Low-stock banner — справжня M3 tertiary action, а не error-colored div:
+// має button semantics, 48px target і запускає наявний stock filter.
+{
+  const text = readSkladCombined();
+  const label = 'sklad low-stock banner uses actionable Material 3 warning semantics';
+  const required = [
+    'class="alert-banner md-state-layer" id="alertBanner" data-stock-filter="low"',
+    'aria-label="Показати товари з низьким залишком" hidden',
+    'aria-label="Показати товари з низьким залишком"',
+    '.alert-banner{width:100%;min-height:48px;background:var(--md-sys-color-tertiary-container',
+    '.alert-banner[hidden]{display:none!important;}',
+    'color:var(--md-sys-color-on-tertiary-container',
+    'if(banner) banner.hidden=false',
+    'if(banner) banner.hidden=true',
+    '.qty-zero{color:var(--md-sys-color-error',
+    '.qty-low{color:var(--md-sys-color-tertiary',
+    '.qty-ok{color:var(--md-sys-color-primary',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
