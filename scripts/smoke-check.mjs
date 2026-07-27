@@ -3099,14 +3099,13 @@ ${sharedSelectText}`;
   }
 }
 
-// smena-web інтегровано як нативну M3-вкладку Журналу на спільному Supabase,
-// без другого PIN, Firebase SDK або окремого service worker.
+// Графік змін працює як нативна M3-вкладка Журналу на спільному Supabase.
 {
   const html = readFileSync('osbb/index.html', 'utf8');
   const css = readFileSync('osbb/styles.css', 'utf8');
   const migration = readFileSync('sklad/supabase/011_add_work_shifts.sql', 'utf8');
   const fixMigration = readFileSync('sklad/supabase/012_fix_work_shifts_month_key.sql', 'utf8');
-  const importer = readFileSync('scripts/import-smena-firestore.mjs', 'utf8');
+  const securityMigration = readFileSync('sklad/supabase/013_secure_work_shifts.sql', 'utf8');
   const readme = readFileSync('README.md', 'utf8');
   const databaseTypes = readFileSync('src/database.types.ts', 'utf8');
   const label = 'journal integrates smena schedule with Material 3 and Supabase';
@@ -3117,7 +3116,9 @@ ${sharedSelectText}`;
     "document.getElementById('journal-dashboard').classList.toggle('hidden', tab !== 'journal')",
     'function shiftLoadMonth()',
     "db.from('work_shifts').select('*').eq('month_key', shiftMonthKey())",
-    "db.from('work_shifts').upsert({ shift_date:shiftSelectedDate",
+    "db.rpc('save_work_shift_day'",
+    "db.rpc('update_work_shift_names'",
+    "'verify_work_shifts_pin'",
     "db.rpc('reset_work_shifts_month'",
     "table: 'work_shifts'",
     "addEventListener('keydown', shiftTrapEditorFocus)",
@@ -3128,17 +3129,23 @@ ${sharedSelectText}`;
   ];
   const combined = html + '\n' + css;
   const missing = required.filter(needle => !combined.includes(needle));
+  const directWritesClosed = !html.includes("db.from('work_shifts').upsert") && !html.includes("db.from('work_shifts').delete");
   const migrationReady = migration.includes('create table if not exists work_shifts')
     && migration.includes("month_key ~ '^[0-9]{4}-[0-9]{2}$'")
     && migration.includes('create or replace function reset_work_shifts_month')
     && fixMigration.includes('drop constraint if exists work_shifts_month_key_check')
-    && fixMigration.includes("month_key ~ '^[0-9]{4}-[0-9]{2}$'");
-  const importerReady = importer.includes('firestore.googleapis.com') && importer.includes('/rest/v1/work_shifts?on_conflict=shift_date');
-  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('012_fix_work_shifts_month_key.sql') && readme.includes('scripts/import-smena-firestore.mjs');
-  const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:');
-  if (missing.length || !migrationReady || !importerReady || !docsReady || !typesReady) {
+    && fixMigration.includes("month_key ~ '^[0-9]{4}-[0-9]{2}$'")
+    && securityMigration.includes('create table if not exists work_shift_auth')
+    && securityMigration.includes('create or replace function verify_work_shifts_pin')
+    && securityMigration.includes('create or replace function save_work_shift_day')
+    && securityMigration.includes('create or replace function update_work_shift_names')
+    && securityMigration.includes('drop policy if exists "work shifts insert"')
+    && securityMigration.includes('if not verify_work_shifts_pin(attempt) then return false; end if;');
+  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('012_fix_work_shifts_month_key.sql') && readme.includes('013_secure_work_shifts.sql');
+  const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:') && databaseTypes.includes('save_work_shift_day:');
+  if (missing.length || !migrationReady || !directWritesClosed || !docsReady || !typesReady) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; migration: ${migrationReady}; importer: ${importerReady}; docs: ${docsReady}; types: ${typesReady})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; migration: ${migrationReady}; direct writes closed: ${directWritesClosed}; docs: ${docsReady}; types: ${typesReady})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);

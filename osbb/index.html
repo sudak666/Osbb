@@ -286,10 +286,10 @@
             <div class="shift-header">
                 <div>
                     <div class="journal-section-title"><span class="mdi mdi-calendar-clock journal-inline-icon" aria-hidden="true"></span>Графік змін</div>
-                    <h2 class="shift-heading">Сергій та Олександр</h2>
+                    <h2 id="shift-heading" class="shift-heading">Сергій та Олександр</h2>
                     <p class="shift-copy">Календар чергувань і розрахунок зарплати за місяць.</p>
                 </div>
-                <span id="shift-sync-status" class="journal-status-chip" role="status" aria-live="polite">Готово</span>
+                <div class="shift-header-actions"><button type="button" class="shift-settings-btn md-state-layer" data-shift-action="edit-names"><span class="mdi mdi-account-edit-outline" aria-hidden="true"></span>Імена</button><span id="shift-sync-status" class="journal-status-chip" role="status" aria-live="polite">Готово</span></div>
             </div>
             <div class="shift-month-controls" aria-label="Навігація графіка за місяцями">
                 <button type="button" class="shift-nav-btn md-state-layer" data-shift-action="previous-month" aria-label="Попередній місяць"><span class="mdi mdi-chevron-left" aria-hidden="true"></span></button>
@@ -298,10 +298,10 @@
             </div>
             <div class="shift-weekdays" aria-hidden="true"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span></div>
             <div id="shift-calendar" class="shift-calendar" aria-label="Календар робочих змін"></div>
-            <div class="shift-legend" aria-label="Позначення працівників"><span><i class="shift-dot is-sergiy"></i>Сергій</span><span><i class="shift-dot is-oleksandr"></i>Олександр</span><span><i class="shift-auto-mark"></i>Типовий графік</span></div>
+            <div class="shift-legend" aria-label="Позначення працівників"><span><i class="shift-dot is-sergiy"></i><span id="shift-legend-sergiy">Сергій</span></span><span><i class="shift-dot is-oleksandr"></i><span id="shift-legend-oleksandr">Олександр</span></span><span><i class="shift-auto-mark"></i>Типовий графік</span></div>
             <div class="shift-stats-grid">
-                <article class="shift-stat-card is-sergiy"><div class="shift-stat-head"><strong>Сергій</strong><span id="shift-money-sergiy">0 грн</span></div><p>Днів / Ночей / Пів ночі</p><strong id="shift-stats-sergiy" class="shift-stat-counts">0 / 0 / 0</strong></article>
-                <article class="shift-stat-card is-oleksandr"><div class="shift-stat-head"><strong>Олександр</strong><span id="shift-money-oleksandr">0 грн</span></div><p>Днів / Ночей / Пів ночі</p><strong id="shift-stats-oleksandr" class="shift-stat-counts">0 / 0 / 0</strong></article>
+                <article class="shift-stat-card is-sergiy"><div class="shift-stat-head"><strong id="shift-stat-name-sergiy">Сергій</strong><span id="shift-money-sergiy">0 грн</span></div><p>Днів / Ночей / Пів ночі</p><strong id="shift-stats-sergiy" class="shift-stat-counts">0 / 0 / 0</strong></article>
+                <article class="shift-stat-card is-oleksandr"><div class="shift-stat-head"><strong id="shift-stat-name-oleksandr">Олександр</strong><span id="shift-money-oleksandr">0 грн</span></div><p>Днів / Ночей / Пів ночі</p><strong id="shift-stats-oleksandr" class="shift-stat-counts">0 / 0 / 0</strong></article>
                 <article class="shift-stat-card is-total"><div class="shift-stat-head"><strong>Разом за місяць</strong><span id="shift-money-total">0 грн</span></div><p>Ставки: день 900 грн, ніч 900 грн, пів ночі 450 грн.</p></article>
             </div>
             <button type="button" class="shift-reset-btn md-state-layer" data-shift-action="reset-month"><span class="mdi mdi-restore" aria-hidden="true"></span>Скинути ручні корекції місяця</button>
@@ -311,9 +311,20 @@
             <div class="shift-editor-sheet" tabindex="-1">
                 <div class="shift-sheet-handle" aria-hidden="true"></div>
                 <h3 id="shift-editor-title" class="shift-editor-title">Редагування зміни</h3>
-                <div class="shift-person-block"><strong>Сергій</strong><div id="shift-chips-sergiy" class="shift-chip-row"></div></div>
-                <div class="shift-person-block"><strong>Олександр</strong><div id="shift-chips-oleksandr" class="shift-chip-row"></div></div>
+                <div class="shift-person-block"><strong id="shift-editor-name-sergiy">Сергій</strong><div id="shift-chips-sergiy" class="shift-chip-row"></div></div>
+                <div class="shift-person-block"><strong id="shift-editor-name-oleksandr">Олександр</strong><div id="shift-chips-oleksandr" class="shift-chip-row"></div></div>
                 <div class="shift-editor-actions"><button type="button" class="shift-secondary-btn md-state-layer" data-shift-action="close-editor">Скасувати</button><button type="button" class="shift-primary-btn md-state-layer" data-shift-action="save-day"><span class="mdi mdi-content-save-outline" aria-hidden="true"></span>Зберегти</button></div>
+            </div>
+        </div>
+
+        <div id="shift-name-editor" class="shift-editor-overlay" role="dialog" aria-modal="true" aria-labelledby="shift-name-editor-title" aria-hidden="true">
+            <div class="shift-editor-sheet" tabindex="-1">
+                <div class="shift-sheet-handle" aria-hidden="true"></div>
+                <h3 id="shift-name-editor-title" class="shift-editor-title">Імена працівників</h3>
+                <p class="shift-copy">Зміна імен захищена окремим PIN графіка.</p>
+                <label class="shift-name-field"><span>Перший працівник</span><input id="shift-name-sergiy" type="text" maxlength="40" autocomplete="off"></label>
+                <label class="shift-name-field"><span>Другий працівник</span><input id="shift-name-oleksandr" type="text" maxlength="40" autocomplete="off"></label>
+                <div class="shift-editor-actions"><button type="button" class="shift-secondary-btn md-state-layer" data-shift-action="close-names">Скасувати</button><button type="button" class="shift-primary-btn md-state-layer" data-shift-action="save-names"><span class="mdi mdi-content-save-outline" aria-hidden="true"></span>Зберегти</button></div>
             </div>
         </div>
     </section>
@@ -736,6 +747,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'chat' }, () => { if (currentTab === 'chat') chatInitTab(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => realtimeSafeRefresh('charts', initCalendar))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shifts' }, () => realtimeSafeRefresh('shifts', shiftLoadMonth))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shift_settings' }, () => realtimeSafeRefresh('shift-settings', shiftLoadSettings))
                 .subscribe();
         } catch (e) { console.warn('osbb realtime init failed:', e); }
     }
@@ -864,7 +876,7 @@
     }
 
     // ==========================================
-    // ГРАФІК ЗМІН (порт smena-web → Supabase)
+    // ГРАФІК ЗМІН (Supabase)
     // ==========================================
     const shiftMonths = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
     const shiftTypes = [
@@ -878,6 +890,7 @@
     let shiftRows = {};
     let shiftSelectedDate = '';
     let shiftEditorSelection = { sergiy:new Set(), oleksandr:new Set() };
+    let shiftNames = { sergiy:'Сергій', oleksandr:'Олександр' };
     let shiftInitialized = false;
     let shiftLoading = false;
     let shiftEditorFocusReturn = null;
@@ -913,10 +926,31 @@
 
     function shiftErrorMessage(error, fallback) {
         const details = String(error?.message || error || '');
-        if (details.includes('42P01') || details.includes('PGRST205')) return 'Застосуйте SQL-міграції 011 і 012 у Supabase';
+        if (details.includes('42P01') || details.includes('PGRST202') || details.includes('PGRST205')) return 'Застосуйте SQL-міграції 011–013 у Supabase';
         if (details.includes('23514')) return 'Supabase відхилив формат місяця — застосуйте міграцію 012';
         if (details.includes('401') || details.includes('403') || details.includes('42501')) return 'Немає дозволу на запис у Supabase';
         return fallback;
+    }
+
+    function shiftApplyNames() {
+        const pairs = [
+            ['shift-legend-sergiy', shiftNames.sergiy], ['shift-stat-name-sergiy', shiftNames.sergiy], ['shift-editor-name-sergiy', shiftNames.sergiy],
+            ['shift-legend-oleksandr', shiftNames.oleksandr], ['shift-stat-name-oleksandr', shiftNames.oleksandr], ['shift-editor-name-oleksandr', shiftNames.oleksandr],
+        ];
+        pairs.forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
+        document.getElementById('shift-heading').textContent = `${shiftNames.sergiy} та ${shiftNames.oleksandr}`;
+    }
+
+    async function shiftLoadSettings() {
+        try {
+            const { data, error } = await db.from('work_shift_settings').select('employee_one_name,employee_two_name').eq('id', 1).maybeSingle();
+            if (error) throw new Error(error.message || 'Не вдалося завантажити імена');
+            if (data) shiftNames = { sergiy:data.employee_one_name, oleksandr:data.employee_two_name };
+            shiftApplyNames();
+            shiftRenderCalendar();
+        } catch (error) {
+            console.warn('shiftLoadSettings failed:', error);
+        }
     }
 
     function shiftRenderCalendar() {
@@ -946,7 +980,7 @@
             if (key === today) button.classList.add('is-today');
             if (!shiftRows[key] && key <= today) button.classList.add('is-auto');
             button.dataset.shiftDate = key;
-            button.setAttribute('aria-label', `${day} ${shiftMonths[month]}: Сергій ${shiftIsWorking(data.sergiy)?'працює':'вихідний'}, Олександр ${shiftIsWorking(data.oleksandr)?'працює':'вихідний'}`);
+            button.setAttribute('aria-label', `${day} ${shiftMonths[month]}: ${shiftNames.sergiy} ${shiftIsWorking(data.sergiy)?'працює':'вихідний'}, ${shiftNames.oleksandr} ${shiftIsWorking(data.oleksandr)?'працює':'вихідний'}`);
             const number = document.createElement('span');
             number.className = 'shift-day-number';
             number.textContent = String(day);
@@ -1021,6 +1055,7 @@
     function shiftInitTab() {
         if (!shiftInitialized) {
             shiftInitialized = true;
+            shiftLoadSettings();
             shiftRenderCalendar();
         }
         shiftLoadMonth();
@@ -1096,28 +1131,71 @@
         shiftRenderChips(person);
     }
 
-    async function shiftSaveDay() {
+    function shiftSaveDay() {
         if (!shiftSelectedDate) return;
         const saveButton = document.querySelector('[data-shift-action="save-day"]');
         if (!saveButton) return;
-        saveButton.disabled = true;
         const sergiy = [...shiftEditorSelection.sergiy];
         const oleksandr = [...shiftEditorSelection.oleksandr];
-        try {
-            const query = sergiy.length || oleksandr.length
-                ? db.from('work_shifts').upsert({ shift_date:shiftSelectedDate, month_key:shiftSelectedDate.slice(0,7), sergiy, oleksandr, updated_at:new Date().toISOString() })
-                : db.from('work_shifts').delete().eq('shift_date', shiftSelectedDate);
-            const { error } = await query;
-            if (error) throw new Error(error.message || 'Не вдалося зберегти зміну');
-            shiftCloseEditor();
-            await shiftLoadMonth();
-            showToast('Графік зміни збережено', TOAST_ICON_CHECK);
-        } catch (error) {
-            console.warn('shiftSaveDay failed:', error);
-            showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), TOAST_ICON_ERROR);
-        } finally {
-            saveButton.disabled = false;
-        }
+        showPinModal('PIN графіка змін', 'Підтвердьте збереження окремим PIN', async attempt => {
+            saveButton.disabled = true;
+            try {
+                const ok = await db.rpc('save_work_shift_day', { p_shift_date:shiftSelectedDate, p_sergiy:sergiy, p_oleksandr:oleksandr, attempt });
+                if (!ok) throw new Error('Сервер відхилив операцію');
+                shiftCloseEditor();
+                await shiftLoadMonth();
+                showToast('Графік зміни збережено', TOAST_ICON_CHECK);
+            } catch (error) {
+                console.warn('shiftSaveDay failed:', error);
+                showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), TOAST_ICON_ERROR);
+            } finally { saveButton.disabled = false; }
+        }, false, 'verify_work_shifts_pin');
+    }
+
+    function shiftOpenNameEditor() {
+        document.getElementById('shift-name-sergiy').value = shiftNames.sergiy;
+        document.getElementById('shift-name-oleksandr').value = shiftNames.oleksandr;
+        const editor = document.getElementById('shift-name-editor');
+        editor.classList.add('is-open');
+        editor.setAttribute('aria-hidden','false');
+        requestAnimationFrame(() => document.getElementById('shift-name-sergiy').focus({preventScroll:true}));
+    }
+
+    function shiftCloseNameEditor() {
+        const editor = document.getElementById('shift-name-editor');
+        editor.classList.remove('is-open');
+        editor.setAttribute('aria-hidden','true');
+    }
+
+    function shiftTrapNameEditorFocus(event) {
+        if (event.key === 'Escape') { event.preventDefault(); shiftCloseNameEditor(); return; }
+        if (event.key !== 'Tab') return;
+        const focusable = [...event.currentTarget.querySelectorAll('button:not([disabled]),input:not([disabled])')];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
+    }
+
+    function shiftSaveNames() {
+        const first = document.getElementById('shift-name-sergiy').value.trim();
+        const second = document.getElementById('shift-name-oleksandr').value.trim();
+        if (!first || !second) { showToast('Вкажіть обидва імені', TOAST_ICON_ERROR); return; }
+        showPinModal('PIN графіка змін', 'Підтвердьте зміну імен окремим PIN', async attempt => {
+            try {
+                const ok = await db.rpc('update_work_shift_names', { p_employee_one_name:first, p_employee_two_name:second, attempt });
+                if (!ok) throw new Error('Сервер відхилив операцію');
+                shiftNames = { sergiy:first, oleksandr:second };
+                shiftApplyNames();
+                shiftRenderCalendar();
+                shiftCloseNameEditor();
+                showToast('Імена працівників оновлено', TOAST_ICON_CHECK);
+            } catch (error) {
+                console.warn('shiftSaveNames failed:', error);
+                showToast(shiftErrorMessage(error, 'Не вдалося змінити імена'), TOAST_ICON_ERROR);
+            }
+        }, false, 'verify_work_shifts_pin');
     }
 
     function shiftChangeMonth(direction) {
@@ -1138,7 +1216,7 @@
                 console.warn('shiftResetMonth failed:', error);
                 showToast(shiftErrorMessage(error, 'Не вдалося скинути графік'), TOAST_ICON_ERROR);
             }
-        }, true);
+        }, true, 'verify_work_shifts_pin');
     }
 
     function animateStatCards() {
@@ -2309,6 +2387,9 @@
                 'close-editor': shiftCloseEditor,
                 'save-day': shiftSaveDay,
                 'reset-month': shiftResetMonth,
+                'edit-names': shiftOpenNameEditor,
+                'close-names': shiftCloseNameEditor,
+                'save-names': shiftSaveNames,
             };
             const handler = handlers[button.dataset.shiftAction];
             if (handler) button.addEventListener('click', handler);
@@ -2317,6 +2398,7 @@
             const day = event.target.closest('[data-shift-date]');
             if (day) shiftOpenEditor(day.dataset.shiftDate);
         });
+        document.getElementById('shift-name-editor')?.addEventListener('keydown', shiftTrapNameEditorFocus);
         document.querySelectorAll('.shift-chip-row').forEach(container => {
             container.addEventListener('click', event => {
                 const chip = event.target.closest('[data-shift-person][data-shift-type]');
@@ -3111,6 +3193,7 @@
     // ==========================================
     let pinModalBuf = '';
     let pinModalCallback = null;
+    let pinModalVerifyRpc = 'verify_reset_pin';
     let pinModalFocusReturn = null;
     const pinModalFocusableSelector = 'button:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
@@ -3145,9 +3228,10 @@
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
     }
 
-    function showPinModal(title, sub, callback, danger = false) {
+    function showPinModal(title, sub, callback, danger = false, verifyRpc = 'verify_reset_pin') {
         pinModalBuf = '';
         pinModalCallback = callback;
+        pinModalVerifyRpc = verifyRpc;
         document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
         document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
         const lockIcon  = '<span class="pin-modal-icon-wrap is-indigo"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
@@ -3187,7 +3271,7 @@
         if (pinModalBuf.length === 4) {
             const attempt = pinModalBuf;
             let ok = false;
-            try { ok = await db.rpc('verify_reset_pin', { attempt }); } catch (e) { ok = false; }
+            try { ok = await db.rpc(pinModalVerifyRpc, { attempt }); } catch (e) { ok = false; }
             if (ok) {
                 document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
                 hidePinModal();

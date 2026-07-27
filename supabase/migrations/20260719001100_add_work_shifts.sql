@@ -1,7 +1,7 @@
 -- Supabase CLI migration mirror for sklad/supabase/011_add_work_shifts.sql.
 -- Keep this file synchronized with the historical SQL file while the project migrates to CLI migrations.
 
--- Графік робочих змін, перенесений із smena-web до спільного Supabase журналу.
+-- Графік робочих змін у спільному Supabase журналу.
 
 create table if not exists work_shifts (
   shift_date date primary key,

@@ -1,4 +1,4 @@
--- Графік робочих змін, перенесений із smena-web до спільного Supabase журналу.
+-- Графік робочих змін у спільному Supabase журналу.
 
 create table if not exists work_shifts (
   shift_date date primary key,

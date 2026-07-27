@@ -600,9 +600,11 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .theme-light { color-scheme: light; }
 .theme-dark { color-scheme: dark; }
 
-/* Графік змін — інтегрований smena-web, повністю scoped і на M3-токенах журналу. */
+/* Графік змін — компонент журналу на M3-токенах. */
 .shift-shell { display:grid; gap:16px; padding:22px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,28px); background:var(--md-sys-color-surface-container-low,var(--surface-1)); }
 .shift-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.shift-header-actions { display:flex; align-items:center; gap:8px; }
+.shift-settings-btn { position:relative; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:48px; padding:0 16px; border:0; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); font-size:13px; font-weight:800; }
 .shift-heading { color:var(--md-sys-color-on-surface,var(--text-main)); font-size:clamp(22px,3vw,30px); line-height:1.1; font-weight:900; letter-spacing:-.05em; }
 .shift-copy { margin-top:6px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:13px; line-height:1.45; font-weight:650; }
 .shift-month-controls { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; align-items:center; gap:10px; padding:8px; border-radius:var(--md-sys-shape-corner-extra-large,28px); background:var(--md-sys-color-surface-container,var(--surface-2)); }
@@ -640,6 +642,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .shift-sheet-handle { display:none; width:32px; height:4px; margin:0 auto 14px; border-radius:999px; background:var(--md-sys-color-on-surface-variant); opacity:.4; }
 .shift-editor-title { font-size:18px; font-weight:900; }
 .shift-person-block { display:grid; gap:10px; margin-top:18px; }
+.shift-name-field { display:grid; gap:7px; margin-top:16px; color:var(--md-sys-color-on-surface-variant); font-size:12px; font-weight:800; }
+.shift-name-field input { width:100%; min-height:56px; padding:0 16px; border:1px solid var(--md-sys-color-outline); border-radius:var(--md-sys-shape-corner-medium,12px); outline:0; background:var(--md-sys-color-surface-container); color:var(--md-sys-color-on-surface); font:inherit; font-size:15px; }
+.shift-name-field input:focus-visible { border:2px solid var(--md-sys-color-primary); padding:0 15px; }
 .shift-chip-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
 .shift-chip { min-height:48px; padding:8px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container,var(--surface-2)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
 .shift-chip.is-active { border-color:transparent; background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); }
@@ -647,6 +652,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 @media(max-width:700px){
   .shift-shell{padding:14px;gap:12px;}
   .shift-header{flex-direction:column;}
+  .shift-header-actions{width:100%;justify-content:space-between;}
   .shift-weekdays,.shift-calendar{gap:4px;}
   .shift-day{min-height:62px;padding:7px;border-radius:12px;}
   .shift-stats-grid{grid-template-columns:1fr;}

@@ -57,14 +57,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 10. `010_add_supplier_tags.sql` — синхронізує власні теги постачальників між комп’ютером і мобільними пристроями.
 11. `011_add_work_shifts.sql` — додає інтегрований графік змін Сергія та Олександра, realtime і PIN-захищене скидання корекцій місяця.
 12. `012_fix_work_shifts_month_key.sql` — виправляє constraint формату місяця у ранніх інсталяціях `011`, через який Supabase відхиляв збереження зміни.
-
-Після застосування `011_add_work_shifts.sql` наявні ручні корекції з `smena-web` можна одноразово перенести без додаткових пакетів:
-
-```bash
-SUPABASE_SERVICE_ROLE_KEY='...' node scripts/import-smena-firestore.mjs
-```
-
-Service-role ключ використовуйте лише локально; не додавайте його до Git або клієнтського коду.
+13. `013_secure_work_shifts.sql` — додає окремий PIN графіка, редаговані імена працівників і закриває прямий запис у `work_shifts`; перед виконанням замініть прикладовий PIN `2468` на власний.
 
 `supabase/migrations/` тепер містить timestamp-дзеркала цих самих `001_...` → `008_...` SQL-файлів у форматі Supabase CLI. Поки історичні файли в `sklad/supabase/` лишаються основним людським джерелом правди, `npm run test:migrations` перевіряє, що CLI-міграції не роз'їхались із ними. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта. Коли проєкт повністю перейде на Supabase CLI, нові зміни БД треба додавати одразу як нові timestamp-файли в `supabase/migrations/`, а функції — у `supabase/functions/`, а не як ручні snippets.
 
