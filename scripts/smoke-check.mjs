@@ -3100,6 +3100,31 @@ ${sharedSelectText}`;
   }
 }
 
+// Поля журналу та спільний custom select використовують ті самі M3 field
+// tokens, що й Склад: 56px, outlined focus і tonal selected option.
+{
+  const text = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'journal fields and selects use Material 3 sizing and states';
+  const required = [
+    '.journal-select { min-height:56px;',
+    'background-color:var(--md-sys-color-surface-container-highest',
+    '.journal-select:focus { border:2px solid var(--md-sys-color-primary',
+    '.journal-textarea { width:100%; min-height:128px; padding:16px;',
+    '.journal-chat-author, .journal-chat-input { width:100%; min-height:56px;',
+    '.custom-select-option { display:flex; align-items:center; min-height:48px;',
+    '.custom-select-option.active { background:var(--md-sys-color-secondary-container);',
+    'box-shadow:var(--md-sys-elevation-level2); padding:8px; max-height:320px;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
