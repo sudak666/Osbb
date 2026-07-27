@@ -3075,13 +3075,13 @@ ${sharedSelectText}`;
   }
 }
 
-// На планшетах navigation rail розгортається разом із відступом основного
+// На desktop-пристроях navigation rail розгортається разом із відступом основного
 // контенту, тому slide-out не накладається на робочу область.
 {
   const text = readFileSync('sklad/styles.css', 'utf8');
-  const label = 'sklad tablet sidebar expands without covering content';
+  const label = 'sklad desktop sidebar expands without covering content';
   const required = [
-    '@media(min-width:769px) and (max-width:960px) and (hover:hover)',
+    '@media(min-width:769px) and (hover:hover)',
     '.sidebar:is(:hover,:focus-within){width:var(--sb);}',
     '.sidebar:is(:hover,:focus-within) + .main{margin-left:var(--sb);}',
     '.sidebar:is(:hover,:focus-within) .nav-label,',

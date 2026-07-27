@@ -678,11 +678,25 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 @media(max-width:960px){
   .split{grid-template-columns:1fr!important;}
   .g4{grid-template-columns:1fr 1fr;}
+}
+
+/* На всіх desktop-пристроях із мишею компактна navigation rail розгортається без перекриття контенту:
+   сусідній .main синхронно резервує повну ширину панелі. focus-within залишає
+   ту саму взаємодію доступною з клавіатури. */
+@media(min-width:769px) and (hover:hover){
   .sidebar{width:64px;height:100dvh;overflow-x:hidden;overflow-y:auto;transition:width var(--md-sys-motion-duration-medium2,var(--motion-slow)) var(--md-sys-motion-easing-emphasized,var(--ease-out));}
-  .ni .nav-label,.sb-logo h1,.sb-logo p,.sb-ver,.sb-bottom{display:none!important;}
-  .ni{justify-content:center;padding:12px 0;margin:2px 4px;}
+  .sidebar .nav-label,.sidebar .sb-logo h1,.sidebar .sb-logo p,.sidebar .sb-ver,.sidebar .sb-bottom{display:none!important;}
+  .sidebar .ni{justify-content:center;padding:12px 0;margin:2px 4px;}
+  .sidebar .sb-logo{padding:12px 8px;}
   .main{margin-left:64px;transition:margin-left var(--md-sys-motion-duration-medium2,var(--motion-slow)) var(--md-sys-motion-easing-emphasized,var(--ease-out));}
-  .sb-logo{padding:12px 8px;}
+  .sidebar:is(:hover,:focus-within){width:var(--sb);}
+  .sidebar:is(:hover,:focus-within) + .main{margin-left:var(--sb);}
+  .sidebar:is(:hover,:focus-within) .nav-label,
+  .sidebar:is(:hover,:focus-within) .sb-logo h1,
+  .sidebar:is(:hover,:focus-within) .sb-logo p,
+  .sidebar:is(:hover,:focus-within) .sb-ver,
+  .sidebar:is(:hover,:focus-within) .sb-bottom{display:block!important;}
+  .sidebar:is(:hover,:focus-within) .ni{justify-content:flex-start;padding-inline:14px;margin-inline:8px;}
 }
 
 /* На планшетах компактна navigation rail розгортається без перекриття контенту:
