@@ -648,6 +648,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 
 .sw{position:relative;}
 .sw input{padding-left:42px;}
+.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px!important;}
 .si{position:absolute;left:14px;top:50%;z-index:1;display:grid;place-items:center;width:18px;height:18px;transform:translateY(-50%);color:var(--ios-gray2);font-size:14px;pointer-events:none;}
 .si svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;}
 
@@ -769,6 +770,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .theme-dark #priceModal .price-modal-actions{background:linear-gradient(180deg,rgba(30,30,33,0),var(--ios-card) 28%)!important;}
   .inp{font-size:16px!important;padding:11px 12px;}
   .sw .inp{padding-left:42px!important;}
+  .items-search-field > #searchInp{padding-inline-start:46px!important;}
   .btn{font-size:14px;min-height:42px;}
   .alert-banner{font-size:12px;padding:9px 12px;}
   .bottom-nav{display:flex!important;}

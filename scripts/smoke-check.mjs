@@ -3300,7 +3300,9 @@ ${sharedSelectText}`;
     '.stat-icon{position:absolute;right:14px;top:14px;z-index:1;',
     '.stat-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;',
     '.sw .inp{padding-left:42px!important;}',
+    '.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px!important;}',
     '.si svg{width:18px;height:18px;fill:none;stroke:currentColor;',
+    'href="styles.css?v=20260727-search-icons"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const hasInteractiveSummary = /<(button)[^>]*class="[^"]*summary-card/.test(text);
