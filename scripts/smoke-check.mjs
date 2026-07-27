@@ -3105,6 +3105,7 @@ ${sharedSelectText}`;
   const html = readFileSync('osbb/index.html', 'utf8');
   const css = readFileSync('osbb/styles.css', 'utf8');
   const migration = readFileSync('sklad/supabase/011_add_work_shifts.sql', 'utf8');
+  const fixMigration = readFileSync('sklad/supabase/012_fix_work_shifts_month_key.sql', 'utf8');
   const importer = readFileSync('scripts/import-smena-firestore.mjs', 'utf8');
   const readme = readFileSync('README.md', 'utf8');
   const databaseTypes = readFileSync('src/database.types.ts', 'utf8');
@@ -3120,6 +3121,7 @@ ${sharedSelectText}`;
     "db.rpc('reset_work_shifts_month'",
     "table: 'work_shifts'",
     "addEventListener('keydown', shiftTrapEditorFocus)",
+    "details.includes('23514')",
     '.shift-shell { display:grid;',
     '.shift-editor-overlay.is-open { display:flex; }',
     '.hidden { display:none!important; }',
@@ -3127,9 +3129,12 @@ ${sharedSelectText}`;
   const combined = html + '\n' + css;
   const missing = required.filter(needle => !combined.includes(needle));
   const migrationReady = migration.includes('create table if not exists work_shifts')
-    && migration.includes('create or replace function reset_work_shifts_month');
+    && migration.includes("month_key ~ '^[0-9]{4}-[0-9]{2}$'")
+    && migration.includes('create or replace function reset_work_shifts_month')
+    && fixMigration.includes('drop constraint if exists work_shifts_month_key_check')
+    && fixMigration.includes("month_key ~ '^[0-9]{4}-[0-9]{2}$'");
   const importerReady = importer.includes('firestore.googleapis.com') && importer.includes('/rest/v1/work_shifts?on_conflict=shift_date');
-  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('scripts/import-smena-firestore.mjs');
+  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('012_fix_work_shifts_month_key.sql') && readme.includes('scripts/import-smena-firestore.mjs');
   const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:');
   if (missing.length || !migrationReady || !importerReady || !docsReady || !typesReady) {
     failed += 1;

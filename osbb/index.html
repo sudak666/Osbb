@@ -911,6 +911,14 @@
         status.classList.toggle('is-syncing', state === 'loading');
     }
 
+    function shiftErrorMessage(error, fallback) {
+        const details = String(error?.message || error || '');
+        if (details.includes('42P01') || details.includes('PGRST205')) return 'Застосуйте SQL-міграції 011 і 012 у Supabase';
+        if (details.includes('23514')) return 'Supabase відхилив формат місяця — застосуйте міграцію 012';
+        if (details.includes('401') || details.includes('403') || details.includes('42501')) return 'Немає дозволу на запис у Supabase';
+        return fallback;
+    }
+
     function shiftRenderCalendar() {
         const calendar = document.getElementById('shift-calendar');
         const title = document.getElementById('shift-month-title');
@@ -1004,7 +1012,7 @@
             shiftRows = {};
             shiftRenderCalendar();
             shiftSetStatus('Помилка синхронізації');
-            showToast('Графік змін не завантажився', TOAST_ICON_ERROR);
+            showToast(shiftErrorMessage(error, 'Графік змін не завантажився'), TOAST_ICON_ERROR);
         } finally {
             shiftLoading = false;
         }
@@ -1106,7 +1114,7 @@
             showToast('Графік зміни збережено', TOAST_ICON_CHECK);
         } catch (error) {
             console.warn('shiftSaveDay failed:', error);
-            showToast('Не вдалося зберегти зміну', TOAST_ICON_ERROR);
+            showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), TOAST_ICON_ERROR);
         } finally {
             saveButton.disabled = false;
         }
@@ -1128,7 +1136,7 @@
                 showToast('Корекції графіка скинуто', TOAST_ICON_TRASH);
             } catch (error) {
                 console.warn('shiftResetMonth failed:', error);
-                showToast('Не вдалося скинути графік', TOAST_ICON_ERROR);
+                showToast(shiftErrorMessage(error, 'Не вдалося скинути графік'), TOAST_ICON_ERROR);
             }
         }, true);
     }

@@ -2,7 +2,7 @@
 
 create table if not exists work_shifts (
   shift_date date primary key,
-  month_key text not null check (month_key ~ '^\\d{4}-\\d{2}$'),
+  month_key text not null check (month_key ~ '^[0-9]{4}-[0-9]{2}$'),
   sergiy text[] not null default '{}',
   oleksandr text[] not null default '{}',
   updated_at timestamptz not null default now(),
