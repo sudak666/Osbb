@@ -3075,6 +3075,31 @@ ${sharedSelectText}`;
   }
 }
 
+// PIN-підтвердження журналу використовує M3 dialog на desktop і modal bottom
+// sheet на mobile; індикатор PIN керується класом, а не hardcoded кольором JS.
+{
+  const text = readOsbbCombined();
+  const label = 'journal PIN confirmation uses Material 3 dialog and bottom sheet';
+  const required = [
+    '.pin-modal-dialog { background:var(--md-sys-color-surface-container-high',
+    '.pin-modal-dialog .pin-mb-btn { background:var(--md-sys-color-surface-container-highest',
+    '.pin-modal-dialog .pin-dot.is-entered { background:var(--md-sys-color-primary',
+    '.pin-modal-overlay { align-items:flex-end; }',
+    '.pin-modal-dialog::before { content:',
+    "dot.classList.toggle('is-entered', i < pinModalBuf.length)",
+    'data-pin-modal-delete',
+    'stroke="currentColor"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
