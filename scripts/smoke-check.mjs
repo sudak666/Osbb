@@ -3086,6 +3086,8 @@ ${sharedSelectText}`;
     '.sidebar:is(:hover,:focus-within) + .main{margin-left:var(--sb);}',
     '.sidebar:is(:hover,:focus-within) .nav-label,',
     'transition:margin-left var(--md-sys-motion-duration-medium2',
+    '.sidebar .ni-badge{position:absolute;top:5px;right:3px;min-width:22px;max-width:30px;',
+    '.sidebar:is(:hover,:focus-within) .ni-badge{position:static;min-width:0;max-width:none;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
