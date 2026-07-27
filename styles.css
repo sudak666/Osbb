@@ -121,7 +121,7 @@
         border-radius: var(--md-sys-shape-corner-large, 14px); /* Повністю закруглений контейнер без гострих кутів */
         padding: 3px;
         gap: 3px;
-        box-shadow: inset 0 0 0 0.5px var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.10));
+        border: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.10));
     }
     .shell-tab-btn {
         flex: 1;
@@ -143,11 +143,11 @@
         min-width: 0;
         text-decoration: none;
     }
-    /* Активний сегмент із фірмовою тінню Apple */
+    /* Активний M3-сегмент виділяється тональним контейнером, без різкої тіні. */
     .shell-tab-btn.active {
-        background: var(--md-sys-color-primary, #34c759);
-        color: var(--md-sys-color-on-primary, #fff);
-        box-shadow: var(--md-sys-elevation-level2, 0px 3px 8px rgba(0, 0, 0, 0.24));
+        background: var(--md-sys-color-secondary-container, #dbeafe);
+        color: var(--md-sys-color-on-secondary-container, #1e3a8a);
+        box-shadow: none;
     }
     .shell-tab-btn:active {
         transform: scale(0.97);
