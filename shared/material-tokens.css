@@ -33,13 +33,14 @@
   --md-sys-motion-easing-standard: cubic-bezier(.2, 0, 0, 1);
   --md-sys-motion-easing-emphasized: cubic-bezier(.2, .8, .2, 1);
 
-  /* Elevation */
+  /* Elevation: M3 використовує тональні поверхні; тіні лишаються лише для
+     плаваючих шарів і навігації, а не для кожної картки. */
   --md-sys-elevation-level0: none;
-  --md-sys-elevation-level1: 0 1px 2px rgba(15, 23, 42, .05), 0 1px 3px rgba(15, 23, 42, .08);
-  --md-sys-elevation-level2: 0 6px 18px rgba(15, 23, 42, .08);
-  --md-sys-elevation-level3: 0 12px 32px rgba(15, 23, 42, .12);
-  --md-sys-elevation-level4: 0 20px 52px rgba(15, 23, 42, .16);
-  --md-sys-elevation-level5: 0 28px 80px rgba(15, 23, 42, .20);
+  --md-sys-elevation-level1: 0 1px 2px rgba(15, 23, 42, .08);
+  --md-sys-elevation-level2: 0 2px 6px rgba(15, 23, 42, .10);
+  --md-sys-elevation-level3: 0 4px 10px rgba(15, 23, 42, .12);
+  --md-sys-elevation-level4: 0 6px 14px rgba(15, 23, 42, .14);
+  --md-sys-elevation-level5: 0 8px 20px rgba(15, 23, 42, .16);
 
   /* State layers */
   --md-sys-state-hover-opacity: .08;
@@ -73,13 +74,18 @@
   --md-sys-color-surface-variant: #eef2f7;
   --md-sys-color-on-surface-variant: #475569;
   --md-sys-color-surface-container-low: #ffffff;
+  --md-sys-color-surface-container-lowest: #ffffff;
   --md-sys-color-surface-container: #f8fafc;
   --md-sys-color-surface-container-high: #f1f5f9;
+  --md-sys-color-surface-container-highest: #e7edf4;
   --md-sys-color-outline: rgba(15, 23, 42, .14);
   --md-sys-color-outline-variant: rgba(15, 23, 42, .08);
   --md-sys-color-shadow: rgba(15, 23, 42, .16);
   --md-sys-color-scrim: #000000;
   --md-sys-color-inverse-on-surface: #ffffff;
+  --md-sys-color-inverse-surface: #1e293b;
+  --md-sys-color-primary-fixed: #dcfce7;
+  --md-sys-color-primary-fixed-dim: #86efac;
 
   /* Domain role accents */
   --md-ref-role-electrician: #f59e0b;
@@ -113,13 +119,18 @@
   --md-sys-color-surface-variant: #29292c;
   --md-sys-color-on-surface-variant: #cbd5e1;
   --md-sys-color-surface-container-low: #17171a;
+  --md-sys-color-surface-container-lowest: #101012;
   --md-sys-color-surface-container: #1e1e21;
   --md-sys-color-surface-container-high: #29292c;
+  --md-sys-color-surface-container-highest: #343438;
   --md-sys-color-outline: rgba(148, 163, 184, .24);
   --md-sys-color-outline-variant: rgba(148, 163, 184, .14);
   --md-sys-color-shadow: rgba(0, 0, 0, .5);
   --md-sys-color-scrim: #000000;
   --md-sys-color-inverse-on-surface: #ffffff;
+  --md-sys-color-inverse-surface: #e2e8f0;
+  --md-sys-color-primary-fixed: #86efac;
+  --md-sys-color-primary-fixed-dim: #4ade80;
 
   /* Domain role accents */
   --md-ref-role-electrician: #fbbf24;

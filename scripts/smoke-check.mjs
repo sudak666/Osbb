@@ -678,7 +678,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'aria-haspopup="menu" aria-expanded="false"',
     'class="item-more-menu" role="menu"',
     'role="menuitem" data-item-action="photo"',
-    'z-index:60;min-width:190px;max-height:min(62dvh,360px);overflow-y:auto;',
+    'z-index:60;min-width:208px;max-height:min(62dvh,360px);overflow-y:auto;',
+    "if(menu.classList.contains('topbar-more'))",
     "document.addEventListener('toggle',handleItemMenuToggle,true)",
     "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
   ];
@@ -870,10 +871,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="btn btn-ghost btn-sm price-badge-btn has-price"',
     'class="price-badge-value"',
     'class="price-badge-source"',
-    '.price-badge-btn{padding:6px 9px;',
+    '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
     '.price-badge-value{font-weight:900;',
-    '.price-badge-source{font-size:10px;',
+    '.price-badge-source{width:100%;font-size:10px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -2520,7 +2521,7 @@ ${sharedSelectText}`;
     '.price-modal-actions{position:sticky',
     'class="price-search-row"',
     'class="price-modal-actions"',
-    '.theme-light .m-card{background:#fff',
+    '.theme-light .m-card{background:var(--md-sys-color-surface-container-low,#fff)',
     '.theme-light .m-card .btn-ghost',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -2943,6 +2944,206 @@ ${sharedSelectText}`;
   if (missing.length || hasOldStrip) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; old strip: ${hasOldStrip})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Основні порожні списки використовують єдиний M3 empty state, а назви та
+// підказки проходять escapeHtml перед вставкою в DOM.
+{
+  const text = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad list empty states use safe Material 3 structure';
+  const required = [
+    "const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history'])",
+    'function emptyState(icon,title,supportingText=',
+    'class="empty md-empty-state"',
+    'class="ms md-empty-state-icon"',
+    'class="md-empty-state-title"',
+    'escapeHtml(supportingText)',
+    "emptyState('history','Видач ще не було'",
+    "emptyState('inbox','Приходів ще не було'",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Повторні завантаження приходів, історії та пошуку цін не повинні повертати
+// текстову заглушку — усі три сценарії використовують M3 skeleton loaders.
+{
+  const text = readSkladCombined();
+  const label = 'sklad async views use reusable Material 3 skeleton loaders';
+  const required = [
+    'function skeletonRows(columns=1,rows=3)',
+    'function skeletonStack(rows=3)',
+    'tb.innerHTML=skeletonRows(7,3)',
+    'mb.innerHTML=skeletonStack(3)',
+    'aria-label="Пошук цін"',
+    "document.getElementById('histList').innerHTML=skeletonStack(3)",
+    '.skeleton-card{display:grid;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Складські filter chips мають M3 selected-check, центрований label і
+// aria-pressed; навігація місяців використовує центровані MDI chevrons.
+{
+  const sklad = readSkladCombined();
+  const journal = readFileSync('osbb/index.html', 'utf8');
+  const label = 'filter chips and month arrows use centered Material 3 controls';
+  const required = [
+    'function setFilterPillState(button,active)',
+    "button.setAttribute('aria-pressed',String(active))",
+    'class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label"',
+    '.items-filter-pill{display:inline-flex;align-items:center;justify-content:center;',
+    '.items-filter-pill.active .items-filter-icon{width:18px;',
+    'mdi mdi-chevron-left',
+    'mdi mdi-chevron-right',
+  ];
+  const combined = sklad + '\n' + journal;
+  const missing = required.filter(needle => !combined.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Навігаційні поверхні Складу використовують M3 containers, а активна
+// мобільна іконка — стандартний 56px tonal indicator.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad navigation uses Material 3 tonal containers';
+  const required = [
+    '.sidebar{width:var(--sb);background:var(--md-sys-color-surface-container-low',
+    '.topbar{background:var(--md-sys-color-surface-container-low',
+    '/* === Material 3 navigation bar === */',
+    'background:var(--md-sys-color-surface-container-high',
+    '.bn-item.active{color:var(--md-sys-color-on-secondary-container',
+    '.bn-item.active .bn-icon-wrap{width:56px;background:var(--md-sys-color-secondary-container',
+    'box-shadow:var(--md-sys-elevation-level2)',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Поля та кастомні select-и Складу дотримуються M3 outlined/tonal розмірів:
+// 56px field, 48px option і secondary-container для вибраного значення.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad fields and selects use Material 3 sizing and states';
+  const required = [
+    '.inp{width:100%;border:1px solid var(--md-sys-color-outline',
+    'min-height:56px;font-size:16px;',
+    '.inp:focus{border:2px solid var(--md-sys-color-primary',
+    'background:var(--md-sys-color-surface-container-highest',
+    '.custom-select-panel{position:absolute;',
+    'background:var(--md-sys-color-surface-container-high',
+    '.custom-select-option{display:flex;align-items:center;min-height:48px;',
+    '.custom-select-option.active{background:var(--md-sys-color-secondary-container',
+    '.inp { min-height: 56px !important; }',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// PIN-підтвердження журналу використовує M3 dialog на desktop і modal bottom
+// sheet на mobile; індикатор PIN керується класом, а не hardcoded кольором JS.
+{
+  const text = readOsbbCombined();
+  const label = 'journal PIN confirmation uses Material 3 dialog and bottom sheet';
+  const required = [
+    '.pin-modal-dialog { background:var(--md-sys-color-surface-container-high',
+    '.pin-modal-dialog .pin-mb-btn { background:var(--md-sys-color-surface-container-highest',
+    '.pin-modal-dialog .pin-dot.is-entered { background:var(--md-sys-color-primary',
+    '.pin-modal-overlay { align-items:flex-end; }',
+    '.pin-modal-dialog::before { content:',
+    "dot.classList.toggle('is-entered', i < pinModalBuf.length)",
+    'data-pin-modal-delete',
+    'stroke="currentColor"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Поля журналу та спільний custom select використовують ті самі M3 field
+// tokens, що й Склад: 56px, outlined focus і tonal selected option.
+{
+  const text = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'journal fields and selects use Material 3 sizing and states';
+  const required = [
+    '.journal-select { min-height:56px;',
+    'background-color:var(--md-sys-color-surface-container-highest',
+    '.journal-select:focus { border:2px solid var(--md-sys-color-primary',
+    '.journal-textarea { width:100%; min-height:128px; padding:16px;',
+    '.journal-chat-author, .journal-chat-input { width:100%; min-height:56px;',
+    '.custom-select-option { display:flex; align-items:center; min-height:48px;',
+    '.custom-select-option.active { background:var(--md-sys-color-secondary-container);',
+    'box-shadow:var(--md-sys-elevation-level2); padding:8px; max-height:320px;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Toast Складу відповідає M3 snackbar: inverse surface, 48px, semantic icon
+// colors і мобільне розміщення над navigation bar; modal scrim без blur.
+{
+  const text = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad feedback uses Material 3 snackbar and scrim';
+  const required = [
+    '#toast{position:fixed;bottom:24px;right:24px;display:flex;align-items:center;',
+    'min-height:48px;',
+    'background:var(--md-sys-color-inverse-surface',
+    '#toast.success .ms{color:var(--md-sys-color-primary-fixed-dim',
+    '#toast.error .ms{color:var(--md-sys-color-error',
+    '#toast.info .ms{color:var(--md-sys-color-secondary',
+    '#toast{left:12px;right:12px;bottom:calc(100px + env(safe-area-inset-bottom))',
+    '.modal-bg{position:fixed;inset:0;background:color-mix(in srgb,var(--md-sys-color-scrim',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
