@@ -3226,6 +3226,34 @@ ${sharedSelectText}`;
   }
 }
 
+// Button content не повинен використовувати прихований filter-check icon:
+// він залишав нульовий flex-item із gap і оптично зсував label від центру.
+{
+  const html = readFileSync('sklad/index.html', 'utf8');
+  const css = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'sklad button labels and icons stay geometrically centered';
+  const required = [
+    'class="btn btn-primary btn-sm items-hero-action"',
+    'class="ms hero-action-icon" aria-hidden="true">output</span><span class="btn-label">Видати</span>',
+    'class="ms hero-action-icon" aria-hidden="true">add_circle</span><span class="btn-label">Поповнити</span>',
+    '.items-hero-action{min-width:116px;}',
+    '.hero-action-icon{width:18px;height:18px;',
+    'line-height:1.2;text-align:center;vertical-align:middle;',
+    '.btn .ms{align-self:center;margin:0;line-height:1;}',
+    '.btn-label{display:inline-flex;align-items:center;justify-content:center;',
+  ];
+  const combined = html + '\n' + css;
+  const missing = required.filter(needle => !combined.includes(needle));
+  const hiddenFilterIconInButton = /class="[^"]*\bbtn\b[^"]*"[^>]*>[\s\S]{0,160}class="[^"]*items-filter-icon/.test(html);
+  if (missing.length || hiddenFilterIconInButton) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; hidden filter icon: ${hiddenFilterIconInButton})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
