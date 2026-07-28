@@ -72,8 +72,10 @@ function makeShellDom() {
   for (let i = 0; i < 4; i++) doc.add(new FakeElement(`lock-d${i}`));
   doc.add(new FakeElement('shell-tab-journal', { classes: ['shell-tab-btn'], role: true }));
   doc.add(new FakeElement('shell-tab-sklad', { classes: ['shell-tab-btn'], role: true }));
+  doc.add(new FakeElement('shell-tab-promin', { classes: ['shell-tab-btn'], role: true }));
   doc.add(new FakeElement('frame-journal'));
   doc.add(new FakeElement('frame-sklad'));
+  doc.add(new FakeElement('frame-promin'));
   return doc;
 }
 
