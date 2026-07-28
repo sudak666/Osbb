@@ -281,12 +281,12 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     #desktop-tabs { display: none !important; }
     #bottom-nav { display: flex !important; }
     .max-w-7xl.mx-auto { padding-left:4px!important; padding-right:4px!important; padding-bottom:calc(112px + env(safe-area-inset-bottom))!important; }
-    .journal-shell-header { padding:14px; border-radius:20px; gap:10px; }
+    .journal-shell-header { padding:14px; border-radius:var(--md-sys-shape-corner-large,16px); gap:10px; }
     .journal-dashboard-panel { padding:14px; border-radius:var(--radius-lg); }
-    .journal-panel { padding:10px; border-radius:24px!important; }
+    .journal-panel { padding:10px; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; }
     .journal-list-shell { padding:0!important; border-radius:28px!important; }
     .journal-list-head { padding:14px 12px; }
-    .journal-panel:not(.journal-list-shell) > .journal-list-head:first-child { margin:-10px -10px 14px; border-radius:24px 24px 0 0; }
+    .journal-panel:not(.journal-list-shell) > .journal-list-head:first-child { margin:-10px -10px 14px; border-radius:var(--md-sys-shape-corner-extra-large,28px) var(--md-sys-shape-corner-extra-large,28px) 0 0; }
     .journal-stats-grid, .journal-mini-stats, .journal-charts-grid { grid-template-columns:1fr; gap:10px; }
     .journal-chart-wide { grid-column:auto; }
     .journal-mini-stats.is-four { grid-template-columns:repeat(2,minmax(0,1fr)); }
