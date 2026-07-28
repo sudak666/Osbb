@@ -39,7 +39,6 @@ const checks = [
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
-  ['osbb/index.html', "db.rpc('delete_chat_message'", 'journal deletes chat through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
   ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
   ['osbb/index.html', 'id="ios-toast" role="status" aria-live="polite"', 'journal toast exposes live status semantics'],
@@ -413,7 +412,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// OSBB lightbox, chat, month reset and photo container actions should use
+// OSBB lightbox, month reset and photo container actions should use
 // central bindings so URLs/messages are not serialized into inline JS calls.
 {
   const text = readOsbbCombined();
@@ -426,58 +425,23 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'onclick="dispClearMonth',
     'onclick="this.removeAttribute',
     'onkeydown="if(event.ctrlKey',
-    'onclick="chatSend',
     'onclick="openLightbox',
     'onclick="deletePhoto',
-    'onclick="chatDelete',
   ];
   const required = [
     'data-lightbox-backdrop',
     'data-lightbox-action="prev"',
     'data-action="garbage-clear-month"',
     'data-action="dispatcher-clear-month"',
-    'data-action="chat-send"',
-    'aria-label="Надіслати повідомлення"',
-    'data-chat-author',
-    'data-chat-input',
     'data-photo-action="open"',
     'data-photo-action="delete"',
-    'data-chat-delete-id',
     'function bindOsbbPhotoActions',
-    'function bindOsbbChatActions',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));
   if (hasForbidden || missing.length) {
     failed += 1;
     console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
-
-{
-  const label = 'journal chat uses class-based Material 3 surfaces';
-  const text = readOsbbCombined();
-  const required = [
-    'class="journal-chat-card"',
-    'class="journal-chat-messages"',
-    'class="journal-chat-send md-state-layer"',
-    'journal-chat-row${isMine',
-    '.journal-chat-bubble',
-    '.journal-chat-row:hover .chat-del-btn',
-    'data-chat-delete-id="${escapeAttr(msg.id)}"',
-  ];
-  const forbidden = [
-    'id="chat-messages" class="flex',
-    'btn.style.opacity',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  const presentForbidden = forbidden.filter(needle => text.includes(needle));
-  if (missing.length || presentForbidden.length) {
-    failed += 1;
-    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${presentForbidden.length ? ` (forbidden: ${presentForbidden.join(', ')})` : ''}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -595,7 +559,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-g-action="row-update"',
     'data-g-action="type-toggle"',
     'data-g-action="type-count"',
-    'data-disp-action="field-update"',
+    'data-disp-action="ticket-add"',
     'data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher"',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
@@ -621,10 +585,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'function escapeHtml',
     "const escaped = escapeHtml(val);",
-    "const authorEscaped = escapeHtml(msg.author || 'Анонім');",
-    "escapeHtml(msg.text || '').replace(/\\n/g,'<br>')",
     "${escapeHtml(currentMonthData[d].comment||'')}",
-    "${escapeHtml(row.comment||'')}",
+    "${escapeHtml(t.text)}",
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));
@@ -1981,7 +1943,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'aria-label="Час вивозу сміття за день ${day}"',
     'aria-label="Працівник сміття за день ${day}"',
     'aria-label="Кількість баків за день ${day}"',
-    'aria-label="Події диспетчера за день ${d}"',
+    'aria-label="Текст нової заявки"',
     'aria-label="Додати фото диспетчера за день ${d}"',
     'aria-label="Додати фото диспетчера з галереї за день ${d}"',
   ];
@@ -1995,19 +1957,16 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Placeholder-only search/chat fields need stable accessible names.
+// Placeholder-only search fields need stable accessible names.
 {
-  const osbb = readFileSync('osbb/index.html', 'utf8');
   const sklad = readFileSync('sklad/index.html', 'utf8');
-  const label = 'search and chat fields expose aria-labels';
+  const label = 'search fields expose aria-labels';
   const required = [
     [sklad, 'id="searchInp" aria-label="Пошук складських найменувань"'],
     [sklad, 'id="logSearch" aria-label="Пошук у журналі видач"'],
     [sklad, 'id="auditSearch" aria-label="Пошук товару для інвентаризації"'],
     [sklad, 'id="recSearch" aria-label="Пошук у приходах"'],
     [sklad, 'id="manualBarcodeI" class="inp" aria-label="Ввести штрих-код вручну"'],
-    [osbb, "id=\"chat-author\" type=\"text\" aria-label=\"Ваше ім'я в чаті\""],
-    [osbb, 'id="chat-input" rows="2" aria-label="Повідомлення в чат"'],
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
   if (missing.length) {
@@ -3218,7 +3177,6 @@ ${sharedSelectText}`;
     'background-color:var(--md-sys-color-surface-container-highest',
     '.journal-select:focus { border:2px solid var(--md-sys-color-primary',
     '.journal-textarea { width:100%; min-height:128px; padding:16px;',
-    '.journal-chat-author, .journal-chat-input { width:100%; min-height:56px;',
     '.custom-select-option { display:flex; align-items:center; min-height:48px;',
     '.custom-select-option.active { background:var(--md-sys-color-secondary-container);',
     'box-shadow:var(--md-sys-elevation-level2); padding:8px; max-height:320px;',
