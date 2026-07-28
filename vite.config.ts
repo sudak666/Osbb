@@ -9,6 +9,7 @@ export default defineConfig({
         main: 'index.html',
         osbb: 'osbb/index.html',
         sklad: 'sklad/index.html',
+        promin: 'promin/index.html',
       },
     },
   },
