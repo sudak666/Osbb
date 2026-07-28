@@ -45,12 +45,14 @@ test('JS ShellStore fallback preserves PIN editing and loaded-tab state', () => 
   assert.deepEqual(TAB_SRC, {
     journal: 'osbb/index.html?embed=1',
     sklad: 'sklad/index.html?embed=1',
+    promin: 'promin/index.html?embed=1',
   });
 });
 
 test('JS shell fallback exports the same tab guard and Supabase endpoint constants', () => {
   assert.equal(isShellTabName('journal'), true);
   assert.equal(isShellTabName('sklad'), true);
+  assert.equal(isShellTabName('promin'), true);
   assert.equal(isShellTabName('settings'), false);
   assert.equal(SUPABASE_URL, 'https://vkwkyhjjjmcpmiakxohw.supabase.co');
   assert.equal(SUPABASE_KEY.startsWith('sb_publishable_'), true);
