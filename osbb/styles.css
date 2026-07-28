@@ -514,10 +514,10 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .pin-modal-sub { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:0.875rem; margin-bottom:20px; }
 .pin-modal-error { color:var(--md-sys-color-error,#ef4444); font-size:0.8rem; min-height:18px; margin-bottom:10px; }
 .pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }
-.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }
-.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }
-.pin-modal-icon-wrap.is-green { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 20%,transparent); }
-.pin-modal-icon-wrap.is-green-soft { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 15%,transparent); }
+.pin-modal-icon-wrap.is-indigo { background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); }
+.pin-modal-icon-wrap.is-red { background:var(--md-sys-color-error-container); color:var(--md-sys-color-on-error-container); }
+.pin-modal-icon-wrap.is-green { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }
+.pin-modal-icon-wrap.is-green-soft { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }
 .pin-mb-btn { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:80px; height:80px; font-size:1.5rem; font-weight:400; color:#fff; cursor:pointer; transition:background var(--motion-fast) ease; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; }
 .pin-mb-btn:active { background:rgba(255,255,255,0.22); }
 .pin-modal-dialog .pin-mb-btn { background:var(--md-sys-color-surface-container-highest,var(--bg-input)); border:1px solid var(--md-sys-color-outline-variant,var(--border)); color:var(--md-sys-color-on-surface,var(--text-main)); }

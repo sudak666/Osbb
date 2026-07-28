@@ -1051,10 +1051,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'osbb PIN-modal icons use class-based markup';
   const required = [
     '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
-    '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
-    '.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }',
-    '.pin-modal-icon-wrap.is-green { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 20%,transparent); }',
-    '.pin-modal-icon-wrap.is-green-soft { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 15%,transparent); }',
+    '.pin-modal-icon-wrap.is-indigo { background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); }',
+    '.pin-modal-icon-wrap.is-red { background:var(--md-sys-color-error-container); color:var(--md-sys-color-on-error-container); }',
+    '.pin-modal-icon-wrap.is-green { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }',
+    '.pin-modal-icon-wrap.is-green-soft { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }',
     'class="pin-modal-icon-wrap is-indigo"',
     'class="pin-modal-icon-wrap is-red"',
     'class="pin-modal-icon-wrap is-green"',
@@ -1740,8 +1740,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync('osbb/index.html', 'utf8');
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
-    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><svg',
-    'fill="currentColor" stroke="none"/></svg></span><span id="journalThemeLabel"',
+    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span>',
+    '</span><span id="journalThemeLabel" class="sr-only">Світла</span>',
   ];
   const forbidden = ['☀️', '🌙'];
   const missing = required.filter(needle => !text.includes(needle));
@@ -1796,7 +1796,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-action-label {',
     '.journal-action-btn {',
     'class="journal-action-btn journal-action-btn-danger md-state-layer"',
-    'class="journal-inline-icon"',
+    'class="material-symbols-rounded journal-inline-icon"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -3129,10 +3129,10 @@ ${sharedSelectText}`;
     '<article class="stat-card summary-card sc-orange">',
     '.inventory-summary .summary-card{min-height:132px;cursor:default;',
     '.stat-icon{position:absolute;right:14px;top:14px;z-index:1;',
-    '.stat-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;',
+    '.stat-icon .ms{font-size:22px;}',
     '.sw .inp{padding-left:42px!important;}',
     '.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px!important;}',
-    '.si svg{width:18px;height:18px;fill:none;stroke:currentColor;',
+    '.si.ms{font-size:18px;}',
     'href="styles.css?v=20260727-search-icons"',
   ];
   const missing = required.filter(needle => !text.includes(needle));

@@ -38,18 +38,12 @@
 </head>
 <body class="theme-light min-h-screen">
 
-<svg aria-hidden="true" focusable="false" style="display:none">
-    <defs>
-        <symbol id="i-garbage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
-        <symbol id="i-dispatcher" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></symbol>
-    </defs>
-</svg>
 
 <!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
 <div id="app-lock-screen" class="lock-screen">
     <div class="lock-panel">
         <!-- Лого -->
-        <div class="lock-logo"><svg aria-hidden="true" focusable="false" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
+        <div class="lock-logo"><span class="material-symbols-rounded" aria-hidden="true">home</span></div>
         <div class="lock-title">ОСББ "Микитська Слобода"</div>
         <div class="lock-subtitle">Введіть PIN для входу</div>
 
@@ -112,7 +106,7 @@
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" class="pin-modal-overlay">
     <div class="pin-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1">
-        <div class="pin-modal-icon" id="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+        <div class="pin-modal-icon" id="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span></div>
         <div class="pin-modal-title" id="pin-modal-title">Пароль для скидання</div>
         <div class="pin-modal-sub" id="pin-modal-sub">Введіть 4-значний PIN</div>
         <div class="pin-dots">
@@ -134,7 +128,7 @@
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="9">9</button>
             <button type="button" data-pin-modal-cancel aria-label="Скасувати введення PIN" class="pin-key-action pin-key-cancel">Скас.</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="0">0</button>
-            <button type="button" data-pin-modal-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру"><svg aria-hidden="true" focusable="false" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            <button type="button" data-pin-modal-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру"><span class="material-symbols-rounded" aria-hidden="true">backspace</span></button>
         </div>
     </div>
 </div>
@@ -144,7 +138,7 @@
      особистий PIN. Роль з цієї сесії керує доступом до Табеля/заявок. -->
 <div id="staff-login-modal" class="pin-modal-overlay">
     <div class="pin-modal-dialog staff-login-dialog" role="dialog" aria-modal="true" aria-labelledby="staff-login-title" tabindex="-1">
-        <div class="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:20px;color:#34c759">how_to_reg</span></span></div>
+        <div class="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><span class="material-symbols-rounded" aria-hidden="true">how_to_reg</span></span></div>
         <div class="pin-modal-title" id="staff-login-title">Хто ви?</div>
         <div class="pin-modal-sub">Оберіть себе зі списку</div>
         <div id="staff-login-list" class="staff-login-list" role="listbox" aria-label="Список співробітників"></div>
@@ -221,10 +215,10 @@
                 <div class="journal-title-copy">Заявки, табель персоналу та облік будинку.</div>
             </div>
             <div class="journal-title-actions">
-                <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
+                <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>
                 <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span></span>
                 <button type="button" id="staff-session-badge" class="journal-status-chip staff-session-chip hidden md-state-layer" data-tip="Змінити користувача" aria-label="Поточний співробітник, натисніть щоб змінити" data-staff-switch></button>
-                <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" class="journal-inline-icon"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
+                <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
             </div>
         </div>
 
@@ -235,10 +229,10 @@
                 <select id="month-select" data-calendar-select aria-label="Місяць" class="journal-select"></select>
                 <button type="button" data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="journal-icon-btn md-state-layer"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
                 <button type="button" data-action="go-today" id="btn-today" class="journal-tonal-btn md-state-layer hidden">
-                    <span class="flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg> Сьогодні</span>
+                    <span class="flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">today</span> Сьогодні</span>
                 </button>
                 <button type="button" data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="journal-icon-btn md-state-layer is-primary" id="btn-refresh">
-                    <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
                 </button>
             </div>
         </div>
@@ -1825,7 +1819,7 @@
             return `
             <div class="relative group">
                 <img src="${safeUrl}" alt="Фото запису за день ${day}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
-                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
             </div>`;
         }).join('');
     }
@@ -2582,12 +2576,12 @@
         return `
             <div class="grid grid-cols-2 gap-2 mb-3">
                 <div>
-                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Час</div>
                     <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" data-time-mask aria-label="Час вивозу сміття за день ${day}"
                         class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
                 </div>
                 <div>
-                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Працівник</div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">person</span>Працівник</div>
                     <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker" aria-label="Працівник сміття за день ${day}"
                         class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
                         <option value="">—</option>
@@ -2843,8 +2837,8 @@
         pinModalVerifyRpc = verifyRpc;
         document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
         document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
-        const lockIcon  = '<span class="pin-modal-icon-wrap is-indigo"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
-        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
+        const lockIcon = '<span class="pin-modal-icon-wrap is-indigo"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
+        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">delete</span></span>';
         document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
@@ -2882,7 +2876,7 @@
             let ok = false;
             try { ok = await db.rpc(pinModalVerifyRpc, { attempt }); } catch (e) { ok = false; }
             if (ok) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span></span>';
                 hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
@@ -2891,7 +2885,7 @@
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
             } else {
                 document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
                 pinModalBuf = '';
                 pinUpdateDots();
                 // Тряска
@@ -3309,7 +3303,7 @@
                 <div id="mobile-photos-${d}-dispatcher" class="flex gap-2 flex-wrap mb-2"></div>
                 <div class="flex gap-2 flex-wrap">
                     <label class="journal-photo-action md-state-layer">
-                        <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Камера
+                        <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">photo_camera</span> Камера
                         <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера за день ${d}">
                     </label>
                     <label class="journal-photo-action is-secondary md-state-layer">
