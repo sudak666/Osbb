@@ -547,9 +547,8 @@
                     <button type="button" class="dispatcher-reset-btn md-state-layer" data-disp-reset hidden>Скинути</button>
                 </div>
             </div>
-            <div class="journal-mini-stats is-six dispatcher-summary" aria-label="Підсумок диспетчера">
+            <div class="journal-mini-stats is-five dispatcher-summary" aria-label="Підсумок диспетчера">
                 <div class="stat-card journal-stat-card journal-mini-stat role-dispatcher"><div class="journal-metric-value" id="disp-stat-events">0</div><div class="journal-metric-label">Днів із подіями</div></div>
-                <div class="stat-card journal-stat-card journal-mini-stat role-info"><div class="journal-metric-value" id="disp-stat-calls">0</div><div class="journal-metric-label">Дзвінків</div></div>
                 <div class="stat-card journal-stat-card journal-mini-stat role-plumber"><div class="journal-metric-value" id="disp-stat-tickets">0</div><div class="journal-metric-label">Заявок</div></div>
                 <div class="stat-card journal-stat-card journal-mini-stat role-danger"><div class="journal-metric-value" id="disp-stat-urgent">0</div><div class="journal-metric-label">Термінових</div></div>
                 <div class="stat-card journal-stat-card journal-mini-stat role-info"><div class="journal-metric-value" id="disp-stat-progress">0</div><div class="journal-metric-label">В роботі</div></div>
@@ -3111,10 +3110,6 @@
                     event.preventDefault();
                     dispInsertCurrentTime(Number(action.dataset.dispDay));
                 }
-                if (action.dataset.dispAction === 'counter-adjust') {
-                    event.preventDefault();
-                    dispAdjustCounter(Number(action.dataset.dispDay), action.dataset.dispField || '', Number(action.dataset.dispDelta));
-                }
                 if (action.dataset.dispAction === 'ticket-add') {
                     event.preventDefault();
                     const d = Number(action.dataset.dispDay);
@@ -3893,8 +3888,6 @@
     function dispNormalizeDay(row = {}) {
         return {
             working: Boolean(row.working),
-            calls: row.calls || '',
-            tickets: row.tickets || '',
             location: row.location || '',
             status: dispStatuses[row.status] ? row.status : 'new',
             comment: row.comment || '',
@@ -4075,16 +4068,6 @@
         showToast(`Час ${time} додано`);
     }
 
-    function dispAdjustCounter(d, field, delta) {
-        if ((field !== 'calls' && field !== 'tickets') || (delta !== -1 && delta !== 1)) return;
-        const row = dispGetDay(d);
-        const currentValue = Number.parseInt(row[field], 10);
-        row[field] = String(Math.max(0, Math.min(999, (Number.isFinite(currentValue) ? currentValue : 0) + delta)));
-        dispScheduleSave();
-        dispRenderStats();
-        dispOpenDayDetail(Number(d));
-    }
-
     function dispSetLocation(d, location) {
         const row = dispGetDay(d);
         row.location = location;
@@ -4108,7 +4091,7 @@
         if (day <= 1) { showToast('Немає попереднього дня'); return; }
         const prev = dispData[day - 1] ? dispNormalizeDay(dispData[day - 1]) : null;
         if (!prev || (!prev.comment && !prev.location && prev.status === 'new')) { showToast('Попередній день порожній'); return; }
-        dispData[day] = { ...dispGetDay(day), comment: prev.comment, location: prev.location, status: prev.status, calls: prev.calls, tickets: prev.tickets, tasks: { ...prev.tasks } };
+        dispData[day] = { ...dispGetDay(day), comment: prev.comment, location: prev.location, status: prev.status, tasks: { ...prev.tasks } };
         dispScheduleSave();
         dispRender();
         dispOpenDayDetail(day);
@@ -4190,10 +4173,6 @@
                 <label><span class="journal-field-label">Статус:</span><select data-disp-action="field-update" data-disp-day="${d}" data-disp-field="status" class="journal-select dispatcher-status-select" aria-label="Статус дня диспетчера ${d}">${statusOptions}</select></label>
                 <label><span class="journal-field-label">Локація:</span><input type="text" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="location" value="${escapeAttr(row.location||'')}" placeholder="Підʼїзд, поверх, квартира..." class="dispatcher-location-input" aria-label="Локація події диспетчера за день ${d}"></label>
             </div>
-            <div class="dispatcher-counter-grid">
-                <label><span class="journal-field-label">Дзвінки:</span><span class="dispatcher-counter-control"><button type="button" class="dispatcher-counter-step md-state-layer" data-disp-action="counter-adjust" data-disp-field="calls" data-disp-delta="-1" data-disp-day="${d}" aria-label="Відняти один дзвінок">−1</button><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="calls" value="${escapeAttr(String(row.calls || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість дзвінків за день ${d}"><button type="button" class="dispatcher-counter-step md-state-layer" data-disp-action="counter-adjust" data-disp-field="calls" data-disp-delta="1" data-disp-day="${d}" aria-label="Додати один дзвінок">+1</button></span></label>
-                <label><span class="journal-field-label">Заявки:</span><span class="dispatcher-counter-control"><button type="button" class="dispatcher-counter-step md-state-layer" data-disp-action="counter-adjust" data-disp-field="tickets" data-disp-delta="-1" data-disp-day="${d}" aria-label="Відняти одну заявку">−1</button><input type="number" min="0" max="999" inputmode="numeric" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="tickets" value="${escapeAttr(String(row.tickets || ''))}" placeholder="0" class="dispatcher-counter-input" aria-label="Кількість заявок за день ${d}"><button type="button" class="dispatcher-counter-step md-state-layer" data-disp-action="counter-adjust" data-disp-field="tickets" data-disp-delta="1" data-disp-day="${d}" aria-label="Додати одну заявку">+1</button></span></label>
-            </div>
             <div class="dispatcher-status-row" aria-label="Швидкі статуси">${statusButtons}</div>
             <div class="dispatcher-location-row" aria-label="Швидкі локації">${locationButtons}</div>
             <div class="dispatcher-template-row" aria-label="Швидкі шаблони">${templateButtons}</div>
@@ -4273,7 +4252,7 @@
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const row = dispGetDay(d);
             const photosCount = getPhotosFromCache(d, 'dispatcher').length;
-            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || Number(row.calls) > 0 || Number(row.tickets) > 0 || photosCount > 0;
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || row.ticketsList.length > 0 || photosCount > 0;
             const query = dispSearchQuery.trim().toLowerCase();
             const searchText = `${row.comment || ''} ${row.location || ''} ${dispStatuses[row.status]?.label || ''}`.toLowerCase();
             const matchesSearch = !query || searchText.includes(query);
@@ -4308,18 +4287,17 @@
 
     function dispRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const totals = { events: 0, calls: 0, tickets: 0, urgent: 0, progress: 0, done: 0 };
+        const totals = { events: 0, tickets: 0, urgent: 0, progress: 0, done: 0 };
         for (let d = 1; d <= daysInMonth; d++) {
             const row = dispGetDay(d);
-            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || Number(row.calls) > 0 || Number(row.tickets) > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
+            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || row.ticketsList.length > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
             if (hasEvent) totals.events++;
-            totals.calls += Math.max(0, Number.parseInt(row.calls, 10) || 0);
-            totals.tickets += Math.max(0, Number.parseInt(row.tickets, 10) || 0);
+            totals.tickets += row.ticketsList.length;
             if (row.status === 'urgent') totals.urgent++;
             if (row.status === 'in_progress') totals.progress++;
             if (row.status === 'done') totals.done++;
         }
-        const map = { 'disp-stat-events': totals.events, 'disp-stat-calls': totals.calls, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
+        const map = { 'disp-stat-events': totals.events, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
         Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
 
