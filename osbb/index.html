@@ -1669,8 +1669,8 @@
                 const cell = attGetCell(d, role);
                 if (editable) {
                     html += `<td class="is-${role}">
-                        <input type="time" class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
-                        <input type="time" class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
                     </td>`;
                 } else {
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
@@ -3038,7 +3038,9 @@
     }
 
     function bindGarbageEntryActions() {
-        ['g-days-list', 'day-detail-body'].forEach((id) => {
+        // att-body (Табель) теж використовує масковані ГГ:ХХ поля (data-time-mask) —
+        // додано сюди лише заради спільного input/blur форматування, не g-специфічної логіки.
+        ['g-days-list', 'day-detail-body', 'att-body'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('input', (event) => {
@@ -4213,6 +4215,10 @@
         bodyEl.innerHTML = dispBuildDayBodyHtml(d);
         const photosEl = document.getElementById(`mobile-photos-${d}-dispatcher`);
         if (photosEl) renderPhotoContainer(photosEl, getPhotosFromCache(d, 'dispatcher'), d, 'dispatcher', true);
+        const ticketRoleSel = document.getElementById(`ticket-new-role-${d}`);
+        const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
+        if (ticketRoleSel) enhanceSelect(ticketRoleSel);
+        if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
         modal.dataset.day = String(d);
         modal.dataset.context = 'dispatcher';
         modal.classList.add('open');
