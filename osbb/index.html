@@ -43,7 +43,6 @@
         <symbol id="i-charts" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
         <symbol id="i-garbage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
         <symbol id="i-dispatcher" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></symbol>
-        <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
     </defs>
 </svg>
 
@@ -251,9 +250,6 @@
             <button type="button" data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn md-state-layer">
                 <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
             </button>
-            <button type="button" data-osbb-tab="chat" id="tab-chat" role="tab" aria-selected="false" aria-controls="section-chat" class="tab-btn md-state-layer">
-                <span class="mdi mdi-message-outline journal-inline-icon" aria-hidden="true"></span> Чат
-            </button>
             <button type="button" data-osbb-tab="shifts" id="tab-shifts" role="tab" aria-selected="false" aria-controls="section-shifts" class="tab-btn md-state-layer">
                 <span class="mdi mdi-calendar-clock journal-inline-icon" aria-hidden="true"></span> Зміни
             </button>
@@ -280,9 +276,6 @@
         </button>
         <button type="button" data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab md-state-layer">
             <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
-        </button>
-        <button type="button" data-osbb-tab="chat" id="tab-chat-m" role="tab" aria-selected="false" aria-controls="section-chat" class="mob-tab md-state-layer">
-            <span class="mdi mdi-message-outline journal-inline-icon" aria-hidden="true"></span> Чат
         </button>
         <button type="button" data-osbb-tab="shifts" id="tab-shifts-m" role="tab" aria-selected="false" aria-controls="section-shifts" class="mob-tab md-state-layer">
             <span class="mdi mdi-calendar-clock journal-inline-icon" aria-hidden="true"></span> Зміни
@@ -538,7 +531,6 @@
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="current_week">Цей тиждень</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="has_event">З подіями</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="urgent">Термінові</button>
-                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="in_progress">В роботі</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="unresolved">Невирішені</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="done">Виконані</button>
                 </div>
@@ -547,12 +539,11 @@
                     <button type="button" class="dispatcher-reset-btn md-state-layer" data-disp-reset hidden>Скинути</button>
                 </div>
             </div>
-            <div class="journal-mini-stats is-five dispatcher-summary" aria-label="Підсумок диспетчера">
-                <div class="stat-card journal-stat-card journal-mini-stat role-dispatcher"><div class="journal-metric-value" id="disp-stat-events">0</div><div class="journal-metric-label">Днів із подіями</div></div>
+            <div class="journal-mini-stats is-four dispatcher-summary" aria-label="Підсумок диспетчера">
+                <div class="stat-card journal-stat-card journal-mini-stat role-dispatcher"><div class="journal-metric-value" id="disp-stat-events">0</div><div class="journal-metric-label">Днів із заявками</div></div>
                 <div class="stat-card journal-stat-card journal-mini-stat role-plumber"><div class="journal-metric-value" id="disp-stat-tickets">0</div><div class="journal-metric-label">Заявок</div></div>
-                <div class="stat-card journal-stat-card journal-mini-stat role-danger"><div class="journal-metric-value" id="disp-stat-urgent">0</div><div class="journal-metric-label">Термінових</div></div>
-                <div class="stat-card journal-stat-card journal-mini-stat role-info"><div class="journal-metric-value" id="disp-stat-progress">0</div><div class="journal-metric-label">В роботі</div></div>
-                <div class="stat-card journal-stat-card journal-mini-stat role-janitor"><div class="journal-metric-value" id="disp-stat-done">0</div><div class="journal-metric-label">Виконано</div></div>
+                <div class="stat-card journal-stat-card journal-mini-stat role-danger"><div class="journal-metric-value" id="disp-stat-urgent">0</div><div class="journal-metric-label">Термінових відкритих</div></div>
+                <div class="stat-card journal-stat-card journal-mini-stat role-janitor"><div class="journal-metric-value" id="disp-stat-done">0</div><div class="journal-metric-label">Виконано заявок</div></div>
             </div>
             <div id="disp-cards"></div>
         </div>
@@ -578,33 +569,6 @@
         </div>
     </div>
 
-    <!-- ===== СЕКЦІЯ ЧАТ ===== -->
-    <div id="section-chat" class="hidden mb-6">
-        <div class="journal-chat-card">
-            <div class="journal-chat-header">
-                <span class="journal-chat-title">
-                    <span class="mdi mdi-chat-outline journal-inline-icon" aria-hidden="true"></span> Чат ОСББ
-                </span>
-                <span id="chat-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
-            </div>
-            <!-- Повідомлення -->
-            <div id="chat-messages" class="journal-chat-messages"></div>
-            <!-- Поле введення -->
-            <div class="journal-chat-composer">
-                <div class="journal-chat-fields">
-                    <input id="chat-author" type="text" aria-label="Ваше ім'я в чаті" placeholder="Ваше ім'я..." maxlength="30" readonly data-chat-author
-                        class="journal-chat-author">
-                    <textarea id="chat-input" rows="2" aria-label="Повідомлення в чат" placeholder="Напишіть повідомлення..." maxlength="500"
-                        class="journal-chat-input"
-                        data-chat-input></textarea>
-                </div>
-                <button type="button" data-action="chat-send" aria-label="Надіслати повідомлення" class="journal-chat-send md-state-layer">
-                    <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </button>
-            </div>
-            <div class="journal-chat-hint">Ctrl+Enter для надсилання</div>
-        </div>
-    </div>
 
 </div>
 
@@ -889,8 +853,8 @@
         renderStaffLoginList();
     }
 
-    const STAFF_ROLE_ICONS = { dispatcher: 'mdi-phone-outline', admin: 'mdi-shield-account-outline', plumber: 'mdi-wrench-outline', janitor: 'mdi-broom', electrician: 'mdi-flash' };
-    const STAFF_ROLE_LABELS = { dispatcher: 'Диспетчер', admin: 'Адмін', plumber: 'Сантехнік', janitor: 'Двірник', electrician: 'Електрик' };
+    const STAFF_ROLE_ICONS = { dispatcher: 'mdi-phone-outline', admin: 'mdi-shield-account-outline', board: 'mdi-account-tie-outline', plumber: 'mdi-wrench-outline', janitor: 'mdi-broom', electrician: 'mdi-flash' };
+    const STAFF_ROLE_LABELS = { dispatcher: 'Диспетчер', admin: 'Адмін', board: 'Правління', plumber: 'Сантехнік', janitor: 'Двірник', electrician: 'Електрик' };
 
     function renderStaffLoginList() {
         const listEl = document.getElementById('staff-login-list');
@@ -993,8 +957,11 @@
         if (e.target.closest('[data-staff-pin-back]')) { staffLoginBack(); return; }
     });
 
+    // dispatcher/admin/board — рівнозначні "повний доступ" ролі: увесь журнал,
+    // редагування Табеля, заявки. "Зміни" сюди не входять навмисно — той таб
+    // і раніше захищений окремим PIN (verify_work_shifts_pin), незалежним від ролей.
     function isDispatcherSession() {
-        return Boolean(staffSession) && (staffSession.role === 'dispatcher' || staffSession.role === 'admin');
+        return Boolean(staffSession) && ['dispatcher', 'admin', 'board'].includes(staffSession.role);
     }
 
     function isWorkerSession() {
@@ -1060,7 +1027,6 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'schedule' }, () => realtimeSafeRefresh('journal', initCalendar))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'garbage' }, () => realtimeSafeRefresh('garbage', gInitTab))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'dispatcher' }, () => realtimeSafeRefresh('dispatcher', dispInitTab))
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'chat' }, () => { if (currentTab === 'chat') chatInitTab(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => realtimeSafeRefresh('charts', initCalendar))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shifts' }, () => realtimeSafeRefresh('shifts', shiftLoadMonth))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shift_settings' }, () => realtimeSafeRefresh('shift-settings', shiftLoadSettings))
@@ -1152,7 +1118,7 @@
         document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
-    const ALL_TABS = ['journal','charts','garbage','dispatcher','chat','shifts','tabel','my-tickets'];
+    const ALL_TABS = ['journal','charts','garbage','dispatcher','shifts','tabel','my-tickets'];
 
     function requestTab(tab) {
         if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
@@ -1167,7 +1133,6 @@
         document.getElementById('section-charts').classList.toggle('hidden', tab !== 'charts');
         document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
         document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
-        document.getElementById('section-chat').classList.toggle('hidden', tab !== 'chat');
         document.getElementById('section-shifts').classList.toggle('hidden', tab !== 'shifts');
         document.getElementById('section-tabel').classList.toggle('hidden', tab !== 'tabel');
         document.getElementById('section-my-tickets').classList.toggle('hidden', tab !== 'my-tickets');
@@ -1198,7 +1163,6 @@
         if (tab === 'charts') renderCharts();
         if (tab === 'garbage') gInitTab();
         if (tab === 'dispatcher') dispInitTab();
-        if (tab === 'chat') chatInitTab();
         if (tab === 'shifts') shiftInitTab();
         if (tab === 'tabel') attInitTab();
         if (tab === 'my-tickets') myTicketsInitTab();
@@ -2912,7 +2876,6 @@
             'clear-current-month': clearCurrentMonth,
             'garbage-clear-month': gClearMonth,
             'dispatcher-clear-month': dispClearMonth,
-            'chat-send': chatSend,
             'go-today': goToday,
             'refresh-data': refreshData,
         };
@@ -2921,11 +2884,6 @@
             if (handler) button.addEventListener('click', handler);
         });
 
-        document.querySelector('[data-chat-author]')?.addEventListener('focus', (event) => event.target.removeAttribute('readonly'));
-        document.querySelector('[data-chat-author]')?.addEventListener('click', (event) => event.target.removeAttribute('readonly'));
-        document.querySelector('[data-chat-input]')?.addEventListener('keydown', (event) => {
-            if (event.ctrlKey && event.key === 'Enter') chatSend();
-        });
         document.querySelector('[data-lightbox-backdrop]')?.addEventListener('click', (event) => {
             if (event.target === event.currentTarget || event.target.id === 'lightbox-img') closeLightbox();
         });
@@ -2961,15 +2919,6 @@
                     trigger.dataset.photoRole
                 );
             }
-        });
-    }
-
-    function bindOsbbChatActions() {
-        document.getElementById('chat-messages')?.addEventListener('click', (event) => {
-            const button = event.target.closest('[data-chat-delete-id]');
-            if (!button) return;
-            event.preventDefault();
-            chatDelete(Number(button.dataset.chatDeleteId));
         });
     }
 
@@ -3099,40 +3048,9 @@
         ['disp-cards', 'day-detail-body'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
-            container.addEventListener('input', (event) => {
-                const field = event.target.closest('[data-disp-action="field-update"]');
-                if (!field) return;
-                dispUpdate(Number(field.dataset.dispDay), field.dataset.dispField, field.value);
-            });
-            container.addEventListener('change', (event) => {
-                const field = event.target.closest('[data-disp-action="field-update"]');
-                if (!field) return;
-                dispUpdate(Number(field.dataset.dispDay), field.dataset.dispField, field.value);
-                dispRender();
-            });
             container.addEventListener('click', (event) => {
                 const action = event.target.closest('[data-disp-action]');
                 if (!action) return;
-                if (action.dataset.dispAction === 'template-add') {
-                    event.preventDefault();
-                    dispAppendTemplate(Number(action.dataset.dispDay), action.dataset.dispTemplate || '');
-                }
-                if (action.dataset.dispAction === 'location-set') {
-                    event.preventDefault();
-                    dispSetLocation(Number(action.dataset.dispDay), action.dataset.dispLocation || '');
-                }
-                if (action.dataset.dispAction === 'status-set') {
-                    event.preventDefault();
-                    dispSetDayStatus(Number(action.dataset.dispDay), action.dataset.dispStatus || 'new');
-                }
-                if (action.dataset.dispAction === 'copy-prev') {
-                    event.preventDefault();
-                    dispCopyFromPreviousDay(Number(action.dataset.dispDay));
-                }
-                if (action.dataset.dispAction === 'insert-time') {
-                    event.preventDefault();
-                    dispInsertCurrentTime(Number(action.dataset.dispDay));
-                }
                 if (action.dataset.dispAction === 'ticket-add') {
                     event.preventDefault();
                     const d = Number(action.dataset.dispDay);
@@ -3241,7 +3159,6 @@
 
     bindOsbbStaticControls();
     bindOsbbPhotoActions();
-    bindOsbbChatActions();
     bindJournalEntryActions();
     bindGarbageEntryActions();
     bindDispatcherEntryActions();
@@ -3810,22 +3727,6 @@
     let dispSearchQuery = '';
     let dispFilter = 'all';
     const dispWorkerName = 'Диспетчер';
-    const dispStatuses = {
-        new: { label: 'Нове', dot: 'dispatcher' },
-        in_progress: { label: 'В роботі', dot: 'dispatcher-progress' },
-        done: { label: 'Виконано', dot: 'dispatcher-done' },
-        urgent: { label: 'Терміново', dot: 'dispatcher-urgent' }
-    };
-    const dispQuickTemplates = [
-        'Скарга мешканця',
-        'Перегоріла лампа',
-        'Проблема з ліфтом',
-        'Сантехнічна заявка',
-        'Потрібен огляд майстра',
-        'Питання по прибиранню'
-    ];
-    const dispQuickLocations = [...buildingEntrances, 'Двір', 'Підвал', 'Дах', 'Ліфт'];
-    const dispQuickStatusOrder = ['urgent', 'in_progress', 'done', 'new'];
 
     // Заявки з пріоритетом (нова структурована модель, ticketsList).
     // Старі текстові дні (поле `tickets` — просто число) лишаються як є для
@@ -3910,11 +3811,6 @@
 
     function dispNormalizeDay(row = {}) {
         return {
-            working: Boolean(row.working),
-            location: row.location || '',
-            status: dispStatuses[row.status] ? row.status : 'new',
-            comment: row.comment || '',
-            tasks: row.tasks || {},
             ticketsList: Array.isArray(row.ticketsList) ? row.ticketsList : []
         };
     }
@@ -3922,12 +3818,6 @@
     function dispGetDay(d) {
         dispData[d] = dispNormalizeDay(dispData[d]);
         return dispData[d];
-    }
-
-    function dispUpdate(d, field, value) {
-        dispGetDay(d)[field] = value;
-        dispScheduleSave();
-        dispRenderStats();
     }
 
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
@@ -4073,54 +3963,6 @@
         });
     }
 
-    function dispAppendTemplate(d, text) {
-        const row = dispGetDay(d);
-        row.comment = [row.comment, text].filter(Boolean).join(row.comment ? '\n' : '');
-        dispScheduleSave();
-        dispOpenDayDetail(Number(d));
-        showToast('Шаблон додано');
-    }
-
-    function dispInsertCurrentTime(d) {
-        const now = new Date();
-        const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        const row = dispGetDay(d);
-        row.comment = [row.comment, `[${time}] `].filter(Boolean).join(row.comment ? '\n' : '');
-        dispScheduleSave();
-        dispOpenDayDetail(Number(d));
-        showToast(`Час ${time} додано`);
-    }
-
-    function dispSetLocation(d, location) {
-        const row = dispGetDay(d);
-        row.location = location;
-        dispScheduleSave();
-        dispRender();
-        dispOpenDayDetail(Number(d));
-        showToast('Локацію додано');
-    }
-
-    function dispSetDayStatus(d, status) {
-        if (!dispStatuses[status]) return;
-        dispGetDay(d).status = status;
-        dispScheduleSave();
-        dispRender();
-        dispOpenDayDetail(Number(d));
-        showToast(`Статус: ${dispStatuses[status].label}`);
-    }
-
-    function dispCopyFromPreviousDay(d) {
-        const day = Number(d);
-        if (day <= 1) { showToast('Немає попереднього дня'); return; }
-        const prev = dispData[day - 1] ? dispNormalizeDay(dispData[day - 1]) : null;
-        if (!prev || (!prev.comment && !prev.location && prev.status === 'new')) { showToast('Попередній день порожній'); return; }
-        dispData[day] = { ...dispGetDay(day), comment: prev.comment, location: prev.location, status: prev.status, tasks: { ...prev.tasks } };
-        dispScheduleSave();
-        dispRender();
-        dispOpenDayDetail(day);
-        showToast('Скопійовано з учора');
-    }
-
     function dispMatchesCurrentDateFilter(d, filter) {
         const dayDate = new Date(currentYear, currentMonth, d);
         const today = new Date();
@@ -4138,14 +3980,12 @@
     function dispMatchesFilter(row, hasEvent, d) {
         if (dispFilter === 'today' || dispFilter === 'current_week') return dispMatchesCurrentDateFilter(d, dispFilter);
         if (dispFilter === 'has_event') return hasEvent;
-        if (dispFilter === 'urgent') return row.status === 'urgent';
-        if (dispFilter === 'in_progress') return row.status === 'in_progress';
-        if (dispFilter === 'unresolved') return row.status === 'urgent' || row.status === 'in_progress';
-        if (dispFilter === 'done') return row.status === 'done';
+        if (dispFilter === 'urgent') return row.ticketsList.some(t => t.priority === 'HIGH' && t.status !== 'done');
+        if (dispFilter === 'unresolved') return row.ticketsList.some(t => t.status !== 'done');
+        if (dispFilter === 'done') return row.ticketsList.length > 0 && row.ticketsList.every(t => t.status === 'done');
         return true;
     }
 
-    // Розмітка для одного дня диспетчера: події, локація, статус, шаблони та фото.
     // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
     // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
     function dispBuildTicketsBlockHtml(d, row) {
@@ -4185,28 +4025,8 @@
 
     function dispBuildDayBodyHtml(d) {
         const row = dispGetDay(d);
-        const statusOptions = Object.entries(dispStatuses).map(([value, item]) => `<option value="${value}" ${row.status === value ? 'selected' : ''}>${item.label}</option>`).join('');
-        const templateButtons = dispQuickTemplates.map(text => `<button type="button" class="dispatcher-template-chip md-state-layer" data-disp-action="template-add" data-disp-day="${d}" data-disp-template="${escapeAttr(text)}">${escapeHtml(text)}</button>`).join('');
-        const locationButtons = dispQuickLocations.map(location => `<button type="button" class="dispatcher-location-chip md-state-layer" data-disp-action="location-set" data-disp-day="${d}" data-disp-location="${escapeAttr(location)}">${escapeHtml(location)}</button>`).join('');
-        const statusButtons = dispQuickStatusOrder.map(status => `<button type="button" class="dispatcher-status-chip md-state-layer ${row.status === status ? 'is-active' : ''}" data-disp-action="status-set" data-disp-day="${d}" data-disp-status="${status}">${escapeHtml(dispStatuses[status].label)}</button>`).join('');
         return `<div class="journal-event-sheet role-dispatcher">
             ${dispBuildTicketsBlockHtml(d, row)}
-            <div class="journal-event-title"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Події диспетчера</div>
-            <div class="dispatcher-editor-grid">
-                <label><span class="journal-field-label">Статус:</span><select data-disp-action="field-update" data-disp-day="${d}" data-disp-field="status" class="journal-select dispatcher-status-select" aria-label="Статус дня диспетчера ${d}">${statusOptions}</select></label>
-                <label><span class="journal-field-label">Локація:</span><input type="text" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="location" value="${escapeAttr(row.location||'')}" placeholder="Підʼїзд, поверх, квартира..." class="dispatcher-location-input" aria-label="Локація події диспетчера за день ${d}"></label>
-            </div>
-            <div class="dispatcher-status-row" aria-label="Швидкі статуси">${statusButtons}</div>
-            <div class="dispatcher-location-row" aria-label="Швидкі локації">${locationButtons}</div>
-            <div class="dispatcher-template-row" aria-label="Швидкі шаблони">${templateButtons}</div>
-            <div class="dispatcher-entry-actions">
-                <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="insert-time" data-disp-day="${d}"><span class="mdi mdi-clock-outline journal-inline-icon" aria-hidden="true"></span> Додати час</button>
-                <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="copy-prev" data-disp-day="${d}"><span class="mdi mdi-content-copy journal-inline-icon" aria-hidden="true"></span> Повторити з учора</button>
-            </div>
-            <div class="journal-field-label">Коментар / події дня:</div>
-            <textarea rows="5" data-disp-action="field-update" data-disp-day="${d}" data-disp-field="comment" aria-label="Події диспетчера за день ${d}"
-                placeholder="Опишіть важливі події, скарги мешканців, нестандартні ситуації..."
-                class="journal-textarea">${escapeHtml(row.comment||'')}</textarea>
             <div class="journal-photo-section">
                 <div class="journal-field-label">Фото подій:</div>
                 <div id="mobile-photos-${d}-dispatcher" class="flex gap-2 flex-wrap mb-2"></div>
@@ -4247,6 +4067,15 @@
 
     // Календарна сітка диспетчера — той самий вигляд, що й у Журналі: квадрати днів,
     // клік відкриває day-detail-modal з подіями та фото за цей день.
+    // Статус дня для крапки в календарі, похідний від заявок: якщо є відкрита
+    // термінова заявка — urgent; якщо всі заявки виконано — done; інакше open.
+    function dispDayStatusKey(row) {
+        if (!row.ticketsList.length) return null;
+        if (row.ticketsList.some(t => t.priority === 'HIGH' && t.status !== 'done')) return 'urgent';
+        if (row.ticketsList.every(t => t.status === 'done')) return 'done';
+        return 'open';
+    }
+
     function dispRender() {
         const container = document.getElementById('disp-cards');
         if (!container) return;
@@ -4279,24 +4108,25 @@
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             const row = dispGetDay(d);
             const photosCount = getPhotosFromCache(d, 'dispatcher').length;
-            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || row.ticketsList.length > 0 || photosCount > 0;
+            const hasEvent = row.ticketsList.length > 0 || photosCount > 0;
             const query = dispSearchQuery.trim().toLowerCase();
-            const searchText = `${row.comment || ''} ${row.location || ''} ${dispStatuses[row.status]?.label || ''}`.toLowerCase();
+            const searchText = row.ticketsList.map(t => t.text).join(' ').toLowerCase();
             const matchesSearch = !query || searchText.includes(query);
             const matchesFilter = dispMatchesFilter(row, hasEvent, d);
             const isDimmed = !matchesSearch || !matchesFilter;
             if (!isDimmed) visibleMatches++;
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-            const statusDot = dispStatuses[row.status]?.dot || 'dispatcher';
-            const locationBadge = row.location ? `<span class="dispatcher-location-badge">${escapeHtml(row.location).slice(0, 18)}</span>` : '';
+            const statusKey = dispDayStatusKey(row);
+            const statusDot = statusKey === 'urgent' ? 'dispatcher-urgent' : statusKey === 'done' ? 'dispatcher-done' : 'dispatcher';
+            const statusLabel = statusKey === 'urgent' ? 'є термінові заявки' : statusKey === 'done' ? 'усі заявки виконано' : statusKey === 'open' ? 'є відкриті заявки' : 'подій немає';
 
             const cell = document.createElement('button');
             cell.type = 'button';
             cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (hasEvent ? ' has-shifts' : '');
-            cell.className += ' dispatcher-grid-cell' + (isDimmed ? ' is-dimmed' : '') + ` disp-status-${row.status}`;
-            cell.setAttribute('aria-label', `${d} ${dowLabel}${hasEvent ? ', є події диспетчера' : ', подій немає'}, статус: ${dispStatuses[row.status]?.label || 'Нове'} — відкрити день`);
+            cell.className += ' dispatcher-grid-cell' + (isDimmed ? ' is-dimmed' : '') + ` disp-status-${statusKey || 'none'}`;
+            cell.setAttribute('aria-label', `${d} ${dowLabel}, ${statusLabel} — відкрити день`);
             cell.setAttribute('aria-haspopup', 'dialog');
-            cell.innerHTML = `<span class="month-grid-day">${d}</span>${locationBadge}<span class="month-grid-dots">${hasEvent ? `<span class="month-grid-dot month-grid-dot-${statusDot}"></span>` : ''}</span>`;
+            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${hasEvent ? `<span class="month-grid-dot month-grid-dot-${statusDot}"></span>` : ''}</span>`;
             cell.addEventListener('click', () => dispOpenDayDetail(d));
             grid.appendChild(cell);
         }
@@ -4314,17 +4144,16 @@
 
     function dispRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const totals = { events: 0, tickets: 0, urgent: 0, progress: 0, done: 0 };
+        const totals = { events: 0, tickets: 0, urgent: 0, done: 0 };
         for (let d = 1; d <= daysInMonth; d++) {
             const row = dispGetDay(d);
-            const hasEvent = Boolean((row.comment || '').trim()) || Boolean((row.location || '').trim()) || row.ticketsList.length > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
+            const hasEvent = row.ticketsList.length > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
             if (hasEvent) totals.events++;
             totals.tickets += row.ticketsList.length;
-            if (row.status === 'urgent') totals.urgent++;
-            if (row.status === 'in_progress') totals.progress++;
-            if (row.status === 'done') totals.done++;
+            totals.urgent += row.ticketsList.filter(t => t.priority === 'HIGH' && t.status !== 'done').length;
+            totals.done += row.ticketsList.filter(t => t.status === 'done').length;
         }
-        const map = { 'disp-stat-events': totals.events, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-progress': totals.progress, 'disp-stat-done': totals.done };
+        const map = { 'disp-stat-events': totals.events, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-done': totals.done };
         Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
 
@@ -4350,134 +4179,11 @@
         await initCalendar();
         if (currentTab === 'garbage') await gInitTab();
         if (currentTab === 'dispatcher') await dispInitTab();
-        if (currentTab === 'chat') await chatInitTab();
         if (btn) { btn.style.animation = ''; btn.disabled = false; }
         showToast('Дані оновлено');
     }
 
     // ==========================================
-    // ЧАТ ОСББ
-    // Таблиця Supabase: chat (id SERIAL PK, author TEXT, text TEXT, created_at TIMESTAMPTZ)
-    // ==========================================
-    let chatMessages = [];
-    let chatPollTimer = null;
-
-    function chatKey() { return 'chat_cache'; }
-
-    function chatSaveOffline() {
-        try { localStorage.setItem(chatKey(), JSON.stringify(chatMessages.slice(-100))); } catch(e) {}
-    }
-
-    function chatLoadOffline() {
-        try { return JSON.parse(localStorage.getItem(chatKey()) || '[]'); } catch(e) { return []; }
-    }
-
-    function chatSetStatus(type, text) {
-        const el = document.getElementById('chat-sync-status');
-        if (!el) return;
-        const styles = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
-        el.className = `journal-status-chip ${styles[type] || styles.ok}`;
-        el.innerHTML = text;
-    }
-
-    function chatRender() {
-        const container = document.getElementById('chat-messages');
-        if (!container) return;
-        if (!chatMessages.length) {
-            container.innerHTML = `<div class="journal-chat-empty">
-                <span class="mdi mdi-chat-outline journal-chat-empty-icon" aria-hidden="true"></span>
-                <span>Повідомлень ще немає. Напишіть першим!</span>
-            </div>`;
-            return;
-        }
-        const myName = (document.getElementById('chat-author')?.value || '').trim();
-        container.innerHTML = chatMessages.map(msg => {
-            const d = new Date(msg.created_at);
-            const time = d.toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-            const authorEscaped = escapeHtml(msg.author || 'Анонім');
-            const initials = escapeHtml((msg.author || '?').slice(0,2).toUpperCase());
-            const colors = ['is-primary','is-secondary','is-dispatcher','is-tertiary','is-error','is-janitor'];
-            const color = colors[Math.abs((msg.author||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 6];
-            const isMine = myName && msg.author === myName;
-            const deleteBtn = isMine
-                ? `<button type="button" data-chat-delete-id="${escapeAttr(msg.id)}" data-tip="Видалити" class="chat-del-btn">Видалити</button>`
-                : '';
-            return `<div class="journal-chat-row${isMine ? ' is-mine' : ''}">
-                <div class="journal-chat-avatar ${color}">${initials}</div>
-                <div class="journal-chat-content">
-                    <div class="journal-chat-meta">
-                        <span class="journal-chat-author-name">${authorEscaped}</span>
-                        <span class="journal-chat-time">${time}</span>
-                        ${deleteBtn}
-                    </div>
-                    <div class="journal-chat-bubble">${escapeHtml(msg.text || '').replace(/\n/g,'<br>')}</div>
-                </div>
-            </div>`;
-        }).join('');
-        container.scrollTop = container.scrollHeight;
-    }
-
-    async function chatInitTab() {
-        chatSetStatus('loading', '<span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>');
-        chatMessages = chatLoadOffline();
-        chatRender();
-        if (IS_PREVIEW) { chatSetStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>'); return; }
-        try {
-            const res = await db.from('chat').select('id,author,text,created_at').order('created_at', { ascending: true }).limit(200);
-            const { data, error } = res;
-            if (error) throw error;
-            chatMessages = data || [];
-            chatSaveOffline();
-            chatSetStatus('ok', `<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>${chatMessages.length} повідомлень</span>`);
-            chatRender();
-        } catch(e) {
-            if (e && e.code !== 'FETCH_ERROR') console.error('chat load error:', e.message || e);
-            chatSetStatus('error', '<span class="status-label"><span class="mdi mdi-wifi-off journal-inline-icon" aria-hidden="true"></span>Офлайн</span>');
-        }
-        // Авто-оновлення чату кожні 15 секунд поки вкладка активна
-        clearInterval(chatPollTimer);
-        chatPollTimer = setInterval(() => {
-            if (currentTab === 'chat' && !IS_PREVIEW) chatInitTab();
-        }, 15000);
-    }
-
-    async function chatSend() {
-        const authorEl = document.getElementById('chat-author');
-        const inputEl = document.getElementById('chat-input');
-        if (!authorEl || !inputEl) return;
-        const author = (authorEl.value || '').trim() || 'Анонім';
-        const text = (inputEl.value || '').trim();
-        if (!text) { inputEl.focus(); return; }
-        // Зберегти ім'я
-        try { localStorage.setItem('chat_author', author); } catch(e) {}
-
-        if (IS_PREVIEW) {
-            chatMessages.push({ id: Date.now(), author, text, created_at: new Date().toISOString() });
-            chatRender();
-            inputEl.value = '';
-            return;
-        }
-        inputEl.disabled = true;
-        try {
-            const res = await db.from('chat').insert([{ author, text }]);
-            const { error } = res;
-            if (error) throw error;
-            inputEl.value = '';
-            await chatInitTab();
-        } catch(e) {
-            if (e && e.code !== 'FETCH_ERROR') console.error('chat send error:', e.message || e);
-            chatSetStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
-        }
-        inputEl.disabled = false;
-        inputEl.focus();
-    }
-
-    // Відновити збережене ім'я автора
-    try {
-        const savedAuthor = localStorage.getItem('chat_author');
-        if (savedAuthor) { const el = document.getElementById('chat-author'); if (el) el.value = savedAuthor; }
-    } catch(e) {}
-
     // ============================================================
     // iOS TOAST повідомлення
     // ============================================================
@@ -4551,32 +4257,6 @@
         document.addEventListener(evt, resetAutoLock, { passive: true })
     );
     resetAutoLock(); // Запустити таймер
-
-    // ============================================================
-    // ВИДАЛЕННЯ ПОВІДОМЛЕНЬ ЧАТУ
-    // ============================================================
-    async function chatDelete(id) {
-        if (IS_PREVIEW) {
-            chatMessages = chatMessages.filter(m => m.id !== id);
-            chatRender();
-            return;
-        }
-        showPinModal('Видалення повідомлення', 'PIN для видалення повідомлення', async (pin) => {
-            try {
-                const ok = await db.rpc('delete_chat_message', { p_message_id: id, attempt: pin });
-                if (!ok) {
-                    showToast('PIN не підтверджено', TOAST_ICON_ERROR);
-                    return;
-                }
-                chatMessages = chatMessages.filter(m => m.id !== id);
-                chatSaveOffline();
-                chatRender();
-                showToast('Повідомлення видалено', TOAST_ICON_TRASH);
-            } catch(e) {
-                showToast('Помилка видалення', TOAST_ICON_ERROR);
-            }
-        }, true);
-    }
 
     // CSS для спін-анімації кнопки refresh
     const styleEl = document.createElement('style');
