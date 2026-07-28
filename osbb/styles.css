@@ -374,7 +374,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 }
 .journal-bottom-nav { z-index:50; }
 .theme-dark #bottom-nav { box-shadow:var(--md-sys-elevation-level2)!important; }
-.mob-tab { flex:1 1 0; min-width:0; max-width:16.667%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; margin:4px 1px; padding:6px 2px; border:0; border-radius:var(--md-sys-shape-corner-large, var(--radius-md)); background:transparent; color:var(--text-sub); font-size:10px; line-height:1.1; font-weight:700; text-align:center; white-space:nowrap; overflow:hidden; }
+.mob-tab { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; margin:4px 1px; padding:6px 2px; border:0; border-radius:var(--md-sys-shape-corner-large, var(--radius-md)); background:transparent; color:var(--text-sub); font-size:10px; line-height:1.1; font-weight:700; text-align:center; white-space:nowrap; overflow:hidden; }
 #bottom-nav .mdi{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;line-height:1;}
 #bottom-nav .mdi::before { font-size: 24px; line-height:1; }
 .mob-tab .mdi { border-radius:var(--md-sys-shape-corner-full,999px); transition:width var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease), background var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease); }
