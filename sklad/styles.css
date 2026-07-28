@@ -107,7 +107,6 @@ body{background:radial-gradient(circle at 0% 0%,color-mix(in srgb,var(--md-sys-c
 .sb-logo{padding:24px 18px 16px;border-bottom:1px solid var(--ios-sep);}
 .sb-logo h1{color:var(--ios-label);font-size:17px;font-weight:700;letter-spacing:-.3px;}
 .sb-logo p{color:var(--ios-label3);font-size:12px;margin-top:2px;}
-.sb-ver{color:var(--brand);background:var(--brand-light);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;margin-top:5px;}
 nav{margin-top:6px;flex:1;}
 .ni{display:flex;width:calc(100% - 16px);align-items:center;gap:10px;padding:10px 14px;border:0;color:var(--ios-label3);background:transparent;cursor:pointer;transition:background var(--md-sys-motion-duration-short4,var(--motion-base)) ease,color var(--md-sys-motion-duration-short4,var(--motion-base)) ease;font:inherit;font-size:14px;font-weight:600;line-height:1.2;text-align:left;position:relative;margin:1px 8px;border-radius:var(--md-sys-shape-corner-medium,14px);}
 .ni:hover{background:var(--md-sys-color-surface-container-high,var(--accent-soft));color:var(--md-sys-color-on-surface);transform:none;}
@@ -191,7 +190,7 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .table-unit-cell{color:var(--ios-label3);font-size:12px;}
 .table-qty-unit{color:var(--md-sys-color-on-secondary-container,#a5b4fc);font-size:11px;}
 .table-row-actions{display:flex;gap:6px;}
-.badge-internal{background:color-mix(in srgb,var(--warning) 22%,var(--surface-1));color:color-mix(in srgb,var(--warning) 70%,#3a2100);}
+.badge-internal{background:color-mix(in srgb,var(--warning) 22%,var(--surface-1));color:color-mix(in srgb,var(--warning) 70%,#3a2100);justify-content:center;text-align:center;}
 .empty-icon{margin-bottom:10px;}
 .empty-compact{padding:32px;}
 
@@ -685,7 +684,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
    ту саму взаємодію доступною з клавіатури. */
 @media(min-width:769px) and (hover:hover){
   .sidebar{width:64px;height:100dvh;overflow-x:hidden;overflow-y:auto;transition:width var(--md-sys-motion-duration-medium2,var(--motion-slow)) var(--md-sys-motion-easing-emphasized,var(--ease-out));}
-  .sidebar .nav-label,.sidebar .sb-logo h1,.sidebar .sb-logo p,.sidebar .sb-ver,.sidebar .sb-bottom{display:none!important;}
+  .sidebar .nav-label,.sidebar .sb-logo h1,.sidebar .sb-logo p,.sidebar .sb-bottom{display:none!important;}
   .sidebar .ni{width:56px;justify-content:center;padding:12px 0;margin:2px 4px;}
   .sidebar .ni-badge{position:absolute;top:5px;right:3px;min-width:22px;max-width:30px;height:18px;margin:0;padding:4px;font-size:9px;line-height:1;text-align:center;overflow:hidden;text-overflow:ellipsis;}
   .sidebar .sb-logo{padding:12px 8px;}
@@ -695,7 +694,6 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .sidebar:is(:hover,:focus-within) .nav-label,
   .sidebar:is(:hover,:focus-within) .sb-logo h1,
   .sidebar:is(:hover,:focus-within) .sb-logo p,
-  .sidebar:is(:hover,:focus-within) .sb-ver,
   .sidebar:is(:hover,:focus-within) .sb-bottom{display:block!important;}
   .sidebar:is(:hover,:focus-within) .ni{width:calc(100% - 16px);justify-content:flex-start;padding-inline:14px;margin-inline:8px;}
   .sidebar:is(:hover,:focus-within) .ni-badge{position:static;min-width:0;max-width:none;height:auto;margin-left:auto;padding:2px 7px;font-size:10px;}
