@@ -196,6 +196,20 @@
     </div>
 </div>
 
+<div id="ticket-delete-confirm" class="ticket-confirm-overlay no-print" role="dialog" aria-modal="true" aria-labelledby="ticket-delete-confirm-title" aria-hidden="true" tabindex="-1">
+    <div class="ticket-confirm-dialog">
+        <div class="ticket-confirm-icon" aria-hidden="true"><span class="mdi mdi-delete-outline"></span></div>
+        <div>
+            <h2 id="ticket-delete-confirm-title" class="ticket-confirm-title">Видалити заявку?</h2>
+            <p class="ticket-confirm-copy">Цю дію неможливо скасувати.</p>
+        </div>
+        <div class="ticket-confirm-actions">
+            <button type="button" class="journal-tonal-btn md-state-layer" data-ticket-delete-cancel>Скасувати</button>
+            <button type="button" class="journal-action-btn journal-action-btn-danger md-state-layer" data-ticket-delete-confirm>Видалити</button>
+        </div>
+    </div>
+</div>
+
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
@@ -2134,7 +2148,7 @@
                 }
                 if (action.dataset.dispAction === 'ticket-delete') {
                     event.preventDefault();
-                    dispDeleteTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                    openTicketDeleteConfirm(Number(action.dataset.dispDay), action.dataset.ticketId, action);
                 }
                 if (action.dataset.dispAction === 'ticket-edit-toggle') {
                     event.preventDefault();
@@ -2154,7 +2168,57 @@
                     dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
                 }
             });
+            container.addEventListener('change', (event) => {
+                const filter = event.target.closest('[data-ticket-filter]');
+                if (!filter) return;
+                if (filter.dataset.ticketFilter === 'worker') {
+                    dispWorkerFilter = WORKER_ROLES.includes(filter.value) ? filter.value : 'all';
+                }
+                if (filter.dataset.ticketFilter === 'status') {
+                    dispTicketStatusFilter = ['open', 'done'].includes(filter.value) ? filter.value : 'all';
+                }
+                dispOpenDayDetail(Number(filter.dataset.dispDay));
+            });
         });
+        document.querySelector('[data-ticket-delete-cancel]')?.addEventListener('click', closeTicketDeleteConfirm);
+        document.querySelector('[data-ticket-delete-confirm]')?.addEventListener('click', () => {
+            if (!pendingTicketDelete) return;
+            const { day, ticketId } = pendingTicketDelete;
+            closeTicketDeleteConfirm(false);
+            dispDeleteTicket(day, ticketId);
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) closeTicketDeleteConfirm();
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeTicketDeleteConfirm();
+            }
+        });
+    }
+
+    let pendingTicketDelete = null;
+    let ticketDeleteFocusReturn = null;
+
+    function openTicketDeleteConfirm(day, ticketId, opener) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal || !Number.isInteger(day) || !ticketId) return;
+        pendingTicketDelete = { day, ticketId };
+        ticketDeleteFocusReturn = opener || document.activeElement;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
+    }
+
+    function closeTicketDeleteConfirm(restoreFocus = true) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        pendingTicketDelete = null;
+        if (restoreFocus && ticketDeleteFocusReturn?.isConnected) ticketDeleteFocusReturn.focus();
+        ticketDeleteFocusReturn = null;
     }
 
     document.querySelector('[data-disp-search]')?.addEventListener('input', (event) => {
@@ -2763,6 +2827,8 @@
     let dispSaveTimer = null;
     let dispSearchQuery = '';
     let dispFilter = 'all';
+    let dispWorkerFilter = 'all';
+    let dispTicketStatusFilter = 'all';
     const dispWorkerName = 'Диспетчер';
 
     // Заявки з пріоритетом (нова структурована модель, ticketsList).
@@ -3053,7 +3119,12 @@
     // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
     // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
     function dispBuildTicketsBlockHtml(d, row) {
-        const sorted = [...row.ticketsList].sort(ticketSortComparator);
+        const visibleTickets = row.ticketsList.filter(ticket => {
+            const matchesWorker = dispWorkerFilter === 'all' || ticket.role === dispWorkerFilter;
+            const matchesStatus = dispTicketStatusFilter === 'all' || ticket.status === dispTicketStatusFilter;
+            return matchesWorker && matchesStatus;
+        });
+        const sorted = [...visibleTickets].sort(ticketSortComparator);
         const canManage = isDispatcherSession();
         const items = sorted.map(t => {
             const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
@@ -3099,8 +3170,25 @@
                 <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати заявку</button>
             </div>` : '';
         return `<div class="dispatcher-tickets-block">
-            <div class="journal-field-label">Заявки з пріоритетом (${sorted.length}):</div>
-            <ul class="ticket-list">${items || '<li class="ticket-empty">Заявок немає</li>'}</ul>
+            <div class="dispatcher-ticket-filters" aria-label="Фільтри заявок">
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Виконавець</span>
+                    <select class="journal-select" data-ticket-filter="worker" data-disp-day="${d}" aria-label="Фільтр заявок за виконавцем">
+                        <option value="all" ${dispWorkerFilter === 'all' ? 'selected' : ''}>Усі працівники</option>
+                        ${roles.map(role => `<option value="${role}" ${dispWorkerFilter === role ? 'selected' : ''}>${roleNames[role]}</option>`).join('')}
+                    </select>
+                </label>
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Статус</span>
+                    <select class="journal-select" data-ticket-filter="status" data-disp-day="${d}" aria-label="Фільтр заявок за статусом">
+                        <option value="all" ${dispTicketStatusFilter === 'all' ? 'selected' : ''}>Усі заявки</option>
+                        <option value="open" ${dispTicketStatusFilter === 'open' ? 'selected' : ''}>Не виконані</option>
+                        <option value="done" ${dispTicketStatusFilter === 'done' ? 'selected' : ''}>Виконані</option>
+                    </select>
+                </label>
+            </div>
+            <div class="journal-field-label">Показано заявок: ${sorted.length} з ${row.ticketsList.length}</div>
+            <ul class="ticket-list">${items || '<li class="ticket-empty">За вибраними фільтрами заявок немає</li>'}</ul>
             ${addForm}
         </div>`;
     }
@@ -3142,6 +3230,7 @@
         const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
         if (ticketRoleSel) enhanceSelect(ticketRoleSel);
         if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
+        bodyEl.querySelectorAll('[data-ticket-filter]').forEach(select => enhanceSelect(select));
         if (dispEditingTicketId) {
             const editRoleSel = document.getElementById(`ticket-edit-role-${dispEditingTicketId}`);
             const editPrioritySel = document.getElementById(`ticket-edit-priority-${dispEditingTicketId}`);

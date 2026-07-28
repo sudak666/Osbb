@@ -374,7 +374,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 }
 .journal-bottom-nav { z-index:50; }
 .theme-dark #bottom-nav { box-shadow:var(--md-sys-elevation-level2)!important; }
-.mob-tab { flex:1 1 0; min-width:0; max-width:16.667%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; margin:4px 1px; padding:6px 2px; border:0; border-radius:var(--md-sys-shape-corner-large, var(--radius-md)); background:transparent; color:var(--text-sub); font-size:10px; line-height:1.1; font-weight:700; text-align:center; white-space:nowrap; overflow:hidden; }
+.mob-tab { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; margin:4px 1px; padding:6px 2px; border:0; border-radius:var(--md-sys-shape-corner-large, var(--radius-md)); background:transparent; color:var(--text-sub); font-size:10px; line-height:1.1; font-weight:700; text-align:center; white-space:nowrap; overflow:hidden; }
 #bottom-nav .mdi{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;line-height:1;}
 #bottom-nav .mdi::before { font-size: 24px; line-height:1; }
 .mob-tab .mdi { border-radius:var(--md-sys-shape-corner-full,999px); transition:width var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease), background var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease); }
@@ -718,6 +718,18 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 /* ===== ЗАЯВКИ З ПРІОРИТЕТОМ (MD3 outlined card style: контур замість тіні) ===== */
 .dispatcher-tickets-block { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--bg-card)); border:1px solid var(--md-sys-color-outline-variant,var(--border)); }
+.dispatcher-ticket-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
+.dispatcher-ticket-filter-field { display:flex; flex-direction:column; gap:6px; margin:0; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; font-weight:800; }
+.dispatcher-ticket-filter-field .journal-select { width:100%; min-height:48px; }
+.dispatcher-ticket-filter-field .custom-select-wrap, .dispatcher-ticket-filter-field .custom-select-btn { width:100%; }
+@media (max-width:640px) { .dispatcher-ticket-filters { grid-template-columns:1fr; } }
+.ticket-confirm-overlay { position:fixed; inset:0; z-index:10020; display:none; align-items:center; justify-content:center; padding:20px; background:color-mix(in srgb,var(--md-sys-color-scrim,#000) 48%,transparent); }
+.ticket-confirm-overlay.open { display:flex; }
+.ticket-confirm-dialog { width:min(100%,400px); display:grid; grid-template-columns:auto minmax(0,1fr); gap:14px; padding:24px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,28px); background:var(--md-sys-color-surface-container-high,var(--bg-card)); color:var(--md-sys-color-on-surface,var(--text-main)); box-shadow:var(--md-sys-elevation-level3); }
+.ticket-confirm-icon { display:grid; place-items:center; width:48px; height:48px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-error-container,#fee2e2); color:var(--md-sys-color-on-error-container,#7f1d1d); font-size:24px; }
+.ticket-confirm-title { margin:2px 0 4px; font-size:20px; line-height:1.25; font-weight:800; }
+.ticket-confirm-copy { margin:0; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:14px; line-height:1.45; }
+.ticket-confirm-actions { grid-column:1 / -1; display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
 .ticket-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
 .ticket-item, .my-ticket-card { position:relative; padding:10px 34px 10px 12px; border-radius:var(--md-sys-shape-corner-medium,12px); border:1px solid var(--md-sys-color-outline,var(--border)); background:var(--md-sys-color-surface,var(--bg-card)); }
 .ticket-item:has(.ticket-edit-btn) { padding-right:60px; }
