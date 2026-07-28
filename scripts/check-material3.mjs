@@ -62,6 +62,7 @@ for (const selector of ['.theme-light', '.theme-dark']) {
 
 const allHtml = [shellHtml, journalHtml, skladHtml].join('\n');
 const allCss = [shellCss, journalCss, skladCss].join('\n');
+assert.doesNotMatch(`${skladHtml}\n${skladCss}`, /--ios-/, 'Склад ще використовує legacy iOS токени');
 // Перевіряємо лише реальне підключення MDI або CSS-класи MDI. Загальний пошук
 // `\bmdi` дає хибні збіги у довільному вмісті великого inline-скрипту.
 assert.doesNotMatch(allHtml, /@mdi\/font/, 'Інтерфейс ще підключає шрифт MDI');

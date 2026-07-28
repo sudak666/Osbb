@@ -992,7 +992,7 @@ function renderAuditList(){
             min="0" step="any"
             class="audit-qty-input"
             data-audit-input data-item-id="${item.id}">
-          <span style="font-size:11px;color:var(--ios-label3);">${unit}</span>
+          <span style="font-size:11px;color:var(--sklad-label3);">${unit}</span>
         </div>
         ${isCounted?`<button type="button" class="audit-reset-btn" data-audit-clear data-item-id="${item.id}"><span class="ms ic-12-2">close</span> скинути</button>`:''}
       </div>
@@ -1203,7 +1203,7 @@ async function loadReceipts(){
   if(error){
     const msg=msIcon('warning')+' '+error.message;
     if(tb) tb.innerHTML=`<tr><td colspan="7"><div class="empty">${msg}</div></td></tr>`;
-    if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--ios-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
+    if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--sklad-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
     toast('Прихід: '+error.message,'error');
     return;
   }
