@@ -1,7 +1,7 @@
     /* Базові системні налаштування iOS */
     html, body { height: 100%; min-height: 100dvh; margin: 0; overflow: hidden; background: var(--md-sys-color-scrim, #000); }
     body {
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+        font-family:'Roboto',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         color: var(--md-sys-color-inverse-on-surface, #fff);
@@ -41,10 +41,10 @@
         box-shadow: var(--md-sys-elevation-level2, 0 8px 24px rgba(52, 199, 89, 0.3));
     }
 
-    .shell-mdi-logo { font-size: 34px; line-height: 1; color: var(--md-sys-color-on-primary, #fff); }
-    .shell-mdi-icon { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; font-size:14px; line-height:1; }
-    .shell-mdi-icon::before, .shell-mdi-logo::before { line-height:1; }
-    .lock-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .material-symbols-rounded { display:inline-flex; align-items:center; justify-content:center; flex:none; font-family:'Material Symbols Rounded'; font-weight:normal; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; word-wrap:normal; direction:ltr; -webkit-font-feature-settings:'liga'; font-feature-settings:'liga'; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; -webkit-font-smoothing:antialiased; }
+    .shell-symbol-logo { font-size:34px; color:var(--md-sys-color-on-primary,#fff); }
+    .shell-symbol-icon { width:14px; height:14px; font-size:14px; }
+    .lock-title { font-size: 1.15rem; font-weight: 500; margin-bottom: 4px; letter-spacing: -0.3px; }
     .lock-subtitle { color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 58%, transparent); font-size: 0.82rem; margin-bottom: 32px; }
 
     /* Індикатор крапок пароля */
@@ -135,7 +135,7 @@
         background: transparent;
         color: var(--md-sys-color-on-surface-variant, #6e6e73);
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
         transition: background var(--md-sys-motion-duration-medium2, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), color var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), box-shadow var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)), transform var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
         -webkit-tap-highlight-color: transparent;
@@ -169,6 +169,6 @@
     #shell-tabs { padding-left: 8px; padding-right: 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     #shell-tabs::-webkit-scrollbar { display: none; }
     .shell-tab-btn { min-width: 0; }
-    .shell-mdi-icon { display: inline-flex; align-items: center; justify-content: center; margin: 0; line-height: 1; }
+    .shell-symbol-icon { display:inline-flex; align-items:center; justify-content:center; margin:0; line-height:1; }
     #shell-frames { min-height: 0; }
 }
