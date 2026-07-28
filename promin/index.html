@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101418">
+  <title>Промінь-3</title>
+  <link rel="stylesheet" href="/Osbb/shared/material-tokens.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="promin-app">
+    <header class="promin-header">
+      <div>
+        <p class="eyebrow">Локальний моніторинг</p>
+        <h1>Промінь-3</h1>
+        <p class="header-copy">Стан будинків, обладнання та активні виклики.</p>
+      </div>
+      <div id="connection-status" class="status-chip is-loading" role="status" aria-live="polite">
+        <span class="mdi mdi-loading mdi-spin" aria-hidden="true"></span><span>Підключення…</span>
+      </div>
+    </header>
+
+    <section class="summary-grid" aria-label="Підсумок стану">
+      <article class="summary-card"><span class="mdi mdi-home-city-outline" aria-hidden="true"></span><strong id="house-count">0</strong><small>Будинків</small></article>
+      <article class="summary-card is-error"><span class="mdi mdi-alarm-light-outline" aria-hidden="true"></span><strong id="alarm-count">0</strong><small>Тривог</small></article>
+      <article class="summary-card is-warning"><span class="mdi mdi-wifi-off" aria-hidden="true"></span><strong id="offline-count">0</strong><small>Без зв’язку</small></article>
+    </section>
+
+    <section class="houses-panel">
+      <div class="panel-heading">
+        <div><p class="eyebrow">Пульти та адреси</p><h2>Будинки</h2></div>
+        <button type="button" id="refresh-button" class="icon-button md-state-layer" aria-label="Оновити список"><span class="mdi mdi-refresh" aria-hidden="true"></span></button>
+      </div>
+      <label class="search-field">
+        <span class="mdi mdi-magnify" aria-hidden="true"></span>
+        <input id="house-search" type="search" placeholder="Пошук адреси…" aria-label="Пошук будинку">
+      </label>
+      <div id="connection-help" class="connection-help" hidden>
+        <span class="mdi mdi-lan-disconnect" aria-hidden="true"></span>
+        <div><strong>Сервер недоступний</strong><p>Підключіться до локальної Wi‑Fi/VPN мережі. HTTPS-сторінка також може блокувати HTTP-запит до 192.168.0.11.</p></div>
+      </div>
+      <div id="houses-list" class="houses-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div id="equipment-dialog" class="dialog-scrim" role="dialog" aria-modal="true" aria-labelledby="equipment-title" aria-hidden="true">
+    <section class="equipment-sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <header class="sheet-header"><div><p class="eyebrow">Обладнання</p><h2 id="equipment-title">Стан</h2></div><button type="button" class="icon-button md-state-layer" data-close-equipment aria-label="Закрити"><span class="mdi mdi-close"></span></button></header>
+      <div id="equipment-loading" class="equipment-loading"><span class="mdi mdi-loading mdi-spin"></span>Оновлення стану…</div>
+      <div id="equipment-content" class="equipment-content" hidden>
+        <div class="equipment-meta"><span id="equipment-updated">—</span><span id="equipment-window">—</span></div>
+        <article class="state-block"><h3><span class="mdi mdi-alert-circle-outline"></span>Аварії</h3><p id="equipment-alarms">Немає даних</p></article>
+        <article class="state-block"><h3><span class="mdi mdi-thermometer"></span>Температура</h3><p id="equipment-temperature">Немає даних</p></article>
+        <article class="state-block"><h3><span class="mdi mdi-phone-alert-outline"></span>Активні виклики <span id="calls-count" class="count-badge">0</span></h3><div id="calls-list" class="calls-list"></div></article>
+        <div class="du-panel"><h3>Дистанційне керування</h3><p>Команда формує п’ятисекундний імпульс.</p><div class="du-actions"><button type="button" class="du-button is-on md-state-layer" data-du-action="On"><span class="mdi mdi-power"></span>Увімкнути</button><button type="button" class="du-button is-off md-state-layer" data-du-action="Off"><span class="mdi mdi-power-off"></span>Вимкнути</button></div></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="du-confirm-dialog" class="dialog-scrim is-confirm" role="dialog" aria-modal="true" aria-labelledby="du-confirm-title" aria-hidden="true">
+    <section class="confirm-card"><span class="confirm-icon mdi mdi-remote"></span><h2 id="du-confirm-title">Виконати команду?</h2><p id="du-confirm-copy"></p><div class="confirm-actions"><button type="button" class="text-button md-state-layer" data-du-cancel>Скасувати</button><button type="button" class="filled-button md-state-layer" data-du-confirm>Підтвердити</button></div></section>
+  </div>
+
+  <div id="snackbar" class="snackbar" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
