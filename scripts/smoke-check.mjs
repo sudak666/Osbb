@@ -797,7 +797,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="price-badge-source"',
     '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
-    '.price-badge-value{font-weight:900;',
+    '.price-badge-value{font-weight:700;',
     '.price-badge-source{width:100%;font-size:10px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
