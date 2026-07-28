@@ -2164,6 +2164,17 @@
                     dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
                 }
             });
+            container.addEventListener('change', (event) => {
+                const filter = event.target.closest('[data-ticket-filter]');
+                if (!filter) return;
+                if (filter.dataset.ticketFilter === 'worker') {
+                    dispWorkerFilter = WORKER_ROLES.includes(filter.value) ? filter.value : 'all';
+                }
+                if (filter.dataset.ticketFilter === 'status') {
+                    dispTicketStatusFilter = ['open', 'done'].includes(filter.value) ? filter.value : 'all';
+                }
+                dispOpenDayDetail(Number(filter.dataset.dispDay));
+            });
         });
     }
 
@@ -2781,6 +2792,7 @@
     let dispSearchQuery = '';
     let dispFilter = 'all';
     let dispWorkerFilter = 'all';
+    let dispTicketStatusFilter = 'all';
     const dispWorkerName = 'Диспетчер';
 
     // Заявки з пріоритетом (нова структурована модель, ticketsList).
@@ -3071,9 +3083,11 @@
     // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
     // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
     function dispBuildTicketsBlockHtml(d, row) {
-        const visibleTickets = dispWorkerFilter === 'all'
-            ? row.ticketsList
-            : row.ticketsList.filter(ticket => ticket.role === dispWorkerFilter);
+        const visibleTickets = row.ticketsList.filter(ticket => {
+            const matchesWorker = dispWorkerFilter === 'all' || ticket.role === dispWorkerFilter;
+            const matchesStatus = dispTicketStatusFilter === 'all' || ticket.status === dispTicketStatusFilter;
+            return matchesWorker && matchesStatus;
+        });
         const sorted = [...visibleTickets].sort(ticketSortComparator);
         const canManage = isDispatcherSession();
         const items = sorted.map(t => {
@@ -3120,8 +3134,25 @@
                 <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати заявку</button>
             </div>` : '';
         return `<div class="dispatcher-tickets-block">
-            <div class="journal-field-label">Заявки з пріоритетом (${sorted.length}):</div>
-            <ul class="ticket-list">${items || '<li class="ticket-empty">Заявок немає</li>'}</ul>
+            <div class="dispatcher-ticket-filters" aria-label="Фільтри заявок">
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Виконавець</span>
+                    <select class="journal-select" data-ticket-filter="worker" data-disp-day="${d}" aria-label="Фільтр заявок за виконавцем">
+                        <option value="all" ${dispWorkerFilter === 'all' ? 'selected' : ''}>Усі працівники</option>
+                        ${roles.map(role => `<option value="${role}" ${dispWorkerFilter === role ? 'selected' : ''}>${roleNames[role]}</option>`).join('')}
+                    </select>
+                </label>
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Статус</span>
+                    <select class="journal-select" data-ticket-filter="status" data-disp-day="${d}" aria-label="Фільтр заявок за статусом">
+                        <option value="all" ${dispTicketStatusFilter === 'all' ? 'selected' : ''}>Усі заявки</option>
+                        <option value="open" ${dispTicketStatusFilter === 'open' ? 'selected' : ''}>Не виконані</option>
+                        <option value="done" ${dispTicketStatusFilter === 'done' ? 'selected' : ''}>Виконані</option>
+                    </select>
+                </label>
+            </div>
+            <div class="journal-field-label">Показано заявок: ${sorted.length} з ${row.ticketsList.length}</div>
+            <ul class="ticket-list">${items || '<li class="ticket-empty">За вибраними фільтрами заявок немає</li>'}</ul>
             ${addForm}
         </div>`;
     }

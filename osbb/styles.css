@@ -721,6 +721,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 /* ===== ЗАЯВКИ З ПРІОРИТЕТОМ (MD3 outlined card style: контур замість тіні) ===== */
 .dispatcher-tickets-block { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--bg-card)); border:1px solid var(--md-sys-color-outline-variant,var(--border)); }
+.dispatcher-ticket-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
+.dispatcher-ticket-filter-field { display:flex; flex-direction:column; gap:6px; margin:0; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; font-weight:800; }
+.dispatcher-ticket-filter-field .journal-select { width:100%; min-height:48px; }
+@media (max-width:640px) { .dispatcher-ticket-filters { grid-template-columns:1fr; } }
 .ticket-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
 .ticket-item, .my-ticket-card { position:relative; padding:10px 34px 10px 12px; border-radius:var(--md-sys-shape-corner-medium,12px); border:1px solid var(--md-sys-color-outline,var(--border)); background:var(--md-sys-color-surface,var(--bg-card)); }
 .ticket-item:has(.ticket-edit-btn) { padding-right:60px; }
