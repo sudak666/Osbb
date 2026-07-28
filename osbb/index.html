@@ -889,8 +889,8 @@
         renderStaffLoginList();
     }
 
-    const STAFF_ROLE_ICONS = { dispatcher: 'mdi-phone-outline', admin: 'mdi-shield-account-outline', plumber: 'mdi-wrench-outline', janitor: 'mdi-broom', electrician: 'mdi-flash' };
-    const STAFF_ROLE_LABELS = { dispatcher: 'Диспетчер', admin: 'Адмін', plumber: 'Сантехнік', janitor: 'Двірник', electrician: 'Електрик' };
+    const STAFF_ROLE_ICONS = { dispatcher: 'mdi-phone-outline', admin: 'mdi-shield-account-outline', board: 'mdi-account-tie-outline', plumber: 'mdi-wrench-outline', janitor: 'mdi-broom', electrician: 'mdi-flash' };
+    const STAFF_ROLE_LABELS = { dispatcher: 'Диспетчер', admin: 'Адмін', board: 'Правління', plumber: 'Сантехнік', janitor: 'Двірник', electrician: 'Електрик' };
 
     function renderStaffLoginList() {
         const listEl = document.getElementById('staff-login-list');
@@ -993,8 +993,11 @@
         if (e.target.closest('[data-staff-pin-back]')) { staffLoginBack(); return; }
     });
 
+    // dispatcher/admin/board — рівнозначні "повний доступ" ролі: увесь журнал,
+    // редагування Табеля, заявки. "Зміни" сюди не входять навмисно — той таб
+    // і раніше захищений окремим PIN (verify_work_shifts_pin), незалежним від ролей.
     function isDispatcherSession() {
-        return Boolean(staffSession) && (staffSession.role === 'dispatcher' || staffSession.role === 'admin');
+        return Boolean(staffSession) && ['dispatcher', 'admin', 'board'].includes(staffSession.role);
     }
 
     function isWorkerSession() {
