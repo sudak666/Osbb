@@ -660,6 +660,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .dispatcher-search-wrap { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border-radius:var(--md-sys-shape-corner-extra-large, 28px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
 .dispatcher-search-input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:14px; font-weight:500; }
 .dispatcher-search-input::placeholder { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); opacity:.78; }
+.dispatcher-worker-filter { display:grid; grid-template-columns:auto minmax(180px,280px); align-items:center; gap:10px; margin:0; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
+.dispatcher-worker-filter .journal-select { width:100%; }
 .dispatcher-filter-chips, .dispatcher-template-row, .dispatcher-location-row, .dispatcher-status-row, .dispatcher-result-row { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
 .dispatcher-filter-chip, .dispatcher-template-chip, .dispatcher-location-chip, .dispatcher-status-chip, .dispatcher-copy-btn, .dispatcher-time-btn, .dispatcher-reset-btn { position:relative; overflow:hidden; min-height:34px; border-radius:var(--md-sys-shape-corner-full,999px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); padding:7px 12px; font-size:12px; line-height:1.25; font-weight:700; transition:background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast), transform var(--motion-fast); }
 .dispatcher-filter-chip.is-active { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 42%,transparent); background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 16%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); }
@@ -702,6 +704,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
     .dispatcher-status-chip, .dispatcher-location-chip, .dispatcher-template-chip, .dispatcher-copy-btn, .dispatcher-time-btn { width:100%; justify-content:center; text-align:center; }
     .dispatcher-entry-actions { flex-direction:column; }
     .dispatcher-result-row { flex-direction:column; align-items:stretch; }
+    .dispatcher-worker-filter { grid-template-columns:1fr; }
     .dispatcher-reset-btn { width:100%; }
 }
 
