@@ -1,6 +1,7 @@
 export const TAB_SRC = {
     journal: 'osbb/index.html?embed=1',
-    sklad: 'sklad/index.html?embed=1'
+    sklad: 'sklad/index.html?embed=1',
+    promin: 'promin/index.html?embed=1'
 };
 
 export const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
@@ -54,5 +55,5 @@ export class ShellStore {
 }
 
 export function isShellTabName(name) {
-    return name === 'journal' || name === 'sklad';
+    return name === 'journal' || name === 'sklad' || name === 'promin';
 }
