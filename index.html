@@ -16,7 +16,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="/Osbb/shared/ui.css">
 <link rel="stylesheet" href="/Osbb/shared/material-tokens.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&family=Roboto:wght@400;500;700&display=swap&subset=cyrillic">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ОСББ "Микитська Слобода"</title>
 <link rel="stylesheet" href="styles.css">
@@ -26,7 +27,7 @@
 <div id="app-lock-screen">
     <div class="lock-container">
         <div class="app-icon-squircle">
-            <span class="mdi mdi-home-outline shell-mdi-logo" aria-hidden="true"></span>
+            <span class="material-symbols-rounded shell-symbol-logo" aria-hidden="true">home</span>
         </div>
         <div class="lock-title">ОСББ "Микитська Слобода"</div>
         <div class="lock-subtitle">Введіть PIN для входу</div>
@@ -74,11 +75,11 @@
     <div id="shell-tabs">
         <div class="ios-segmented-control md-segmented-button" role="tablist" aria-label="Розділи застосунку">
             <button type="button" class="shell-tab-btn md-state-layer active" id="shell-tab-journal" data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page">
-                <span class="mdi mdi-clipboard-text-outline shell-mdi-icon" aria-hidden="true"></span>
+                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">assignment</span>
                 Журнал
             </button>
             <button type="button" class="shell-tab-btn md-state-layer" id="shell-tab-sklad" data-shell-tab="sklad" role="tab" aria-selected="false" aria-controls="frame-sklad">
-                <span class="mdi mdi-package-variant-closed shell-mdi-icon" aria-hidden="true"></span>
+                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">inventory_2</span>
                 Склад
             </button>
             <a href="https://www.deyecloud.com/station/new-main?t=1783238196915&id=61184357"
@@ -86,11 +87,11 @@
                rel="noopener noreferrer"
                class="shell-tab-btn md-state-layer"
                id="shell-tab-deye">
-                <span class="mdi mdi-solar-power-variant-outline shell-mdi-icon" aria-hidden="true"></span>
+                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">solar_power</span>
                 Deye ↗
             </a>
             <button type="button" class="shell-tab-btn shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock aria-label="Заблокувати застосунок" title="Заблокувати">
-                <span class="mdi mdi-lock-outline shell-mdi-icon" aria-hidden="true"></span>
+                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">lock</span>
                 Блок
             </button>
         </div>
