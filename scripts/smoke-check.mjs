@@ -2795,7 +2795,7 @@ ${sharedSelectText}`;
     'create table if not exists inventory_supplier_tags',
     "alter publication supabase_realtime add table inventory_supplier_tags",
     '.journal-stat-card { --role-accent:var(--accent);',
-    'color-mix(in srgb,var(--role-accent) 6%,var(--surface-1))',
+    'background:var(--md-sys-color-surface-container-low,var(--surface-1))!important;',
   ];
   const combined = supplierMigration + '\n' + journalCss;
   const missing = required.filter(needle => !combined.includes(needle));

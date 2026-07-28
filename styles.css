@@ -33,16 +33,17 @@
         width: 68px;
         height: 68px;
         border-radius: var(--md-sys-shape-corner-large, 16px);
-        background: linear-gradient(135deg, var(--md-sys-color-primary, #34c759), var(--md-sys-color-primary-fixed-dim, #248a3d));
+        background:var(--md-sys-color-primary-container,#dcfce7);
+        color:var(--md-sys-color-on-primary-container,#052e16);
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 16px;
-        box-shadow: var(--md-sys-elevation-level2, 0 8px 24px rgba(52, 199, 89, 0.3));
+        box-shadow:none;
     }
 
     .material-symbols-rounded { display:inline-flex; align-items:center; justify-content:center; flex:none; font-family:'Material Symbols Rounded'; font-weight:normal; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; word-wrap:normal; direction:ltr; -webkit-font-feature-settings:'liga'; font-feature-settings:'liga'; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; -webkit-font-smoothing:antialiased; }
-    .shell-symbol-logo { font-size:34px; color:var(--md-sys-color-on-primary,#fff); }
+    .shell-symbol-logo { font-size:34px; color:var(--md-sys-color-on-primary-container,#052e16); }
     .shell-symbol-icon { width:14px; height:14px; font-size:14px; }
     .lock-title { font-size: 1.15rem; font-weight: 500; margin-bottom: 4px; letter-spacing: -0.3px; }
     .lock-subtitle { color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 58%, transparent); font-size: 0.82rem; margin-bottom: 32px; }
@@ -110,8 +111,6 @@
         padding-top: calc(10px + env(safe-area-inset-top));
         background: color-mix(in srgb, var(--md-sys-color-surface-container-high, #f2f2f7) 82%, transparent);
         border-bottom: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.12));
-        backdrop-filter: saturate(180%) blur(24px);
-        -webkit-backdrop-filter: saturate(180%) blur(24px);
         flex-shrink: 0;
     }
     .ios-segmented-control {
