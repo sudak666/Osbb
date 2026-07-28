@@ -1007,6 +1007,11 @@
         'glass':   'Скло',
         'bins':    'Баки'
     };
+    const gTypeMeta = {
+        plastic: { icon: 'recycle-variant', description: 'Окремий вивіз пластику' },
+        glass: { icon: 'bottle-soda-outline', description: 'Окремий вивіз скла' },
+        bins: { icon: 'delete-outline', description: 'Звичайні сміттєві баки' }
+    };
 
     const yearSelect = document.getElementById('year-select');
     const monthSelect = document.getElementById('month-select');
@@ -2537,24 +2542,35 @@
                     </select>
                 </div>
             </div>
-            <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Типи сміття (можна декілька одразу)</div>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="garbage-types-heading">
+                <span>Що вивезли</span>
+                <span class="garbage-types-support">Можна вибрати кілька типів</span>
+            </div>
+            <div class="garbage-type-grid">
                 ${Object.entries(gTypeLabels).map(([k,label]) => {
                     const checked = (parseInt(types[k]) || 0) > 0;
                     const val = types[k] || '';
                     const hasCount = k === 'bins';
+                    const meta = gTypeMeta[k];
                     return `
-                    <div class="flex flex-col gap-1 p-2 rounded-lg border ${checked ? 'border-emerald-400 bg-emerald-500/5' : 'border-[var(--border)]'}">
-                        <label class="flex items-center gap-1.5 text-sm font-semibold cursor-pointer">
-                            <input type="checkbox" ${checked?'checked':''}
+                    <div class="garbage-type-card">
+                        <label class="garbage-type-select md-state-layer">
+                            <input type="checkbox" ${checked?'checked':''} class="garbage-type-input sr-only"
                                 data-g-action="type-toggle" data-g-day="${day}" data-g-type="${k}" data-g-has-count="${hasCount ? '1' : '0'}"
-                                class="round-checkbox">
-                            ${label}
+                                aria-label="${label}, відмітити вивіз за день ${day}">
+                            <span class="garbage-type-icon" aria-hidden="true"><span class="mdi mdi-${meta.icon}"></span></span>
+                            <span class="garbage-type-copy">
+                                <strong>${label}</strong>
+                                <small>${meta.description}</small>
+                            </span>
+                            <span class="garbage-type-indicator" aria-hidden="true"><span class="mdi mdi-check"></span></span>
                         </label>
-                        ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${escapeAttr(String(val))}"
-                            data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
-                            ${checked ? '' : 'disabled'}
-                            class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">` : ''}
+                        ${hasCount ? `<label class="garbage-bin-count">
+                            <span>Кількість баків</span>
+                            <input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="0" value="${escapeAttr(String(val))}"
+                                data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
+                                ${checked ? '' : 'disabled'}>
+                        </label>` : ''}
                     </div>`;
                 }).join('')}
             </div>`;
