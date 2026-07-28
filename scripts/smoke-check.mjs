@@ -823,7 +823,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="table-row-actions"',
     'class="badge badge-internal"',
     '.table-idx-cell{color:',
-    '.table-name-cell{font-weight:600;',
+    '.table-name-cell{font-weight:500;',
     '.table-row-actions{display:flex;',
     '.badge-internal{background:',
   ];
@@ -858,8 +858,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="log-person-cell"',
     'class="log-note-cell"',
     '.log-date-cell{font-size:12px;',
-    '.log-qty-out{font-weight:800;color:var(--md-sys-color-secondary,#6366f1);}',
-    '.log-qty-in{font-weight:800;color:var(--ios-green);}',
+    '.log-qty-out{font-weight:700;color:var(--md-sys-color-secondary,#6366f1);}',
+    '.log-qty-in{font-weight:700;color:var(--ios-green);}',
   ];
   const forbidden = [
     'style="font-weight:800;color:#6366f1;"',
@@ -2859,7 +2859,7 @@ ${sharedSelectText}`;
 }
 
 // Складські filter chips мають M3 selected-check, центрований label і
-// aria-pressed; навігація місяців використовує центровані MDI chevrons.
+// aria-pressed; навігація місяців використовує центровані Material Symbols.
 {
   const sklad = readSkladCombined();
   const journal = readFileSync('osbb/index.html', 'utf8');
@@ -2870,8 +2870,8 @@ ${sharedSelectText}`;
     'class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label"',
     '.items-filter-pill{position:relative;display:inline-grid;place-items:center;height:48px;',
     '.items-filter-pill.active .items-filter-icon{opacity:1;',
-    'mdi mdi-chevron-left',
-    'mdi mdi-chevron-right',
+    'class="material-symbols-rounded" aria-hidden="true">chevron_left</span>',
+    'class="material-symbols-rounded" aria-hidden="true">chevron_right</span>',
   ];
   const combined = sklad + '\n' + journal;
   const missing = required.filter(needle => !combined.includes(needle));
@@ -3213,7 +3213,7 @@ ${sharedSelectText}`;
     '<button type="button" class="ni" data-page="issue">',
     '<button type="button" class="ni" data-page="stats">',
     '.ni{display:flex;width:calc(100% - 16px);align-items:center;',
-    'font:inherit;font-size:14px;font-weight:600;line-height:1.2;text-align:left;',
+    'font:inherit;font-size:14px;font-weight:500;line-height:1.2;text-align:left;',
     "n.setAttribute('aria-current','page')",
   ];
   const missing = required.filter(needle => !text.includes(needle));
