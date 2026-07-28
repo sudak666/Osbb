@@ -196,6 +196,20 @@
     </div>
 </div>
 
+<div id="ticket-delete-confirm" class="ticket-confirm-overlay no-print" role="dialog" aria-modal="true" aria-labelledby="ticket-delete-confirm-title" aria-hidden="true" tabindex="-1">
+    <div class="ticket-confirm-dialog">
+        <div class="ticket-confirm-icon" aria-hidden="true"><span class="mdi mdi-delete-outline"></span></div>
+        <div>
+            <h2 id="ticket-delete-confirm-title" class="ticket-confirm-title">Видалити заявку?</h2>
+            <p class="ticket-confirm-copy">Цю дію неможливо скасувати.</p>
+        </div>
+        <div class="ticket-confirm-actions">
+            <button type="button" class="journal-tonal-btn md-state-layer" data-ticket-delete-cancel>Скасувати</button>
+            <button type="button" class="journal-action-btn journal-action-btn-danger md-state-layer" data-ticket-delete-confirm>Видалити</button>
+        </div>
+    </div>
+</div>
+
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
@@ -332,14 +346,15 @@
                     <thead>
                         <tr>
                             <th class="att-col-date">День</th>
-                            <th class="is-electrician"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</th>
-                            <th class="is-janitor"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</th>
-                            <th class="is-plumber"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</th>
+                            <th class="is-electrician" data-att-role-header="electrician"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</th>
+                            <th class="is-janitor" data-att-role-header="janitor"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</th>
+                            <th class="is-plumber" data-att-role-header="plumber"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</th>
                         </tr>
                     </thead>
                     <tbody id="att-body"></tbody>
                 </table>
             </div>
+            <div id="att-mobile-list" class="att-mobile-list" aria-label="Табель за днями"></div>
         </div>
     </section>
 
@@ -931,6 +946,7 @@
         if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
+        if (currentTab === 'tabel') attRender();
     }
 
     // ==========================================
@@ -983,6 +999,11 @@
         'plastic': 'Пластик',
         'glass':   'Скло',
         'bins':    'Баки'
+    };
+    const gTypeMeta = {
+        plastic: { icon: 'recycle-variant', description: 'Окремий вивіз пластику' },
+        glass: { icon: 'bottle-soda-outline', description: 'Окремий вивіз скла' },
+        bins: { icon: 'delete-outline', description: 'Звичайні сміттєві баки' }
     };
 
     const yearSelect = document.getElementById('year-select');
@@ -1498,6 +1519,10 @@
         return minutes / 60;
     }
 
+    function attVisibleRoles() {
+        return isWorkerSession() ? [staffSession.role] : roles;
+    }
+
     async function attSaveDay(d, role, checkIn, checkOut) {
         if (!isDispatcherSession()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
         attData[d] = attData[d] || {};
@@ -1536,17 +1561,18 @@
     function attRenderStats() {
         const grid = document.getElementById('att-stats-grid');
         if (!grid) return;
+        const visibleRoles = attVisibleRoles();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const totals = {};
-        roles.forEach(role => { totals[role] = { days: 0, hours: 0 }; });
+        visibleRoles.forEach(role => { totals[role] = { days: 0, hours: 0 }; });
         for (let d = 1; d <= daysInMonth; d++) {
-            roles.forEach(role => {
+            visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 const hours = attHoursForCell(cell);
                 if (hours > 0) { totals[role].days++; totals[role].hours += hours; }
             });
         }
-        grid.innerHTML = roles.map(role => `
+        grid.innerHTML = visibleRoles.map(role => `
             <article class="att-stat-card role-${role}">
                 <strong>${roleNames[role]}</strong>
                 <span>${totals[role].days} дн. · ${totals[role].hours.toFixed(1)} год.</span>
@@ -1556,32 +1582,60 @@
 
     function attRender() {
         const body = document.getElementById('att-body');
-        if (!body) return;
+        const mobileList = document.getElementById('att-mobile-list');
+        if (!body || !mobileList) return;
         const editable = isDispatcherSession();
-        document.getElementById('att-view-note')?.classList.toggle('hidden', editable);
+        const visibleRoles = attVisibleRoles();
+        const viewNote = document.getElementById('att-view-note');
+        if (viewNote) {
+            viewNote.classList.toggle('hidden', editable);
+            viewNote.textContent = isWorkerSession()
+                ? `Ви бачите лише власний табель: ${roleNames[staffSession.role]}.`
+                : 'Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.';
+        }
+        document.querySelectorAll('[data-att-role-header]').forEach(header => {
+            header.classList.toggle('hidden', !visibleRoles.includes(header.dataset.attRoleHeader));
+        });
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         let html = '';
+        let mobileHtml = '';
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             html += `<tr class="${isWeekend ? 'is-weekend' : ''}"><td class="att-col-date">${d}</td>`;
-            roles.forEach(role => {
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
+            let mobileRolesHtml = '';
+            visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 if (editable) {
                     html += `<td class="is-${role}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
                     </td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role}">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
+                        <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
+                    </div>`;
                 } else {
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
                     html += `<td class="is-${role} att-readonly">${text}</td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <strong>${text}</strong>
+                    </div>`;
                 }
             });
             html += '</tr>';
+            mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''}">
+                <header><strong>${d}</strong><span>${dayName}</span></header>
+                <div class="att-mobile-roles">${mobileRolesHtml}</div>
+            </article>`;
         }
         body.innerHTML = html;
+        mobileList.innerHTML = mobileHtml;
         if (editable) {
-            body.querySelectorAll('[data-att-day]').forEach(input => {
+            document.querySelectorAll('#att-body [data-att-day], #att-mobile-list [data-att-day]').forEach(input => {
                 input.addEventListener('change', () => {
                     const d = input.dataset.attDay, role = input.dataset.attRole;
                     const rowCell = attGetCell(d, role);
@@ -2083,7 +2137,7 @@
     function bindGarbageEntryActions() {
         // att-body (Табель) теж використовує масковані ГГ:ХХ поля (data-time-mask) —
         // додано сюди лише заради спільного input/blur форматування, не g-специфічної логіки.
-        ['g-days-list', 'day-detail-body', 'att-body'].forEach((id) => {
+        ['g-days-list', 'day-detail-body', 'att-body', 'att-mobile-list'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('input', (event) => {
@@ -2121,7 +2175,7 @@
         ['disp-cards', 'day-detail-body'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
-            container.addEventListener('click', (event) => {
+            container.addEventListener('click', async (event) => {
                 const action = event.target.closest('[data-disp-action]');
                 if (!action) return;
                 if (action.dataset.dispAction === 'ticket-add') {
@@ -2130,11 +2184,18 @@
                     const textEl = document.getElementById(`ticket-new-text-${d}`);
                     const roleEl = document.getElementById(`ticket-new-role-${d}`);
                     const priorityEl = document.getElementById(`ticket-new-priority-${d}`);
-                    dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM');
+                    const photosEl = document.getElementById(`ticket-new-photos-${d}`);
+                    action.disabled = true;
+                    action.setAttribute('aria-busy', 'true');
+                    await dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM', Array.from(photosEl?.files || []));
+                    if (action.isConnected) {
+                        action.disabled = false;
+                        action.removeAttribute('aria-busy');
+                    }
                 }
                 if (action.dataset.dispAction === 'ticket-delete') {
                     event.preventDefault();
-                    dispDeleteTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                    openTicketDeleteConfirm(Number(action.dataset.dispDay), action.dataset.ticketId, action);
                 }
                 if (action.dataset.dispAction === 'ticket-edit-toggle') {
                     event.preventDefault();
@@ -2154,7 +2215,64 @@
                     dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
                 }
             });
+            container.addEventListener('change', (event) => {
+                const photoInput = event.target.closest('[data-ticket-photo-input]');
+                if (photoInput) {
+                    const label = document.getElementById(`ticket-photo-label-${photoInput.dataset.dispDay}`);
+                    const count = photoInput.files?.length || 0;
+                    if (label) label.textContent = count ? `Вибрано фото: ${count}` : 'Додати фото проблеми';
+                    return;
+                }
+                const filter = event.target.closest('[data-ticket-filter]');
+                if (!filter) return;
+                if (filter.dataset.ticketFilter === 'worker') {
+                    dispWorkerFilter = WORKER_ROLES.includes(filter.value) ? filter.value : 'all';
+                }
+                if (filter.dataset.ticketFilter === 'status') {
+                    dispTicketStatusFilter = ['open', 'done'].includes(filter.value) ? filter.value : 'all';
+                }
+                dispOpenDayDetail(Number(filter.dataset.dispDay));
+            });
         });
+        document.querySelector('[data-ticket-delete-cancel]')?.addEventListener('click', closeTicketDeleteConfirm);
+        document.querySelector('[data-ticket-delete-confirm]')?.addEventListener('click', () => {
+            if (!pendingTicketDelete) return;
+            const { day, ticketId } = pendingTicketDelete;
+            closeTicketDeleteConfirm(false);
+            dispDeleteTicket(day, ticketId);
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) closeTicketDeleteConfirm();
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeTicketDeleteConfirm();
+            }
+        });
+    }
+
+    let pendingTicketDelete = null;
+    let ticketDeleteFocusReturn = null;
+
+    function openTicketDeleteConfirm(day, ticketId, opener) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal || !Number.isInteger(day) || !ticketId) return;
+        pendingTicketDelete = { day, ticketId };
+        ticketDeleteFocusReturn = opener || document.activeElement;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
+    }
+
+    function closeTicketDeleteConfirm(restoreFocus = true) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        pendingTicketDelete = null;
+        if (restoreFocus && ticketDeleteFocusReturn?.isConnected) ticketDeleteFocusReturn.focus();
+        ticketDeleteFocusReturn = null;
     }
 
     document.querySelector('[data-disp-search]')?.addEventListener('input', (event) => {
@@ -2228,6 +2346,7 @@
 
         document.addEventListener('touchstart', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') { moving = false; return; }
             sx = e.touches[0].clientX;
             sy = e.touches[0].clientY;
             moving = false;
@@ -2235,6 +2354,7 @@
 
         document.addEventListener('touchmove', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
             const dx = e.touches[0].clientX - sx;
             const dy = e.touches[0].clientY - sy;
             if (!moving && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) moving = true;
@@ -2242,6 +2362,7 @@
 
         document.addEventListener('touchend', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
             if (!moving) return;
             const dx = e.changedTouches[0].clientX - sx;
             const dy = e.changedTouches[0].clientY - sy;
@@ -2457,24 +2578,35 @@
                     </select>
                 </div>
             </div>
-            <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Типи сміття (можна декілька одразу)</div>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="garbage-types-heading">
+                <span>Що вивезли</span>
+                <span class="garbage-types-support">Можна вибрати кілька типів</span>
+            </div>
+            <div class="garbage-type-grid">
                 ${Object.entries(gTypeLabels).map(([k,label]) => {
                     const checked = (parseInt(types[k]) || 0) > 0;
                     const val = types[k] || '';
                     const hasCount = k === 'bins';
+                    const meta = gTypeMeta[k];
                     return `
-                    <div class="flex flex-col gap-1 p-2 rounded-lg border ${checked ? 'border-emerald-400 bg-emerald-500/5' : 'border-[var(--border)]'}">
-                        <label class="flex items-center gap-1.5 text-sm font-semibold cursor-pointer">
-                            <input type="checkbox" ${checked?'checked':''}
+                    <div class="garbage-type-card">
+                        <label class="garbage-type-select md-state-layer">
+                            <input type="checkbox" ${checked?'checked':''} class="garbage-type-input sr-only"
                                 data-g-action="type-toggle" data-g-day="${day}" data-g-type="${k}" data-g-has-count="${hasCount ? '1' : '0'}"
-                                class="round-checkbox">
-                            ${label}
+                                aria-label="${label}, відмітити вивіз за день ${day}">
+                            <span class="garbage-type-icon" aria-hidden="true"><span class="mdi mdi-${meta.icon}"></span></span>
+                            <span class="garbage-type-copy">
+                                <strong>${label}</strong>
+                                <small>${meta.description}</small>
+                            </span>
+                            <span class="garbage-type-indicator" aria-hidden="true"><span class="mdi mdi-check"></span></span>
                         </label>
-                        ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${escapeAttr(String(val))}"
-                            data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
-                            ${checked ? '' : 'disabled'}
-                            class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">` : ''}
+                        ${hasCount ? `<label class="garbage-bin-count">
+                            <span>Кількість баків</span>
+                            <input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="0" value="${escapeAttr(String(val))}"
+                                data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
+                                ${checked ? '' : 'disabled'}>
+                        </label>` : ''}
                     </div>`;
                 }).join('')}
             </div>`;
@@ -2763,6 +2895,8 @@
     let dispSaveTimer = null;
     let dispSearchQuery = '';
     let dispFilter = 'all';
+    let dispWorkerFilter = 'all';
+    let dispTicketStatusFilter = 'all';
     const dispWorkerName = 'Диспетчер';
 
     // Заявки з пріоритетом (нова структурована модель, ticketsList).
@@ -2858,13 +2992,14 @@
     }
 
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
-    function dispAddTicket(d, text, role, priority) {
+    async function dispAddTicket(d, text, role, priority, photoFiles = []) {
         if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
         const trimmed = (text || '').trim();
         if (!trimmed) { showToast('Опишіть заявку'); return; }
         const row = dispGetDay(d);
+        const ticketId = `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
         row.ticketsList.push({
-            id: `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
+            id: ticketId,
             text: trimmed,
             role: WORKER_ROLES.includes(role) ? role : 'plumber',
             priority: ticketPriorities[priority] ? priority : 'MEDIUM',
@@ -2875,8 +3010,9 @@
             createdBy: staffSession?.name || dispWorkerName
         });
         dispScheduleSave();
+        for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
         dispOpenDayDetail(Number(d));
-        showToast('Заявку додано');
+        showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
     }
 
     function dispDeleteTicket(d, ticketId) {
@@ -2935,6 +3071,19 @@
         dispScheduleSave();
     }
 
+    function ticketPhotosHtml(ticket) {
+        const photos = Array.isArray(ticket?.photos) ? ticket.photos : [];
+        const items = photos.map((url, index) => {
+            const safeUrl = safeExternalUrl(url);
+            if (!safeUrl) return '';
+            const escapedUrl = escapeAttr(safeUrl);
+            return `<button type="button" class="ticket-photo-thumb md-state-layer" data-photo-action="open" data-photo-url="${escapedUrl}" aria-label="Відкрити фото ${index + 1} до заявки">
+                <img src="${escapedUrl}" alt="Фото проблеми до заявки" loading="lazy">
+            </button>`;
+        }).join('');
+        return items ? `<div class="ticket-photo-list" aria-label="Фото до заявки">${items}</div>` : '';
+    }
+
     // ==========================================
     // МОЇ ЗАЯВКИ — для staff-сесії plumber/janitor/electrician: тільки заявки
     // поточного місяця, призначені на її роль, відсортовані за пріоритетом.
@@ -2964,6 +3113,7 @@
                     ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${ticketPhotosHtml(t)}
                 ${isDone ? (t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : '') : `
                 <div class="my-ticket-close-form">
                     <textarea class="journal-textarea" rows="2" placeholder="Коментар про виконання..." id="my-ticket-comment-${t.day}-${t.id}"></textarea>
@@ -3053,7 +3203,12 @@
     // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
     // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
     function dispBuildTicketsBlockHtml(d, row) {
-        const sorted = [...row.ticketsList].sort(ticketSortComparator);
+        const visibleTickets = row.ticketsList.filter(ticket => {
+            const matchesWorker = dispWorkerFilter === 'all' || ticket.role === dispWorkerFilter;
+            const matchesStatus = dispTicketStatusFilter === 'all' || ticket.status === dispTicketStatusFilter;
+            return matchesWorker && matchesStatus;
+        });
+        const sorted = [...visibleTickets].sort(ticketSortComparator);
         const canManage = isDispatcherSession();
         const items = sorted.map(t => {
             const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
@@ -3082,6 +3237,7 @@
                     ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${ticketPhotosHtml(t)}
                 ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
                 ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="mdi mdi-pencil-outline" aria-hidden="true"></span></button>` : ''}
                 ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку">✕</button>` : ''}
@@ -3096,11 +3252,33 @@
                 <select id="ticket-new-priority-${d}" class="journal-select" aria-label="Пріоритет заявки">
                     ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === 'MEDIUM' ? 'selected' : ''}>${v.label}</option>`).join('')}
                 </select>
+                <label class="ticket-photo-picker md-state-layer">
+                    <span class="mdi mdi-camera-plus-outline" aria-hidden="true"></span>
+                    <span id="ticket-photo-label-${d}">Додати фото проблеми</span>
+                    <input id="ticket-new-photos-${d}" type="file" accept="image/*" multiple class="sr-only" data-ticket-photo-input data-disp-day="${d}" aria-label="Додати фото проблеми до нової заявки">
+                </label>
                 <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати заявку</button>
             </div>` : '';
         return `<div class="dispatcher-tickets-block">
-            <div class="journal-field-label">Заявки з пріоритетом (${sorted.length}):</div>
-            <ul class="ticket-list">${items || '<li class="ticket-empty">Заявок немає</li>'}</ul>
+            <div class="dispatcher-ticket-filters" aria-label="Фільтри заявок">
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Виконавець</span>
+                    <select class="journal-select" data-ticket-filter="worker" data-disp-day="${d}" aria-label="Фільтр заявок за виконавцем">
+                        <option value="all" ${dispWorkerFilter === 'all' ? 'selected' : ''}>Усі працівники</option>
+                        ${roles.map(role => `<option value="${role}" ${dispWorkerFilter === role ? 'selected' : ''}>${roleNames[role]}</option>`).join('')}
+                    </select>
+                </label>
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Статус</span>
+                    <select class="journal-select" data-ticket-filter="status" data-disp-day="${d}" aria-label="Фільтр заявок за статусом">
+                        <option value="all" ${dispTicketStatusFilter === 'all' ? 'selected' : ''}>Усі заявки</option>
+                        <option value="open" ${dispTicketStatusFilter === 'open' ? 'selected' : ''}>Не виконані</option>
+                        <option value="done" ${dispTicketStatusFilter === 'done' ? 'selected' : ''}>Виконані</option>
+                    </select>
+                </label>
+            </div>
+            <div class="journal-field-label">Показано заявок: ${sorted.length} з ${row.ticketsList.length}</div>
+            <ul class="ticket-list">${items || '<li class="ticket-empty">За вибраними фільтрами заявок немає</li>'}</ul>
             ${addForm}
         </div>`;
     }
@@ -3142,6 +3320,7 @@
         const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
         if (ticketRoleSel) enhanceSelect(ticketRoleSel);
         if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
+        bodyEl.querySelectorAll('[data-ticket-filter]').forEach(select => enhanceSelect(select));
         if (dispEditingTicketId) {
             const editRoleSel = document.getElementById(`ticket-edit-role-${dispEditingTicketId}`);
             const editPrioritySel = document.getElementById(`ticket-edit-priority-${dispEditingTicketId}`);
