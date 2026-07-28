@@ -50,9 +50,9 @@ const checks = [
   ['shell', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
   ['shell', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
   ['osbb/index.html', 'id="desktop-tabs" class="journal-tabs" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
-  ['osbb/index.html', 'id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
+  ['osbb/index.html', 'id="tab-dispatcher" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page"', 'journal desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
-  ['osbb/index.html', 'id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page"', 'journal mobile active tab exposes tab semantics'],
+  ['osbb/index.html', 'id="tab-dispatcher-m" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page"', 'journal mobile active tab exposes tab semantics'],
   ['osbb/index.html', "el.toggleAttribute('aria-current', t === tab)", 'journal tab switch updates aria-current'],
   ['osbb/index.html', "el.setAttribute('aria-selected', String(t === tab))", 'journal tab switch updates aria-selected'],
   ['sklad/index.html', '<nav aria-label="Розділи складу">', 'sklad sidebar exposes navigation label'],
@@ -245,7 +245,7 @@ for (const [file, needle, label] of checks) {
     ['index.html', 'class="shell-tab-btn md-state-layer active"'],
     ['index.html', 'class="pin-btn md-state-layer"'],
     ['osbb/index.html', 'class="journal-theme-toggle md-state-layer"'],
-    ['osbb/index.html', 'class="journal-action-btn journal-action-btn-ghost md-state-layer"'],
+    ['osbb/index.html', 'class="journal-action-btn journal-action-btn-danger md-state-layer"'],
     ['osbb/index.html', 'class="tab-btn md-state-layer active'],
     ['osbb/index.html', 'class="mob-tab md-state-layer'],
     ['shared/material-tokens.css', '.md-state-layer:hover::before'],
@@ -397,7 +397,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'function bindOsbbStaticControls',
     'data-lock-digit="0"',
     'data-pin-modal-digit="0"',
-    'data-osbb-tab="journal"',
+    'data-osbb-tab="dispatcher"',
     'data-calendar-select',
     'data-theme-toggle',
   ];
@@ -465,42 +465,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   if (missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
-
-// Journal day cards/table rows should use data hooks for role tasks, shifts,
-// ticket counts, comments and photo uploads instead of inline event attributes.
-{
-  const text = readOsbbCombined();
-  const label = 'journal day entries use delegated data bindings';
-  const forbidden = [
-    'onclick="if(!${disabled}) toggleTask',
-    'onchange="toggleShift',
-    'oninput="updateTicketCount',
-    'onchange="Array.from(this.files).forEach(f=>uploadPhoto',
-    'oninput="updateComment',
-    'oninput="updateOtherTask',
-    'onclick="toggleOtherExpand',
-  ];
-  const required = [
-    'function bindJournalEntryActions',
-    'data-journal-action="task-toggle"',
-    'data-journal-action="shift-toggle"',
-    'data-journal-action="ticket-count"',
-    'data-journal-action="photo-upload"',
-    'data-journal-action="photo-upload-mobile"',
-    'data-journal-action="day-comment"',
-    'data-journal-action="other-task"',
-    'data-journal-action="other-expand"',
-  ];
-  const hasForbidden = forbidden.some(needle => text.includes(needle));
-  const missing = required.filter(needle => !text.includes(needle));
-  if (hasForbidden || missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -584,8 +548,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   ];
   const required = [
     'function escapeHtml',
-    "const escaped = escapeHtml(val);",
-    "${escapeHtml(currentMonthData[d].comment||'')}",
     "${escapeHtml(t.text)}",
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
@@ -608,7 +570,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'journal dynamic input attributes are escaped';
   const required = [
-    'value="${escapeAttr(String(state.ticketCount||\'\'))}"',
     'value="${escapeAttr(row.time||\'\')}" data-g-action="row-update"',
     'value="${escapeAttr(String(val))}"',
   ];
@@ -946,30 +907,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Journal task-toggle dots should use a class-based checked state instead of
-// inline border/background color strings driven by isChecked.
-{
-  const text = readOsbbCombined();
-  const label = 'osbb task-toggle dots use class-based checked state';
-  const required = [
-    '.task-check-dot { width:20px; height:20px; border-radius:50%;',
-    '.task-check-dot.is-checked { border-color:var(--md-sys-color-primary, #22c55e); background:var(--md-sys-color-primary, #22c55e); }',
-    "class=\"task-check-dot${isChecked?' is-checked':''}\"",
-  ];
-  const forbidden = [
-    "style=\"width:20px;height:20px;border-radius:50%;border:2px solid ${isChecked?",
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  const present = forbidden.filter(needle => text.includes(needle));
-  if (missing.length || present.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; leftover: ${present.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
-
 // Garbage yearly chart bars should use a class-based gradient with only the
 // per-bar height left inline, instead of a full inline gradient ternary.
 {
@@ -1141,25 +1078,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Journal "other tasks" print summary and dispatcher call-count field must
-// escape their Supabase-sourced free-text/JSONB values before injecting
-// them into innerHTML templates.
-{
-  const text = readOsbbCombined();
-  const label = 'osbb print-summary and dispatcher call count escape dynamic text';
-  const required = [
-    'printSummary.push(escapeHtml(state.other))',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
-
 // Icon-only Sklad log/receipt/category-filter/delete buttons must expose an
 // aria-label since their only visible content is a Material Symbols icon.
 // (The desktop item-row delete action moved into the item-more menu — see
@@ -1177,25 +1095,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-log-action="delete" data-log-id="${l.id}" aria-label="Видалити запис видачі"',
     'data-receipt-action="edit" data-receipt-id="${r.id}" aria-label="Редагувати прихід"',
     'data-receipt-action="delete" data-receipt-id="${r.id}" aria-label="Видалити прихід"',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
-
-// Journal task-toggle checkboxes are custom <span> controls, not native inputs —
-// they must expose checkbox semantics and be keyboard-operable.
-{
-  const text = readOsbbCombined();
-  const label = 'osbb task-toggle dots expose checkbox semantics and keyboard support';
-  const required = [
-    'role="checkbox" aria-checked="${isChecked?\'true\':\'false\'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?\'-1\':\'0\'}"',
-    "container.addEventListener('keydown', (event) => {\n                if (event.key !== 'Enter' && event.key !== ' ') return;\n                const trigger = event.target.closest('[data-journal-action=\"task-toggle\"]');",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1243,7 +1142,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     "cell.type = 'button';",
     "cell.setAttribute('aria-haspopup', 'dialog');",
     'id="day-detail-modal" class="day-detail-overlay no-print" data-day-detail-backdrop role="dialog" aria-modal="true"',
-    'function openDayDetail(d) {',
     'function closeDayDetail() {',
     "if (event.key === 'Escape' && document.getElementById('day-detail-modal')?.classList.contains('open')) closeDayDetail();",
   ];
@@ -1754,7 +1652,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-title-actions"',
     'class="journal-action-row"',
     'class="journal-calendar-controls"',
-    'class="journal-export-actions"',
     'class="journal-tabs-row"',
     '.journal-shell-header {',
     '.journal-shell-header::after',
@@ -1776,7 +1673,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-metric-value" id="g-total-month"',
     'Баків без пластику/скла',
     '.skel-w-date { width: 70px; }',
-    'class="skel skel-bar skel-w-main"',
     '.lock-screen { position:fixed;',
     'class="lock-screen"',
     'class="pin-keypad"',
@@ -1817,21 +1713,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-panel journal-list-shell"',
     'class="garbage-chart flex items-end justify-between gap-1"',
     'class="journal-panel"',
-    'class="desktop-table print-card journal-table-shell"',
-    'class="journal-table"',
-    'class="journal-table-role is-electrician"',
-    'class="journal-loading-overlay no-print" role="status" aria-live="polite" aria-hidden="true"',
-    '.journal-loading-overlay.is-visible {',
-    "overlay.classList.toggle('is-visible', show);",
-    "overlay.setAttribute('aria-hidden', String(!show));",
-    'class="journal-dashboard-panel"',
-    'class="journal-stats-grid"',
-    'class="stat-card journal-stat-card journal-role-summary role-electrician"',
-    'class="journal-role-summary-head"',
-    'class="journal-charts-grid"',
-    'class="journal-panel journal-chart-wide"',
-    '.journal-role-count {',
-    '.journal-chart-wide { grid-column:1 / -1; }',
     '.journal-title-row {',
     '.journal-action-row {',
     '.journal-tabs-row {',
@@ -1914,10 +1795,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-inline-icon {',
     '.journal-action-label {',
     '.journal-action-btn {',
-    'class="journal-action-btn journal-action-btn-ghost md-state-layer"',
     'class="journal-action-btn journal-action-btn-danger md-state-layer"',
     'class="journal-inline-icon"',
-    '<th class="journal-table-role is-comment no-print"><span class="mdi mdi-comment-outline journal-inline-icon" aria-hidden="true"></span>Коментар</th>',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1935,11 +1814,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'journal dynamic controls expose aria-labels';
   const required = [
-    'aria-label="Зміна ${roleNames[role]} за день ${d}"',
-    'aria-label="Кількість заявок ${roleNames[role]} за день ${d}"',
-    'aria-label="Додати фото ${roleNames[role]} за день ${d}"',
-    'aria-label="Коментар до дня ${d}"',
-    'aria-label="Інші роботи ${roleNames[role]} за день ${d}"',
     'aria-label="Час вивозу сміття за день ${day}"',
     'aria-label="Працівник сміття за день ${day}"',
     'aria-label="Кількість баків за день ${day}"',
@@ -3072,7 +2946,6 @@ ${sharedSelectText}`;
     'data-osbb-tab="shifts" id="tab-shifts"',
     'data-osbb-tab="shifts" id="tab-shifts-m"',
     'id="section-shifts"',
-    "document.getElementById('journal-dashboard').classList.toggle('hidden', tab !== 'journal')",
     'function shiftLoadMonth()',
     'function requestTab(tab)',
     "showPinModal('PIN графіка змін', 'Введіть окремий PIN для доступу'",
