@@ -696,6 +696,7 @@
     let staffLoginSelected = null;
     let staffLoginBusy = false;
     let staffLoginFails = 0;
+    let staffReauthResolve = null; // очікує повторного підтвердження PIN після втрати staffPinCache (напр. після перезавантаження вкладки)
 
     function loadStaffSession() {
         try {
@@ -783,10 +784,37 @@
     }
 
     function staffLoginBack() {
+        if (staffReauthResolve) {
+            const resolve = staffReauthResolve;
+            staffReauthResolve = null;
+            staffLoginSelected = null;
+            document.getElementById('staff-login-modal').style.display = 'none';
+            resolve(false);
+            return;
+        }
         staffLoginSelected = null;
         staffLoginBuf = '';
         document.getElementById('staff-login-pin-step').classList.add('hidden');
         document.getElementById('staff-login-list').classList.remove('hidden');
+    }
+
+    // Викликається, коли staffPinCache загублений (перезавантаження вкладки), а
+    // дія (напр. збереження Табеля) вимагає server-side PIN. Показує лише крок
+    // вводу PIN (без списку — особа вже відома з staffSession), не зношуючи
+    // сесію: staffSession лишається тим самим, оновлюється тільки staffPinCache.
+    function requestStaffReauth() {
+        return new Promise(resolve => {
+            if (!staffSession) { resolve(false); return; }
+            staffReauthResolve = resolve;
+            staffLoginSelected = { id: staffSession.id, full_name: staffSession.name, role: staffSession.role };
+            staffLoginBuf = '';
+            document.getElementById('staff-login-list').classList.add('hidden');
+            document.getElementById('staff-login-pin-step').classList.remove('hidden');
+            document.getElementById('staff-login-pin-sub').textContent = `Підтвердіть PIN «${staffLoginSelected.full_name}»`;
+            document.getElementById('staff-login-err').textContent = '';
+            staffLoginUpdateDots();
+            document.getElementById('staff-login-modal').style.display = 'flex';
+        });
     }
 
     function staffLoginUpdateDots() {
@@ -818,6 +846,7 @@
             document.getElementById('staff-login-modal').style.display = 'none';
             applyRoleGating();
             staffLoginBusy = false;
+            if (staffReauthResolve) { const resolve = staffReauthResolve; staffReauthResolve = null; resolve(true); }
             return;
         }
 
@@ -836,6 +865,7 @@
             applyRoleGating();
             staffLoginBusy = false;
             staffLoginBuf = '';
+            if (staffReauthResolve) { const resolve = staffReauthResolve; staffReauthResolve = null; resolve(true); }
         } else {
             staffLoginFails++;
             document.getElementById('staff-login-err').textContent = 'Невірний PIN, спробуйте ще';
@@ -1475,6 +1505,18 @@
         attSaveOffline();
         attRenderStats();
         if (IS_PREVIEW) return;
+        // staffPinCache живе лише в пам'яті (не в storage) — після перезавантаження
+        // вкладки staffSession лишається (sessionStorage), а PIN губиться. Замість
+        // мовчазної відмови просимо підтвердити PIN ще раз і продовжуємо збереження.
+        if (!staffPinCache) {
+            attSetStatus('loading', '<span class="status-label"><span class="mdi mdi-lock-outline journal-inline-icon" aria-hidden="true"></span>Підтвердіть PIN</span>');
+            const confirmed = await requestStaffReauth();
+            if (!confirmed) {
+                attSetStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
+                showToast('Збереження скасовано: потрібне підтвердження PIN');
+                return;
+            }
+        }
         try {
             const ok = await db.rpc('save_attendance_day', {
                 p_month_key: attKey(), p_day: Number(d), p_role: role,
@@ -1485,6 +1527,7 @@
             attSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Збережено</span>');
         } catch(err) {
             console.error('attendance save error:', err);
+            staffPinCache = null; // можливо PIN вже недійсний (напр. змінений адміном) — наступна спроба знову спитає
             attSetStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
             showToast('Не вдалося зберегти. Спробуйте увійти в сесію Диспетчера ще раз.');
         }
