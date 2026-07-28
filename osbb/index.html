@@ -196,6 +196,20 @@
     </div>
 </div>
 
+<div id="ticket-delete-confirm" class="ticket-confirm-overlay no-print" role="dialog" aria-modal="true" aria-labelledby="ticket-delete-confirm-title" aria-hidden="true" tabindex="-1">
+    <div class="ticket-confirm-dialog">
+        <div class="ticket-confirm-icon" aria-hidden="true"><span class="mdi mdi-delete-outline"></span></div>
+        <div>
+            <h2 id="ticket-delete-confirm-title" class="ticket-confirm-title">Видалити заявку?</h2>
+            <p class="ticket-confirm-copy">Цю дію неможливо скасувати.</p>
+        </div>
+        <div class="ticket-confirm-actions">
+            <button type="button" class="journal-tonal-btn md-state-layer" data-ticket-delete-cancel>Скасувати</button>
+            <button type="button" class="journal-action-btn journal-action-btn-danger md-state-layer" data-ticket-delete-confirm>Видалити</button>
+        </div>
+    </div>
+</div>
+
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
@@ -2143,8 +2157,7 @@
                 }
                 if (action.dataset.dispAction === 'ticket-delete') {
                     event.preventDefault();
-                    const confirmed = window.confirm('Видалити цю заявку? Цю дію неможливо скасувати.');
-                    if (confirmed) dispDeleteTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                    openTicketDeleteConfirm(Number(action.dataset.dispDay), action.dataset.ticketId, action);
                 }
                 if (action.dataset.dispAction === 'ticket-edit-toggle') {
                     event.preventDefault();
@@ -2176,6 +2189,45 @@
                 dispOpenDayDetail(Number(filter.dataset.dispDay));
             });
         });
+        document.querySelector('[data-ticket-delete-cancel]')?.addEventListener('click', closeTicketDeleteConfirm);
+        document.querySelector('[data-ticket-delete-confirm]')?.addEventListener('click', () => {
+            if (!pendingTicketDelete) return;
+            const { day, ticketId } = pendingTicketDelete;
+            closeTicketDeleteConfirm(false);
+            dispDeleteTicket(day, ticketId);
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) closeTicketDeleteConfirm();
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeTicketDeleteConfirm();
+            }
+        });
+    }
+
+    let pendingTicketDelete = null;
+    let ticketDeleteFocusReturn = null;
+
+    function openTicketDeleteConfirm(day, ticketId, opener) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal || !Number.isInteger(day) || !ticketId) return;
+        pendingTicketDelete = { day, ticketId };
+        ticketDeleteFocusReturn = opener || document.activeElement;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
+    }
+
+    function closeTicketDeleteConfirm(restoreFocus = true) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        pendingTicketDelete = null;
+        if (restoreFocus && ticketDeleteFocusReturn?.isConnected) ticketDeleteFocusReturn.focus();
+        ticketDeleteFocusReturn = null;
     }
 
     document.querySelector('[data-disp-search]')?.addEventListener('input', (event) => {
@@ -3194,6 +3246,7 @@
         const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
         if (ticketRoleSel) enhanceSelect(ticketRoleSel);
         if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
+        bodyEl.querySelectorAll('[data-ticket-filter]').forEach(select => enhanceSelect(select));
         if (dispEditingTicketId) {
             const editRoleSel = document.getElementById(`ticket-edit-role-${dispEditingTicketId}`);
             const editPrioritySel = document.getElementById(`ticket-edit-priority-${dispEditingTicketId}`);
