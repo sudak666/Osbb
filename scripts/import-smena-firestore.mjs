@@ -1,7 +1,12 @@
-const FIREBASE_API_KEY = process.env.SMENA_FIREBASE_API_KEY || 'AIzaSyAOhfHBOVExBXQDZeIQZq2jWAQoHK2ElBw';
+const FIREBASE_API_KEY = process.env.SMENA_FIREBASE_API_KEY;
 const FIREBASE_PROJECT_ID = process.env.SMENA_FIREBASE_PROJECT_ID || 'smena-s777s';
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vkwkyhjjjmcpmiakxohw.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!FIREBASE_API_KEY) {
+  console.error('Вкажіть SMENA_FIREBASE_API_KEY для імпорту змін.');
+  process.exit(1);
+}
 
 if (!SUPABASE_SERVICE_ROLE_KEY) {
   console.error('Вкажіть SUPABASE_SERVICE_ROLE_KEY для імпорту змін.');
