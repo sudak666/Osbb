@@ -2149,7 +2149,7 @@
         ['disp-cards', 'day-detail-body'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
-            container.addEventListener('click', (event) => {
+            container.addEventListener('click', async (event) => {
                 const action = event.target.closest('[data-disp-action]');
                 if (!action) return;
                 if (action.dataset.dispAction === 'ticket-add') {
@@ -2158,7 +2158,14 @@
                     const textEl = document.getElementById(`ticket-new-text-${d}`);
                     const roleEl = document.getElementById(`ticket-new-role-${d}`);
                     const priorityEl = document.getElementById(`ticket-new-priority-${d}`);
-                    dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM');
+                    const photosEl = document.getElementById(`ticket-new-photos-${d}`);
+                    action.disabled = true;
+                    action.setAttribute('aria-busy', 'true');
+                    await dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM', Array.from(photosEl?.files || []));
+                    if (action.isConnected) {
+                        action.disabled = false;
+                        action.removeAttribute('aria-busy');
+                    }
                 }
                 if (action.dataset.dispAction === 'ticket-delete') {
                     event.preventDefault();
@@ -2183,6 +2190,13 @@
                 }
             });
             container.addEventListener('change', (event) => {
+                const photoInput = event.target.closest('[data-ticket-photo-input]');
+                if (photoInput) {
+                    const label = document.getElementById(`ticket-photo-label-${photoInput.dataset.dispDay}`);
+                    const count = photoInput.files?.length || 0;
+                    if (label) label.textContent = count ? `Вибрано фото: ${count}` : 'Додати фото проблеми';
+                    return;
+                }
                 const filter = event.target.closest('[data-ticket-filter]');
                 if (!filter) return;
                 if (filter.dataset.ticketFilter === 'worker') {
@@ -2956,13 +2970,14 @@
     }
 
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
-    function dispAddTicket(d, text, role, priority) {
+    async function dispAddTicket(d, text, role, priority, photoFiles = []) {
         if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
         const trimmed = (text || '').trim();
         if (!trimmed) { showToast('Опишіть заявку'); return; }
         const row = dispGetDay(d);
+        const ticketId = `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
         row.ticketsList.push({
-            id: `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
+            id: ticketId,
             text: trimmed,
             role: WORKER_ROLES.includes(role) ? role : 'plumber',
             priority: ticketPriorities[priority] ? priority : 'MEDIUM',
@@ -2973,8 +2988,9 @@
             createdBy: staffSession?.name || dispWorkerName
         });
         dispScheduleSave();
+        for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
         dispOpenDayDetail(Number(d));
-        showToast('Заявку додано');
+        showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
     }
 
     function dispDeleteTicket(d, ticketId) {
@@ -3033,6 +3049,19 @@
         dispScheduleSave();
     }
 
+    function ticketPhotosHtml(ticket) {
+        const photos = Array.isArray(ticket?.photos) ? ticket.photos : [];
+        const items = photos.map((url, index) => {
+            const safeUrl = safeExternalUrl(url);
+            if (!safeUrl) return '';
+            const escapedUrl = escapeAttr(safeUrl);
+            return `<button type="button" class="ticket-photo-thumb md-state-layer" data-photo-action="open" data-photo-url="${escapedUrl}" aria-label="Відкрити фото ${index + 1} до заявки">
+                <img src="${escapedUrl}" alt="Фото проблеми до заявки" loading="lazy">
+            </button>`;
+        }).join('');
+        return items ? `<div class="ticket-photo-list" aria-label="Фото до заявки">${items}</div>` : '';
+    }
+
     // ==========================================
     // МОЇ ЗАЯВКИ — для staff-сесії plumber/janitor/electrician: тільки заявки
     // поточного місяця, призначені на її роль, відсортовані за пріоритетом.
@@ -3062,6 +3091,7 @@
                     ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${ticketPhotosHtml(t)}
                 ${isDone ? (t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : '') : `
                 <div class="my-ticket-close-form">
                     <textarea class="journal-textarea" rows="2" placeholder="Коментар про виконання..." id="my-ticket-comment-${t.day}-${t.id}"></textarea>
@@ -3185,6 +3215,7 @@
                     ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${ticketPhotosHtml(t)}
                 ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
                 ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="mdi mdi-pencil-outline" aria-hidden="true"></span></button>` : ''}
                 ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку">✕</button>` : ''}
@@ -3199,6 +3230,11 @@
                 <select id="ticket-new-priority-${d}" class="journal-select" aria-label="Пріоритет заявки">
                     ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === 'MEDIUM' ? 'selected' : ''}>${v.label}</option>`).join('')}
                 </select>
+                <label class="ticket-photo-picker md-state-layer">
+                    <span class="mdi mdi-camera-plus-outline" aria-hidden="true"></span>
+                    <span id="ticket-photo-label-${d}">Додати фото проблеми</span>
+                    <input id="ticket-new-photos-${d}" type="file" accept="image/*" multiple class="sr-only" data-ticket-photo-input data-disp-day="${d}" aria-label="Додати фото проблеми до нової заявки">
+                </label>
                 <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати заявку</button>
             </div>` : '';
         return `<div class="dispatcher-tickets-block">

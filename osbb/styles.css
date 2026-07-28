@@ -770,12 +770,17 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .priority-legend-item { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:var(--md-sys-shape-corner-full,999px); border:1px solid var(--md-sys-color-outline,var(--border)); background:var(--md-sys-color-surface-container,var(--bg-card)); font-size:12px; font-weight:750; color:var(--md-sys-color-on-surface,var(--text-main)); }
 .priority-legend-arrow { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:14px; }
 .ticket-item-text { font-size:14px; font-weight:600; }
+.ticket-photo-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.ticket-photo-thumb { position:relative; width:72px; height:72px; padding:0; overflow:hidden; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-medium,12px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); cursor:zoom-in; }
+.ticket-photo-thumb img { width:100%; height:100%; object-fit:cover; }
 .ticket-item-comment { margin-top:4px; font-size:12px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-style:italic; }
 .ticket-delete-btn { position:absolute; top:8px; right:8px; width:22px; height:22px; border-radius:50%; border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-error-container,#fee2e2); color:var(--md-sys-color-on-error-container,#7f1d1d); font-size:12px; line-height:1; }
 .ticket-edit-btn { position:absolute; top:8px; right:34px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:50%; border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; line-height:1; }
 .ticket-empty { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:13px; padding:6px 0; }
 .ticket-add-form { display:grid; grid-template-columns:1fr; gap:6px; margin-top:6px; }
 .ticket-add-form select, .ticket-add-form input { width:100%; }
+.ticket-photo-picker { position:relative; display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:10px 16px; overflow:hidden; border:1px dashed var(--md-sys-color-primary,var(--accent)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-primary-container,color-mix(in srgb,var(--accent) 10%,var(--bg-card))); color:var(--md-sys-color-on-primary-container,var(--accent)); font-size:13px; font-weight:800; cursor:pointer; }
+.ticket-photo-picker .mdi { font-size:20px; }
 .my-ticket-close-form { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
 .my-ticket-close-actions { display:flex; gap:8px; align-items:center; }
 .my-tickets-list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
