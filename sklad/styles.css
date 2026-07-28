@@ -165,6 +165,9 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-filter-icon{position:absolute;left:14px;top:50%;width:18px;height:18px;margin:0;font-size:18px;line-height:1;opacity:0;overflow:visible;transform:translateY(-50%) scale(.8);pointer-events:none;transition:opacity var(--motion-fast),transform var(--motion-fast);}
 .items-filter-pill.active .items-filter-icon{opacity:1;transform:translateY(-50%) scale(1);}
 .items-filter-label{display:grid;place-items:center;width:100%;height:100%;min-height:0;line-height:1.2;text-align:center;white-space:nowrap;}
+.pill.items-filter-pill.active{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding-inline:24px;}
+.pill.items-filter-pill.active .items-filter-icon{position:static;flex:0 0 18px;transform:none;}
+.pill.items-filter-pill.active .items-filter-label{width:auto;height:auto;}
 .category-pill-icon{font-size:15px;vertical-align:-3px;}
 .items-search-field{width:250px;min-width:160px;}
 .log-search-field{width:240px;}
