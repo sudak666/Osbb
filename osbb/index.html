@@ -566,7 +566,14 @@
                 <span class="text-sm font-bold journal-action-label"><span class="mdi mdi-format-list-checks journal-inline-icon" aria-hidden="true"></span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
             </div>
-            <p class="shift-copy">Заявки цього місяця, призначені вам, відсортовані за пріоритетом: 🔴 Терміново → 🟡 Звичайний → 🟢 Нетерміново.</p>
+            <p class="shift-copy">Заявки цього місяця, призначені вам, відсортовані за пріоритетом:</p>
+            <div class="priority-legend" aria-label="Порядок пріоритетів">
+                <span class="priority-legend-item priority-HIGH"><i class="priority-dot" aria-hidden="true"></i>Терміново</span>
+                <span class="mdi mdi-arrow-right priority-legend-arrow" aria-hidden="true"></span>
+                <span class="priority-legend-item priority-MEDIUM"><i class="priority-dot" aria-hidden="true"></i>Звичайний</span>
+                <span class="mdi mdi-arrow-right priority-legend-arrow" aria-hidden="true"></span>
+                <span class="priority-legend-item priority-LOW"><i class="priority-dot" aria-hidden="true"></i>Нетерміново</span>
+            </div>
             <div id="my-tickets-list" class="my-tickets-list"></div>
         </div>
     </div>
@@ -994,17 +1001,30 @@
         return Boolean(staffSession) && WORKER_ROLES.includes(staffSession.role);
     }
 
-    // Приховує/показує вкладки й перемикає працівника на дозволений таб,
-    // якщо поточний йому недоступний. "Диспетчер" — тільки dispatcher/admin,
-    // "Мої заявки" — тільки сантехнік/двірник/електрик. Табель бачать усі,
-    // але редагування там же гейтиться по ролі всередині attRenderBody().
+    // Вкладки, доступні сантехніку/двірнику/електрику: тільки власний графік
+    // (перегляд) і власні заявки — жодного доступу до журналу, диспетчера,
+    // графіків, сміття, чату чи графіка змін інших людей.
+    const WORKER_ALLOWED_TABS = ['tabel', 'my-tickets'];
+
+    // Єдине джерело правди про доступність таба для поточної staff-сесії —
+    // використовується і для приховування кнопок, і для блокування прямого
+    // виклику setTab/requestTab (щоб hidden-клас не був єдиним захистом).
+    function isTabAllowedForSession(tab) {
+        if (isWorkerSession()) return WORKER_ALLOWED_TABS.includes(tab);
+        if (tab === 'my-tickets') return false;
+        if (tab === 'dispatcher') return isDispatcherSession() || !staffSession;
+        return true;
+    }
+
+    // Приховує/показує вкладки залежно від ролі сесії і перемикає користувача
+    // на дозволений таб, якщо поточний йому недоступний.
     function applyRoleGating() {
         const dispatcherOnly = isDispatcherSession();
-        const workerOnly = isWorkerSession();
-        [['tab-dispatcher', dispatcherOnly || !staffSession], ['tab-dispatcher-m', dispatcherOnly || !staffSession],
-         ['tab-my-tickets', workerOnly], ['tab-my-tickets-m', workerOnly]].forEach(([id, visible]) => {
-            const el = document.getElementById(id);
-            if (el) el.classList.toggle('hidden', !visible);
+        ALL_TABS.forEach(tab => {
+            const visible = isTabAllowedForSession(tab);
+            [document.getElementById('tab-' + tab), document.getElementById('tab-' + tab + '-m')].forEach(el => {
+                if (el) el.classList.toggle('hidden', !visible);
+            });
         });
         const badge = document.getElementById('staff-session-badge');
         if (badge) {
@@ -1015,7 +1035,7 @@
                 badge.classList.add('hidden');
             }
         }
-        if (workerOnly && currentTab === 'dispatcher') setTab('my-tickets');
+        if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
     }
@@ -1135,6 +1155,7 @@
     const ALL_TABS = ['journal','charts','garbage','dispatcher','chat','shifts','tabel','my-tickets'];
 
     function requestTab(tab) {
+        if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
         if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }
         if (tab !== 'shifts') { setTab(tab); return; }
         showPinModal('PIN графіка змін', 'Введіть окремий PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
@@ -3810,9 +3831,9 @@
     // Старі текстові дні (поле `tickets` — просто число) лишаються як є для
     // місяців, збережених до цієї зміни — не мігруємо їх автоматично.
     const ticketPriorities = {
-        HIGH:   { label: 'Терміново',    emoji: '🔴', order: 0 },
-        MEDIUM: { label: 'Звичайний',    emoji: '🟡', order: 1 },
-        LOW:    { label: 'Нетерміново',  emoji: '🟢', order: 2 }
+        HIGH:   { label: 'Терміново',    order: 0 },
+        MEDIUM: { label: 'Звичайний',    order: 1 },
+        LOW:    { label: 'Нетерміново',  order: 2 }
     };
     let dispNewTicketPriority = 'MEDIUM';
     let dispNewTicketRole = 'plumber';
@@ -3978,15 +3999,15 @@
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
         const tickets = collectTicketsForRole(staffSession.role);
-        if (!tickets.length) { list.innerHTML = '<div class="staff-login-loading">Заявок немає 🎉</div>'; return; }
+        if (!tickets.length) { list.innerHTML = '<div class="staff-login-loading">Заявок немає</div>'; return; }
         list.innerHTML = tickets.map(t => {
             const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
             const isDone = t.status === 'done';
             return `<div class="my-ticket-card priority-${t.priority} ${isDone ? 'is-done' : ''}">
                 <div class="ticket-item-head">
-                    <span class="ticket-priority-badge">${p.emoji} ${p.label}</span>
+                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
                     <span class="ticket-role-badge">День ${t.day}</span>
-                    ${isDone ? '<span class="ticket-done-badge">✓ Виконано</span>' : ''}
+                    ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
                 ${isDone ? (t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : '') : `
@@ -4135,9 +4156,9 @@
             const isDone = t.status === 'done';
             return `<li class="ticket-item priority-${t.priority} ${isDone ? 'is-done' : ''}">
                 <div class="ticket-item-head">
-                    <span class="ticket-priority-badge">${p.emoji} ${p.label}</span>
+                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
                     <span class="ticket-role-badge">${roleNames[t.role] || t.role}</span>
-                    ${isDone ? '<span class="ticket-done-badge">✓ Виконано</span>' : ''}
+                    ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
                 ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
@@ -4151,7 +4172,7 @@
                     ${roles.map(r => `<option value="${r}">${roleNames[r]}</option>`).join('')}
                 </select>
                 <select id="ticket-new-priority-${d}" class="journal-select" aria-label="Пріоритет заявки">
-                    ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === 'MEDIUM' ? 'selected' : ''}>${v.emoji} ${v.label}</option>`).join('')}
+                    ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === 'MEDIUM' ? 'selected' : ''}>${v.label}</option>`).join('')}
                 </select>
                 <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати заявку</button>
             </div>` : '';
