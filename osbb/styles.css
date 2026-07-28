@@ -714,6 +714,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .dispatcher-tickets-block { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--bg-card)); border:1px solid var(--md-sys-color-outline-variant,var(--border)); }
 .ticket-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
 .ticket-item, .my-ticket-card { position:relative; padding:10px 34px 10px 12px; border-radius:var(--md-sys-shape-corner-medium,12px); border:1px solid var(--md-sys-color-outline,var(--border)); background:var(--md-sys-color-surface,var(--bg-card)); }
+.ticket-item:has(.ticket-edit-btn) { padding-right:60px; }
 .my-ticket-card { padding-right:12px; }
 .ticket-item.priority-HIGH, .my-ticket-card.priority-HIGH { border-left:4px solid var(--md-sys-color-error,#ef4444); }
 .ticket-item.priority-MEDIUM, .my-ticket-card.priority-MEDIUM { border-left:4px solid var(--md-sys-color-tertiary,#f59e0b); }
@@ -732,9 +733,22 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .ticket-item-text { font-size:14px; font-weight:600; }
 .ticket-item-comment { margin-top:4px; font-size:12px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-style:italic; }
 .ticket-delete-btn { position:absolute; top:8px; right:8px; width:22px; height:22px; border-radius:50%; border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-error-container,#fee2e2); color:var(--md-sys-color-on-error-container,#7f1d1d); font-size:12px; line-height:1; }
+.ticket-edit-btn { position:absolute; top:8px; right:34px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:50%; border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; line-height:1; }
 .ticket-empty { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:13px; padding:6px 0; }
 .ticket-add-form { display:grid; grid-template-columns:1fr; gap:6px; margin-top:6px; }
 .ticket-add-form select, .ticket-add-form input { width:100%; }
 .my-ticket-close-form { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
 .my-ticket-close-actions { display:flex; gap:8px; align-items:center; }
 .my-tickets-list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+
+/* ===== ЛІФТЕР (короткий журнал відміток у вкладці Диспетчер) ===== */
+.elevator-panel { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+.elevator-add-form { display:grid; grid-template-columns:88px 1fr auto; gap:8px; align-items:start; }
+.elevator-add-form select, .elevator-add-form input { min-height:44px; }
+.elevator-list { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+.elevator-entry { position:relative; display:flex; align-items:flex-start; gap:10px; padding:10px 34px 10px 12px; border-radius:var(--md-sys-shape-corner-medium,12px); border:1px solid var(--md-sys-color-outline,var(--border)); background:var(--md-sys-color-surface,var(--bg-card)); }
+.elevator-entry-day { flex:none; min-width:28px; padding:2px 8px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; text-align:center; }
+.elevator-entry-text { flex:1; font-size:14px; font-weight:600; }
+@media (max-width: 640px) {
+    .elevator-add-form { grid-template-columns:1fr; }
+}

@@ -39,8 +39,6 @@
 
 <svg aria-hidden="true" focusable="false" style="display:none">
     <defs>
-        <symbol id="i-journal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="13" y2="18"/></symbol>
-        <symbol id="i-charts" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
         <symbol id="i-garbage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
         <symbol id="i-dispatcher" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></symbol>
     </defs>
@@ -205,7 +203,7 @@
             <div class="journal-title-block">
                 <div class="journal-title-eyebrow">Журнал обліку ОСББ</div>
                 <h1 class="journal-title-heading"><span class="inline-flex items-center gap-2"><span class="mdi mdi-home-city journal-inline-icon" aria-hidden="true"></span> ОСББ "Микитська Слобода"</span></h1>
-                <div class="journal-title-copy">Журнал чергувань, заявок і подій будинку.</div>
+                <div class="journal-title-copy">Заявки, табель персоналу та облік будинку.</div>
             </div>
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
@@ -228,24 +226,12 @@
                     <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                 </button>
             </div>
-            <div class="journal-export-actions">
-                <button type="button" data-action="export-excel" class="journal-action-btn journal-action-btn-ghost md-state-layer"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg> Excel</span></button>
-                <button type="button" data-action="print-page" class="journal-action-btn journal-action-btn-ghost md-state-layer"><span class="journal-action-label"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> PDF</span></button>
-                <span class="journal-action-divider" aria-hidden="true"></span>
-                <button type="button" data-action="clear-current-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="mdi mdi-restore journal-inline-icon" aria-hidden="true"></span> Скинути</span></button>
-            </div>
         </div>
 
         <div class="journal-tabs-row">
         <div id="desktop-tabs" class="journal-tabs" role="tablist" aria-label="Розділи журналу">
-            <button type="button" data-osbb-tab="journal" id="tab-journal" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="tab-btn md-state-layer active">
-                <span class="mdi mdi-clipboard-text-outline journal-inline-icon" aria-hidden="true"></span> Журнал
-            </button>
-            <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="tab-btn md-state-layer">
+            <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="tab-btn md-state-layer active">
                 <span class="mdi mdi-phone-outline journal-inline-icon" aria-hidden="true"></span> Диспетчер
-            </button>
-            <button type="button" data-osbb-tab="charts" id="tab-charts" role="tab" aria-selected="false" aria-controls="section-charts" class="tab-btn md-state-layer">
-                <span class="mdi mdi-chart-bar journal-inline-icon" aria-hidden="true"></span> Графіки
             </button>
             <button type="button" data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn md-state-layer">
                 <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
@@ -265,14 +251,8 @@
 
     <!-- BOTTOM NAV — тільки на мобілці -->
     <div id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу" class="journal-bottom-nav no-print">
-        <button type="button" data-osbb-tab="journal" id="tab-journal-m" role="tab" aria-selected="true" aria-controls="section-journal" aria-current="page" class="mob-tab md-state-layer mob-active">
-            <span class="mdi mdi-clipboard-text-outline journal-inline-icon" aria-hidden="true"></span> Журнал
-        </button>
-        <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="false" aria-controls="section-dispatcher" class="mob-tab md-state-layer">
+        <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="mob-tab md-state-layer mob-active">
             <span class="mdi mdi-phone-outline journal-inline-icon" aria-hidden="true"></span> Диспетчер
-        </button>
-        <button type="button" data-osbb-tab="charts" id="tab-charts-m" role="tab" aria-selected="false" aria-controls="section-charts" class="mob-tab md-state-layer">
-            <span class="mdi mdi-chart-bar journal-inline-icon" aria-hidden="true"></span> Графіки
         </button>
         <button type="button" data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab md-state-layer">
             <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
@@ -286,42 +266,6 @@
         <button type="button" data-osbb-tab="my-tickets" id="tab-my-tickets-m" role="tab" aria-selected="false" aria-controls="section-my-tickets" class="mob-tab md-state-layer hidden">
             <span class="mdi mdi-format-list-checks journal-inline-icon" aria-hidden="true"></span> Мої заявки
         </button>
-    </div>
-
-    <div id="journal-dashboard" class="journal-dashboard-panel">
-        <h3 class="journal-section-title"><span class="mdi mdi-trophy-outline journal-inline-icon" aria-hidden="true"></span>Моніторинг за місяць</h3>
-        <div class="journal-stats-grid">
-            <div class="stat-card journal-stat-card journal-role-summary role-electrician">
-                <div class="journal-role-summary-head"><span class="journal-role-name"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</span><span id="stats-electrician" class="journal-role-count">0 змін</span></div>
-                <div class="journal-role-metrics"><span><strong id="stats-electrician-duties">0</strong> обовʼязків</span><span><strong id="stats-electrician-tickets">0</strong> заявок</span></div>
-            </div>
-            <div class="stat-card journal-stat-card journal-role-summary role-janitor">
-                <div class="journal-role-summary-head"><span class="journal-role-name"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</span><span id="stats-janitor" class="journal-role-count">0 змін</span></div>
-                <div class="journal-role-metrics"><span><strong id="stats-janitor-duties">0</strong> обовʼязків</span><span><strong id="stats-janitor-tickets">0</strong> заявок</span></div>
-            </div>
-            <div class="stat-card journal-stat-card journal-role-summary role-plumber">
-                <div class="journal-role-summary-head"><span class="journal-role-name"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</span><span id="stats-plumber" class="journal-role-count">0 змін</span></div>
-                <div class="journal-role-metrics"><span><strong id="stats-plumber-duties">0</strong> обовʼязків</span><span><strong id="stats-plumber-tickets">0</strong> заявок</span></div>
-            </div>
-        </div>
-
-    </div>
-
-    <div id="section-charts" class="hidden mb-6">
-        <div class="journal-charts-grid">
-            <div class="journal-panel">
-                <h3 class="journal-panel-title"><span class="mdi mdi-chart-bar journal-inline-icon" aria-hidden="true"></span>Зміни по днях місяця</h3>
-                <canvas id="chart-daily" height="200"></canvas>
-            </div>
-            <div class="journal-panel">
-                <h3 class="journal-panel-title"><span class="mdi mdi-chart-donut journal-inline-icon" aria-hidden="true"></span>Розподіл змін по ролях</h3>
-                <canvas id="chart-pie" height="200"></canvas>
-            </div>
-            <div class="journal-panel journal-chart-wide">
-                <h3 class="journal-panel-title"><span class="mdi mdi-chart-line journal-inline-icon" aria-hidden="true"></span>Активність по тижнях</h3>
-                <canvas id="chart-weekly" height="120"></canvas>
-            </div>
-        </div>
     </div>
 
     <section id="section-shifts" class="hidden mb-6" role="tabpanel" aria-labelledby="tab-shifts">
@@ -399,70 +343,6 @@
         </div>
     </section>
 
-    <div id="journal-work-toolbar" class="journal-work-toolbar no-print">
-        <label class="journal-work-search-wrap"><span class="mdi mdi-magnify journal-inline-icon" aria-hidden="true"></span><input type="search" class="journal-work-search" placeholder="Пошук робіт і коментарів..." aria-label="Пошук у журналі робіт" aria-keyshortcuts="/ Escape" data-journal-work-search></label>
-        <div class="journal-work-filters" role="group" aria-label="Фільтр журналу робіт">
-            <button type="button" class="journal-work-filter md-state-layer is-active" data-journal-work-filter="all">Усі</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="today">Сьогодні</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="current_week">Цей тиждень</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="has_work">Є роботи</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="pending">Незавершені</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="completed">Виконані</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="electrician">Електрик</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="janitor">Двірник</button>
-            <button type="button" class="journal-work-filter md-state-layer" data-journal-work-filter="plumber">Сантехнік</button>
-        </div>
-        <div class="journal-entrance-filters" role="group" aria-label="Фільтр за підʼїздом">
-            <span class="journal-filter-label">Підʼїзд:</span>
-            <button type="button" class="journal-entrance-filter md-state-layer is-active" data-journal-entrance-filter="all">Усі</button>
-            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 1">1</button>
-            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 2">2</button>
-            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 3">3</button>
-            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 4">4</button>
-            <button type="button" class="journal-entrance-filter md-state-layer" data-journal-entrance-filter="Підʼїзд 5">5</button>
-        </div>
-        <div class="journal-work-result-row"><div class="journal-work-result" data-journal-work-result aria-live="polite">Показано всі дні</div><button type="button" class="journal-work-reset md-state-layer" data-journal-work-reset hidden>Скинути</button></div>
-        <div class="journal-work-summary" aria-label="Підсумок відфільтрованих робіт">
-            <span><strong data-journal-summary-done>0</strong>Виконано</span>
-            <span class="is-pending"><strong data-journal-summary-pending>0</strong>Залишилося</span>
-            <span class="is-tickets"><strong data-journal-summary-tickets>0</strong>Заявок</span>
-        </div>
-    </div>
-
-    <div id="mobile-cards" class="mobile-day-card mb-4">
-        <div class="month-grid-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span></div>
-        <div class="month-grid">
-            <div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div>
-            <div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div><div class="month-grid-cell skel"></div>
-        </div>
-    </div>
-
-    <div id="section-journal" class="desktop-table print-card journal-table-shell">
-        <div id="loading-overlay" class="journal-loading-overlay no-print" role="status" aria-live="polite" aria-hidden="true">
-            <div class="journal-loading-card">
-                <span class="mdi mdi-loading mdi-spin journal-loading-icon" aria-hidden="true"></span>
-                <p id="loading-text" class="journal-loading-text">Зв'язуюсь із хмарою...</p>
-            </div>
-        </div>
-        <div class="journal-table-scroll">
-            <table class="journal-table">
-                <thead>
-                    <tr>
-                        <th class="journal-table-date">Дата / День</th>
-                        <th class="journal-table-role is-electrician"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</th>
-                        <th class="journal-table-role is-janitor"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</th>
-                        <th class="journal-table-role is-plumber"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</th>
-                        <th class="journal-table-role is-comment no-print"><span class="mdi mdi-comment-outline journal-inline-icon" aria-hidden="true"></span>Коментар</th>
-                    </tr>
-                </thead>
-                <tbody id="calendar-body" class="divide-y divide-[var(--border)] text-sm">
-                    <tr class="skel-row"><td><span class="skel skel-bar skel-w-date"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td class="no-print"><span class="skel skel-bar skel-w-actions"></span></td></tr>
-                    <tr class="skel-row"><td><span class="skel skel-bar skel-w-date"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td class="no-print"><span class="skel skel-bar skel-w-actions"></span></td></tr>
-                    <tr class="skel-row"><td><span class="skel skel-bar skel-w-date"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td><span class="skel skel-bar skel-w-main"></span></td><td class="no-print"><span class="skel skel-bar skel-w-actions"></span></td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
     <!-- ===== СЕКЦІЯ ЖУРНАЛ СМІТТЯ ===== -->
     <div id="section-garbage" class="hidden mb-6">
@@ -509,6 +389,22 @@
 
     <!-- ===== СЕКЦІЯ ДИСПЕТЧЕР ===== -->
     <div id="section-dispatcher" class="hidden mb-6">
+        <!-- Ліфтер приїжджає лише кілька разів на місяць — окремий короткий
+             журнал відміток, не прив'язаний до щоденного календаря диспетчера. -->
+        <div class="journal-panel elevator-panel">
+            <div class="journal-list-head">
+                <span class="text-sm font-bold journal-action-label"><span class="mdi mdi-elevator journal-inline-icon" aria-hidden="true"></span>Ліфтер</span>
+                <span id="elevator-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
+            </div>
+            <p class="shift-copy">Відмітки приїзду ліфтера цього місяця та що саме він робив.</p>
+            <div class="elevator-add-form">
+                <select id="elevator-new-day" class="journal-select" aria-label="День приїзду ліфтера"></select>
+                <input type="text" id="elevator-new-text" class="dispatcher-location-input" placeholder="Що зробив ліфтер..." aria-label="Опис виконаних робіт">
+                <button type="button" class="dispatcher-time-btn md-state-layer" data-action="elevator-add"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати запис</button>
+            </div>
+            <div id="elevator-list" class="elevator-list"></div>
+        </div>
+
         <!-- Картки днів диспетчера -->
         <div class="journal-panel journal-list-shell">
             <div class="journal-list-head">
@@ -1024,10 +920,9 @@
         try {
             const rt = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             rt.channel('osbb-live')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'schedule' }, () => realtimeSafeRefresh('journal', initCalendar))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'garbage' }, () => realtimeSafeRefresh('garbage', gInitTab))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'dispatcher' }, () => realtimeSafeRefresh('dispatcher', dispInitTab))
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'photos' }, () => realtimeSafeRefresh('charts', initCalendar))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'elevator_visits' }, () => realtimeSafeRefresh('dispatcher', elevatorInitTab))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shifts' }, () => realtimeSafeRefresh('shifts', shiftLoadMonth))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shift_settings' }, () => realtimeSafeRefresh('shift-settings', shiftLoadSettings))
                 .subscribe();
@@ -1037,25 +932,9 @@
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const roles = ['electrician', 'janitor', 'plumber'];
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
-    const roleNamesClean = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
-    const buildingEntrances = Array.from({ length: 5 }, (_, index) => `Підʼїзд ${index + 1}`);
-    const roleTasksConfig = {
-        electrician: [{ id: 'lamps', label: 'Заміна ламп' }, { id: 'lighting_check', label: 'Огляд освітлення' }, { id: 'panels_check', label: 'Огляд електрощитових' }],
-        plumber:     [{ id: 'sewer', label: 'Прочистка каналізації' }, { id: 'leaks', label: 'Усунення протікань' }, { id: 'pipes_check', label: 'Огляд труб і кранів' }],
-        janitor:     [{ id: 'territory', label: 'Прибирання території' }, { id: 'entrances', label: 'Прибирання підʼїздів' }, { id: 'garden', label: 'Садові роботи' }, { id: 'lawn', label: 'Стрижка газонів' }, { id: 'bins', label: 'Мийка баків' }, { id: 'stairs', label: 'Мийка сходів' }]
-    };
-    const roleQuickWorkTemplates = {
-        electrician: ['Заміна автомата', 'Ремонт освітлення', 'Перевірка проводки'],
-        janitor: ['Прибирання після ремонту', 'Вивіз гілля', 'Посипання доріжок'],
-        plumber: ['Заміна крана', 'Ремонт стояка', 'Заміна змішувача']
-    };
 
-    let currentMonthData = {}, currentYear, currentMonth, saveTimer = null;
-    let chartDaily = null, chartPie = null, chartWeekly = null;
-    let currentTab = 'journal';
-    let journalWorkSearch = '';
-    let journalWorkFilter = 'all';
-    let journalEntranceFilter = 'all';
+    let currentYear, currentMonth;
+    let currentTab = 'dispatcher';
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
     let gData = {};          // { "1": {time,worker,types:{plastic:N,glass:N,bins:N}}, "2": {...}, ... }
@@ -1118,7 +997,7 @@
         document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
-    const ALL_TABS = ['journal','charts','garbage','dispatcher','shifts','tabel','my-tickets'];
+    const ALL_TABS = ['garbage','dispatcher','shifts','tabel','my-tickets'];
 
     function requestTab(tab) {
         if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
@@ -1129,14 +1008,11 @@
 
     function setTab(tab) {
         currentTab = tab;
-        document.getElementById('section-journal').classList.toggle('hidden', tab !== 'journal');
-        document.getElementById('section-charts').classList.toggle('hidden', tab !== 'charts');
         document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
         document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
         document.getElementById('section-shifts').classList.toggle('hidden', tab !== 'shifts');
         document.getElementById('section-tabel').classList.toggle('hidden', tab !== 'tabel');
         document.getElementById('section-my-tickets').classList.toggle('hidden', tab !== 'my-tickets');
-        document.getElementById('journal-dashboard').classList.toggle('hidden', tab !== 'journal');
 
         // Десктоп таби
         ALL_TABS.forEach(t => {
@@ -1157,12 +1033,8 @@
             }
         });
 
-        const mobileCards = document.getElementById('mobile-cards');
-        if (mobileCards) mobileCards.classList.toggle('hidden', tab !== 'journal');
-        document.getElementById('journal-work-toolbar')?.classList.toggle('hidden', tab !== 'journal');
-        if (tab === 'charts') renderCharts();
         if (tab === 'garbage') gInitTab();
-        if (tab === 'dispatcher') dispInitTab();
+        if (tab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
         if (tab === 'shifts') shiftInitTab();
         if (tab === 'tabel') attInitTab();
         if (tab === 'my-tickets') myTicketsInitTab();
@@ -1721,153 +1593,21 @@
         if (fLink) fLink.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='${faviconColors[type] || '%2322c55e'}'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='${faviconColors[type] || '%2322c55e'}'/></svg>`;
     }
 
-    const offlineKey = () => `osbb_${currentYear}_${currentMonth}`;
-
-    function saveOffline() {
-        try { localStorage.setItem(offlineKey(), JSON.stringify(currentMonthData)); } catch(e) {}
-    }
-
-    function loadOffline() {
-        try { return JSON.parse(localStorage.getItem(offlineKey()) || 'null'); } catch { return null; }
-    }
-
+    // Спільний "перехід на місяць" — раніше вантажив і рендерив журнал
+    // чергувань (schedule), тепер лишає тільки те, що дійсно спільне для
+    // всіх табів: рік/місяць, кеш фото на місяць і перерендер активного табу.
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
-        showOverlay(true, 'Завантажую дані...'); setSyncStatus('loading', '<span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span>');
+        setSyncStatus('loading', '<span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span>');
         photosCache = null;
-
-        const offline = loadOffline();
-        if (offline) { currentMonthData = offline; renderTable(); renderMobileCards(); updateStats(); }
-
-        if (IS_PREVIEW) {
-            currentMonthData = offline || {};
-            setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>');
-        } else {
-            try {
-                const [scheduleRes] = await Promise.all([
-                    db.from('schedule').select('data').eq('month_key', `${currentYear}-${currentMonth}`).single(),
-                    loadAllPhotosForMonth()
-                ]);
-                const { data, error } = scheduleRes;
-                if (error && error.code !== 'PGRST116') throw error;
-                currentMonthData = data?.data || offline || {};
-                saveOffline();
-                setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Синхронізовано</span>');
-            } catch (err) {
-                if (err && err.code !== 'FETCH_ERROR') console.error('initCalendar error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-                if (offline) { setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-wifi-off journal-inline-icon" aria-hidden="true"></span> Офлайн</span>'); }
-                else { setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span> Немає даних</span>'); currentMonthData = {}; }
-            }
-        }
-        renderTable(); renderMobileCards(); updateStats(); showOverlay(false);
-        animateStatCards();
+        if (!IS_PREVIEW) await loadAllPhotosForMonth();
+        setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Синхронізовано</span>');
         updateTodayBtn();
-        if (currentTab === 'charts') renderCharts();
         if (currentTab === 'garbage') gInitTab();
-        if (currentTab === 'dispatcher') dispInitTab();
+        if (currentTab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
+        if (currentTab === 'tabel') attInitTab();
+        if (currentTab === 'my-tickets') myTicketsInitTab();
         gInitDashboard();
-    }
-
-    let pendingRollback = null;
-
-    function scheduleSave(day = null, snapshot = null) {
-        setSyncStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-content-save-outline journal-inline-icon" aria-hidden="true"></span>Зберігаю...</span>');
-        saveOffline();
-        clearTimeout(saveTimer);
-        if (day !== null && snapshot !== null) pendingRollback = { day, snapshot };
-        saveTimer = setTimeout(saveToCloud, 1000);
-    }
-    async function saveToCloud() {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>'); pendingRollback = null; return; }
-        try {
-            const { error } = await db.from('schedule').upsert({ month_key: `${currentYear}-${currentMonth}`, data: currentMonthData });
-            if (error) throw error;
-            setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Збережено</span>');
-            pendingRollback = null;
-        } catch (err) {
-            console.error('save error:', err);
-            if (pendingRollback) {
-                rollbackDay(pendingRollback.day, pendingRollback.snapshot);
-                pendingRollback = null;
-            } else {
-                setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
-            }
-        }
-    }
-
-    function getCssToken(name, fallback) {
-        const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        return value || fallback;
-    }
-
-    function colorWithAlpha(color, alphaHex) {
-        return /^#[0-9a-f]{6}$/i.test(color) ? `${color}${alphaHex}` : color;
-    }
-
-    function getRoleChartColors() {
-        return {
-            electrician: getCssToken('--md-ref-role-electrician', '#f59e0b'),
-            janitor: getCssToken('--md-ref-role-janitor', '#10b981'),
-            plumber: getCssToken('--md-ref-role-plumber', '#3b82f6'),
-        };
-    }
-
-    function renderCharts() {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const labels = Array.from({length: daysInMonth}, (_, i) => i + 1);
-        const colors = getRoleChartColors();
-
-        const dailyDatasets = roles.map(role => ({
-            label: roleNamesClean[role],
-            data: labels.map(d => currentMonthData[d]?.[role]?.working ? 1 : 0),
-            backgroundColor: colorWithAlpha(colors[role], '99'),
-            borderColor: colors[role],
-            borderWidth: 1,
-            borderRadius: Number.MAX_VALUE,
-            borderSkipped: false,
-            borderJoinStyle: 'round'
-        }));
-
-        if (chartDaily) chartDaily.destroy();
-        chartDaily = new Chart(document.getElementById('chart-daily'), {
-            type: 'bar',
-            data: { labels, datasets: dailyDatasets },
-            options: { responsive: true, plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } } }, scales: { y: { max: 1, ticks: { stepSize: 1 } } } }
-        });
-
-        const totals = roles.map(role => Object.keys(currentMonthData).filter(d => currentMonthData[d]?.[role]?.working).length);
-        if (chartPie) chartPie.destroy();
-        chartPie = new Chart(document.getElementById('chart-pie'), {
-            type: 'doughnut',
-            data: {
-                labels: roles.map(r => roleNamesClean[r]),
-                datasets: [{ data: totals, backgroundColor: roles.map(role => colors[role]), borderWidth: 2, borderRadius: 12, spacing: 4 }]
-            },
-            options: { responsive: true, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
-        });
-
-        const weeks = ['Тиж 1','Тиж 2','Тиж 3','Тиж 4','Тиж 5'];
-        const weeklyDatasets = roles.map(role => ({
-            label: roleNamesClean[role],
-            data: weeks.map((_, wi) => {
-                let count = 0;
-                for (let d = wi*7+1; d <= Math.min((wi+1)*7, daysInMonth); d++) {
-                    if (currentMonthData[d]?.[role]?.working) count++;
-                }
-                return count;
-            }),
-            borderColor: colors[role], backgroundColor: colorWithAlpha(colors[role], '33'),
-            tension: 0.42, fill: true, borderWidth: 2, pointRadius: 4,
-            pointStyle: 'circle', pointBorderWidth: 2, pointHoverRadius: 6,
-            borderCapStyle: 'round', borderJoinStyle: 'round'
-        }));
-
-        if (chartWeekly) chartWeekly.destroy();
-        chartWeekly = new Chart(document.getElementById('chart-weekly'), {
-            type: 'line',
-            data: { labels: weeks, datasets: weeklyDatasets },
-            options: { responsive: true, elements: { line: { borderCapStyle: 'round', borderJoinStyle: 'round' }, point: { pointStyle: 'circle' } }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
-        });
     }
 
     let photosCache = null;
@@ -2076,99 +1816,9 @@
         });
     })();
 
-    const dayGridRoleColors = { electrician: 'role-card-electrician', janitor: 'role-card-janitor', plumber: 'role-card-plumber' };
-    const dayGridAccentColors = { electrician: 'text-amber-600', janitor: 'text-emerald-600', plumber: 'text-blue-600' };
-
-    // Розмітка для одного дня (ролі + завдання + заявки + фото + коментар) — раніше
-    // рендерилась інлайн під заголовком картки в акордеоні, тепер спільна: викликається
-    // і для модалки календарної сітки (openDayDetail).
-    function buildDayBodyHtml(d) {
-        if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
-        let bodyHtml = renderCopyPreviousDayButton(d);
-        roles.forEach(role => {
-            const state = currentMonthData[d][role];
-            const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
-            const tasksTotal = roleTasksConfig[role].length;
-            const tasksDone = roleTasksConfig[role].filter(task => state.tasks?.[task.id]).length;
-            let tasksHtml = roleTasksConfig[role].map(task => {
-                const isChecked = state.tasks?.[task.id];
-                const disabled = !state.working;
-                return `<label class="flex items-center gap-2 text-sm cursor-pointer mt-2 ${disabled?'pointer-events-none opacity-40':''}">
-                    <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
-                        role="checkbox" aria-checked="${isChecked?'true':'false'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?'-1':'0'}"
-                        class="task-check-dot${isChecked?' is-checked':''}">
-                    </span>
-                    <span class="${isChecked?'font-semibold':'text-[var(--text-sub)]'}">${task.label}</span>
-                </label>`;
-            }).join('');
-            const tasksProgress = renderRoleTaskProgress(tasksDone, tasksTotal);
-
-            bodyHtml += `<div class="role-card ${dayGridRoleColors[role]} mb-2">
-                <div class="flex items-center justify-between mb-1">
-                    <div class="journal-role-heading"><span class="text-sm font-bold ${dayGridAccentColors[role]}">${roleNames[role]}</span>${renderRoleWorkStatus(role, state)}</div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
-                        <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md ${toggleColor} shadow-inner"></div>
-                    </label>
-                </div>
-                <div class="${!state.working?'opacity-40 pointer-events-none':''}">
-                    ${tasksProgress}
-                    ${renderRoleDutyActions(d, role, state)}
-                    ${renderRoleEntranceSelector(d, role, state)}
-                    ${renderRoleQuickTemplates(d, role, state)}
-                    ${tasksHtml}
-                    ${renderRoleTicketControl(d, role, state)}
-                    ${renderOtherField(d, role, state, 'm')}
-                    ${state.working ? `<div class="flex gap-2 mt-2 flex-wrap">
-                        <label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 active:bg-emerald-100">
-                            Камера
-                            <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
-                        </label>
-                        <label class="cursor-pointer text-xs text-purple-500 font-semibold flex items-center gap-1 px-2 py-1.5 rounded-lg border border-purple-200 bg-purple-50 active:bg-purple-100">
-                            Галерея
-                            <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
-                        </label>
-                    </div>
-                    <div id="mobile-photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
-                </div>
-            </div>`;
-        });
-
-        bodyHtml += `<div class="mt-2 pt-2 border-t border-[var(--border)]">
-            <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Коментар до дня:</div>
-            <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Опишіть важливі події, інциденти, нотатки про цей день..." class="w-full text-sm p-2.5 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none mt-0.5 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
-        </div>`;
-        return bodyHtml;
-    }
-
-    function renderDayDetailPhotos(d) {
-        roles.forEach(role => {
-            if (currentMonthData[d]?.[role]?.working) {
-                const photos = getPhotosFromCache(d, role);
-                const cont = document.getElementById(`mobile-photos-${d}-${role}`);
-                if (cont && photos.length) renderPhotoContainer(cont, photos, d, role, true);
-            }
-        });
-    }
-
-    function openDayDetail(d) {
-        const modal = document.getElementById('day-detail-modal');
-        const titleEl = document.getElementById('day-detail-title');
-        const bodyEl = document.getElementById('day-detail-body');
-        if (!modal || !titleEl || !bodyEl) return;
-        const dateObj = new Date(currentYear, currentMonth, d);
-        const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-        titleEl.innerHTML = `${String(d).padStart(2,'0')} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
-        bodyEl.innerHTML = buildDayBodyHtml(d);
-        modal.dataset.day = String(d);
-        modal.dataset.context = 'journal';
-        modal.classList.add('open');
-        renderDayDetailPhotos(d);
-    }
-
     function closeDayDetail() {
         document.getElementById('day-detail-modal')?.classList.remove('open');
+        dispEditingTicketId = null;
     }
 
     // Спільний хелпер: якщо модалка деталізації дня зараз відкрита саме для цього
@@ -2180,7 +1830,6 @@
         if (modal.dataset.context !== context || modal.dataset.day !== String(day)) return;
         if (context === 'garbage') gOpenDayDetail(day);
         else if (context === 'dispatcher') dispOpenDayDetail(Number(day));
-        else if (context === 'journal') openDayDetail(Number(day));
     }
 
     // СВАЙП-ЗАКРИТТЯ модалки дня — тягнеш за ручку або заголовок вниз, відпускаєш —
@@ -2240,561 +1889,6 @@
         }
     }
 
-    function journalDayMatches(day) {
-        const row = currentMonthData[day];
-        if (!row) return journalWorkFilter === 'all' && journalEntranceFilter === 'all' && !journalWorkSearch;
-        if (journalWorkFilter === 'today' || journalWorkFilter === 'current_week') {
-            const dayDate = new Date(currentYear, currentMonth, day);
-            const currentDate = new Date();
-            dayDate.setHours(0, 0, 0, 0);
-            currentDate.setHours(0, 0, 0, 0);
-            if (journalWorkFilter === 'today' && dayDate.getTime() !== currentDate.getTime()) return false;
-            if (journalWorkFilter === 'current_week') {
-                const weekStart = new Date(currentDate);
-                weekStart.setDate(currentDate.getDate() - ((currentDate.getDay() + 6) % 7));
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekStart.getDate() + 6);
-                if (dayDate < weekStart || dayDate > weekEnd) return false;
-            }
-        }
-        const workingRoles = roles.filter(role => row[role]?.working);
-        const selectedEntrances = roles.flatMap(role => Array.isArray(row[role]?.locations) ? row[role].locations : []);
-        if (journalEntranceFilter !== 'all' && !selectedEntrances.includes(journalEntranceFilter)) return false;
-        const hasWork = workingRoles.length > 0 || roles.some(role => Number(row[role]?.ticketCount) > 0 || Object.values(row[role]?.tasks || {}).some(Boolean) || String(row[role]?.other || '').trim()) || Boolean(String(row.comment || '').trim());
-        if (journalWorkFilter === 'has_work' && !hasWork) return false;
-        if (journalWorkFilter === 'pending' && !workingRoles.some(role => roleTasksConfig[role].some(task => !row[role]?.tasks?.[task.id]))) return false;
-        if (journalWorkFilter === 'completed' && !workingRoles.some(role => roleTasksConfig[role].length > 0 && roleTasksConfig[role].every(task => row[role]?.tasks?.[task.id]))) return false;
-        if (roles.includes(journalWorkFilter) && !row[journalWorkFilter]?.working) return false;
-        const query = journalWorkSearch.trim().toLocaleLowerCase('uk-UA');
-        if (!query) return true;
-        const taskLabels = roles.flatMap(role => roleTasksConfig[role].filter(task => row[role]?.tasks?.[task.id]).map(task => task.label));
-        const searchableText = [row.comment, ...roles.map(role => row[role]?.other), ...workingRoles.map(role => roleNames[role]), ...selectedEntrances, ...taskLabels].filter(Boolean).join(' ').toLocaleLowerCase('uk-UA');
-        return searchableText.includes(query);
-    }
-
-    function renderJournalWorkResult(visible, total) {
-        const result = document.querySelector('[data-journal-work-result]');
-        const reset = document.querySelector('[data-journal-work-reset]');
-        if (!result) return;
-        const hasFilters = Boolean(journalWorkSearch) || journalWorkFilter !== 'all' || journalEntranceFilter !== 'all';
-        result.textContent = hasFilters ? `Знайдено: ${visible} з ${total}` : 'Показано всі дні';
-        if (reset) reset.hidden = !hasFilters;
-        renderJournalWorkSummary(total);
-    }
-
-    function renderJournalWorkSummary(daysInMonth) {
-        const totals = { done: 0, pending: 0, tickets: 0 };
-        for (let day = 1; day <= daysInMonth; day++) {
-            if (!journalDayMatches(day)) continue;
-            const row = currentMonthData[day];
-            if (!row) continue;
-            roles.forEach(role => {
-                const state = row[role];
-                if (!state?.working) return;
-                if (roles.includes(journalWorkFilter) && role !== journalWorkFilter) return;
-                if (journalEntranceFilter !== 'all' && (!Array.isArray(state.locations) || !state.locations.includes(journalEntranceFilter))) return;
-                const tasks = roleTasksConfig[role] || [];
-                const completed = tasks.filter(task => state.tasks?.[task.id]).length;
-                totals.done += completed;
-                totals.pending += Math.max(0, tasks.length - completed);
-                totals.tickets += Math.max(0, Number.parseInt(state.ticketCount, 10) || 0);
-            });
-        }
-        const values = { '[data-journal-summary-done]': totals.done, '[data-journal-summary-pending]': totals.pending, '[data-journal-summary-tickets]': totals.tickets };
-        Object.entries(values).forEach(([selector, value]) => {
-            const element = document.querySelector(selector);
-            if (element) element.textContent = String(value);
-        });
-    }
-
-    function renderMobileCards() {
-        const container = document.getElementById('mobile-cards');
-        if (!container) return;
-        container.innerHTML = '';
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
-        const leadingBlanks = (firstDow + 6) % 7; // тиждень з понеділка
-
-        const weekdayRow = document.createElement('div');
-        weekdayRow.className = 'month-grid-weekdays';
-        weekdayRow.innerHTML = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map(w => `<span>${w}</span>`).join('');
-        container.appendChild(weekdayRow);
-
-        const grid = document.createElement('div');
-        grid.className = 'month-grid';
-        container.appendChild(grid);
-
-        for (let i = 0; i < leadingBlanks; i++) {
-            const blank = document.createElement('div');
-            blank.className = 'month-grid-cell is-empty';
-            blank.setAttribute('aria-hidden', 'true');
-            grid.appendChild(blank);
-        }
-
-        let visibleDays = 0;
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateObj = new Date(currentYear, currentMonth, d);
-            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
-            const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
-            const pendingDuties = roles.reduce((total, role) => {
-                const state = currentMonthData[d][role];
-                if (!state?.working) return total;
-                return total + roleTasksConfig[role].filter(task => !state.tasks?.[task.id]).length;
-            }, 0);
-            const matchesWorkFilter = journalDayMatches(d);
-            if (matchesWorkFilter) visibleDays++;
-            const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-
-            const cell = document.createElement('button');
-            cell.type = 'button';
-            cell.className = 'month-grid-cell journal-work-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (anyWorking ? ' has-shifts' : '') + (matchesWorkFilter ? '' : ' is-dimmed');
-            cell.setAttribute('aria-label', `${d} ${dowLabel}${anyWorking ? ', є зміни' : ', вихідний'}${pendingDuties ? `, незавершено обовʼязків: ${pendingDuties}` : ''} — відкрити день`);
-            cell.setAttribute('aria-haspopup', 'dialog');
-
-            const dotsHtml = roles.filter(r => currentMonthData[d][r]?.working)
-                .map(r => `<span class="month-grid-dot month-grid-dot-${r}"></span>`).join('');
-
-            const pendingBadge = pendingDuties ? `<span class="journal-grid-pending-badge" aria-hidden="true">${pendingDuties}</span>` : '';
-            cell.innerHTML = `<span class="month-grid-day">${d}</span>${pendingBadge}<span class="month-grid-dots">${dotsHtml}</span>`;
-            cell.addEventListener('click', () => openDayDetail(d));
-            grid.appendChild(cell);
-        }
-        renderJournalWorkResult(visibleDays, daysInMonth);
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('calendar-body'); tbody.innerHTML = '';
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateObj = new Date(currentYear, currentMonth, d);
-            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'short' });
-            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            const isToday  = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            const isFuture = !isToday && new Date(currentYear, currentMonth, d) > new Date(todayYear, todayMonth, todayDay);
-
-            if (!currentMonthData[d]) currentMonthData[d] = { electrician: { working: false, tasks: {}, other: '', ticketCount: 0 }, janitor: { working: false, tasks: {}, other: '', ticketCount: 0 }, plumber: { working: false, tasks: {}, other: '', ticketCount: 0 }, comment: '' };
-            if (!currentMonthData[d].comment) currentMonthData[d].comment = '';
-
-            const anyWorking = roles.some(r => currentMonthData[d][r]?.working);
-            const workingRoles = roles.filter(r => currentMonthData[d][r]?.working);
-            const matchesWorkFilter = journalDayMatches(d);
-            const roleColors = { electrician: 'text-amber-600', janitor: 'text-emerald-600', plumber: 'text-blue-600' };
-            const roleIcons  = { electrician: '', janitor: '', plumber: '' };
-
-            // ── РЯДОК-ЗАГОЛОВОК (завжди видимий) ──
-            const trHead = document.createElement('tr');
-            trHead.style.cursor = 'pointer';
-            trHead.style.display = matchesWorkFilter ? '' : 'none';
-            trHead.className = `select-none transition-colors hover:bg-[var(--table-header)] border-b border-[var(--border)]
-                ${isWeekend && !isToday ? 'bg-red-500/[0.04]' : ''}
-                ${isFuture && !isToday ? 'opacity-55' : ''}`;
-            if (isToday) trHead.setAttribute('data-today', '1');
-
-            // Бейджі активних ролей для рядка-заголовка
-            const rolesBadges = workingRoles.map(r =>
-                `<span class="text-[10px] font-bold ${roleColors[r]} bg-[var(--bg-input)] px-1.5 py-0.5 rounded-full">${roleIcons[r]}</span>`
-            ).join('');
-
-            let statusBadge = '';
-            if (isToday)       statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black">сьогодні</span>';
-            else if (isFuture) statusBadge = '<span class="text-[10px] text-purple-400 bg-purple-50 px-2 py-0.5 rounded-full">попереду</span>';
-            else if (anyWorking) statusBadge = `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${workingRoles.length} на зміні</span>`;
-            else statusBadge = '<span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">вихідний</span>';
-
-            trHead.innerHTML = `
-                <td class="p-3 border-r border-[var(--border)] w-36" colspan="5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-base sm:text-lg ${isWeekend ? 'text-red-600' : ''}">${String(d).padStart(2,'0')} <span class="text-xs sm:text-sm opacity-60 uppercase">${dayName}</span></span>
-                            ${statusBadge}
-                            ${rolesBadges}
-                            ${currentMonthData[d].comment ? '<span class="text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full"></span>' : ''}
-                        </div>
-                        <span class="text-xs text-[var(--text-sub)] transition-transform duration-200" id="dt-arrow-${d}">▼</span>
-                    </div>
-                </td>`;
-
-            trHead.addEventListener('click', () => {
-                const trBody = document.getElementById(`dt-body-${d}`);
-                const arrow  = document.getElementById(`dt-arrow-${d}`);
-                const isOpen = trBody.style.display !== 'none';
-                trBody.style.display = isOpen ? 'none' : 'table-row';
-                arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
-            });
-            tbody.appendChild(trHead);
-
-            // ── РЯДОК-ТІЛО (прихований/відкритий) ──
-            const trBody = document.createElement('tr');
-            trBody.id = `dt-body-${d}`;
-            trBody.style.display = matchesWorkFilter && isToday ? 'table-row' : 'none';
-            if (isToday) setTimeout(() => { const a = document.getElementById(`dt-arrow-${d}`); if(a) a.style.transform='rotate(180deg)'; }, 0);
-
-            trBody.className = `border-b-2 border-[var(--border)] ${isToday ? '' : ''}`;
-            if (isToday) trBody.setAttribute('data-today', '1');
-
-            // Колонки ролей
-            let rolesTd = '';
-            roles.forEach(role => {
-                const state = currentMonthData[d][role];
-                const toggleColor = role === 'electrician' ? 'peer-checked:bg-amber-500' : role === 'janitor' ? 'peer-checked:bg-emerald-500' : 'peer-checked:bg-blue-500';
-                const accentText  = role === 'electrician' ? 'text-amber-600' : role === 'janitor' ? 'text-emerald-600' : 'text-blue-600';
-                let checkBoxesHtml = '';
-                roleTasksConfig[role].forEach(task => {
-                    const isChecked = state.tasks && state.tasks[task.id];
-                    const disabled = !state.working;
-                    checkBoxesHtml += `<label class="flex items-center gap-2 text-sm cursor-pointer select-none mt-1.5 ${disabled?'pointer-events-none opacity-40':''}">
-                        <span data-journal-action="task-toggle" data-day="${d}" data-role="${role}" data-task-id="${task.id}"
-                            role="checkbox" aria-checked="${isChecked?'true':'false'}" aria-label="${escapeAttr(task.label)}" tabindex="${disabled?'-1':'0'}"
-                            class="task-check-dot${isChecked?' is-checked':''}">
-                        </span>
-                        <span class="${isChecked?'font-semibold text-[var(--text-main)]':'text-[var(--text-sub)]'}">${task.label}</span>
-                    </label>`;
-                });
-                const checkBoxesTotal = roleTasksConfig[role].length;
-                const checkBoxesDone = roleTasksConfig[role].filter(task => state.tasks && state.tasks[task.id]).length;
-                const checkBoxesProgress = renderRoleTaskProgress(checkBoxesDone, checkBoxesTotal);
-                let printSummary = [];
-                if (state.working) { roleTasksConfig[role].forEach(task => { if (state.tasks&&state.tasks[task.id]) printSummary.push(task.label.replace(/[^\x00-\x7F]/g,'').trim()); }); if (state.other) printSummary.push(escapeHtml(state.other)); if (!printSummary.length) printSummary.push('Зміна'); } else printSummary.push('—');
-
-                rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top ${!state.working?'opacity-60':''}">
-                    <div class="flex flex-col gap-2">
-                        <div class="flex items-center justify-between bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-2.5 py-1.5 no-print">
-                            ${renderRoleWorkStatus(role, state)}
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer" ${state.working?'checked':''} data-journal-action="shift-toggle" data-day="${d}" data-role="${role}" aria-label="Зміна ${roleNames[role]} за день ${d}">
-                                <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all after:shadow-md ${toggleColor} shadow-inner"></div>
-                            </label>
-                        </div>
-                        <div class="no-print flex flex-col gap-1 pl-1 ${!state.working?'pointer-events-none opacity-40':''}">
-                            ${checkBoxesProgress}
-                            ${renderRoleDutyActions(d, role, state)}
-                            ${renderRoleEntranceSelector(d, role, state)}
-                            ${renderRoleQuickTemplates(d, role, state)}
-                            ${checkBoxesHtml}
-                            ${renderRoleTicketControl(d, role, state)}
-                            ${renderOtherField(d, role, state, 'd')}
-                            ${state.working ? `<label class="cursor-pointer text-xs text-emerald-500 font-semibold flex items-center gap-1 px-2 py-1 mt-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition w-fit">
-                                <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Фото
-                                <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload" data-day="${d}" data-role="${role}" aria-label="Додати фото ${roleNames[role]} за день ${d}">
-                            </label>
-                            <div id="photos-${d}-${role}" class="flex flex-wrap gap-1 mt-1"></div>` : ''}
-                        </div>
-                        <div class="hidden print:block text-xs">
-                            <div class="font-bold ${state.working?accentText:'text-gray-400'} mb-1">${state.working?'✓ Зміна':'Вихідний'}</div>
-                            <div class="text-gray-600 italic text-[11px]">${printSummary.join(', ')}</div>
-                        </div>
-                    </div>
-                </td>`;
-            });
-
-            rolesTd += `<td class="p-3 border-l border-[var(--border)] align-top no-print">
-                ${renderCopyPreviousDayButton(d, true)}
-                <textarea rows="4" data-journal-action="day-comment" data-day="${d}" aria-label="Коментар до дня ${d}" placeholder="Нотатки, події, інциденти..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none focus:ring-1 focus:ring-purple-300 resize-y leading-relaxed">${escapeHtml(currentMonthData[d].comment||'')}</textarea>
-            </td>`;
-
-            trBody.innerHTML = `<td class="border-r border-[var(--border)]"></td>` + rolesTd;
-            tbody.appendChild(trBody);
-        }
-
-        // Фото після рендеру
-        for (let d = 1; d <= daysInMonth; d++) {
-            roles.forEach(role => {
-                if (currentMonthData[d]?.[role]?.working) {
-                    const photos = getPhotosFromCache(d, role);
-                    const container = document.getElementById(`photos-${d}-${role}`);
-                    if (container && photos.length) renderPhotoContainer(container, photos, d, role);
-                }
-            });
-        }
-    }
-
-    function snapshotDay(day) { return JSON.parse(JSON.stringify(currentMonthData[day])); }
-    function journalDayHasData(day) {
-        const row = currentMonthData[day];
-        if (!row) return false;
-        if (String(row.comment || '').trim()) return true;
-        return roles.some(role => {
-            const state = row[role];
-            return Boolean(state?.working) || Number(state?.ticketCount) > 0 || Boolean(String(state?.other || '').trim()) || Object.values(state?.tasks || {}).some(Boolean) || (Array.isArray(state?.locations) && state.locations.length > 0);
-        });
-    }
-
-    function renderCopyPreviousDayButton(day, compact = false) {
-        if (day <= 1) return '';
-        return `<button type="button" class="journal-copy-day md-state-layer${compact ? ' is-compact' : ''}" data-journal-action="day-copy-prev" data-day="${day}" aria-label="Скопіювати всю зміну з попереднього дня"><span class="mdi mdi-content-copy" aria-hidden="true"></span>${compact ? 'З учора' : 'Повторити весь день з учора'}</button>`;
-    }
-
-    function copyPreviousJournalDay(day) {
-        if (day <= 1 || !currentMonthData[day - 1]) { showToast('Немає даних за попередній день'); return; }
-        if (!journalDayHasData(day - 1)) { showToast('Попередній день порожній'); return; }
-        if (journalDayHasData(day)) { showToast('Цей день уже має записи'); return; }
-        const snap = snapshotDay(day);
-        currentMonthData[day] = JSON.parse(JSON.stringify(currentMonthData[day - 1]));
-        renderTable(); renderMobileCards(); updateStats();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-        showToast('Весь день скопійовано з учора');
-    }
-
-    function rollbackDay(day, snapshot) {
-        currentMonthData[day] = snapshot;
-        saveOffline();
-        renderTable(); renderMobileCards(); updateStats();
-        setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-undo-variant journal-inline-icon" aria-hidden="true"></span>Відкат — помилка збереження</span>');
-    }
-
-    function toggleShift(day, role, event) {
-        const snap = snapshotDay(day);
-        currentMonthData[day][role].working = !currentMonthData[day][role].working;
-        renderTable(); renderMobileCards(); updateStats(); animateStatCards();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-    }
-    function toggleTask(day, role, taskId, event) {
-        const snap = snapshotDay(day);
-        if (!currentMonthData[day][role].tasks) currentMonthData[day][role].tasks = {};
-        currentMonthData[day][role].tasks[taskId] = !currentMonthData[day][role].tasks[taskId];
-        const allTasks = roleTasksConfig[role];
-
-        renderTable(); renderMobileCards(); updateStats();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-    }
-
-    function renderRoleWorkStatus(role, state) {
-        if (!state.working) return '<span class="journal-role-status is-off">Вихідний</span>';
-        const tasks = roleTasksConfig[role] || [];
-        const done = tasks.filter(task => state.tasks?.[task.id]).length;
-        if (tasks.length && done === tasks.length) return '<span class="journal-role-status is-done">Виконано</span>';
-        const hasProgress = done > 0 || Number(state.ticketCount) > 0 || Boolean(String(state.other || '').trim());
-        return `<span class="journal-role-status ${hasProgress ? 'is-progress' : 'is-active'}">${hasProgress ? 'У процесі' : 'На зміні'}</span>`;
-    }
-
-    function renderRoleTaskProgress(done, total) {
-        if (!total) return '';
-        const percent = Math.round((done / total) * 100);
-        return `<div class="journal-duty-progress${done === total ? ' is-complete' : ''}">
-            <div class="journal-duty-progress-head"><span>Обовʼязки</span><strong>${done} з ${total}</strong></div>
-            <div class="journal-duty-progress-track" role="progressbar" aria-label="Виконано обовʼязків" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><span style="width:${percent}%"></span></div>
-        </div>`;
-    }
-
-    function renderRoleDutyActions(day, role, state) {
-        if (!state.working) return '';
-        const tasks = roleTasksConfig[role] || [];
-        const allDone = tasks.length > 0 && tasks.every(task => state.tasks?.[task.id]);
-        return `<div class="journal-duty-actions no-print">
-            <button type="button" class="journal-duty-chip md-state-layer${allDone ? ' is-reset' : ''}" data-journal-action="duties-toggle-all" data-day="${day}" data-role="${role}" aria-label="${allDone ? 'Очистити всі відмітки' : 'Позначити всі обовʼязки виконаними'}"><span class="mdi ${allDone ? 'mdi-backup-restore' : 'mdi-check-all'}" aria-hidden="true"></span>${allDone ? 'Очистити' : 'Позначити всі'}</button>
-            <button type="button" class="journal-duty-chip md-state-layer" data-journal-action="duties-copy-prev" data-day="${day}" data-role="${role}" aria-label="Скопіювати роботи з попереднього дня"><span class="mdi mdi-content-copy" aria-hidden="true"></span>З учора</button>
-        </div>`;
-    }
-
-    function renderRoleEntranceSelector(day, role, state) {
-        if (!state.working) return '';
-        const selected = Array.isArray(state.locations) ? state.locations : [];
-        const buttons = buildingEntrances.map(location => `<button type="button" class="journal-entrance-chip md-state-layer${selected.includes(location) ? ' is-active' : ''}" data-journal-action="entrance-toggle" data-day="${day}" data-role="${role}" data-location="${escapeAttr(location)}" aria-pressed="${selected.includes(location)}">${escapeHtml(location.replace('Підʼїзд ', ''))}</button>`).join('');
-        return `<div class="journal-role-locations"><span>Підʼїзди</span><div>${buttons}</div></div>`;
-    }
-
-    function toggleRoleEntrance(day, role, location) {
-        const state = currentMonthData[day]?.[role];
-        if (!state?.working || !buildingEntrances.includes(location)) return;
-        const snap = snapshotDay(day);
-        const selected = new Set(Array.isArray(state.locations) ? state.locations.filter(item => buildingEntrances.includes(item)) : []);
-        selected.has(location) ? selected.delete(location) : selected.add(location);
-        state.locations = [...selected];
-        renderTable(); renderMobileCards();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-    }
-
-    function renderRoleQuickTemplates(day, role, state) {
-        if (!state.working) return '';
-        const templates = roleQuickWorkTemplates[role] || [];
-        const buttons = templates.map(text => `<button type="button" class="journal-role-template md-state-layer" data-journal-action="role-template-add" data-day="${day}" data-role="${role}" data-template="${escapeAttr(text)}">${escapeHtml(text)}</button>`).join('');
-        return `<details class="journal-role-templates"><summary>Швидко додати роботу</summary><div>${buttons}</div></details>`;
-    }
-
-    function addRoleWorkTemplate(day, role, text) {
-        const state = currentMonthData[day]?.[role];
-        if (!state?.working || !(roleQuickWorkTemplates[role] || []).includes(text)) return;
-        const existingLines = String(state.other || '').split('\n').map(line => line.trim()).filter(Boolean);
-        if (existingLines.includes(text)) { showToast('Ця робота вже додана'); return; }
-        const snap = snapshotDay(day);
-        state.other = [...existingLines, text].join('\n');
-        renderTable(); renderMobileCards();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-        showToast('Роботу додано');
-    }
-
-    function toggleAllRoleDuties(day, role) {
-        const state = currentMonthData[day]?.[role];
-        const tasks = roleTasksConfig[role];
-        if (!state?.working || !tasks) return;
-        const snap = snapshotDay(day);
-        const nextValue = !tasks.every(task => state.tasks?.[task.id]);
-        state.tasks = Object.fromEntries(tasks.map(task => [task.id, nextValue]));
-        renderTable(); renderMobileCards(); updateStats();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-    }
-
-    function copyPreviousRoleDuties(day, role) {
-        const state = currentMonthData[day]?.[role];
-        const previous = day > 1 ? currentMonthData[day - 1]?.[role] : null;
-        if (!state?.working) { showToast('Спочатку увімкніть зміну'); return; }
-        if (!previous || (!Object.values(previous.tasks || {}).some(Boolean) && !previous.other && !previous.locations?.length)) { showToast('Учора немає записаних робіт'); return; }
-        const snap = snapshotDay(day);
-        state.tasks = { ...(previous.tasks || {}) };
-        state.other = previous.other || '';
-        state.locations = Array.isArray(previous.locations) ? [...previous.locations] : [];
-        renderTable(); renderMobileCards(); updateStats();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-        showToast('Роботи скопійовано з учора');
-    }
-
-    function renderRoleTicketControl(d, role, state) {
-        const disabled = !state.working;
-        return `<div class="journal-ticket-row">
-            <span class="journal-ticket-label">Заявок:</span>
-            <div class="journal-ticket-control${disabled ? ' is-disabled' : ''}">
-                <button type="button" class="journal-ticket-step md-state-layer" ${disabled ? 'disabled' : ''} data-journal-action="ticket-adjust" data-day="${d}" data-role="${role}" data-ticket-delta="-1" aria-label="Відняти одну заявку ${roleNames[role]}">−1</button>
-                <input type="number" min="0" max="999" inputmode="numeric" value="${escapeAttr(String(state.ticketCount||''))}" ${disabled ? 'disabled' : ''} data-journal-action="ticket-count" data-day="${d}" data-role="${role}" aria-label="Кількість заявок ${roleNames[role]} за день ${d}" placeholder="0" class="journal-ticket-input">
-                <button type="button" class="journal-ticket-step md-state-layer" ${disabled ? 'disabled' : ''} data-journal-action="ticket-adjust" data-day="${d}" data-role="${role}" data-ticket-delta="1" aria-label="Додати одну заявку ${roleNames[role]}">+1</button>
-            </div>
-        </div>`;
-    }
-
-    function adjustRoleTicketCount(day, role, delta) {
-        const state = currentMonthData[day]?.[role];
-        if (!state?.working || (delta !== -1 && delta !== 1)) return;
-        const snap = snapshotDay(day);
-        const currentValue = Number.parseInt(state.ticketCount, 10);
-        state.ticketCount = Math.max(0, Math.min(999, (Number.isFinite(currentValue) ? currentValue : 0) + delta));
-        renderTable(); renderMobileCards(); updateStats();
-        refreshOpenDayDetail('journal', day);
-        scheduleSave(day, snap);
-    }
-
-    function updateTicketCount(day, role, val) {
-        currentMonthData[day][role].ticketCount = Math.max(0, Math.min(999, parseInt(val, 10) || 0));
-        scheduleSave();
-    }
-    function updateOtherTask(day, role, text) { currentMonthData[day][role].other = text; scheduleSave(); }
-
-    function renderOtherField(d, role, state, prefix) {
-        const val = state.other || '';
-        const escaped = escapeHtml(val);
-        const needsToggle = val.length > 60 || (val.match(/\n/g) || []).length >= 2;
-        const id = `other-${prefix}-${d}-${role}`;
-        const extraClass = prefix === 'd' ? 'focus:ring-1 focus:ring-emerald-300 mt-1' : 'mt-1.5';
-        return `<textarea id="${id}" rows="3" ${!state.working?'disabled':''} data-journal-action="other-task" data-day="${d}" data-role="${role}" aria-label="Інші роботи ${roleNames[role]} за день ${d}" placeholder="Інші роботи..." class="w-full text-xs p-2 rounded-lg border bg-[var(--bg-card)] border-[var(--border)] outline-none resize-none leading-relaxed ${extraClass}">${escaped}</textarea>
-            ${needsToggle ? `<button type="button" data-journal-action="other-expand" data-other-target="${id}" class="no-print text-[10px] font-semibold text-emerald-600 hover:underline mt-0.5">Показати все ▾</button>` : ''}`;
-    }
-
-    function toggleOtherExpand(id, btn) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const expanded = el.classList.toggle('expanded');
-        if (expanded) {
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
-            btn.textContent = 'Згорнути ▴';
-        } else {
-            el.style.height = '';
-            el.rows = 3;
-            btn.textContent = 'Показати все ▾';
-        }
-    }
-    function updateComment(day, text) { if (!currentMonthData[day]) return; currentMonthData[day].comment = text; scheduleSave(); }
-
-    function updateStats() {
-        let counts = { electrician: 0, janitor: 0, plumber: 0 };
-        const duties = { electrician: 0, janitor: 0, plumber: 0 };
-        const tickets = { electrician: 0, janitor: 0, plumber: 0 };
-        Object.keys(currentMonthData).forEach(day => {
-            roles.forEach(role => {
-                const state = currentMonthData[day][role];
-                if (state?.working) counts[role]++;
-                duties[role] += roleTasksConfig[role].filter(task => state?.tasks?.[task.id]).length;
-                tickets[role] += Math.max(0, Number.parseInt(state?.ticketCount, 10) || 0);
-            });
-        });
-        roles.forEach(role => {
-            animateNumber(document.getElementById(`stats-${role}`), counts[role], { suffix: ' змін' });
-            animateNumber(document.getElementById(`stats-${role}-duties`), duties[role]);
-            animateNumber(document.getElementById(`stats-${role}-tickets`), tickets[role]);
-        });
-    }
-
-    function exportExcel() {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const monthName = monthNames[currentMonth];
-        const roleHeaders = roles.flatMap(role => [`${roleNames[role]}: статус`, `${roleNames[role]}: роботи`, `${roleNames[role]}: підʼїзди`, `${roleNames[role]}: заявки`]);
-        const rows = [['Дата', 'День', ...roleHeaders, 'Коментар']];
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateObj = new Date(currentYear, currentMonth, d);
-            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-            const row = [`${String(d).padStart(2,'0')}.${String(currentMonth+1).padStart(2,'0')}.${currentYear}`, dayName];
-            roles.forEach(role => {
-                const state = currentMonthData[d]?.[role];
-                if (state?.working) {
-                    const tasks = roleTasksConfig[role].filter(t => state.tasks?.[t.id]).map(t => t.label.replace(/[^\x00-\x7F\u0400-\u04FF\s]/g,'').trim());
-                    if (state.other) tasks.push(state.other);
-                    const allDone = roleTasksConfig[role].length > 0 && roleTasksConfig[role].every(task => state.tasks?.[task.id]);
-                    const hasProgress = tasks.length > 0 || Number(state.ticketCount) > 0;
-                    const status = allDone ? 'Виконано' : hasProgress ? 'У процесі' : 'На зміні';
-                    const locations = Array.isArray(state.locations) ? state.locations.filter(location => buildingEntrances.includes(location)).join(', ') : '';
-                    const ticketCount = Math.max(0, Number.parseInt(state.ticketCount, 10) || 0);
-                    row.push(status, tasks.join(', '), locations, ticketCount);
-                } else {
-                    row.push('Вихідний', '', '', 0);
-                }
-            });
-            row.push(currentMonthData[d]?.comment || '');
-            rows.push(row);
-        }
-
-        rows.push([]);
-        rows.push(['ПІДСУМОК МІСЯЦЯ', `${monthName} ${currentYear}`]);
-        const summary = Object.fromEntries(roles.map(role => [role, { shifts: 0, duties: 0, tickets: 0 }]));
-        Object.values(currentMonthData).forEach(day => {
-            roles.forEach(role => {
-                const state = day?.[role];
-                if (state?.working) summary[role].shifts++;
-                summary[role].duties += roleTasksConfig[role].filter(task => state?.tasks?.[task.id]).length;
-                summary[role].tickets += Math.max(0, Number.parseInt(state?.ticketCount, 10) || 0);
-            });
-        });
-        roles.forEach(role => rows.push([roleNames[role], `${summary[role].shifts} змін`, `${summary[role].duties} обовʼязків`, `${summary[role].tickets} заявок`]));
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!cols'] = [{ wch: 14 }, { wch: 14 }, ...roles.flatMap(() => [{ wch: 15 }, { wch: 34 }, { wch: 24 }, { wch: 12 }]), { wch: 40 }];
-        XLSX.utils.book_append_sheet(wb, ws, `${monthName} ${currentYear}`);
-        XLSX.writeFile(wb, `ОСББ_${monthName}_${currentYear}.xlsx`);
-    }
-
-    async function clearCurrentMonth() {
-        showPinModal('Скидання журналу', 'PIN для очищення місяця', async (pin) => {
-            showOverlay(true, 'Видаляю...'); currentMonthData = {};
-            if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>'); renderTable(); updateStats(); showOverlay(false); return; }
-            try {
-                const ok = await db.rpc('reset_month', { table_name: 'schedule', p_month_key: `${currentYear}-${currentMonth}`, attempt: pin });
-                if (ok) setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Місяць скинуто</span>');
-                else setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span> Помилка</span>');
-            }
-            catch (err) { setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span> Помилка</span>'); }
-            renderTable(); updateStats(); showOverlay(false);
-        }, true);
-    }
-
     function changeTheme(themeName) {
         document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
         localStorage.setItem('selected_theme', themeName);
@@ -2808,13 +1902,6 @@
     function toggleTheme() {
         changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
     }
-    function showOverlay(show, text = '') {
-        const overlay = document.getElementById('loading-overlay');
-        overlay.classList.toggle('is-visible', show);
-        overlay.setAttribute('aria-hidden', String(!show));
-        if (show) document.getElementById('loading-text').innerText = text;
-    }
-
 
     function bindOsbbStaticControls() {
         document.querySelectorAll('[data-lock-digit]').forEach((button) => {
@@ -2871,14 +1958,22 @@
         document.getElementById('shift-editor')?.addEventListener('keydown', shiftTrapEditorFocus);
 
         const actionHandlers = {
-            'export-excel': exportExcel,
-            'print-page': () => window.print(),
-            'clear-current-month': clearCurrentMonth,
             'garbage-clear-month': gClearMonth,
             'dispatcher-clear-month': dispClearMonth,
             'go-today': goToday,
             'refresh-data': refreshData,
+            'elevator-add': () => {
+                const dayEl = document.getElementById('elevator-new-day');
+                const textEl = document.getElementById('elevator-new-text');
+                elevatorAdd(dayEl?.value, textEl?.value || '');
+                if (textEl) textEl.value = '';
+            },
         };
+        document.getElementById('elevator-list')?.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-action="elevator-delete"]');
+            if (!button) return;
+            elevatorDelete(button.dataset.elevatorId);
+        });
         document.querySelectorAll('[data-action]').forEach((button) => {
             const handler = actionHandlers[button.dataset.action];
             if (handler) button.addEventListener('click', handler);
@@ -2920,80 +2015,15 @@
                 );
             }
         });
-    }
-
-    function bindJournalEntryActions() {
-        ['mobile-cards', 'calendar-body', 'day-detail-body'].forEach((id) => {
-            const container = document.getElementById(id);
-            if (!container) return;
-            container.addEventListener('click', (event) => {
-                const trigger = event.target.closest('[data-journal-action="task-toggle"],[data-journal-action="other-expand"],[data-journal-action="duties-toggle-all"],[data-journal-action="duties-copy-prev"],[data-journal-action="ticket-adjust"],[data-journal-action="entrance-toggle"],[data-journal-action="day-copy-prev"],[data-journal-action="role-template-add"]');
-                if (!trigger) return;
-                if (trigger.dataset.journalAction === 'task-toggle') {
-                    event.preventDefault();
-                    toggleTask(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.taskId, event);
-                }
-                if (trigger.dataset.journalAction === 'other-expand') {
-                    event.preventDefault();
-                    toggleOtherExpand(trigger.dataset.otherTarget, trigger);
-                }
-                if (trigger.dataset.journalAction === 'duties-toggle-all') {
-                    event.preventDefault();
-                    toggleAllRoleDuties(Number(trigger.dataset.day), trigger.dataset.role);
-                }
-                if (trigger.dataset.journalAction === 'duties-copy-prev') {
-                    event.preventDefault();
-                    copyPreviousRoleDuties(Number(trigger.dataset.day), trigger.dataset.role);
-                }
-                if (trigger.dataset.journalAction === 'ticket-adjust') {
-                    event.preventDefault();
-                    adjustRoleTicketCount(Number(trigger.dataset.day), trigger.dataset.role, Number(trigger.dataset.ticketDelta));
-                }
-                if (trigger.dataset.journalAction === 'entrance-toggle') {
-                    event.preventDefault();
-                    toggleRoleEntrance(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.location || '');
-                }
-                if (trigger.dataset.journalAction === 'day-copy-prev') {
-                    event.preventDefault();
-                    copyPreviousJournalDay(Number(trigger.dataset.day));
-                }
-                if (trigger.dataset.journalAction === 'role-template-add') {
-                    event.preventDefault();
-                    addRoleWorkTemplate(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.template || '');
-                }
-            });
-            container.addEventListener('keydown', (event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                const trigger = event.target.closest('[data-journal-action="task-toggle"]');
-                if (!trigger) return;
-                event.preventDefault();
-                const rect = trigger.getBoundingClientRect();
-                toggleTask(Number(trigger.dataset.day), trigger.dataset.role, trigger.dataset.taskId, { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 });
-            });
-            container.addEventListener('change', (event) => {
-                const field = event.target.closest('[data-journal-action]');
-                if (!field) return;
-                const day = Number(field.dataset.day);
-                const role = field.dataset.role;
-                if (field.dataset.journalAction === 'shift-toggle') toggleShift(day, role, event);
-                if (field.dataset.journalAction === 'photo-upload') {
-                    Array.from(field.files || []).forEach((file) => uploadPhoto(day, role, file));
-                    field.value = '';
-                }
-                if (field.dataset.journalAction === 'photo-upload-mobile') {
-                    Array.from(field.files || []).forEach((file) => uploadPhotoMobile(day, role, file));
-                    field.value = '';
-                }
-            });
-            container.addEventListener('input', (event) => {
-                const field = event.target.closest('[data-journal-action]');
-                if (!field) return;
-                const day = Number(field.dataset.day);
-                const role = field.dataset.role;
-                if (field.dataset.journalAction === 'ticket-count') updateTicketCount(day, role, field.value);
-                if (field.dataset.journalAction === 'other-task') updateOtherTask(day, role, field.value);
-                if (field.dataset.journalAction === 'day-comment') updateComment(day, field.value);
-            });
+        // Завантаження фото з day-detail-modal (диспетчер/сміття рендерять свої
+        // поля <input type="file" data-journal-action="photo-upload-mobile"> всередині неї).
+        document.getElementById('day-detail-body')?.addEventListener('change', (event) => {
+            const field = event.target.closest('[data-journal-action="photo-upload-mobile"]');
+            if (!field) return;
+            const day = Number(field.dataset.day);
+            const role = field.dataset.role;
+            Array.from(field.files || []).forEach((file) => uploadPhotoMobile(day, role, file));
+            field.value = '';
         });
     }
 
@@ -3063,6 +2093,23 @@
                     event.preventDefault();
                     dispDeleteTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
                 }
+                if (action.dataset.dispAction === 'ticket-edit-toggle') {
+                    event.preventDefault();
+                    dispToggleTicketEdit(Number(action.dataset.dispDay), action.dataset.ticketId);
+                }
+                if (action.dataset.dispAction === 'ticket-edit-cancel') {
+                    event.preventDefault();
+                    dispEditingTicketId = null;
+                    dispOpenDayDetail(Number(action.dataset.dispDay));
+                }
+                if (action.dataset.dispAction === 'ticket-edit-save') {
+                    event.preventDefault();
+                    const ticketId = action.dataset.ticketId;
+                    const textEl = document.getElementById(`ticket-edit-text-${ticketId}`);
+                    const roleEl = document.getElementById(`ticket-edit-role-${ticketId}`);
+                    const priorityEl = document.getElementById(`ticket-edit-priority-${ticketId}`);
+                    dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
+                }
             });
         });
     }
@@ -3089,56 +2136,6 @@
             dispRender();
         });
     });
-    document.querySelector('[data-journal-work-search]')?.addEventListener('input', (event) => {
-        journalWorkSearch = event.target.value || '';
-        renderTable();
-        renderMobileCards();
-    });
-    function resetJournalWorkFilters() {
-        journalWorkSearch = '';
-        journalWorkFilter = 'all';
-        journalEntranceFilter = 'all';
-        const search = document.querySelector('[data-journal-work-search]');
-        if (search) search.value = '';
-        document.querySelectorAll('[data-journal-work-filter]').forEach(item => item.classList.toggle('is-active', item.dataset.journalWorkFilter === 'all'));
-        document.querySelectorAll('[data-journal-entrance-filter]').forEach(item => item.classList.toggle('is-active', item.dataset.journalEntranceFilter === 'all'));
-        renderTable();
-        renderMobileCards();
-    }
-    document.querySelector('[data-journal-work-reset]')?.addEventListener('click', resetJournalWorkFilters);
-    document.querySelectorAll('[data-journal-work-filter]').forEach((button) => {
-        button.addEventListener('click', () => {
-            journalWorkFilter = button.dataset.journalWorkFilter || 'all';
-            document.querySelectorAll('[data-journal-work-filter]').forEach(item => item.classList.toggle('is-active', item === button));
-            renderTable();
-            renderMobileCards();
-        });
-    });
-    document.querySelectorAll('[data-journal-entrance-filter]').forEach((button) => {
-        button.addEventListener('click', () => {
-            journalEntranceFilter = button.dataset.journalEntranceFilter || 'all';
-            document.querySelectorAll('[data-journal-entrance-filter]').forEach(item => item.classList.toggle('is-active', item === button));
-            renderTable();
-            renderMobileCards();
-        });
-    });
-    document.addEventListener('keydown', (event) => {
-        if (currentTab !== 'journal') return;
-        const search = document.querySelector('[data-journal-work-search]');
-        if (!search) return;
-        const target = event.target;
-        const isEditing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
-        if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditing) {
-            event.preventDefault();
-            search.focus();
-            search.select();
-        }
-        if (event.key === 'Escape' && document.activeElement === search && (search.value || journalWorkFilter !== 'all' || journalEntranceFilter !== 'all')) {
-            event.preventDefault();
-            resetJournalWorkFilters();
-            search.focus();
-        }
-    });
     document.addEventListener('keydown', (event) => {
         const search = document.querySelector('[data-disp-search]');
         const section = document.getElementById('section-dispatcher');
@@ -3159,16 +2156,13 @@
 
     bindOsbbStaticControls();
     bindOsbbPhotoActions();
-    bindJournalEntryActions();
     bindGarbageEntryActions();
     bindDispatcherEntryActions();
     bindDayDetailSwipe();
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     changeTheme(savedTheme);
-    // Встановити mob-active для початкового табу (журнал)
-    const initMobTab = document.getElementById('tab-journal-m');
-    if (initMobTab) initMobTab.classList.add('mob-active');
+    setTab(currentTab);
     initCalendar();
     initRealtime();
 
@@ -3850,6 +2844,33 @@
         dispOpenDayDetail(Number(d));
     }
 
+    // Id заявки, яка зараз редагується в модалці дня (тільки одна одразу,
+    // локальний UI-стан, не зберігається в даних). Скидається при перевідкритті дня.
+    let dispEditingTicketId = null;
+
+    function dispToggleTicketEdit(d, ticketId) {
+        if (!isDispatcherSession()) return;
+        dispEditingTicketId = dispEditingTicketId === ticketId ? null : ticketId;
+        dispOpenDayDetail(Number(d));
+    }
+
+    // Редагувати текст/роль/пріоритет уже створеної заявки — тільки Диспетчер/Адмін.
+    function dispSaveTicketEdit(d, ticketId, text, role, priority) {
+        if (!isDispatcherSession()) return;
+        const trimmed = (text || '').trim();
+        if (!trimmed) { showToast('Опишіть заявку'); return; }
+        const row = dispGetDay(d);
+        const ticket = row.ticketsList.find(t => t.id === ticketId);
+        if (!ticket) return;
+        ticket.text = trimmed;
+        ticket.role = WORKER_ROLES.includes(role) ? role : ticket.role;
+        ticket.priority = ticketPriorities[priority] ? priority : ticket.priority;
+        dispEditingTicketId = null;
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+        showToast('Заявку оновлено');
+    }
+
     // Закрити заявку — для будь-кого (диспетчер або сам виконавець), з коментарем.
     function dispCloseTicket(d, ticketId, comment) {
         const row = dispGetDay(d);
@@ -3994,6 +3015,23 @@
         const items = sorted.map(t => {
             const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
             const isDone = t.status === 'done';
+            if (canManage && dispEditingTicketId === t.id) {
+                return `<li class="ticket-item priority-${t.priority}">
+                    <div class="ticket-add-form">
+                        <input type="text" id="ticket-edit-text-${t.id}" class="dispatcher-location-input" value="${escapeAttr(t.text)}" aria-label="Текст заявки">
+                        <select id="ticket-edit-role-${t.id}" class="journal-select" aria-label="Виконавець заявки">
+                            ${roles.map(r => `<option value="${r}" ${r === t.role ? 'selected' : ''}>${roleNames[r]}</option>`).join('')}
+                        </select>
+                        <select id="ticket-edit-priority-${t.id}" class="journal-select" aria-label="Пріоритет заявки">
+                            ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === t.priority ? 'selected' : ''}>${v.label}</option>`).join('')}
+                        </select>
+                        <div class="my-ticket-close-actions">
+                            <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-edit-save" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Зберегти</button>
+                            <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="ticket-edit-cancel" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}">Скасувати</button>
+                        </div>
+                    </div>
+                </li>`;
+            }
             return `<li class="ticket-item priority-${t.priority} ${isDone ? 'is-done' : ''}">
                 <div class="ticket-item-head">
                     <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
@@ -4002,6 +3040,7 @@
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
                 ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
+                ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="mdi mdi-pencil-outline" aria-hidden="true"></span></button>` : ''}
                 ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку">✕</button>` : ''}
             </li>`;
         }).join('');
@@ -4060,6 +3099,12 @@
         const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
         if (ticketRoleSel) enhanceSelect(ticketRoleSel);
         if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
+        if (dispEditingTicketId) {
+            const editRoleSel = document.getElementById(`ticket-edit-role-${dispEditingTicketId}`);
+            const editPrioritySel = document.getElementById(`ticket-edit-priority-${dispEditingTicketId}`);
+            if (editRoleSel) enhanceSelect(editRoleSel);
+            if (editPrioritySel) enhanceSelect(editPrioritySel);
+        }
         modal.dataset.day = String(d);
         modal.dataset.context = 'dispatcher';
         modal.classList.add('open');
@@ -4170,6 +3215,112 @@
     }
 
     // ==========================================
+    // ЛІФТЕР: короткий журнал відміток (декілька разів на місяць), живе
+    // всередині вкладки "Диспетчер". Один рядок на місяць у elevator_visits,
+    // data — масив {id, day, text, createdAt, createdBy}.
+    // ==========================================
+    let elevatorData = [];
+
+    function elevatorKey() { return `${currentYear}-${currentMonth}`; }
+    function elevatorOfflineKey() { return `elevator_${currentYear}_${currentMonth}`; }
+
+    function elevatorSaveOffline() {
+        try { localStorage.setItem(elevatorOfflineKey(), JSON.stringify(elevatorData)); } catch(e) {}
+    }
+    function elevatorLoadOffline() {
+        try { return JSON.parse(localStorage.getItem(elevatorOfflineKey()) || 'null'); } catch { return null; }
+    }
+
+    function elevatorSetStatus(type, text) {
+        const el = document.getElementById('elevator-sync-status');
+        if (!el) return;
+        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
+        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
+        el.innerHTML = text;
+    }
+
+    async function elevatorInitTab() {
+        elevatorSetStatus('loading', '<span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span>');
+        const offline = elevatorLoadOffline();
+        if (offline) { elevatorData = offline; elevatorRender(); }
+        if (IS_PREVIEW) {
+            elevatorData = offline || [];
+            elevatorSetStatus('ok', '<span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>');
+            elevatorRender();
+            return;
+        }
+        try {
+            const res = await db.from('elevator_visits').select('data').eq('month_key', elevatorKey()).single();
+            const { data, error } = res;
+            if (error && error.code !== 'PGRST116') throw error;
+            elevatorData = Array.isArray(data?.data) ? data.data : (offline || []);
+            elevatorSaveOffline();
+            elevatorSetStatus('ok', '<span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+        } catch(err) {
+            console.error('elevator load error:', err);
+            elevatorSetStatus('error', '<span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+            elevatorData = offline || [];
+        }
+        elevatorRender();
+    }
+
+    async function elevatorSaveCloud() {
+        if (IS_PREVIEW) return;
+        try {
+            const { error } = await db.from('elevator_visits').upsert({ month_key: elevatorKey(), data: elevatorData });
+            if (error) throw error;
+            elevatorSetStatus('ok', '<span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+        } catch(err) {
+            console.error('elevator save error:', err);
+            elevatorSetStatus('error', '<span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+        }
+    }
+
+    function elevatorAdd(day, text) {
+        const trimmed = (text || '').trim();
+        if (!trimmed) { showToast('Опишіть, що зробив ліфтер'); return; }
+        elevatorData.push({
+            id: `e${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
+            day: Number(day) || 1,
+            text: trimmed,
+            createdAt: new Date().toISOString(),
+            createdBy: staffSession?.name || dispWorkerName
+        });
+        elevatorSaveOffline();
+        elevatorSaveCloud();
+        elevatorRender();
+        showToast('Запис додано');
+    }
+
+    function elevatorDelete(id) {
+        elevatorData = elevatorData.filter(e => e.id !== id);
+        elevatorSaveOffline();
+        elevatorSaveCloud();
+        elevatorRender();
+    }
+
+    function elevatorRender() {
+        const daySelect = document.getElementById('elevator-new-day');
+        const list = document.getElementById('elevator-list');
+        if (!daySelect || !list) return;
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const currentValue = daySelect.value;
+        daySelect.innerHTML = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+            .map(d => `<option value="${d}" ${d === todayDay && currentMonth === todayMonth ? 'selected' : ''}>${d}</option>`).join('');
+        if (currentValue && Number(currentValue) <= daysInMonth) daySelect.value = currentValue;
+        if (daySelect.dataset.enhanced) refreshEnhancedSelect(daySelect); else enhanceSelect(daySelect);
+
+        const sorted = [...elevatorData].sort((a, b) => a.day - b.day);
+        list.innerHTML = sorted.length ? sorted.map(entry => `
+            <div class="elevator-entry">
+                <span class="elevator-entry-day">${String(entry.day).padStart(2, '0')}</span>
+                <span class="elevator-entry-text">${escapeHtml(entry.text)}</span>
+                <button type="button" class="ticket-delete-btn md-state-layer" data-action="elevator-delete" data-elevator-id="${escapeAttr(entry.id)}" aria-label="Видалити запис">✕</button>
+            </div>
+        `).join('') : '<div class="staff-login-loading">Записів цього місяця ще немає</div>';
+    }
+
+    // ==========================================
     // ОНОВИТИ ДАНІ (примусовий refresh)
     // ==========================================
     async function refreshData() {
@@ -4177,8 +3328,6 @@
         if (btn) { btn.style.animation = 'spin 0.6s linear'; btn.disabled = true; }
         gLoaded = false;
         await initCalendar();
-        if (currentTab === 'garbage') await gInitTab();
-        if (currentTab === 'dispatcher') await dispInitTab();
         if (btn) { btn.style.animation = ''; btn.disabled = false; }
         showToast('Дані оновлено');
     }
