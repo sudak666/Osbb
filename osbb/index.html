@@ -430,6 +430,15 @@
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="unresolved">Невирішені</button>
                     <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="done">Виконані</button>
                 </div>
+                <label class="dispatcher-worker-filter">
+                    <span>Виконавець</span>
+                    <select class="journal-select" data-disp-worker-filter aria-label="Фільтр заявок за виконавцем">
+                        <option value="all">Усі працівники</option>
+                        <option value="plumber">Сантехнік</option>
+                        <option value="janitor">Двірник</option>
+                        <option value="electrician">Електрик</option>
+                    </select>
+                </label>
                 <div class="dispatcher-result-row" aria-live="polite">
                     <span id="disp-result-summary" class="dispatcher-result-summary">Показано всі дні</span>
                     <button type="button" class="dispatcher-reset-btn md-state-layer" data-disp-reset hidden>Скинути</button>
@@ -2134,7 +2143,8 @@
                 }
                 if (action.dataset.dispAction === 'ticket-delete') {
                     event.preventDefault();
-                    dispDeleteTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                    const confirmed = window.confirm('Видалити цю заявку? Цю дію неможливо скасувати.');
+                    if (confirmed) dispDeleteTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
                 }
                 if (action.dataset.dispAction === 'ticket-edit-toggle') {
                     event.preventDefault();
@@ -2165,13 +2175,20 @@
     function dispResetSearchAndFilters() {
         dispSearchQuery = '';
         dispFilter = 'all';
+        dispWorkerFilter = 'all';
         const search = document.querySelector('[data-disp-search]');
         if (search) search.value = '';
+        const workerFilter = document.querySelector('[data-disp-worker-filter]');
+        if (workerFilter) workerFilter.value = 'all';
         document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
         dispRender();
     }
 
     document.querySelector('[data-disp-reset]')?.addEventListener('click', dispResetSearchAndFilters);
+    document.querySelector('[data-disp-worker-filter]')?.addEventListener('change', (event) => {
+        dispWorkerFilter = WORKER_ROLES.includes(event.target.value) ? event.target.value : 'all';
+        dispRender();
+    });
     document.querySelectorAll('[data-disp-filter]').forEach((button) => {
         button.addEventListener('click', () => {
             dispFilter = button.dataset.dispFilter || 'all';
@@ -2190,7 +2207,7 @@
             search.focus();
             search.select();
         }
-        if (event.key === 'Escape' && document.activeElement === search && (search.value || dispFilter !== 'all')) {
+        if (event.key === 'Escape' && document.activeElement === search && (search.value || dispFilter !== 'all' || dispWorkerFilter !== 'all')) {
             event.preventDefault();
             dispResetSearchAndFilters();
             search.focus();
@@ -2763,6 +2780,7 @@
     let dispSaveTimer = null;
     let dispSearchQuery = '';
     let dispFilter = 'all';
+    let dispWorkerFilter = 'all';
     const dispWorkerName = 'Диспетчер';
 
     // Заявки з пріоритетом (нова структурована модель, ticketsList).
@@ -3053,7 +3071,10 @@
     // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
     // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
     function dispBuildTicketsBlockHtml(d, row) {
-        const sorted = [...row.ticketsList].sort(ticketSortComparator);
+        const visibleTickets = dispWorkerFilter === 'all'
+            ? row.ticketsList
+            : row.ticketsList.filter(ticket => ticket.role === dispWorkerFilter);
+        const sorted = [...visibleTickets].sort(ticketSortComparator);
         const canManage = isDispatcherSession();
         const items = sorted.map(t => {
             const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
@@ -3201,7 +3222,8 @@
             const searchText = row.ticketsList.map(t => t.text).join(' ').toLowerCase();
             const matchesSearch = !query || searchText.includes(query);
             const matchesFilter = dispMatchesFilter(row, hasEvent, d);
-            const isDimmed = !matchesSearch || !matchesFilter;
+            const matchesWorker = dispWorkerFilter === 'all' || row.ticketsList.some(ticket => ticket.role === dispWorkerFilter);
+            const isDimmed = !matchesSearch || !matchesFilter || !matchesWorker;
             if (!isDimmed) visibleMatches++;
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
             const statusKey = dispDayStatusKey(row);
@@ -3226,8 +3248,9 @@
         const reset = document.querySelector('[data-disp-reset]');
         const hasSearch = Boolean(dispSearchQuery.trim());
         const hasFilter = dispFilter !== 'all';
-        if (summary) summary.textContent = (hasSearch || hasFilter) ? `Знайдено: ${visibleMatches} з ${daysInMonth}` : 'Показано всі дні';
-        if (reset) reset.hidden = !(hasSearch || hasFilter);
+        const hasWorkerFilter = dispWorkerFilter !== 'all';
+        if (summary) summary.textContent = (hasSearch || hasFilter || hasWorkerFilter) ? `Знайдено: ${visibleMatches} з ${daysInMonth}` : 'Показано всі дні';
+        if (reset) reset.hidden = !(hasSearch || hasFilter || hasWorkerFilter);
     }
 
     function dispRenderStats() {
