@@ -736,6 +736,28 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-time-input:hover { border-color:var(--md-sys-color-on-surface-variant,var(--border)); }
 .att-time-input:focus-visible { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:0 0 0 1px var(--md-sys-color-primary,var(--accent)); outline:none; }
 .att-readonly { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
+.att-mobile-list { display:none; }
+@media (max-width:640px) {
+  .att-table-scroll { display:none; }
+  .att-mobile-list { display:flex; flex-direction:column; gap:10px; }
+  .att-mobile-day { overflow:hidden; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,24px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
+  .att-mobile-day.is-weekend { border-color:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 28%,var(--border)); }
+  .att-mobile-day > header { display:flex; align-items:baseline; gap:8px; padding:12px 14px; background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
+  .att-mobile-day > header strong { font-size:20px; color:var(--md-sys-color-on-surface,var(--text-main)); }
+  .att-mobile-day > header span { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; text-transform:capitalize; }
+  .att-mobile-roles { display:flex; flex-direction:column; }
+  .att-mobile-role { display:grid; grid-template-columns:minmax(92px,1fr) minmax(0,1fr) minmax(0,1fr); align-items:end; gap:8px; padding:12px 14px; border-top:1px solid var(--md-sys-color-outline-variant,var(--border)); }
+  .att-mobile-role:first-child { border-top:0; }
+  .att-mobile-role-name { display:flex; align-items:center; align-self:center; gap:7px; min-width:0; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:12px; font-weight:850; }
+  .att-mobile-role-dot { width:9px; height:9px; flex:none; border-radius:50%; background:var(--md-sys-color-primary,var(--accent)); }
+  .att-mobile-role.role-electrician .att-mobile-role-dot { background:var(--md-ref-role-electrician,#f59e0b); }
+  .att-mobile-role.role-janitor .att-mobile-role-dot { background:var(--md-ref-role-janitor,#10b981); }
+  .att-mobile-role.role-plumber .att-mobile-role-dot { background:var(--md-ref-role-plumber,#3b82f6); }
+  .att-mobile-role label { display:flex; flex-direction:column; gap:5px; margin:0; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:10px; font-weight:750; }
+  .att-mobile-role .att-time-input { width:100%; min-width:0; min-height:48px; padding:10px 6px; border-radius:var(--md-sys-shape-corner-medium,12px); text-align:center; font-size:14px; }
+  .att-mobile-role.is-readonly { grid-template-columns:minmax(0,1fr) auto; align-items:center; }
+  .att-mobile-role.is-readonly strong { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:13px; font-variant-numeric:tabular-nums; }
+}
 
 /* ===== ЗАЯВКИ З ПРІОРИТЕТОМ (MD3 outlined card style: контур замість тіні) ===== */
 .dispatcher-tickets-block { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--bg-card)); border:1px solid var(--md-sys-color-outline-variant,var(--border)); }

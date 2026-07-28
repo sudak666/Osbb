@@ -346,14 +346,15 @@
                     <thead>
                         <tr>
                             <th class="att-col-date">День</th>
-                            <th class="is-electrician"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</th>
-                            <th class="is-janitor"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</th>
-                            <th class="is-plumber"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</th>
+                            <th class="is-electrician" data-att-role-header="electrician"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</th>
+                            <th class="is-janitor" data-att-role-header="janitor"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</th>
+                            <th class="is-plumber" data-att-role-header="plumber"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</th>
                         </tr>
                     </thead>
                     <tbody id="att-body"></tbody>
                 </table>
             </div>
+            <div id="att-mobile-list" class="att-mobile-list" aria-label="Табель за днями"></div>
         </div>
     </section>
 
@@ -954,6 +955,7 @@
         if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
+        if (currentTab === 'tabel') attRender();
     }
 
     // ==========================================
@@ -1526,6 +1528,10 @@
         return minutes / 60;
     }
 
+    function attVisibleRoles() {
+        return isWorkerSession() ? [staffSession.role] : roles;
+    }
+
     async function attSaveDay(d, role, checkIn, checkOut) {
         if (!isDispatcherSession()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
         attData[d] = attData[d] || {};
@@ -1564,17 +1570,18 @@
     function attRenderStats() {
         const grid = document.getElementById('att-stats-grid');
         if (!grid) return;
+        const visibleRoles = attVisibleRoles();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const totals = {};
-        roles.forEach(role => { totals[role] = { days: 0, hours: 0 }; });
+        visibleRoles.forEach(role => { totals[role] = { days: 0, hours: 0 }; });
         for (let d = 1; d <= daysInMonth; d++) {
-            roles.forEach(role => {
+            visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 const hours = attHoursForCell(cell);
                 if (hours > 0) { totals[role].days++; totals[role].hours += hours; }
             });
         }
-        grid.innerHTML = roles.map(role => `
+        grid.innerHTML = visibleRoles.map(role => `
             <article class="att-stat-card role-${role}">
                 <strong>${roleNames[role]}</strong>
                 <span>${totals[role].days} дн. · ${totals[role].hours.toFixed(1)} год.</span>
@@ -1584,32 +1591,60 @@
 
     function attRender() {
         const body = document.getElementById('att-body');
-        if (!body) return;
+        const mobileList = document.getElementById('att-mobile-list');
+        if (!body || !mobileList) return;
         const editable = isDispatcherSession();
-        document.getElementById('att-view-note')?.classList.toggle('hidden', editable);
+        const visibleRoles = attVisibleRoles();
+        const viewNote = document.getElementById('att-view-note');
+        if (viewNote) {
+            viewNote.classList.toggle('hidden', editable);
+            viewNote.textContent = isWorkerSession()
+                ? `Ви бачите лише власний табель: ${roleNames[staffSession.role]}.`
+                : 'Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.';
+        }
+        document.querySelectorAll('[data-att-role-header]').forEach(header => {
+            header.classList.toggle('hidden', !visibleRoles.includes(header.dataset.attRoleHeader));
+        });
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         let html = '';
+        let mobileHtml = '';
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             html += `<tr class="${isWeekend ? 'is-weekend' : ''}"><td class="att-col-date">${d}</td>`;
-            roles.forEach(role => {
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
+            let mobileRolesHtml = '';
+            visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 if (editable) {
                     html += `<td class="is-${role}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
                     </td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role}">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
+                        <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
+                    </div>`;
                 } else {
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
                     html += `<td class="is-${role} att-readonly">${text}</td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <strong>${text}</strong>
+                    </div>`;
                 }
             });
             html += '</tr>';
+            mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''}">
+                <header><strong>${d}</strong><span>${dayName}</span></header>
+                <div class="att-mobile-roles">${mobileRolesHtml}</div>
+            </article>`;
         }
         body.innerHTML = html;
+        mobileList.innerHTML = mobileHtml;
         if (editable) {
-            body.querySelectorAll('[data-att-day]').forEach(input => {
+            document.querySelectorAll('#att-body [data-att-day], #att-mobile-list [data-att-day]').forEach(input => {
                 input.addEventListener('change', () => {
                     const d = input.dataset.attDay, role = input.dataset.attRole;
                     const rowCell = attGetCell(d, role);
@@ -2111,7 +2146,7 @@
     function bindGarbageEntryActions() {
         // att-body (Табель) теж використовує масковані ГГ:ХХ поля (data-time-mask) —
         // додано сюди лише заради спільного input/blur форматування, не g-специфічної логіки.
-        ['g-days-list', 'day-detail-body', 'att-body'].forEach((id) => {
+        ['g-days-list', 'day-detail-body', 'att-body', 'att-mobile-list'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('input', (event) => {
@@ -2327,6 +2362,7 @@
 
         document.addEventListener('touchstart', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') { moving = false; return; }
             sx = e.touches[0].clientX;
             sy = e.touches[0].clientY;
             moving = false;
@@ -2334,6 +2370,7 @@
 
         document.addEventListener('touchmove', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
             const dx = e.touches[0].clientX - sx;
             const dy = e.touches[0].clientY - sy;
             if (!moving && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) moving = true;
@@ -2341,6 +2378,7 @@
 
         document.addEventListener('touchend', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
             if (!moving) return;
             const dx = e.changedTouches[0].clientX - sx;
             const dy = e.changedTouches[0].clientY - sy;
