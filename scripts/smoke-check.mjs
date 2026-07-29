@@ -1145,11 +1145,14 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'function gOpenDayDetail(day) {',
     'function dispOpenDayDetail(d) {',
     "function refreshOpenDayDetail(context, day) {",
+    '.month-grid-cell { min-height:82px;',
+    '.month-grid-cell { align-items:center; min-height:62px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
+  const usesSquareCells = text.includes('.month-grid-cell { aspect-ratio: 1;');
+  if (missing.length || usesSquareCells) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; square cells: ${usesSquareCells})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
