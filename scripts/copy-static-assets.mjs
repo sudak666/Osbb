@@ -9,6 +9,7 @@ const files = [
   'icon-512.png',
   'shared/ui.css',
   'shared/material-tokens.css',
+  'shared/material-symbols-ready.js',
   'shared/enhance-select.js',
   'osbb/manifest.json',
   'osbb/sw.js',
