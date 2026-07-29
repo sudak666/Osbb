@@ -660,6 +660,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .dispatcher-search-wrap { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border-radius:var(--md-sys-shape-corner-extra-large, 28px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
 .dispatcher-search-input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:14px; font-weight:500; }
 .dispatcher-search-input::placeholder { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); opacity:.78; }
+.dispatcher-worker-filter { display:grid; grid-template-columns:auto minmax(180px,280px); align-items:center; gap:10px; margin:0; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:800; }
+.dispatcher-worker-filter .journal-select { width:100%; }
 .dispatcher-filter-chips, .dispatcher-template-row, .dispatcher-location-row, .dispatcher-status-row, .dispatcher-result-row { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
 .dispatcher-filter-chip, .dispatcher-template-chip, .dispatcher-location-chip, .dispatcher-status-chip, .dispatcher-copy-btn, .dispatcher-time-btn, .dispatcher-reset-btn { position:relative; overflow:hidden; min-height:40px; border-radius:var(--md-sys-shape-corner-full,999px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container,var(--bg-card)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); padding:7px 12px; font-size:12px; line-height:1.25; font-weight:700; transition:background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast), transform var(--motion-fast); }
 .dispatcher-filter-chip.is-active { border-color:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 42%,transparent); background:color-mix(in srgb,var(--md-ref-role-dispatcher,#8b5cf6) 16%,var(--md-sys-color-surface,var(--bg-card))); color:var(--md-ref-role-dispatcher,#8b5cf6); }
@@ -702,6 +704,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
     .dispatcher-status-chip, .dispatcher-location-chip, .dispatcher-template-chip, .dispatcher-copy-btn, .dispatcher-time-btn { width:100%; justify-content:center; text-align:center; }
     .dispatcher-entry-actions { flex-direction:column; }
     .dispatcher-result-row { flex-direction:column; align-items:stretch; }
+    .dispatcher-worker-filter { grid-template-columns:1fr; }
     .dispatcher-reset-btn { width:100%; }
 }
 
@@ -821,6 +824,87 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 @media (max-width: 520px) {
     .elevator-add-form { grid-template-columns:1fr; }
     .elevator-add-form .dispatcher-time-btn { grid-column:auto; width:100%; justify-content:center; }
+}
+
+/* ===== MATERIAL DESIGN 3 — уніфікований компонентний шар ===== */
+.material-symbols-rounded {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+  font-family:'Material Symbols Rounded';
+  font-weight:normal;
+  font-style:normal;
+  font-size:24px;
+  line-height:1;
+  letter-spacing:normal;
+  text-transform:none;
+  white-space:nowrap;
+  word-wrap:normal;
+  direction:ltr;
+  -webkit-font-feature-settings:'liga';
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:'liga';
+  font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+}
+.material-symbols-rounded.is-filled { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+.material-symbols-rounded.is-spinning { animation:material-symbol-spin 1s linear infinite; }
+@keyframes material-symbol-spin { to { transform:rotate(1turn); } }
+
+body { font-size:var(--md-sys-typescale-body-large-size); line-height:var(--md-sys-typescale-body-large-line-height); }
+button,input,select,textarea { font:inherit; }
+button { font-size:var(--md-sys-typescale-label-large-size); line-height:var(--md-sys-typescale-label-large-line-height); font-weight:var(--md-sys-typescale-label-weight); letter-spacing:var(--md-sys-typescale-label-large-tracking); }
+
+/* Outlined text fields: neutral surface, 1dp outline and 2dp primary focus. */
+input:not([type='checkbox']):not([type='radio']),select,textarea {
+  border-color:var(--md-sys-color-outline);
+  border-radius:var(--md-sys-shape-corner-extra-small);
+  background-color:var(--md-sys-color-surface-container-highest);
+  color:var(--md-sys-color-on-surface);
+  box-shadow:none;
+}
+input:not([type='checkbox']):not([type='radio']):focus-visible,select:focus-visible,textarea:focus-visible {
+  border-color:var(--md-sys-color-primary);
+  outline:2px solid var(--md-sys-color-primary);
+  outline-offset:-2px;
+  box-shadow:none;
+}
+input::placeholder,textarea::placeholder { color:var(--md-sys-color-on-surface-variant); opacity:1; }
+select { background-image:none; }
+
+/* M3 cards use neutral surfaces; meaning stays in labels/icons rather than card outlines. */
+.ticket-item,.my-ticket-card,.att-stat-card,.elevator-entry {
+  border-color:var(--md-sys-color-outline-variant);
+  background:var(--md-sys-color-surface-container-low);
+  box-shadow:none;
+}
+.ticket-item.priority-HIGH,.my-ticket-card.priority-HIGH,
+.ticket-item.priority-MEDIUM,.my-ticket-card.priority-MEDIUM,
+.ticket-item.priority-LOW,.my-ticket-card.priority-LOW { border-color:var(--md-sys-color-outline-variant); background:var(--md-sys-color-surface-container-low); }
+.ticket-item.is-done,.my-ticket-card.is-done { background:var(--md-sys-color-surface-container); }
+
+/* Compact visual icon button with the required 48dp interaction target. */
+.ticket-delete-btn,.ticket-edit-btn,.journal-icon-btn {
+  min-width:48px;
+  min-height:48px;
+  width:48px;
+  height:48px;
+  border-radius:var(--md-sys-shape-corner-full);
+}
+.ticket-edit-btn { right:64px; }
+.ticket-item:has(.ticket-edit-btn) { padding-right:120px; }
+
+/* Interactive chips/buttons use M3 40dp containers and 48dp on touch screens. */
+.journal-action-btn,.journal-tonal-btn,.journal-photo-action,.journal-copy-day,
+.journal-duty-chip,.journal-work-filter,.journal-entrance-filter,.journal-work-reset,
+.journal-role-template,.journal-entrance-chip,.dispatcher-filter-chip,.dispatcher-template-chip,
+.dispatcher-location-chip,.dispatcher-status-chip,.dispatcher-copy-btn,.dispatcher-time-btn,
+.dispatcher-reset-btn,.dispatcher-counter-step {
+  min-height:40px;
+}
+@media (pointer:coarse) {
+  button,.journal-photo-action,[role='button'],.custom-select-option { min-height:48px; }
+  .round-checkbox { width:24px; height:24px; }
 }
 
 /* ===== MATERIAL DESIGN 3 — уніфікований компонентний шар ===== */
