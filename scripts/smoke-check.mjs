@@ -3237,6 +3237,7 @@ ${sharedSelectText}`;
     'class="att-calendar-weekdays"',
     'calendar.innerHTML = calendarHtml;',
     '#att-calendar [data-att-day]',
+    "'att-body', 'att-calendar', 'att-mobile-list'",
     'const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;',
     "${isToday ? 'is-today' : ''}",
     'aria-current="date"',

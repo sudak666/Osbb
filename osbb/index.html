@@ -2175,7 +2175,7 @@
     function bindGarbageEntryActions() {
         // att-body (Табель) теж використовує масковані ГГ:ХХ поля (data-time-mask) —
         // додано сюди лише заради спільного input/blur форматування, не g-специфічної логіки.
-        ['g-days-list', 'day-detail-body', 'att-body', 'att-mobile-list'].forEach((id) => {
+        ['g-days-list', 'day-detail-body', 'att-body', 'att-calendar', 'att-mobile-list'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('input', (event) => {
