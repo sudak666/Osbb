@@ -417,9 +417,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-cell:focus-visible { outline: 2px solid var(--md-sys-color-primary, var(--accent)); outline-offset: 2px; }
 .month-grid-cell.is-empty { visibility: hidden; pointer-events: none; cursor: default; }
 .month-grid-cell.is-weekend .month-grid-day { color: var(--md-sys-color-error,#ef4444); }
-.month-grid-cell.is-today { border: 2px solid var(--md-sys-color-primary, var(--accent)); box-shadow: 0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary, var(--accent)) 18%,transparent); }
+.month-grid-cell.is-today { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:none; }
 .month-grid-cell.has-shifts { background: color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 7%,transparent); }
-.month-grid-day { font-size: 30px; font-weight:700; line-height: 1; }
+.month-grid-day { font-size:18px; font-weight:700; line-height:1; }
 .month-grid-day, .stat-card [id^="stats-"], .stat-card .text-2xl, .stat-card .text-3xl { font-variant-numeric: tabular-nums; }
 /* Медіа-запит навмисно ПІСЛЯ базових .month-grid-cell/.month-grid-day правил вище —
    інакше при однаковій специфічності (простий однокласовий селектор і там, і там)
@@ -429,7 +429,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 @media (max-width: 640px) {
     .mobile-day-card { padding-bottom: 40px; padding-left: 4px; padding-right: 4px; }
     .month-grid-weekdays, .month-grid { gap: 3px; }
-    .month-grid-day { font-size: 18px; }
+    .month-grid-day { font-size:14px; }
 }
 /* Сміття/Диспетчер: календарна сітка сидить одразу під .journal-list-head (панель зі
    статусом синхронізації і кнопкою "Скинути"), яка має свій нижній бордер — без відступу
@@ -603,10 +603,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .shift-weekdays span { padding:2px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); text-align:center; font-size:11px; font-weight:700; }
 .shift-day { position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; min-height:82px; padding:10px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--surface-2)); color:var(--md-sys-color-on-surface,var(--text-main)); text-align:left; cursor:pointer; }
 .shift-day:hover { background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
-.shift-day.is-today { border:2px solid var(--md-sys-color-primary,var(--accent)); }
+.shift-day.is-today { border-color:var(--md-sys-color-primary,var(--accent)); }
 .shift-day.is-auto::after { content:''; position:absolute; top:7px; right:7px; width:5px; height:5px; border-radius:50%; background:var(--md-sys-color-outline); }
-.month-grid-cell.is-today,.shift-day.is-today { background:color-mix(in srgb,var(--md-sys-color-primary-container) 55%,var(--md-sys-color-surface-container)); }
-.month-grid-cell.is-today .month-grid-day,.shift-day.is-today .shift-day-number { display:grid; place-items:center; min-width:28px; height:28px; padding-inline:6px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary); color:var(--md-sys-color-on-primary); }
+.month-grid-cell.is-today,.shift-day.is-today { border-width:1px; background:color-mix(in srgb,var(--md-sys-color-primary-container) 38%,var(--md-sys-color-surface-container)); box-shadow:none; }
+.month-grid-cell.is-today .month-grid-day,.shift-day.is-today .shift-day-number { display:grid; place-items:center; min-width:32px; height:32px; padding-inline:7px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary); color:var(--md-sys-color-on-primary); font-size:16px; }
 .shift-day-number { font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; }
 .shift-day-indicators { display:flex; align-items:center; gap:5px; min-height:12px; }
 .shift-dot { display:inline-block; width:10px; height:10px; border-radius:50%; }
@@ -739,7 +739,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-calendar-spacer { min-height:1px; }
 .att-calendar-day { min-height:150px; overflow:hidden; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
 .att-calendar-day.is-weekend { background:var(--md-sys-color-surface-container,var(--bg-input)); }
-.att-calendar-day.is-today,.att-mobile-day.is-today { border:2px solid var(--md-sys-color-primary,var(--accent)); background:color-mix(in srgb,var(--md-sys-color-primary-container) 45%,var(--md-sys-color-surface-container-low)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
+.att-calendar-day.is-today,.att-mobile-day.is-today { border-color:var(--md-sys-color-primary,var(--accent)); background:color-mix(in srgb,var(--md-sys-color-primary-container) 38%,var(--md-sys-color-surface-container-low)); box-shadow:none; }
 .att-calendar-day > header { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--md-sys-color-outline-variant,var(--border)); }
 .att-calendar-day > header strong { display:grid; place-items:center; width:28px; height:28px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); font-size:13px; }
 .att-calendar-day.is-today > header strong,.att-mobile-day.is-today > header strong { background:var(--md-sys-color-primary); color:var(--md-sys-color-on-primary); }
