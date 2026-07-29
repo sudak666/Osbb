@@ -1420,12 +1420,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'id="statCats" class="stats-list-stack"',
     'class="stats-filter-grid"',
     'id="valueFilterSummary" class="stats-filter-summary"',
-    'class="card price-assessment-panel"',
-    'id="priceSummary" class="price-assessment-summary"',
-    'class="price-assessment-actions"',
     '.stats-panel{padding:18px 22px;',
     '.stats-filter-grid{display:grid;',
-    '.price-assessment-panel{padding:18px 22px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const statLowCount = (text.match(/id="statLow"/g) || []).length;
@@ -1554,56 +1550,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Internet price lookup results should render with reusable result-row classes,
-// while keeping links sanitized and apply actions data-driven.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price lookup results use class-based rows';
-  const required = [
-    '.price-results-state{padding:18px;',
-    '.price-result-card{padding:10px 0;',
-    '.price-result-main{flex:1;',
-    '.price-result-link{color:var(--brand);',
-    '.price-result-apply{margin-top:6px;}',
-    'class="price-results-state is-loading"',
-    'class="price-result-card"',
-    'class="price-result-link" href="${safeLink}" target="_blank" rel="noopener noreferrer"',
-    'class="btn btn-primary btn-sm price-result-apply" data-price-result-action="apply"',
-    'class="price-results-state is-error"',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
-// Price lookup modal should use the same class-based shell as manual price
-// instead of embedding its grid/results/actions layout inline.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price lookup modal uses class-based shell';
-  const required = [
-    'class="modal price-lookup-modal"',
-    'class="price-lookup-title"',
-    'class="price-results-panel"',
-    '.price-lookup-modal{max-width:560px;}',
-    '.price-search-row{display:grid;',
-    '.price-results-panel{min-height:80px;',
-    '.price-modal-actions{display:flex;',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
 // Manual price modal should not open with accidental blue text selection; it
 // clears stale selections and focuses the price input without selecting modal text.
@@ -2146,7 +2093,6 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'function bindItemActionDelegation',
     'data-item-action="quick"',
     'data-item-action="history"',
-    'data-item-action="price-lookup"',
     'data-item-action="delete"',
   ];
   const hasForbidden = forbidden.some(needle => body.includes(needle));
@@ -2235,7 +2181,6 @@ ${sharedSelectText}`;
     'onclick="searchInGoogle()',
     'onclick="resetBarcodeScanner()',
     'onclick="searchManualBarcode()',
-    'onclick="fetchItemPrice()',
     'onclick="saveManualPrice()',
     'onclick="deleteLightboxPhoto',
     'onclick="event.stopPropagation()',
@@ -2276,7 +2221,6 @@ ${sharedSelectText}`;
     "openModal('qModal')",
     "openModal('photoModal')",
     "openModal('delPinModal')",
-    "openModal('priceModal')",
   ];
   const forbidden = [
     "document.getElementById('qModal').classList.add('open')",
@@ -2325,71 +2269,8 @@ ${sharedSelectText}`;
   }
 }
 
-// Price result actions can contain merchant/source/link text with apostrophes, so
-// they must not be serialized into inline JS argument lists.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price result apply buttons avoid inline JS arguments';
-  if (text.includes('onclick="applyFoundPrice') || !text.includes('function bindPriceResultActions') || !text.includes('data-price-result-action="apply"')) {
-    failed += 1;
-    console.error(`not ok - ${label}`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
-// Price search links come from an Edge Function response. Only http(s) URLs
-// should be rendered into href/data-url values.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price result links are URL-sanitized';
-  const required = [
-    'function safeExternalUrl',
-    'const safeLink=safeExternalUrl(r.link);',
-    'href="${safeLink}"',
-    'data-url="${safeLink}"',
-    "url.protocol!=='http:'&&url.protocol!=='https:'",
-  ];
-  const forbidden = [
-    'href="${escapeHtml(r.link)}"',
-    'data-url="${escapeHtml(String(r.link||',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  const hasForbidden = forbidden.some(needle => text.includes(needle));
-  if (missing.length || hasForbidden) {
-    failed += 1;
-    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
-// On mobile, the price lookup modal can produce long result lists. Keep it
-// scrollable and keep the close action sticky, while using solid light cards for
-// cleaner contrast in the item list.
-{
-  const text = readSkladCombined();
-  const label = 'sklad mobile price modal is scrollable and closeable';
-  const required = [
-    '#priceModal .modal{display:flex',
-    '#priceResults{max-height:52dvh',
-    '.price-modal-actions{position:sticky',
-    'class="price-search-row"',
-    'class="price-modal-actions"',
-    '.theme-light .m-card{background:var(--md-sys-color-surface-container-low,#fff)',
-    '.theme-light .m-card .btn-ghost',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
 // Photo URLs are stored in Supabase/user-controlled records. Renderers should
 // pass them through the same http(s)-only URL sanitizer before writing src/data
@@ -2857,8 +2738,7 @@ ${sharedSelectText}`;
   }
 }
 
-// Повторні завантаження приходів, історії та пошуку цін не повинні повертати
-// текстову заглушку — усі три сценарії використовують M3 skeleton loaders.
+// Повторні завантаження приходів та історії використовують M3 skeleton loaders.
 {
   const text = readSkladCombined();
   const label = 'sklad async views use reusable Material 3 skeleton loaders';
@@ -2867,7 +2747,6 @@ ${sharedSelectText}`;
     'function skeletonStack(rows=3)',
     'tb.innerHTML=skeletonRows(7,3)',
     'mb.innerHTML=skeletonStack(3)',
-    'aria-label="Пошук цін"',
     "document.getElementById('histList').innerHTML=skeletonStack(3)",
     '.skeleton-card{display:grid;',
   ];

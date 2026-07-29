@@ -202,7 +202,6 @@ async function checkPin(attempt){
         <summary aria-label="Більше дій" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
         <div class="item-more-menu" role="menu">
           <button type="button" role="menuitem" data-sklad-action="chart"><span class="ms" aria-hidden="true">bar_chart</span> Графік</button>
-          <button type="button" role="menuitem" data-sklad-action="price-refresh"><span class="ms" aria-hidden="true">sell</span> Оцінка цін</button>
           <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Надходження</button>
           <button type="button" role="menuitem" data-sklad-action="theme"><span class="ms" id="themeToggleIcon" aria-hidden="true">dark_mode</span> Тема</button>
         </div>
@@ -479,16 +478,6 @@ async function checkPin(attempt){
         <div><label>Ціна</label><select class="inp" id="valuePriceFilter" data-stats-filter><option value="all">Усі</option><option value="priced">З ціною</option><option value="unpriced">Без ціни</option></select></div>
       </div>
       <div id="valueFilterSummary" class="stats-filter-summary">Показано баланс без внутрішнього використання.</div>
-    </div>
-    <div class="card price-assessment-panel">
-      <div>
-        <div class="stats-panel-title"><span class="ms" aria-hidden="true">sell</span> Інтернет-оцінка цін</div>
-        <div id="priceSummary" class="price-assessment-summary">Ціни не оновлювались</div>
-      </div>
-      <div class="price-assessment-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="price-refresh"><span class="ms" aria-hidden="true">travel_explore</span> Знайти ціни</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="manual-price"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</button>
-      </div>
     </div>
     <div class="stats-grid">
       <div class="card stats-list-card"><div class="stats-panel-title is-warning"><span class="ms" aria-hidden="true">sell</span>Товари без ціни</div><div id="statUnpriced"></div></div>
@@ -773,20 +762,6 @@ async function checkPin(attempt){
 </div>
 
 <!-- CHART MODAL -->
-<div class="modal-bg" id="priceModal" data-modal-backdrop="priceModal">
-  <div class="modal price-lookup-modal" role="dialog" aria-modal="true" tabindex="-1">
-    <h3 class="price-lookup-title"><span class="ms" aria-hidden="true">travel_explore</span> Підтягнути ціни з інтернету</h3>
-    <div class="price-search-row">
-      <select class="inp" id="priceItemSel" data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару на складі..."><option value="">— Оберіть товар —</option></select>
-      <button type="button" class="btn btn-primary" data-sklad-action="price-fetch"><span class="ms" aria-hidden="true">search</span> Знайти</button>
-    </div>
-    <div id="priceResults" class="price-results-panel">Оберіть товар і натисніть “Знайти”.</div>
-    <div class="price-modal-actions">
-      <button type="button" class="btn btn-ghost" data-modal-close="priceModal">Закрити</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-bg" id="manualPriceModal" data-modal-backdrop="manualPriceModal">
   <div class="modal manual-price-modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 class="manual-price-title"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</h3>
@@ -825,7 +800,6 @@ const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Майно та матеріали'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
-const PRICE_LOOKUP_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/fetch-item-prices';
 const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
 function money(v){
   const n=Number(v);
@@ -1470,7 +1444,6 @@ function bindSkladStaticControls(){
   });
   const actionHandlers={
     'chart':openChartModal,
-    'price-refresh':openPriceRefreshModal,
     'manual-price':()=>openManualPriceModal(),
     'qr':openQR,
     'receipts':goReceipts,
@@ -1500,7 +1473,6 @@ function bindSkladStaticControls(){
     'barcode-manual-search':searchManualBarcode,
     'barcode-add-close':()=>{stopBarcodeAdd();closeModal('barcodeAddModal');},
     'qr-close':()=>{stopQR();closeModal('qrModal');},
-    'price-fetch':fetchItemPrice,
     'manual-price-save':saveManualPrice,
     'supplier-tag-add':addCustomSupplierTag,
     'supplier-tag-delete-confirm':confirmRemoveCustomSupplierTag,
@@ -1717,7 +1689,6 @@ function handleItemActionClick(event){
     case 'photo': openPhotoModal(id); break;
     case 'internal': toggleInternal(id, trigger.dataset.internalNext==='true'); break;
     case 'manual-price': openManualPriceModal(id); break;
-    case 'price-lookup': openItemPriceLookup(id); break;
     case 'delete': openDelete(id); break;
     case 'lightbox': openLightbox(trigger.dataset.photoUrl||'', id); break;
   }
@@ -1969,7 +1940,6 @@ function renderItems(){
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
             <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
-            <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
             <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
           </div>
         </details>
@@ -2013,7 +1983,6 @@ function renderItems(){
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
             <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
             <button type="button" role="menuitem" data-item-action="manual-price" data-item-id="${id}"><span class="ms">sell</span> Ручна ціна</button>
-            <button type="button" role="menuitem" data-item-action="price-lookup" data-item-id="${id}"><span class="ms">travel_explore</span> Інтернет-ціна</button>
             <button type="button" role="menuitem" class="danger" data-item-action="delete" data-item-id="${id}"><span class="ms">delete</span> Видалити</button>
           </div>
         </details>
@@ -2528,7 +2497,7 @@ function valuesMatchSearch(values, query){
   return q.split(/\s+/).every(part=>hay.includes(part));
 }
 function itemMatchesSearch(item, query){
-  return valuesMatchSearch([item.name,item.category,item.unit,item.price_source,item.price_url],query);
+  return valuesMatchSearch([item.name,item.category,item.unit,item.price_source],query);
 }
 function renderNewProductMatches(){
   const box=document.getElementById('newNameMatches');
@@ -2840,11 +2809,6 @@ function renderStats(){
     const missing=filteredItems.length-filteredPriced;
     summary.textContent=`У фільтрі: ${filteredItems.length} позицій, в наявності ${filteredInStock}, внутрішніх ${filteredInternal}, оцінено ${filteredPriced}, без ціни ${missing}. Сума рахується як залишок × ціна за одиницю.`;
   }
-  const lastPrice=priced.map(i=>i.price_checked_at).filter(Boolean).sort().pop();
-  const priceSummary=document.getElementById('priceSummary');
-  if(priceSummary) priceSummary.textContent=priced.length
-    ? `Оцінено ${priced.length}/${allItems.length} товарів · останнє оновлення: ${lastPrice?new Date(lastPrice).toLocaleString('uk-UA'):'ручне'}`
-    : 'Ціни не оновлювались';
   const cats=[...new Set(allItems.map(i=>i.category))];
   document.getElementById('statCats').innerHTML=cats.map(cat=>{
     const items=allItems.filter(i=>i.category===cat);
@@ -2919,33 +2883,16 @@ function exportExcel(){
 }
 
 
-// ===== PRICE LOOKUP / BALANCE =====
-function fillPriceSelects(selectedId='', searchText='') {
-  const selectedItem=selectedId?allItems.find(i=>String(i.id)===String(selectedId)):null;
-  const filtered=allItems.filter(i=>itemMatchesSearch(i,searchText));
-  const items=(selectedItem && !filtered.some(i=>String(i.id)===String(selectedId)))?[selectedItem,...filtered]:filtered;
-  const opts=items.map(i=>`<option value="${Number(i.id)}">${escapeHtml(i.name)} (${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')})</option>`).join('');
-  ['priceItemSel','manualPriceItemSel'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;
-    if(selectedId) el.value=String(selectedId);
-    refreshEnhancedSelect(el);
-  });
-  const results=document.getElementById('priceResults');
-  if(results && searchText && !items.length) results.innerHTML='<div class="empty" style="padding:18px;">За пошуком товарів не знайдено.</div>';
-}
-function openPriceRefreshModal(id='') {
-  fillPriceSelects(id);
-  document.getElementById('priceResults').innerHTML='Оберіть товар і натисніть “Знайти”.';
-  openModal('priceModal');
-}
-function openItemPriceLookup(id){
-  openPriceRefreshModal(id);
-  setTimeout(fetchItemPrice,0);
+// ===== РУЧНА ЦІНА / БАЛАНС =====
+function fillPriceSelect(selectedId='') {
+  const options=allItems.map(item=>`<option value="${Number(item.id)}">${escapeHtml(item.name)} (${escapeHtml(String(item.quantity??0))} ${escapeHtml(item.unit||'')})</option>`).join('');
+  const select=document.getElementById('manualPriceItemSel');
+  select.innerHTML='<option value="">— Оберіть товар —</option>'+options;
+  if(selectedId) select.value=String(selectedId);
+  refreshEnhancedSelect(select);
 }
 function openManualPriceModal(id='') {
-  fillPriceSelects(id);
+  fillPriceSelect(id);
   const item=allItems.find(i=>String(i.id)===String(id));
   document.getElementById('manualPriceValue').value=item&&priceValue(item)?priceValue(item):'';
   document.getElementById('manualPriceSource').value=item?.price_source||'';
@@ -2953,13 +2900,13 @@ function openManualPriceModal(id='') {
   openModal('manualPriceModal');
   requestAnimationFrame(clearTextSelection);
 }
-async function saveItemPrice(itemId, price, source='', url='', confidence='manual') {
+async function saveItemPrice(itemId, price, source='') {
   const payload={
     price_unit:Number(price),
     price_source:source||'Ручна ціна',
-    price_url:url||null,
+    price_url:null,
     price_checked_at:new Date().toISOString(),
-    price_confidence:confidence||'manual'
+    price_confidence:'manual'
   };
   const {error}=await db.from('inventory_items').update(payload).eq('id',itemId);
   if(error) {
@@ -2978,58 +2925,7 @@ async function saveManualPrice(){
   const source=document.getElementById('manualPriceSource').value.trim();
   if(!id) return toast('Оберіть товар','error');
   if(!price||price<=0) return toast('Вкажіть ціну','error');
-  if(await saveItemPrice(id,price,source,'','manual')) { closeModal('manualPriceModal'); toast('Ціну збережено','success'); }
-}
-
-function bindPriceResultActions(){
-  const box=document.getElementById('priceResults');
-  if(!box) return;
-  box.addEventListener('click',(event)=>{
-    const button=event.target.closest('[data-price-result-action="apply"]');
-    if(!button) return;
-    event.preventDefault();
-    applyFoundPrice(button.dataset.itemId,Number(button.dataset.price)||0,button.dataset.source||'Інтернет',button.dataset.url||'');
-  });
-}
-
-async function fetchItemPrice(){
-  const id=document.getElementById('priceItemSel').value;
-  const item=allItems.find(i=>String(i.id)===String(id));
-  if(!item) return toast('Оберіть товар','error');
-  const box=document.getElementById('priceResults');
-  box.innerHTML=`<div class="price-results-state is-loading" role="status" aria-label="Пошук цін">${skeletonStack(3)}</div>`;
-  try{
-    const res=await fetch(PRICE_LOOKUP_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9','Authorization':'Bearer sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9'},
-      body:JSON.stringify({name:item.name,category:item.category,unit:item.unit})
-    });
-    const data=await res.json().catch(()=>({}));
-    if(!res.ok) throw new Error(data.error||'Помилка пошуку');
-    const results=data.results||[];
-    if(!results.length){box.innerHTML='<div class="price-results-state">Ціну не знайдено. Спробуйте ручне введення.</div>';return;}
-    box.innerHTML=results.slice(0,5).map((r,idx)=>{
-      const safeLink=safeExternalUrl(r.link);
-      return `<div class="price-result-card">
-      <div class="price-result-main">
-        <div class="price-result-title">${escapeHtml(r.title||'Товар')}</div>
-        <div class="price-result-meta">${escapeHtml(r.source||'інтернет')} · ${safeLink?`<a class="price-result-link" href="${safeLink}" target="_blank" rel="noopener noreferrer">відкрити</a>`:'без посилання'}</div>
-      </div>
-      <div class="price-result-side">
-        <div class="price-result-value">${money(r.price)}</div>
-        <button type="button" class="btn btn-primary btn-sm price-result-apply" data-price-result-action="apply" data-item-id="${escapeHtml(String(item.id))}" data-price="${Number(r.price)||0}" data-source="${escapeHtml(String(r.source||'Інтернет'))}" data-url="${safeLink}">Взяти</button>
-      </div>
-    </div>`;
-    }).join('');
-  }catch(e){
-    box.innerHTML=`<div class="price-results-state is-error">${escapeHtml(e.message||String(e))}<br><small>Перевірте деплой Edge Function fetch-item-prices і секрет SERPAPI_KEY / SHOPAPIS_KEY у базі Складу.</small></div>`;
-  }
-}
-async function applyFoundPrice(itemId, price, source, url){
-  if(await saveItemPrice(itemId,price,source,url,'internet')) {
-    closeModal('priceModal');
-    toast('Інтернет-ціну підтверджено','success');
-  }
+  if(await saveItemPrice(id,price,source)) { closeModal('manualPriceModal'); toast('Ціну збережено','success'); }
 }
 
 // ===== SET PERSON (role buttons) =====
@@ -3361,7 +3257,7 @@ applyTheme(document.body.className || 'theme-light');
 // ===== INIT =====
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
 document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
-['issueItemSel','refillSel','newCat','priceItemSel','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
+['issueItemSel','refillSel','newCat','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
 function isTypingTarget(el){
   return !!el && (['INPUT','TEXTAREA','SELECT'].includes(el.tagName) || el.isContentEditable);
 }
@@ -3414,7 +3310,6 @@ document.addEventListener('keydown',e=>{
 });
 
 bindItemActionDelegation();
-bindPriceResultActions();
 bindPriceBadgeActions();
 bindAuditListDelegation();
 bindLogActionDelegation();
