@@ -870,6 +870,24 @@ input:not([type='checkbox']):not([type='radio']):focus-visible,select:focus-visi
   outline-offset:-2px;
   box-shadow:none;
 }
+/* Search bar має один M3 focus container. Глобальний outlined-field не повинен
+   малювати другий прямокутний контур навколо внутрішнього input. */
+.journal-work-search,
+.dispatcher-search-input {
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.journal-work-search:focus-visible,
+.dispatcher-search-input:focus-visible { outline:0!important; box-shadow:none!important; }
+.journal-work-search-wrap:focus-within,
+.dispatcher-search-wrap:focus-within {
+  border:2px solid var(--md-sys-color-primary);
+  padding-inline:13px;
+  box-shadow:none;
+}
 input::placeholder,textarea::placeholder { color:var(--md-sys-color-on-surface-variant); opacity:1; }
 select { background-image:none; }
 

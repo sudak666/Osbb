@@ -2258,40 +2258,6 @@
                 closeTicketDeleteConfirm();
             }
         });
-        document.getElementById('ticket-delete-confirm')?.addEventListener('click', (event) => {
-            if (event.target === event.currentTarget) closeTicketDeleteConfirm();
-        });
-        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                closeTicketDeleteConfirm();
-            }
-        });
-    }
-
-    // Стан зберігаємо у властивості window, а не в top-level `let`: повторне
-    // виконання inline-скрипту після відновлення iframe не спричинить SyntaxError.
-    window.osbbTicketDeleteState = window.osbbTicketDeleteState || { pending: null, focusReturn: null };
-
-    function openTicketDeleteConfirm(day, ticketId, opener) {
-        const modal = document.getElementById('ticket-delete-confirm');
-        if (!modal || !Number.isInteger(day) || !ticketId) return;
-        window.osbbTicketDeleteState.pending = { day, ticketId };
-        window.osbbTicketDeleteState.focusReturn = opener || document.activeElement;
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden', 'false');
-        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
-    }
-
-    function closeTicketDeleteConfirm(restoreFocus = true) {
-        const modal = document.getElementById('ticket-delete-confirm');
-        if (!modal) return;
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-        window.osbbTicketDeleteState.pending = null;
-        const focusReturn = window.osbbTicketDeleteState.focusReturn;
-        if (restoreFocus && focusReturn?.isConnected) focusReturn.focus();
-        window.osbbTicketDeleteState.focusReturn = null;
     }
 
     // Стан зберігаємо у властивості window, а не в top-level `let`: повторне

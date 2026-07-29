@@ -3226,6 +3226,28 @@ ${sharedSelectText}`;
   }
 }
 
+// Search bar uses one rounded focus container, not a second rectangular
+// outlined input inside it.
+{
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'journal search bars keep a single Material 3 focus outline';
+  const required = [
+    '.dispatcher-search-input {',
+    'border:0!important;',
+    '.dispatcher-search-input:focus-visible { outline:0!important;',
+    '.dispatcher-search-wrap:focus-within {',
+    'border:2px solid var(--md-sys-color-primary);',
+  ];
+  const missing = required.filter(needle => !css.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Стан підтвердження видалення не оголошується top-level lexical binding:
 // iframe може повторно виконати inline-скрипт під час відновлення вкладки.
 {
