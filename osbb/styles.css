@@ -857,10 +857,11 @@ body { font-size:var(--md-sys-typescale-body-large-size); line-height:var(--md-s
 button,input,select,textarea { font:inherit; }
 button { font-size:var(--md-sys-typescale-label-large-size); line-height:var(--md-sys-typescale-label-large-line-height); font-weight:var(--md-sys-typescale-label-weight); letter-spacing:var(--md-sys-typescale-label-large-tracking); }
 
-/* Outlined text fields: neutral surface, 1dp outline and 2dp primary focus. */
+/* Outlined text fields: neutral surface, 1dp outline, M3 medium shape and
+   2dp primary focus. Medium shape прибирає випадкові майже квадратні поля. */
 input:not([type='checkbox']):not([type='radio']),select,textarea {
   border-color:var(--md-sys-color-outline);
-  border-radius:var(--md-sys-shape-corner-extra-small);
+  border-radius:var(--md-sys-shape-corner-medium,12px);
   background-color:var(--md-sys-color-surface-container-highest);
   color:var(--md-sys-color-on-surface);
   box-shadow:none;

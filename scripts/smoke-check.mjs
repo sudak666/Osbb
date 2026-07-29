@@ -3226,7 +3226,25 @@ ${sharedSelectText}`;
   }
 }
 
-// Поле опису в блоці ліфтера не повинно успадковувати 4px global text-field
+// Усі outlined-поля журналу використовують узгоджену M3 medium shape замість
+// майже квадратної extra-small shape.
+{
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'journal outlined fields use the rounded Material 3 medium shape';
+  const expected = 'border-radius:var(--md-sys-shape-corner-medium,12px);';
+  const globalFieldStart = css.indexOf("input:not([type='checkbox']):not([type='radio']),select,textarea {");
+  const globalFieldEnd = css.indexOf('}', globalFieldStart);
+  const globalFieldRule = globalFieldStart >= 0 ? css.slice(globalFieldStart, globalFieldEnd + 1) : '';
+  if (!globalFieldRule.includes(expected) || globalFieldRule.includes('shape-corner-extra-small')) {
+    failed += 1;
+    console.error(`not ok - ${label} (global field shape is not medium)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Поле опису в блоці ліфтера не повинно успадковувати global text-field
 // shape поверх локального M3 large shape.
 {
   const css = readFileSync('osbb/styles.css', 'utf8');
