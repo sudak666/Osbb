@@ -1,8 +1,9 @@
-export type ShellTabName = 'journal' | 'sklad';
+export type ShellTabName = 'journal' | 'sklad' | 'promin';
 
 export const TAB_SRC: Record<ShellTabName, string> = {
     journal: 'osbb/index.html?embed=1',
-    sklad: 'sklad/index.html?embed=1'
+    sklad: 'sklad/index.html?embed=1',
+    promin: 'promin/index.html?embed=1'
 };
 
 export const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
@@ -84,5 +85,5 @@ export class ShellStore {
 }
 
 export function isShellTabName(name: string | undefined): name is ShellTabName {
-    return name === 'journal' || name === 'sklad';
+    return name === 'journal' || name === 'sklad' || name === 'promin';
 }
