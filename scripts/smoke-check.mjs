@@ -3226,6 +3226,27 @@ ${sharedSelectText}`;
   }
 }
 
+// Множинний вибір типів сміття використовує M3 checkbox, а не круглий radio
+// indicator, який помилково натякав на вибір лише одного типу.
+{
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'garbage multi-select uses a Material 3 checkbox indicator';
+  const required = [
+    '.garbage-type-indicator { display:grid; place-items:center; width:20px; height:20px;',
+    'border-radius:3px;',
+    '.garbage-type-indicator .material-symbols-rounded { font-size:16px;',
+  ];
+  const missing = required.filter(needle => !css.includes(needle));
+  const circularIndicator = /\.garbage-type-indicator\s*\{[^}]*shape-corner-full/.test(css);
+  if (missing.length || circularIndicator) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; circular: ${circularIndicator})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Усі outlined-поля журналу використовують узгоджену M3 medium shape замість
 // майже квадратної extra-small shape.
 {
