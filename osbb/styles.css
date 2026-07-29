@@ -725,7 +725,29 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-stat-card.role-electrician { border-color:color-mix(in srgb,var(--md-ref-role-electrician,#f59e0b) 30%,transparent); }
 .att-stat-card.role-janitor { border-color:color-mix(in srgb,var(--md-ref-role-janitor,#10b981) 30%,transparent); }
 .att-stat-card.role-plumber { border-color:color-mix(in srgb,var(--md-ref-role-plumber,#3b82f6) 30%,transparent); }
-.att-table-scroll { overflow-x:auto; }
+.att-table-scroll { display:none; }
+.att-calendar-scroll { overflow-x:auto; padding:4px 0 8px; scrollbar-width:thin; }
+.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7,minmax(132px,1fr)); min-width:980px; gap:8px; }
+.att-calendar-weekdays { margin-bottom:8px; }
+.att-calendar-weekdays span { padding:0 10px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; line-height:24px; font-weight:700; text-align:right; text-transform:uppercase; letter-spacing:.06em; }
+.att-calendar-spacer { min-height:1px; }
+.att-calendar-day { min-height:150px; overflow:hidden; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
+.att-calendar-day.is-weekend { background:var(--md-sys-color-surface-container,var(--bg-input)); }
+.att-calendar-day > header { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--md-sys-color-outline-variant,var(--border)); }
+.att-calendar-day > header strong { display:grid; place-items:center; width:28px; height:28px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); font-size:13px; }
+.att-calendar-day > header span { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:10px; font-weight:700; text-transform:capitalize; }
+.att-calendar-roles { display:grid; gap:0; }
+.att-calendar-role { display:grid; gap:6px; padding:8px 10px; border-top:1px solid var(--md-sys-color-outline-variant,var(--border)); }
+.att-calendar-role:first-child { border-top:0; }
+.att-calendar-role-name { display:flex; align-items:center; gap:6px; min-width:0; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:10px; font-weight:700; }
+.att-calendar-role .att-mobile-role-dot { width:8px; height:8px; flex:none; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary,var(--accent)); }
+.att-calendar-times { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+.att-calendar-times .att-time-input { width:100%; min-width:0; height:36px; padding:4px; text-align:center; }
+.att-calendar-role.is-readonly { grid-template-columns:minmax(0,1fr) auto; align-items:center; }
+.att-calendar-role.is-readonly strong { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; font-variant-numeric:tabular-nums; }
+.att-calendar-role.role-electrician .att-mobile-role-dot { background:var(--md-ref-role-electrician,#f59e0b); }
+.att-calendar-role.role-janitor .att-mobile-role-dot { background:var(--md-ref-role-janitor,#10b981); }
+.att-calendar-role.role-plumber .att-mobile-role-dot { background:var(--md-ref-role-plumber,#3b82f6); }
 .att-table { width:100%; border-collapse:collapse; font-size:13px; }
 .att-table th, .att-table td { padding:6px 8px; border-bottom:1px solid var(--md-sys-color-outline-variant,var(--border)); text-align:center; white-space:nowrap; }
 .att-table th { font-size:11px; text-transform:uppercase; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
@@ -736,8 +758,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-time-input:focus-visible { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:0 0 0 1px var(--md-sys-color-primary,var(--accent)); outline:none; }
 .att-readonly { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
 .att-mobile-list { display:none; }
-@media (max-width:640px) {
-  .att-table-scroll { display:none; }
+@media (max-width:900px) {
+  .att-calendar-scroll { display:none; }
   .att-mobile-list { display:flex; flex-direction:column; gap:10px; }
   .att-mobile-day { overflow:hidden; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-extra-large,24px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
   .att-mobile-day.is-weekend { border-color:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 28%,var(--border)); }

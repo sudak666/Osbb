@@ -337,7 +337,13 @@
             </div>
             <p id="att-view-note" class="shift-copy">Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.</p>
             <div class="att-stats-grid" id="att-stats-grid" aria-label="Відпрацьовано за місяць"></div>
-            <div class="att-table-scroll">
+            <div class="att-calendar-scroll" aria-label="Календар табеля">
+                <div class="att-calendar-weekdays" aria-hidden="true">
+                    <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span>
+                </div>
+                <div id="att-calendar" class="att-calendar"></div>
+            </div>
+            <div class="att-table-scroll" aria-hidden="true">
                 <table class="att-table">
                     <thead>
                         <tr>
@@ -1590,8 +1596,9 @@
 
     function attRender() {
         const body = document.getElementById('att-body');
+        const calendar = document.getElementById('att-calendar');
         const mobileList = document.getElementById('att-mobile-list');
-        if (!body || !mobileList) return;
+        if (!body || !calendar || !mobileList) return;
         const editable = isDispatcherSession();
         const visibleRoles = attVisibleRoles();
         const viewNote = document.getElementById('att-view-note');
@@ -1606,13 +1613,17 @@
         });
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         let html = '';
+        let calendarHtml = '';
         let mobileHtml = '';
+        const firstDayOffset = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
+        calendarHtml += '<div class="att-calendar-spacer" aria-hidden="true"></div>'.repeat(firstDayOffset);
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             html += `<tr class="${isWeekend ? 'is-weekend' : ''}"><td class="att-col-date">${d}</td>`;
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
             let mobileRolesHtml = '';
+            let calendarRolesHtml = '';
             visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 if (editable) {
@@ -1625,6 +1636,13 @@
                         <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
                         <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
                     </div>`;
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role}">
+                        <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <div class="att-calendar-times">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Відхід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                        </div>
+                    </div>`;
                 } else {
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
                     html += `<td class="is-${role} att-readonly">${text}</td>`;
@@ -1632,18 +1650,27 @@
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <strong>${text}</strong>
                     </div>`;
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} is-readonly">
+                        <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <strong>${text}</strong>
+                    </div>`;
                 }
             });
             html += '</tr>';
+            calendarHtml += `<article class="att-calendar-day ${isWeekend ? 'is-weekend' : ''}">
+                <header><strong>${d}</strong><span>${dayName}</span></header>
+                <div class="att-calendar-roles">${calendarRolesHtml}</div>
+            </article>`;
             mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''}">
                 <header><strong>${d}</strong><span>${dayName}</span></header>
                 <div class="att-mobile-roles">${mobileRolesHtml}</div>
             </article>`;
         }
         body.innerHTML = html;
+        calendar.innerHTML = calendarHtml;
         mobileList.innerHTML = mobileHtml;
         if (editable) {
-            document.querySelectorAll('#att-body [data-att-day], #att-mobile-list [data-att-day]').forEach(input => {
+            document.querySelectorAll('#att-body [data-att-day], #att-calendar [data-att-day], #att-mobile-list [data-att-day]').forEach(input => {
                 input.addEventListener('change', () => {
                     const d = input.dataset.attDay, role = input.dataset.attRole;
                     const rowCell = attGetCell(d, role);

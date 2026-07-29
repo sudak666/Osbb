@@ -3226,6 +3226,33 @@ ${sharedSelectText}`;
   }
 }
 
+// Табель має desktop-календар із сімома колонками, а на вузьких екранах
+// перемикається на вертикальні day cards без горизонтального свайпу.
+{
+  const html = readFileSync('osbb/index.html', 'utf8');
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'attendance uses a responsive Material 3 calendar';
+  const required = [
+    'id="att-calendar" class="att-calendar"',
+    'class="att-calendar-weekdays"',
+    'calendar.innerHTML = calendarHtml;',
+    '#att-calendar [data-att-day]',
+    '.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7',
+    '@media (max-width:900px) {',
+    '.att-calendar-scroll { display:none; }',
+    '.att-mobile-list { display:flex;',
+  ];
+  const combined = html + '\n' + css;
+  const missing = required.filter(needle => !combined.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Множинний вибір типів сміття використовує M3 checkbox, а не круглий radio
 // indicator, який помилково натякав на вибір лише одного типу.
 {
