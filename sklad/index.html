@@ -90,9 +90,10 @@ function setIcon(el,name){
 // вбудовуванні в shell (PIN уже підтверджено на його рівні) цей екран не встигав
 // промайнути, поки браузер парсить решту сторінки.
 const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+const EMBEDDED_SHELL_AUTH = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
 const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
 const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
-if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
+if (EMBEDDED_SHELL_AUTH || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
   const earlyAuthScreen = document.getElementById('authScreen');
   if (earlyAuthScreen) earlyAuthScreen.style.display = 'none';
 } else if (sessionStorage.getItem('auth') === 'ok') {
@@ -865,7 +866,7 @@ function skeletonStack(rows=3){
 
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
-if(isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
+if(EMBEDDED_SHELL_AUTH || isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
 
 // ===== NAV =====
 function setPageTitle(page){

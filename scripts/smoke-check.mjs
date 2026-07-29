@@ -369,9 +369,8 @@ for (const [file, needle, label] of checks) {
   }
 }
 
-// Embedded modules share the same sessionStorage auth flag as the shell, so they
-// must also respect the timestamp when opened directly or parsed before the shell
-// has a chance to clear stale credentials.
+// Вбудовані модулі покладаються на PIN shell-оболонки, а при прямому відкритті
+// й далі самостійно перевіряють TTL. Це запобігає повторному PIN після idle-lock.
 for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync(file, 'utf8');
   const label = `${file} auth session respects TTL`;
@@ -384,8 +383,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'Date.now()',
     'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
+    "new URLSearchParams(location.search).get('embed') === '1'",
+    "|| (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)",
+    '|| isAuthSessionValid())',
   ];
-  const hasAuthValidityGate = text.includes('if (isAuthSessionValid())') || text.includes('if(isAuthSessionValid())');
   const forbidden = [
     'function setAuthSession() {\n        setAuthSession();',
     'function setAuthSession(){\n  setAuthSession();',
@@ -394,9 +395,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const hasForbidden = forbidden.some(needle => text.includes(needle));
-  if (missing.length || hasForbidden || !hasAuthValidityGate) {
+  if (missing.length || hasForbidden) {
     failed += 1;
-    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${!hasAuthValidityGate ? ' (missing auth validity gate)' : ''}`);
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
