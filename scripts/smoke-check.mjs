@@ -3226,6 +3226,21 @@ ${sharedSelectText}`;
   }
 }
 
+// Поле опису в блоці ліфтера не повинно успадковувати 4px global text-field
+// shape поверх локального M3 large shape.
+{
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'elevator description field keeps its rounded Material 3 shape';
+  const expected = '.elevator-add-form .dispatcher-location-input { border-radius:var(--md-sys-shape-corner-large,16px)!important; }';
+  if (!css.includes(expected)) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing rounded field override)`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Search bar uses one rounded focus container, not a second rectangular
 // outlined input inside it.
 {

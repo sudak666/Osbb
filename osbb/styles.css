@@ -813,6 +813,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .elevator-add-form { display:grid; grid-template-columns:minmax(88px,112px) minmax(0,1fr) auto; gap:8px; align-items:center; }
 .elevator-add-form select, .elevator-add-form input { min-width:0; min-height:48px; }
 .elevator-add-form .journal-select { border-radius:var(--md-sys-shape-corner-full,999px); text-align:center; text-align-last:center; }
+.elevator-add-form .dispatcher-location-input { border-radius:var(--md-sys-shape-corner-large,16px)!important; }
 .elevator-add-form .dispatcher-time-btn { min-height:48px; padding-inline:18px; white-space:nowrap; }
 .elevator-list { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
 .elevator-entry { position:relative; display:flex; align-items:flex-start; gap:10px; padding:12px 56px 12px 14px; border-radius:var(--md-sys-shape-corner-large,16px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface,var(--bg-card)); }
