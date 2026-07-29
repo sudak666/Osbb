@@ -797,7 +797,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="price-badge-source"',
     '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
-    '.price-badge-value{font-weight:900;',
+    '.price-badge-value{font-weight:700;',
     '.price-badge-source{width:100%;font-size:10px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -823,7 +823,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="table-row-actions"',
     'class="badge badge-internal"',
     '.table-idx-cell{color:',
-    '.table-name-cell{font-weight:600;',
+    '.table-name-cell{font-weight:500;',
     '.table-row-actions{display:flex;',
     '.badge-internal{background:',
   ];
@@ -858,8 +858,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="log-person-cell"',
     'class="log-note-cell"',
     '.log-date-cell{font-size:12px;',
-    '.log-qty-out{font-weight:800;color:var(--md-sys-color-secondary,#6366f1);}',
-    '.log-qty-in{font-weight:800;color:var(--ios-green);}',
+    '.log-qty-out{font-weight:700;color:var(--md-sys-color-secondary,#6366f1);}',
+    '.log-qty-in{font-weight:700;color:var(--sklad-green);}',
   ];
   const forbidden = [
     'style="font-weight:800;color:#6366f1;"',
@@ -1051,10 +1051,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'osbb PIN-modal icons use class-based markup';
   const required = [
     '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
-    '.pin-modal-icon-wrap.is-indigo { background:rgba(129,140,248,0.2); }',
-    '.pin-modal-icon-wrap.is-red { background:color-mix(in srgb,var(--md-sys-color-error,#ef4444) 20%,transparent); }',
-    '.pin-modal-icon-wrap.is-green { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 20%,transparent); }',
-    '.pin-modal-icon-wrap.is-green-soft { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 15%,transparent); }',
+    '.pin-modal-icon-wrap.is-indigo { background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); }',
+    '.pin-modal-icon-wrap.is-red { background:var(--md-sys-color-error-container); color:var(--md-sys-color-on-error-container); }',
+    '.pin-modal-icon-wrap.is-green { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }',
+    '.pin-modal-icon-wrap.is-green-soft { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }',
     'class="pin-modal-icon-wrap is-indigo"',
     'class="pin-modal-icon-wrap is-red"',
     'class="pin-modal-icon-wrap is-green"',
@@ -1740,8 +1740,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync('osbb/index.html', 'utf8');
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
-    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><svg',
-    'fill="currentColor" stroke="none"/></svg></span><span id="journalThemeLabel"',
+    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span>',
+    '</span><span id="journalThemeLabel" class="sr-only">Світла</span>',
   ];
   const forbidden = ['☀️', '🌙'];
   const missing = required.filter(needle => !text.includes(needle));
@@ -1796,7 +1796,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-action-label {',
     '.journal-action-btn {',
     'class="journal-action-btn journal-action-btn-danger md-state-layer"',
-    'class="journal-inline-icon"',
+    'class="material-symbols-rounded journal-inline-icon"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -2795,7 +2795,7 @@ ${sharedSelectText}`;
     'create table if not exists inventory_supplier_tags',
     "alter publication supabase_realtime add table inventory_supplier_tags",
     '.journal-stat-card { --role-accent:var(--accent);',
-    'color-mix(in srgb,var(--role-accent) 6%,var(--surface-1))',
+    'background:var(--md-sys-color-surface-container-low,var(--surface-1))!important;',
   ];
   const combined = supplierMigration + '\n' + journalCss;
   const missing = required.filter(needle => !combined.includes(needle));
@@ -2859,7 +2859,7 @@ ${sharedSelectText}`;
 }
 
 // Складські filter chips мають M3 selected-check, центрований label і
-// aria-pressed; навігація місяців використовує центровані MDI chevrons.
+// aria-pressed; навігація місяців використовує центровані Material Symbols.
 {
   const sklad = readSkladCombined();
   const journal = readFileSync('osbb/index.html', 'utf8');
@@ -2870,8 +2870,8 @@ ${sharedSelectText}`;
     'class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label"',
     '.items-filter-pill{position:relative;display:inline-grid;place-items:center;height:48px;',
     '.items-filter-pill.active .items-filter-icon{opacity:1;',
-    'mdi mdi-chevron-left',
-    'mdi mdi-chevron-right',
+    'class="material-symbols-rounded" aria-hidden="true">chevron_left</span>',
+    'class="material-symbols-rounded" aria-hidden="true">chevron_right</span>',
   ];
   const combined = sklad + '\n' + journal;
   const missing = required.filter(needle => !combined.includes(needle));
@@ -3129,10 +3129,10 @@ ${sharedSelectText}`;
     '<article class="stat-card summary-card sc-orange">',
     '.inventory-summary .summary-card{min-height:132px;cursor:default;',
     '.stat-icon{position:absolute;right:14px;top:14px;z-index:1;',
-    '.stat-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;',
+    '.stat-icon .ms{font-size:22px;}',
     '.sw .inp{padding-left:42px!important;}',
     '.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px!important;}',
-    '.si svg{width:18px;height:18px;fill:none;stroke:currentColor;',
+    '.si.ms{font-size:18px;}',
     'href="styles.css?v=20260727-search-icons"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -3203,6 +3203,27 @@ ${sharedSelectText}`;
   }
 }
 
+// Стан підтвердження видалення не оголошується top-level lexical binding:
+// iframe може повторно виконати inline-скрипт під час відновлення вкладки.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal ticket delete state survives repeated iframe script execution';
+  const required = [
+    'window.osbbTicketDeleteState = window.osbbTicketDeleteState ||',
+    'window.osbbTicketDeleteState.pending',
+    'window.osbbTicketDeleteState.focusReturn',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const topLevelBinding = /\b(?:let|const)\s+(?:pendingTicketDelete|ticketDeleteFocusReturn)\b/.test(text);
+  if (missing.length || topLevelBinding) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; lexical binding: ${topLevelBinding})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Desktop navigation Складу використовує нативні button controls замість
 // div role="button" і зберігає aria-current для активної сторінки.
 {
@@ -3213,7 +3234,7 @@ ${sharedSelectText}`;
     '<button type="button" class="ni" data-page="issue">',
     '<button type="button" class="ni" data-page="stats">',
     '.ni{display:flex;width:calc(100% - 16px);align-items:center;',
-    'font:inherit;font-size:14px;font-weight:600;line-height:1.2;text-align:left;',
+    'font:inherit;font-size:14px;font-weight:500;line-height:1.2;text-align:left;',
     "n.setAttribute('aria-current','page')",
   ];
   const missing = required.filter(needle => !text.includes(needle));
