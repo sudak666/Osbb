@@ -402,8 +402,11 @@
         <!-- Ліфтер приїжджає лише кілька разів на місяць — окремий короткий
              журнал відміток, не прив'язаний до щоденного календаря диспетчера. -->
         <div class="journal-panel elevator-panel">
-            <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">elevator</span>Ліфтер</span>
+            <div class="elevator-head">
+                <div class="elevator-title">
+                    <span class="elevator-title-icon material-symbols-rounded" aria-hidden="true">elevator</span>
+                    <span>Ліфтер</span>
+                </div>
                 <span id="elevator-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
             <p class="shift-copy">Відмітки приїзду ліфтера цього місяця та що саме він робив.</p>
@@ -2254,6 +2257,35 @@
                 closeTicketDeleteConfirm();
             }
         });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeTicketDeleteConfirm();
+            }
+        });
+    }
+
+    let pendingTicketDelete = null;
+    let ticketDeleteFocusReturn = null;
+
+    function openTicketDeleteConfirm(day, ticketId, opener) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal || !Number.isInteger(day) || !ticketId) return;
+        pendingTicketDelete = { day, ticketId };
+        ticketDeleteFocusReturn = opener || document.activeElement;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
+    }
+
+    function closeTicketDeleteConfirm(restoreFocus = true) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        pendingTicketDelete = null;
+        if (restoreFocus && ticketDeleteFocusReturn?.isConnected) ticketDeleteFocusReturn.focus();
+        ticketDeleteFocusReturn = null;
     }
 
     let pendingTicketDelete = null;
