@@ -49,7 +49,7 @@ html { overflow-x: hidden; }
 body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app)); }
 #desktop-tabs { background: transparent !important; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: transparent !important; }
 #bottom-nav { background:var(--md-sys-color-surface-container-high,var(--glass-nav))!important; backdrop-filter:none; -webkit-backdrop-filter:none; border-color:var(--md-sys-color-outline-variant,var(--border))!important; }
-.journal-shell-header { display:flex; flex-direction:column; gap:12px; margin-bottom:1.5rem; padding:20px; border:1px solid var(--border-subtle); background:var(--md-sys-color-surface-container,var(--surface-2)); border-radius:var(--radius-xl); box-shadow:none; position:relative; overflow:hidden; }
+.journal-shell-header { display:flex; flex-direction:column; gap:12px; margin-bottom:1.5rem; padding:20px; border:1px solid var(--border-subtle); background:var(--md-sys-color-surface-container,var(--surface-2)); border-radius:var(--radius-xl); box-shadow:none; position:relative; z-index:20; overflow:visible; }
 .journal-shell-header::after { content:none; }
 .journal-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle); position:relative; z-index:1; }
 .journal-title-row > *, .journal-action-row > * { min-width:0; }
@@ -286,6 +286,9 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     .journal-panel { padding:10px; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; }
     .journal-list-shell { padding:0!important; border-radius:28px!important; }
     .journal-list-head { padding:14px 12px; }
+    .my-tickets-panel > .shift-copy { margin:14px 12px 0; }
+    .my-tickets-panel > .priority-legend { margin:8px 12px 14px; }
+    .my-tickets-panel > .my-tickets-list { margin:10px 12px 18px; }
     .journal-panel:not(.journal-list-shell) > .journal-list-head:first-child { margin:-10px -10px 14px; border-radius:var(--md-sys-shape-corner-extra-large,28px) var(--md-sys-shape-corner-extra-large,28px) 0 0; }
     .journal-stats-grid, .journal-mini-stats, .journal-charts-grid { grid-template-columns:1fr; gap:10px; }
     .journal-chart-wide { grid-column:auto; }
@@ -537,7 +540,8 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 tr[data-today="1"] td { background:transparent!important; box-shadow:inset 0 2px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 22%,transparent),inset 0 -2px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 22%,transparent); }
 /* Кастомний випадний список — заміна нативного <select>, у якого браузер
    сам малює квадратне спливаюче меню, що не піддається стилізації. */
-.custom-select-wrap { position: relative; display: inline-flex; }
+.custom-select-wrap { position: relative; z-index:1; display: inline-flex; }
+.custom-select-wrap:has(.custom-select-panel:not(.hidden)) { z-index:100; }
 .custom-select-btn { display: inline-flex; align-items: center; cursor: pointer; white-space: nowrap; }
 .custom-select-panel {
     position: absolute; top: calc(100% + 6px); left: 0; min-width: 100%; z-index: 40;
@@ -837,6 +841,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .my-ticket-close-form { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
 .my-ticket-close-actions { display:flex; gap:8px; align-items:center; }
 .my-tickets-list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+.my-tickets-panel > .shift-copy { margin:16px 22px 0; }
+.my-tickets-panel > .priority-legend { margin:8px 22px 14px; }
+.my-tickets-panel > .my-tickets-list { margin:10px 22px 22px; }
 
 /* ===== ЛІФТЕР (короткий журнал відміток у вкладці Диспетчер) ===== */
 .elevator-panel { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
