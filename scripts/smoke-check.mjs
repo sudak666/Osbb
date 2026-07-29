@@ -3203,6 +3203,27 @@ ${sharedSelectText}`;
   }
 }
 
+// Стан підтвердження видалення не оголошується top-level lexical binding:
+// iframe може повторно виконати inline-скрипт під час відновлення вкладки.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'journal ticket delete state survives repeated iframe script execution';
+  const required = [
+    'window.osbbTicketDeleteState = window.osbbTicketDeleteState ||',
+    'window.osbbTicketDeleteState.pending',
+    'window.osbbTicketDeleteState.focusReturn',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const topLevelBinding = /\b(?:let|const)\s+(?:pendingTicketDelete|ticketDeleteFocusReturn)\b/.test(text);
+  if (missing.length || topLevelBinding) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; lexical binding: ${topLevelBinding})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Desktop navigation Складу використовує нативні button controls замість
 // div role="button" і зберігає aria-current для активної сторінки.
 {
