@@ -80,9 +80,10 @@
     // журналу (shell вже підтвердив PIN) цей екран встигає промайнути на екрані,
     // поки браузер парсить решту сторінки.
     const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+    const EARLY_EMBEDDED_SHELL = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
     const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
     const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
-    if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
+    if (EARLY_EMBEDDED_SHELL || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
         const earlyLockScreen = document.getElementById('app-lock-screen');
         if (earlyLockScreen) earlyLockScreen.style.display = 'none';
     } else if (sessionStorage.getItem('auth') === 'ok') {
@@ -477,7 +478,7 @@
     <!-- ===== МОЇ ЗАЯВКИ — для staff-сесій з роллю сантехнік/двірник/електрик:
          тільки заявки, призначені на їхню роль, відсортовані за пріоритетом. ===== -->
     <div id="section-my-tickets" class="hidden mb-6">
-        <div class="journal-panel journal-list-shell">
+        <div class="journal-panel journal-list-shell my-tickets-panel">
             <div class="journal-list-head">
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
@@ -545,7 +546,7 @@
         return true;
     }
 
-    if (isAuthSessionValid()) {
+    if (IS_EMBEDDED_SHELL || isAuthSessionValid()) {
         const lockScreen = document.getElementById('app-lock-screen');
         if (lockScreen) lockScreen.style.display = 'none';
         setTimeout(() => ensureStaffAuth(), 0);

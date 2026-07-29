@@ -379,10 +379,6 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .stats-list-stack{display:flex;flex-direction:column;gap:12px;}
 .stats-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;}
 .stats-filter-summary{font-size:12px;color:var(--sklad-label3);margin-top:10px;line-height:1.45;}
-.price-assessment-panel{padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.price-assessment-summary{font-size:12px;color:var(--sklad-label3);margin-top:4px;}
-.price-assessment-actions{display:flex;gap:8px;flex-wrap:wrap;}
-.price-assessment-actions .ms{font-size:15px;}
 .stat-cat-row-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
 .stat-cat-name{font-weight:500;color:var(--sklad-label);}
 .stat-cat-count{color:var(--sklad-label3);}
@@ -582,28 +578,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 
 
 
-.price-lookup-modal{max-width:560px;}
-.price-lookup-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--sklad-label);margin-bottom:8px;letter-spacing:-.02em;}
-.price-lookup-title .ms{font-size:18px;}
-.price-search-row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:10px;margin-bottom:12px;}
-.price-search-row .btn{justify-content:center;}
-.price-search-row .ms,.price-modal-actions .ms{font-size:15px;}
-.price-results-panel{min-height:80px;background:var(--sklad-bg);border:1px solid var(--sklad-sep);border-radius:var(--md-sys-shape-corner-medium,14px);padding:12px;font-size:13px;color:var(--sklad-label2);}
-.price-modal-actions{display:flex;gap:8px;margin-top:14px;}
-.price-modal-actions .btn{flex:1;justify-content:center;}
 
-.price-results-state{padding:18px;text-align:center;color:var(--sklad-gray);}
-.price-results-state.is-loading{padding:22px;}
-.price-results-state.is-error{text-align:left;color:var(--sklad-red);font-size:13px;line-height:1.5;}
-.price-result-card{padding:10px 0;border-bottom:1px solid var(--sklad-sep);display:flex;gap:10px;align-items:flex-start;}
-.price-result-card:last-child{border-bottom:none;}
-.price-result-main{flex:1;min-width:0;}
-.price-result-title{font-weight:500;color:var(--sklad-label);font-size:13px;line-height:1.35;}
-.price-result-meta{font-size:12px;color:var(--sklad-label3);margin-top:3px;}
-.price-result-link{color:var(--brand);font-weight:500;}
-.price-result-side{text-align:right;flex-shrink:0;}
-.price-result-value{font-weight:700;color:var(--sklad-green);white-space:nowrap;}
-.price-result-apply{margin-top:6px;}
 .manual-price-modal{max-width:460px;}
 .manual-price-title{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--sklad-label);margin-bottom:14px;letter-spacing:-.02em;}
 .manual-price-title .ms{font-size:18px;}
@@ -760,12 +735,6 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .modal-bg{align-items:flex-start!important;justify-content:center!important;overflow-y:auto!important;padding:12px 0 calc(104px + env(safe-area-inset-bottom))!important;}
   .modal-bg.open{display:flex!important;}
   .modal-bg .modal{max-height:calc(100dvh - 28px - env(safe-area-inset-bottom))!important;overflow-y:auto!important;margin:0!important;}
-  #priceModal .modal{display:flex!important;flex-direction:column!important;max-height:calc(100dvh - 28px - env(safe-area-inset-bottom))!important;}
-  #priceModal .price-search-row{grid-template-columns:minmax(0,1fr) 116px!important;align-items:stretch!important;}
-  #priceModal .price-search-row .inp{min-height:84px!important;line-height:1.35!important;}
-  #priceResults{max-height:52dvh!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;}
-  #priceModal .price-modal-actions{position:sticky!important;bottom:-18px!important;margin-left:-18px!important;margin-right:-18px!important;margin-bottom:-18px!important;padding:10px 18px calc(10px + env(safe-area-inset-bottom))!important;background:linear-gradient(180deg,rgba(255,255,255,0),var(--sklad-card) 28%)!important;border-radius:0 0 24px 24px!important;z-index:2!important;}
-  .theme-dark #priceModal .price-modal-actions{background:linear-gradient(180deg,rgba(30,30,33,0),var(--sklad-card) 28%)!important;}
   .inp{font-size:16px!important;padding:11px 12px;}
   .sw .inp{padding-left:42px!important;}
   .items-search-field > #searchInp{padding-inline-start:46px!important;}
