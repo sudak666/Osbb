@@ -1,5 +1,10 @@
 /* Shared UI primitives loaded by shell, journal and sklad entrypoints. */
 
+/* Не показуємо текст лігатур (`assignment`, `inventory` тощо), поки
+   Material Symbols Rounded фактично не завантажився. */
+.material-symbols-rounded { visibility: hidden; }
+.material-symbols-ready .material-symbols-rounded { visibility: visible; }
+
 .custom-select-arrow {
   flex-shrink: 0;
   margin-left: 6px;
