@@ -5,17 +5,23 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   frontend-checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: npm install -g typescript
+      - run: npm install -g typescript@5.8.3
       - run: npm run typecheck
       - run: npm run test:runtime
+      - run: npm run test:m3
       - run: npm run test:unit
       - run: npm run test:migrations
       - run: npm run test:functions
@@ -23,16 +29,17 @@ jobs:
 
   typecheck-edge-functions:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install -g typescript
+      - run: npm install -g typescript@5.8.3
       - name: tsc --strict against a minimal Deno shim (no Deno CLI needed)
         run: |
           cd sklad/supabase/functions
-          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck --ignoreConfig \
+          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
             _typecheck/deno-shim.d.ts notify-telegram/index.ts
-          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck --ignoreConfig \
+          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
             _typecheck/deno-shim.d.ts fetch-item-prices/index.ts
