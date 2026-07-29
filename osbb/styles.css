@@ -417,7 +417,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .month-grid-cell:focus-visible { outline: 2px solid var(--md-sys-color-primary, var(--accent)); outline-offset: 2px; }
 .month-grid-cell.is-empty { visibility: hidden; pointer-events: none; cursor: default; }
 .month-grid-cell.is-weekend .month-grid-day { color: var(--md-sys-color-error,#ef4444); }
-.month-grid-cell.is-today { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:none; }
+.month-grid-cell.is-today { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 55%,var(--border)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
 .month-grid-cell.has-shifts { background: color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 7%,transparent); }
 .month-grid-day { font-size:18px; font-weight:700; line-height:1; }
 .month-grid-day, .stat-card [id^="stats-"], .stat-card .text-2xl, .stat-card .text-3xl { font-variant-numeric: tabular-nums; }
@@ -534,7 +534,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .pulse-ring2 { animation-delay: 0.5s; }
 
 /* Підсвічування поточного дня на десктопі — через data-атрибут, щоб уникнути конфлікту з Tailwind */
-tr[data-today="1"] td { background: rgba(52, 199, 89, 0.13) !important; }
+tr[data-today="1"] td { background:transparent!important; box-shadow:inset 0 2px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 22%,transparent),inset 0 -2px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 22%,transparent); }
 /* Кастомний випадний список — заміна нативного <select>, у якого браузер
    сам малює квадратне спливаюче меню, що не піддається стилізації. */
 .custom-select-wrap { position: relative; display: inline-flex; }
@@ -603,10 +603,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .shift-weekdays span { padding:2px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); text-align:center; font-size:11px; font-weight:700; }
 .shift-day { position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; min-height:82px; padding:10px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--surface-2)); color:var(--md-sys-color-on-surface,var(--text-main)); text-align:left; cursor:pointer; }
 .shift-day:hover { background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
-.shift-day.is-today { border-color:var(--md-sys-color-primary,var(--accent)); }
+.shift-day.is-today { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 55%,var(--border)); }
 .shift-day.is-auto::after { content:''; position:absolute; top:7px; right:7px; width:5px; height:5px; border-radius:50%; background:var(--md-sys-color-outline); }
-.month-grid-cell.is-today,.shift-day.is-today { border-width:1px; background:color-mix(in srgb,var(--md-sys-color-primary-container) 38%,var(--md-sys-color-surface-container)); box-shadow:none; }
-.month-grid-cell.is-today .month-grid-day,.shift-day.is-today .shift-day-number { display:grid; place-items:center; min-width:32px; height:32px; padding-inline:7px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary); color:var(--md-sys-color-on-primary); font-size:16px; }
+.month-grid-cell.is-today,.shift-day.is-today { border-width:1px; background:var(--md-sys-color-surface-container,var(--surface-2)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
+.month-grid-cell.is-today .month-grid-day,.shift-day.is-today .shift-day-number { min-width:0; height:auto; padding:0; border-radius:0; background:transparent; color:inherit; }
 .shift-day-number { font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; }
 .shift-day-indicators { display:flex; align-items:center; gap:5px; min-height:12px; }
 .shift-dot { display:inline-block; width:10px; height:10px; border-radius:50%; }
@@ -741,10 +741,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-calendar-spacer { min-height:1px; }
 .att-calendar-day { min-height:150px; overflow:hidden; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
 .att-calendar-day.is-weekend { background:var(--md-sys-color-surface-container,var(--bg-input)); }
-.att-calendar-day.is-today,.att-mobile-day.is-today { border-color:var(--md-sys-color-primary,var(--accent)); background:color-mix(in srgb,var(--md-sys-color-primary-container) 38%,var(--md-sys-color-surface-container-low)); box-shadow:none; }
+.att-calendar-day.is-today,.att-mobile-day.is-today { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 55%,var(--border)); background:var(--md-sys-color-surface-container-low,var(--bg-card)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
 .att-calendar-day > header { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--md-sys-color-outline-variant,var(--border)); }
 .att-calendar-day > header strong { display:grid; place-items:center; width:28px; height:28px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); font-size:13px; }
-.att-calendar-day.is-today > header strong,.att-mobile-day.is-today > header strong { background:var(--md-sys-color-primary); color:var(--md-sys-color-on-primary); }
+.att-calendar-day.is-today > header strong,.att-mobile-day.is-today > header strong { background:transparent; color:var(--md-sys-color-on-surface,var(--text-main)); }
 .att-calendar-day > header span { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:10px; font-weight:700; text-transform:capitalize; }
 .att-calendar-roles { display:grid; gap:0; }
 .att-calendar-role { display:grid; gap:6px; padding:8px 10px; border-top:1px solid var(--md-sys-color-outline-variant,var(--border)); }

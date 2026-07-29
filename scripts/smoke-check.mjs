@@ -3126,19 +3126,22 @@ ${sharedSelectText}`;
     '.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7',
     '.month-grid-cell.is-today,.shift-day.is-today {',
     'border-width:1px;',
-    'background:color-mix(in srgb,var(--md-sys-color-primary-container) 38%',
+    'box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent)',
     '.month-grid-cell.is-today .month-grid-day,.shift-day.is-today .shift-day-number {',
-    'font-size:16px;',
+    'background:transparent; color:inherit;',
     '.att-calendar-day.is-today,.att-mobile-day.is-today {',
+    '.att-calendar-day.is-today > header strong,.att-mobile-day.is-today > header strong { background:transparent;',
     '@media (max-width:900px) {',
     '.att-calendar-scroll { display:none; }',
     '.att-mobile-list { display:flex;',
   ];
   const combined = html + '\n' + css;
   const missing = required.filter(needle => !combined.includes(needle));
-  if (missing.length) {
+  const hasSolidTodayCircle = combined.includes('is-today > header strong { background:var(--md-sys-color-primary)')
+    || combined.includes('is-today .shift-day-number { display:grid; place-items:center; min-width:32px;');
+  if (missing.length || hasSolidTodayCircle) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; solid today circle: ${hasSolidTodayCircle})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
