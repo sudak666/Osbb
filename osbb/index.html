@@ -1588,8 +1588,10 @@
         }
         grid.innerHTML = visibleRoles.map(role => `
             <article class="att-stat-card role-${role}">
-                <strong>${roleNames[role]}</strong>
-                <span>${totals[role].days} дн. · ${totals[role].hours.toFixed(1)} год.</span>
+                <span class="att-stat-role">${roleNames[role]}</span>
+                <strong class="att-stat-value">${totals[role].days}</strong>
+                <span class="att-stat-label">змін відпрацьовано</span>
+                <small>${totals[role].hours.toFixed(1)} год. загалом</small>
             </article>
         `).join('');
     }
@@ -1620,6 +1622,7 @@
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             html += `<tr class="${isWeekend ? 'is-weekend' : ''}"><td class="att-col-date">${d}</td>`;
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
             let mobileRolesHtml = '';
@@ -1657,12 +1660,12 @@
                 }
             });
             html += '</tr>';
-            calendarHtml += `<article class="att-calendar-day ${isWeekend ? 'is-weekend' : ''}">
-                <header><strong>${d}</strong><span>${dayName}</span></header>
+            calendarHtml += `<article class="att-calendar-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+                <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
                 <div class="att-calendar-roles">${calendarRolesHtml}</div>
             </article>`;
-            mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''}">
-                <header><strong>${d}</strong><span>${dayName}</span></header>
+            mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+                <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
                 <div class="att-mobile-roles">${mobileRolesHtml}</div>
             </article>`;
         }
