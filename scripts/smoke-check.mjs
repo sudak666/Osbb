@@ -181,6 +181,29 @@ for (const [file, needle, label] of checks) {
 }
 
 
+// Material Symbols are ligature text until the webfont arrives. Keep those
+// internal names hidden during startup and reveal icons only after font load.
+{
+  const label = 'Material Symbols ligatures stay hidden until the icon font loads';
+  const entrypoints = ['index.html', 'osbb/index.html', 'sklad/index.html'];
+  const sharedCss = readFileSync('shared/ui.css', 'utf8');
+  const loader = readFileSync('shared/material-symbols-ready.js', 'utf8');
+  const copyScript = readFileSync('scripts/copy-static-assets.mjs', 'utf8');
+  const missing = entrypoints.filter(file => !readFileSync(file, 'utf8').includes('/Osbb/shared/material-symbols-ready.js'));
+  const valid = sharedCss.includes('.material-symbols-rounded { visibility: hidden; }') &&
+    sharedCss.includes('.material-symbols-ready .material-symbols-rounded { visibility: visible; }') &&
+    loader.includes('document.fonts') && loader.includes("classList.add('material-symbols-ready')") &&
+    copyScript.includes("'shared/material-symbols-ready.js'");
+  if (missing.length || !valid) {
+    failed += 1;
+    console.error(`not ok - ${label} (entrypoints: ${missing.join(', ')}; loader: ${valid})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+
 // Shared Material Design 3 tokens must stay wired into every entrypoint and
 // consumed by the three UI surfaces. This prevents future polish passes from
 // drifting back to isolated hardcoded theme islands.
