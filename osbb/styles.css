@@ -649,7 +649,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .shift-header{flex-direction:column;}
   .shift-header-actions{width:100%;justify-content:space-between;}
   .shift-weekdays,.shift-calendar{gap:4px;}
-  .shift-day{min-height:62px;padding:7px;border-radius:12px;}
+  .shift-day{align-items:center;min-height:62px;padding:7px;border-radius:12px;text-align:center;}
+  .shift-day-number{display:grid;place-items:center;width:32px;height:32px;}
+  .shift-day-indicators{width:100%;justify-content:center;}
   .shift-stats-grid{grid-template-columns:1fr;}
   .shift-chip-row{grid-template-columns:repeat(2,minmax(0,1fr));}
   .shift-editor-overlay{align-items:flex-end;padding:64px 0 0;}
