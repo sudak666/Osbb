@@ -1,9 +1,10 @@
-const CACHE_NAME = 'osbb-shell-v3';
+const CACHE_NAME = 'osbb-shell-v6';
 const urlsToCache = [
   '/Osbb/',
   '/Osbb/index.html',
   '/Osbb/styles.css',
   '/Osbb/shared/ui.css',
+  '/Osbb/shared/material-symbols-ready.js',
   '/Osbb/manifest.json',
   '/Osbb/icon-192.png',
   '/Osbb/icon-512.png'
@@ -34,6 +35,7 @@ self.addEventListener('fetch', event => {
   const isShellPath = url.pathname === '/Osbb/' || url.pathname === '/Osbb/index.html';
   const isShellStatic = url.pathname === '/Osbb/styles.css' ||
                          url.pathname === '/Osbb/shared/ui.css' ||
+                         url.pathname === '/Osbb/shared/material-symbols-ready.js' ||
                          url.pathname === '/Osbb/manifest.json' ||
                          url.pathname === '/Osbb/icon-192.png' ||
                          url.pathname === '/Osbb/icon-512.png';

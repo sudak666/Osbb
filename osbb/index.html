@@ -7,16 +7,17 @@
     <meta http-equiv="Expires" content="0">
     <!-- cache-bust-1784387092271433146 -->
     <link rel="manifest" href="/Osbb/osbb/manifest.json">
-    <meta name="theme-color" content="#22c55e" id="meta-theme-color">
+    <meta name="theme-color" content="#08752f" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ОСББ Журнал">
-    <link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2322c55e'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='%2322c55e'/></svg>">
+    <link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2308752f'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='%2308752f'/></svg>">
     <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="/Osbb/shared/ui.css">
     <link rel="stylesheet" href="/Osbb/shared/material-tokens.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <script src="/Osbb/shared/material-symbols-ready.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал ОСББ "Микитська Слобода"</title>
     <script>
@@ -26,29 +27,24 @@
     </script>
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://vkwkyhjjjmcpmiakxohw.supabase.co" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="/Osbb/shared/enhance-select.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap&subset=cyrillic" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-light min-h-screen">
 
-<svg aria-hidden="true" focusable="false" style="display:none">
-    <defs>
-        <symbol id="i-garbage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
-        <symbol id="i-dispatcher" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></symbol>
-    </defs>
-</svg>
 
 <!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
 <div id="app-lock-screen" class="lock-screen">
     <div class="lock-panel">
         <!-- Лого -->
-        <div class="lock-logo"><svg aria-hidden="true" focusable="false" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></div>
+        <div class="lock-logo"><span class="material-symbols-rounded" aria-hidden="true">home</span></div>
         <div class="lock-title">ОСББ "Микитська Слобода"</div>
         <div class="lock-subtitle">Введіть PIN для входу</div>
 
@@ -102,16 +98,16 @@
 <div id="intro-splash">
     <div class="pulse-ring"></div>
     <div class="pulse-ring pulse-ring2"></div>
-    <div class="intro-logo"><span class="mdi mdi-home-city journal-splash-icon" aria-hidden="true"></span></div>
+    <div class="intro-logo"><span class="material-symbols-rounded journal-splash-icon" aria-hidden="true">apartment</span></div>
     <div class="intro-name">ОСББ "Микитська Слобода"</div>
-    <div class="intro-sub"><span class="journal-action-label"><span class="mdi mdi-cloud-sync journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span></div>
+    <div class="intro-sub"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">sync</span> Завантаження...</span></div>
 </div>
 
 
 <!-- PIN MODAL для скидання -->
 <div id="pin-modal" class="pin-modal-overlay">
     <div class="pin-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1">
-        <div class="pin-modal-icon" id="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+        <div class="pin-modal-icon" id="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span></div>
         <div class="pin-modal-title" id="pin-modal-title">Пароль для скидання</div>
         <div class="pin-modal-sub" id="pin-modal-sub">Введіть 4-значний PIN</div>
         <div class="pin-dots">
@@ -133,7 +129,7 @@
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="9">9</button>
             <button type="button" data-pin-modal-cancel aria-label="Скасувати введення PIN" class="pin-key-action pin-key-cancel">Скас.</button>
             <button type="button" class="pin-mb-btn" data-pin-modal-digit="0">0</button>
-            <button type="button" data-pin-modal-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру"><svg aria-hidden="true" focusable="false" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1H20C20.55 1 21 1.45 21 2V14C21 14.55 20.55 15 20 15H8C7.72 15 7.45 14.86 7.29 14.62L1 8L7.29 1.38C7.45 1.14 7.72 1 8 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M15.5 5L11.5 11M11.5 5L15.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            <button type="button" data-pin-modal-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру"><span class="material-symbols-rounded" aria-hidden="true">backspace</span></button>
         </div>
     </div>
 </div>
@@ -143,7 +139,7 @@
      особистий PIN. Роль з цієї сесії керує доступом до Табеля/заявок. -->
 <div id="staff-login-modal" class="pin-modal-overlay">
     <div class="pin-modal-dialog staff-login-dialog" role="dialog" aria-modal="true" aria-labelledby="staff-login-title" tabindex="-1">
-        <div class="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><span class="mdi mdi-account-check-outline" aria-hidden="true" style="font-size:20px;color:#34c759"></span></span></div>
+        <div class="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><span class="material-symbols-rounded" aria-hidden="true">how_to_reg</span></span></div>
         <div class="pin-modal-title" id="staff-login-title">Хто ви?</div>
         <div class="pin-modal-sub">Оберіть себе зі списку</div>
         <div id="staff-login-list" class="staff-login-list" role="listbox" aria-label="Список співробітників"></div>
@@ -196,34 +192,48 @@
     </div>
 </div>
 
+<div id="ticket-delete-confirm" class="ticket-confirm-overlay no-print" role="dialog" aria-modal="true" aria-labelledby="ticket-delete-confirm-title" aria-hidden="true" tabindex="-1">
+    <div class="ticket-confirm-dialog">
+        <div class="ticket-confirm-icon" aria-hidden="true"><span class="material-symbols-rounded">delete</span></div>
+        <div>
+            <h2 id="ticket-delete-confirm-title" class="ticket-confirm-title">Видалити заявку?</h2>
+            <p class="ticket-confirm-copy">Цю дію неможливо скасувати.</p>
+        </div>
+        <div class="ticket-confirm-actions">
+            <button type="button" class="journal-tonal-btn md-state-layer" data-ticket-delete-cancel>Скасувати</button>
+            <button type="button" class="journal-action-btn journal-action-btn-danger md-state-layer" data-ticket-delete-confirm>Видалити</button>
+        </div>
+    </div>
+</div>
+
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
         <div class="journal-title-row">
             <div class="journal-title-block">
                 <div class="journal-title-eyebrow">Журнал обліку ОСББ</div>
-                <h1 class="journal-title-heading"><span class="inline-flex items-center gap-2"><span class="mdi mdi-home-city journal-inline-icon" aria-hidden="true"></span> ОСББ "Микитська Слобода"</span></h1>
+                <h1 class="journal-title-heading"><span class="inline-flex items-center gap-2"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">apartment</span> ОСББ "Микитська Слобода"</span></h1>
                 <div class="journal-title-copy">Заявки, табель персоналу та облік будинку.</div>
             </div>
             <div class="journal-title-actions">
-                <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Офлайн</span>
-                <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span></span>
+                <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>
+                <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span></span>
                 <button type="button" id="staff-session-badge" class="journal-status-chip staff-session-chip hidden md-state-layer" data-tip="Змінити користувача" aria-label="Поточний співробітник, натисніть щоб змінити" data-staff-switch></button>
-                <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" class="journal-inline-icon"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
+                <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
             </div>
         </div>
 
         <div class="journal-action-row">
             <div class="journal-calendar-controls">
-                <button type="button" data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="journal-icon-btn md-state-layer"><span class="mdi mdi-chevron-left" aria-hidden="true"></span></button>
+                <button type="button" data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="journal-icon-btn md-state-layer"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
                 <select id="year-select" data-calendar-select aria-label="Рік" class="journal-select"></select>
                 <select id="month-select" data-calendar-select aria-label="Місяць" class="journal-select"></select>
-                <button type="button" data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="journal-icon-btn md-state-layer"><span class="mdi mdi-chevron-right" aria-hidden="true"></span></button>
+                <button type="button" data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="journal-icon-btn md-state-layer"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
                 <button type="button" data-action="go-today" id="btn-today" class="journal-tonal-btn md-state-layer hidden">
-                    <span class="flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg> Сьогодні</span>
+                    <span class="flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">today</span> Сьогодні</span>
                 </button>
                 <button type="button" data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="journal-icon-btn md-state-layer is-primary" id="btn-refresh">
-                    <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="journal-inline-icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
                 </button>
             </div>
         </div>
@@ -231,19 +241,19 @@
         <div class="journal-tabs-row">
         <div id="desktop-tabs" class="journal-tabs" role="tablist" aria-label="Розділи журналу">
             <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="tab-btn md-state-layer active">
-                <span class="mdi mdi-phone-outline journal-inline-icon" aria-hidden="true"></span> Диспетчер
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Диспетчер
             </button>
             <button type="button" data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn md-state-layer">
-                <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span> Сміття
             </button>
             <button type="button" data-osbb-tab="shifts" id="tab-shifts" role="tab" aria-selected="false" aria-controls="section-shifts" class="tab-btn md-state-layer">
-                <span class="mdi mdi-calendar-clock journal-inline-icon" aria-hidden="true"></span> Зміни
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">calendar_clock</span> Зміни
             </button>
             <button type="button" data-osbb-tab="tabel" id="tab-tabel" role="tab" aria-selected="false" aria-controls="section-tabel" class="tab-btn md-state-layer">
-                <span class="mdi mdi-clock-check-outline journal-inline-icon" aria-hidden="true"></span> Табель
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span> Табель
             </button>
             <button type="button" data-osbb-tab="my-tickets" id="tab-my-tickets" role="tab" aria-selected="false" aria-controls="section-my-tickets" class="tab-btn md-state-layer hidden">
-                <span class="mdi mdi-format-list-checks journal-inline-icon" aria-hidden="true"></span> Мої заявки
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span> Мої заявки
             </button>
         </div>
     </div>
@@ -252,19 +262,19 @@
     <!-- BOTTOM NAV — тільки на мобілці -->
     <div id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу" class="journal-bottom-nav no-print">
         <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="mob-tab md-state-layer mob-active">
-            <span class="mdi mdi-phone-outline journal-inline-icon" aria-hidden="true"></span> Диспетчер
+            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Диспетчер
         </button>
         <button type="button" data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab md-state-layer">
-            <span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span> Сміття
+            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span> Сміття
         </button>
         <button type="button" data-osbb-tab="shifts" id="tab-shifts-m" role="tab" aria-selected="false" aria-controls="section-shifts" class="mob-tab md-state-layer">
-            <span class="mdi mdi-calendar-clock journal-inline-icon" aria-hidden="true"></span> Зміни
+            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">calendar_clock</span> Зміни
         </button>
         <button type="button" data-osbb-tab="tabel" id="tab-tabel-m" role="tab" aria-selected="false" aria-controls="section-tabel" class="mob-tab md-state-layer">
-            <span class="mdi mdi-clock-check-outline journal-inline-icon" aria-hidden="true"></span> Табель
+            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span> Табель
         </button>
         <button type="button" data-osbb-tab="my-tickets" id="tab-my-tickets-m" role="tab" aria-selected="false" aria-controls="section-my-tickets" class="mob-tab md-state-layer hidden">
-            <span class="mdi mdi-format-list-checks journal-inline-icon" aria-hidden="true"></span> Мої заявки
+            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span> Мої заявки
         </button>
     </div>
 
@@ -272,16 +282,16 @@
         <div class="shift-shell">
             <div class="shift-header">
                 <div>
-                    <div class="journal-section-title"><span class="mdi mdi-calendar-clock journal-inline-icon" aria-hidden="true"></span>Графік змін</div>
+                    <div class="journal-section-title"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">calendar_clock</span>Графік змін</div>
                     <h2 id="shift-heading" class="shift-heading">Сергій та Олександр</h2>
                     <p class="shift-copy">Календар чергувань і розрахунок зарплати за місяць.</p>
                 </div>
-                <div class="shift-header-actions"><button type="button" class="shift-settings-btn md-state-layer" data-shift-action="edit-names"><span class="mdi mdi-account-edit-outline" aria-hidden="true"></span>Імена</button><span id="shift-sync-status" class="journal-status-chip" role="status" aria-live="polite">Готово</span></div>
+                <div class="shift-header-actions"><button type="button" class="shift-settings-btn md-state-layer" data-shift-action="edit-names"><span class="material-symbols-rounded" aria-hidden="true">manage_accounts</span>Імена</button><span id="shift-sync-status" class="journal-status-chip" role="status" aria-live="polite">Готово</span></div>
             </div>
             <div class="shift-month-controls" aria-label="Навігація графіка за місяцями">
-                <button type="button" class="shift-nav-btn md-state-layer" data-shift-action="previous-month" aria-label="Попередній місяць"><span class="mdi mdi-chevron-left" aria-hidden="true"></span></button>
+                <button type="button" class="shift-nav-btn md-state-layer" data-shift-action="previous-month" aria-label="Попередній місяць"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
                 <strong id="shift-month-title" class="shift-month-title"></strong>
-                <button type="button" class="shift-nav-btn md-state-layer" data-shift-action="next-month" aria-label="Наступний місяць"><span class="mdi mdi-chevron-right" aria-hidden="true"></span></button>
+                <button type="button" class="shift-nav-btn md-state-layer" data-shift-action="next-month" aria-label="Наступний місяць"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
             </div>
             <div class="shift-weekdays" aria-hidden="true"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span></div>
             <div id="shift-calendar" class="shift-calendar" aria-label="Календар робочих змін"></div>
@@ -291,7 +301,7 @@
                 <article class="shift-stat-card is-oleksandr"><div class="shift-stat-head"><strong id="shift-stat-name-oleksandr">Олександр</strong><span id="shift-money-oleksandr">0 грн</span></div><p>Днів / Ночей / Пів ночі</p><strong id="shift-stats-oleksandr" class="shift-stat-counts">0 / 0 / 0</strong></article>
                 <article class="shift-stat-card is-total"><div class="shift-stat-head"><strong>Разом за місяць</strong><span id="shift-money-total">0 грн</span></div><p>Ставки: день 900 грн, ніч 900 грн, пів ночі 450 грн.</p></article>
             </div>
-            <button type="button" class="shift-reset-btn md-state-layer" data-shift-action="reset-month"><span class="mdi mdi-restore" aria-hidden="true"></span>Скинути ручні корекції місяця</button>
+            <button type="button" class="shift-reset-btn md-state-layer" data-shift-action="reset-month"><span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>Скинути ручні корекції місяця</button>
         </div>
 
         <div id="shift-editor" class="shift-editor-overlay" role="dialog" aria-modal="true" aria-labelledby="shift-editor-title" aria-hidden="true">
@@ -300,7 +310,7 @@
                 <h3 id="shift-editor-title" class="shift-editor-title">Редагування зміни</h3>
                 <div class="shift-person-block"><strong id="shift-editor-name-sergiy">Сергій</strong><div id="shift-chips-sergiy" class="shift-chip-row"></div></div>
                 <div class="shift-person-block"><strong id="shift-editor-name-oleksandr">Олександр</strong><div id="shift-chips-oleksandr" class="shift-chip-row"></div></div>
-                <div class="shift-editor-actions"><button type="button" class="shift-secondary-btn md-state-layer" data-shift-action="close-editor">Скасувати</button><button type="button" class="shift-primary-btn md-state-layer" data-shift-action="save-day"><span class="mdi mdi-content-save-outline" aria-hidden="true"></span>Зберегти</button></div>
+                <div class="shift-editor-actions"><button type="button" class="shift-secondary-btn md-state-layer" data-shift-action="close-editor">Скасувати</button><button type="button" class="shift-primary-btn md-state-layer" data-shift-action="save-day"><span class="material-symbols-rounded" aria-hidden="true">save</span>Зберегти</button></div>
             </div>
         </div>
 
@@ -311,7 +321,7 @@
                 <p class="shift-copy">Зміна імен захищена окремим PIN графіка.</p>
                 <label class="shift-name-field"><span>Перший працівник</span><input id="shift-name-sergiy" type="text" maxlength="40" autocomplete="off"></label>
                 <label class="shift-name-field"><span>Другий працівник</span><input id="shift-name-oleksandr" type="text" maxlength="40" autocomplete="off"></label>
-                <div class="shift-editor-actions"><button type="button" class="shift-secondary-btn md-state-layer" data-shift-action="close-names">Скасувати</button><button type="button" class="shift-primary-btn md-state-layer" data-shift-action="save-names"><span class="mdi mdi-content-save-outline" aria-hidden="true"></span>Зберегти</button></div>
+                <div class="shift-editor-actions"><button type="button" class="shift-secondary-btn md-state-layer" data-shift-action="close-names">Скасувати</button><button type="button" class="shift-primary-btn md-state-layer" data-shift-action="save-names"><span class="material-symbols-rounded" aria-hidden="true">save</span>Зберегти</button></div>
             </div>
         </div>
     </section>
@@ -322,24 +332,31 @@
     <section id="section-tabel" class="hidden mb-6" role="tabpanel" aria-labelledby="tab-tabel">
         <div class="journal-panel">
             <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="mdi mdi-clock-check-outline journal-inline-icon" aria-hidden="true"></span>Табель робочого часу</span>
-                <span id="att-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
+                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Табель робочого часу</span>
+                <span id="att-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
             <p id="att-view-note" class="shift-copy">Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.</p>
             <div class="att-stats-grid" id="att-stats-grid" aria-label="Відпрацьовано за місяць"></div>
-            <div class="att-table-scroll">
+            <div class="att-calendar-scroll" aria-label="Календар табеля">
+                <div class="att-calendar-weekdays" aria-hidden="true">
+                    <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span>
+                </div>
+                <div id="att-calendar" class="att-calendar"></div>
+            </div>
+            <div class="att-table-scroll" aria-hidden="true">
                 <table class="att-table">
                     <thead>
                         <tr>
                             <th class="att-col-date">День</th>
-                            <th class="is-electrician"><span class="mdi mdi-flash journal-inline-icon" aria-hidden="true"></span>Електрик</th>
-                            <th class="is-janitor"><span class="mdi mdi-broom journal-inline-icon" aria-hidden="true"></span>Двірник</th>
-                            <th class="is-plumber"><span class="mdi mdi-wrench-outline journal-inline-icon" aria-hidden="true"></span>Сантехнік</th>
+                            <th class="is-electrician" data-att-role-header="electrician"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">bolt</span>Електрик</th>
+                            <th class="is-janitor" data-att-role-header="janitor"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">cleaning_services</span>Двірник</th>
+                            <th class="is-plumber" data-att-role-header="plumber"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">plumbing</span>Сантехнік</th>
                         </tr>
                     </thead>
                     <tbody id="att-body"></tbody>
                 </table>
             </div>
+            <div id="att-mobile-list" class="att-mobile-list" aria-label="Табель за днями"></div>
         </div>
     </section>
 
@@ -376,10 +393,10 @@
         <!-- Список днів (згорнуто, окрім сьогодні) -->
         <div class="journal-panel journal-list-shell">
             <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span>Журнал вивозу сміття</span>
+                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span>Журнал вивозу сміття</span>
                 <div class="flex items-center gap-2">
-                    <span id="g-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
-                    <button type="button" data-action="garbage-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="mdi mdi-restore journal-inline-icon" aria-hidden="true"></span> Скинути</span></button>
+                    <span id="g-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+                    <button type="button" data-action="garbage-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">restart_alt</span> Скинути</span></button>
                 </div>
             </div>
 
@@ -392,15 +409,18 @@
         <!-- Ліфтер приїжджає лише кілька разів на місяць — окремий короткий
              журнал відміток, не прив'язаний до щоденного календаря диспетчера. -->
         <div class="journal-panel elevator-panel">
-            <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="mdi mdi-elevator journal-inline-icon" aria-hidden="true"></span>Ліфтер</span>
-                <span id="elevator-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
+            <div class="elevator-head">
+                <div class="elevator-title">
+                    <span class="elevator-title-icon material-symbols-rounded" aria-hidden="true">elevator</span>
+                    <span>Ліфтер</span>
+                </div>
+                <span id="elevator-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
             <p class="shift-copy">Відмітки приїзду ліфтера цього місяця та що саме він робив.</p>
             <div class="elevator-add-form">
                 <select id="elevator-new-day" class="journal-select" aria-label="День приїзду ліфтера"></select>
                 <input type="text" id="elevator-new-text" class="dispatcher-location-input" placeholder="Що зробив ліфтер..." aria-label="Опис виконаних робіт">
-                <button type="button" class="dispatcher-time-btn md-state-layer" data-action="elevator-add"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати запис</button>
+                <button type="button" class="dispatcher-time-btn md-state-layer" data-action="elevator-add"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add</span>Додати запис</button>
             </div>
             <div id="elevator-list" class="elevator-list"></div>
         </div>
@@ -409,16 +429,16 @@
         <div class="journal-panel journal-list-shell">
             <div class="journal-list-head">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold"><span class="journal-action-label"><span class="mdi mdi-phone-outline journal-inline-icon" aria-hidden="true"></span> Журнал Диспетчера</span></span>
+                    <span class="text-sm font-bold"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Журнал Диспетчера</span></span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span id="disp-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
-                    <button type="button" data-action="dispatcher-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="mdi mdi-restore journal-inline-icon" aria-hidden="true"></span> Скинути</span></button>
+                    <span id="disp-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+                    <button type="button" data-action="dispatcher-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">restart_alt</span> Скинути</span></button>
                 </div>
             </div>
             <div class="dispatcher-toolbar no-print">
                 <label class="dispatcher-search-wrap">
-                    <span class="mdi mdi-magnify journal-inline-icon" aria-hidden="true"></span>
+                    <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">search</span>
                     <input id="disp-search" type="search" placeholder="Пошук: ліфт, лампа, кв. 45..." aria-label="Пошук по записах диспетчера" aria-keyshortcuts="/ Escape" class="dispatcher-search-input" data-disp-search>
                 </label>
                 <div class="dispatcher-filter-chips" role="group" aria-label="Фільтр записів диспетчера">
@@ -450,15 +470,15 @@
     <div id="section-my-tickets" class="hidden mb-6">
         <div class="journal-panel journal-list-shell">
             <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="mdi mdi-format-list-checks journal-inline-icon" aria-hidden="true"></span>Мої заявки</span>
-                <span id="my-tickets-sync-status" class="journal-status-chip"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span></span>
+                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
+                <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
             <p class="shift-copy">Заявки цього місяця, призначені вам, відсортовані за пріоритетом:</p>
             <div class="priority-legend" aria-label="Порядок пріоритетів">
                 <span class="priority-legend-item priority-HIGH"><i class="priority-dot" aria-hidden="true"></i>Терміново</span>
-                <span class="mdi mdi-arrow-right priority-legend-arrow" aria-hidden="true"></span>
+                <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
                 <span class="priority-legend-item priority-MEDIUM"><i class="priority-dot" aria-hidden="true"></i>Звичайний</span>
-                <span class="mdi mdi-arrow-right priority-legend-arrow" aria-hidden="true"></span>
+                <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
                 <span class="priority-legend-item priority-LOW"><i class="priority-dot" aria-hidden="true"></i>Нетерміново</span>
             </div>
             <div id="my-tickets-list" class="my-tickets-list"></div>
@@ -750,7 +770,7 @@
         renderStaffLoginList();
     }
 
-    const STAFF_ROLE_ICONS = { dispatcher: 'mdi-phone-outline', admin: 'mdi-shield-account-outline', board: 'mdi-account-tie-outline', plumber: 'mdi-wrench-outline', janitor: 'mdi-broom', electrician: 'mdi-flash' };
+    const STAFF_ROLE_ICONS = { dispatcher: 'support_agent', admin: 'admin_panel_settings', board: 'badge', plumber: 'plumbing', janitor: 'cleaning_services', electrician: 'bolt' };
     const STAFF_ROLE_LABELS = { dispatcher: 'Диспетчер', admin: 'Адмін', board: 'Правління', plumber: 'Сантехнік', janitor: 'Двірник', electrician: 'Електрик' };
 
     function renderStaffLoginList() {
@@ -762,7 +782,7 @@
         }
         listEl.innerHTML = staffLoginList.map(s => `
             <button type="button" class="staff-login-item md-state-layer" data-staff-select="${escapeAttr(s.id)}">
-                <span class="mdi ${STAFF_ROLE_ICONS[s.role] || 'mdi-account-outline'} journal-inline-icon" aria-hidden="true"></span>
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">${STAFF_ROLE_ICONS[s.role] || 'person'}</span>
                 <span class="staff-login-item-name">${escapeHtml(s.full_name)}</span>
                 <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[s.role] || s.role)}</span>
             </button>
@@ -931,6 +951,7 @@
         if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
+        if (currentTab === 'tabel') attRender();
     }
 
     // ==========================================
@@ -983,6 +1004,11 @@
         'plastic': 'Пластик',
         'glass':   'Скло',
         'bins':    'Баки'
+    };
+    const gTypeMeta = {
+        plastic: { icon: 'recycling', description: 'Окремий вивіз пластику' },
+        glass: { icon: 'local_drink', description: 'Окремий вивіз скла' },
+        bins: { icon: 'delete', description: 'Звичайні сміттєві баки' }
     };
 
     const yearSelect = document.getElementById('year-select');
@@ -1459,12 +1485,12 @@
     }
 
     async function attInitTab() {
-        attSetStatus('loading', '<span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span>');
+        attSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
         const offline = attLoadOffline();
         if (offline) { attData = offline; attRender(); }
         if (IS_PREVIEW) {
             attData = offline || {};
-            attSetStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>');
+            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
             attRender();
             return;
         }
@@ -1474,10 +1500,10 @@
             if (error && error.code !== 'PGRST116') throw error;
             attData = data?.data || offline || {};
             attSaveOffline();
-            attSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Синхронізовано</span>');
+            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
         } catch(err) {
             console.error('attendance load error:', err);
-            attSetStatus('error', offline ? '<span class="status-label"><span class="mdi mdi-wifi-off journal-inline-icon" aria-hidden="true"></span>Офлайн</span>' : '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Немає даних</span>');
+            attSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
             attData = offline || {};
         }
         attRender();
@@ -1498,6 +1524,10 @@
         return minutes / 60;
     }
 
+    function attVisibleRoles() {
+        return isWorkerSession() ? [staffSession.role] : roles;
+    }
+
     async function attSaveDay(d, role, checkIn, checkOut) {
         if (!isDispatcherSession()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
         attData[d] = attData[d] || {};
@@ -1509,10 +1539,10 @@
         // вкладки staffSession лишається (sessionStorage), а PIN губиться. Замість
         // мовчазної відмови просимо підтвердити PIN ще раз і продовжуємо збереження.
         if (!staffPinCache) {
-            attSetStatus('loading', '<span class="status-label"><span class="mdi mdi-lock-outline journal-inline-icon" aria-hidden="true"></span>Підтвердіть PIN</span>');
+            attSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>Підтвердіть PIN</span>');
             const confirmed = await requestStaffReauth();
             if (!confirmed) {
-                attSetStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
+                attSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
                 showToast('Збереження скасовано: потрібне підтвердження PIN');
                 return;
             }
@@ -1524,11 +1554,11 @@
                 p_staff_id: staffSession.id, attempt: staffPinCache
             });
             if (!ok) throw new Error('Сервер відхилив запис (перевірте роль/PIN)');
-            attSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Збережено</span>');
+            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
         } catch(err) {
             console.error('attendance save error:', err);
             staffPinCache = null; // можливо PIN вже недійсний (напр. змінений адміном) — наступна спроба знову спитає
-            attSetStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
+            attSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
             showToast('Не вдалося зберегти. Спробуйте увійти в сесію Диспетчера ще раз.');
         }
     }
@@ -1536,52 +1566,105 @@
     function attRenderStats() {
         const grid = document.getElementById('att-stats-grid');
         if (!grid) return;
+        const visibleRoles = attVisibleRoles();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const totals = {};
-        roles.forEach(role => { totals[role] = { days: 0, hours: 0 }; });
+        visibleRoles.forEach(role => { totals[role] = { days: 0, hours: 0 }; });
         for (let d = 1; d <= daysInMonth; d++) {
-            roles.forEach(role => {
+            visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 const hours = attHoursForCell(cell);
                 if (hours > 0) { totals[role].days++; totals[role].hours += hours; }
             });
         }
-        grid.innerHTML = roles.map(role => `
+        grid.innerHTML = visibleRoles.map(role => `
             <article class="att-stat-card role-${role}">
-                <strong>${roleNames[role]}</strong>
-                <span>${totals[role].days} дн. · ${totals[role].hours.toFixed(1)} год.</span>
+                <span class="att-stat-role">${roleNames[role]}</span>
+                <strong class="att-stat-value">${totals[role].days}</strong>
+                <span class="att-stat-label">змін відпрацьовано</span>
+                <small>${totals[role].hours.toFixed(1)} год. загалом</small>
             </article>
         `).join('');
     }
 
     function attRender() {
         const body = document.getElementById('att-body');
-        if (!body) return;
+        const calendar = document.getElementById('att-calendar');
+        const mobileList = document.getElementById('att-mobile-list');
+        if (!body || !calendar || !mobileList) return;
         const editable = isDispatcherSession();
-        document.getElementById('att-view-note')?.classList.toggle('hidden', editable);
+        const visibleRoles = attVisibleRoles();
+        const viewNote = document.getElementById('att-view-note');
+        if (viewNote) {
+            viewNote.classList.toggle('hidden', editable);
+            viewNote.textContent = isWorkerSession()
+                ? `Ви бачите лише власний табель: ${roleNames[staffSession.role]}.`
+                : 'Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.';
+        }
+        document.querySelectorAll('[data-att-role-header]').forEach(header => {
+            header.classList.toggle('hidden', !visibleRoles.includes(header.dataset.attRoleHeader));
+        });
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         let html = '';
+        let calendarHtml = '';
+        let mobileHtml = '';
+        const firstDayOffset = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
+        calendarHtml += '<div class="att-calendar-spacer" aria-hidden="true"></div>'.repeat(firstDayOffset);
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
             html += `<tr class="${isWeekend ? 'is-weekend' : ''}"><td class="att-col-date">${d}</td>`;
-            roles.forEach(role => {
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
+            let mobileRolesHtml = '';
+            let calendarRolesHtml = '';
+            visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 if (editable) {
                     html += `<td class="is-${role}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
                     </td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role}">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
+                        <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
+                    </div>`;
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role}">
+                        <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <div class="att-calendar-times">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Відхід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                        </div>
+                    </div>`;
                 } else {
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
                     html += `<td class="is-${role} att-readonly">${text}</td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <strong>${text}</strong>
+                    </div>`;
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} is-readonly">
+                        <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <strong>${text}</strong>
+                    </div>`;
                 }
             });
             html += '</tr>';
+            calendarHtml += `<article class="att-calendar-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+                <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
+                <div class="att-calendar-roles">${calendarRolesHtml}</div>
+            </article>`;
+            mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+                <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
+                <div class="att-mobile-roles">${mobileRolesHtml}</div>
+            </article>`;
         }
         body.innerHTML = html;
+        calendar.innerHTML = calendarHtml;
+        mobileList.innerHTML = mobileHtml;
         if (editable) {
-            body.querySelectorAll('[data-att-day]').forEach(input => {
+            document.querySelectorAll('#att-body [data-att-day], #att-calendar [data-att-day], #att-mobile-list [data-att-day]').forEach(input => {
                 input.addEventListener('change', () => {
                     const d = input.dataset.attDay, role = input.dataset.attRole;
                     const rowCell = attGetCell(d, role);
@@ -1641,10 +1724,10 @@
     // всіх табів: рік/місяць, кеш фото на місяць і перерендер активного табу.
     async function initCalendar() {
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
-        setSyncStatus('loading', '<span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span>');
+        setSyncStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
         photosCache = null;
         if (!IS_PREVIEW) await loadAllPhotosForMonth();
-        setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Синхронізовано</span>');
+        setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
         updateTodayBtn();
         if (currentTab === 'garbage') gInitTab();
         if (currentTab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
@@ -1696,8 +1779,8 @@
     }
 
     async function uploadPhoto(day, role, file) {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>'); return; }
-        setSyncStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-cloud-upload-outline journal-inline-icon" aria-hidden="true"></span>Завантажую...</span>');
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>'); return; }
+        setSyncStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">cloud_upload</span>Завантажую...</span>');
         try {
             const compressed = await compressImage(file);
             const ext = 'jpg';
@@ -1716,7 +1799,7 @@
             const key = `${day}-${role}`;
             if (!photosCache[key]) photosCache[key] = [];
             photosCache[key].push({ id: realId, url: urlData.publicUrl });
-            setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-image-check-outline journal-inline-icon" aria-hidden="true"></span>Фото збережено</span>');
+            setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add_photo_alternate</span>Фото збережено</span>');
             
             // Оновлюємо обидва інтерфейси одночасно
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
@@ -1724,16 +1807,16 @@
             const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
             if (mobileCont) renderPhotoContainer(mobileCont, photosCache[key], day, role, true);
             if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
-        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span> Помилка фото</span>'); }
+        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка фото</span>'); }
     }
 
     async function deletePhoto(id, url, day, role) {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>'); return; }
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>'); return; }
         showPinModal('Видалення фото', 'PIN для видалення фото', async (pin) => {
             try {
                 const ok = await db.rpc('delete_photo', { p_photo_id: id, attempt: pin });
                 if (!ok) {
-                    setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span> PIN не підтверджено</span>');
+                    setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> PIN не підтверджено</span>');
                     return;
                 }
                 const path = url.split('/photos/')[1];
@@ -1743,14 +1826,14 @@
                 if (photosCache && photosCache[key]) {
                     photosCache[key] = photosCache[key].filter(p => String(p.id) !== String(id));
                 }
-                setSyncStatus('ok', '<span class="status-label"><span class="mdi mdi-image-remove-outline journal-inline-icon" aria-hidden="true"></span>Фото видалено</span>');
+                setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">hide_image</span>Фото видалено</span>');
 
                 const desktopCont = document.getElementById(`photos-${day}-${role}`);
                 if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
                 const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
                 if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
                 if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
-            } catch (err) { console.error('delete error:', err); setSyncStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span> Помилка видалення</span>'); }
+            } catch (err) { console.error('delete error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка видалення</span>'); }
         }, true);
     }
 
@@ -1761,7 +1844,7 @@
             return `
             <div class="relative group">
                 <img src="${safeUrl}" alt="Фото запису за день ${day}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
-                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><svg aria-hidden="true" focusable="false" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
             </div>`;
         }).join('');
     }
@@ -2083,7 +2166,7 @@
     function bindGarbageEntryActions() {
         // att-body (Табель) теж використовує масковані ГГ:ХХ поля (data-time-mask) —
         // додано сюди лише заради спільного input/blur форматування, не g-специфічної логіки.
-        ['g-days-list', 'day-detail-body', 'att-body'].forEach((id) => {
+        ['g-days-list', 'day-detail-body', 'att-body', 'att-mobile-list'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
             container.addEventListener('input', (event) => {
@@ -2121,7 +2204,7 @@
         ['disp-cards', 'day-detail-body'].forEach((id) => {
             const container = document.getElementById(id);
             if (!container) return;
-            container.addEventListener('click', (event) => {
+            container.addEventListener('click', async (event) => {
                 const action = event.target.closest('[data-disp-action]');
                 if (!action) return;
                 if (action.dataset.dispAction === 'ticket-add') {
@@ -2130,11 +2213,18 @@
                     const textEl = document.getElementById(`ticket-new-text-${d}`);
                     const roleEl = document.getElementById(`ticket-new-role-${d}`);
                     const priorityEl = document.getElementById(`ticket-new-priority-${d}`);
-                    dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM');
+                    const photosEl = document.getElementById(`ticket-new-photos-${d}`);
+                    action.disabled = true;
+                    action.setAttribute('aria-busy', 'true');
+                    await dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM', Array.from(photosEl?.files || []));
+                    if (action.isConnected) {
+                        action.disabled = false;
+                        action.removeAttribute('aria-busy');
+                    }
                 }
                 if (action.dataset.dispAction === 'ticket-delete') {
                     event.preventDefault();
-                    dispDeleteTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                    openTicketDeleteConfirm(Number(action.dataset.dispDay), action.dataset.ticketId, action);
                 }
                 if (action.dataset.dispAction === 'ticket-edit-toggle') {
                     event.preventDefault();
@@ -2154,7 +2244,66 @@
                     dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
                 }
             });
+            container.addEventListener('change', (event) => {
+                const photoInput = event.target.closest('[data-ticket-photo-input]');
+                if (photoInput) {
+                    const label = document.getElementById(`ticket-photo-label-${photoInput.dataset.dispDay}`);
+                    const count = photoInput.files?.length || 0;
+                    if (label) label.textContent = count ? `Вибрано фото: ${count}` : 'Додати фото проблеми';
+                    return;
+                }
+                const filter = event.target.closest('[data-ticket-filter]');
+                if (!filter) return;
+                if (filter.dataset.ticketFilter === 'worker') {
+                    dispWorkerFilter = WORKER_ROLES.includes(filter.value) ? filter.value : 'all';
+                }
+                if (filter.dataset.ticketFilter === 'status') {
+                    dispTicketStatusFilter = ['open', 'done'].includes(filter.value) ? filter.value : 'all';
+                }
+                dispOpenDayDetail(Number(filter.dataset.dispDay));
+            });
         });
+        document.querySelector('[data-ticket-delete-cancel]')?.addEventListener('click', closeTicketDeleteConfirm);
+        document.querySelector('[data-ticket-delete-confirm]')?.addEventListener('click', () => {
+            if (!window.osbbTicketDeleteState.pending) return;
+            const { day, ticketId } = window.osbbTicketDeleteState.pending;
+            closeTicketDeleteConfirm(false);
+            dispDeleteTicket(day, ticketId);
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) closeTicketDeleteConfirm();
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeTicketDeleteConfirm();
+            }
+        });
+    }
+
+    // Стан зберігаємо у властивості window, а не в top-level `let`: повторне
+    // виконання inline-скрипту після відновлення iframe не спричинить SyntaxError.
+    window.osbbTicketDeleteState = window.osbbTicketDeleteState || { pending: null, focusReturn: null };
+
+    function openTicketDeleteConfirm(day, ticketId, opener) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal || !Number.isInteger(day) || !ticketId) return;
+        window.osbbTicketDeleteState.pending = { day, ticketId };
+        window.osbbTicketDeleteState.focusReturn = opener || document.activeElement;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
+    }
+
+    function closeTicketDeleteConfirm(restoreFocus = true) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        window.osbbTicketDeleteState.pending = null;
+        const focusReturn = window.osbbTicketDeleteState.focusReturn;
+        if (restoreFocus && focusReturn?.isConnected) focusReturn.focus();
+        window.osbbTicketDeleteState.focusReturn = null;
     }
 
     document.querySelector('[data-disp-search]')?.addEventListener('input', (event) => {
@@ -2228,6 +2377,7 @@
 
         document.addEventListener('touchstart', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') { moving = false; return; }
             sx = e.touches[0].clientX;
             sy = e.touches[0].clientY;
             moving = false;
@@ -2235,6 +2385,7 @@
 
         document.addEventListener('touchmove', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
             const dx = e.touches[0].clientX - sx;
             const dy = e.touches[0].clientY - sy;
             if (!moving && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) moving = true;
@@ -2242,6 +2393,7 @@
 
         document.addEventListener('touchend', e => {
             if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
             if (!moving) return;
             const dx = e.changedTouches[0].clientX - sx;
             const dy = e.changedTouches[0].clientY - sy;
@@ -2335,14 +2487,14 @@
     }
 
     async function gInitTab() {
-        gSetStatus('loading', '<span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span>');
+        gSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
         const offlineMig = gMigrateOldData(gLoadOffline());
         const offline = offlineMig.data;
         if (offline) { gData = offline; gRender(); }
 
         if (IS_PREVIEW) {
             gData = offline || {};
-            gSetStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>');
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
             gRender();
             return;
         }
@@ -2353,10 +2505,10 @@
             gSaveOffline();
             // Якщо дані щойно мігровано зі старого формату — одразу зберігаємо новий формат у хмару
             if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
-            gSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Синхронізовано</span>');
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
         } catch(err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', offline ? '<span class="status-label"><span class="mdi mdi-wifi-off journal-inline-icon" aria-hidden="true"></span>Офлайн</span>' : '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Немає даних</span>');
+            gSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
             gData = offline || {};
         }
         gLoaded = true;
@@ -2364,21 +2516,21 @@
     }
 
     function gScheduleSave() {
-        gSetStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-content-save-outline journal-inline-icon" aria-hidden="true"></span>Зберігаю...</span>');
+        gSetStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span>Зберігаю...</span>');
         gSaveOffline();
         clearTimeout(gSaveTimer);
         gSaveTimer = setTimeout(gSaveCloud, 1200);
     }
 
     async function gSaveCloud() {
-        if (IS_PREVIEW) { gSetStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span> Превью</span>'); return; }
+        if (IS_PREVIEW) { gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span> Превью</span>'); return; }
         try {
             const { error } = await db.from('garbage').upsert({ month_key: gKey(), data: gData });
             if (error) throw error;
-            gSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Збережено</span>');
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
         } catch(err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage save error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
+            gSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
         }
     }
 
@@ -2444,12 +2596,12 @@
         return `
             <div class="grid grid-cols-2 gap-2 mb-3">
                 <div>
-                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>Час</div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Час</div>
                     <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" data-time-mask aria-label="Час вивозу сміття за день ${day}"
                         class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
                 </div>
                 <div>
-                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Працівник</div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">person</span>Працівник</div>
                     <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker" aria-label="Працівник сміття за день ${day}"
                         class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
                         <option value="">—</option>
@@ -2457,24 +2609,35 @@
                     </select>
                 </div>
             </div>
-            <div class="text-xs text-[var(--text-sub)] font-semibold mb-1">Типи сміття (можна декілька одразу)</div>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="garbage-types-heading">
+                <span>Що вивезли</span>
+                <span class="garbage-types-support">Можна вибрати кілька типів</span>
+            </div>
+            <div class="garbage-type-grid">
                 ${Object.entries(gTypeLabels).map(([k,label]) => {
                     const checked = (parseInt(types[k]) || 0) > 0;
                     const val = types[k] || '';
                     const hasCount = k === 'bins';
+                    const meta = gTypeMeta[k];
                     return `
-                    <div class="flex flex-col gap-1 p-2 rounded-lg border ${checked ? 'border-emerald-400 bg-emerald-500/5' : 'border-[var(--border)]'}">
-                        <label class="flex items-center gap-1.5 text-sm font-semibold cursor-pointer">
-                            <input type="checkbox" ${checked?'checked':''}
+                    <div class="garbage-type-card">
+                        <label class="garbage-type-select md-state-layer">
+                            <input type="checkbox" ${checked?'checked':''} class="garbage-type-input sr-only"
                                 data-g-action="type-toggle" data-g-day="${day}" data-g-type="${k}" data-g-has-count="${hasCount ? '1' : '0'}"
-                                class="round-checkbox">
-                            ${label}
+                                aria-label="${label}, відмітити вивіз за день ${day}">
+                            <span class="garbage-type-icon" aria-hidden="true"><span class="material-symbols-rounded">${meta.icon}</span></span>
+                            <span class="garbage-type-copy">
+                                <strong>${label}</strong>
+                                <small>${meta.description}</small>
+                            </span>
+                            <span class="garbage-type-indicator" aria-hidden="true"><span class="material-symbols-rounded">check</span></span>
                         </label>
-                        ${hasCount ? `<input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="к-сть" value="${escapeAttr(String(val))}"
-                            data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
-                            ${checked ? '' : 'disabled'}
-                            class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none text-center font-bold disabled:opacity-40">` : ''}
+                        ${hasCount ? `<label class="garbage-bin-count">
+                            <span>Кількість баків</span>
+                            <input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="0" value="${escapeAttr(String(val))}"
+                                data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
+                                ${checked ? '' : 'disabled'}>
+                        </label>` : ''}
                     </div>`;
                 }).join('')}
             </div>`;
@@ -2644,7 +2807,7 @@
             if (!IS_PREVIEW) {
                 try { await db.rpc('reset_month', { table_name: 'garbage', p_month_key: gKey(), attempt: pin }); } catch(e) {}
             }
-            gSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Скинуто</span>');
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Скинуто</span>');
             gRender();
         }, true);
     }
@@ -2694,8 +2857,8 @@
         pinModalVerifyRpc = verifyRpc;
         document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
         document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
-        const lockIcon  = '<span class="pin-modal-icon-wrap is-indigo"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
-        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>';
+        const lockIcon = '<span class="pin-modal-icon-wrap is-indigo"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
+        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">delete</span></span>';
         document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
@@ -2733,7 +2896,7 @@
             let ok = false;
             try { ok = await db.rpc(pinModalVerifyRpc, { attempt }); } catch (e) { ok = false; }
             if (ok) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span></span>';
                 hidePinModal();
                 pinModalBuf = '';
                 // PIN передаємо в callback: серверна reset_month() перевіряє
@@ -2742,7 +2905,7 @@
                 if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
             } else {
                 document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
                 pinModalBuf = '';
                 pinUpdateDots();
                 // Тряска
@@ -2763,6 +2926,8 @@
     let dispSaveTimer = null;
     let dispSearchQuery = '';
     let dispFilter = 'all';
+    let dispWorkerFilter = 'all';
+    let dispTicketStatusFilter = 'all';
     const dispWorkerName = 'Диспетчер';
 
     // Заявки з пріоритетом (нова структурована модель, ticketsList).
@@ -2802,13 +2967,13 @@
     }
 
     async function dispInitTab() {
-        dispSetStatus('loading', '<span class="status-label"><span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span> Завантаження...</span>');
+        dispSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
         const offline = dispLoadOffline();
         if (offline) { dispData = offline; dispRender(); }
 
         if (IS_PREVIEW) {
             dispData = offline || {};
-            dispSetStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>Превью</span>');
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
             dispRender();
             return;
         }
@@ -2818,31 +2983,31 @@
             if (error && error.code !== 'PGRST116') throw error;
             dispData = data?.data || offline || {};
             dispSaveOffline();
-            dispSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Синхронізовано</span>');
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
         } catch(err) {
             console.error('dispatcher load error:', err);
-            dispSetStatus('error', offline ? '<span class="status-label"><span class="mdi mdi-wifi-off journal-inline-icon" aria-hidden="true"></span>Офлайн</span>' : '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Немає даних</span>');
+            dispSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
             dispData = offline || {};
         }
         dispRender();
     }
 
     function dispScheduleSave() {
-        dispSetStatus('loading', '<span class="status-label is-tight"><span class="mdi mdi-content-save-outline journal-inline-icon" aria-hidden="true"></span>Зберігаю...</span>');
+        dispSetStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span>Зберігаю...</span>');
         dispSaveOffline();
         clearTimeout(dispSaveTimer);
         dispSaveTimer = setTimeout(dispSaveCloud, 1200);
     }
 
     async function dispSaveCloud() {
-        if (IS_PREVIEW) { dispSetStatus('ok', '<span class="status-label"><span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span> Превью</span>'); return; }
+        if (IS_PREVIEW) { dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span> Превью</span>'); return; }
         try {
             const { error } = await db.from('dispatcher').upsert({ month_key: dispKey(), data: dispData });
             if (error) throw error;
-            dispSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Збережено</span>');
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
         } catch(err) {
             console.error('dispatcher save error:', err);
-            dispSetStatus('error', '<span class="status-label"><span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>Помилка</span>');
+            dispSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
         }
     }
 
@@ -2858,13 +3023,14 @@
     }
 
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
-    function dispAddTicket(d, text, role, priority) {
+    async function dispAddTicket(d, text, role, priority, photoFiles = []) {
         if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
         const trimmed = (text || '').trim();
         if (!trimmed) { showToast('Опишіть заявку'); return; }
         const row = dispGetDay(d);
+        const ticketId = `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
         row.ticketsList.push({
-            id: `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
+            id: ticketId,
             text: trimmed,
             role: WORKER_ROLES.includes(role) ? role : 'plumber',
             priority: ticketPriorities[priority] ? priority : 'MEDIUM',
@@ -2875,8 +3041,9 @@
             createdBy: staffSession?.name || dispWorkerName
         });
         dispScheduleSave();
+        for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
         dispOpenDayDetail(Number(d));
-        showToast('Заявку додано');
+        showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
     }
 
     function dispDeleteTicket(d, ticketId) {
@@ -2935,6 +3102,19 @@
         dispScheduleSave();
     }
 
+    function ticketPhotosHtml(ticket) {
+        const photos = Array.isArray(ticket?.photos) ? ticket.photos : [];
+        const items = photos.map((url, index) => {
+            const safeUrl = safeExternalUrl(url);
+            if (!safeUrl) return '';
+            const escapedUrl = escapeAttr(safeUrl);
+            return `<button type="button" class="ticket-photo-thumb md-state-layer" data-photo-action="open" data-photo-url="${escapedUrl}" aria-label="Відкрити фото ${index + 1} до заявки">
+                <img src="${escapedUrl}" alt="Фото проблеми до заявки" loading="lazy">
+            </button>`;
+        }).join('');
+        return items ? `<div class="ticket-photo-list" aria-label="Фото до заявки">${items}</div>` : '';
+    }
+
     // ==========================================
     // МОЇ ЗАЯВКИ — для staff-сесії plumber/janitor/electrician: тільки заявки
     // поточного місяця, призначені на її роль, відсортовані за пріоритетом.
@@ -2943,9 +3123,9 @@
     async function myTicketsInitTab() {
         if (!staffSession) return;
         const statusEl = document.getElementById('my-tickets-sync-status');
-        if (statusEl) statusEl.innerHTML = '<span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span>';
+        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>';
         await dispInitTab();
-        if (statusEl) statusEl.innerHTML = '<span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>';
+        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
         myTicketsRender();
     }
 
@@ -2961,18 +3141,19 @@
                 <div class="ticket-item-head">
                     <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
                     <span class="ticket-role-badge">День ${t.day}</span>
-                    ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
+                    ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${ticketPhotosHtml(t)}
                 ${isDone ? (t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : '') : `
                 <div class="my-ticket-close-form">
                     <textarea class="journal-textarea" rows="2" placeholder="Коментар про виконання..." id="my-ticket-comment-${t.day}-${t.id}"></textarea>
                     <div class="my-ticket-close-actions">
                         <label class="journal-photo-action is-secondary md-state-layer">
-                            <span class="mdi mdi-camera-outline journal-inline-icon" aria-hidden="true"></span> Фото
+                            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">photo_camera</span> Фото
                             <input type="file" accept="image/*" multiple class="hidden" data-my-ticket-photo="${t.day}" data-ticket-id="${escapeAttr(t.id)}">
                         </label>
-                        <button type="button" class="dispatcher-time-btn md-state-layer" data-my-ticket-close="${t.day}" data-ticket-id="${escapeAttr(t.id)}"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</button>
+                        <button type="button" class="dispatcher-time-btn md-state-layer" data-my-ticket-close="${t.day}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>
                     </div>
                 </div>`}
             </div>`;
@@ -3053,7 +3234,12 @@
     // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
     // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
     function dispBuildTicketsBlockHtml(d, row) {
-        const sorted = [...row.ticketsList].sort(ticketSortComparator);
+        const visibleTickets = row.ticketsList.filter(ticket => {
+            const matchesWorker = dispWorkerFilter === 'all' || ticket.role === dispWorkerFilter;
+            const matchesStatus = dispTicketStatusFilter === 'all' || ticket.status === dispTicketStatusFilter;
+            return matchesWorker && matchesStatus;
+        });
+        const sorted = [...visibleTickets].sort(ticketSortComparator);
         const canManage = isDispatcherSession();
         const items = sorted.map(t => {
             const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
@@ -3069,7 +3255,7 @@
                             ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === t.priority ? 'selected' : ''}>${v.label}</option>`).join('')}
                         </select>
                         <div class="my-ticket-close-actions">
-                            <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-edit-save" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Зберегти</button>
+                            <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-edit-save" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Зберегти</button>
                             <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="ticket-edit-cancel" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}">Скасувати</button>
                         </div>
                     </div>
@@ -3079,12 +3265,13 @@
                 <div class="ticket-item-head">
                     <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
                     <span class="ticket-role-badge">${roleNames[t.role] || t.role}</span>
-                    ${isDone ? '<span class="ticket-done-badge"><span class="mdi mdi-check journal-inline-icon" aria-hidden="true"></span>Виконано</span>' : ''}
+                    ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${ticketPhotosHtml(t)}
                 ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
-                ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="mdi mdi-pencil-outline" aria-hidden="true"></span></button>` : ''}
-                ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку">✕</button>` : ''}
+                ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>` : ''}
+                ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : ''}
             </li>`;
         }).join('');
         const addForm = canManage ? `
@@ -3096,11 +3283,33 @@
                 <select id="ticket-new-priority-${d}" class="journal-select" aria-label="Пріоритет заявки">
                     ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === 'MEDIUM' ? 'selected' : ''}>${v.label}</option>`).join('')}
                 </select>
-                <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="mdi mdi-plus journal-inline-icon" aria-hidden="true"></span>Додати заявку</button>
+                <label class="ticket-photo-picker md-state-layer">
+                    <span class="material-symbols-rounded" aria-hidden="true">add_a_photo</span>
+                    <span id="ticket-photo-label-${d}">Додати фото проблеми</span>
+                    <input id="ticket-new-photos-${d}" type="file" accept="image/*" multiple class="sr-only" data-ticket-photo-input data-disp-day="${d}" aria-label="Додати фото проблеми до нової заявки">
+                </label>
+                <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add</span>Додати заявку</button>
             </div>` : '';
         return `<div class="dispatcher-tickets-block">
-            <div class="journal-field-label">Заявки з пріоритетом (${sorted.length}):</div>
-            <ul class="ticket-list">${items || '<li class="ticket-empty">Заявок немає</li>'}</ul>
+            <div class="dispatcher-ticket-filters" aria-label="Фільтри заявок">
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Виконавець</span>
+                    <select class="journal-select" data-ticket-filter="worker" data-disp-day="${d}" aria-label="Фільтр заявок за виконавцем">
+                        <option value="all" ${dispWorkerFilter === 'all' ? 'selected' : ''}>Усі працівники</option>
+                        ${roles.map(role => `<option value="${role}" ${dispWorkerFilter === role ? 'selected' : ''}>${roleNames[role]}</option>`).join('')}
+                    </select>
+                </label>
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Статус</span>
+                    <select class="journal-select" data-ticket-filter="status" data-disp-day="${d}" aria-label="Фільтр заявок за статусом">
+                        <option value="all" ${dispTicketStatusFilter === 'all' ? 'selected' : ''}>Усі заявки</option>
+                        <option value="open" ${dispTicketStatusFilter === 'open' ? 'selected' : ''}>Не виконані</option>
+                        <option value="done" ${dispTicketStatusFilter === 'done' ? 'selected' : ''}>Виконані</option>
+                    </select>
+                </label>
+            </div>
+            <div class="journal-field-label">Показано заявок: ${sorted.length} з ${row.ticketsList.length}</div>
+            <ul class="ticket-list">${items || '<li class="ticket-empty">За вибраними фільтрами заявок немає</li>'}</ul>
             ${addForm}
         </div>`;
     }
@@ -3114,7 +3323,7 @@
                 <div id="mobile-photos-${d}-dispatcher" class="flex gap-2 flex-wrap mb-2"></div>
                 <div class="flex gap-2 flex-wrap">
                     <label class="journal-photo-action md-state-layer">
-                        <svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Камера
+                        <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">photo_camera</span> Камера
                         <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера за день ${d}">
                     </label>
                     <label class="journal-photo-action is-secondary md-state-layer">
@@ -3142,6 +3351,7 @@
         const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
         if (ticketRoleSel) enhanceSelect(ticketRoleSel);
         if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
+        bodyEl.querySelectorAll('[data-ticket-filter]').forEach(select => enhanceSelect(select));
         if (dispEditingTicketId) {
             const editRoleSel = document.getElementById(`ticket-edit-role-${dispEditingTicketId}`);
             const editPrioritySel = document.getElementById(`ticket-edit-priority-${dispEditingTicketId}`);
@@ -3252,7 +3462,7 @@
             if (!IS_PREVIEW) {
                 try { await db.rpc('reset_month', { table_name: 'dispatcher', p_month_key: dispKey(), attempt: pin }); } catch(e) {}
             }
-            dispSetStatus('ok', '<span class="status-label"><span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>Скинуто</span>');
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Скинуто</span>');
             dispRender();
         }, true);
     }
@@ -3283,12 +3493,12 @@
     }
 
     async function elevatorInitTab() {
-        elevatorSetStatus('loading', '<span class="mdi mdi-loading journal-inline-icon mdi-spin" aria-hidden="true"></span>');
+        elevatorSetStatus('loading', '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>');
         const offline = elevatorLoadOffline();
         if (offline) { elevatorData = offline; elevatorRender(); }
         if (IS_PREVIEW) {
             elevatorData = offline || [];
-            elevatorSetStatus('ok', '<span class="mdi mdi-monitor-eye journal-inline-icon" aria-hidden="true"></span>');
+            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>');
             elevatorRender();
             return;
         }
@@ -3298,10 +3508,10 @@
             if (error && error.code !== 'PGRST116') throw error;
             elevatorData = Array.isArray(data?.data) ? data.data : (offline || []);
             elevatorSaveOffline();
-            elevatorSetStatus('ok', '<span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>');
         } catch(err) {
             console.error('elevator load error:', err);
-            elevatorSetStatus('error', '<span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+            elevatorSetStatus('error', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>');
             elevatorData = offline || [];
         }
         elevatorRender();
@@ -3312,10 +3522,10 @@
         try {
             const { error } = await db.from('elevator_visits').upsert({ month_key: elevatorKey(), data: elevatorData });
             if (error) throw error;
-            elevatorSetStatus('ok', '<span class="mdi mdi-check-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>');
         } catch(err) {
             console.error('elevator save error:', err);
-            elevatorSetStatus('error', '<span class="mdi mdi-alert-circle-outline journal-inline-icon" aria-hidden="true"></span>');
+            elevatorSetStatus('error', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>');
         }
     }
 
@@ -3358,7 +3568,7 @@
             <div class="elevator-entry">
                 <span class="elevator-entry-day">${String(entry.day).padStart(2, '0')}</span>
                 <span class="elevator-entry-text">${escapeHtml(entry.text)}</span>
-                <button type="button" class="ticket-delete-btn md-state-layer" data-action="elevator-delete" data-elevator-id="${escapeAttr(entry.id)}" aria-label="Видалити запис">✕</button>
+                <button type="button" class="ticket-delete-btn md-state-layer" data-action="elevator-delete" data-elevator-id="${escapeAttr(entry.id)}" aria-label="Видалити запис"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
             </div>
         `).join('') : '<div class="staff-login-loading">Записів цього місяця ще немає</div>';
     }
@@ -3380,10 +3590,10 @@
     // iOS TOAST повідомлення
     // ============================================================
     let toastTimer = null;
-    const TOAST_ICON_CHECK = '<span class="mdi mdi-check-bold journal-inline-icon" aria-hidden="true"></span>';
-    const TOAST_ICON_WARN  = '<span class="mdi mdi-alert-outline journal-inline-icon" aria-hidden="true"></span>';
-    const TOAST_ICON_TRASH = '<span class="mdi mdi-trash-can-outline journal-inline-icon" aria-hidden="true"></span>';
-    const TOAST_ICON_ERROR = '<span class="mdi mdi-close-thick journal-inline-icon" aria-hidden="true"></span>';
+    const TOAST_ICON_CHECK = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">done</span>';
+    const TOAST_ICON_WARN  = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">warning</span>';
+    const TOAST_ICON_TRASH = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span>';
+    const TOAST_ICON_ERROR = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">close</span>';
     function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
         const el = document.getElementById('ios-toast');
         if (!el) return;
