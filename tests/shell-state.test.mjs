@@ -42,12 +42,14 @@ test('ShellStore tracks lazy-loaded tabs', () => {
   assert.deepEqual(TAB_SRC, {
     journal: 'osbb/index.html?embed=1',
     sklad: 'sklad/index.html?embed=1',
+    promin: 'promin/index.html?embed=1',
   });
 });
 
 test('isShellTabName narrows only known shell tabs', () => {
   assert.equal(isShellTabName('journal'), true);
   assert.equal(isShellTabName('sklad'), true);
+  assert.equal(isShellTabName('promin'), true);
   assert.equal(isShellTabName('deye'), false);
   assert.equal(isShellTabName(undefined), false);
 });
