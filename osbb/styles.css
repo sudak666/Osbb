@@ -796,6 +796,21 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .att-mobile-role.is-readonly strong { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:13px; font-variant-numeric:tabular-nums; }
 }
 
+/* Табель: порожні, частково та повністю заповнені дні мають різні м'які стани. */
+.att-calendar-day.is-empty-day,.att-mobile-day.is-empty-day { border-color:var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
+.att-calendar-day.is-partial-day,.att-mobile-day.is-partial-day { border-color:color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 48%,var(--border)); background:color-mix(in srgb,var(--md-sys-color-tertiary-container,#fef3c7) 18%,var(--md-sys-color-surface-container-low,var(--bg-card))); }
+.att-calendar-day.is-filled-day,.att-mobile-day.is-filled-day { border-color:color-mix(in srgb,var(--md-sys-color-primary,#16a34a) 48%,var(--border)); background:color-mix(in srgb,var(--md-sys-color-primary-container,#dcfce7) 28%,var(--md-sys-color-surface-container-low,var(--bg-card))); }
+.att-calendar-day.is-empty-day > header,.att-mobile-day.is-empty-day > header { background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
+.att-calendar-day.is-partial-day > header,.att-mobile-day.is-partial-day > header { background:color-mix(in srgb,var(--md-sys-color-tertiary-container,#fef3c7) 42%,var(--md-sys-color-surface-container-high,var(--bg-input))); }
+.att-calendar-day.is-filled-day > header,.att-mobile-day.is-filled-day > header { background:color-mix(in srgb,var(--md-sys-color-primary-container,#dcfce7) 52%,var(--md-sys-color-surface-container-high,var(--bg-input))); }
+.att-calendar-day.is-partial-day > header strong,.att-mobile-day.is-partial-day > header strong { background:color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 18%,transparent); color:var(--md-sys-color-on-surface,var(--text-main)); }
+.att-calendar-day.is-filled-day > header strong,.att-mobile-day.is-filled-day > header strong { background:color-mix(in srgb,var(--md-sys-color-primary,#16a34a) 18%,transparent); color:var(--md-sys-color-on-surface,var(--text-main)); }
+.att-calendar-role.role-electrician,.att-mobile-role.role-electrician,.att-table td.is-electrician { --att-time-accent:var(--md-ref-role-electrician,#b58900); }
+.att-calendar-role.role-janitor,.att-mobile-role.role-janitor,.att-table td.is-janitor { --att-time-accent:var(--md-ref-role-janitor,#07824f); }
+.att-calendar-role.role-plumber,.att-mobile-role.role-plumber,.att-table td.is-plumber { --att-time-accent:var(--md-ref-role-plumber,#2563a6); }
+.att-time-input:not(:placeholder-shown) { border-color:color-mix(in srgb,var(--att-time-accent,var(--md-sys-color-primary)) 48%,var(--border)); background:color-mix(in srgb,var(--att-time-accent,var(--md-sys-color-primary)) 12%,var(--md-sys-color-surface,var(--bg-card))); color:var(--att-time-accent,var(--md-sys-color-on-surface)); font-weight:700; }
+.att-readonly:not(:empty),.att-calendar-role.is-readonly strong:not(:empty),.att-mobile-role.is-readonly strong:not(:empty) { color:var(--att-time-accent,var(--md-sys-color-on-surface)); font-weight:700; }
+
 /* ===== ЗАЯВКИ З ПРІОРИТЕТОМ (MD3 outlined card style: контур замість тіні) ===== */
 .dispatcher-tickets-block { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--bg-card)); border:1px solid var(--md-sys-color-outline-variant,var(--border)); }
 .dispatcher-ticket-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:10px; border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
