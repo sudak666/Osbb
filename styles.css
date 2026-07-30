@@ -32,7 +32,7 @@
     .app-icon-squircle {
         width: 68px;
         height: 68px;
-        border-radius: var(--md-sys-shape-corner-large, 16px);
+        border-radius: var(--md-sys-shape-corner-large,16px);
         background:var(--md-sys-color-primary-container,#dcfce7);
         color:var(--md-sys-color-on-primary-container,#052e16);
         display: flex;
@@ -53,7 +53,7 @@
     .pin-dot {
         width: 12px;
         height: 12px;
-        border-radius: 50%;
+        border-radius: var(--md-sys-shape-corner-full,999px);
         border: 1.5px solid color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 40%, transparent);
         background: transparent;
         transition: background var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-standard, ease), border-color var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-standard, ease), transform var(--md-sys-motion-duration-short2, 120ms) var(--md-sys-motion-easing-emphasized, ease);
@@ -67,7 +67,7 @@
     .pin-btn {
         background: color-mix(in srgb, var(--md-sys-color-inverse-on-surface, #fff) 8%, transparent);
         border: none;
-        border-radius: 50%;
+        border-radius: var(--md-sys-shape-corner-full,999px);
         width: 76px;
         height: 76px;
         font-size: 1.9rem;
@@ -117,7 +117,7 @@
         display: flex;
         width: 100%;
         background: color-mix(in srgb, var(--md-sys-color-on-surface-variant, #747480) 16%, transparent);
-        border-radius: var(--md-sys-shape-corner-large, 14px); /* Повністю закруглений контейнер без гострих кутів */
+        border-radius: var(--md-sys-shape-corner-large,16px); /* Повністю закруглений контейнер без гострих кутів */
         padding: 3px;
         gap: 3px;
         border: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.10));
@@ -129,7 +129,7 @@
         justify-content: center;
         gap: 5px;
         padding: 9px 4px;
-        border-radius: var(--md-sys-shape-corner-medium, 11px); /* Округлі внутрішні сегменти */
+        border-radius: var(--md-sys-shape-corner-medium,12px); /* Округлі внутрішні сегменти */
         border: none;
         background: transparent;
         color: var(--md-sys-color-on-surface-variant, #6e6e73);

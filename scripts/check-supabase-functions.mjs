@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const functions = ['notify-telegram', 'fetch-item-prices'];
+const functions = ['notify-telegram'];
 
 for (const name of functions) {
   const sourcePath = path.join(root, 'sklad/supabase/functions', name, 'index.ts');
