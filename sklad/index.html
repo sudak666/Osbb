@@ -90,7 +90,20 @@ function setIcon(el,name){
 // вбудовуванні в shell (PIN уже підтверджено на його рівні) цей екран не встигав
 // промайнути, поки браузер парсить решту сторінки.
 const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
-const EMBEDDED_SHELL_AUTH = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
+function isEmbeddedShellFrame(){
+  if(window.self===window.top) return false;
+  try{
+    return window.parent.location.origin===window.location.origin
+      && Boolean(window.parent.document.getElementById('shell-main'));
+  }catch{
+    return false;
+  }
+}
+const EMBEDDED_SHELL_AUTH = isEmbeddedShellFrame();
+const hideEmbeddedAuthScreen=()=>{
+  const screen=document.getElementById('authScreen');
+  if(screen) screen.style.display='none';
+};
 const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
 const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
 if (EMBEDDED_SHELL_AUTH || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
@@ -100,6 +113,9 @@ if (EMBEDDED_SHELL_AUTH || (sessionStorage.getItem('auth') === 'ok' && earlyAuth
   sessionStorage.removeItem('auth');
   sessionStorage.removeItem('auth_at');
 }
+window.addEventListener('message',event=>{
+  if(event.origin===window.location.origin && event.data?.type==='osbb:shell-unlocked') hideEmbeddedAuthScreen();
+});
 // PIN перевіряється на сервері (Supabase RPC verify_pin), сам код нікому не відомий на клієнті
 const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
 function setAuthSession(){

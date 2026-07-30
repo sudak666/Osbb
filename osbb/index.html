@@ -80,7 +80,20 @@
     // журналу (shell вже підтвердив PIN) цей екран встигає промайнути на екрані,
     // поки браузер парсить решту сторінки.
     const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
-    const EARLY_EMBEDDED_SHELL = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
+    function isEmbeddedShellFrame() {
+        if (window.self === window.top) return false;
+        try {
+            return window.parent.location.origin === window.location.origin
+                && Boolean(window.parent.document.getElementById('shell-main'));
+        } catch {
+            return false;
+        }
+    }
+    const EARLY_EMBEDDED_SHELL = isEmbeddedShellFrame();
+    const hideEmbeddedLockScreen = () => {
+        const screen = document.getElementById('app-lock-screen');
+        if (screen) screen.style.display = 'none';
+    };
     const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
     const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
     if (EARLY_EMBEDDED_SHELL || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
@@ -90,6 +103,9 @@
         sessionStorage.removeItem('auth');
         sessionStorage.removeItem('auth_at');
     }
+    window.addEventListener('message', event => {
+        if (event.origin === window.location.origin && event.data?.type === 'osbb:shell-unlocked') hideEmbeddedLockScreen();
+    });
 </script>
 
 
@@ -504,7 +520,7 @@
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
     // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
-    const IS_EMBEDDED_SHELL = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
+    const IS_EMBEDDED_SHELL = isEmbeddedShellFrame();
 
     // Повідомляємо shell-оболонку про активність усередині iframe, щоб idle-lock
     // не блокував застосунок, поки користувач реально працює в модулі.

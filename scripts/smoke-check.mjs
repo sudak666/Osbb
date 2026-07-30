@@ -353,6 +353,8 @@ for (const [file, needle, label] of checks) {
     'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
     'if (isAuthSessionValid()) {',
+    "frame.contentDocument?.getElementById('app-lock-screen')",
+    "frame.contentWindow?.postMessage({ type: 'osbb:shell-unlocked' }",
   ];
   const forbidden = [
     'function setAuthSession() {\n        setAuthSession();',
@@ -383,9 +385,11 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'Date.now()',
     'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
-    "new URLSearchParams(location.search).get('embed') === '1'",
+    'function isEmbeddedShellFrame',
+    "window.parent.document.getElementById('shell-main')",
     "|| (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)",
     '|| isAuthSessionValid())',
+    "'osbb:shell-unlocked'",
   ];
   const forbidden = [
     'function setAuthSession() {\n        setAuthSession();',
