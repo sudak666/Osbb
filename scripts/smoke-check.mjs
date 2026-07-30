@@ -650,7 +650,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readSkladCombined();
   const label = 'sklad mobile topbar keeps compact actions and flexible title';
   const required = [
-    '.topbar{padding:0 8px;height:56px;border-radius:0 0 18px 18px;gap:6px;}',
+    '.topbar{padding:0 8px;height:56px;border-radius:0 0 var(--md-sys-shape-corner-large,16px) var(--md-sys-shape-corner-large,16px);gap:6px;}',
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
     '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;padding:0!important;line-height:1!important;}',
     '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid!important;place-items:center!important;width:1em!important;height:1em!important;font-size:21px!important;line-height:1!important;margin:0!important;}',
@@ -941,7 +941,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb garbage chart bars use class-based gradient';
   const required = [
-    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
+    '.g-chart-bar { width:100%; border-radius:var(--md-sys-shape-corner-small,8px) var(--md-sys-shape-corner-small,8px) 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
     '.g-chart-bar.is-current { background:linear-gradient(var(--md-sys-color-tertiary,#fbbf24),color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 82%,#000)); }',
     "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
   ];
@@ -1078,7 +1078,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb PIN-modal icons use class-based markup';
   const required = [
-    '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
+    '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:var(--md-sys-shape-corner-full,999px); align-items:center; justify-content:center; }',
     '.pin-modal-icon-wrap.is-indigo { background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); }',
     '.pin-modal-icon-wrap.is-red { background:var(--md-sys-color-error-container); color:var(--md-sys-color-on-error-container); }',
     '.pin-modal-icon-wrap.is-green { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }',
@@ -1672,7 +1672,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-panel {',
     '.journal-table-shell {',
     '.garbage-chart-panel { padding:16px;',
-    '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large, 32px)!important; padding:0!important; }',
+    '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; padding:0!important; }',
     '.journal-list-head { padding:16px 22px;',
     '.journal-status-chip {',
     '.journal-icon-btn {',
@@ -3169,7 +3169,7 @@ ${sharedSelectText}`;
   const label = 'garbage multi-select uses a Material 3 checkbox indicator';
   const required = [
     '.garbage-type-indicator { display:grid; place-items:center; width:20px; height:20px;',
-    'border-radius:3px;',
+    'border-radius:var(--md-sys-shape-corner-extra-small,4px);',
     '.garbage-type-indicator .material-symbols-rounded { font-size:16px;',
   ];
   const missing = required.filter(needle => !css.includes(needle));
