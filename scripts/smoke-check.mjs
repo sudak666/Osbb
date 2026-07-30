@@ -2925,6 +2925,31 @@ ${sharedSelectText}`;
   }
 }
 
+// Темна тема додає контрольовану «живу» глибину лише інтерактивним карткам
+// і кнопкам; hover-lift не запускається на сенсорних екранах.
+{
+  const journalCss = readFileSync('osbb/styles.css', 'utf8');
+  const skladCss = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'dark theme uses restrained ambient glow and hover lift';
+  const required = [
+    [journalCss, '.theme-dark :is(.journal-stat-card,.ticket-item,.my-ticket-card,.shift-stat-card,.att-stat-card)'],
+    [journalCss, '@media (hover:hover) and (pointer:fine)'],
+    [journalCss, 'transform:translateY(-3px);'],
+    [journalCss, '.theme-dark .mob-tab.mob-active .material-symbols-rounded'],
+    [skladCss, '.theme-dark :is(.m-card,.stat-card)'],
+    [skladCss, '.theme-dark :is(.btn-primary,.btn-ghost,.ni,.bottom-nav button)'],
+    [skladCss, '.theme-dark .bottom-nav button.active'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Диспетчер може повторно відкрити помилково закриту заявку, очистивши
 // застарілі ознаки виконання та синхронізувавши зміну звичайним save-потоком.
 {

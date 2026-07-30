@@ -862,6 +862,27 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .my-tickets-panel > .priority-legend { margin:8px 22px 14px; }
 .my-tickets-panel > .my-tickets-list { margin:10px 22px 22px; }
 
+/* М'яка «жива» глибина темної теми: M3 elevation + делікатне ambient glow. */
+.theme-dark :is(.journal-stat-card,.ticket-item,.my-ticket-card,.shift-stat-card,.att-stat-card) {
+  transition:transform var(--md-sys-motion-duration-medium2,260ms) var(--md-sys-motion-easing-emphasized,ease),border-color var(--md-sys-motion-duration-short4,180ms) ease,box-shadow var(--md-sys-motion-duration-medium2,260ms) ease;
+}
+.theme-dark :is(.dispatcher-time-btn,.dispatcher-copy-btn,.journal-photo-action,.mob-tab) {
+  transition:transform var(--md-sys-motion-duration-short4,180ms) var(--md-sys-motion-easing-emphasized,ease),box-shadow var(--md-sys-motion-duration-short4,180ms) ease,background-color var(--md-sys-motion-duration-short4,180ms) ease;
+}
+@media (hover:hover) and (pointer:fine) {
+  .theme-dark :is(.journal-stat-card,.ticket-item,.my-ticket-card,.shift-stat-card,.att-stat-card):hover {
+    transform:translateY(-3px);
+    border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 52%,var(--border))!important;
+    box-shadow:0 14px 34px rgba(0,0,0,.34),0 0 24px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 22%,transparent)!important;
+  }
+  .theme-dark :is(.dispatcher-time-btn,.dispatcher-copy-btn,.journal-photo-action,.mob-tab):hover {
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,.28),0 0 16px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 18%,transparent);
+  }
+}
+.theme-dark :is(.dispatcher-time-btn,.dispatcher-copy-btn,.journal-photo-action,.mob-tab):active { transform:scale(.97); }
+.theme-dark .mob-tab.mob-active .material-symbols-rounded { box-shadow:0 0 18px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 24%,transparent); }
+
 /* ===== ЛІФТЕР (короткий журнал відміток у вкладці Диспетчер) ===== */
 .elevator-panel { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
 .elevator-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px; }
