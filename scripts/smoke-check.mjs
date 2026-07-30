@@ -2925,6 +2925,27 @@ ${sharedSelectText}`;
   }
 }
 
+// Смуга прокручування списків Журналу не прилипає до округленого краю:
+// окремий gutter стабілізує ширину, а прозорий track і відступи зберігають M3-форму.
+{
+  const text = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'journal custom select scrollbar respects Material 3 shape';
+  const required = [
+    'overscroll-behavior:contain; scrollbar-gutter:stable; scrollbar-width:thin;',
+    '.custom-select-panel::-webkit-scrollbar { width:10px; }',
+    '.custom-select-panel::-webkit-scrollbar-track { background:transparent; margin-block:12px; }',
+    'border:3px solid transparent; border-radius:var(--md-sys-shape-corner-full,999px); background-clip:padding-box;',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // PIN-підтвердження журналу використовує M3 dialog на desktop і modal bottom
 // sheet на mobile; індикатор PIN керується класом, а не hardcoded кольором JS.
 {
