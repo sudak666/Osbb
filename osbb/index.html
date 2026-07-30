@@ -1554,12 +1554,18 @@
         return isWorkerSession() ? [staffSession.role] : roles;
     }
 
+    function attCellState(cell) {
+        if (cell.checkIn && cell.checkOut) return 'is-complete-cell';
+        if (cell.checkIn || cell.checkOut) return 'is-partial-cell';
+        return 'is-empty-cell';
+    }
+
     function attDayState(d, visibleRoles = attVisibleRoles()) {
         const cells = visibleRoles.map(role => attGetCell(d, role));
         const populated = cells.filter(cell => cell.checkIn || cell.checkOut).length;
         const completed = cells.filter(cell => cell.checkIn && cell.checkOut).length;
         if (populated === 0) return 'is-empty-day';
-        return completed === populated ? 'is-filled-day' : 'is-partial-day';
+        return completed === cells.length ? 'is-filled-day' : 'is-partial-day';
     }
 
     function attUpdateDayVisuals(d) {
@@ -1567,6 +1573,13 @@
         document.querySelectorAll(`[data-att-day-card="${d}"]`).forEach(card => {
             card.classList.remove('is-empty-day', 'is-partial-day', 'is-filled-day');
             card.classList.add(state);
+        });
+        attVisibleRoles().forEach(role => {
+            const cellState = attCellState(attGetCell(d, role));
+            document.querySelectorAll(`[data-att-cell="${d}-${role}"]`).forEach(cell => {
+                cell.classList.remove('is-empty-cell', 'is-partial-cell', 'is-complete-cell');
+                cell.classList.add(cellState);
+            });
         });
     }
 
@@ -1664,17 +1677,18 @@
             let calendarRolesHtml = '';
             visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
+                const cellState = attCellState(cell);
                 if (editable) {
-                    html += `<td class="is-${role}">
+                    html += `<td class="is-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
                     </td>`;
-                    mobileRolesHtml += `<div class="att-mobile-role role-${role}">
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
                         <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
                     </div>`;
-                    calendarRolesHtml += `<div class="att-calendar-role role-${role}">
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <div class="att-calendar-times">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
@@ -1683,12 +1697,12 @@
                     </div>`;
                 } else {
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
-                    html += `<td class="is-${role} att-readonly">${text}</td>`;
-                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly">
+                    html += `<td class="is-${role} att-readonly ${cellState}" data-att-cell="${d}-${role}">${text}</td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <strong>${text}</strong>
                     </div>`;
-                    calendarRolesHtml += `<div class="att-calendar-role role-${role} is-readonly">
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <strong>${text}</strong>
                     </div>`;
