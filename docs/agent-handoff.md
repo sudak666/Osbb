@@ -42,7 +42,6 @@ The UI now primarily uses `data-*` hooks plus centralized `addEventListener` bin
 - `bindDispatcherEntryActions`
 - `bindSkladStaticControls`
 - `bindItemActionDelegation`
-- `bindPriceResultActions`
 - `bindPriceBadgeActions`
 - `bindAuditListDelegation`
 - `bindLogActionDelegation`

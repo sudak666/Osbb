@@ -131,7 +131,6 @@ The manual price modal now has a small class-based structure on top of the text-
 
 The internet price lookup modal now mirrors the class-based manual price modal shell:
 
-- `price-lookup-modal`, `price-lookup-title`, `price-results-panel`, and `price-modal-actions` own the modal layout;
 - `price-search-row` is now a real reusable grid class instead of inline grid styles;
 - smoke checks guard the class-based price lookup shell while preserving the existing mobile close/scroll behavior.
 
@@ -428,7 +427,6 @@ Extracted the corrected inline block into `osbb/styles.css` and linked it, exact
 
 Three of the highest-severity findings from the earlier teardown artifact were implemented for real:
 
-- **Sklad desktop item row: 7 icon buttons → primary + kebab menu.** The desktop `<tr>` action cell now matches the mobile card's already-built `<details class="item-more">` overflow-menu pattern exactly (same menu items: Фото, Внутрішнє/Повернути в баланс, Ручна ціна, Інтернет-ціна, Видалити), instead of duplicating it as a dense 7-button row. This required generalizing `closeOpenItemMenus`/`handleItemMenuToggle`/`handleItemMenuOutsideClick`/the Escape handler from a `#mobileCards`-scoped selector to a plain `details.item-more` selector (all four are global `document`-level listeners already, so no rebinding was needed) — and fixing `.table-modern{overflow:hidden}`, which would have clipped the dropdown at the card boundary. Replaced with corner-specific `border-radius` on the first/last header and body cells (`var(--radius-xl)`, matching `.card`), so the rounded-card look is unchanged but nothing clips an absolutely-positioned popover anymore. This affects the Items and Log tables; the Receipts table keeps its own explicit inline `overflow:hidden` untouched. Added a smoke-check guard.
 - **Sklad alert banner no longer restates the stat-card numbers.** `checkAlerts()` used to spell out "`N товар(ів) закінчились, M товар(ів) на межі`" in the banner directly above the `insight-grid` stat cards that show the same two numbers a few pixels below. Banner text is now `Потребує уваги: N позицій` (single combined count, grammatically invariant regardless of N) — the banner's distinct job (click through to the Statistics page) is unchanged, it just doesn't restate what the cards already show.
 - **Journal duty-shift toggle switches get a tactile shadow.** Added Tailwind's `shadow-inner` (track) and `after:shadow-md` (knob) utilities to all three shift-toggle render sites (journal day-card, journal desktop table — which already had `shadow-inner` from an earlier pass, dispatcher card) for a soft embossed feel, matching the "тактильний мінімалізм" principle from the teardown (depth only on things you physically press). Utility-class-only change, no new CSS, no logic touched.
 

@@ -80,9 +80,10 @@
     // журналу (shell вже підтвердив PIN) цей екран встигає промайнути на екрані,
     // поки браузер парсить решту сторінки.
     const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+    const EARLY_EMBEDDED_SHELL = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
     const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
     const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
-    if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
+    if (EARLY_EMBEDDED_SHELL || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
         const earlyLockScreen = document.getElementById('app-lock-screen');
         if (earlyLockScreen) earlyLockScreen.style.display = 'none';
     } else if (sessionStorage.getItem('auth') === 'ok') {
@@ -477,7 +478,7 @@
     <!-- ===== МОЇ ЗАЯВКИ — для staff-сесій з роллю сантехнік/двірник/електрик:
          тільки заявки, призначені на їхню роль, відсортовані за пріоритетом. ===== -->
     <div id="section-my-tickets" class="hidden mb-6">
-        <div class="journal-panel journal-list-shell">
+        <div class="journal-panel journal-list-shell my-tickets-panel">
             <div class="journal-list-head">
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
@@ -545,7 +546,7 @@
         return true;
     }
 
-    if (isAuthSessionValid()) {
+    if (IS_EMBEDDED_SHELL || isAuthSessionValid()) {
         const lockScreen = document.getElementById('app-lock-screen');
         if (lockScreen) lockScreen.style.display = 'none';
         setTimeout(() => ensureStaffAuth(), 0);
@@ -1537,12 +1538,29 @@
         return isWorkerSession() ? [staffSession.role] : roles;
     }
 
+    function attDayState(d, visibleRoles = attVisibleRoles()) {
+        const cells = visibleRoles.map(role => attGetCell(d, role));
+        const populated = cells.filter(cell => cell.checkIn || cell.checkOut).length;
+        const completed = cells.filter(cell => cell.checkIn && cell.checkOut).length;
+        if (populated === 0) return 'is-empty-day';
+        return completed === populated ? 'is-filled-day' : 'is-partial-day';
+    }
+
+    function attUpdateDayVisuals(d) {
+        const state = attDayState(d);
+        document.querySelectorAll(`[data-att-day-card="${d}"]`).forEach(card => {
+            card.classList.remove('is-empty-day', 'is-partial-day', 'is-filled-day');
+            card.classList.add(state);
+        });
+    }
+
     async function attSaveDay(d, role, checkIn, checkOut) {
         if (!isDispatcherSession()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
         attData[d] = attData[d] || {};
         attData[d][role] = { checkIn, checkOut };
         attSaveOffline();
         attRenderStats();
+        attUpdateDayVisuals(d);
         if (IS_PREVIEW) return;
         // staffPinCache живе лише в пам'яті (не в storage) — після перезавантаження
         // вкладки staffSession лишається (sessionStorage), а PIN губиться. Замість
@@ -1623,7 +1641,8 @@
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            html += `<tr class="${isWeekend ? 'is-weekend' : ''}"><td class="att-col-date">${d}</td>`;
+            const dayState = attDayState(d, visibleRoles);
+            html += `<tr class="${isWeekend ? 'is-weekend ' : ''}${dayState}" data-att-day-card="${d}"><td class="att-col-date">${d}</td>`;
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
             let mobileRolesHtml = '';
             let calendarRolesHtml = '';
@@ -1660,11 +1679,11 @@
                 }
             });
             html += '</tr>';
-            calendarHtml += `<article class="att-calendar-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+            calendarHtml += `<article class="att-calendar-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
                 <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
                 <div class="att-calendar-roles">${calendarRolesHtml}</div>
             </article>`;
-            mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+            mobileHtml += `<article class="att-mobile-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
                 <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
                 <div class="att-mobile-roles">${mobileRolesHtml}</div>
             </article>`;
