@@ -2925,6 +2925,30 @@ ${sharedSelectText}`;
   }
 }
 
+// Диспетчер може повторно відкрити помилково закриту заявку, очистивши
+// застарілі ознаки виконання та синхронізувавши зміну звичайним save-потоком.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'dispatcher can reopen an accidentally closed ticket';
+  const required = [
+    'function dispReopenTicket(d, ticketId)',
+    "if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }",
+    "ticket.status = 'open';",
+    'delete ticket.closedAt;',
+    'delete ticket.closedBy;',
+    'data-disp-action="ticket-reopen"',
+    "if (action.dataset.dispAction === 'ticket-reopen')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Списки Журналу прокручуються без нативної смуги, яка у мобільних WebView
 // виходить за округлений край панелі та залишає видимий «хвостик» зверху.
 {

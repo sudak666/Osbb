@@ -2287,6 +2287,10 @@
                     const priorityEl = document.getElementById(`ticket-edit-priority-${ticketId}`);
                     dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
                 }
+                if (action.dataset.dispAction === 'ticket-reopen') {
+                    event.preventDefault();
+                    dispReopenTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                }
             });
             container.addEventListener('change', (event) => {
                 const photoInput = event.target.closest('[data-ticket-photo-input]');
@@ -3144,6 +3148,21 @@
         dispScheduleSave();
     }
 
+    // Повторно відкрити помилково закриту заявку може лише Диспетчер/Адмін.
+    function dispReopenTicket(d, ticketId) {
+        if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }
+        const row = dispGetDay(d);
+        const ticket = row.ticketsList.find(t => t.id === ticketId);
+        if (!ticket || ticket.status !== 'done') return;
+        ticket.status = 'open';
+        ticket.comment = '';
+        delete ticket.closedAt;
+        delete ticket.closedBy;
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+        showToast('Заявку знову відкрито');
+    }
+
     function dispAddTicketPhoto(d, ticketId, url) {
         const row = dispGetDay(d);
         const ticket = row.ticketsList.find(t => t.id === ticketId);
@@ -3321,6 +3340,7 @@
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
                 ${ticketPhotosHtml(t)}
                 ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
+                ${canManage && isDone ? `<button type="button" class="dispatcher-copy-btn ticket-reopen-btn md-state-layer" data-disp-action="ticket-reopen" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">refresh</span>Відкрити знову</button>` : ''}
                 ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>` : ''}
                 ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : ''}
             </li>`;
