@@ -2925,6 +2925,26 @@ ${sharedSelectText}`;
   }
 }
 
+// Світла inverse-surface темної теми завжди отримує темний текст snackbar,
+// тому «Збережено» не стає білим на майже білому фоні після зміни теми.
+{
+  const journalCss = readFileSync('osbb/styles.css', 'utf8');
+  const skladCss = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'dark theme snackbars keep readable inverse-surface contrast';
+  const required = [
+    [journalCss, '.theme-dark .ios-toast { color:var(--md-sys-color-background,#121214); }'],
+    [skladCss, '.theme-dark #toast,.theme-dark #toast.success,.theme-dark #toast.error,.theme-dark #toast.info{color:var(--md-sys-color-background,#121214);}'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Темна тема додає контрольовану «живу» глибину лише інтерактивним карткам
 // і кнопкам; hover-lift не запускається на сенсорних екранах.
 {
