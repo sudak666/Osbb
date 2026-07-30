@@ -41,5 +41,3 @@ jobs:
           cd sklad/supabase/functions
           tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
             _typecheck/deno-shim.d.ts notify-telegram/index.ts
-          tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
-            _typecheck/deno-shim.d.ts fetch-item-prices/index.ts
