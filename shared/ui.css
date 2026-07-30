@@ -21,7 +21,7 @@
   justify-items: center;
   gap: 8px;
   padding: 32px 20px;
-  border-radius: var(--md-sys-shape-corner-extra-large, 28px);
+  border-radius: var(--md-sys-shape-corner-extra-large,28px);
   background: var(--md-sys-color-surface-container, #f8fafc);
   color: var(--md-sys-color-on-surface-variant, #475569);
   text-align: center;
@@ -31,7 +31,7 @@
   place-items: center;
   width: 56px;
   height: 56px;
-  border-radius: var(--md-sys-shape-corner-large, 16px);
+  border-radius: var(--md-sys-shape-corner-large,16px);
   background: var(--md-sys-color-secondary-container, #dbeafe);
   color: var(--md-sys-color-on-secondary-container, #1e3a8a);
   font-size: 28px;
@@ -41,7 +41,7 @@
 
 .skel, .skel-bar {
   background-color: var(--md-sys-color-surface-container-highest, #e7edf4);
-  border-radius: var(--md-sys-shape-corner-medium, 12px);
+  border-radius: var(--md-sys-shape-corner-medium,12px);
 }
 
 /* TOOLTIP — заміна нативного title, у якого браузер сам малює квадратну підказку. */
@@ -55,9 +55,9 @@
   background: rgba(28, 28, 30, 0.92);
   color: #fff;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 5px 10px;
-  border-radius: 8px;
+  border-radius: var(--md-sys-shape-corner-small,8px);
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;

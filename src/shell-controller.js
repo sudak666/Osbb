@@ -21,6 +21,12 @@ export function createShellController(deps) {
         requireElement('shell-main').style.display = 'flex';
         resetIdleLockTimer();
         switchTab('journal');
+        doc.querySelectorAll('#shell-frames iframe').forEach(frame => {
+            const embeddedLock = frame.contentDocument?.getElementById('app-lock-screen')
+                ?? frame.contentDocument?.getElementById('authScreen');
+            if (embeddedLock) embeddedLock.style.display = 'none';
+            frame.contentWindow?.postMessage({ type: 'osbb:shell-unlocked' }, win.location.origin);
+        });
     }
 
     function lockUpdateDots() {

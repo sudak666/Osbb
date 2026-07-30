@@ -4,7 +4,7 @@
 -- Price tracking for the Sklad Supabase project only.
 -- Project: vkwkyhjjjmcpmiakxohw (do not run this in the main OSBB/journal DB).
 -- Adds optional price fields to inventory_items. Existing rows keep working; prices
--- can be filled manually or confirmed from the fetch-item-prices Edge Function.
+-- can be filled manually or recorded from a purchase receipt.
 
 alter table public.inventory_items
   add column if not exists price_unit numeric(12,2) check (price_unit is null or price_unit >= 0),
