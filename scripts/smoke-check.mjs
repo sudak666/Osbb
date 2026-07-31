@@ -38,6 +38,20 @@ const checks = [
   ['shell', 'navigator.serviceWorker.register', 'shell registers service worker'],
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
+  ['osbb/index.html', '/functions/v1/jira-issues', 'journal loads Jira issues through Edge Function'],
+  ['osbb/index.html', "await jiraRequest('close'", 'journal can close Jira issues'],
+  ['osbb/index.html', "await jiraRequest('assign'", 'dispatcher can assign Jira issues'],
+  ['osbb/index.html', '>Не призначено</option>', 'dispatcher can unassign Jira issues'],
+  ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
+  ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],
+  ['osbb/index.html', "[data-jira-filter], [data-jira-role]", 'Jira filters use rounded custom selects'],
+  ['osbb/styles.css', '.my-ticket-card .my-ticket-close-actions { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }', 'Jira ticket actions fit mobile cards'],
+  ['osbb/styles.css', '.att-table td.is-complete-cell { background:color-mix', 'attendance complete cells use tint without color strips'],
+  ['shared/enhance-select.js', 'document.body.appendChild(panel)', 'custom select panels escape clipped containers'],
+  ['shared/enhance-select.js', 'function positionPanel()', 'custom select panels stay inside the viewport'],
+  ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
+  ['supabase/functions/jira-issues/index.ts', "action === 'assign'", 'Jira issue assignment is handled server-side'],
+  ['supabase/functions/jira-issues/index.ts', "statusCategory?.key === 'done'", 'Jira close uses an available Done transition'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
   ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
@@ -2925,17 +2939,17 @@ ${sharedSelectText}`;
   }
 }
 
-// Список працівника у правій колонці модалки розгортається вліво від кнопки
-// та обмежується viewport, тому не виходить за правий край мобільного екрана.
+// Усі кастомні списки позиціонуються відносно viewport і не обрізаються
+// контейнерами чи правим краєм мобільного екрана.
 {
-  const css = readFileSync('osbb/styles.css', 'utf8');
+  const js = readFileSync('shared/enhance-select.js', 'utf8');
   const label = 'garbage worker listbox stays inside the mobile viewport';
   const required = [
-    '.custom-select-wrap:has(select[data-g-field="worker"]) .custom-select-panel {',
-    'left:auto; right:0;',
-    'max-width:calc(100vw - 32px);',
+    'document.body.appendChild(panel)',
+    'window.innerWidth - width - viewportGap',
+    'window.addEventListener(\'resize\', closePanel)',
   ];
-  const missing = required.filter(needle => !css.includes(needle));
+  const missing = required.filter(needle => !js.includes(needle));
   if (missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
