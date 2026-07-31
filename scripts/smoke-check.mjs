@@ -38,6 +38,12 @@ const checks = [
   ['shell', 'navigator.serviceWorker.register', 'shell registers service worker'],
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
+  ['osbb/index.html', '/functions/v1/jira-issues', 'journal loads Jira issues through Edge Function'],
+  ['osbb/index.html', "await jiraRequest('close'", 'journal can close Jira issues'],
+  ['osbb/index.html', "await jiraRequest('assign'", 'dispatcher can assign Jira issues'],
+  ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
+  ['supabase/functions/jira-issues/index.ts', "action === 'assign'", 'Jira issue assignment is handled server-side'],
+  ['supabase/functions/jira-issues/index.ts', "statusCategory?.key === 'done'", 'Jira close uses an available Done transition'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
   ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
