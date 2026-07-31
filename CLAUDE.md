@@ -61,7 +61,7 @@ jsonb_set(doc, array[day_key], coalesce(doc->day_key, '{}'::jsonb) || jsonb_buil
 ## Специфічно для Складу
 
 - Товар можна позначити `is_internal` (внутрішнє використання/хознужди) — не входить у "баланс складу" на сторінці Статистика. Перемикається іконкою в рядку товару (`toggleInternal(id, val)`), фільтрується пілками "Без внутрішніх" / "Тільки внутрішні" (взаємовиключні, `hideInternal`/`onlyInternal`).
-- **Облік вартості товарів додано як опційний**: `sklad/supabase/004_add_price_tracking.sql` додає `price_unit`, `price_source`, `price_url`, `price_checked_at`, `price_confidence` до `inventory_items`. `sklad/supabase/functions/fetch-item-prices` шукає ціни через серверні API-секрети, а фронтенд записує тільки підтверджену користувачем ціну.
+- **Облік вартості товарів додано як опційний**: `sklad/supabase/004_add_price_tracking.sql` додає поля ціни до `inventory_items`; ціну можна вказати вручну або під час оприбуткування надходження.
 - Схема Supabase (`inventory_items` та ін.) керується вручну через SQL-скрипти в `sklad/supabase/*.sql`, які користувач виконує в Supabase SQL Editor. **Якщо додаєш нову колонку і фронтенд одразу починає її використовувати в INSERT — попередь користувача, що без виконання SQL-міграції ця дія (напр. "Додати товар") почне падати з помилкою.** Так було з `003_add_internal_use_flag.sql`. Для цін INSERT не змінювали — без `004_add_price_tracking.sql` падає тільки збереження ціни, не додавання товару.
 
 ## Відомі обмеження / свідомо прийняті ризики

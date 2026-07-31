@@ -8,6 +8,7 @@ const shellHtml = await readFile(new URL('../index.html', import.meta.url), 'utf
 const skladHtml = await readFile(new URL('../sklad/index.html', import.meta.url), 'utf8');
 const skladCss = await readFile(new URL('../sklad/styles.css', import.meta.url), 'utf8');
 const shellCss = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+const sharedUiCss = await readFile(new URL('../shared/ui.css', import.meta.url), 'utf8');
 
 const requiredRoles = [
   'primary', 'on-primary', 'primary-container', 'on-primary-container',
@@ -61,7 +62,7 @@ for (const selector of ['.theme-light', '.theme-dark']) {
 }
 
 const allHtml = [shellHtml, journalHtml, skladHtml].join('\n');
-const allCss = [shellCss, journalCss, skladCss].join('\n');
+const allCss = [shellCss, journalCss, skladCss, sharedUiCss].join('\n');
 assert.doesNotMatch(`${skladHtml}\n${skladCss}`, /--ios-/, 'Склад ще використовує legacy iOS токени');
 // Перевіряємо лише реальне підключення MDI або CSS-класи MDI. Загальний пошук
 // `\bmdi` дає хибні збіги у довільному вмісті великого inline-скрипту.
@@ -69,16 +70,17 @@ assert.doesNotMatch(allHtml, /@mdi\/font/, 'Інтерфейс ще підклю
 const legacyMdiClasses = [...allHtml.matchAll(/class=["']([^"']*)["']/g)]
   .flatMap(([, classNames]) => classNames.split(/\s+/))
   .filter(className => className === 'mdi' || className.startsWith('mdi-'));
-if (legacyMdiClasses.length) {
-  console.warn(`Material 3 warning: знайдено legacy MDI класи: ${[...new Set(legacyMdiClasses)].join(', ')}`);
-}
+assert.deepEqual(legacyMdiClasses, [], `Знайдено legacy MDI класи: ${[...new Set(legacyMdiClasses)].join(', ')}`);
 assert.equal((allHtml.match(/Material\+Symbols\+Rounded/g) || []).length, 3, 'Material Symbols Rounded мають бути підключені у трьох застосунках');
 assert.equal((allHtml.match(/<svg\b/g) || []).length, 4, 'Знайдено інтерфейсні inline SVG замість Material Symbols');
 const syntheticRobotoWeights = [...allCss.matchAll(/font-weight:\s*(300|600|650|750|800|850)\b/g)]
   .map(([, weight]) => weight);
-if (syntheticRobotoWeights.length) {
-  console.warn(`Material 3 warning: знайдено синтетичні ваги Roboto: ${[...new Set(syntheticRobotoWeights)].join(', ')}`);
-}
+assert.deepEqual(syntheticRobotoWeights, [], `Знайдено синтетичні ваги Roboto: ${[...new Set(syntheticRobotoWeights)].join(', ')}`);
+const shapeTokenPattern = /var\(--md-sys-shape-corner-(?:extra-small|small|medium|large|extra-large|full),\s*(?:4|8|12|16|28|999)px\)/g;
+const nonTokenRadii = [...allCss.matchAll(/border-radius:\s*([^;}]+)/g)]
+  .map(([, value]) => value.replace(shapeTokenPattern, '').trim())
+  .filter(value => /(?:\d+(?:\.\d+)?(?:px|rem|%)|calc\()/.test(value));
+assert.deepEqual(nonTokenRadii, [], `Знайдено радіуси поза M3 shape tokens: ${[...new Set(nonTokenRadii)].join(', ')}`);
 assert.match(journalCss, /@media \(pointer:coarse\)[\s\S]*min-height:48px/, 'Немає 48dp touch targets');
 
 console.log('Material 3 tokens, contrast, typography, icons and touch targets: OK');

@@ -126,6 +126,34 @@ test('ShellController verifies a complete PIN through Supabase RPC and unlocks s
   assert.equal(doc.getElementById('frame-journal').src, 'osbb/index.html?embed=1');
 });
 
+test('ShellController notifies embedded modules after unlock', () => {
+  globalThis.sessionStorage = memoryStorage({ auth: 'ok', auth_at: String(Date.now()) });
+  const { controller, doc } = makeController();
+  const messages = [];
+  const embeddedLocks = [];
+  for (const id of ['frame-journal', 'frame-sklad', 'frame-promin']) {
+    const frame = doc.getElementById(id);
+    const embeddedLock = new FakeElement(id === 'frame-sklad' ? 'authScreen' : 'app-lock-screen');
+    embeddedLocks.push(embeddedLock);
+    frame.contentDocument = {
+      getElementById(targetId) { return targetId === embeddedLock.id ? embeddedLock : null; },
+    };
+    frame.contentWindow = {
+      postMessage(message, origin) { messages.push({ id, message, origin }); },
+    };
+  }
+
+  controller.unlockShell();
+
+  assert.equal(messages.length, 3);
+  assert.equal(embeddedLocks.every(lock => lock.style.display === 'none'), true);
+  assert.deepEqual(messages[0], {
+    id: 'frame-journal',
+    message: { type: 'osbb:shell-unlocked' },
+    origin: 'https://example.test',
+  });
+});
+
 test('ShellController records failed PIN attempts, shakes dots, and clears visible error after lockout', async () => {
   globalThis.sessionStorage = memoryStorage();
   const { controller, doc, calls } = makeController({ rpcResult: false });

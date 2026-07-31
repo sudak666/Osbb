@@ -353,6 +353,8 @@ for (const [file, needle, label] of checks) {
     'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
     'if (isAuthSessionValid()) {',
+    "frame.contentDocument?.getElementById('app-lock-screen')",
+    "frame.contentWindow?.postMessage({ type: 'osbb:shell-unlocked' }",
   ];
   const forbidden = [
     'function setAuthSession() {\n        setAuthSession();',
@@ -369,9 +371,8 @@ for (const [file, needle, label] of checks) {
   }
 }
 
-// Embedded modules share the same sessionStorage auth flag as the shell, so they
-// must also respect the timestamp when opened directly or parsed before the shell
-// has a chance to clear stale credentials.
+// Вбудовані модулі покладаються на PIN shell-оболонки, а при прямому відкритті
+// й далі самостійно перевіряють TTL. Це запобігає повторному PIN після idle-lock.
 for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync(file, 'utf8');
   const label = `${file} auth session respects TTL`;
@@ -384,8 +385,12 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'Date.now()',
     'const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
+    'function isEmbeddedShellFrame',
+    "window.parent.document.getElementById('shell-main')",
+    "|| (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)",
+    '|| isAuthSessionValid())',
+    "'osbb:shell-unlocked'",
   ];
-  const hasAuthValidityGate = text.includes('if (isAuthSessionValid())') || text.includes('if(isAuthSessionValid())');
   const forbidden = [
     'function setAuthSession() {\n        setAuthSession();',
     'function setAuthSession(){\n  setAuthSession();',
@@ -394,9 +399,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const hasForbidden = forbidden.some(needle => text.includes(needle));
-  if (missing.length || hasForbidden || !hasAuthValidityGate) {
+  if (missing.length || hasForbidden) {
     failed += 1;
-    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}${!hasAuthValidityGate ? ' (missing auth validity gate)' : ''}`);
+    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -645,7 +650,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readSkladCombined();
   const label = 'sklad mobile topbar keeps compact actions and flexible title';
   const required = [
-    '.topbar{padding:0 8px;height:56px;border-radius:0 0 18px 18px;gap:6px;}',
+    '.topbar{padding:0 8px;height:56px;border-radius:0 0 var(--md-sys-shape-corner-large,16px) var(--md-sys-shape-corner-large,16px);gap:6px;}',
     '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
     '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;padding:0!important;line-height:1!important;}',
     '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid!important;place-items:center!important;width:1em!important;height:1em!important;font-size:21px!important;line-height:1!important;margin:0!important;}',
@@ -936,7 +941,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb garbage chart bars use class-based gradient';
   const required = [
-    '.g-chart-bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
+    '.g-chart-bar { width:100%; border-radius:var(--md-sys-shape-corner-small,8px) var(--md-sys-shape-corner-small,8px) 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
     '.g-chart-bar.is-current { background:linear-gradient(var(--md-sys-color-tertiary,#fbbf24),color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 82%,#000)); }',
     "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
   ];
@@ -1073,7 +1078,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb PIN-modal icons use class-based markup';
   const required = [
-    '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; }',
+    '.pin-modal-icon-wrap { display:inline-flex; width:40px; height:40px; border-radius:var(--md-sys-shape-corner-full,999px); align-items:center; justify-content:center; }',
     '.pin-modal-icon-wrap.is-indigo { background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); }',
     '.pin-modal-icon-wrap.is-red { background:var(--md-sys-color-error-container); color:var(--md-sys-color-on-error-container); }',
     '.pin-modal-icon-wrap.is-green { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }',
@@ -1144,11 +1149,14 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'function gOpenDayDetail(day) {',
     'function dispOpenDayDetail(d) {',
     "function refreshOpenDayDetail(context, day) {",
+    '.month-grid-cell { min-height:82px;',
+    '.month-grid-cell { align-items:center; min-height:62px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
+  const usesSquareCells = text.includes('.month-grid-cell { aspect-ratio: 1;');
+  if (missing.length || usesSquareCells) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; square cells: ${usesSquareCells})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -1420,12 +1428,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'id="statCats" class="stats-list-stack"',
     'class="stats-filter-grid"',
     'id="valueFilterSummary" class="stats-filter-summary"',
-    'class="card price-assessment-panel"',
-    'id="priceSummary" class="price-assessment-summary"',
-    'class="price-assessment-actions"',
     '.stats-panel{padding:18px 22px;',
     '.stats-filter-grid{display:grid;',
-    '.price-assessment-panel{padding:18px 22px;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const statLowCount = (text.match(/id="statLow"/g) || []).length;
@@ -1554,56 +1558,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Internet price lookup results should render with reusable result-row classes,
-// while keeping links sanitized and apply actions data-driven.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price lookup results use class-based rows';
-  const required = [
-    '.price-results-state{padding:18px;',
-    '.price-result-card{padding:10px 0;',
-    '.price-result-main{flex:1;',
-    '.price-result-link{color:var(--brand);',
-    '.price-result-apply{margin-top:6px;}',
-    'class="price-results-state is-loading"',
-    'class="price-result-card"',
-    'class="price-result-link" href="${safeLink}" target="_blank" rel="noopener noreferrer"',
-    'class="btn btn-primary btn-sm price-result-apply" data-price-result-action="apply"',
-    'class="price-results-state is-error"',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
-// Price lookup modal should use the same class-based shell as manual price
-// instead of embedding its grid/results/actions layout inline.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price lookup modal uses class-based shell';
-  const required = [
-    'class="modal price-lookup-modal"',
-    'class="price-lookup-title"',
-    'class="price-results-panel"',
-    '.price-lookup-modal{max-width:560px;}',
-    '.price-search-row{display:grid;',
-    '.price-results-panel{min-height:80px;',
-    '.price-modal-actions{display:flex;',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
 // Manual price modal should not open with accidental blue text selection; it
 // clears stale selections and focuses the price input without selecting modal text.
@@ -1717,7 +1672,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-panel {',
     '.journal-table-shell {',
     '.garbage-chart-panel { padding:16px;',
-    '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large, 32px)!important; padding:0!important; }',
+    '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; padding:0!important; }',
     '.journal-list-head { padding:16px 22px;',
     '.journal-status-chip {',
     '.journal-icon-btn {',
@@ -2146,7 +2101,6 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'function bindItemActionDelegation',
     'data-item-action="quick"',
     'data-item-action="history"',
-    'data-item-action="price-lookup"',
     'data-item-action="delete"',
   ];
   const hasForbidden = forbidden.some(needle => body.includes(needle));
@@ -2235,7 +2189,6 @@ ${sharedSelectText}`;
     'onclick="searchInGoogle()',
     'onclick="resetBarcodeScanner()',
     'onclick="searchManualBarcode()',
-    'onclick="fetchItemPrice()',
     'onclick="saveManualPrice()',
     'onclick="deleteLightboxPhoto',
     'onclick="event.stopPropagation()',
@@ -2276,7 +2229,6 @@ ${sharedSelectText}`;
     "openModal('qModal')",
     "openModal('photoModal')",
     "openModal('delPinModal')",
-    "openModal('priceModal')",
   ];
   const forbidden = [
     "document.getElementById('qModal').classList.add('open')",
@@ -2325,71 +2277,8 @@ ${sharedSelectText}`;
   }
 }
 
-// Price result actions can contain merchant/source/link text with apostrophes, so
-// they must not be serialized into inline JS argument lists.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price result apply buttons avoid inline JS arguments';
-  if (text.includes('onclick="applyFoundPrice') || !text.includes('function bindPriceResultActions') || !text.includes('data-price-result-action="apply"')) {
-    failed += 1;
-    console.error(`not ok - ${label}`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
-// Price search links come from an Edge Function response. Only http(s) URLs
-// should be rendered into href/data-url values.
-{
-  const text = readSkladCombined();
-  const label = 'sklad price result links are URL-sanitized';
-  const required = [
-    'function safeExternalUrl',
-    'const safeLink=safeExternalUrl(r.link);',
-    'href="${safeLink}"',
-    'data-url="${safeLink}"',
-    "url.protocol!=='http:'&&url.protocol!=='https:'",
-  ];
-  const forbidden = [
-    'href="${escapeHtml(r.link)}"',
-    'data-url="${escapeHtml(String(r.link||',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  const hasForbidden = forbidden.some(needle => text.includes(needle));
-  if (missing.length || hasForbidden) {
-    failed += 1;
-    console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
-// On mobile, the price lookup modal can produce long result lists. Keep it
-// scrollable and keep the close action sticky, while using solid light cards for
-// cleaner contrast in the item list.
-{
-  const text = readSkladCombined();
-  const label = 'sklad mobile price modal is scrollable and closeable';
-  const required = [
-    '#priceModal .modal{display:flex',
-    '#priceResults{max-height:52dvh',
-    '.price-modal-actions{position:sticky',
-    'class="price-search-row"',
-    'class="price-modal-actions"',
-    '.theme-light .m-card{background:var(--md-sys-color-surface-container-low,#fff)',
-    '.theme-light .m-card .btn-ghost',
-  ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
-    failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
-  } else {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  }
-}
 
 // Photo URLs are stored in Supabase/user-controlled records. Renderers should
 // pass them through the same http(s)-only URL sanitizer before writing src/data
@@ -2857,8 +2746,7 @@ ${sharedSelectText}`;
   }
 }
 
-// Повторні завантаження приходів, історії та пошуку цін не повинні повертати
-// текстову заглушку — усі три сценарії використовують M3 skeleton loaders.
+// Повторні завантаження приходів та історії використовують M3 skeleton loaders.
 {
   const text = readSkladCombined();
   const label = 'sklad async views use reusable Material 3 skeleton loaders';
@@ -2867,7 +2755,6 @@ ${sharedSelectText}`;
     'function skeletonStack(rows=3)',
     'tb.innerHTML=skeletonRows(7,3)',
     'mb.innerHTML=skeletonStack(3)',
-    'aria-label="Пошук цін"',
     "document.getElementById('histList').innerHTML=skeletonStack(3)",
     '.skeleton-card{display:grid;',
   ];
@@ -3027,6 +2914,137 @@ ${sharedSelectText}`;
     '.custom-select-option{display:flex;align-items:center;min-height:48px;',
     '.custom-select-option.active{background:var(--md-sys-color-secondary-container',
     '.inp { min-height: 56px !important; }',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Список працівника у правій колонці модалки розгортається вліво від кнопки
+// та обмежується viewport, тому не виходить за правий край мобільного екрана.
+{
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'garbage worker listbox stays inside the mobile viewport';
+  const required = [
+    '.custom-select-wrap:has(select[data-g-field="worker"]) .custom-select-panel {',
+    'left:auto; right:0;',
+    'max-width:calc(100vw - 32px);',
+  ];
+  const missing = required.filter(needle => !css.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Головний фільтр працівників використовує кастомний M3 listbox замість
+// нативного меню браузера з гострими кутами; reset синхронізує його підпис.
+{
+  const html = readFileSync('osbb/index.html', 'utf8');
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'dispatcher worker filter uses rounded Material 3 listbox';
+  const required = [
+    "enhanceSelect(document.querySelector('[data-disp-worker-filter]'));",
+    'refreshEnhancedSelect(workerFilter);',
+    '.dispatcher-worker-filter .custom-select-wrap,.dispatcher-worker-filter .custom-select-btn { width:100%; }',
+    'border-radius:var(--md-sys-shape-corner-large,16px);',
+  ];
+  const combined = `${html}\n${css}`;
+  const missing = required.filter(needle => !combined.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Світла inverse-surface темної теми завжди отримує темний текст snackbar,
+// тому «Збережено» не стає білим на майже білому фоні після зміни теми.
+{
+  const journalCss = readFileSync('osbb/styles.css', 'utf8');
+  const skladCss = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'dark theme snackbars keep readable inverse-surface contrast';
+  const required = [
+    [journalCss, '.theme-dark .ios-toast { color:var(--md-sys-color-background,#121214); }'],
+    [skladCss, '.theme-dark #toast,.theme-dark #toast.success,.theme-dark #toast.error,.theme-dark #toast.info{color:var(--md-sys-color-background,#121214);}'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Темна тема додає контрольовану «живу» глибину лише інтерактивним карткам
+// і кнопкам; hover-lift не запускається на сенсорних екранах.
+{
+  const journalCss = readFileSync('osbb/styles.css', 'utf8');
+  const skladCss = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'dark theme uses restrained ambient glow and hover lift';
+  const required = [
+    [journalCss, '.theme-dark :is(.journal-stat-card,.ticket-item,.my-ticket-card,.shift-stat-card,.att-stat-card)'],
+    [journalCss, '@media (hover:hover) and (pointer:fine)'],
+    [journalCss, 'transform:translateY(-3px);'],
+    [journalCss, '.theme-dark .mob-tab.mob-active .material-symbols-rounded'],
+    [skladCss, '.theme-dark :is(.m-card,.stat-card)'],
+    [skladCss, '.theme-dark :is(.btn-primary,.btn-ghost,.ni,.bottom-nav button)'],
+    [skladCss, '.theme-dark .bottom-nav button.active'],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Диспетчер може повторно відкрити помилково закриту заявку, очистивши
+// застарілі ознаки виконання та синхронізувавши зміну звичайним save-потоком.
+{
+  const text = readFileSync('osbb/index.html', 'utf8');
+  const label = 'dispatcher can reopen an accidentally closed ticket';
+  const required = [
+    'function dispReopenTicket(d, ticketId)',
+    "if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }",
+    "ticket.status = 'open';",
+    'delete ticket.closedAt;',
+    'delete ticket.closedBy;',
+    'data-disp-action="ticket-reopen"',
+    "if (action.dataset.dispAction === 'ticket-reopen')",
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Списки Журналу прокручуються без нативної смуги, яка у мобільних WebView
+// виходить за округлений край панелі та залишає видимий «хвостик» зверху.
+{
+  const text = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'journal custom select hides the overflowing native scrollbar';
+  const required = [
+    'overscroll-behavior:contain; scrollbar-width:none; -ms-overflow-style:none;',
+    '.custom-select-panel::-webkit-scrollbar { display:none; width:0; height:0; }',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -3246,19 +3264,33 @@ ${sharedSelectText}`;
     '.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7',
     '.month-grid-cell.is-today,.shift-day.is-today {',
     'border-width:1px;',
-    'background:color-mix(in srgb,var(--md-sys-color-primary-container) 38%',
+    'box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent)',
     '.month-grid-cell.is-today .month-grid-day,.shift-day.is-today .shift-day-number {',
-    'font-size:16px;',
+    'background:transparent; color:inherit;',
     '.att-calendar-day.is-today,.att-mobile-day.is-today {',
+    '.att-calendar-day.is-today > header strong,.att-mobile-day.is-today > header strong { background:transparent;',
+    "function attDayState(d, visibleRoles = attVisibleRoles())",
+    "function attCellState(cell)",
+    "if (populated === 0) return 'is-empty-day';",
+    "return completed === cells.length ? 'is-filled-day' : 'is-partial-day';",
+    'data-att-day-card="${d}"',
+    'data-att-cell="${d}-${role}"',
+    '.att-calendar-day.is-partial-day,.att-mobile-day.is-partial-day {',
+    '.att-calendar-day.is-filled-day,.att-mobile-day.is-filled-day {',
+    '.att-calendar-role.is-complete-cell,.att-mobile-role.is-complete-cell,.att-table td.is-complete-cell {',
+    '.is-complete-cell .att-time-input {',
+    '.is-partial-cell .att-time-input:not(:placeholder-shown) {',
     '@media (max-width:900px) {',
     '.att-calendar-scroll { display:none; }',
     '.att-mobile-list { display:flex;',
   ];
   const combined = html + '\n' + css;
   const missing = required.filter(needle => !combined.includes(needle));
-  if (missing.length) {
+  const hasSolidTodayCircle = combined.includes('is-today > header strong { background:var(--md-sys-color-primary)')
+    || combined.includes('is-today .shift-day-number { display:grid; place-items:center; min-width:32px;');
+  if (missing.length || hasSolidTodayCircle) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; solid today circle: ${hasSolidTodayCircle})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -3272,7 +3304,7 @@ ${sharedSelectText}`;
   const label = 'garbage multi-select uses a Material 3 checkbox indicator';
   const required = [
     '.garbage-type-indicator { display:grid; place-items:center; width:20px; height:20px;',
-    'border-radius:3px;',
+    'border-radius:var(--md-sys-shape-corner-extra-small,4px);',
     '.garbage-type-indicator .material-symbols-rounded { font-size:16px;',
   ];
   const missing = required.filter(needle => !css.includes(needle));
