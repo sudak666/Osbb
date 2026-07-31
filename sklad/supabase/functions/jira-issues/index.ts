@@ -12,6 +12,7 @@ interface JiraIssue {
     priority?: { name?: string } | null;
     assignee?: { displayName?: string } | null;
     created?: string;
+    labels?: string[];
   };
 }
 
@@ -72,33 +73,65 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (!authResponse.ok || !isObject(authResult) || authResult.ok !== true) {
       return json({ error: 'Невірний PIN' }, 403);
     }
+    const staffRole = typeof authResult.role === 'string' ? authResult.role : '';
+    const isManager = ['dispatcher', 'admin', 'board'].includes(staffRole);
+    const workerRoles = ['plumber', 'janitor', 'electrician'];
+    const roleLabel = workerRoles.includes(staffRole) ? `osbb-${staffRole}` : '';
 
     if (action === 'list') {
       const params = new URLSearchParams({
         jql: `project = ${projectKey} AND statusCategory != Done ORDER BY priority DESC, created ASC`,
-        fields: 'summary,status,priority,assignee,created',
+        fields: 'summary,status,priority,assignee,created,labels',
         maxResults: '100',
       });
       const response = await fetch(`${baseUrl}/rest/api/3/search/jql?${params}`, { headers: jiraHeaders });
       const data: unknown = await response.json();
       if (!response.ok || !isObject(data)) return json({ error: 'Jira search failed' }, 502);
       const issues = Array.isArray(data.issues) ? data.issues as JiraIssue[] : [];
+      const visibleIssues = isManager ? issues : issues.filter(issue => roleLabel && issue.fields?.labels?.includes(roleLabel));
       return json({
-        issues: issues.filter(issue => issue.key && issue.fields?.summary).map(issue => ({
+        issues: visibleIssues.filter(issue => issue.key && issue.fields?.summary).map(issue => ({
           key: issue.key,
           summary: issue.fields?.summary,
           status: issue.fields?.status?.name || '',
           priority: issue.fields?.priority?.name || '',
           assignee: issue.fields?.assignee?.displayName || '',
           created: issue.fields?.created || '',
+          assignedRole: workerRoles.find(role => issue.fields?.labels?.includes(`osbb-${role}`)) || '',
           url: `${baseUrl}/browse/${encodeURIComponent(issue.key || '')}`,
         })),
       });
     }
 
-    if (action !== 'close') return json({ error: 'Invalid action' }, 400);
     const issueKey = isObject(body) && typeof body.issueKey === 'string' ? body.issueKey.trim().toUpperCase() : '';
     if (!new RegExp(`^${projectKey}-\\d+$`).test(issueKey)) return json({ error: 'Invalid issue key' }, 400);
+
+    if (action === 'assign') {
+      if (!isManager) return json({ error: 'Призначати заявки може лише диспетчер' }, 403);
+      const assignedRole = isObject(body) && typeof body.assignedRole === 'string' ? body.assignedRole : '';
+      if (!workerRoles.includes(assignedRole)) return json({ error: 'Invalid worker role' }, 400);
+      const issueResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=labels`, { headers: jiraHeaders });
+      const issueData: unknown = await issueResponse.json();
+      if (!issueResponse.ok || !isObject(issueData)) return json({ error: 'Не вдалося прочитати Jira-заявку' }, 502);
+      const fields = isObject(issueData.fields) ? issueData.fields : {};
+      const labels = Array.isArray(fields.labels) ? fields.labels.filter(label => typeof label === 'string') as string[] : [];
+      const nextLabels = [...labels.filter(label => !workerRoles.some(role => label === `osbb-${role}`)), `osbb-${assignedRole}`];
+      const updateResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}`, {
+        method: 'PUT', headers: jiraHeaders, body: JSON.stringify({ fields: { labels: nextLabels } }),
+      });
+      if (!updateResponse.ok) return json({ error: 'Не вдалося призначити виконавця' }, 502);
+      return json({ ok: true, issueKey, assignedRole });
+    }
+
+    if (action !== 'close') return json({ error: 'Invalid action' }, 400);
+    if (isManager) return json({ error: 'Закриває заявку призначений працівник' }, 403);
+    const issueResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=labels`, { headers: jiraHeaders });
+    const issueData: unknown = await issueResponse.json();
+    const issueFields = isObject(issueData) && isObject(issueData.fields) ? issueData.fields : {};
+    const issueLabels = Array.isArray(issueFields.labels) ? issueFields.labels : [];
+    if (!issueResponse.ok || !roleLabel || !issueLabels.includes(roleLabel)) {
+      return json({ error: 'Заявка не призначена цьому працівнику' }, 403);
+    }
 
     const transitionsResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}/transitions`, { headers: jiraHeaders });
     const transitionsData: unknown = await transitionsResponse.json();

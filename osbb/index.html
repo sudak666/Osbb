@@ -499,7 +499,7 @@
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
-            <p class="shift-copy">Усі відкриті заявки Jira-проєкту MS:</p>
+            <p class="shift-copy">Диспетчер призначає виконавця; працівник бачить лише свої відкриті Jira-заявки:</p>
             <div class="priority-legend" aria-label="Порядок пріоритетів">
                 <span class="priority-legend-item priority-HIGH"><i class="priority-dot" aria-hidden="true"></i>Терміново</span>
                 <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
@@ -950,7 +950,7 @@
     // виклику setTab/requestTab (щоб hidden-клас не був єдиним захистом).
     function isTabAllowedForSession(tab) {
         if (isWorkerSession()) return WORKER_ALLOWED_TABS.includes(tab);
-        if (tab === 'my-tickets') return false;
+        if (tab === 'my-tickets') return isDispatcherSession();
         if (tab === 'dispatcher') return isDispatcherSession() || !staffSession;
         return true;
     }
@@ -3266,6 +3266,7 @@
     function myTicketsRender() {
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
+        const canAssign = isDispatcherSession();
         if (!jiraIssues.length) { list.innerHTML = '<div class="staff-login-loading">Відкритих Jira-заявок немає</div>'; return; }
         list.innerHTML = jiraIssues.map(issue => {
             const priority = jiraPriorityClass(issue.priority);
@@ -3276,13 +3277,34 @@
                     <span class="ticket-role-badge">${escapeHtml(issue.status || 'Відкрита')}</span>
                 </div>
                 <div class="ticket-item-text">${escapeHtml(issue.summary)}</div>
-                <div class="ticket-item-comment">${escapeHtml(issue.key)}${issue.assignee ? ` · ${escapeHtml(issue.assignee)}` : ''}</div>
+                <div class="ticket-item-comment">${escapeHtml(issue.key)}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
                 <div class="my-ticket-close-actions">
                     ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
-                    <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Закрити</button>
+                    ${canAssign ? `<select class="journal-select" data-jira-role="${escapeAttr(issue.key)}" aria-label="Виконавець заявки ${escapeAttr(issue.key)}">
+                        ${WORKER_ROLES.map(role => `<option value="${role}" ${issue.assignedRole === role ? 'selected' : ''}>${escapeHtml(roleNames[role])}</option>`).join('')}
+                    </select>
+                    <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-assign="${escapeAttr(issue.key)}">Призначити</button>` : `<button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>`}
                 </div>
             </div>`;
         }).join('');
+
+        list.querySelectorAll('[data-jira-assign]').forEach(button => {
+            button.addEventListener('click', async () => {
+                const issueKey = button.dataset.jiraAssign;
+                const select = list.querySelector(`[data-jira-role="${CSS.escape(issueKey)}"]`);
+                button.disabled = true;
+                try {
+                    await jiraRequest('assign', { issueKey, assignedRole: select?.value });
+                    const issue = jiraIssues.find(item => item.key === issueKey);
+                    if (issue) issue.assignedRole = select?.value || '';
+                    showToast('Виконавця призначено');
+                    myTicketsRender();
+                } catch (error) {
+                    showToast(error instanceof Error ? error.message : 'Не вдалося призначити виконавця');
+                    button.disabled = false;
+                }
+            });
+        });
 
         list.querySelectorAll('[data-jira-close]').forEach(button => {
             button.addEventListener('click', async () => {

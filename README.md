@@ -105,7 +105,7 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 
 ## Jira-заявки
 
-Вкладка «Мої заявки» показує всі відкриті заявки Jira-проєкту `MS` і дозволяє перевести їх у доступний статус категорії Done. Застосунок не створює нові Jira-заявки. API-токен і email зберігаються тільки в Supabase Secrets.
+Вкладка «Мої заявки» показує диспетчеру всі відкриті заявки Jira-проєкту `MS`. Диспетчер призначає роль виконавця, що зберігається в Jira label `osbb-plumber`, `osbb-janitor` або `osbb-electrician`; працівник бачить лише заявки своєї ролі та може перевести їх у доступний статус категорії Done. Застосунок не створює нові Jira-заявки. API-токен і email зберігаються тільки в Supabase Secrets.
 
 ```bash
 supabase functions deploy jira-issues --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
