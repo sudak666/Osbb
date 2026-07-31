@@ -2925,6 +2925,29 @@ ${sharedSelectText}`;
   }
 }
 
+// Головний фільтр працівників використовує кастомний M3 listbox замість
+// нативного меню браузера з гострими кутами; reset синхронізує його підпис.
+{
+  const html = readFileSync('osbb/index.html', 'utf8');
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'dispatcher worker filter uses rounded Material 3 listbox';
+  const required = [
+    "enhanceSelect(document.querySelector('[data-disp-worker-filter]'));",
+    'refreshEnhancedSelect(workerFilter);',
+    '.dispatcher-worker-filter .custom-select-wrap,.dispatcher-worker-filter .custom-select-btn { width:100%; }',
+    'border-radius:var(--md-sys-shape-corner-large,16px);',
+  ];
+  const combined = `${html}\n${css}`;
+  const missing = required.filter(needle => !combined.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Світла inverse-surface темної теми завжди отримує темний текст snackbar,
 // тому «Збережено» не стає білим на майже білому фоні після зміни теми.
 {

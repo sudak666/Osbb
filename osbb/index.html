@@ -1051,6 +1051,7 @@
     // Кастомний select підключено зі shared/enhance-select.js.
     enhanceSelect(yearSelect);
     enhanceSelect(monthSelect);
+    enhanceSelect(document.querySelector('[data-disp-worker-filter]'));
 
     function stepMonth(dir) {
         let m = parseInt(monthSelect.value) + dir;
@@ -2380,7 +2381,10 @@
         const search = document.querySelector('[data-disp-search]');
         if (search) search.value = '';
         const workerFilter = document.querySelector('[data-disp-worker-filter]');
-        if (workerFilter) workerFilter.value = 'all';
+        if (workerFilter) {
+            workerFilter.value = 'all';
+            refreshEnhancedSelect(workerFilter);
+        }
         document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
         dispRender();
     }
