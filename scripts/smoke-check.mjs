@@ -2925,6 +2925,26 @@ ${sharedSelectText}`;
   }
 }
 
+// Список працівника у правій колонці модалки розгортається вліво від кнопки
+// та обмежується viewport, тому не виходить за правий край мобільного екрана.
+{
+  const css = readFileSync('osbb/styles.css', 'utf8');
+  const label = 'garbage worker listbox stays inside the mobile viewport';
+  const required = [
+    '.custom-select-wrap:has(select[data-g-field="worker"]) .custom-select-panel {',
+    'left:auto; right:0;',
+    'max-width:calc(100vw - 32px);',
+  ];
+  const missing = required.filter(needle => !css.includes(needle));
+  if (missing.length) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 // Головний фільтр працівників використовує кастомний M3 listbox замість
 // нативного меню браузера з гострими кутами; reset синхронізує його підпис.
 {
