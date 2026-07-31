@@ -3117,8 +3117,18 @@
         row.ticketsList.push(ticket);
         dispScheduleSave();
         for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
+        if (!IS_PREVIEW) {
+            try {
+                ticket.jira = await createJiraIssue(ticket, d);
+                dispScheduleSave();
+            } catch (error) {
+                console.error('jira create issue error:', error);
+                showToast('Заявку додано, але Jira недоступна');
+            }
+        }
         dispOpenDayDetail(Number(d));
-        showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
+        if (ticket.jira) showToast(`Заявку додано в Jira: ${ticket.jira.key}`);
+        else if (IS_PREVIEW) showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
     }
 
     function dispDeleteTicket(d, ticketId) {
