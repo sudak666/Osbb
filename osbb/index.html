@@ -3319,6 +3319,7 @@
                 myTicketsRender();
             });
         });
+        list.querySelectorAll('[data-jira-filter], [data-jira-role]').forEach(select => enhanceSelect(select));
 
         list.querySelectorAll('[data-jira-assign]').forEach(button => {
             button.addEventListener('click', async () => {

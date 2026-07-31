@@ -43,6 +43,7 @@ const checks = [
   ['osbb/index.html', "await jiraRequest('assign'", 'dispatcher can assign Jira issues'],
   ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
   ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],
+  ['osbb/index.html', "[data-jira-filter], [data-jira-role]", 'Jira filters use rounded custom selects'],
   ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
   ['supabase/functions/jira-issues/index.ts', "action === 'assign'", 'Jira issue assignment is handled server-side'],
   ['supabase/functions/jira-issues/index.ts', "statusCategory?.key === 'done'", 'Jira close uses an available Done transition'],
