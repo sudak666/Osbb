@@ -45,6 +45,8 @@ const checks = [
   ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
   ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],
   ['osbb/index.html', "[data-jira-filter], [data-jira-role]", 'Jira filters use rounded custom selects'],
+  ['shared/enhance-select.js', 'document.body.appendChild(panel)', 'custom select panels escape clipped containers'],
+  ['shared/enhance-select.js', 'function positionPanel()', 'custom select panels stay inside the viewport'],
   ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
   ['supabase/functions/jira-issues/index.ts', "action === 'assign'", 'Jira issue assignment is handled server-side'],
   ['supabase/functions/jira-issues/index.ts', "statusCategory?.key === 'done'", 'Jira close uses an available Done transition'],
@@ -2935,17 +2937,17 @@ ${sharedSelectText}`;
   }
 }
 
-// Список працівника у правій колонці модалки розгортається вліво від кнопки
-// та обмежується viewport, тому не виходить за правий край мобільного екрана.
+// Усі кастомні списки позиціонуються відносно viewport і не обрізаються
+// контейнерами чи правим краєм мобільного екрана.
 {
-  const css = readFileSync('osbb/styles.css', 'utf8');
+  const js = readFileSync('shared/enhance-select.js', 'utf8');
   const label = 'garbage worker listbox stays inside the mobile viewport';
   const required = [
-    '.custom-select-wrap:has(select[data-g-field="worker"]) .custom-select-panel {',
-    'left:auto; right:0;',
-    'max-width:calc(100vw - 32px);',
+    'document.body.appendChild(panel)',
+    'window.innerWidth - width - viewportGap',
+    'window.addEventListener(\'resize\', closePanel)',
   ];
-  const missing = required.filter(needle => !css.includes(needle));
+  const missing = required.filter(needle => !js.includes(needle));
   if (missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);

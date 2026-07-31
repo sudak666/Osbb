@@ -28,7 +28,25 @@
     const panel = document.createElement('div');
     panel.className = 'custom-select-panel hidden';
     panel.setAttribute('role', 'listbox');
-    wrap.appendChild(panel);
+    document.body.appendChild(panel);
+
+    function positionPanel() {
+      const rect = btn.getBoundingClientRect();
+      const viewportGap = 8;
+      const maxWidth = Math.max(240, window.innerWidth - viewportGap * 2);
+      const width = Math.min(Math.max(rect.width, panel.scrollWidth), maxWidth);
+      const left = Math.min(Math.max(viewportGap, rect.left), window.innerWidth - width - viewportGap);
+      panel.style.width = `${width}px`;
+      panel.style.left = `${left}px`;
+      panel.style.right = 'auto';
+      panel.style.top = `${rect.bottom + 6}px`;
+      panel.style.bottom = 'auto';
+      const panelRect = panel.getBoundingClientRect();
+      if (panelRect.bottom > window.innerHeight - viewportGap && rect.top > window.innerHeight - rect.bottom) {
+        panel.style.top = 'auto';
+        panel.style.bottom = `${window.innerHeight - rect.top + 6}px`;
+      }
+    }
 
     function optionMatches(opt) {
       if (!searchable || !selectSearchTerm) return true;
@@ -111,6 +129,7 @@
       document.querySelectorAll('.custom-select-panel').forEach((p) => { if (p !== panel) p.classList.add('hidden'); });
       renderOptions();
       panel.classList.remove('hidden');
+      positionPanel();
       btn.setAttribute('aria-expanded', 'true');
       if (searchable) panel.querySelector('input[type="search"]')?.focus();
       else panel.querySelector('.custom-select-option.active')?.focus();
@@ -137,6 +156,8 @@
     });
     panel.addEventListener('click', (e) => e.stopPropagation());
     document.addEventListener('click', closePanel);
+    window.addEventListener('resize', closePanel);
+    window.addEventListener('scroll', closePanel, true);
 
     select._syncCustomLabel = syncLabel;
     renderOptions();
