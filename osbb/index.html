@@ -3219,6 +3219,9 @@
     // МОЇ ЗАЯВКИ — відкриті заявки Jira проєкту MS.
     // ==========================================
     let jiraIssues = [];
+    let jiraAssignmentFilter = 'all';
+    let jiraStatusFilter = 'all';
+    let jiraCategoryFilter = 'all';
 
     async function jiraRequest(action, extra = {}) {
         const response = await fetch(`${SUPABASE_URL}/functions/v1/jira-issues`, {
@@ -3267,8 +3270,28 @@
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
         const canAssign = isDispatcherSession();
+        const statuses = [...new Set(jiraIssues.map(issue => issue.status).filter(Boolean))].sort();
+        const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
+        const filteredIssues = jiraIssues.filter(issue => {
+            const assignmentMatches = jiraAssignmentFilter === 'all'
+                || (jiraAssignmentFilter === 'assigned' ? Boolean(issue.assignedRole) : !issue.assignedRole);
+            return assignmentMatches
+                && (jiraStatusFilter === 'all' || issue.status === jiraStatusFilter)
+                && (jiraCategoryFilter === 'all' || (issue.category || 'Без категорії') === jiraCategoryFilter);
+        });
+        const filtersHtml = `<div class="dispatcher-filter-chips jira-ticket-filters" aria-label="Фільтри Jira-заявок">
+            <select class="journal-select" data-jira-filter="assignment" aria-label="Фільтр за призначенням">
+                <option value="all">Усі призначення</option><option value="assigned" ${jiraAssignmentFilter === 'assigned' ? 'selected' : ''}>Призначені</option><option value="unassigned" ${jiraAssignmentFilter === 'unassigned' ? 'selected' : ''}>Непризначені</option>
+            </select>
+            <select class="journal-select" data-jira-filter="status" aria-label="Фільтр за статусом">
+                <option value="all">Усі статуси</option>${statuses.map(status => `<option value="${escapeAttr(status)}" ${jiraStatusFilter === status ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}
+            </select>
+            <select class="journal-select" data-jira-filter="category" aria-label="Фільтр за категорією">
+                <option value="all">Усі категорії</option>${categories.map(category => `<option value="${escapeAttr(category)}" ${jiraCategoryFilter === category ? 'selected' : ''}>${escapeHtml(category)}</option>`).join('')}
+            </select>
+        </div>`;
         if (!jiraIssues.length) { list.innerHTML = '<div class="staff-login-loading">Відкритих Jira-заявок немає</div>'; return; }
-        list.innerHTML = jiraIssues.map(issue => {
+        list.innerHTML = filtersHtml + (filteredIssues.length ? filteredIssues.map(issue => {
             const priority = jiraPriorityClass(issue.priority);
             const safeUrl = safeExternalUrl(issue.url);
             return `<div class="my-ticket-card priority-${priority}">
@@ -3277,7 +3300,7 @@
                     <span class="ticket-role-badge">${escapeHtml(issue.status || 'Відкрита')}</span>
                 </div>
                 <div class="ticket-item-text">${escapeHtml(issue.summary)}</div>
-                <div class="ticket-item-comment">${escapeHtml(issue.key)}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
+                <div class="ticket-item-comment">${escapeHtml(issue.key)} · ${escapeHtml(issue.category || 'Без категорії')}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
                 <div class="my-ticket-close-actions">
                     ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
                     ${canAssign ? `<select class="journal-select" data-jira-role="${escapeAttr(issue.key)}" aria-label="Виконавець заявки ${escapeAttr(issue.key)}">
@@ -3286,7 +3309,16 @@
                     <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-assign="${escapeAttr(issue.key)}">Призначити</button>` : `<button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>`}
                 </div>
             </div>`;
-        }).join('');
+        }).join('') : '<div class="staff-login-loading">За вибраними фільтрами заявок немає</div>');
+
+        list.querySelectorAll('[data-jira-filter]').forEach(select => {
+            select.addEventListener('change', () => {
+                if (select.dataset.jiraFilter === 'assignment') jiraAssignmentFilter = select.value;
+                if (select.dataset.jiraFilter === 'status') jiraStatusFilter = select.value;
+                if (select.dataset.jiraFilter === 'category') jiraCategoryFilter = select.value;
+                myTicketsRender();
+            });
+        });
 
         list.querySelectorAll('[data-jira-assign]').forEach(button => {
             button.addEventListener('click', async () => {

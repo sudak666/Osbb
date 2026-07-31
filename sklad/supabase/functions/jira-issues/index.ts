@@ -13,6 +13,7 @@ interface JiraIssue {
     assignee?: { displayName?: string } | null;
     created?: string;
     labels?: string[];
+    parent?: { fields?: { summary?: string } } | null;
   };
 }
 
@@ -81,7 +82,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (action === 'list') {
       const params = new URLSearchParams({
         jql: `project = ${projectKey} AND statusCategory != Done ORDER BY priority DESC, created ASC`,
-        fields: 'summary,status,priority,assignee,created,labels',
+        fields: 'summary,status,priority,assignee,created,labels,parent',
         maxResults: '100',
       });
       const response = await fetch(`${baseUrl}/rest/api/3/search/jql?${params}`, { headers: jiraHeaders });
@@ -98,6 +99,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
           assignee: issue.fields?.assignee?.displayName || '',
           created: issue.fields?.created || '',
           assignedRole: workerRoles.find(role => issue.fields?.labels?.includes(`osbb-${role}`)) || '',
+          category: issue.fields?.parent?.fields?.summary || 'Без категорії',
           url: `${baseUrl}/browse/${encodeURIComponent(issue.key || '')}`,
         })),
       });
