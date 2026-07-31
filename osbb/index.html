@@ -80,15 +80,32 @@
     // журналу (shell вже підтвердив PIN) цей екран встигає промайнути на екрані,
     // поки браузер парсить решту сторінки.
     const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
+    function isEmbeddedShellFrame() {
+        if (window.self === window.top) return false;
+        try {
+            return window.parent.location.origin === window.location.origin
+                && Boolean(window.parent.document.getElementById('shell-main'));
+        } catch {
+            return false;
+        }
+    }
+    const EARLY_EMBEDDED_SHELL = isEmbeddedShellFrame();
+    const hideEmbeddedLockScreen = () => {
+        const screen = document.getElementById('app-lock-screen');
+        if (screen) screen.style.display = 'none';
+    };
     const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
     const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
-    if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
+    if (EARLY_EMBEDDED_SHELL || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
         const earlyLockScreen = document.getElementById('app-lock-screen');
         if (earlyLockScreen) earlyLockScreen.style.display = 'none';
     } else if (sessionStorage.getItem('auth') === 'ok') {
         sessionStorage.removeItem('auth');
         sessionStorage.removeItem('auth_at');
     }
+    window.addEventListener('message', event => {
+        if (event.origin === window.location.origin && event.data?.type === 'osbb:shell-unlocked') hideEmbeddedLockScreen();
+    });
 </script>
 
 
@@ -477,7 +494,7 @@
     <!-- ===== МОЇ ЗАЯВКИ — для staff-сесій з роллю сантехнік/двірник/електрик:
          тільки заявки, призначені на їхню роль, відсортовані за пріоритетом. ===== -->
     <div id="section-my-tickets" class="hidden mb-6">
-        <div class="journal-panel journal-list-shell">
+        <div class="journal-panel journal-list-shell my-tickets-panel">
             <div class="journal-list-head">
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
@@ -503,7 +520,7 @@
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
     // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
-    const IS_EMBEDDED_SHELL = window.self !== window.top && new URLSearchParams(location.search).get('embed') === '1';
+    const IS_EMBEDDED_SHELL = isEmbeddedShellFrame();
 
     // Повідомляємо shell-оболонку про активність усередині iframe, щоб idle-lock
     // не блокував застосунок, поки користувач реально працює в модулі.
@@ -545,7 +562,7 @@
         return true;
     }
 
-    if (isAuthSessionValid()) {
+    if (IS_EMBEDDED_SHELL || isAuthSessionValid()) {
         const lockScreen = document.getElementById('app-lock-screen');
         if (lockScreen) lockScreen.style.display = 'none';
         setTimeout(() => ensureStaffAuth(), 0);
@@ -1034,6 +1051,7 @@
     // Кастомний select підключено зі shared/enhance-select.js.
     enhanceSelect(yearSelect);
     enhanceSelect(monthSelect);
+    enhanceSelect(document.querySelector('[data-disp-worker-filter]'));
 
     function stepMonth(dir) {
         let m = parseInt(monthSelect.value) + dir;
@@ -1537,12 +1555,42 @@
         return isWorkerSession() ? [staffSession.role] : roles;
     }
 
+    function attCellState(cell) {
+        if (cell.checkIn && cell.checkOut) return 'is-complete-cell';
+        if (cell.checkIn || cell.checkOut) return 'is-partial-cell';
+        return 'is-empty-cell';
+    }
+
+    function attDayState(d, visibleRoles = attVisibleRoles()) {
+        const cells = visibleRoles.map(role => attGetCell(d, role));
+        const populated = cells.filter(cell => cell.checkIn || cell.checkOut).length;
+        const completed = cells.filter(cell => cell.checkIn && cell.checkOut).length;
+        if (populated === 0) return 'is-empty-day';
+        return completed === cells.length ? 'is-filled-day' : 'is-partial-day';
+    }
+
+    function attUpdateDayVisuals(d) {
+        const state = attDayState(d);
+        document.querySelectorAll(`[data-att-day-card="${d}"]`).forEach(card => {
+            card.classList.remove('is-empty-day', 'is-partial-day', 'is-filled-day');
+            card.classList.add(state);
+        });
+        attVisibleRoles().forEach(role => {
+            const cellState = attCellState(attGetCell(d, role));
+            document.querySelectorAll(`[data-att-cell="${d}-${role}"]`).forEach(cell => {
+                cell.classList.remove('is-empty-cell', 'is-partial-cell', 'is-complete-cell');
+                cell.classList.add(cellState);
+            });
+        });
+    }
+
     async function attSaveDay(d, role, checkIn, checkOut) {
         if (!isDispatcherSession()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
         attData[d] = attData[d] || {};
         attData[d][role] = { checkIn, checkOut };
         attSaveOffline();
         attRenderStats();
+        attUpdateDayVisuals(d);
         if (IS_PREVIEW) return;
         // staffPinCache живе лише в пам'яті (не в storage) — після перезавантаження
         // вкладки staffSession лишається (sessionStorage), а PIN губиться. Замість
@@ -1623,23 +1671,25 @@
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
             const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            html += `<tr class="${isWeekend ? 'is-weekend' : ''}"><td class="att-col-date">${d}</td>`;
+            const dayState = attDayState(d, visibleRoles);
+            html += `<tr class="${isWeekend ? 'is-weekend ' : ''}${dayState}" data-att-day-card="${d}"><td class="att-col-date">${d}</td>`;
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
             let mobileRolesHtml = '';
             let calendarRolesHtml = '';
             visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
+                const cellState = attCellState(cell);
                 if (editable) {
-                    html += `<td class="is-${role}">
+                    html += `<td class="is-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
                     </td>`;
-                    mobileRolesHtml += `<div class="att-mobile-role role-${role}">
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
                         <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
                     </div>`;
-                    calendarRolesHtml += `<div class="att-calendar-role role-${role}">
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <div class="att-calendar-times">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
@@ -1648,23 +1698,23 @@
                     </div>`;
                 } else {
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
-                    html += `<td class="is-${role} att-readonly">${text}</td>`;
-                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly">
+                    html += `<td class="is-${role} att-readonly ${cellState}" data-att-cell="${d}-${role}">${text}</td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <strong>${text}</strong>
                     </div>`;
-                    calendarRolesHtml += `<div class="att-calendar-role role-${role} is-readonly">
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <strong>${text}</strong>
                     </div>`;
                 }
             });
             html += '</tr>';
-            calendarHtml += `<article class="att-calendar-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+            calendarHtml += `<article class="att-calendar-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
                 <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
                 <div class="att-calendar-roles">${calendarRolesHtml}</div>
             </article>`;
-            mobileHtml += `<article class="att-mobile-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" ${isToday ? 'aria-current="date"' : ''}>
+            mobileHtml += `<article class="att-mobile-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
                 <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
                 <div class="att-mobile-roles">${mobileRolesHtml}</div>
             </article>`;
@@ -2252,6 +2302,10 @@
                     const priorityEl = document.getElementById(`ticket-edit-priority-${ticketId}`);
                     dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
                 }
+                if (action.dataset.dispAction === 'ticket-reopen') {
+                    event.preventDefault();
+                    dispReopenTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                }
             });
             container.addEventListener('change', (event) => {
                 const photoInput = event.target.closest('[data-ticket-photo-input]');
@@ -2327,7 +2381,10 @@
         const search = document.querySelector('[data-disp-search]');
         if (search) search.value = '';
         const workerFilter = document.querySelector('[data-disp-worker-filter]');
-        if (workerFilter) workerFilter.value = 'all';
+        if (workerFilter) {
+            workerFilter.value = 'all';
+            refreshEnhancedSelect(workerFilter);
+        }
         document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
         dispRender();
     }
@@ -3109,6 +3166,21 @@
         dispScheduleSave();
     }
 
+    // Повторно відкрити помилково закриту заявку може лише Диспетчер/Адмін.
+    function dispReopenTicket(d, ticketId) {
+        if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }
+        const row = dispGetDay(d);
+        const ticket = row.ticketsList.find(t => t.id === ticketId);
+        if (!ticket || ticket.status !== 'done') return;
+        ticket.status = 'open';
+        ticket.comment = '';
+        delete ticket.closedAt;
+        delete ticket.closedBy;
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+        showToast('Заявку знову відкрито');
+    }
+
     function dispAddTicketPhoto(d, ticketId, url) {
         const row = dispGetDay(d);
         const ticket = row.ticketsList.find(t => t.id === ticketId);
@@ -3286,6 +3358,7 @@
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
                 ${ticketPhotosHtml(t)}
                 ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
+                ${canManage && isDone ? `<button type="button" class="dispatcher-copy-btn ticket-reopen-btn md-state-layer" data-disp-action="ticket-reopen" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">refresh</span>Відкрити знову</button>` : ''}
                 ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>` : ''}
                 ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : ''}
             </li>`;
