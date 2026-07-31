@@ -3095,6 +3095,32 @@
         return dispData[d];
     }
 
+    async function createJiraIssue(ticket, day) {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/create-jira-issue`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                summary: ticket.text,
+                description: [
+                    `Дата: ${String(day).padStart(2, '0')}.${String(currentMonth).padStart(2, '0')}.${currentYear}`,
+                    `Виконавець: ${roleNames[ticket.role] || ticket.role}`,
+                    `Пріоритет: ${ticketPriorities[ticket.priority]?.label || ticket.priority}`,
+                    `Створив: ${ticket.createdBy}`
+                ].join('\n'),
+                sourceId: ticket.id
+            })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data?.issue?.key || !data?.issue?.url) {
+            throw new Error(data?.error || `Jira HTTP ${response.status}`);
+        }
+        return data.issue;
+    }
+
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
     async function dispAddTicket(d, text, role, priority, photoFiles = []) {
         if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
@@ -3102,7 +3128,7 @@
         if (!trimmed) { showToast('Опишіть заявку'); return; }
         const row = dispGetDay(d);
         const ticketId = `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
-        row.ticketsList.push({
+        const ticket = {
             id: ticketId,
             text: trimmed,
             role: WORKER_ROLES.includes(role) ? role : 'plumber',
@@ -3112,11 +3138,22 @@
             photos: [],
             createdAt: new Date().toISOString(),
             createdBy: staffSession?.name || dispWorkerName
-        });
+        };
+        row.ticketsList.push(ticket);
         dispScheduleSave();
         for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
+        if (!IS_PREVIEW) {
+            try {
+                ticket.jira = await createJiraIssue(ticket, d);
+                dispScheduleSave();
+            } catch (error) {
+                console.error('jira create issue error:', error);
+                showToast('Заявку додано, але Jira недоступна');
+            }
+        }
         dispOpenDayDetail(Number(d));
-        showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
+        if (ticket.jira) showToast(`Заявку додано в Jira: ${ticket.jira.key}`);
+        else if (IS_PREVIEW) showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
     }
 
     function dispDeleteTicket(d, ticketId) {
@@ -3232,6 +3269,7 @@
                     ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${t.jira?.url && t.jira?.key ? `<a href="${escapeAttr(t.jira.url)}" target="_blank" rel="noopener noreferrer">Jira: ${escapeHtml(t.jira.key)}</a>` : ''}
                 ${ticketPhotosHtml(t)}
                 ${isDone ? (t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : '') : `
                 <div class="my-ticket-close-form">
