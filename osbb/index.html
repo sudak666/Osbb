@@ -3304,9 +3304,10 @@
                 <div class="my-ticket-close-actions">
                     ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
                     ${canAssign ? `<select class="journal-select" data-jira-role="${escapeAttr(issue.key)}" aria-label="Виконавець заявки ${escapeAttr(issue.key)}">
+                        <option value="" ${!issue.assignedRole ? 'selected' : ''}>Не призначено</option>
                         ${WORKER_ROLES.map(role => `<option value="${role}" ${issue.assignedRole === role ? 'selected' : ''}>${escapeHtml(roleNames[role])}</option>`).join('')}
                     </select>
-                    <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-assign="${escapeAttr(issue.key)}">Призначити</button>` : `<button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>`}
+                    <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-assign="${escapeAttr(issue.key)}">${issue.assignedRole ? 'Змінити' : 'Призначити'}</button>` : `<button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>`}
                 </div>
             </div>`;
         }).join('') : '<div class="staff-login-loading">За вибраними фільтрами заявок немає</div>');
@@ -3330,7 +3331,7 @@
                     await jiraRequest('assign', { issueKey, assignedRole: select?.value });
                     const issue = jiraIssues.find(item => item.key === issueKey);
                     if (issue) issue.assignedRole = select?.value || '';
-                    showToast('Виконавця призначено');
+                    showToast(issue?.assignedRole ? 'Виконавця змінено' : 'Призначення скасовано');
                     myTicketsRender();
                 } catch (error) {
                     showToast(error instanceof Error ? error.message : 'Не вдалося призначити виконавця');

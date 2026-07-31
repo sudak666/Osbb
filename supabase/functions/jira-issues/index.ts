@@ -111,13 +111,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (action === 'assign') {
       if (!isManager) return json({ error: 'Призначати заявки може лише диспетчер' }, 403);
       const assignedRole = isObject(body) && typeof body.assignedRole === 'string' ? body.assignedRole : '';
-      if (!workerRoles.includes(assignedRole)) return json({ error: 'Invalid worker role' }, 400);
+      if (assignedRole && !workerRoles.includes(assignedRole)) return json({ error: 'Invalid worker role' }, 400);
       const issueResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=labels`, { headers: jiraHeaders });
       const issueData: unknown = await issueResponse.json();
       if (!issueResponse.ok || !isObject(issueData)) return json({ error: 'Не вдалося прочитати Jira-заявку' }, 502);
       const fields = isObject(issueData.fields) ? issueData.fields : {};
       const labels = Array.isArray(fields.labels) ? fields.labels.filter(label => typeof label === 'string') as string[] : [];
-      const nextLabels = [...labels.filter(label => !workerRoles.some(role => label === `osbb-${role}`)), `osbb-${assignedRole}`];
+      const nextLabels = labels.filter(label => !workerRoles.some(role => label === `osbb-${role}`));
+      if (assignedRole) nextLabels.push(`osbb-${assignedRole}`);
       const updateResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}`, {
         method: 'PUT', headers: jiraHeaders, body: JSON.stringify({ fields: { labels: nextLabels } }),
       });

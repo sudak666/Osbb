@@ -41,6 +41,7 @@ const checks = [
   ['osbb/index.html', '/functions/v1/jira-issues', 'journal loads Jira issues through Edge Function'],
   ['osbb/index.html', "await jiraRequest('close'", 'journal can close Jira issues'],
   ['osbb/index.html', "await jiraRequest('assign'", 'dispatcher can assign Jira issues'],
+  ['osbb/index.html', '>Не призначено</option>', 'dispatcher can unassign Jira issues'],
   ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
   ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],
   ['osbb/index.html', "[data-jira-filter], [data-jira-role]", 'Jira filters use rounded custom selects'],
