@@ -46,6 +46,7 @@ const checks = [
   ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],
   ['osbb/index.html', "[data-jira-filter], [data-jira-role]", 'Jira filters use rounded custom selects'],
   ['osbb/styles.css', '.my-ticket-card .my-ticket-close-actions { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }', 'Jira ticket actions fit mobile cards'],
+  ['osbb/styles.css', '.att-table td.is-complete-cell { background:color-mix', 'attendance complete cells use tint without color strips'],
   ['shared/enhance-select.js', 'document.body.appendChild(panel)', 'custom select panels escape clipped containers'],
   ['shared/enhance-select.js', 'function positionPanel()', 'custom select panels stay inside the viewport'],
   ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
