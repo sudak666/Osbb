@@ -499,7 +499,7 @@
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
-            <p class="shift-copy">Заявки цього місяця, призначені вам, відсортовані за пріоритетом:</p>
+            <p class="shift-copy">Усі відкриті заявки Jira-проєкту MS:</p>
             <div class="priority-legend" aria-label="Порядок пріоритетів">
                 <span class="priority-legend-item priority-HIGH"><i class="priority-dot" aria-hidden="true"></i>Терміново</span>
                 <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
@@ -3095,31 +3095,6 @@
         return dispData[d];
     }
 
-    async function createJiraIssue(ticket, day) {
-        const response = await fetch(`${SUPABASE_URL}/functions/v1/create-jira-issue`, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                summary: ticket.text,
-                description: [
-                    `Дата: ${String(day).padStart(2, '0')}.${String(currentMonth).padStart(2, '0')}.${currentYear}`,
-                    `Виконавець: ${roleNames[ticket.role] || ticket.role}`,
-                    `Пріоритет: ${ticketPriorities[ticket.priority]?.label || ticket.priority}`,
-                    `Створив: ${ticket.createdBy}`
-                ].join('\n'),
-                sourceId: ticket.id
-            })
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data?.issue?.key || !data?.issue?.url) {
-            throw new Error(data?.error || `Jira HTTP ${response.status}`);
-        }
-        return data.issue;
-    }
 
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
     async function dispAddTicket(d, text, role, priority, photoFiles = []) {
@@ -3241,85 +3216,93 @@
     }
 
     // ==========================================
-    // МОЇ ЗАЯВКИ — для staff-сесії plumber/janitor/electrician: тільки заявки
-    // поточного місяця, призначені на її роль, відсортовані за пріоритетом.
-    // Закриття (Виконано) доступне і диспетчеру, і самому виконавцю.
+    // МОЇ ЗАЯВКИ — відкриті заявки Jira проєкту MS.
     // ==========================================
+    let jiraIssues = [];
+
+    async function jiraRequest(action, extra = {}) {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/jira-issues`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action, staffId: staffSession?.id, pin: staffPinCache, ...extra })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data?.error || `Jira HTTP ${response.status}`);
+        return data;
+    }
+
     async function myTicketsInitTab() {
         if (!staffSession) return;
         const statusEl = document.getElementById('my-tickets-sync-status');
         if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>';
-        await dispInitTab();
-        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
+        if (!staffPinCache && !await requestStaffReauth()) {
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>';
+            return;
+        }
+        try {
+            const data = await jiraRequest('list');
+            jiraIssues = Array.isArray(data.issues) ? data.issues : [];
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
+        } catch (error) {
+            console.error('jira issues load error:', error);
+            jiraIssues = [];
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>';
+            showToast('Не вдалося завантажити Jira-заявки');
+        }
         myTicketsRender();
+    }
+
+    function jiraPriorityClass(priority) {
+        const value = String(priority || '').toLowerCase();
+        if (value.includes('highest') || value.includes('high')) return 'HIGH';
+        if (value.includes('lowest') || value.includes('low')) return 'LOW';
+        return 'MEDIUM';
     }
 
     function myTicketsRender() {
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
-        const tickets = collectTicketsForRole(staffSession.role);
-        if (!tickets.length) { list.innerHTML = '<div class="staff-login-loading">Заявок немає</div>'; return; }
-        list.innerHTML = tickets.map(t => {
-            const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
-            const isDone = t.status === 'done';
-            return `<div class="my-ticket-card priority-${t.priority} ${isDone ? 'is-done' : ''}">
+        if (!jiraIssues.length) { list.innerHTML = '<div class="staff-login-loading">Відкритих Jira-заявок немає</div>'; return; }
+        list.innerHTML = jiraIssues.map(issue => {
+            const priority = jiraPriorityClass(issue.priority);
+            const safeUrl = safeExternalUrl(issue.url);
+            return `<div class="my-ticket-card priority-${priority}">
                 <div class="ticket-item-head">
-                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
-                    <span class="ticket-role-badge">День ${t.day}</span>
-                    ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
+                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${escapeHtml(issue.priority || 'Без пріоритету')}</span>
+                    <span class="ticket-role-badge">${escapeHtml(issue.status || 'Відкрита')}</span>
                 </div>
-                <div class="ticket-item-text">${escapeHtml(t.text)}</div>
-                ${t.jira?.url && t.jira?.key ? `<a href="${escapeAttr(t.jira.url)}" target="_blank" rel="noopener noreferrer">Jira: ${escapeHtml(t.jira.key)}</a>` : ''}
-                ${ticketPhotosHtml(t)}
-                ${isDone ? (t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : '') : `
-                <div class="my-ticket-close-form">
-                    <textarea class="journal-textarea" rows="2" placeholder="Коментар про виконання..." id="my-ticket-comment-${t.day}-${t.id}"></textarea>
-                    <div class="my-ticket-close-actions">
-                        <label class="journal-photo-action is-secondary md-state-layer">
-                            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">photo_camera</span> Фото
-                            <input type="file" accept="image/*" multiple class="hidden" data-my-ticket-photo="${t.day}" data-ticket-id="${escapeAttr(t.id)}">
-                        </label>
-                        <button type="button" class="dispatcher-time-btn md-state-layer" data-my-ticket-close="${t.day}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>
-                    </div>
-                </div>`}
+                <div class="ticket-item-text">${escapeHtml(issue.summary)}</div>
+                <div class="ticket-item-comment">${escapeHtml(issue.key)}${issue.assignee ? ` · ${escapeHtml(issue.assignee)}` : ''}</div>
+                <div class="my-ticket-close-actions">
+                    ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
+                    <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Закрити</button>
+                </div>
             </div>`;
         }).join('');
 
-        list.querySelectorAll('[data-my-ticket-close]').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const d = Number(btn.dataset.myTicketClose);
-                const ticketId = btn.dataset.ticketId;
-                const commentEl = document.getElementById(`my-ticket-comment-${d}-${ticketId}`);
-                dispCloseTicket(d, ticketId, commentEl?.value || '');
-                showToast('Заявку закрито');
-                myTicketsRender();
-            });
-        });
-        list.querySelectorAll('[data-my-ticket-photo]').forEach(input => {
-            input.addEventListener('change', async (event) => {
-                const d = Number(input.dataset.myTicketPhoto);
-                const ticketId = input.dataset.ticketId;
-                const files = Array.from(event.target.files || []);
-                for (const file of files) await uploadTicketPhoto(d, ticketId, file);
-                showToast('Фото додано до заявки');
+        list.querySelectorAll('[data-jira-close]').forEach(button => {
+            button.addEventListener('click', async () => {
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
+                try {
+                    await jiraRequest('close', { issueKey: button.dataset.jiraClose });
+                    jiraIssues = jiraIssues.filter(issue => issue.key !== button.dataset.jiraClose);
+                    showToast('Jira-заявку закрито');
+                    myTicketsRender();
+                } catch (error) {
+                    console.error('jira close issue error:', error);
+                    showToast(error instanceof Error ? error.message : 'Не вдалося закрити заявку');
+                    button.disabled = false;
+                    button.removeAttribute('aria-busy');
+                }
             });
         });
     }
 
-    async function uploadTicketPhoto(d, ticketId, file) {
-        if (!file) return;
-        if (IS_PREVIEW) return;
-        try {
-            const compressed = await compressImage(file);
-            const path = `osbb-tickets/${currentYear}-${currentMonth}/${d}-${ticketId}-${Date.now()}.jpg`;
-            const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
-            if (upErr) throw upErr;
-            const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
-            dispAddTicketPhoto(d, ticketId, urlData.publicUrl);
-        } catch(err) { console.error('ticket photo error:', err); showToast('Не вдалося завантажити фото'); }
-    }
-
-    // Усі відкриті заявки поточного місяця для однієї ролі, відсортовані за пріоритетом.
     function collectTicketsForRole(role) {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const result = [];

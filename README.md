@@ -105,10 +105,10 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 
 ## Jira-заявки
 
-Нова заявка диспетчера автоматично створює `Task` у Jira-проєкті `MS`. API-токен і email зберігаються тільки в Supabase Secrets; у даних заявки лишаються ключ і посилання Jira. Помилка Jira не скасовує локальне створення заявки.
+Вкладка «Мої заявки» показує всі відкриті заявки Jira-проєкту `MS` і дозволяє перевести їх у доступний статус категорії Done. Застосунок не створює нові Jira-заявки. API-токен і email зберігаються тільки в Supabase Secrets.
 
 ```bash
-supabase functions deploy create-jira-issue --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
+supabase functions deploy jira-issues --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
 supabase secrets set \
   JIRA_API_TOKEN=ваш_токен \
   JIRA_EMAIL=guard.mykytska.sloboda@gmail.com \
