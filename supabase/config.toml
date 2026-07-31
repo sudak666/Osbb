@@ -2,3 +2,6 @@ project_id = "vkwkyhjjjmcpmiakxohw"
 
 [functions.notify-telegram]
 verify_jwt = false
+
+[functions.create-jira-issue]
+verify_jwt = false
