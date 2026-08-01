@@ -17,6 +17,10 @@ interface JiraIssue {
   };
 }
 
+interface JiraBoard {
+  id?: number;
+}
+
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -37,6 +41,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const baseUrl = (Deno.env.get('JIRA_BASE_URL') || '').replace(/\/$/, '');
   const projectKey = Deno.env.get('JIRA_PROJECT_KEY') || 'MS';
   const issueType = Deno.env.get('JIRA_ISSUE_TYPE') || 'Task';
+  const configuredBoardId = Deno.env.get('JIRA_BOARD_ID') || '';
   if (!token || !baseUrl) return json({ error: 'Jira is not configured' }, 500);
 
   const jiraHeaders = {
@@ -75,12 +80,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const roleLabel = workerRoles.includes(staffRole) ? `osbb-${staffRole}` : '';
 
     if (action === 'list') {
+      let boardId = /^\d+$/.test(configuredBoardId) ? configuredBoardId : '';
+      if (!boardId) {
+        const boardParams = new URLSearchParams({ projectKeyOrId: projectKey, maxResults: '2' });
+        const boardResponse = await fetch(`${baseUrl}/rest/agile/1.0/board?${boardParams}`, { headers: jiraHeaders });
+        const boardData: unknown = await boardResponse.json();
+        const boards = isObject(boardData) && Array.isArray(boardData.values) ? boardData.values as JiraBoard[] : [];
+        if (!boardResponse.ok || !boards[0]?.id) return json({ error: 'Jira board not found' }, 502);
+        if (boards.length > 1) return json({ error: 'Set JIRA_BOARD_ID for this project' }, 500);
+        boardId = String(boards[0].id);
+      }
       const params = new URLSearchParams({
-        jql: `project = ${projectKey} AND issuetype = "${issueType.replace(/["\\]/g, '\\$&')}" AND parent IS NOT EMPTY AND statusCategory != Done ORDER BY priority DESC, created ASC`,
+        jql: `issuetype = "${issueType.replace(/["\\]/g, '\\$&')}" AND parent IS NOT EMPTY AND statusCategory != Done ORDER BY priority DESC, created ASC`,
         fields: 'summary,status,priority,assignee,created,labels,parent',
         maxResults: '100',
       });
-      const response = await fetch(`${baseUrl}/rest/api/3/search/jql?${params}`, { headers: jiraHeaders });
+      const response = await fetch(`${baseUrl}/rest/agile/1.0/board/${encodeURIComponent(boardId)}/issue?${params}`, { headers: jiraHeaders });
       const data: unknown = await response.json();
       if (!response.ok || !isObject(data)) return json({ error: 'Jira search failed' }, 502);
       const issues = Array.isArray(data.issues) ? data.issues as JiraIssue[] : [];

@@ -105,7 +105,7 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 
 ## Jira-заявки
 
-Вкладка «Мої заявки» показує відкриті картки Jira-проєкту `MS` типу з `JIRA_ISSUE_TYPE`, які мають Parent; батьківські категорії та підзадачі іншого типу не потрапляють у список і лічильники. Інтеграція працює лише для перегляду: змінювати, призначати або закривати заявки із застосунку не можна. API-токен і email зберігаються тільки в Supabase Secrets.
+Вкладка «Мої заявки» читає картки безпосередньо через фільтр Jira-дошки `JIRA_BOARD_ID`, тому список і лічильники відповідають цій дошці. Додатково залишаються лише відкриті картки типу `JIRA_ISSUE_TYPE`, які мають Parent. Інтеграція працює лише для перегляду: змінювати, призначати або закривати заявки із застосунку не можна. Якщо `JIRA_BOARD_ID` не задано і в проєкті одна дошка, функція визначає її автоматично; для кількох дощок ID обов’язковий. API-токен і email зберігаються тільки в Supabase Secrets.
 
 ```bash
 supabase functions deploy jira-issues --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
@@ -115,6 +115,7 @@ supabase secrets set \
   JIRA_BASE_URL=https://mykytska-sloboda.atlassian.net \
   JIRA_PROJECT_KEY=MS \
   JIRA_ISSUE_TYPE=Task \
+  JIRA_BOARD_ID=ID_ДОШКИ \
   --project-ref vkwkyhjjjmcpmiakxohw
 ```
 

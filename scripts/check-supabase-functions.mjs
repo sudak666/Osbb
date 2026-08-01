@@ -28,7 +28,7 @@ for (const name of functions) {
 }
 
 const jiraSource = fs.readFileSync(path.join(root, 'supabase/functions/jira-issues/index.ts'), 'utf8');
-if (!jiraSource.includes("Deno.env.get('JIRA_ISSUE_TYPE')") || !jiraSource.includes('AND issuetype =')) {
+if (!jiraSource.includes("Deno.env.get('JIRA_ISSUE_TYPE')") || !jiraSource.includes('issuetype =')) {
   console.error('jira-issues must filter the list by JIRA_ISSUE_TYPE to match the Jira board');
   process.exitCode = 1;
 }
