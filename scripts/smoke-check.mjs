@@ -44,6 +44,7 @@ const checks = [
   ['osbb/index.html', '>Не призначено</option>', 'dispatcher can unassign Jira issues'],
   ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
   ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],
+  ['osbb/index.html', 'data-jira-status-counter=', 'Jira statuses show clickable issue counters'],
   ['osbb/index.html', "[data-jira-filter], [data-jira-role]", 'Jira filters use rounded custom selects'],
   ['osbb/styles.css', '.my-ticket-card .my-ticket-close-actions { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }', 'Jira ticket actions fit mobile cards'],
   ['osbb/styles.css', '.att-table td.is-complete-cell { background:color-mix', 'attendance complete cells use tint without color strips'],

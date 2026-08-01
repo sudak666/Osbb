@@ -3272,6 +3272,11 @@
         const canAssign = isDispatcherSession();
         const statuses = [...new Set(jiraIssues.map(issue => issue.status).filter(Boolean))].sort();
         const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
+        const statusCounts = jiraIssues.reduce((counts, issue) => {
+            const status = issue.status || 'Без статусу';
+            counts[status] = (counts[status] || 0) + 1;
+            return counts;
+        }, {});
         const filteredIssues = jiraIssues.filter(issue => {
             const assignmentMatches = jiraAssignmentFilter === 'all'
                 || (jiraAssignmentFilter === 'assigned' ? Boolean(issue.assignedRole) : !issue.assignedRole);
@@ -3279,7 +3284,11 @@
                 && (jiraStatusFilter === 'all' || issue.status === jiraStatusFilter)
                 && (jiraCategoryFilter === 'all' || (issue.category || 'Без категорії') === jiraCategoryFilter);
         });
-        const filtersHtml = `<div class="dispatcher-filter-chips jira-ticket-filters" aria-label="Фільтри Jira-заявок">
+        const countersHtml = `<div class="jira-status-counters" aria-label="Кількість Jira-заявок за статусом">
+            <button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === 'all' ? 'is-active' : ''}" data-jira-status-counter="all"><span>Усі</span><strong>${jiraIssues.length}</strong></button>
+            ${Object.entries(statusCounts).map(([status, count]) => `<button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === status ? 'is-active' : ''}" data-jira-status-counter="${escapeAttr(status)}"><span>${escapeHtml(status)}</span><strong>${count}</strong></button>`).join('')}
+        </div>`;
+        const filtersHtml = countersHtml + `<div class="dispatcher-filter-chips jira-ticket-filters" aria-label="Фільтри Jira-заявок">
             <select class="journal-select" data-jira-filter="assignment" aria-label="Фільтр за призначенням">
                 <option value="all">Усі призначення</option><option value="assigned" ${jiraAssignmentFilter === 'assigned' ? 'selected' : ''}>Призначені</option><option value="unassigned" ${jiraAssignmentFilter === 'unassigned' ? 'selected' : ''}>Непризначені</option>
             </select>
@@ -3317,6 +3326,12 @@
                 if (select.dataset.jiraFilter === 'assignment') jiraAssignmentFilter = select.value;
                 if (select.dataset.jiraFilter === 'status') jiraStatusFilter = select.value;
                 if (select.dataset.jiraFilter === 'category') jiraCategoryFilter = select.value;
+                myTicketsRender();
+            });
+        });
+        list.querySelectorAll('[data-jira-status-counter]').forEach(button => {
+            button.addEventListener('click', () => {
+                jiraStatusFilter = button.dataset.jiraStatusCounter || 'all';
                 myTicketsRender();
             });
         });
