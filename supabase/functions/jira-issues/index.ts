@@ -17,12 +17,6 @@ interface JiraIssue {
   };
 }
 
-interface JiraTransition {
-  id?: string;
-  name?: string;
-  to?: { statusCategory?: { key?: string } };
-}
-
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -106,54 +100,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       });
     }
 
-    const issueKey = isObject(body) && typeof body.issueKey === 'string' ? body.issueKey.trim().toUpperCase() : '';
-    if (!new RegExp(`^${projectKey}-\\d+$`).test(issueKey)) return json({ error: 'Invalid issue key' }, 400);
-
-    if (action === 'assign') {
-      if (!isManager) return json({ error: 'Призначати заявки може лише диспетчер' }, 403);
-      const assignedRole = isObject(body) && typeof body.assignedRole === 'string' ? body.assignedRole : '';
-      if (assignedRole && !workerRoles.includes(assignedRole)) return json({ error: 'Invalid worker role' }, 400);
-      const issueResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=labels`, { headers: jiraHeaders });
-      const issueData: unknown = await issueResponse.json();
-      if (!issueResponse.ok || !isObject(issueData)) return json({ error: 'Не вдалося прочитати Jira-заявку' }, 502);
-      const fields = isObject(issueData.fields) ? issueData.fields : {};
-      const labels = Array.isArray(fields.labels) ? fields.labels.filter(label => typeof label === 'string') as string[] : [];
-      const nextLabels = labels.filter(label => !workerRoles.some(role => label === `osbb-${role}`));
-      if (assignedRole) nextLabels.push(`osbb-${assignedRole}`);
-      const updateResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}`, {
-        method: 'PUT', headers: jiraHeaders, body: JSON.stringify({ fields: { labels: nextLabels } }),
-      });
-      if (!updateResponse.ok) return json({ error: 'Не вдалося призначити виконавця' }, 502);
-      return json({ ok: true, issueKey, assignedRole });
-    }
-
-    if (action !== 'close') return json({ error: 'Invalid action' }, 400);
-    if (isManager) return json({ error: 'Закриває заявку призначений працівник' }, 403);
-    const issueResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=labels`, { headers: jiraHeaders });
-    const issueData: unknown = await issueResponse.json();
-    const issueFields = isObject(issueData) && isObject(issueData.fields) ? issueData.fields : {};
-    const issueLabels = Array.isArray(issueFields.labels) ? issueFields.labels : [];
-    if (!issueResponse.ok || !roleLabel || !issueLabels.includes(roleLabel)) {
-      return json({ error: 'Заявка не призначена цьому працівнику' }, 403);
-    }
-
-    const transitionsResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}/transitions`, { headers: jiraHeaders });
-    const transitionsData: unknown = await transitionsResponse.json();
-    const transitions = isObject(transitionsData) && Array.isArray(transitionsData.transitions)
-      ? transitionsData.transitions as JiraTransition[]
-      : [];
-    const doneTransition = transitions.find(transition => transition.to?.statusCategory?.key === 'done');
-    if (!transitionsResponse.ok || !doneTransition?.id) {
-      return json({ error: 'Для заявки немає переходу у виконаний статус' }, 409);
-    }
-
-    const closeResponse = await fetch(`${baseUrl}/rest/api/3/issue/${encodeURIComponent(issueKey)}/transitions`, {
-      method: 'POST',
-      headers: jiraHeaders,
-      body: JSON.stringify({ transition: { id: doneTransition.id } }),
-    });
-    if (!closeResponse.ok) return json({ error: 'Не вдалося закрити Jira-заявку' }, 502);
-    return json({ ok: true, issueKey });
+    return json({ error: 'Invalid action' }, 400);
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'Jira request failed' }, 502);
   }

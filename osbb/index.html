@@ -223,6 +223,17 @@
     </div>
 </div>
 
+<div id="staff-settings-modal" class="pin-modal-overlay">
+    <div class="pin-modal-dialog staff-login-dialog" role="dialog" aria-modal="true" aria-labelledby="staff-settings-title" tabindex="-1">
+        <div class="pin-modal-title" id="staff-settings-title">Доступ користувачів</div>
+        <div class="pin-modal-sub">Увімкніть або вимкніть персональний PIN-вхід</div>
+        <div id="staff-settings-list" class="staff-login-list"></div>
+        <div class="ticket-confirm-actions">
+            <button type="button" class="journal-tonal-btn md-state-layer" data-staff-settings-close>Закрити</button>
+        </div>
+    </div>
+</div>
+
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
@@ -235,6 +246,7 @@
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>
                 <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span></span>
+                <button type="button" id="staff-settings-button" class="journal-theme-toggle md-state-layer hidden" data-staff-settings-open data-tip="Доступ користувачів" aria-label="Налаштувати доступ користувачів"><span class="material-symbols-rounded" aria-hidden="true">manage_accounts</span></button>
                 <button type="button" id="staff-session-badge" class="journal-status-chip staff-session-chip hidden md-state-layer" data-tip="Змінити користувача" aria-label="Поточний співробітник, натисніть щоб змінити" data-staff-switch></button>
                 <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
             </div>
@@ -499,7 +511,7 @@
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
-            <p class="shift-copy">Диспетчер призначає виконавця; працівник бачить лише свої відкриті Jira-заявки:</p>
+            <p class="shift-copy">Перегляд відкритих Jira-заявок без редагування:</p>
             <div class="priority-legend" aria-label="Порядок пріоритетів">
                 <span class="priority-legend-item priority-HIGH"><i class="priority-dot" aria-hidden="true"></i>Терміново</span>
                 <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
@@ -763,6 +775,56 @@
         openStaffLogin();
     }
 
+    async function openStaffSettings() {
+        if (staffSession?.role !== 'admin') return;
+        if (!staffPinCache && !await requestStaffReauth()) return;
+        const modal = document.getElementById('staff-settings-modal');
+        const list = document.getElementById('staff-settings-list');
+        if (!modal || !list) return;
+        modal.style.display = 'flex';
+        list.innerHTML = '<div class="staff-login-loading">Завантаження...</div>';
+        try {
+            const rows = await db.rpc('list_osbb_staff_settings', { p_staff_id: staffSession.id, attempt: staffPinCache });
+            renderStaffSettings(Array.isArray(rows) ? rows : []);
+        } catch (error) {
+            console.error('staff settings load error:', error);
+            list.innerHTML = '<div class="staff-login-loading">Не вдалося завантажити користувачів</div>';
+        }
+    }
+
+    function renderStaffSettings(rows) {
+        const list = document.getElementById('staff-settings-list');
+        if (!list) return;
+        list.innerHTML = rows.map(person => {
+            const isCurrent = String(person.id) === String(staffSession?.id);
+            return `<div class="staff-login-item">
+                <span class="staff-login-item-name">${escapeHtml(person.full_name)}</span>
+                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[person.role] || person.role)}</span>
+                <button type="button" class="journal-tonal-btn md-state-layer" data-staff-active="${escapeAttr(person.id)}" data-next-active="${person.active ? 'false' : 'true'}" ${isCurrent ? 'disabled' : ''}>${person.active ? 'Вимкнути' : 'Увімкнути'}</button>
+            </div>`;
+        }).join('') || '<div class="staff-login-loading">Користувачів немає</div>';
+    }
+
+    async function setStaffActive(button) {
+        if (staffSession?.role !== 'admin' || !staffPinCache) return;
+        button.disabled = true;
+        try {
+            const ok = await db.rpc('set_osbb_staff_active', {
+                p_staff_id: staffSession.id,
+                attempt: staffPinCache,
+                p_target_staff_id: button.dataset.staffActive,
+                p_active: button.dataset.nextActive === 'true'
+            });
+            if (!ok) throw new Error('Зміну відхилено');
+            await openStaffSettings();
+            showToast('Доступ користувача оновлено');
+        } catch (error) {
+            console.error('staff access update error:', error);
+            showToast(error instanceof Error ? error.message : 'Не вдалося змінити доступ');
+            button.disabled = false;
+        }
+    }
+
     async function ensureStaffAuth() {
         loadStaffSession();
         if (staffSession) { applyRoleGating(); return; }
@@ -974,6 +1036,7 @@
                 badge.classList.add('hidden');
             }
         }
+        document.getElementById('staff-settings-button')?.classList.toggle('hidden', staffSession?.role !== 'admin');
         if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
@@ -2103,6 +2166,14 @@
 
         document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
         document.querySelector('[data-staff-switch]')?.addEventListener('click', staffLogout);
+        document.querySelector('[data-staff-settings-open]')?.addEventListener('click', openStaffSettings);
+        document.querySelector('[data-staff-settings-close]')?.addEventListener('click', () => {
+            document.getElementById('staff-settings-modal').style.display = 'none';
+        });
+        document.getElementById('staff-settings-list')?.addEventListener('click', event => {
+            const button = event.target.closest('[data-staff-active]');
+            if (button) setStaffActive(button);
+        });
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
             select.addEventListener('change', initCalendar);
         });
@@ -3269,7 +3340,6 @@
     function myTicketsRender() {
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
-        const canAssign = isDispatcherSession();
         const statuses = [...new Set(jiraIssues.map(issue => issue.status).filter(Boolean))].sort();
         const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
         const statusCounts = jiraIssues.reduce((counts, issue) => {
@@ -3312,11 +3382,6 @@
                 <div class="ticket-item-comment">${escapeHtml(issue.key)} · ${escapeHtml(issue.category || 'Без категорії')}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
                 <div class="my-ticket-close-actions">
                     ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
-                    ${canAssign ? `<select class="journal-select" data-jira-role="${escapeAttr(issue.key)}" aria-label="Виконавець заявки ${escapeAttr(issue.key)}">
-                        <option value="" ${!issue.assignedRole ? 'selected' : ''}>Не призначено</option>
-                        ${WORKER_ROLES.map(role => `<option value="${role}" ${issue.assignedRole === role ? 'selected' : ''}>${escapeHtml(roleNames[role])}</option>`).join('')}
-                    </select>
-                    <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-assign="${escapeAttr(issue.key)}">${issue.assignedRole ? 'Змінити' : 'Призначити'}</button>` : `<button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>`}
                 </div>
             </div>`;
         }).join('') : '<div class="staff-login-loading">За вибраними фільтрами заявок немає</div>');
@@ -3335,43 +3400,7 @@
                 myTicketsRender();
             });
         });
-        list.querySelectorAll('[data-jira-filter], [data-jira-role]').forEach(select => enhanceSelect(select));
-
-        list.querySelectorAll('[data-jira-assign]').forEach(button => {
-            button.addEventListener('click', async () => {
-                const issueKey = button.dataset.jiraAssign;
-                const select = list.querySelector(`[data-jira-role="${CSS.escape(issueKey)}"]`);
-                button.disabled = true;
-                try {
-                    await jiraRequest('assign', { issueKey, assignedRole: select?.value });
-                    const issue = jiraIssues.find(item => item.key === issueKey);
-                    if (issue) issue.assignedRole = select?.value || '';
-                    showToast(issue?.assignedRole ? 'Виконавця змінено' : 'Призначення скасовано');
-                    myTicketsRender();
-                } catch (error) {
-                    showToast(error instanceof Error ? error.message : 'Не вдалося призначити виконавця');
-                    button.disabled = false;
-                }
-            });
-        });
-
-        list.querySelectorAll('[data-jira-close]').forEach(button => {
-            button.addEventListener('click', async () => {
-                button.disabled = true;
-                button.setAttribute('aria-busy', 'true');
-                try {
-                    await jiraRequest('close', { issueKey: button.dataset.jiraClose });
-                    jiraIssues = jiraIssues.filter(issue => issue.key !== button.dataset.jiraClose);
-                    showToast('Jira-заявку закрито');
-                    myTicketsRender();
-                } catch (error) {
-                    console.error('jira close issue error:', error);
-                    showToast(error instanceof Error ? error.message : 'Не вдалося закрити заявку');
-                    button.disabled = false;
-                    button.removeAttribute('aria-busy');
-                }
-            });
-        });
+        list.querySelectorAll('[data-jira-filter]').forEach(select => enhanceSelect(select));
     }
 
     function collectTicketsForRole(role) {
