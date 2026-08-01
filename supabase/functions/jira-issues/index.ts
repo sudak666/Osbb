@@ -81,7 +81,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     if (action === 'list') {
       const params = new URLSearchParams({
-        jql: `project = ${projectKey} AND statusCategory != Done ORDER BY priority DESC, created ASC`,
+        jql: `project = ${projectKey} AND parent IS NOT EMPTY AND statusCategory != Done ORDER BY priority DESC, created ASC`,
         fields: 'summary,status,priority,assignee,created,labels,parent',
         maxResults: '100',
       });

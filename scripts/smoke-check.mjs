@@ -52,6 +52,7 @@ const checks = [
   ['shared/enhance-select.js', 'function positionPanel()', 'custom select panels stay inside the viewport'],
   ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
   ['supabase/functions/jira-issues/index.ts', "action === 'assign'", 'Jira issue assignment is handled server-side'],
+  ['supabase/functions/jira-issues/index.ts', 'parent IS NOT EMPTY', 'Jira counters exclude parent category items'],
   ['supabase/functions/jira-issues/index.ts', "statusCategory?.key === 'done'", 'Jira close uses an available Done transition'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
