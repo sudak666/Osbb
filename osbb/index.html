@@ -499,7 +499,7 @@
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
-            <p class="shift-copy">Заявки цього місяця, призначені вам, відсортовані за пріоритетом:</p>
+            <p class="shift-copy">Диспетчер призначає виконавця; працівник бачить лише свої відкриті Jira-заявки:</p>
             <div class="priority-legend" aria-label="Порядок пріоритетів">
                 <span class="priority-legend-item priority-HIGH"><i class="priority-dot" aria-hidden="true"></i>Терміново</span>
                 <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
@@ -950,7 +950,7 @@
     // виклику setTab/requestTab (щоб hidden-клас не був єдиним захистом).
     function isTabAllowedForSession(tab) {
         if (isWorkerSession()) return WORKER_ALLOWED_TABS.includes(tab);
-        if (tab === 'my-tickets') return false;
+        if (tab === 'my-tickets') return isDispatcherSession();
         if (tab === 'dispatcher') return isDispatcherSession() || !staffSession;
         return true;
     }
@@ -3095,6 +3095,7 @@
         return dispData[d];
     }
 
+
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
     async function dispAddTicket(d, text, role, priority, photoFiles = []) {
         if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
@@ -3102,7 +3103,7 @@
         if (!trimmed) { showToast('Опишіть заявку'); return; }
         const row = dispGetDay(d);
         const ticketId = `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
-        row.ticketsList.push({
+        const ticket = {
             id: ticketId,
             text: trimmed,
             role: WORKER_ROLES.includes(role) ? role : 'plumber',
@@ -3112,7 +3113,8 @@
             photos: [],
             createdAt: new Date().toISOString(),
             createdBy: staffSession?.name || dispWorkerName
-        });
+        };
+        row.ticketsList.push(ticket);
         dispScheduleSave();
         for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
         dispOpenDayDetail(Number(d));
@@ -3204,84 +3206,164 @@
     }
 
     // ==========================================
-    // МОЇ ЗАЯВКИ — для staff-сесії plumber/janitor/electrician: тільки заявки
-    // поточного місяця, призначені на її роль, відсортовані за пріоритетом.
-    // Закриття (Виконано) доступне і диспетчеру, і самому виконавцю.
+    // МОЇ ЗАЯВКИ — відкриті заявки Jira проєкту MS.
     // ==========================================
+    let jiraIssues = [];
+    let jiraAssignmentFilter = 'all';
+    let jiraStatusFilter = 'all';
+    let jiraCategoryFilter = 'all';
+
+    async function jiraRequest(action, extra = {}) {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/jira-issues`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action, staffId: staffSession?.id, pin: staffPinCache, ...extra })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data?.error || `Jira HTTP ${response.status}`);
+        return data;
+    }
+
     async function myTicketsInitTab() {
         if (!staffSession) return;
         const statusEl = document.getElementById('my-tickets-sync-status');
         if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>';
-        await dispInitTab();
-        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
+        if (!staffPinCache && !await requestStaffReauth()) {
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>';
+            return;
+        }
+        try {
+            const data = await jiraRequest('list');
+            jiraIssues = Array.isArray(data.issues) ? data.issues : [];
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
+        } catch (error) {
+            console.error('jira issues load error:', error);
+            jiraIssues = [];
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>';
+            showToast('Не вдалося завантажити Jira-заявки');
+        }
         myTicketsRender();
+    }
+
+    function jiraPriorityClass(priority) {
+        const value = String(priority || '').toLowerCase();
+        if (value.includes('highest') || value.includes('high')) return 'HIGH';
+        if (value.includes('lowest') || value.includes('low')) return 'LOW';
+        return 'MEDIUM';
     }
 
     function myTicketsRender() {
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
-        const tickets = collectTicketsForRole(staffSession.role);
-        if (!tickets.length) { list.innerHTML = '<div class="staff-login-loading">Заявок немає</div>'; return; }
-        list.innerHTML = tickets.map(t => {
-            const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
-            const isDone = t.status === 'done';
-            return `<div class="my-ticket-card priority-${t.priority} ${isDone ? 'is-done' : ''}">
+        const canAssign = isDispatcherSession();
+        const statuses = [...new Set(jiraIssues.map(issue => issue.status).filter(Boolean))].sort();
+        const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
+        const statusCounts = jiraIssues.reduce((counts, issue) => {
+            const status = issue.status || 'Без статусу';
+            counts[status] = (counts[status] || 0) + 1;
+            return counts;
+        }, {});
+        const filteredIssues = jiraIssues.filter(issue => {
+            const assignmentMatches = jiraAssignmentFilter === 'all'
+                || (jiraAssignmentFilter === 'assigned' ? Boolean(issue.assignedRole) : !issue.assignedRole);
+            return assignmentMatches
+                && (jiraStatusFilter === 'all' || issue.status === jiraStatusFilter)
+                && (jiraCategoryFilter === 'all' || (issue.category || 'Без категорії') === jiraCategoryFilter);
+        });
+        const countersHtml = `<div class="jira-status-counters" aria-label="Кількість Jira-заявок за статусом">
+            <button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === 'all' ? 'is-active' : ''}" data-jira-status-counter="all"><span>Усі</span><strong>${jiraIssues.length}</strong></button>
+            ${Object.entries(statusCounts).map(([status, count]) => `<button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === status ? 'is-active' : ''}" data-jira-status-counter="${escapeAttr(status)}"><span>${escapeHtml(status)}</span><strong>${count}</strong></button>`).join('')}
+        </div>`;
+        const filtersHtml = countersHtml + `<div class="dispatcher-filter-chips jira-ticket-filters" aria-label="Фільтри Jira-заявок">
+            <select class="journal-select" data-jira-filter="assignment" aria-label="Фільтр за призначенням">
+                <option value="all">Усі призначення</option><option value="assigned" ${jiraAssignmentFilter === 'assigned' ? 'selected' : ''}>Призначені</option><option value="unassigned" ${jiraAssignmentFilter === 'unassigned' ? 'selected' : ''}>Непризначені</option>
+            </select>
+            <select class="journal-select" data-jira-filter="status" aria-label="Фільтр за статусом">
+                <option value="all">Усі статуси</option>${statuses.map(status => `<option value="${escapeAttr(status)}" ${jiraStatusFilter === status ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}
+            </select>
+            <select class="journal-select" data-jira-filter="category" aria-label="Фільтр за категорією">
+                <option value="all">Усі категорії</option>${categories.map(category => `<option value="${escapeAttr(category)}" ${jiraCategoryFilter === category ? 'selected' : ''}>${escapeHtml(category)}</option>`).join('')}
+            </select>
+        </div>`;
+        if (!jiraIssues.length) { list.innerHTML = '<div class="staff-login-loading">Відкритих Jira-заявок немає</div>'; return; }
+        list.innerHTML = filtersHtml + (filteredIssues.length ? filteredIssues.map(issue => {
+            const priority = jiraPriorityClass(issue.priority);
+            const safeUrl = safeExternalUrl(issue.url);
+            return `<div class="my-ticket-card priority-${priority}">
                 <div class="ticket-item-head">
-                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
-                    <span class="ticket-role-badge">День ${t.day}</span>
-                    ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
+                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${escapeHtml(issue.priority || 'Без пріоритету')}</span>
+                    <span class="ticket-role-badge">${escapeHtml(issue.status || 'Відкрита')}</span>
                 </div>
-                <div class="ticket-item-text">${escapeHtml(t.text)}</div>
-                ${ticketPhotosHtml(t)}
-                ${isDone ? (t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : '') : `
-                <div class="my-ticket-close-form">
-                    <textarea class="journal-textarea" rows="2" placeholder="Коментар про виконання..." id="my-ticket-comment-${t.day}-${t.id}"></textarea>
-                    <div class="my-ticket-close-actions">
-                        <label class="journal-photo-action is-secondary md-state-layer">
-                            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">photo_camera</span> Фото
-                            <input type="file" accept="image/*" multiple class="hidden" data-my-ticket-photo="${t.day}" data-ticket-id="${escapeAttr(t.id)}">
-                        </label>
-                        <button type="button" class="dispatcher-time-btn md-state-layer" data-my-ticket-close="${t.day}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>
-                    </div>
-                </div>`}
+                <div class="ticket-item-text">${escapeHtml(issue.summary)}</div>
+                <div class="ticket-item-comment">${escapeHtml(issue.key)} · ${escapeHtml(issue.category || 'Без категорії')}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
+                <div class="my-ticket-close-actions">
+                    ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
+                    ${canAssign ? `<select class="journal-select" data-jira-role="${escapeAttr(issue.key)}" aria-label="Виконавець заявки ${escapeAttr(issue.key)}">
+                        <option value="" ${!issue.assignedRole ? 'selected' : ''}>Не призначено</option>
+                        ${WORKER_ROLES.map(role => `<option value="${role}" ${issue.assignedRole === role ? 'selected' : ''}>${escapeHtml(roleNames[role])}</option>`).join('')}
+                    </select>
+                    <button type="button" class="dispatcher-time-btn md-state-layer" data-jira-assign="${escapeAttr(issue.key)}">${issue.assignedRole ? 'Змінити' : 'Призначити'}</button>` : `<button type="button" class="dispatcher-time-btn md-state-layer" data-jira-close="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</button>`}
+                </div>
             </div>`;
-        }).join('');
+        }).join('') : '<div class="staff-login-loading">За вибраними фільтрами заявок немає</div>');
 
-        list.querySelectorAll('[data-my-ticket-close]').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const d = Number(btn.dataset.myTicketClose);
-                const ticketId = btn.dataset.ticketId;
-                const commentEl = document.getElementById(`my-ticket-comment-${d}-${ticketId}`);
-                dispCloseTicket(d, ticketId, commentEl?.value || '');
-                showToast('Заявку закрито');
+        list.querySelectorAll('[data-jira-filter]').forEach(select => {
+            select.addEventListener('change', () => {
+                if (select.dataset.jiraFilter === 'assignment') jiraAssignmentFilter = select.value;
+                if (select.dataset.jiraFilter === 'status') jiraStatusFilter = select.value;
+                if (select.dataset.jiraFilter === 'category') jiraCategoryFilter = select.value;
                 myTicketsRender();
             });
         });
-        list.querySelectorAll('[data-my-ticket-photo]').forEach(input => {
-            input.addEventListener('change', async (event) => {
-                const d = Number(input.dataset.myTicketPhoto);
-                const ticketId = input.dataset.ticketId;
-                const files = Array.from(event.target.files || []);
-                for (const file of files) await uploadTicketPhoto(d, ticketId, file);
-                showToast('Фото додано до заявки');
+        list.querySelectorAll('[data-jira-status-counter]').forEach(button => {
+            button.addEventListener('click', () => {
+                jiraStatusFilter = button.dataset.jiraStatusCounter || 'all';
+                myTicketsRender();
+            });
+        });
+        list.querySelectorAll('[data-jira-filter], [data-jira-role]').forEach(select => enhanceSelect(select));
+
+        list.querySelectorAll('[data-jira-assign]').forEach(button => {
+            button.addEventListener('click', async () => {
+                const issueKey = button.dataset.jiraAssign;
+                const select = list.querySelector(`[data-jira-role="${CSS.escape(issueKey)}"]`);
+                button.disabled = true;
+                try {
+                    await jiraRequest('assign', { issueKey, assignedRole: select?.value });
+                    const issue = jiraIssues.find(item => item.key === issueKey);
+                    if (issue) issue.assignedRole = select?.value || '';
+                    showToast(issue?.assignedRole ? 'Виконавця змінено' : 'Призначення скасовано');
+                    myTicketsRender();
+                } catch (error) {
+                    showToast(error instanceof Error ? error.message : 'Не вдалося призначити виконавця');
+                    button.disabled = false;
+                }
+            });
+        });
+
+        list.querySelectorAll('[data-jira-close]').forEach(button => {
+            button.addEventListener('click', async () => {
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
+                try {
+                    await jiraRequest('close', { issueKey: button.dataset.jiraClose });
+                    jiraIssues = jiraIssues.filter(issue => issue.key !== button.dataset.jiraClose);
+                    showToast('Jira-заявку закрито');
+                    myTicketsRender();
+                } catch (error) {
+                    console.error('jira close issue error:', error);
+                    showToast(error instanceof Error ? error.message : 'Не вдалося закрити заявку');
+                    button.disabled = false;
+                    button.removeAttribute('aria-busy');
+                }
             });
         });
     }
 
-    async function uploadTicketPhoto(d, ticketId, file) {
-        if (!file) return;
-        if (IS_PREVIEW) return;
-        try {
-            const compressed = await compressImage(file);
-            const path = `osbb-tickets/${currentYear}-${currentMonth}/${d}-${ticketId}-${Date.now()}.jpg`;
-            const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
-            if (upErr) throw upErr;
-            const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
-            dispAddTicketPhoto(d, ticketId, urlData.publicUrl);
-        } catch(err) { console.error('ticket photo error:', err); showToast('Не вдалося завантажити фото'); }
-    }
-
-    // Усі відкриті заявки поточного місяця для однієї ролі, відсортовані за пріоритетом.
     function collectTicketsForRole(role) {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const result = [];
