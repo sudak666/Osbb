@@ -42,6 +42,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const email = Deno.env.get('JIRA_EMAIL') || 'guard.mykytska.sloboda@gmail.com';
   const baseUrl = (Deno.env.get('JIRA_BASE_URL') || '').replace(/\/$/, '');
   const projectKey = Deno.env.get('JIRA_PROJECT_KEY') || 'MS';
+  const issueType = Deno.env.get('JIRA_ISSUE_TYPE') || 'Task';
   if (!token || !baseUrl) return json({ error: 'Jira is not configured' }, 500);
 
   const jiraHeaders = {
@@ -81,7 +82,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     if (action === 'list') {
       const params = new URLSearchParams({
-        jql: `project = ${projectKey} AND parent IS NOT EMPTY AND statusCategory != Done ORDER BY priority DESC, created ASC`,
+        jql: `project = ${projectKey} AND issuetype = "${issueType.replace(/["\\]/g, '\\$&')}" AND parent IS NOT EMPTY AND statusCategory != Done ORDER BY priority DESC, created ASC`,
         fields: 'summary,status,priority,assignee,created,labels,parent',
         maxResults: '100',
       });
