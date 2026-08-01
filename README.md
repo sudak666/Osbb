@@ -105,7 +105,7 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 
 ## Jira-заявки
 
-Вкладка «Мої заявки» показує диспетчеру відкриті картки Jira-проєкту `MS`, які мають Parent; самі батьківські категорії не потрапляють у список і лічильники. Диспетчер призначає роль виконавця, що зберігається в Jira label `osbb-plumber`, `osbb-janitor` або `osbb-electrician`; працівник бачить лише заявки своєї ролі та може перевести їх у доступний статус категорії Done. Застосунок не створює нові Jira-заявки. API-токен і email зберігаються тільки в Supabase Secrets.
+Вкладка «Мої заявки» читає картки безпосередньо через фільтр Jira-дошки `JIRA_BOARD_ID`, тому список і лічильники відповідають цій дошці. Додатково залишаються лише відкриті картки типу `JIRA_ISSUE_TYPE`, які мають Parent. Інтеграція працює лише для перегляду: змінювати, призначати або закривати заявки із застосунку не можна. Якщо `JIRA_BOARD_ID` не задано і в проєкті одна дошка, функція визначає її автоматично; для кількох дощок ID обов’язковий. API-токен і email зберігаються тільки в Supabase Secrets.
 
 ```bash
 supabase functions deploy jira-issues --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
@@ -115,10 +115,13 @@ supabase secrets set \
   JIRA_BASE_URL=https://mykytska-sloboda.atlassian.net \
   JIRA_PROJECT_KEY=MS \
   JIRA_ISSUE_TYPE=Task \
+  JIRA_BOARD_ID=ID_ДОШКИ \
   --project-ref vkwkyhjjjmcpmiakxohw
 ```
 
 Після зміни токена достатньо повторно виконати `supabase secrets set JIRA_API_TOKEN=...`; перевипускати фронтенд не потрібно.
+
+Правління або адміністратор можуть відкрити «Доступ користувачів» у шапці журналу та ввімкнути або вимкнути персональний PIN-вхід для інших користувачів. Після попереднього встановлення `019_staff_login_settings.sql` потрібно також застосувати міграцію `020_allow_board_manage_staff_access.sql`; поточний користувач не може вимкнути власний активний обліковий запис.
 
 ## Автоматичні smoke-перевірки
 

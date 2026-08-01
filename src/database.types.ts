@@ -159,6 +159,14 @@ export interface Database {
                 Args: { attempt: string };
                 Returns: boolean;
             };
+            list_osbb_staff_settings: {
+                Args: { p_staff_id: string; attempt: string };
+                Returns: Array<{ id: string; full_name: string; role: string; active: boolean }>;
+            };
+            set_osbb_staff_active: {
+                Args: { p_staff_id: string; attempt: string; p_target_staff_id: string; p_active: boolean };
+                Returns: boolean;
+            };
             reset_month: {
                 Args: { table_name: 'schedule' | 'garbage' | 'dispatcher'; p_month_key: string; attempt: string };
                 Returns: boolean;
