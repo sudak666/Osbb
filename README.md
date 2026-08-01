@@ -103,6 +103,23 @@ curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notif
 
 У списку secrets мають бути `TELEGRAM_BOT_TOKEN` і `TELEGRAM_CHAT_ID`. Успішний тест повертає `{"ok":true}` і надсилає повідомлення в Telegram.
 
+## Jira-заявки
+
+Вкладка «Мої заявки» показує диспетчеру відкриті картки Jira-проєкту `MS`, які мають Parent; самі батьківські категорії не потрапляють у список і лічильники. Диспетчер призначає роль виконавця, що зберігається в Jira label `osbb-plumber`, `osbb-janitor` або `osbb-electrician`; працівник бачить лише заявки своєї ролі та може перевести їх у доступний статус категорії Done. Застосунок не створює нові Jira-заявки. API-токен і email зберігаються тільки в Supabase Secrets.
+
+```bash
+supabase functions deploy jira-issues --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
+supabase secrets set \
+  JIRA_API_TOKEN=ваш_токен \
+  JIRA_EMAIL=guard.mykytska.sloboda@gmail.com \
+  JIRA_BASE_URL=https://mykytska-sloboda.atlassian.net \
+  JIRA_PROJECT_KEY=MS \
+  JIRA_ISSUE_TYPE=Task \
+  --project-ref vkwkyhjjjmcpmiakxohw
+```
+
+Після зміни токена достатньо повторно виконати `supabase secrets set JIRA_API_TOKEN=...`; перевипускати фронтенд не потрібно.
+
 ## Автоматичні smoke-перевірки
 
 У репозиторії є легкий smoke-check без залежностей, який перевіряє наявність критичних RPC, PIN-flow, iframe-завантаження модулів і scoped service-worker cleanup. Після старту міграції shell-оболонки на Vite + TypeScript частина перевірок читає і `index.html`, і `src/shell.ts`:
