@@ -53,6 +53,7 @@ const checks = [
   ['supabase/functions/jira-issues/index.ts', "return json({ error: 'Invalid action' }, 400)", 'Jira Edge Function rejects write actions'],
   ['osbb/index.html', "db.rpc('set_osbb_staff_active'", 'admin can toggle staff PIN access'],
   ['supabase/migrations/20260719001900_staff_login_settings.sql', "verify_result.role not in ('board', 'admin')", 'staff access settings require board or admin PIN'],
+  ['supabase/migrations/20260719002000_allow_board_manage_staff_access.sql', "verify_result.role not in ('board', 'admin')", 'deployed databases receive board staff-access permissions'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],
   ['osbb/index.html', "scopePath.startsWith('/Osbb/osbb/')", 'journal SW cleanup is scoped'],
   ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],

@@ -806,7 +806,7 @@
                 <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[person.role] || person.role)}</span>
                 <button type="button" class="journal-tonal-btn md-state-layer" data-staff-active="${escapeAttr(person.id)}" data-next-active="${person.active ? 'false' : 'true'}" ${isCurrent ? 'disabled' : ''}>${person.active ? 'Вимкнути' : 'Увімкнути'}</button>
             </div>`;
-        }).join('') || '<div class="staff-login-loading">Користувачів немає</div>';
+        }).join('') || '<div class="staff-login-loading">Налаштування доступу ще не оновлено в базі даних</div>';
     }
 
     async function setStaffActive(button) {
