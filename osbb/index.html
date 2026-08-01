@@ -775,8 +775,12 @@
         openStaffLogin();
     }
 
+    function canManageStaffAccess() {
+        return staffSession?.role === 'board' || staffSession?.role === 'admin';
+    }
+
     async function openStaffSettings() {
-        if (staffSession?.role !== 'admin') return;
+        if (!canManageStaffAccess()) return;
         if (!staffPinCache && !await requestStaffReauth()) return;
         const modal = document.getElementById('staff-settings-modal');
         const list = document.getElementById('staff-settings-list');
@@ -806,7 +810,7 @@
     }
 
     async function setStaffActive(button) {
-        if (staffSession?.role !== 'admin' || !staffPinCache) return;
+        if (!canManageStaffAccess() || !staffPinCache) return;
         button.disabled = true;
         try {
             const ok = await db.rpc('set_osbb_staff_active', {
@@ -1036,7 +1040,7 @@
                 badge.classList.add('hidden');
             }
         }
-        document.getElementById('staff-settings-button')?.classList.toggle('hidden', staffSession?.role !== 'admin');
+        document.getElementById('staff-settings-button')?.classList.toggle('hidden', !canManageStaffAccess());
         if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);

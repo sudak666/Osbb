@@ -1,7 +1,7 @@
 -- Supabase CLI migration mirror for sklad/supabase/019_staff_login_settings.sql.
 -- Keep this file synchronized with the historical SQL file while the project migrates to CLI migrations.
 
--- Адміністратор може керувати доступом співробітників до персонального PIN-входу.
+-- Правління й адміністратор можуть керувати персональним PIN-входом співробітників.
 create or replace function list_osbb_staff_settings(p_staff_id uuid, attempt text)
 returns table(id uuid, full_name text, role text, active boolean)
 language plpgsql
@@ -12,7 +12,7 @@ declare
   verify_result record;
 begin
   select * into verify_result from verify_staff_pin(p_staff_id, attempt);
-  if not verify_result.ok or verify_result.role <> 'admin' then
+  if not verify_result.ok or verify_result.role not in ('board', 'admin') then
     return;
   end if;
 
@@ -38,7 +38,7 @@ declare
   verify_result record;
 begin
   select * into verify_result from verify_staff_pin(p_staff_id, attempt);
-  if not verify_result.ok or verify_result.role <> 'admin' or p_target_staff_id = p_staff_id then
+  if not verify_result.ok or verify_result.role not in ('board', 'admin') or p_target_staff_id = p_staff_id then
     return false;
   end if;
 
