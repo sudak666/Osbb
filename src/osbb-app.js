@@ -1,4 +1,10 @@
     import {
+        attendanceCellState,
+        attendanceDayState,
+        attendanceHours,
+        calculateAttendanceTotals,
+    } from './osbb-attendance.js';
+    import {
         TICKET_PRIORITIES as ticketPriorities,
         jiraPriorityClass,
         matchesDispatcherDateFilter,
@@ -1087,13 +1093,7 @@
     }
 
     function attHoursForCell(cell) {
-        if (!cell.checkIn || !cell.checkOut) return 0;
-        const [inH, inM] = cell.checkIn.split(':').map(Number);
-        const [outH, outM] = cell.checkOut.split(':').map(Number);
-        if ([inH, inM, outH, outM].some(n => !Number.isFinite(n))) return 0;
-        let minutes = (outH * 60 + outM) - (inH * 60 + inM);
-        if (minutes < 0) minutes += 24 * 60; // нічна зміна через північ
-        return minutes / 60;
+        return attendanceHours(cell);
     }
 
     function attVisibleRoles() {
@@ -1101,17 +1101,12 @@
     }
 
     function attCellState(cell) {
-        if (cell.checkIn && cell.checkOut) return 'is-complete-cell';
-        if (cell.checkIn || cell.checkOut) return 'is-partial-cell';
-        return 'is-empty-cell';
+        return attendanceCellState(cell);
     }
 
     function attDayState(d, visibleRoles = attVisibleRoles()) {
         const cells = visibleRoles.map(role => attGetCell(d, role));
-        const populated = cells.filter(cell => cell.checkIn || cell.checkOut).length;
-        const completed = cells.filter(cell => cell.checkIn && cell.checkOut).length;
-        if (populated === 0) return 'is-empty-day';
-        return completed === cells.length ? 'is-filled-day' : 'is-partial-day';
+        return attendanceDayState(cells);
     }
 
     function attUpdateDayVisuals(d) {
@@ -1170,15 +1165,7 @@
         if (!grid) return;
         const visibleRoles = attVisibleRoles();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const totals = {};
-        visibleRoles.forEach(role => { totals[role] = { days: 0, hours: 0 }; });
-        for (let d = 1; d <= daysInMonth; d++) {
-            visibleRoles.forEach(role => {
-                const cell = attGetCell(d, role);
-                const hours = attHoursForCell(cell);
-                if (hours > 0) { totals[role].days++; totals[role].hours += hours; }
-            });
-        }
+        const totals = calculateAttendanceTotals(attData, visibleRoles, daysInMonth);
         grid.innerHTML = visibleRoles.map(role => `
             <article class="att-stat-card role-${role}">
                 <span class="att-stat-role">${roleNames[role]}</span>

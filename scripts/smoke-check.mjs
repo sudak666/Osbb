@@ -28,6 +28,7 @@ function readOsbbCombined() {
     'osbb/index.html',
     'osbb/styles.css',
     'src/osbb-app.js',
+    'src/osbb-attendance.ts',
     'src/osbb-tickets.ts',
   ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
@@ -3309,8 +3310,8 @@ ${sharedSelectText}`;
     '.att-calendar-day.is-today > header strong,.att-mobile-day.is-today > header strong { background:transparent;',
     "function attDayState(d, visibleRoles = attVisibleRoles())",
     "function attCellState(cell)",
-    "if (populated === 0) return 'is-empty-day';",
-    "return completed === cells.length ? 'is-filled-day' : 'is-partial-day';",
+    'return attendanceDayState(cells);',
+    'const totals = calculateAttendanceTotals(attData, visibleRoles, daysInMonth);',
     'data-att-day-card="${d}"',
     'data-att-cell="${d}-${role}"',
     '.att-calendar-day.is-partial-day,.att-mobile-day.is-partial-day {',
