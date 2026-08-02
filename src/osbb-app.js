@@ -5,6 +5,13 @@
         calculateAttendanceTotals,
     } from './osbb-attendance.js';
     import {
+        calculateShiftMoney,
+        shiftDateKey,
+        shiftErrorMessage,
+        shiftIsWorking,
+        shiftTypeDescription,
+    } from './osbb-shifts.js';
+    import {
         TICKET_PRIORITIES as ticketPriorities,
         jiraPriorityClass,
         matchesDispatcherDateFilter,
@@ -684,7 +691,6 @@
         { key:'night_half2', label:'Пів ночі' },
         { key:'rest', label:'Вихідний' },
     ];
-    const shiftRates = { day:900, night:900, night_half2:450 };
     let shiftCurrentDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     let shiftRows = {};
     let shiftSelectedDate = '';
@@ -693,10 +699,6 @@
     let shiftInitialized = false;
     let shiftLoading = false;
     let shiftEditorFocusReturn = null;
-
-    function shiftDateKey(year, month, day) {
-        return `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    }
 
     function shiftMonthKey() {
         return `${shiftCurrentDate.getFullYear()}-${String(shiftCurrentDate.getMonth() + 1).padStart(2,'0')}`;
@@ -710,19 +712,6 @@
     function shiftDayData(dateKey) {
         if (shiftRows[dateKey]) return shiftRows[dateKey];
         return dateKey <= shiftTodayKey() ? { sergiy:['day'], oleksandr:['night'] } : { sergiy:[], oleksandr:[] };
-    }
-
-    function shiftIsWorking(values) {
-        return Array.isArray(values) && values.some(value => value !== 'rest');
-    }
-
-    function shiftTypeDescription(values) {
-        if (!Array.isArray(values) || !shiftIsWorking(values)) return 'вихідний';
-        const hasFull = values.includes('day') || values.includes('night');
-        const hasHalf = values.includes('night_half2');
-        if (hasFull && hasHalf) return 'ціла і пів зміни';
-        if (hasHalf) return 'пів зміни';
-        return 'ціла зміна';
     }
 
     function shiftAppendIndicators(container, person, values) {
@@ -747,14 +736,6 @@
         if (!status) return;
         status.textContent = text;
         status.classList.toggle('is-syncing', state === 'loading');
-    }
-
-    function shiftErrorMessage(error, fallback) {
-        const details = String(error?.message || error || '');
-        if (details.includes('42P01') || details.includes('PGRST202') || details.includes('PGRST205')) return 'Застосуйте SQL-міграції 011–013 у Supabase';
-        if (details.includes('23514')) return 'Supabase відхилив формат місяця — застосуйте міграцію 012';
-        if (details.includes('401') || details.includes('403') || details.includes('42501')) return 'Немає дозволу на запис у Supabase';
-        return fallback;
     }
 
     function shiftApplyNames() {
@@ -833,7 +814,7 @@
     }
 
     function shiftMoney(counts) {
-        return counts.day * shiftRates.day + counts.night * shiftRates.night + counts.night_half2 * shiftRates.night_half2;
+        return calculateShiftMoney(counts);
     }
 
     function shiftRenderStats() {

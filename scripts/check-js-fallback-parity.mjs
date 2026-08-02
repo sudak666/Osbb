@@ -8,6 +8,7 @@ const fallbackPairs = [
   ['src/supabase-api.ts', 'src/supabase-api.js'],
   ['src/promin-api.ts', 'src/promin-api.js'],
   ['src/osbb-attendance.ts', 'src/osbb-attendance.js'],
+  ['src/osbb-shifts.ts', 'src/osbb-shifts.js'],
   ['src/osbb-tickets.ts', 'src/osbb-tickets.js'],
   ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
