@@ -11,15 +11,16 @@ import {
 } from '../src/sklad-domain.js';
 
 const items = [
-  { id: 1, name: 'Лампа LED', category: 'Електрика', quantity: 2, unit: 'шт', min_quantity: 3, is_internal: false, price_unit: 120.5 },
-  { id: 2, name: 'Віник', category: 'Прибирання', quantity: 10, unit: 'шт', min_quantity: 2, is_internal: false, price_unit: null },
-  { id: 3, name: 'Ноутбук офісний', category: 'Оргтехніка', quantity: 1, unit: 'шт', min_quantity: 5, is_internal: true, price_unit: 15000 },
-  { id: 4, name: 'Кабель HDMI', category: 'Електрика', quantity: 4.555, unit: 'м', min_quantity: null, is_internal: false, price_unit: 30 },
+  { id: 1, name: 'Лампа LED', category: 'Електрика', quantity: 2, unit: 'шт', min_quantity: 3, is_internal: false, price_unit: 120.5, price_source: 'Постачальник' },
+  { id: 2, name: 'Віник', category: 'Прибирання', quantity: 10, unit: 'шт', min_quantity: 2, is_internal: false, price_unit: null, price_source: null },
+  { id: 3, name: 'Ноутбук офісний', category: 'Оргтехніка', quantity: 1, unit: 'шт', min_quantity: 5, is_internal: true, price_unit: 15000, price_source: null },
+  { id: 4, name: 'Кабель HDMI', category: 'Електрика', quantity: 4.555, unit: 'м', min_quantity: null, is_internal: false, price_unit: 30, price_source: null },
 ];
 
 test('normalizeSearchText collapses whitespace and handles Ukrainian case-insensitive search', () => {
   assert.equal(normalizeSearchText('  ЛАМПА   Led  '), 'лампа led');
   assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'лампа'), true);
+  assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'електрика led'), true);
   assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'сантехніка'), false);
 });
 
@@ -27,6 +28,7 @@ test('filterInventoryItems combines internal-use flags, category and text search
   assert.deepEqual(filterInventoryItems(items, { hideInternal: true }).map((item) => item.id), [4, 1, 2]);
   assert.deepEqual(filterInventoryItems(items, { onlyInternal: true }).map((item) => item.id), [3]);
   assert.deepEqual(filterInventoryItems(items, { category: 'Електрика', query: 'кабель' }).map((item) => item.id), [4]);
+  assert.deepEqual(filterInventoryItems(items, { query: 'постачальник' }).map((item) => item.id), [1]);
 });
 
 test('low-stock logic excludes internal items and missing minimums', () => {
