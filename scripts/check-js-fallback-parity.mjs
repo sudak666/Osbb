@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const fallbackPairs = [
+  ['src/app-security.ts', 'src/app-security.js'],
   ['src/auth-session.ts', 'src/auth-session.js'],
   ['src/shell-state.ts', 'src/shell-state.js'],
   ['src/supabase-api.ts', 'src/supabase-api.js'],
@@ -13,7 +14,6 @@ const fallbackPairs = [
   ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
   ['src/sklad-pricing.ts', 'src/sklad-pricing.js'],
-  ['src/sklad-security.ts', 'src/sklad-security.js'],
   ['src/shell-controller.ts', 'src/shell-controller.js'],
   ['src/shell.ts', 'src/shell.js'],
 ];

@@ -13,7 +13,7 @@ import {
   itemStockValue as stockValue,
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
-import { escapeHtml, safeExternalUrl } from './sklad-security.js';
+import { escapeHtml, safeExternalUrl } from './app-security.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};

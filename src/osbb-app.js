@@ -1,3 +1,4 @@
+    import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import {
         attendanceCellState,
         attendanceDayState,
@@ -1419,26 +1420,6 @@
                 <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
             </div>`;
         }).join('');
-    }
-
-    function escapeHtml(value) {
-        return String(value ?? '').replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-    }
-
-    function escapeAttr(value) {
-        return escapeHtml(value);
-    }
-
-    function safeExternalUrl(value) {
-        const raw = String(value || '').trim();
-        if (!raw) return '';
-        try {
-            const url = new URL(raw, location.href);
-            if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
-            return escapeAttr(url.href);
-        } catch (_) {
-            return '';
-        }
     }
 
     let lightboxPhotos = [];

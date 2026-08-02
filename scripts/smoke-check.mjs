@@ -17,8 +17,8 @@ function readSkladCombined() {
     'src/sklad-domain.ts',
     'src/sklad-pricing.js',
     'src/sklad-pricing.ts',
-    'src/sklad-security.js',
-    'src/sklad-security.ts',
+    'src/app-security.js',
+    'src/app-security.ts',
   ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
 
@@ -28,6 +28,7 @@ function readOsbbCombined() {
     'osbb/index.html',
     'osbb/styles.css',
     'src/osbb-app.js',
+    'src/app-security.ts',
     'src/osbb-attendance.ts',
     'src/osbb-shifts.ts',
     'src/osbb-tickets.ts',
