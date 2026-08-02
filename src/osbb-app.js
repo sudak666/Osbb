@@ -6,6 +6,12 @@
         calculateAttendanceTotals,
     } from './osbb-attendance.js';
     import {
+        garbageBins,
+        garbageMonthKey,
+        garbageMonthKeyCandidates,
+        migrateGarbageData,
+    } from './osbb-garbage.js';
+    import {
         calculateShiftMoney,
         shiftDateKey,
         shiftErrorMessage,
@@ -2001,13 +2007,10 @@
     // ==========================================
 
 
-    function gKey() { return `${currentYear}-${currentMonth}`; }
+    function gKey() { return garbageMonthKey(currentYear, currentMonth); }
     function gOfflineKey() { return `garbage_${currentYear}_${currentMonth}`; }
     function gMonthKeyCandidates(year = currentYear, month = currentMonth) {
-        return [...new Set([
-            `${year}-${month}`,
-            `${year}-${String(month).padStart(2,'0')}`,
-        ])];
+        return garbageMonthKeyCandidates(year, month);
     }
     async function gFetchGarbageMonthData(year = currentYear, month = currentMonth) {
         for (const monthKey of gMonthKeyCandidates(year, month)) {
@@ -2022,26 +2025,7 @@
     // у новий формат { types: { plastic, glass, bins }, worker, time }.
     // Повертає { data, migrated } — migrated=true, якщо хоч один запис був перетворений.
     function gMigrateOldData(data) {
-        if (!data) return { data, migrated: false };
-        let migrated = false;
-        const out = { ...data };
-        Object.keys(out).forEach(day => {
-            const row = out[day];
-            if (!row || row.types) return; // вже новий формат
-            if (row.count === undefined && row.note === undefined) return; // нічого мігрувати
-
-            const cnt = parseInt(row.count) || 0;
-            const types = {};
-            if (cnt > 0) {
-                if (row.note === 'plastic') types.plastic = cnt;
-                else if (row.note === 'glass') types.glass = cnt;
-                else if (row.note === 'both') { types.plastic = cnt; types.glass = cnt; }
-                else types.bins = cnt; // 'mixed' або відсутній тип — рахуємо як баки
-            }
-            out[day] = { time: row.time || '', worker: row.worker || '', types };
-            migrated = true;
-        });
-        return { data: out, migrated };
+        return migrateGarbageData(data);
     }
 
 
@@ -2336,8 +2320,7 @@
         if (!container) return;
 
         function getBins(types) {
-            if (!types) return 0;
-            return parseInt(types.bins) || 0;
+            return garbageBins(types);
         }
 
         await gLoadGarbageYearFromCloud(currentYear);

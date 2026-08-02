@@ -30,6 +30,7 @@ function readOsbbCombined() {
     'src/osbb-app.js',
     'src/app-security.ts',
     'src/osbb-attendance.ts',
+    'src/osbb-garbage.ts',
     'src/osbb-shifts.ts',
     'src/osbb-staff.ts',
     'src/osbb-tickets.ts',
@@ -1783,7 +1784,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
     'async function gFetchGarbageMonthData(year = currentYear, month = currentMonth)',
-    "String(month).padStart(2,'0')",
+    "String(month).padStart(2, '0')",
     'async function gLoadGarbageYearFromCloud(year)',
     "db.from('garbage').select('month_key,data')",
     'const candidates = gMonthKeyCandidates(year, month)',
