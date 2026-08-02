@@ -7,6 +7,7 @@ import {
   itemStockValue as stockValue,
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
+import { escapeHtml, safeExternalUrl } from './sklad-security.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -2375,20 +2376,6 @@ async function deletePinPress(k) {
 
 // ===== TOAST =====
 let toastT;
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function safeExternalUrl(value){
-  const raw=String(value||'').trim();
-  if(!raw) return '';
-  try{
-    const url=new URL(raw,location.href);
-    if(url.protocol!=='http:'&&url.protocol!=='https:') return '';
-    return escapeHtml(url.href);
-  }catch(_){
-    return '';
-  }
-}
 const toastIcons={success:'check_circle',error:'error',info:'info'};
 function toast(msg,type=''){
   const el=document.getElementById('toast');

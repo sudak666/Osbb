@@ -10,6 +10,7 @@ const fallbackPairs = [
   ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
   ['src/sklad-pricing.ts', 'src/sklad-pricing.js'],
+  ['src/sklad-security.ts', 'src/sklad-security.js'],
   ['src/shell-controller.ts', 'src/shell-controller.js'],
   ['src/shell.ts', 'src/shell.js'],
 ];

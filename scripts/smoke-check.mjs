@@ -17,6 +17,8 @@ function readSkladCombined() {
     'src/sklad-domain.ts',
     'src/sklad-pricing.js',
     'src/sklad-pricing.ts',
+    'src/sklad-security.js',
+    'src/sklad-security.ts',
   ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
 
