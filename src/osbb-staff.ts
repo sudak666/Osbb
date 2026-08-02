@@ -35,6 +35,10 @@ export function isWorkerSession(session: StaffSession | null | undefined): boole
     return Boolean(session) && WORKER_ROLES.includes(session?.role as StaffRole);
 }
 
+export function normalizeWorkerRole(value: unknown, fallback: StaffRole = 'plumber'): StaffRole {
+    return typeof value === 'string' && WORKER_ROLES.includes(value as StaffRole) ? value as StaffRole : fallback;
+}
+
 export function canManageStaffAccess(session: StaffSession | null | undefined): boolean {
     return session?.role === 'board' || session?.role === 'admin';
 }

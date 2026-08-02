@@ -97,6 +97,7 @@ const checks = [
   ['src/sklad-app.js', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
   ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
   ['osbb/index.html', 'data-pin-modal-cancel aria-label="Скасувати введення PIN"', 'journal PIN cancel has accessible label'],
+  ['src/osbb-app.js', 'WORKER_ROLES,', 'journal imports worker roles used by dispatcher filters'],
   ['sklad/index.html', 'id="authErr" role="alert" aria-live="assertive"', 'sklad auth errors expose alert semantics'],
   ['sklad/index.html', 'id="delPinErr" role="alert" aria-live="assertive"', 'sklad delete PIN errors expose alert semantics'],
   ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],

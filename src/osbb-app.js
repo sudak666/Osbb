@@ -21,15 +21,18 @@
     import {
         STAFF_ROLE_ICONS,
         STAFF_ROLE_LABELS,
+        WORKER_ROLES,
         canManageStaffAccess as canManageStaffAccessForSession,
         isDispatcherSession as isDispatcherStaffSession,
         isTabAllowedForSession as isStaffTabAllowed,
         isWorkerSession as isWorkerStaffSession,
+        normalizeWorkerRole,
     } from './osbb-staff.js';
     import {
         TICKET_PRIORITIES as ticketPriorities,
         jiraPriorityClass,
         matchesDispatcherDateFilter,
+        normalizeTicketPriority,
         ticketSortComparator,
     } from './osbb-tickets.js';
 
@@ -2578,8 +2581,8 @@
         const ticket = {
             id: ticketId,
             text: trimmed,
-            role: WORKER_ROLES.includes(role) ? role : 'plumber',
-            priority: ticketPriorities[priority] ? priority : 'MEDIUM',
+            role: normalizeWorkerRole(role),
+            priority: normalizeTicketPriority(priority),
             status: 'open',
             comment: '',
             photos: [],
@@ -2630,8 +2633,8 @@
         const ticket = row.ticketsList.find(t => t.id === ticketId);
         if (!ticket) return;
         ticket.text = trimmed;
-        ticket.role = WORKER_ROLES.includes(role) ? role : ticket.role;
-        ticket.priority = ticketPriorities[priority] ? priority : ticket.priority;
+        ticket.role = normalizeWorkerRole(role, ticket.role);
+        ticket.priority = normalizeTicketPriority(priority, normalizeTicketPriority(ticket.priority));
         dispEditingTicketId = null;
         dispScheduleSave();
         dispOpenDayDetail(Number(d));

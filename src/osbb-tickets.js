@@ -8,8 +8,8 @@ export function isTicketPriority(value) {
     return typeof value === 'string' && value in TICKET_PRIORITIES;
 }
 
-export function normalizeTicketPriority(value) {
-    return isTicketPriority(value) ? value : 'MEDIUM';
+export function normalizeTicketPriority(value, fallback = 'MEDIUM') {
+    return isTicketPriority(value) ? value : fallback;
 }
 
 export function ticketSortComparator(a, b) {

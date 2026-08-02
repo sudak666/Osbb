@@ -6,6 +6,7 @@ import {
   isDispatcherSession,
   isTabAllowedForSession,
   isWorkerSession,
+  normalizeWorkerRole,
 } from '../src/osbb-staff.js';
 
 const session = (role) => ({ id: role, name: role, role });
@@ -21,6 +22,12 @@ test('staff role helpers preserve full-access and worker role groups', () => {
   }
   assert.equal(isDispatcherSession(null), false);
   assert.equal(isWorkerSession(session('unknown')), false);
+});
+
+test('worker role normalization rejects full-access and unknown roles', () => {
+  assert.equal(normalizeWorkerRole('electrician'), 'electrician');
+  assert.equal(normalizeWorkerRole('admin'), 'plumber');
+  assert.equal(normalizeWorkerRole('unknown', 'janitor'), 'janitor');
 });
 
 test('only board and admin can manage staff access', () => {

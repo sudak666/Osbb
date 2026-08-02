@@ -11,6 +11,8 @@ import {
 test('ticket priorities normalize unknown values and sort urgent tickets first', () => {
   assert.equal(normalizeTicketPriority('HIGH'), 'HIGH');
   assert.equal(normalizeTicketPriority('UNKNOWN'), 'MEDIUM');
+  assert.equal(normalizeTicketPriority(null), 'MEDIUM');
+  assert.equal(normalizeTicketPriority('UNKNOWN', 'LOW'), 'LOW');
   const tickets = [
     { id: 1, priority: 'LOW', createdAt: '2026-08-01T10:00:00Z' },
     { id: 2, priority: 'HIGH', createdAt: '2026-08-02T10:00:00Z' },

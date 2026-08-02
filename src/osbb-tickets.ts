@@ -22,8 +22,8 @@ export function isTicketPriority(value: unknown): value is TicketPriority {
     return typeof value === 'string' && value in TICKET_PRIORITIES;
 }
 
-export function normalizeTicketPriority(value: unknown): TicketPriority {
-    return isTicketPriority(value) ? value : 'MEDIUM';
+export function normalizeTicketPriority(value: unknown, fallback: TicketPriority = 'MEDIUM'): TicketPriority {
+    return isTicketPriority(value) ? value : fallback;
 }
 
 export function ticketSortComparator(a: SortableTicket, b: SortableTicket): number {
