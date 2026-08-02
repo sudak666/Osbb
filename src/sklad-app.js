@@ -1,4 +1,5 @@
 import { normalizeSearchText, valuesMatchSearch } from './sklad-domain.js';
+import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';
 import {
   formatMoney as money,
   isPurchasePriceSchemaError,
@@ -1260,21 +1261,6 @@ function onIssueSel(){
   if(!item){box.style.display='none';return;}
   box.style.display='block';
   document.getElementById('issueInfoQty').textContent=item.quantity+' '+item.unit;
-}
-function dateInputToTimestamp(dateValue){
-  if(!dateValue) return null;
-  const [year,month,day]=dateValue.split('-').map(Number);
-  if(!year||!month||!day) return null;
-  const now=new Date();
-  return new Date(year,month-1,day,now.getHours(),now.getMinutes(),now.getSeconds()).toISOString();
-}
-function dateToInputValue(value){
-  const d=value?new Date(value):new Date();
-  if(Number.isNaN(d.getTime())) return new Date().toISOString().slice(0,10);
-  const y=d.getFullYear();
-  const m=String(d.getMonth()+1).padStart(2,'0');
-  const day=String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
 }
 async function doIssue(btn){
   const id=parseInt(document.getElementById('issueItemSel').value);
