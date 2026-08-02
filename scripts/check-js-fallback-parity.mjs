@@ -7,7 +7,12 @@ const fallbackPairs = [
   ['src/shell-state.ts', 'src/shell-state.js'],
   ['src/supabase-api.ts', 'src/supabase-api.js'],
   ['src/promin-api.ts', 'src/promin-api.js'],
+  ['src/osbb-attendance.ts', 'src/osbb-attendance.js'],
+  ['src/osbb-tickets.ts', 'src/osbb-tickets.js'],
+  ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
+  ['src/sklad-pricing.ts', 'src/sklad-pricing.js'],
+  ['src/sklad-security.ts', 'src/sklad-security.js'],
   ['src/shell-controller.ts', 'src/shell-controller.js'],
   ['src/shell.ts', 'src/shell.js'],
 ];
