@@ -13,6 +13,14 @@
         shiftTypeDescription,
     } from './osbb-shifts.js';
     import {
+        STAFF_ROLE_ICONS,
+        STAFF_ROLE_LABELS,
+        canManageStaffAccess as canManageStaffAccessForSession,
+        isDispatcherSession as isDispatcherStaffSession,
+        isTabAllowedForSession as isStaffTabAllowed,
+        isWorkerSession as isWorkerStaffSession,
+    } from './osbb-staff.js';
+    import {
         TICKET_PRIORITIES as ticketPriorities,
         jiraPriorityClass,
         matchesDispatcherDateFilter,
@@ -238,7 +246,6 @@
     // (повний "Диспетчер" таб vs "Мої заявки"). Ролі "охорона" немає.
     // ==========================================
     const STAFF_SESSION_KEY = 'osbb_staff_session';
-    const WORKER_ROLES = ['plumber', 'janitor', 'electrician'];
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let staffLoginList = [];
@@ -268,7 +275,7 @@
     }
 
     function canManageStaffAccess() {
-        return staffSession?.role === 'board' || staffSession?.role === 'admin';
+        return canManageStaffAccessForSession(staffSession);
     }
 
     async function openStaffSettings() {
@@ -353,9 +360,6 @@
         }
         renderStaffLoginList();
     }
-
-    const STAFF_ROLE_ICONS = { dispatcher: 'support_agent', admin: 'admin_panel_settings', board: 'badge', plumber: 'plumbing', janitor: 'cleaning_services', electrician: 'bolt' };
-    const STAFF_ROLE_LABELS = { dispatcher: 'Диспетчер', admin: 'Адмін', board: 'Правління', plumber: 'Сантехнік', janitor: 'Двірник', electrician: 'Електрик' };
 
     function renderStaffLoginList() {
         const listEl = document.getElementById('staff-login-list');
@@ -491,26 +495,21 @@
     // редагування Табеля, заявки. "Зміни" сюди не входять навмисно — той таб
     // і раніше захищений окремим PIN (verify_work_shifts_pin), незалежним від ролей.
     function isDispatcherSession() {
-        return Boolean(staffSession) && ['dispatcher', 'admin', 'board'].includes(staffSession.role);
+        return isDispatcherStaffSession(staffSession);
     }
 
     function isWorkerSession() {
-        return Boolean(staffSession) && WORKER_ROLES.includes(staffSession.role);
+        return isWorkerStaffSession(staffSession);
     }
 
     // Вкладки, доступні сантехніку/двірнику/електрику: тільки власний графік
     // (перегляд) і власні заявки — жодного доступу до журналу, диспетчера,
     // графіків, сміття, чату чи графіка змін інших людей.
-    const WORKER_ALLOWED_TABS = ['tabel', 'my-tickets'];
-
     // Єдине джерело правди про доступність таба для поточної staff-сесії —
     // використовується і для приховування кнопок, і для блокування прямого
     // виклику setTab/requestTab (щоб hidden-клас не був єдиним захистом).
     function isTabAllowedForSession(tab) {
-        if (isWorkerSession()) return WORKER_ALLOWED_TABS.includes(tab);
-        if (tab === 'my-tickets') return isDispatcherSession();
-        if (tab === 'dispatcher') return isDispatcherSession() || !staffSession;
-        return true;
+        return isStaffTabAllowed(tab, staffSession);
     }
 
     // Приховує/показує вкладки залежно від ролі сесії і перемикає користувача

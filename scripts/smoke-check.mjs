@@ -31,6 +31,7 @@ function readOsbbCombined() {
     'src/app-security.ts',
     'src/osbb-attendance.ts',
     'src/osbb-shifts.ts',
+    'src/osbb-staff.ts',
     'src/osbb-tickets.ts',
   ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
