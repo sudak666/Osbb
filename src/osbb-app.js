@@ -1,3 +1,10 @@
+    import {
+        TICKET_PRIORITIES as ticketPriorities,
+        jiraPriorityClass,
+        matchesDispatcherDateFilter,
+        ticketSortComparator,
+    } from './osbb-tickets.js';
+
     const SUPABASE_URL = 'https://vkwkyhjjjmcpmiakxohw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9';
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
@@ -2552,20 +2559,8 @@
     // Заявки з пріоритетом (нова структурована модель, ticketsList).
     // Старі текстові дні (поле `tickets` — просто число) лишаються як є для
     // місяців, збережених до цієї зміни — не мігруємо їх автоматично.
-    const ticketPriorities = {
-        HIGH:   { label: 'Терміново',    order: 0 },
-        MEDIUM: { label: 'Звичайний',    order: 1 },
-        LOW:    { label: 'Нетерміново',  order: 2 }
-    };
     let dispNewTicketPriority = 'MEDIUM';
     let dispNewTicketRole = 'plumber';
-
-    function ticketSortComparator(a, b) {
-        const pa = ticketPriorities[a.priority]?.order ?? 1;
-        const pb = ticketPriorities[b.priority]?.order ?? 1;
-        if (pa !== pb) return pa - pb;
-        return (a.createdAt || '').localeCompare(b.createdAt || '');
-    }
 
     function dispKey() { return `${currentYear}-${currentMonth}`; }
     function dispOfflineKey() { return `dispatcher_${currentYear}_${currentMonth}`; }
@@ -2805,13 +2800,6 @@
         myTicketsRender();
     }
 
-    function jiraPriorityClass(priority) {
-        const value = String(priority || '').toLowerCase();
-        if (value.includes('highest') || value.includes('high')) return 'HIGH';
-        if (value.includes('lowest') || value.includes('low')) return 'LOW';
-        return 'MEDIUM';
-    }
-
     function myTicketsRender() {
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
@@ -2893,17 +2881,7 @@
     }
 
     function dispMatchesCurrentDateFilter(d, filter) {
-        const dayDate = new Date(currentYear, currentMonth, d);
-        const today = new Date();
-        dayDate.setHours(0, 0, 0, 0);
-        today.setHours(0, 0, 0, 0);
-        if (filter === 'today') return dayDate.getTime() === today.getTime();
-        if (filter !== 'current_week') return true;
-        const weekStart = new Date(today);
-        weekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-        return dayDate >= weekStart && dayDate <= weekEnd;
+        return matchesDispatcherDateFilter(currentYear, currentMonth, d, filter);
     }
 
     function dispMatchesFilter(row, hasEvent, d) {
