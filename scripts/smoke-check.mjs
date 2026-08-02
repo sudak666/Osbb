@@ -96,7 +96,7 @@ const checks = [
   ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
   ['sklad/index.html', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
   ['sklad/index.html', 'return true;', 'sklad issueItem reports success to callers'],
-  ['sklad/index.html', 'function valuesMatchSearch', 'sklad has normalized multi-field search helper'],
+  ['sklad/index.html', "import { normalizeSearchText, valuesMatchSearch } from '../src/sklad-domain.js';", 'sklad uses typed domain search helpers'],
   ['sklad/index.html', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
   ['sklad/index.html', 'id="itemsResultSummary"', 'sklad shows item result summary'],
   ['sklad/index.html', 'function updateItemsResultSummary', 'sklad updates item result summary'],

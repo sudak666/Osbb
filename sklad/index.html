@@ -804,7 +804,9 @@ async function checkPin(attempt){
 
 <div id="toast" role="status" aria-live="polite"></div>
 
-<script>
+<script type="module">
+import { normalizeSearchText, valuesMatchSearch } from '../src/sklad-domain.js';
+
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
@@ -2505,13 +2507,6 @@ async function doRefill(btn){
   }finally{
     done();
   }
-}
-function normalizeSearchText(value){return String(value||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();}
-function valuesMatchSearch(values, query){
-  const q=normalizeSearchText(query);
-  if(!q) return true;
-  const hay=normalizeSearchText(values.filter(Boolean).join(' '));
-  return q.split(/\s+/).every(part=>hay.includes(part));
 }
 function itemMatchesSearch(item, query){
   return valuesMatchSearch([item.name,item.category,item.unit,item.price_source],query);
