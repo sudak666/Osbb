@@ -3,20 +3,32 @@ import { readFileSync } from 'node:fs';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-// sklad/index.html's <style> block was extracted to sklad/styles.css (see
-// "Component extraction" pass). Most of the sklad-specific checks below
-// assert both HTML markup (still in index.html) and CSS rule text (now in
-// styles.css) in the same block, so we search the concatenation of both
-// files instead of re-classifying every check individually.
+// Sklad markup, styles and runtime were extracted into separate files.
+// Most Sklad-specific checks assert invariants across those layers, so search
+// their concatenation instead of coupling each check to a physical file.
 const SHARED_JS_CSS = '\n' + readFileSync('shared/ui.css', 'utf8') + '\n' + readFileSync('shared/enhance-select.js', 'utf8');
 
 function readSkladCombined() {
-  return readFileSync('sklad/index.html', 'utf8') + '\n' + readFileSync('sklad/styles.css', 'utf8') + SHARED_JS_CSS;
+  return [
+    'sklad/index.html',
+    'sklad/styles.css',
+    'src/sklad-app.js',
+    'src/sklad-dates.ts',
+    'src/sklad-domain.ts',
+    'src/sklad-pricing.js',
+    'src/sklad-pricing.ts',
+    'src/sklad-security.js',
+    'src/sklad-security.ts',
+  ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
 
 // Same story for osbb/index.html's extracted <style> block -> osbb/styles.css.
 function readOsbbCombined() {
-  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + SHARED_JS_CSS;
+  return [
+    'osbb/index.html',
+    'osbb/styles.css',
+    'src/osbb-app.js',
+  ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
 
 function readShellCombined() {
@@ -76,7 +88,7 @@ const checks = [
   ['sklad/index.html', 'id="bottomNav" aria-label="Мобільні розділи складу"', 'sklad bottom nav exposes navigation label'],
   ['sklad/index.html', 'class="ni active" data-page="items" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
   ['sklad/index.html', 'class="bn-item active" data-page="items" aria-current="page"', 'sklad bottom nav active page exposes aria-current'],
-  ['sklad/index.html', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
+  ['src/sklad-app.js', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
   ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
   ['osbb/index.html', 'data-pin-modal-cancel aria-label="Скасувати введення PIN"', 'journal PIN cancel has accessible label'],
   ['sklad/index.html', 'id="authErr" role="alert" aria-live="assertive"', 'sklad auth errors expose alert semantics'],
@@ -84,41 +96,42 @@ const checks = [
   ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],
   ['sklad/index.html', 'data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad delete PIN delete has accessible label'],
 
-  ['sklad/index.html', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
+  ['src/sklad-app.js', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
   ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],
-  ['sklad/index.html', 'deleteLightboxPhoto', 'sklad lightbox has delete handler'],
+  ['src/sklad-app.js', 'deleteLightboxPhoto', 'sklad lightbox has delete handler'],
   ['sklad/index.html', "scopePath.startsWith('/Osbb/sklad/')", 'sklad SW cleanup is scoped'],
-  ['sklad/index.html', 'function notifyTelegram', 'sklad has Telegram notify helper'],
-  ['sklad/index.html', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
-  ['sklad/index.html', "notifyTelegram('📦 Прихід:", 'sklad notifies on receipt'],
-  ['sklad/index.html', "notifyTelegram('📤 Видача:", 'sklad notifies on issue'],
-  ['sklad/index.html', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
+  ['src/sklad-app.js', 'function notifyTelegram', 'sklad has Telegram notify helper'],
+  ['src/sklad-app.js', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
+  ['src/sklad-app.js', "notifyTelegram('📦 Прихід:", 'sklad notifies on receipt'],
+  ['src/sklad-app.js', "notifyTelegram('📤 Видача:", 'sklad notifies on issue'],
+  ['src/sklad-app.js', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
   ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
-  ['sklad/index.html', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
+  ['src/sklad-app.js', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
   ['sklad/index.html', 'return true;', 'sklad issueItem reports success to callers'],
-  ['sklad/index.html', 'function valuesMatchSearch', 'sklad has normalized multi-field search helper'],
-  ['sklad/index.html', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
+  ['sklad/index.html', '<script type="module" src="../src/sklad-app.js"></script>', 'sklad loads extracted module runtime'],
+  ['src/sklad-app.js', 'filterSkladItems,', 'sklad uses typed domain filters'],
+  ['src/sklad-app.js', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
   ['sklad/index.html', 'id="itemsResultSummary"', 'sklad shows item result summary'],
-  ['sklad/index.html', 'function updateItemsResultSummary', 'sklad updates item result summary'],
-  ['sklad/index.html', 'function resetItemFilters', 'sklad can reset item filters'],
+  ['src/sklad-app.js', 'function updateItemsResultSummary', 'sklad updates item result summary'],
+  ['src/sklad-app.js', 'function resetItemFilters', 'sklad can reset item filters'],
   ['sklad/index.html', 'id="resetItemFiltersBtn"', 'sklad has reset filters button'],
   ['sklad/index.html', 'id="logResultSummary"', 'sklad shows log result summary'],
   ['sklad/index.html', 'id="recResultSummary"', 'sklad shows receipt result summary'],
   ['sklad/index.html', 'id="auditResultSummary"', 'sklad shows audit result summary'],
   ['sklad/index.html', 'id="auditProgress"', 'sklad shows audit progress bar'],
   ['sklad/index.html', 'id="auditProgressFill"', 'sklad updates audit progress fill'],
-  ['sklad/index.html', 'function updateResultSummary', 'sklad has reusable result summary helper'],
-  ['sklad/index.html', 'function focusActivePageSearch', 'sklad has keyboard search focus helper'],
-  ['sklad/index.html', "e.key==='/'", 'sklad supports slash keyboard search shortcut'],
-  ['sklad/index.html', 'function clearSearchInput', 'sklad can clear active search with keyboard'],
-  ['sklad/index.html', "e.key==='Escape' && clearSearchInput", 'sklad Escape shortcut clears active search first'],
-  ['sklad/index.html', 'function dateInputToTimestamp', 'sklad converts selected operation dates'],
-  ['sklad/index.html', "document.getElementById('issueDateI').value", 'sklad issue flow reads selected issue date'],
+  ['src/sklad-app.js', 'function updateResultSummary', 'sklad has reusable result summary helper'],
+  ['src/sklad-app.js', 'function focusActivePageSearch', 'sklad has keyboard search focus helper'],
+  ['src/sklad-app.js', "e.key==='/'", 'sklad supports slash keyboard search shortcut'],
+  ['src/sklad-app.js', 'function clearSearchInput', 'sklad can clear active search with keyboard'],
+  ['src/sklad-app.js', "e.key==='Escape' && clearSearchInput", 'sklad Escape shortcut clears active search first'],
+  ['src/sklad-app.js', "import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';", 'sklad uses typed operation-date helpers'],
+  ['src/sklad-app.js', "document.getElementById('issueDateI').value", 'sklad issue flow reads selected issue date'],
   ['sklad/index.html', 'id="refillDateI"', 'sklad refill form has receipt date input'],
-  ['sklad/index.html', "document.getElementById('refillDateI').value", 'sklad refill flow reads selected receipt date'],
+  ['src/sklad-app.js', "document.getElementById('refillDateI').value", 'sklad refill flow reads selected receipt date'],
   ['sklad/index.html', 'id="editReceiptDate"', 'sklad receipt edit modal has date input'],
   ['sklad/index.html', 'id="editLogDate"', 'sklad issue edit modal has date input'],
-  ['sklad/index.html', 'function dateToInputValue', 'sklad can format dates for date inputs'],
+  ['src/sklad-dates.ts', 'export function dateToInputValue', 'sklad can format dates for date inputs'],
 
   ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
   ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
@@ -163,7 +176,11 @@ for (const file of allFiles) {
 }
 
 for (const [file, needle, label] of checks) {
-  const text = file === 'shell' ? readShellCombined() : readFileSync(file, 'utf8');
+  const text = file === 'shell'
+    ? readShellCombined()
+    : file === 'osbb/index.html'
+      ? readOsbbCombined()
+      : readFileSync(file, 'utf8');
   if (text.includes(needle)) {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -391,7 +408,9 @@ for (const [file, needle, label] of checks) {
 // Вбудовані модулі покладаються на PIN shell-оболонки, а при прямому відкритті
 // й далі самостійно перевіряють TTL. Це запобігає повторному PIN після idle-lock.
 for (const file of ['osbb/index.html', 'sklad/index.html']) {
-  const text = readFileSync(file, 'utf8');
+  const text = file === 'sklad/index.html'
+    ? readSkladCombined()
+    : readOsbbCombined();
   const label = `${file} auth session respects TTL`;
   const required = [
     'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
@@ -1732,7 +1751,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal theme toggle should avoid colored emoji glyphs and use the compact
 // monochrome control style matching Sklad more closely.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
     'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span>',
@@ -1754,7 +1773,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Garbage dashboard chart should load the full selected year from Supabase, not
 // only whatever months happen to exist in localStorage.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal garbage chart fetches yearly cloud data';
   const required = [
     'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
@@ -1828,7 +1847,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 
 // Placeholder-only search fields need stable accessible names.
 {
-  const sklad = readFileSync('sklad/index.html', 'utf8');
+  const sklad = readSkladCombined();
   const label = 'search fields expose aria-labels';
   const required = [
     [sklad, 'id="searchInp" aria-label="Пошук складських найменувань"'],
@@ -1983,7 +2002,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 
 // Chart/stat renderers should escape labels that can come from stored data.
 {
-  const sklad = readFileSync('sklad/index.html', 'utf8');
+  const sklad = readSkladCombined();
   const label = 'dashboard stat labels escape stored text';
   const required = [
     [sklad, "const safeCat=escapeHtml(cat||'—');"],
@@ -2301,8 +2320,8 @@ ${sharedSelectText}`;
 // pass them through the same http(s)-only URL sanitizer before writing src/data
 // attributes or lightbox lists.
 {
-  const osbb = readFileSync('osbb/index.html', 'utf8');
-  const sklad = readFileSync('sklad/index.html', 'utf8');
+  const osbb = readOsbbCombined();
+  const sklad = readSkladCombined();
   const label = 'photo renderers sanitize image URLs';
   const required = [
     [osbb, 'const safeUrl = safeExternalUrl(p.url);'],
@@ -2644,7 +2663,7 @@ ${sharedSelectText}`;
 // Existing inventory items expose the same safe metadata editor from both
 // desktop and mobile menus without changing stock or movement history.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad inventory items can edit validated metadata';
   const required = [
     'id="editItemModal" data-modal-backdrop="editItemModal"',
@@ -2741,7 +2760,7 @@ ${sharedSelectText}`;
 // Основні порожні списки використовують єдиний M3 empty state, а назви та
 // підказки проходять escapeHtml перед вставкою в DOM.
 {
-  const text = readFileSync('sklad/index.html', 'utf8');
+  const text = readSkladCombined();
   const label = 'sklad list empty states use safe Material 3 structure';
   const required = [
     "const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history'])",
@@ -2861,7 +2880,7 @@ ${sharedSelectText}`;
 
 // Графік змін працює як нативна M3-вкладка Журналу на спільному Supabase.
 {
-  const html = readFileSync('osbb/index.html', 'utf8');
+  const html = readOsbbCombined();
   const css = readFileSync('osbb/styles.css', 'utf8');
   const migration = readFileSync('sklad/supabase/011_add_work_shifts.sql', 'utf8');
   const fixMigration = readFileSync('sklad/supabase/012_fix_work_shifts_month_key.sql', 'utf8');
@@ -2965,7 +2984,7 @@ ${sharedSelectText}`;
 // Головний фільтр працівників використовує кастомний M3 listbox замість
 // нативного меню браузера з гострими кутами; reset синхронізує його підпис.
 {
-  const html = readFileSync('osbb/index.html', 'utf8');
+  const html = readOsbbCombined();
   const css = readFileSync('osbb/styles.css', 'utf8');
   const label = 'dispatcher worker filter uses rounded Material 3 listbox';
   const required = [
@@ -3033,7 +3052,7 @@ ${sharedSelectText}`;
 // Диспетчер може повторно відкрити помилково закриту заявку, очистивши
 // застарілі ознаки виконання та синхронізувавши зміну звичайним save-потоком.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'dispatcher can reopen an accidentally closed ticket';
   const required = [
     'function dispReopenTicket(d, ticketId)',
@@ -3160,9 +3179,10 @@ ${sharedSelectText}`;
     'Одиниць на складі',
     'id="st-value"',
     'Орієнтовна вартість',
-    "const available=allItems.filter(item=>Number(item.quantity)>0).length",
-    "const units=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0),0)",
-    "const value=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0)*priceValue(item),0)",
+    'const stats=calculateInventoryHeaderStats(allItems)',
+    'stats.availableItems',
+    'stats.totalUnits',
+    'stats.estimatedValue',
     '.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -3264,7 +3284,7 @@ ${sharedSelectText}`;
 // Табель має desktop-календар із сімома колонками, а на вузьких екранах
 // перемикається на вертикальні day cards без горизонтального свайпу.
 {
-  const html = readFileSync('osbb/index.html', 'utf8');
+  const html = readOsbbCombined();
   const css = readFileSync('osbb/styles.css', 'utf8');
   const label = 'attendance uses a responsive Material 3 calendar';
   const required = [
@@ -3393,7 +3413,7 @@ ${sharedSelectText}`;
 // Стан підтвердження видалення не оголошується top-level lexical binding:
 // iframe може повторно виконати inline-скрипт під час відновлення вкладки.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal ticket delete state survives repeated iframe script execution';
   const required = [
     'window.osbbTicketDeleteState = window.osbbTicketDeleteState ||',
