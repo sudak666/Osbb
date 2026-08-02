@@ -24,7 +24,11 @@ function readSkladCombined() {
 
 // Same story for osbb/index.html's extracted <style> block -> osbb/styles.css.
 function readOsbbCombined() {
-  return readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('osbb/styles.css', 'utf8') + SHARED_JS_CSS;
+  return [
+    'osbb/index.html',
+    'osbb/styles.css',
+    'src/osbb-app.js',
+  ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
 
 function readShellCombined() {
@@ -172,7 +176,11 @@ for (const file of allFiles) {
 }
 
 for (const [file, needle, label] of checks) {
-  const text = file === 'shell' ? readShellCombined() : readFileSync(file, 'utf8');
+  const text = file === 'shell'
+    ? readShellCombined()
+    : file === 'osbb/index.html'
+      ? readOsbbCombined()
+      : readFileSync(file, 'utf8');
   if (text.includes(needle)) {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -400,7 +408,9 @@ for (const [file, needle, label] of checks) {
 // Вбудовані модулі покладаються на PIN shell-оболонки, а при прямому відкритті
 // й далі самостійно перевіряють TTL. Це запобігає повторному PIN після idle-lock.
 for (const file of ['osbb/index.html', 'sklad/index.html']) {
-  const text = file === 'sklad/index.html' ? readSkladCombined() : readFileSync(file, 'utf8');
+  const text = file === 'sklad/index.html'
+    ? readSkladCombined()
+    : readOsbbCombined();
   const label = `${file} auth session respects TTL`;
   const required = [
     'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
@@ -1741,7 +1751,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Journal theme toggle should avoid colored emoji glyphs and use the compact
 // monochrome control style matching Sklad more closely.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
     'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span>',
@@ -1763,7 +1773,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
 // Garbage dashboard chart should load the full selected year from Supabase, not
 // only whatever months happen to exist in localStorage.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal garbage chart fetches yearly cloud data';
   const required = [
     'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
@@ -2310,7 +2320,7 @@ ${sharedSelectText}`;
 // pass them through the same http(s)-only URL sanitizer before writing src/data
 // attributes or lightbox lists.
 {
-  const osbb = readFileSync('osbb/index.html', 'utf8');
+  const osbb = readOsbbCombined();
   const sklad = readSkladCombined();
   const label = 'photo renderers sanitize image URLs';
   const required = [
@@ -2870,7 +2880,7 @@ ${sharedSelectText}`;
 
 // Графік змін працює як нативна M3-вкладка Журналу на спільному Supabase.
 {
-  const html = readFileSync('osbb/index.html', 'utf8');
+  const html = readOsbbCombined();
   const css = readFileSync('osbb/styles.css', 'utf8');
   const migration = readFileSync('sklad/supabase/011_add_work_shifts.sql', 'utf8');
   const fixMigration = readFileSync('sklad/supabase/012_fix_work_shifts_month_key.sql', 'utf8');
@@ -2974,7 +2984,7 @@ ${sharedSelectText}`;
 // Головний фільтр працівників використовує кастомний M3 listbox замість
 // нативного меню браузера з гострими кутами; reset синхронізує його підпис.
 {
-  const html = readFileSync('osbb/index.html', 'utf8');
+  const html = readOsbbCombined();
   const css = readFileSync('osbb/styles.css', 'utf8');
   const label = 'dispatcher worker filter uses rounded Material 3 listbox';
   const required = [
@@ -3042,7 +3052,7 @@ ${sharedSelectText}`;
 // Диспетчер може повторно відкрити помилково закриту заявку, очистивши
 // застарілі ознаки виконання та синхронізувавши зміну звичайним save-потоком.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'dispatcher can reopen an accidentally closed ticket';
   const required = [
     'function dispReopenTicket(d, ticketId)',
@@ -3274,7 +3284,7 @@ ${sharedSelectText}`;
 // Табель має desktop-календар із сімома колонками, а на вузьких екранах
 // перемикається на вертикальні day cards без горизонтального свайпу.
 {
-  const html = readFileSync('osbb/index.html', 'utf8');
+  const html = readOsbbCombined();
   const css = readFileSync('osbb/styles.css', 'utf8');
   const label = 'attendance uses a responsive Material 3 calendar';
   const required = [
@@ -3403,7 +3413,7 @@ ${sharedSelectText}`;
 // Стан підтвердження видалення не оголошується top-level lexical binding:
 // iframe може повторно виконати inline-скрипт під час відновлення вкладки.
 {
-  const text = readFileSync('osbb/index.html', 'utf8');
+  const text = readOsbbCombined();
   const label = 'journal ticket delete state survives repeated iframe script execution';
   const required = [
     'window.osbbTicketDeleteState = window.osbbTicketDeleteState ||',
