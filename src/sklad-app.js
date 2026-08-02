@@ -1,4 +1,11 @@
 import { normalizeSearchText, valuesMatchSearch } from './sklad-domain.js';
+import {
+  formatMoney as money,
+  isPurchasePriceSchemaError,
+  itemPriceValue as priceValue,
+  itemStockValue as stockValue,
+  parseOptionalPrice as optionalPrice,
+} from './sklad-pricing.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -13,26 +20,9 @@ Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Майно та матеріали'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
-function money(v){
-  const n=Number(v);
-  if(!isFinite(n)||n<=0) return '—';
-  return new Intl.NumberFormat('uk-UA',{style:'currency',currency:'UAH',maximumFractionDigits:n>=100?0:2}).format(n);
-}
-function optionalPrice(value){
-  const raw=String(value??'').trim().replace(',','.');
-  if(!raw) return null;
-  const price=Number(raw);
-  return Number.isFinite(price)&&price>0?Math.round(price*100)/100:NaN;
-}
-function isPurchasePriceSchemaError(error){
-  const message=String(error?.message||'').toLowerCase();
-  return message.includes('purchase_price_unit')||message.includes('p_price_unit')||message.includes('receive_item');
-}
 function showPurchasePriceMigrationNotice(){
   console.info('Історія закупівельних цін стане доступною після міграції 009.');
 }
-function priceValue(item){const n=Number(item?.price_unit);return isFinite(n)&&n>0?n:0;}
-function stockValue(item){return priceValue(item)*Number(item?.quantity||0);}
 function priceBadge(item){
   const id=escapeHtml(String(item?.id||''));
   const price=priceValue(item);
