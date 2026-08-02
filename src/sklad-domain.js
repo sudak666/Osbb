@@ -10,7 +10,8 @@ export function normalizeSearchText(value) {
 export function valuesMatchSearch(values, query) {
     const normalizedQuery = normalizeSearchText(query);
     if (!normalizedQuery) return true;
-    return values.some((value) => normalizeSearchText(value).includes(normalizedQuery));
+    const searchableText = normalizeSearchText(values.filter(Boolean).join(' '));
+    return normalizedQuery.split(' ').every((part) => searchableText.includes(part));
 }
 
 export function isInternalItem(item) {
@@ -45,7 +46,7 @@ export function filterInventoryItems(items, options = {}) {
         if (options.onlyInternal && !isInternalItem(item)) return false;
         if (options.hideInternal && isInternalItem(item)) return false;
         if (category && item.category !== category) return false;
-        return valuesMatchSearch([item.name, item.category, item.unit], query);
+        return valuesMatchSearch([item.name, item.category, item.unit, item.price_source], query);
     });
     return sortItemsByCategoryName(filtered);
 }

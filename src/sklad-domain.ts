@@ -1,7 +1,15 @@
 import type { PublicTableRow } from './database.types.ts';
 
 export type InventoryItem = Pick<PublicTableRow<'inventory_items'>,
-    'id' | 'name' | 'category' | 'quantity' | 'unit' | 'min_quantity' | 'is_internal' | 'price_unit'
+    | 'id'
+    | 'name'
+    | 'category'
+    | 'quantity'
+    | 'unit'
+    | 'min_quantity'
+    | 'is_internal'
+    | 'price_unit'
+    | 'price_source'
 >;
 
 export interface InventoryFilterOptions {
@@ -33,7 +41,8 @@ export function normalizeSearchText(value: unknown): string {
 export function valuesMatchSearch(values: unknown[], query: string): boolean {
     const normalizedQuery = normalizeSearchText(query);
     if (!normalizedQuery) return true;
-    return values.some((value) => normalizeSearchText(value).includes(normalizedQuery));
+    const searchableText = normalizeSearchText(values.filter(Boolean).join(' '));
+    return normalizedQuery.split(' ').every((part) => searchableText.includes(part));
 }
 
 export function isInternalItem(item: Pick<InventoryItem, 'is_internal'>): boolean {
@@ -71,7 +80,7 @@ export function filterInventoryItems<T extends InventoryItem>(
         if (options.onlyInternal && !isInternalItem(item)) return false;
         if (options.hideInternal && isInternalItem(item)) return false;
         if (category && item.category !== category) return false;
-        return valuesMatchSearch([item.name, item.category, item.unit], query);
+        return valuesMatchSearch([item.name, item.category, item.unit, item.price_source], query);
     });
     return sortItemsByCategoryName(filtered);
 }
