@@ -105,7 +105,7 @@ const checks = [
   ['src/sklad-app.js', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
   ['sklad/index.html', 'return true;', 'sklad issueItem reports success to callers'],
   ['sklad/index.html', '<script type="module" src="../src/sklad-app.js"></script>', 'sklad loads extracted module runtime'],
-  ['src/sklad-app.js', "import { normalizeSearchText, valuesMatchSearch } from './sklad-domain.js';", 'sklad uses typed domain search helpers'],
+  ['src/sklad-app.js', 'filterSkladItems,', 'sklad uses typed domain filters'],
   ['src/sklad-app.js', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
   ['sklad/index.html', 'id="itemsResultSummary"', 'sklad shows item result summary'],
   ['src/sklad-app.js', 'function updateItemsResultSummary', 'sklad updates item result summary'],
@@ -3169,9 +3169,10 @@ ${sharedSelectText}`;
     'Одиниць на складі',
     'id="st-value"',
     'Орієнтовна вартість',
-    "const available=allItems.filter(item=>Number(item.quantity)>0).length",
-    "const units=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0),0)",
-    "const value=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0)*priceValue(item),0)",
+    'const stats=calculateInventoryHeaderStats(allItems)',
+    'stats.availableItems',
+    'stats.totalUnits',
+    'stats.estimatedValue',
     '.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));}',
   ];
   const missing = required.filter(needle => !text.includes(needle));

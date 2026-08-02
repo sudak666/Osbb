@@ -3,8 +3,11 @@ import assert from 'node:assert/strict';
 
 import {
   calculateInventoryStats,
+  calculateInventoryHeaderStats,
   estimatedItemValue,
+  filterInventoryByValue,
   filterInventoryItems,
+  filterSkladItems,
   isLowStockItem,
   normalizeSearchText,
   valuesMatchSearch,
@@ -31,6 +34,19 @@ test('filterInventoryItems combines internal-use flags, category and text search
   assert.deepEqual(filterInventoryItems(items, { query: 'постачальник' }).map((item) => item.id), [1]);
 });
 
+test('filterSkladItems preserves UI order and combines stock filters', () => {
+  assert.deepEqual(filterSkladItems(items, { stock: 'low' }).map((item) => item.id), [1, 3]);
+  assert.deepEqual(filterSkladItems(items, { stock: 'ok', hideInternal: true }).map((item) => item.id), [2, 4]);
+  assert.deepEqual(filterSkladItems(items, { inStockOnly: true, onlyInternal: true }).map((item) => item.id), [3]);
+  assert.deepEqual(filterSkladItems(items, { query: 'електрика led' }).map((item) => item.id), [1]);
+});
+
+test('filterInventoryByValue combines balance, quantity and price filters', () => {
+  assert.deepEqual(filterInventoryByValue(items, { internal: 'balance', price: 'priced' }).map((item) => item.id), [1, 4]);
+  assert.deepEqual(filterInventoryByValue(items, { internal: 'internal' }).map((item) => item.id), [3]);
+  assert.deepEqual(filterInventoryByValue(items, { stock: 'normal', price: 'unpriced' }).map((item) => item.id), [2]);
+});
+
 test('low-stock logic excludes internal items and missing minimums', () => {
   assert.equal(isLowStockItem(items[0]), true);
   assert.equal(isLowStockItem(items[2]), false);
@@ -52,5 +68,13 @@ test('calculateInventoryStats summarizes quantity, value, categories and low sto
     totalQuantity: 17.56,
     estimatedValue: 15377.65,
     categories: ['Електрика', 'Оргтехніка', 'Прибирання'],
+  });
+});
+
+test('calculateInventoryHeaderStats matches header card semantics', () => {
+  assert.deepEqual(calculateInventoryHeaderStats(items), {
+    availableItems: 4,
+    totalUnits: 17.555,
+    estimatedValue: 15377.65,
   });
 });

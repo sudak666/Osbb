@@ -1,4 +1,10 @@
-import { normalizeSearchText, valuesMatchSearch } from './sklad-domain.js';
+import {
+  calculateInventoryHeaderStats,
+  filterInventoryByValue,
+  filterSkladItems,
+  normalizeSearchText,
+  valuesMatchSearch,
+} from './sklad-domain.js';
 import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';
 import {
   formatMoney as money,
@@ -1092,15 +1098,14 @@ function updateItemsResultSummary(count,total,query){
 }
 function renderItems(){
   const s=document.getElementById('searchInp').value;
-  let items=allItems;
-  if(curCat) items=items.filter(i=>i.category===curCat);
-  if(stockFilter==='zero') items=items.filter(i=>i.quantity==0);
-  else if(stockFilter==='low') items=items.filter(i=>i.quantity>0&&i.quantity<=3);
-  else if(stockFilter==='ok') items=items.filter(i=>i.quantity>3);
-  if(inStockOnly) items=items.filter(i=>i.quantity>0);
-  if(hideInternal) items=items.filter(i=>!i.is_internal);
-  else if(onlyInternal) items=items.filter(i=>i.is_internal);
-  if(s) items=items.filter(i=>itemMatchesSearch(i,s));
+  const items=filterSkladItems(allItems,{
+    query:s,
+    category:curCat,
+    stock:stockFilter,
+    inStockOnly,
+    hideInternal,
+    onlyInternal
+  });
   updateItemsResultSummary(items.length,allItems.length,s);
 
   // Desktop table
@@ -1196,13 +1201,11 @@ function renderItems(){
 }
 
 function updateStats(){
-  const available=allItems.filter(item=>Number(item.quantity)>0).length;
-  const units=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0),0);
-  const value=allItems.reduce((sum,item)=>sum+Math.max(0,Number(item.quantity)||0)*priceValue(item),0);
-  animateNumber(document.getElementById('st-available'),available);
-  animateNumber(document.getElementById('st-units'),units);
+  const stats=calculateInventoryHeaderStats(allItems);
+  animateNumber(document.getElementById('st-available'),stats.availableItems);
+  animateNumber(document.getElementById('st-units'),stats.totalUnits);
   const valueElement=document.getElementById('st-value');
-  if(valueElement) valueElement.textContent=value>0?money(value):'0 грн';
+  if(valueElement) valueElement.textContent=stats.estimatedValue>0?money(stats.estimatedValue):'0 грн';
 }
 
 // ===== QUICK MODAL =====
@@ -1955,18 +1958,7 @@ function getValueFilteredItems(){
   const stock=document.getElementById('valueStockFilter')?.value||'all';
   const internal=document.getElementById('valueInternalFilter')?.value||'balance';
   const price=document.getElementById('valuePriceFilter')?.value||'all';
-  return allItems.filter(i=>{
-    if(cat && i.category!==cat) return false;
-    if(internal==='balance' && i.is_internal) return false;
-    if(internal==='internal' && !i.is_internal) return false;
-    if(stock==='positive' && Number(i.quantity||0)<=0) return false;
-    if(stock==='low' && Number(i.quantity||0)>3) return false;
-    if(stock==='zero' && Number(i.quantity||0)!==0) return false;
-    if(stock==='normal' && Number(i.quantity||0)<=3) return false;
-    if(price==='priced' && !priceValue(i)) return false;
-    if(price==='unpriced' && priceValue(i)) return false;
-    return true;
-  });
+  return filterInventoryByValue(allItems,{category:cat,stock,internal,price});
 }
 function renderStats(){
   syncValueFilterOptions();
