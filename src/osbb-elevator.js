@@ -16,6 +16,22 @@ export function createElevatorEntry(day, text, createdBy, options = {}) {
     };
 }
 
+export function elevatorEntriesFromResponse(value) {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        if (typeof entry.id !== 'string' || !entry.id || !Number.isInteger(entry.day) || entry.day < 1 || entry.day > 31) return [];
+        if (typeof entry.text !== 'string' || !entry.text.trim()) return [];
+        return [{
+            id: entry.id,
+            day: entry.day,
+            text: entry.text.trim(),
+            createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : '',
+            createdBy: typeof entry.createdBy === 'string' ? entry.createdBy : '',
+        }];
+    });
+}
+
 export function removeElevatorEntry(entries, id) {
     return entries.filter((entry) => entry.id !== id);
 }

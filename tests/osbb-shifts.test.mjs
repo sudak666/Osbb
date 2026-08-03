@@ -7,7 +7,20 @@ import {
   shiftErrorMessage,
   shiftIsWorking,
   shiftTypeDescription,
+  workShiftRowsFromResponse,
 } from '../src/osbb-shifts.js';
+
+test('workShiftRowsFromResponse індексує лише валідні зміни', () => {
+  assert.deepEqual(workShiftRowsFromResponse([
+    { shift_date: '2026-08-03', sergiy: ['day', 'invalid'], oleksandr: ['rest'] },
+    { shift_date: '03.08.2026', sergiy: ['night'], oleksandr: [] },
+    { shift_date: '2026-02-31', sergiy: ['night'], oleksandr: [] },
+    null,
+  ]), {
+    '2026-08-03': { shift_date: '2026-08-03', sergiy: ['day'], oleksandr: ['rest'] },
+  });
+  assert.deepEqual(workShiftRowsFromResponse(null), {});
+});
 
 test('shift helpers format keys and describe combinations', () => {
   assert.equal(shiftDateKey(2026, 0, 5), '2026-01-05');
