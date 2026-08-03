@@ -1,7 +1,20 @@
+function isDispatcherTicket(value) {
+    return typeof value === 'object' && value !== null && !Array.isArray(value) && typeof value.id === 'string';
+}
+
 export function normalizeDispatcherDay(row) {
     if (typeof row !== 'object' || row === null) return { ticketsList: [] };
-    const ticketsList = 'ticketsList' in row && Array.isArray(row.ticketsList) ? row.ticketsList : [];
+    const source = 'ticketsList' in row && Array.isArray(row.ticketsList) ? row.ticketsList : [];
+    const ticketsList = source.every(isDispatcherTicket) ? source : source.filter(isDispatcherTicket);
     return { ticketsList };
+}
+
+export function normalizeDispatcherMonth(value) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).flatMap(([day, row]) => {
+        if (!/^\d{1,2}$/.test(day)) return [];
+        return [[day, normalizeDispatcherDay(row)]];
+    }));
 }
 
 export function closeDispatcherTicket(ticket, comment, closedBy, now = new Date()) {
