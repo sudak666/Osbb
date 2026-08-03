@@ -15,6 +15,7 @@ import {
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
+import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -731,9 +732,9 @@ function setSupplierPreset(button){
   input.dispatchEvent(new Event('input',{bubbles:true}));
 }
 function syncSupplierTags(targetId,value){
-  const normalized=String(value||'').trim().toLocaleLowerCase('uk-UA');
+  const normalized=supplierTagKey(value);
   document.querySelectorAll(`[data-supplier-target="${targetId}"]`).forEach(tag=>{
-    const selected=String(tag.dataset.supplierPreset||'').toLocaleLowerCase('uk-UA')===normalized;
+    const selected=supplierTagKey(tag.dataset.supplierPreset)===normalized;
     tag.classList.toggle('active',selected);
     tag.setAttribute('aria-pressed',String(selected));
   });
@@ -741,8 +742,8 @@ function syncSupplierTags(targetId,value){
 function loadCustomSupplierTags(){
   try{
     const parsed=JSON.parse(localStorage.getItem(SUPPLIER_TAGS_STORAGE_KEY)||'[]');
-    const local=Array.isArray(parsed)?parsed.filter(tag=>typeof tag==='string'&&tag.trim()):[];
-    return [...new Set([...cloudSupplierTags,...local])].slice(0,12);
+    const local=Array.isArray(parsed)?parsed:[];
+    return mergeSupplierTags([cloudSupplierTags,local]);
   }catch(error){
     console.warn('supplier tags load failed',error);
     return [];
@@ -758,9 +759,8 @@ async function loadSupplierTagsCloud(){
   }
   supplierTagsCloudAvailable=true;
   const localTags=loadCustomSupplierTags();
-  const remoteTags=(data||[]).map(row=>String(row.name||'').trim()).filter(Boolean);
-  const remoteNormalized=new Set(remoteTags.map(tag=>tag.toLocaleLowerCase('uk-UA')));
-  const missingRemote=localTags.filter(tag=>!remoteNormalized.has(tag.toLocaleLowerCase('uk-UA')));
+  const remoteTags=mergeSupplierTags([(data||[]).map(row=>row.name)],50);
+  const missingRemote=localTags.filter(tag=>!hasSupplierTag(remoteTags,tag));
   if(missingRemote.length){
     const {error:syncError}=await db.from('inventory_supplier_tags').insert(missingRemote.map(name=>({name})));
     if(syncError) console.warn('supplier tags cloud merge failed',syncError);
@@ -812,12 +812,12 @@ function renderCustomSupplierTags(){
 }
 async function addCustomSupplierTag(){
   const input=document.getElementById('newSupplierTag');
-  const tag=String(input?.value||'').trim().replace(/\s+/g,' ');
+  const tag=normalizeSupplierTag(input?.value);
   if(!tag) return toast('Введіть назву постачальника','error');
   const tags=loadCustomSupplierTags();
-  const known=[...document.querySelectorAll('[data-supplier-preset]')].map(button=>String(button.dataset.supplierPreset||'').toLocaleLowerCase('uk-UA'));
-  if(known.includes(tag.toLocaleLowerCase('uk-UA'))) return toast('Такий тег уже є','info');
-  if(tags.length>=12) return toast('Можна зберегти до 12 власних тегів','info');
+  const known=[...document.querySelectorAll('[data-supplier-preset]')].map(button=>button.dataset.supplierPreset);
+  if(hasSupplierTag(known,tag)) return toast('Такий тег уже є','info');
+  if(tags.length>=MAX_SUPPLIER_TAGS) return toast(`Можна зберегти до ${MAX_SUPPLIER_TAGS} власних тегів`,'info');
   if(!saveCustomSupplierTags([...tags,tag])) return;
   if(supplierTagsCloudAvailable){
     const {error}=await db.from('inventory_supplier_tags').insert([{name:tag}]);
