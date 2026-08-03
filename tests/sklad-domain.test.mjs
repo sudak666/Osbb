@@ -3,23 +3,27 @@ import assert from 'node:assert/strict';
 
 import {
   calculateInventoryStats,
+  calculateInventoryHeaderStats,
   estimatedItemValue,
+  filterInventoryByValue,
   filterInventoryItems,
+  filterSkladItems,
   isLowStockItem,
   normalizeSearchText,
   valuesMatchSearch,
 } from '../src/sklad-domain.js';
 
 const items = [
-  { id: 1, name: 'Лампа LED', category: 'Електрика', quantity: 2, unit: 'шт', min_quantity: 3, is_internal: false, price_unit: 120.5 },
-  { id: 2, name: 'Віник', category: 'Прибирання', quantity: 10, unit: 'шт', min_quantity: 2, is_internal: false, price_unit: null },
-  { id: 3, name: 'Ноутбук офісний', category: 'Оргтехніка', quantity: 1, unit: 'шт', min_quantity: 5, is_internal: true, price_unit: 15000 },
-  { id: 4, name: 'Кабель HDMI', category: 'Електрика', quantity: 4.555, unit: 'м', min_quantity: null, is_internal: false, price_unit: 30 },
+  { id: 1, name: 'Лампа LED', category: 'Електрика', quantity: 2, unit: 'шт', min_quantity: 3, is_internal: false, price_unit: 120.5, price_source: 'Постачальник' },
+  { id: 2, name: 'Віник', category: 'Прибирання', quantity: 10, unit: 'шт', min_quantity: 2, is_internal: false, price_unit: null, price_source: null },
+  { id: 3, name: 'Ноутбук офісний', category: 'Оргтехніка', quantity: 1, unit: 'шт', min_quantity: 5, is_internal: true, price_unit: 15000, price_source: null },
+  { id: 4, name: 'Кабель HDMI', category: 'Електрика', quantity: 4.555, unit: 'м', min_quantity: null, is_internal: false, price_unit: 30, price_source: null },
 ];
 
 test('normalizeSearchText collapses whitespace and handles Ukrainian case-insensitive search', () => {
   assert.equal(normalizeSearchText('  ЛАМПА   Led  '), 'лампа led');
   assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'лампа'), true);
+  assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'електрика led'), true);
   assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'сантехніка'), false);
 });
 
@@ -27,6 +31,20 @@ test('filterInventoryItems combines internal-use flags, category and text search
   assert.deepEqual(filterInventoryItems(items, { hideInternal: true }).map((item) => item.id), [4, 1, 2]);
   assert.deepEqual(filterInventoryItems(items, { onlyInternal: true }).map((item) => item.id), [3]);
   assert.deepEqual(filterInventoryItems(items, { category: 'Електрика', query: 'кабель' }).map((item) => item.id), [4]);
+  assert.deepEqual(filterInventoryItems(items, { query: 'постачальник' }).map((item) => item.id), [1]);
+});
+
+test('filterSkladItems preserves UI order and combines stock filters', () => {
+  assert.deepEqual(filterSkladItems(items, { stock: 'low' }).map((item) => item.id), [1, 3]);
+  assert.deepEqual(filterSkladItems(items, { stock: 'ok', hideInternal: true }).map((item) => item.id), [2, 4]);
+  assert.deepEqual(filterSkladItems(items, { inStockOnly: true, onlyInternal: true }).map((item) => item.id), [3]);
+  assert.deepEqual(filterSkladItems(items, { query: 'електрика led' }).map((item) => item.id), [1]);
+});
+
+test('filterInventoryByValue combines balance, quantity and price filters', () => {
+  assert.deepEqual(filterInventoryByValue(items, { internal: 'balance', price: 'priced' }).map((item) => item.id), [1, 4]);
+  assert.deepEqual(filterInventoryByValue(items, { internal: 'internal' }).map((item) => item.id), [3]);
+  assert.deepEqual(filterInventoryByValue(items, { stock: 'normal', price: 'unpriced' }).map((item) => item.id), [2]);
 });
 
 test('low-stock logic excludes internal items and missing minimums', () => {
@@ -50,5 +68,13 @@ test('calculateInventoryStats summarizes quantity, value, categories and low sto
     totalQuantity: 17.56,
     estimatedValue: 15377.65,
     categories: ['Електрика', 'Оргтехніка', 'Прибирання'],
+  });
+});
+
+test('calculateInventoryHeaderStats matches header card semantics', () => {
+  assert.deepEqual(calculateInventoryHeaderStats(items), {
+    availableItems: 4,
+    totalUnits: 17.555,
+    estimatedValue: 15377.65,
   });
 });
