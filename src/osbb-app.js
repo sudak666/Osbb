@@ -1,4 +1,5 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
+    import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import {
         attendanceCellState,
         attendanceDayState,
@@ -71,28 +72,9 @@
     // Якщо PIN вже введено на рівні shell-оболонки (спільний sessionStorage
     // в межах одного origin), повторно не питаємо.
     // ==========================================
-    const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
     let lockBuf = '';
     let lockBusy = false;
     let lockFails = 0;
-
-    function setAuthSession() {
-        sessionStorage.setItem('auth', 'ok');
-        sessionStorage.setItem('auth_at', String(Date.now()));
-    }
-    function clearAuthSession() {
-        sessionStorage.removeItem('auth');
-        sessionStorage.removeItem('auth_at');
-    }
-    function isAuthSessionValid() {
-        if (sessionStorage.getItem('auth') !== 'ok') return false;
-        const authAt = Number(sessionStorage.getItem('auth_at') || 0);
-        if (!authAt || Date.now() - authAt >= AUTH_TTL_MS) {
-            clearAuthSession();
-            return false;
-        }
-        return true;
-    }
 
     if (IS_EMBEDDED_SHELL || isAuthSessionValid()) {
         const lockScreen = document.getElementById('app-lock-screen');

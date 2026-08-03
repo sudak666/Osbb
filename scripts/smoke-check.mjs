@@ -29,6 +29,8 @@ function readOsbbCombined() {
     'osbb/styles.css',
     'src/osbb-app.js',
     'src/app-security.ts',
+    'src/auth-session.ts',
+    'src/shell-state.ts',
     'src/osbb-attendance.ts',
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
