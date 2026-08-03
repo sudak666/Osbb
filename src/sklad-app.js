@@ -17,6 +17,7 @@ import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sk
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
+import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse } from './sklad-state.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -344,7 +345,9 @@ async function loadItems(){
     toast('Товари не завантажились: '+error.message,'error');
     throw error;
   }
-  if(data){allItems=data;renderItems();updateStats();}
+  allItems=inventoryItemsFromResponse(data);
+  renderItems();
+  updateStats();
   markDataUpdated();
 }
 async function loadLogs(){
@@ -353,7 +356,8 @@ async function loadLogs(){
     toast('Журнал не завантажився: '+error.message,'error');
     throw error;
   }
-  if(data){allLogs=data;renderLog();}
+  allLogs=inventoryLogsFromResponse(data);
+  renderLog();
 }
 let allReceipts=[];
 async function loadReceipts(){
@@ -369,7 +373,7 @@ async function loadReceipts(){
     toast('Прихід: '+error.message,'error');
     return;
   }
-  allReceipts=data||[];
+  allReceipts=inventoryReceiptsFromResponse(data);
   renderReceipts();
 }
 async function refreshAll(){
