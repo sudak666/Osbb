@@ -3,6 +3,7 @@ import { strict as assert } from 'node:assert';
 
 const tokensCss = await readFile(new URL('../shared/material-tokens.css', import.meta.url), 'utf8');
 const journalHtml = await readFile(new URL('../osbb/index.html', import.meta.url), 'utf8');
+const journalRuntime = await readFile(new URL('../src/osbb-app.js', import.meta.url), 'utf8');
 const journalCss = await readFile(new URL('../osbb/styles.css', import.meta.url), 'utf8');
 const shellHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const skladHtml = await readFile(new URL('../sklad/index.html', import.meta.url), 'utf8');
@@ -61,7 +62,7 @@ for (const selector of ['.theme-light', '.theme-dark']) {
   }
 }
 
-const allHtml = [shellHtml, journalHtml, skladHtml].join('\n');
+const allHtml = [shellHtml, journalHtml, journalRuntime, skladHtml].join('\n');
 const allCss = [shellCss, journalCss, skladCss, sharedUiCss].join('\n');
 assert.doesNotMatch(`${skladHtml}\n${skladCss}`, /--ios-/, 'Склад ще використовує legacy iOS токени');
 // Перевіряємо лише реальне підключення MDI або CSS-класи MDI. Загальний пошук
