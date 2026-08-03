@@ -15,7 +15,7 @@ import {
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
-import { adjustedStockAfterMovementEdit, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
+import { adjustedStockAfterMovementEdit, buildIssuePayload, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -1219,14 +1219,17 @@ function openQuick(id){
   setTimeout(()=>document.getElementById('qmQtyI').focus(),100);
 }
 async function doQuickIssue(btn){
-  const qty=parseFloat(document.getElementById('qmQtyI').value);
-  const person=document.getElementById('qmPersonI').value.trim();
-  if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
-  if(!person) return toast('Вкажіть кому!','error');
+  const payload=buildIssuePayload({
+    itemId:quickId,
+    quantity:document.getElementById('qmQtyI').value,
+    person:document.getElementById('qmPersonI').value
+  });
+  if(!payload.ok) return toast(payload.error==='person'?'Вкажіть кому!':'Вкажіть кількість!','error');
   const done=setActionButtonLoading(btn,'Видаю...');
   if(!done) return;
   try{
-    const ok=await issueItem(quickId,qty,person,'');
+    const {itemId,quantity,person}=payload.value;
+    const ok=await issueItem(itemId,quantity,person,'');
     if(ok) closeModal('qModal');
   }finally{
     done();
@@ -1243,18 +1246,22 @@ function onIssueSel(){
   document.getElementById('issueInfoQty').textContent=item.quantity+' '+item.unit;
 }
 async function doIssue(btn){
-  const id=parseInt(document.getElementById('issueItemSel').value);
-  const qty=parseFloat(document.getElementById('issueQtyI').value);
-  const person=document.getElementById('issuePersonI').value.trim();
-  const note=document.getElementById('issueNoteI').value.trim();
-  const issueDate=document.getElementById('issueDateI').value;
-  if(!id) return toast('Оберіть товар!','error');
-  if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
-  if(!person) return toast('Вкажіть кому!','error');
+  const payload=buildIssuePayload({
+    itemId:document.getElementById('issueItemSel').value,
+    quantity:document.getElementById('issueQtyI').value,
+    person:document.getElementById('issuePersonI').value,
+    note:document.getElementById('issueNoteI').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('issueDateI').value)
+  });
+  if(!payload.ok){
+    const messages={item:'Оберіть товар!',quantity:'Вкажіть кількість!',person:'Вкажіть кому!'};
+    return toast(messages[payload.error]||'Перевірте дані видачі','error');
+  }
   const done=setActionButtonLoading(btn,'Видаю...');
   if(!done) return;
   try{
-    const ok=await issueItem(id,qty,person,note,issueDate);
+    const {itemId,quantity,person,note,occurredAt}=payload.value;
+    const ok=await issueItem(itemId,quantity,person,note,occurredAt);
     if(!ok) return;
     ['issueItemSel','issueQtyI','issuePersonI','issueNoteI'].forEach(k=>document.getElementById(k).value='');
     document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
@@ -1268,7 +1275,7 @@ async function doIssue(btn){
 async function issueItem(itemId,qty,person,note,issueDate){
   const item=allItems.find(i=>i.id===itemId);
   if(!item){toast('Товар не знайдено!','error');return false;}
-  const issuedAt=dateInputToTimestamp(issueDate);
+  const issuedAt=issueDate?.includes('T')?issueDate:dateInputToTimestamp(issueDate);
   // Атомарний RPC замість read-check-write з клієнта: перевірка залишку і
   // списання відбуваються однією транзакцією на сервері (issue_item),
   // тому паралельна видача того самого товару не може дати від'ємний залишок.
@@ -1597,15 +1604,19 @@ function onRefillSel(){
   document.getElementById('refillCur').textContent=item.quantity+' '+item.unit;
 }
 async function doRefill(btn){
-  const id=parseInt(document.getElementById('refillSel').value);
-  const qty=parseFloat(document.getElementById('refillQtyI').value);
-  const purchasePrice=optionalPrice(document.getElementById('refillPriceI').value);
-  const supplier=document.getElementById('refillSupplierI').value.trim();
-  const note=document.getElementById('refillNoteI').value.trim();
-  const receiptDate=document.getElementById('refillDateI').value;
-  if(!id) return toast('Оберіть товар!','error');
-  if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
-  if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
+  const payload=buildReceiptPayload({
+    itemId:document.getElementById('refillSel').value,
+    quantity:document.getElementById('refillQtyI').value,
+    purchasePrice:optionalPrice(document.getElementById('refillPriceI').value),
+    supplier:document.getElementById('refillSupplierI').value,
+    note:document.getElementById('refillNoteI').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('refillDateI').value)
+  });
+  if(!payload.ok){
+    const messages={item:'Оберіть товар!',quantity:'Вкажіть кількість!',price:'Вкажіть коректну ціну закупівлі'};
+    return toast(messages[payload.error]||'Перевірте дані приходу','error');
+  }
+  const {itemId:id,quantity:qty,purchasePrice,supplier,note,occurredAt:receivedAt}=payload.value;
   const item=findItemForAction(id,'прихід');
   if(!item) return;
   const done=setActionButtonLoading(btn,'Поповнюю...');
@@ -1613,7 +1624,6 @@ async function doRefill(btn){
   try{
   // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
-  const receivedAt=dateInputToTimestamp(receiptDate);
   let {data,error}=await db.rpc('receive_item',{
     p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
   });
