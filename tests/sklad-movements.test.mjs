@@ -3,9 +3,46 @@ import assert from 'node:assert/strict';
 
 import {
     adjustedStockAfterMovementEdit,
+    buildIssueEditPatch,
+    buildIssuePayload,
+    buildReceiptPayload,
+    buildReceiptEditPatch,
     filterInventoryLogs,
     filterInventoryReceipts,
 } from '../src/sklad-movements.js';
+
+test('buildIssuePayload нормалізує та перевіряє дані видачі', () => {
+    assert.deepEqual(buildIssuePayload({ itemId: '4', quantity: '2.5', person: ' Іван ', note: '  ', occurredAt: '2026-08-03T00:00:00Z' }), {
+        ok: true,
+        value: { itemId: 4, quantity: 2.5, person: 'Іван', note: null, occurredAt: '2026-08-03T00:00:00Z' },
+    });
+    assert.deepEqual(buildIssuePayload({ itemId: '', quantity: 1, person: 'Іван' }), { ok: false, error: 'item' });
+    assert.deepEqual(buildIssuePayload({ itemId: 1, quantity: 0, person: 'Іван' }), { ok: false, error: 'quantity' });
+    assert.deepEqual(buildIssuePayload({ itemId: 1, quantity: 1, person: ' ' }), { ok: false, error: 'person' });
+});
+
+test('buildReceiptPayload нормалізує та перевіряє дані приходу', () => {
+    assert.deepEqual(buildReceiptPayload({ itemId: 2, quantity: '3', purchasePrice: '12.50', supplier: ' Склад ', note: '' }), {
+        ok: true,
+        value: { itemId: 2, quantity: 3, purchasePrice: 12.5, supplier: 'Склад', note: null, occurredAt: null },
+    });
+    assert.equal(buildReceiptPayload({ itemId: 2, quantity: 3, purchasePrice: '' }).ok, true);
+    assert.deepEqual(buildReceiptPayload({ itemId: 2, quantity: 3, purchasePrice: -1 }), { ok: false, error: 'price' });
+    assert.deepEqual(buildReceiptPayload({ itemId: 2, quantity: Number.NaN, purchasePrice: null }), { ok: false, error: 'quantity' });
+});
+
+test('builders редагування формують готові patch-обʼєкти', () => {
+    assert.deepEqual(buildIssueEditPatch({ quantity: '0', person: ' Петро ', note: '', occurredAt: '2026-08-03T10:00:00Z' }), {
+        ok: true,
+        value: { quantity: 0, issued_to: 'Петро', note: null, issued_at: '2026-08-03T10:00:00Z' },
+    });
+    assert.deepEqual(buildReceiptEditPatch({ quantity: '4', purchasePrice: '', supplier: ' ', note: ' Накладна ' }), {
+        ok: true,
+        value: { quantity: 4, purchase_price_unit: null, supplier: null, note: 'Накладна' },
+    });
+    assert.deepEqual(buildIssueEditPatch({ quantity: -1 }), { ok: false, error: 'quantity' });
+    assert.deepEqual(buildReceiptEditPatch({ quantity: 1, purchasePrice: Number.NaN }), { ok: false, error: 'price' });
+});
 
 const items = [
     { id: 1, category: 'Електрика', unit: 'шт' },
