@@ -1,5 +1,6 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
+    import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
     import {
         attendanceCellState,
         attendanceDayState,
@@ -53,8 +54,6 @@
         ticketSortComparator,
     } from './osbb-tickets.js';
 
-    const SUPABASE_URL = 'https://vkwkyhjjjmcpmiakxohw.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9';
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
     // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
@@ -150,102 +149,7 @@
         }
     }
 
-    // Мінімальний Supabase REST клієнт
-    const db = {
-        _auth: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY },
-
-        async _fetch(method, url, headers = {}, body = undefined) {
-            const r = await fetch(url, {
-                method,
-                headers: { ...this._auth, ...headers },
-                body
-            });
-            if (!r.ok) {
-                const txt = await r.text();
-                throw new Error(`${r.status}: ${txt || r.statusText}`);
-            }
-            const txt = await r.text();
-            return txt ? JSON.parse(txt) : null;
-        },
-
-        async rpc(fn, params = {}) {
-            const url = SUPABASE_URL + '/rest/v1/rpc/' + fn;
-            return this._fetch('POST', url, { 'Content-Type': 'application/json' }, JSON.stringify(params));
-        },
-
-        storage: {
-            from(bucket) {
-                const base = SUPABASE_URL + '/storage/v1/object';
-                const auth = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
-                return {
-                    async upload(path, blob, opts = {}) {
-                        const r = await fetch(`${base}/${bucket}/${path}`, {
-                            method: 'POST',
-                            headers: { ...auth, 'Content-Type': opts.contentType || 'image/jpeg', 'x-upsert': 'true' },
-                            body: blob
-                        });
-                        if (!r.ok) throw new Error(await r.text());
-                        return {};
-                    },
-                    getPublicUrl(path) {
-                        return { data: { publicUrl: `${base}/public/${bucket}/${path}` } };
-                    },
-                    async remove(paths) {
-                        await fetch(`${base}/${bucket}`, {
-                            method: 'DELETE',
-                            headers: { ...auth, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ prefixes: paths })
-                        }).catch(() => {});
-                        return {};
-                    }
-                };
-            }
-        },
-
-        from(table) {
-            const self = this;
-            const s = { filters: [], method: 'GET', body: null, isSingle: false, cols: '*', isUpsert: false, preferReturn: 'representation' };
-            const q = {
-                select(c = '*')    { s.cols = c; return q; },
-                eq(col, val)       { s.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
-                order(col, opts)   { s.filters.push(`order=${col}.${opts?.ascending === false ? 'desc' : 'asc'}`); return q; },
-                limit(n)           { s.filters.push(`limit=${n}`); return q; },
-                single()           { s.isSingle = true; return q; },
-                insert(data)       { s.method = 'POST'; s.body = data; return q; },
-                upsert(data)       { s.method = 'POST'; s.body = data; s.isUpsert = true; return q; },
-                delete()           { s.method = 'DELETE'; return q; },
-
-                async then(resolve) {
-                    try {
-                        const params = [...s.filters];
-                        if (s.method === 'GET') params.push('select=' + s.cols);
-                        const url = SUPABASE_URL + '/rest/v1/' + table
-                            + (params.length ? '?' + params.join('&') : '');
-
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (s.isUpsert) {
-                            headers['Prefer'] = 'resolution=merge-duplicates,return=' + s.preferReturn;
-                        } else if (s.method === 'POST') {
-                            headers['Prefer'] = 'return=' + s.preferReturn;
-                        }
-
-                        const body = s.body ? JSON.stringify(s.body) : undefined;
-                        const arr = await self._fetch(s.method, url, headers, body);
-
-                        if (s.isSingle) {
-                            const row = Array.isArray(arr) ? (arr[0] ?? null) : null;
-                            resolve({ data: row, error: row ? null : { code: 'PGRST116' } });
-                        } else {
-                            resolve({ data: arr || [], error: null });
-                        }
-                    } catch(e) {
-                        resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message || String(e) } });
-                    }
-                }
-            };
-            return q;
-        }
-    };
+    const db = createSupabaseRestClient();
 
     // ==========================================
     // STAFF AUTH: персональний вхід поверх спільного PIN журналу.
