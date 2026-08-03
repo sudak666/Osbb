@@ -10,6 +10,7 @@ const fallbackPairs = [
   ['src/promin-api.ts', 'src/promin-api.js'],
   ['src/osbb-attendance.ts', 'src/osbb-attendance.js'],
   ['src/osbb-dispatcher.ts', 'src/osbb-dispatcher.js'],
+  ['src/osbb-elevator.ts', 'src/osbb-elevator.js'],
   ['src/osbb-garbage.ts', 'src/osbb-garbage.js'],
   ['src/osbb-shifts.ts', 'src/osbb-shifts.js'],
   ['src/osbb-staff.ts', 'src/osbb-staff.js'],

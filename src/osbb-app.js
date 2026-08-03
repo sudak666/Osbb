@@ -12,6 +12,11 @@
         reopenDispatcherTicket,
     } from './osbb-dispatcher.js';
     import {
+        createElevatorEntry,
+        removeElevatorEntry,
+        sortElevatorEntries,
+    } from './osbb-elevator.js';
+    import {
         garbageBins,
         garbageMonthKey,
         garbageMonthKeyCandidates,
@@ -3121,15 +3126,9 @@
     }
 
     function elevatorAdd(day, text) {
-        const trimmed = (text || '').trim();
-        if (!trimmed) { showToast('Опишіть, що зробив ліфтер'); return; }
-        elevatorData.push({
-            id: `e${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
-            day: Number(day) || 1,
-            text: trimmed,
-            createdAt: new Date().toISOString(),
-            createdBy: staffSession?.name || dispWorkerName
-        });
+        const entry = createElevatorEntry(day, text, staffSession?.name || dispWorkerName);
+        if (!entry) { showToast('Опишіть, що зробив ліфтер'); return; }
+        elevatorData.push(entry);
         elevatorSaveOffline();
         elevatorSaveCloud();
         elevatorRender();
@@ -3137,7 +3136,7 @@
     }
 
     function elevatorDelete(id) {
-        elevatorData = elevatorData.filter(e => e.id !== id);
+        elevatorData = removeElevatorEntry(elevatorData, id);
         elevatorSaveOffline();
         elevatorSaveCloud();
         elevatorRender();
@@ -3154,7 +3153,7 @@
         if (currentValue && Number(currentValue) <= daysInMonth) daySelect.value = currentValue;
         if (daySelect.dataset.enhanced) refreshEnhancedSelect(daySelect); else enhanceSelect(daySelect);
 
-        const sorted = [...elevatorData].sort((a, b) => a.day - b.day);
+        const sorted = sortElevatorEntries(elevatorData);
         list.innerHTML = sorted.length ? sorted.map(entry => `
             <div class="elevator-entry">
                 <span class="elevator-entry-day">${String(entry.day).padStart(2, '0')}</span>
