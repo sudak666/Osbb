@@ -17,6 +17,7 @@
         removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
+    import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photosFor, removePhoto } from './osbb-photos.js';
     import {
         garbageBins,
         garbageMonthKey,
@@ -1316,17 +1317,12 @@
         if (IS_PREVIEW) { photosCache = {}; return; }
         try {
             const { data } = await db.from('photos').select('id, url, day, role').eq('month_key', `${currentYear}-${currentMonth}`);
-            photosCache = {};
-            (data || []).forEach(p => {
-                const key = `${p.day}-${p.role}`;
-                if (!photosCache[key]) photosCache[key] = [];
-                photosCache[key].push({ id: p.id, url: p.url });
-            });
+            photosCache = buildPhotoCache(data || []);
         } catch { photosCache = {}; }
     }
 
     function getPhotosFromCache(day, role) {
-        return (photosCache || {})[`${day}-${role}`] || [];
+        return photosFor(photosCache, day, role);
     }
 
     function compressImage(file, maxWidth = 1200, quality = 0.82) {
@@ -1369,17 +1365,14 @@
             
             const realId = (insertData && insertData[0]) ? insertData[0].id : Date.now();
 
-            if (!photosCache) photosCache = {};
-            const key = `${day}-${role}`;
-            if (!photosCache[key]) photosCache[key] = [];
-            photosCache[key].push({ id: realId, url: urlData.publicUrl });
+            photosCache = appendPhoto(photosCache, day, role, { id: realId, url: urlData.publicUrl });
             setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add_photo_alternate</span>Фото збережено</span>');
             
             // Оновлюємо обидва інтерфейси одночасно
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
-            if (desktopCont) renderPhotoContainer(desktopCont, photosCache[key], day, role);
+            if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
             const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
-            if (mobileCont) renderPhotoContainer(mobileCont, photosCache[key], day, role, true);
+            if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
             if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
         } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка фото</span>'); }
     }
@@ -1396,10 +1389,7 @@
                 const path = url.split('/photos/')[1];
                 if (path) await db.storage.from('photos').remove([path]);
 
-                const key = `${day}-${role}`;
-                if (photosCache && photosCache[key]) {
-                    photosCache[key] = photosCache[key].filter(p => String(p.id) !== String(id));
-                }
+                photosCache = removePhoto(photosCache, day, role, id);
                 setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">hide_image</span>Фото видалено</span>');
 
                 const desktopCont = document.getElementById(`photos-${day}-${role}`);
@@ -1427,18 +1417,13 @@
     let lightboxIndex = 0;
     let lightboxFocusReturn = null;
 
-    function buildLightboxPhotos() {
-        lightboxPhotos = [];
-        if (!photosCache) return;
-        Object.values(photosCache).forEach(arr => arr.forEach(p => { const safeUrl = safeExternalUrl(p.url); if (safeUrl) lightboxPhotos.push(safeUrl); }));
-    }
-
     // Запобігаємо виходу лайтбоксу за межі наявних картинок
     function openLightbox(url) {
-        buildLightboxPhotos();
-        lightboxIndex = lightboxPhotos.indexOf(url);
-        if (lightboxIndex < 0) { lightboxPhotos = [url]; lightboxIndex = 0; }
-        document.getElementById('lightbox-img').src = url;
+        const state=createLightboxState(photosCache,url);
+        if(!state) return;
+        lightboxPhotos=state.photos;
+        lightboxIndex=state.index;
+        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
         const lightbox=document.getElementById('lightbox');
         lightboxFocusReturn = document.activeElement;
         lightbox.classList.add('open');
@@ -1454,12 +1439,12 @@
     // Виправлено: перемикання тепер працює стабільно по колу без застрягань
     function lightboxPrev() {
         if (!lightboxPhotos.length) return;
-        lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+        lightboxIndex = moveLightbox({photos:lightboxPhotos,index:lightboxIndex},-1).index;
         document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
     }
     function lightboxNext() {
         if (!lightboxPhotos.length) return;
-        lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+        lightboxIndex = moveLightbox({photos:lightboxPhotos,index:lightboxIndex},1).index;
         document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
     }
 

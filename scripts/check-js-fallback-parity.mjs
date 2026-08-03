@@ -12,6 +12,7 @@ const fallbackPairs = [
   ['src/osbb-dispatcher.ts', 'src/osbb-dispatcher.js'],
   ['src/osbb-elevator.ts', 'src/osbb-elevator.js'],
   ['src/osbb-garbage.ts', 'src/osbb-garbage.js'],
+  ['src/osbb-photos.ts', 'src/osbb-photos.js'],
   ['src/osbb-shifts.ts', 'src/osbb-shifts.js'],
   ['src/osbb-staff.ts', 'src/osbb-staff.js'],
   ['src/osbb-tickets.ts', 'src/osbb-tickets.js'],

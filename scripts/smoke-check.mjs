@@ -39,6 +39,7 @@ function readOsbbCombined() {
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
+    'src/osbb-photos.ts',
     'src/osbb-shifts.ts',
     'src/osbb-staff.ts',
     'src/osbb-tickets.ts',
@@ -2342,7 +2343,8 @@ ${sharedSelectText}`;
     [osbb, 'const safeUrl = safeExternalUrl(p.url);'],
     [osbb, 'if (!safeUrl) return \'\';'],
     [osbb, 'data-photo-url="${safeUrl}"'],
-    [osbb, 'if (safeUrl) lightboxPhotos.push(safeUrl);'],
+    [osbb, 'const requested = safeExternalUrl(requestedUrl);'],
+    [osbb, 'group.map((photo) => safeExternalUrl(photo.url)).filter(Boolean)'],
     [sklad, 'const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):\'\';'],
     [sklad, 'data-photo-url="${safePhoto}"'],
   ];
