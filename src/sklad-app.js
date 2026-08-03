@@ -15,6 +15,7 @@ import {
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
+import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -1321,12 +1322,7 @@ function updateResultSummary(id,count,total,query,extraFilter=''){
 }
 function renderLog(){
   const s=document.getElementById('logSearch').value;
-  let logs=allLogs;
-  if(logCat) logs=logs.filter(l=>{const it=allItems.find(i=>i.id===l.item_id);return it&&it.category===logCat;});
-  if(s) logs=logs.filter(l=>{
-    const it=allItems.find(i=>i.id===l.item_id);
-    return valuesMatchSearch([l.item_name,l.issued_to,l.note,it?.category,it?.unit],s);
-  });
+  const logs=filterInventoryLogs(allLogs,allItems,s,logCat);
   updateResultSummary('logResultSummary',logs.length,allLogs.length,s,logCat);
   const tb=document.getElementById('logTable');
   const mb=document.getElementById('logMobileList');
@@ -1454,8 +1450,7 @@ async function confirmEditLog(){
 // ===== RECEIPTS (ПРИХІД) =====
 function renderReceipts(){
   const s=document.getElementById('recSearch').value;
-  let recs=allReceipts;
-  if(s) recs=recs.filter(r=>valuesMatchSearch([r.item_name,r.supplier,r.note],s));
+  const recs=filterInventoryReceipts(allReceipts,s);
   updateResultSummary('recResultSummary',recs.length,allReceipts.length,s);
   const tb=document.getElementById('recTable');
   const mb=document.getElementById('recMobileList');
