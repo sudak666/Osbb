@@ -115,6 +115,8 @@ fallback і unit-тестами:
 тепер перетворюється на порожній список замість потрапляння в UI-стан.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
+Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через
+`parseStaffList`/`parseStaffSession` до запису персональної сесії.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 

@@ -45,6 +45,7 @@
         isTabAllowedForSession as isStaffTabAllowed,
         isWorkerSession as isWorkerStaffSession,
         normalizeWorkerRole,
+        parseStaffList,
         parseStaffSession,
     } from './osbb-staff.js';
     import {
@@ -270,7 +271,7 @@
         }
         try {
             const list = await db.rpc('list_osbb_staff', {});
-            staffLoginList = Array.isArray(list) ? list : [];
+            staffLoginList = parseStaffList(list);
         } catch(e) {
             staffLoginList = [];
         }
@@ -380,9 +381,14 @@
             result = Array.isArray(res) ? res[0] : res;
         } catch(e) { result = null; }
 
-        if (result && result.ok) {
+        const verifiedSession = result?.ok ? parseStaffSession({
+            id: staffLoginSelected.id,
+            name: result.full_name || staffLoginSelected.full_name,
+            role: result.role,
+        }) : null;
+        if (verifiedSession) {
             staffLoginFails = 0;
-            staffSession = { id: staffLoginSelected.id, name: result.full_name || staffLoginSelected.full_name, role: result.role };
+            staffSession = verifiedSession;
             staffPinCache = attempt;
             saveStaffSession();
             document.getElementById('staff-login-modal').style.display = 'none';

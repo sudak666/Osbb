@@ -33,6 +33,15 @@ export function parseStaffSession(value) {
     };
 }
 
+export function parseStaffList(value) {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const session = parseStaffSession({ id: entry.id, name: entry.full_name, role: entry.role });
+        return session ? [{ id: session.id, full_name: session.name, role: session.role }] : [];
+    });
+}
+
 export function isDispatcherSession(session) {
     return Boolean(session) && ['dispatcher', 'admin', 'board'].includes(session?.role ?? '');
 }

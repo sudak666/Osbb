@@ -6,6 +6,12 @@ export interface StaffSession {
     role: StaffRole;
 }
 
+export interface StaffListEntry {
+    id: string | number;
+    full_name: string;
+    role: StaffRole;
+}
+
 const STAFF_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES: readonly StaffRole[] = ['plumber', 'janitor', 'electrician'];
 export const WORKER_ALLOWED_TABS: readonly string[] = ['tabel', 'my-tickets'];
@@ -40,6 +46,16 @@ export function parseStaffSession(value: unknown): StaffSession | null {
         name: session.name.trim(),
         role: session.role as StaffRole,
     };
+}
+
+export function parseStaffList(value: unknown): StaffListEntry[] {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const row = entry as Record<string, unknown>;
+        const session = parseStaffSession({ id: row.id, name: row.full_name, role: row.role });
+        return session ? [{ id: session.id, full_name: session.name, role: session.role }] : [];
+    });
 }
 
 export function isDispatcherSession(session: StaffSession | null | undefined): boolean {

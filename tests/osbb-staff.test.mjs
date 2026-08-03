@@ -7,6 +7,7 @@ import {
   isTabAllowedForSession,
   isWorkerSession,
   normalizeWorkerRole,
+  parseStaffList,
   parseStaffSession,
 } from '../src/osbb-staff.js';
 
@@ -21,6 +22,15 @@ test('staff session parser accepts only complete known-role sessions', () => {
   assert.equal(parseStaffSession({ id: 'worker-1', name: 'Іван', role: 'unknown' }), null);
   assert.equal(parseStaffSession({ id: Number.NaN, name: 'Іван', role: 'plumber' }), null);
   assert.equal(parseStaffSession(null), null);
+});
+
+test('staff list parser removes malformed server rows', () => {
+  assert.deepEqual(parseStaffList([
+    { id: ' worker-1 ', full_name: '  Іван  ', role: 'electrician' },
+    { id: 'worker-2', full_name: '', role: 'plumber' },
+    { id: 'worker-3', full_name: 'Олег', role: 'owner' },
+  ]), [{ id: 'worker-1', full_name: 'Іван', role: 'electrician' }]);
+  assert.deepEqual(parseStaffList(null), []);
 });
 
 test('staff role helpers preserve full-access and worker role groups', () => {
