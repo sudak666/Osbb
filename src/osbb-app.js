@@ -6,6 +6,12 @@
         calculateAttendanceTotals,
     } from './osbb-attendance.js';
     import {
+        closeDispatcherTicket,
+        matchesDispatcherFilter,
+        normalizeDispatcherDay,
+        reopenDispatcherTicket,
+    } from './osbb-dispatcher.js';
+    import {
         garbageBins,
         garbageMonthKey,
         garbageMonthKeyCandidates,
@@ -2560,9 +2566,7 @@
     }
 
     function dispNormalizeDay(row = {}) {
-        return {
-            ticketsList: Array.isArray(row.ticketsList) ? row.ticketsList : []
-        };
+        return normalizeDispatcherDay(row);
     }
 
     function dispGetDay(d) {
@@ -2646,10 +2650,7 @@
         const row = dispGetDay(d);
         const ticket = row.ticketsList.find(t => t.id === ticketId);
         if (!ticket) return;
-        ticket.status = 'done';
-        ticket.comment = (comment || '').trim();
-        ticket.closedAt = new Date().toISOString();
-        ticket.closedBy = staffSession?.name || '';
+        closeDispatcherTicket(ticket, comment, staffSession?.name);
         dispScheduleSave();
     }
 
@@ -2658,11 +2659,7 @@
         if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }
         const row = dispGetDay(d);
         const ticket = row.ticketsList.find(t => t.id === ticketId);
-        if (!ticket || ticket.status !== 'done') return;
-        ticket.status = 'open';
-        ticket.comment = '';
-        delete ticket.closedAt;
-        delete ticket.closedBy;
+        if (!ticket || !reopenDispatcherTicket(ticket)) return;
         dispScheduleSave();
         dispOpenDayDetail(Number(d));
         showToast('Заявку знову відкрито');
@@ -2819,12 +2816,7 @@
     }
 
     function dispMatchesFilter(row, hasEvent, d) {
-        if (dispFilter === 'today' || dispFilter === 'current_week') return dispMatchesCurrentDateFilter(d, dispFilter);
-        if (dispFilter === 'has_event') return hasEvent;
-        if (dispFilter === 'urgent') return row.ticketsList.some(t => t.priority === 'HIGH' && t.status !== 'done');
-        if (dispFilter === 'unresolved') return row.ticketsList.some(t => t.status !== 'done');
-        if (dispFilter === 'done') return row.ticketsList.length > 0 && row.ticketsList.every(t => t.status === 'done');
-        return true;
+        return matchesDispatcherFilter(row, hasEvent, dispFilter, dispMatchesCurrentDateFilter(d, dispFilter));
     }
 
     // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс

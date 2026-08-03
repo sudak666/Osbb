@@ -30,6 +30,7 @@ function readOsbbCombined() {
     'src/osbb-app.js',
     'src/app-security.ts',
     'src/osbb-attendance.ts',
+    'src/osbb-dispatcher.ts',
     'src/osbb-garbage.ts',
     'src/osbb-shifts.ts',
     'src/osbb-staff.ts',
