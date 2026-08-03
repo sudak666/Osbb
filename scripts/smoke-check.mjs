@@ -17,6 +17,7 @@ function readSkladCombined() {
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-movements.ts',
+    'src/sklad-reporting.ts',
     'src/sklad-pricing.js',
     'src/sklad-pricing.ts',
     'src/sklad-suppliers.ts',
