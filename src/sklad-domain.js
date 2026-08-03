@@ -10,7 +10,8 @@ export function normalizeSearchText(value) {
 export function valuesMatchSearch(values, query) {
     const normalizedQuery = normalizeSearchText(query);
     if (!normalizedQuery) return true;
-    return values.some((value) => normalizeSearchText(value).includes(normalizedQuery));
+    const searchableText = normalizeSearchText(values.filter(Boolean).join(' '));
+    return normalizedQuery.split(' ').every((part) => searchableText.includes(part));
 }
 
 export function isInternalItem(item) {
@@ -45,9 +46,49 @@ export function filterInventoryItems(items, options = {}) {
         if (options.onlyInternal && !isInternalItem(item)) return false;
         if (options.hideInternal && isInternalItem(item)) return false;
         if (category && item.category !== category) return false;
-        return valuesMatchSearch([item.name, item.category, item.unit], query);
+        return valuesMatchSearch([item.name, item.category, item.unit, item.price_source], query);
     });
     return sortItemsByCategoryName(filtered);
+}
+
+export function filterSkladItems(items, options = {}) {
+    return items.filter((item) => {
+        const quantity = Number(item.quantity);
+        if (options.category && item.category !== options.category) return false;
+        if (options.stock === 'zero' && quantity !== 0) return false;
+        if (options.stock === 'low' && !(quantity > 0 && quantity <= 3)) return false;
+        if (options.stock === 'ok' && quantity <= 3) return false;
+        if (options.inStockOnly && quantity <= 0) return false;
+        if (options.hideInternal && isInternalItem(item)) return false;
+        if (!options.hideInternal && options.onlyInternal && !isInternalItem(item)) return false;
+        return valuesMatchSearch([item.name, item.category, item.unit, item.price_source], options.query || '');
+    });
+}
+
+export function filterInventoryByValue(items, options = {}) {
+    return items.filter((item) => {
+        const quantity = Number(item.quantity || 0);
+        if (options.category && item.category !== options.category) return false;
+        if (options.internal === 'balance' && isInternalItem(item)) return false;
+        if (options.internal === 'internal' && !isInternalItem(item)) return false;
+        if (options.stock === 'positive' && quantity <= 0) return false;
+        if (options.stock === 'low' && quantity > 3) return false;
+        if (options.stock === 'zero' && quantity !== 0) return false;
+        if (options.stock === 'normal' && quantity <= 3) return false;
+        if (options.price === 'priced' && itemPriceValue(item) === 0) return false;
+        if (options.price === 'unpriced' && itemPriceValue(item) > 0) return false;
+        return true;
+    });
+}
+
+export function calculateInventoryHeaderStats(items) {
+    return items.reduce((stats, item) => {
+        const quantity = Math.max(0, Number(item.quantity) || 0);
+        if (quantity > 0) stats.availableItems += 1;
+        stats.totalUnits += quantity;
+        stats.estimatedValue += quantity * itemPriceValue(item);
+        return stats;
+    }, { availableItems: 0, totalUnits: 0, estimatedValue: 0 });
 }
 
 export function calculateInventoryStats(items) {
@@ -75,3 +116,4 @@ export function calculateInventoryStats(items) {
         categories: [...categories].sort((a, b) => normalizeSearchText(a).localeCompare(normalizeSearchText(b), 'uk-UA')),
     };
 }
+import { itemPriceValue } from './sklad-pricing.js';
