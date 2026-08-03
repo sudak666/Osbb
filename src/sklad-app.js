@@ -14,6 +14,7 @@ import {
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
+import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -109,9 +110,7 @@ function goReceipts(){nav('receipts',null);}
 let auditData={}; // {itemId: actualQty або null}
 
 function initAudit(){
-  auditData={};
-  // ініціалізуємо всі товари як "не перераховано" (null)
-  allItems.forEach(i=>{ auditData[i.id]=null; });
+  auditData=createAuditData(allItems);
   document.getElementById('auditDate').textContent='Розпочато: '+new Date().toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   document.getElementById('auditSearch').value='';
   renderAuditList();
@@ -123,18 +122,9 @@ function renderAuditList(){
   if(s) items=items.filter(i=>itemMatchesSearch(i,s));
   updateResultSummary('auditResultSummary',items.length,allItems.length,s);
 
-  let counted=0,surplus=0,shortage=0;
-  Object.values(auditData).forEach(v=>{if(v!==null) counted++;});
-  allItems.forEach(i=>{
-    const v=auditData[i.id];
-    if(v===null) return;
-    const diff=v-i.quantity;
-    if(diff>0) surplus++;
-    else if(diff<0) shortage++;
-  });
+  const {counted,surplus,shortage,progress}=calculateAuditSummary(allItems,auditData);
   document.getElementById('auditStats').textContent=
     `Перераховано: ${counted}/${allItems.length} · ▲ Надлишок: ${surplus} · ▼ Нестача: ${shortage}`;
-  const progress=Math.round((counted/Math.max(allItems.length,1))*100);
   const progressFill=document.getElementById('auditProgressFill');
   const progressWrap=document.getElementById('auditProgress');
   if(progressFill) progressFill.style.width=progress+'%';
@@ -186,20 +176,11 @@ function renderAuditList(){
 }
 
 function updateAuditStats(){
-  let counted=0,surplus=0,shortage=0;
-  allItems.forEach(i=>{
-    const v=auditData[i.id];
-    if(v===null) return;
-    counted++;
-    const d=v-i.quantity;
-    if(d>0) surplus++;
-    else if(d<0) shortage++;
-  });
+  const {counted,surplus,shortage,progress}=calculateAuditSummary(allItems,auditData);
   const stats=document.getElementById('auditStats');
   if(stats) stats.textContent=
     `Перераховано: ${counted}/${allItems.length} · ▲ Надлишок: ${surplus} · ▼ Нестача: ${shortage}`;
 
-  const progress=Math.round((counted/Math.max(allItems.length,1))*100);
   const progressFill=document.getElementById('auditProgressFill');
   const progressWrap=document.getElementById('auditProgress');
   if(progressFill) progressFill.style.width=progress+'%';
@@ -207,8 +188,7 @@ function updateAuditStats(){
 }
 
 function onAuditInput(itemId, val){
-  const num=parseFloat(val);
-  auditData[itemId]=(val===''||isNaN(num))?null:num;
+  auditData[itemId]=parseAuditQuantity(val);
   // Оновлюємо тільки поточний рядок і статистику, щоб не втрачати фокус у полі вводу.
   const item=allItems.find(i=>String(i.id)===String(itemId));
   if(!item){ updateAuditStats(); return; }
@@ -242,51 +222,46 @@ function clearAuditItem(itemId){
 }
 
 function auditFillCurrent(){
-  allItems.forEach(i=>{ auditData[i.id]=i.quantity; });
+  auditData=createAuditData(allItems,true);
   renderAuditList();
   toast('Підставлено поточні залишки','success');
 }
 
 function auditFillZeros(){
-  allItems.forEach(i=>{ auditData[i.id]=null; });
+  auditData=createAuditData(allItems);
   renderAuditList();
 }
 
 function openAuditConfirm(){
-  const counted=allItems.filter(i=>auditData[i.id]!==null);
-  const diffs=counted.filter(i=>{const d=auditData[i.id]-i.quantity;return d!==0;});
-  const surplus=diffs.filter(i=>auditData[i.id]-i.quantity>0);
-  const shortage=diffs.filter(i=>auditData[i.id]-i.quantity<0);
-  const uncounted=allItems.filter(i=>auditData[i.id]===null);
+  const summary=calculateAuditSummary(allItems,auditData);
 
   document.getElementById('auditSummary').innerHTML=`
     <div class="audit-summary-grid">
       <div class="audit-summary-tile">
-        <div class="audit-summary-value counted">${counted.length}</div>
+        <div class="audit-summary-value counted">${summary.counted}</div>
         <div class="audit-summary-label">Перераховано</div>
       </div>
       <div class="audit-summary-tile">
-        <div class="audit-summary-value uncounted">${uncounted.length}</div>
+        <div class="audit-summary-value uncounted">${summary.uncounted}</div>
         <div class="audit-summary-label">Не перераховано</div>
       </div>
       <div class="audit-summary-tile">
-        <div class="audit-summary-value surplus">▲ ${surplus.length}</div>
+        <div class="audit-summary-value surplus">▲ ${summary.surplus}</div>
         <div class="audit-summary-label">Надлишок</div>
       </div>
       <div class="audit-summary-tile">
-        <div class="audit-summary-value shortage">▼ ${shortage.length}</div>
+        <div class="audit-summary-value shortage">▼ ${summary.shortage}</div>
         <div class="audit-summary-label">Нестача</div>
       </div>
     </div>
-    ${uncounted.length>0?`<div class="audit-summary-warning"><span class="ms ic-14-2">warning</span> ${uncounted.length} товарів не будуть оновлені (поле порожнє)</div>`:''}
+    ${summary.uncounted>0?`<div class="audit-summary-warning"><span class="ms ic-14-2">warning</span> ${summary.uncounted} товарів не будуть оновлені (поле порожнє)</div>`:''}
   `;
   openModal('auditModal');
 }
 
 async function confirmAudit(){
   const note=document.getElementById('auditNote').value.trim();
-  const counted=allItems.filter(i=>auditData[i.id]!==null);
-  const diffs=counted.filter(i=>auditData[i.id]!==i.quantity);
+  const {countedItems:counted,differenceItems:diffs}=calculateAuditSummary(allItems,auditData);
 
   // 1. Зберігаємо заголовок інвентаризації
   const {data:auditRow,error:auditErr}=await db.from('inventory_audits').insert([{

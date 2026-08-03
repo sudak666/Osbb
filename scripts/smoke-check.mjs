@@ -13,6 +13,7 @@ function readSkladCombined() {
     'sklad/index.html',
     'sklad/styles.css',
     'src/sklad-app.js',
+    'src/sklad-audit.ts',
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-pricing.js',
