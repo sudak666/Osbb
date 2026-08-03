@@ -15,7 +15,7 @@ import {
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
-import { adjustedStockAfterMovementEdit, buildIssuePayload, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
+import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -1431,20 +1431,21 @@ async function confirmEditLog(){
   if(!editLogId) return;
   const l=allLogs.find(x=>x.id===editLogId);
   if(!l) return closeModal('editLogModal');
-  const newQty=parseFloat(document.getElementById('editLogQty').value);
-  const issueDate=document.getElementById('editLogDate').value;
-  const person=document.getElementById('editLogPerson').value.trim();
-  const note=document.getElementById('editLogNote').value.trim();
-  if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
+  const patchResult=buildIssueEditPatch({
+    quantity:document.getElementById('editLogQty').value,
+    person:document.getElementById('editLogPerson').value,
+    note:document.getElementById('editLogNote').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('editLogDate').value)
+  });
+  if(!patchResult.ok) return toast('Введіть коректну кількість','error');
+  const logPatch=patchResult.value;
+  const newQty=logPatch.quantity;
   const item=allItems.find(i=>i.id===l.item_id);
   if(item){
     const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,l.quantity,newQty,'issue');
     if(adjustedStock===null) return toast('Недостатньо товару на складі для такої кількості','error');
     await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
   }
-  const logPatch={quantity:newQty,issued_to:person||null,note:note||null};
-  const issuedAt=dateInputToTimestamp(issueDate);
-  if(issuedAt) logPatch.issued_at=issuedAt;
   const {error}=await db.from('inventory_logs').update(logPatch).eq('id',editLogId);
   if(error) return toast('Помилка: '+error.message,'error');
   toast('Запис оновлено','success');
@@ -1559,13 +1560,19 @@ async function confirmEditReceipt(){
   if(!editReceiptId) return;
   const r=allReceipts.find(x=>x.id===editReceiptId);
   if(!r) return closeModal('editReceiptModal');
-  const newQty=parseFloat(document.getElementById('editReceiptQty').value);
-  const receiptDate=document.getElementById('editReceiptDate').value;
-  const purchasePrice=optionalPrice(document.getElementById('editReceiptPrice').value);
-  const supplier=document.getElementById('editReceiptSupplier').value.trim();
-  const note=document.getElementById('editReceiptNote').value.trim();
-  if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
-  if(Number.isNaN(purchasePrice)) return toast('Введіть коректну ціну закупівлі','error');
+  const patchResult=buildReceiptEditPatch({
+    quantity:document.getElementById('editReceiptQty').value,
+    purchasePrice:optionalPrice(document.getElementById('editReceiptPrice').value),
+    supplier:document.getElementById('editReceiptSupplier').value,
+    note:document.getElementById('editReceiptNote').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('editReceiptDate').value)
+  });
+  if(!patchResult.ok){
+    return toast(patchResult.error==='price'?'Введіть коректну ціну закупівлі':'Введіть коректну кількість','error');
+  }
+  const receiptPatch=patchResult.value;
+  const newQty=receiptPatch.quantity;
+  const purchasePrice=receiptPatch.purchase_price_unit;
   const item=allItems.find(i=>i.id===r.item_id);
   if(item){
     const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,r.quantity,newQty,'receipt');
@@ -1575,15 +1582,12 @@ async function confirmEditReceipt(){
     const {error:itemError}=await db.from('inventory_items').update(itemPatch).eq('id',item.id);
     if(itemError) return toast('Не вдалося оновити товар: '+itemError.message,'error');
   }
-  const receiptPatch={quantity:newQty,purchase_price_unit:purchasePrice,supplier:supplier||null,note:note||null};
-  const receivedAt=dateInputToTimestamp(receiptDate);
-  if(receivedAt) receiptPatch.received_at=receivedAt;
   let {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
   let priceHistorySaved=true;
   if(error&&isPurchasePriceSchemaError(error)){
     priceHistorySaved=false;
-    const legacyPatch={quantity:newQty,supplier:supplier||null,note:note||null};
-    if(receivedAt) legacyPatch.received_at=receivedAt;
+    const legacyPatch={...receiptPatch};
+    delete legacyPatch.purchase_price_unit;
     ({error}=await db.from('inventory_receipts').update(legacyPatch).eq('id',editReceiptId));
   }
   if(error) return toast('Помилка: '+error.message,'error');

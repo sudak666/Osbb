@@ -44,6 +44,21 @@ export interface ReceiptPayload {
     occurredAt: string | null;
 }
 
+export interface IssueEditPatch {
+    quantity: number;
+    issued_to: string | null;
+    note: string | null;
+    issued_at?: string;
+}
+
+export interface ReceiptEditPatch {
+    quantity: number;
+    purchase_price_unit: number | null;
+    supplier: string | null;
+    note: string | null;
+    received_at?: string;
+}
+
 function trimmedOrNull(value: unknown): string | null {
     const normalized = String(value ?? '').trim();
     return normalized || null;
@@ -97,6 +112,48 @@ export function buildReceiptPayload(input: {
             occurredAt: input.occurredAt || null,
         },
     };
+}
+
+export function buildIssueEditPatch(input: {
+    quantity: unknown;
+    person?: unknown;
+    note?: unknown;
+    occurredAt?: string | null;
+}): MovementPayloadResult<IssueEditPatch> {
+    const quantity = Number(input.quantity);
+    if (!Number.isFinite(quantity) || quantity < 0) return { ok: false, error: 'quantity' };
+    const value: IssueEditPatch = {
+        quantity,
+        issued_to: trimmedOrNull(input.person),
+        note: trimmedOrNull(input.note),
+    };
+    if (input.occurredAt) value.issued_at = input.occurredAt;
+    return { ok: true, value };
+}
+
+export function buildReceiptEditPatch(input: {
+    quantity: unknown;
+    purchasePrice: unknown;
+    supplier?: unknown;
+    note?: unknown;
+    occurredAt?: string | null;
+}): MovementPayloadResult<ReceiptEditPatch> {
+    const quantity = Number(input.quantity);
+    const purchasePrice = input.purchasePrice === null || input.purchasePrice === ''
+        ? null
+        : Number(input.purchasePrice);
+    if (!Number.isFinite(quantity) || quantity < 0) return { ok: false, error: 'quantity' };
+    if (purchasePrice !== null && (!Number.isFinite(purchasePrice) || purchasePrice < 0)) {
+        return { ok: false, error: 'price' };
+    }
+    const value: ReceiptEditPatch = {
+        quantity,
+        purchase_price_unit: purchasePrice,
+        supplier: trimmedOrNull(input.supplier),
+        note: trimmedOrNull(input.note),
+    };
+    if (input.occurredAt) value.received_at = input.occurredAt;
+    return { ok: true, value };
 }
 
 export function adjustedStockAfterMovementEdit(

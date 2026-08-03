@@ -52,6 +52,37 @@ export function buildReceiptPayload(input) {
     };
 }
 
+export function buildIssueEditPatch(input) {
+    const quantity = Number(input.quantity);
+    if (!Number.isFinite(quantity) || quantity < 0) return { ok: false, error: 'quantity' };
+    const value = {
+        quantity,
+        issued_to: trimmedOrNull(input.person),
+        note: trimmedOrNull(input.note),
+    };
+    if (input.occurredAt) value.issued_at = input.occurredAt;
+    return { ok: true, value };
+}
+
+export function buildReceiptEditPatch(input) {
+    const quantity = Number(input.quantity);
+    const purchasePrice = input.purchasePrice === null || input.purchasePrice === ''
+        ? null
+        : Number(input.purchasePrice);
+    if (!Number.isFinite(quantity) || quantity < 0) return { ok: false, error: 'quantity' };
+    if (purchasePrice !== null && (!Number.isFinite(purchasePrice) || purchasePrice < 0)) {
+        return { ok: false, error: 'price' };
+    }
+    const value = {
+        quantity,
+        purchase_price_unit: purchasePrice,
+        supplier: trimmedOrNull(input.supplier),
+        note: trimmedOrNull(input.note),
+    };
+    if (input.occurredAt) value.received_at = input.occurredAt;
+    return { ok: true, value };
+}
+
 export function filterInventoryLogs(logs, items, query = '', category = '') {
     const itemsById = new Map(items.map((item) => [String(item.id), item]));
     return logs.filter((log) => {
