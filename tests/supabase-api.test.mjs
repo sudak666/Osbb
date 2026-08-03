@@ -62,6 +62,20 @@ test('createSupabaseRestClient виконує select-фільтри й пове�
   assert.equal(calls[0].init.headers.apikey, 'test-key');
 });
 
+test('createSupabaseRestClient підтримує maybeSingle для необовʼязкових налаштувань', async () => {
+  const client = createSupabaseRestClient({
+    fetcher: async () => ({ ok: true, status: 200, statusText: 'OK', text: async () => '[]' }),
+  });
+  assert.deepEqual(await client.from('work_shift_settings').select('*').eq('id', 1).maybeSingle(), {
+    data: null,
+    error: null,
+  });
+  assert.deepEqual(await client.from('work_shift_settings').select('*').eq('id', 1).single(), {
+    data: null,
+    error: { code: 'PGRST116' },
+  });
+});
+
 test('createSupabaseRestClient підтримує upsert, RPC і storage', async () => {
   const calls = [];
   const client = createSupabaseRestClient({

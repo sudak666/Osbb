@@ -183,6 +183,23 @@ const allFiles = [...walk('.')];
 let failed = 0;
 let passed = 0;
 
+// Журнал має використовувати спільний REST transport, а не повертати локальну
+// неповну копію fluent API (зокрема без maybeSingle()).
+{
+  const osbb = readOsbbCombined();
+  const transport = readFileSync('src/supabase-api.ts', 'utf8');
+  const label = 'journal uses shared Supabase REST transport';
+  const required = [
+    [osbb, 'const db = createSupabaseRestClient();'],
+    [transport, 'maybeSingle()'],
+    [transport, "isMaybeSingle ? null : { code: 'PGRST116' }"],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (osbb.includes('const db = {')) missing.push('local db wrapper removed');
+  if (missing.length) { failed += 1; console.error(`not ok - ${label} (missing: ${missing.join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+
 for (const file of allFiles) {
   const text = readFileSync(file, 'utf8');
   if (conflictMarker.test(text)) {

@@ -16,6 +16,7 @@ interface RestQueryState {
     method: 'GET' | 'POST' | 'DELETE';
     body: unknown;
     isSingle: boolean;
+    isMaybeSingle: boolean;
     columns: string;
     isUpsert: boolean;
 }
@@ -77,13 +78,14 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
     }
 
     function from(table: string) {
-        const state: RestQueryState = { filters: [], method: 'GET', body: null, isSingle: false, columns: '*', isUpsert: false };
+        const state: RestQueryState = { filters: [], method: 'GET', body: null, isSingle: false, isMaybeSingle: false, columns: '*', isUpsert: false };
         const query = {
             select(columns = '*') { state.columns = columns; return query; },
             eq(column: string, value: unknown) { state.filters.push(`${column}=eq.${encodeURIComponent(String(value))}`); return query; },
             order(column: string, settings?: { ascending?: boolean }) { state.filters.push(`order=${column}.${settings?.ascending === false ? 'desc' : 'asc'}`); return query; },
             limit(value: number) { state.filters.push(`limit=${value}`); return query; },
             single() { state.isSingle = true; return query; },
+            maybeSingle() { state.isSingle = true; state.isMaybeSingle = true; return query; },
             insert(data: unknown) { state.method = 'POST'; state.body = data; return query; },
             upsert(data: unknown) { state.method = 'POST'; state.body = data; state.isUpsert = true; return query; },
             delete() { state.method = 'DELETE'; return query; },
@@ -98,7 +100,7 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
                     const data = await request(state.method, url, headers, state.body ? JSON.stringify(state.body) : undefined);
                     if (state.isSingle) {
                         const row = Array.isArray(data) ? (data[0] ?? null) : null;
-                        resolve({ data: row, error: row ? null : { code: 'PGRST116' } });
+                        resolve({ data: row, error: row || state.isMaybeSingle ? null : { code: 'PGRST116' } });
                     } else resolve({ data: data || [], error: null });
                 } catch (error) {
                     resolve({ data: null, error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) } });

@@ -46,13 +46,14 @@ export function createSupabaseRestClient(options = {}) {
         return parseRpcResponseText(await response.text());
     }
     function from(table) {
-        const state = { filters: [], method: 'GET', body: null, isSingle: false, columns: '*', isUpsert: false };
+        const state = { filters: [], method: 'GET', body: null, isSingle: false, isMaybeSingle: false, columns: '*', isUpsert: false };
         const query = {
             select(columns = '*') { state.columns = columns; return query; },
             eq(column, value) { state.filters.push(`${column}=eq.${encodeURIComponent(String(value))}`); return query; },
             order(column, settings) { state.filters.push(`order=${column}.${settings?.ascending === false ? 'desc' : 'asc'}`); return query; },
             limit(value) { state.filters.push(`limit=${value}`); return query; },
             single() { state.isSingle = true; return query; },
+            maybeSingle() { state.isSingle = true; state.isMaybeSingle = true; return query; },
             insert(data) { state.method = 'POST'; state.body = data; return query; },
             upsert(data) { state.method = 'POST'; state.body = data; state.isUpsert = true; return query; },
             delete() { state.method = 'DELETE'; return query; },
@@ -67,7 +68,7 @@ export function createSupabaseRestClient(options = {}) {
                     const data = await request(state.method, url, headers, state.body ? JSON.stringify(state.body) : undefined);
                     if (state.isSingle) {
                         const row = Array.isArray(data) ? (data[0] ?? null) : null;
-                        resolve({ data: row, error: row ? null : { code: 'PGRST116' } });
+                        resolve({ data: row, error: row || state.isMaybeSingle ? null : { code: 'PGRST116' } });
                     } else resolve({ data: data || [], error: null });
                 } catch (error) {
                     resolve({ data: null, error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) } });
