@@ -10,13 +10,13 @@ import {
   formatMoney as money,
   isPurchasePriceSchemaError,
   itemPriceValue as priceValue,
-  itemStockValue as stockValue,
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
+import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -1944,49 +1944,40 @@ function getValueFilteredItems(){
 }
 function renderStats(){
   syncValueFilterOptions();
-  const internalCount=allItems.filter(i=>i.is_internal).length;
-  const priced=allItems.filter(i=>priceValue(i)>0);
-  const balanceValue=allItems.filter(i=>!i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
   const filteredItems=getValueFilteredItems();
-  const filteredValue=filteredItems.reduce((sum,i)=>sum+stockValue(i),0);
-  const filteredPriced=filteredItems.filter(i=>priceValue(i)>0).length;
-  const filteredInStock=filteredItems.filter(i=>Number(i.quantity||0)>0).length;
-  const filteredInternal=filteredItems.filter(i=>i.is_internal).length;
-  document.getElementById('bal-total').textContent=allItems.length-internalCount;
-  document.getElementById('bal-internal').textContent=internalCount;
-  document.getElementById('bal-value').textContent=balanceValue?money(balanceValue):'—';
-  document.getElementById('bal-priced').textContent=priced.length;
+  const stats=calculateInventoryValueSummary(allItems,filteredItems);
+  document.getElementById('bal-total').textContent=stats.balanceItems;
+  document.getElementById('bal-internal').textContent=stats.internalItems;
+  document.getElementById('bal-value').textContent=stats.balanceValue?money(stats.balanceValue):'—';
+  document.getElementById('bal-priced').textContent=stats.pricedItems;
   const filteredValueEl=document.getElementById('bal-filtered-value');
-  if(filteredValueEl) filteredValueEl.textContent=filteredValue?money(filteredValue):'—';
+  if(filteredValueEl) filteredValueEl.textContent=stats.filteredValue?money(stats.filteredValue):'—';
   const filteredCountEl=document.getElementById('bal-filtered-count');
-  if(filteredCountEl) filteredCountEl.innerHTML=`<span class="ms ic-13-2">filter_alt</span> ${filteredItems.length} поз. · ${filteredInStock} в наявності · ${filteredInternal} внутр.`;
+  if(filteredCountEl) filteredCountEl.innerHTML=`<span class="ms ic-13-2">filter_alt</span> ${stats.filteredItems} поз. · ${stats.filteredInStock} в наявності · ${stats.filteredInternal} внутр.`;
   const summary=document.getElementById('valueFilterSummary');
   if(summary){
-    const missing=filteredItems.length-filteredPriced;
-    summary.textContent=`У фільтрі: ${filteredItems.length} позицій, в наявності ${filteredInStock}, внутрішніх ${filteredInternal}, оцінено ${filteredPriced}, без ціни ${missing}. Сума рахується як залишок × ціна за одиницю.`;
+    const missing=stats.filteredItems-stats.filteredPriced;
+    summary.textContent=`У фільтрі: ${stats.filteredItems} позицій, в наявності ${stats.filteredInStock}, внутрішніх ${stats.filteredInternal}, оцінено ${stats.filteredPriced}, без ціни ${missing}. Сума рахується як залишок × ціна за одиницю.`;
   }
-  const cats=[...new Set(allItems.map(i=>i.category))];
-  document.getElementById('statCats').innerHTML=cats.map(cat=>{
-    const items=allItems.filter(i=>i.category===cat);
-    const pct=allItems.length?Math.round(items.length/allItems.length*100):0;
+  document.getElementById('statCats').innerHTML=summarizeInventoryCategories(allItems).map(({category:cat,count,percentage:pct})=>{
     const c=catColor[cat]||'#64748b';
     const safeCat=escapeHtml(cat||'—');
     return `<div>
       <div class="stat-cat-row-head">
         <span class="stat-cat-name">${catIconHtml[cat]||catIconHtmlDefault} ${safeCat}</span>
-        <span class="stat-cat-count">${items.length} поз.</span>
+        <span class="stat-cat-count">${count} поз.</span>
       </div>
       <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c};"></div></div>
     </div>`;
   }).join('');
-  const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity);
+  const low=sortLowStockItems(allItems);
   document.getElementById('statLow').innerHTML=low.length
     ? low.map(i=>`<div class="stat-low-row">
         <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
         <span class="${i.quantity==0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
       </div>`).join('')
     : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Всі товари в нормі!</div>';
-  const unpriced=allItems.filter(i=>!priceValue(i)).sort((a,b)=>Number(b.quantity||0)-Number(a.quantity||0));
+  const unpriced=sortUnpricedItems(allItems);
   const unpricedBox=document.getElementById('statUnpriced');
   if(unpricedBox) unpricedBox.innerHTML=unpriced.length
     ? unpriced.slice(0,12).map(i=>`<div class="stat-unpriced-row">
@@ -2011,25 +2002,15 @@ function renderStats(){
 // ===== EXCEL =====
 function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');
-  const ws=XLSX.utils.json_to_sheet(allItems.map((i,idx)=>({'№':idx+1,'Назва товару':i.name,'Категорія':i.category,'Залишок':i.quantity,'Одиниця':i.unit,'Ціна за од., грн':priceValue(i)||'','Оцінка залишку, грн':stockValue(i)||'','Джерело ціни':i.price_source||'','Дата ціни':i.price_checked_at?new Date(i.price_checked_at).toLocaleString('uk-UA'):'','Внутрішнє використання':i.is_internal?'Так':'Ні'})));
+  const ws=XLSX.utils.json_to_sheet(buildInventoryExportRows(allItems));
   ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:14},{wch:18},{wch:28},{wch:18},{wch:20}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Товари');
-  const internalCount=allItems.filter(i=>i.is_internal).length;
-  const balanceValue=allItems.filter(i=>!i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
-  const internalValue=allItems.filter(i=>i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
-  const wsBalance=XLSX.utils.json_to_sheet([
-    {'Показник':'Позицій на балансі (без внутрішнього використання)','Значення':allItems.length-internalCount},
-    {'Показник':'Позицій внутрішнього використання (хознужди)','Значення':internalCount},
-    {'Показник':'Всього позицій','Значення':allItems.length},
-    {'Показник':'Орієнтовна вартість залишку на балансі, грн','Значення':balanceValue},
-    {'Показник':'Орієнтовна вартість внутрішнього використання, грн','Значення':internalValue},
-    {'Показник':'Товарів з ціною','Значення':allItems.filter(i=>priceValue(i)>0).length}
-  ]);
+  const wsBalance=XLSX.utils.json_to_sheet(buildBalanceExportRows(allItems));
   wsBalance['!cols']=[{wch:50},{wch:12}];
   XLSX.utils.book_append_sheet(wb,wsBalance,'Баланс');
   if(allLogs.length){
-    const ws2=XLSX.utils.json_to_sheet(allLogs.map(l=>({'Дата':new Date(l.issued_at).toLocaleString('uk-UA'),'Товар':l.item_name,'К-сть':l.quantity,'Кому':l.issued_to||'','Примітка':l.note||''})));
+    const ws2=XLSX.utils.json_to_sheet(buildIssueExportRows(allLogs));
     ws2['!cols']=[{wch:18},{wch:50},{wch:8},{wch:25},{wch:30}];
     XLSX.utils.book_append_sheet(wb,ws2,'Журнал видач');
   }
