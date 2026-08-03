@@ -21,6 +21,19 @@ export interface DispatcherDay {
 }
 
 export type DispatcherFilter = 'all' | 'today' | 'current_week' | 'has_event' | 'urgent' | 'unresolved' | 'done';
+export type DispatcherDayStatus = 'urgent' | 'done' | 'open' | null;
+
+export interface DispatcherMonthEntry {
+    row: DispatcherDay;
+    photosCount?: number;
+}
+
+export interface DispatcherMonthStats {
+    events: number;
+    tickets: number;
+    urgent: number;
+    done: number;
+}
 
 export function normalizeDispatcherDay(row: unknown): DispatcherDay {
     if (typeof row !== 'object' || row === null) return { ticketsList: [] };
@@ -61,4 +74,38 @@ export function matchesDispatcherFilter(
     if (filter === 'unresolved') return row.ticketsList.some((ticket) => ticket.status !== 'done');
     if (filter === 'done') return row.ticketsList.length > 0 && row.ticketsList.every((ticket) => ticket.status === 'done');
     return true;
+}
+
+export function dispatcherDayStatus(row: DispatcherDay): DispatcherDayStatus {
+    if (!row.ticketsList.length) return null;
+    if (row.ticketsList.some((ticket) => ticket.priority === 'HIGH' && ticket.status !== 'done')) return 'urgent';
+    if (row.ticketsList.every((ticket) => ticket.status === 'done')) return 'done';
+    return 'open';
+}
+
+export function dispatcherDayStatusLabel(status: DispatcherDayStatus): string {
+    if (status === 'urgent') return 'є термінові заявки';
+    if (status === 'done') return 'усі заявки виконано';
+    if (status === 'open') return 'є відкриті заявки';
+    return 'подій немає';
+}
+
+export function matchesDispatcherSearchAndWorker(row: DispatcherDay, query: unknown, workerRole: unknown): boolean {
+    const normalizedQuery = String(query ?? '').trim().toLocaleLowerCase('uk-UA');
+    const searchableText = row.ticketsList.map((ticket) => String(ticket.text ?? '')).join(' ').toLocaleLowerCase('uk-UA');
+    const matchesSearch = !normalizedQuery || searchableText.includes(normalizedQuery);
+    const role = String(workerRole ?? 'all');
+    const matchesWorker = role === 'all' || row.ticketsList.some((ticket) => ticket.role === role);
+    return matchesSearch && matchesWorker;
+}
+
+export function calculateDispatcherMonthStats(entries: readonly DispatcherMonthEntry[]): DispatcherMonthStats {
+    return entries.reduce<DispatcherMonthStats>((totals, entry) => {
+        const tickets = entry.row.ticketsList;
+        if (tickets.length > 0 || Number(entry.photosCount || 0) > 0) totals.events += 1;
+        totals.tickets += tickets.length;
+        totals.urgent += tickets.filter((ticket) => ticket.priority === 'HIGH' && ticket.status !== 'done').length;
+        totals.done += tickets.filter((ticket) => ticket.status === 'done').length;
+        return totals;
+    }, { events: 0, tickets: 0, urgent: 0, done: 0 });
 }

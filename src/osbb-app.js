@@ -7,8 +7,12 @@
         calculateAttendanceTotals,
     } from './osbb-attendance.js';
     import {
+        calculateDispatcherMonthStats,
         closeDispatcherTicket,
+        dispatcherDayStatus,
+        dispatcherDayStatusLabel,
         matchesDispatcherFilter,
+        matchesDispatcherSearchAndWorker,
         normalizeDispatcherDay,
         reopenDispatcherTicket,
     } from './osbb-dispatcher.js';
@@ -17,6 +21,7 @@
         removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
+    import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photosFor, removePhoto } from './osbb-photos.js';
     import {
         garbageBins,
         garbageMonthKey,
@@ -1316,17 +1321,12 @@
         if (IS_PREVIEW) { photosCache = {}; return; }
         try {
             const { data } = await db.from('photos').select('id, url, day, role').eq('month_key', `${currentYear}-${currentMonth}`);
-            photosCache = {};
-            (data || []).forEach(p => {
-                const key = `${p.day}-${p.role}`;
-                if (!photosCache[key]) photosCache[key] = [];
-                photosCache[key].push({ id: p.id, url: p.url });
-            });
+            photosCache = buildPhotoCache(data || []);
         } catch { photosCache = {}; }
     }
 
     function getPhotosFromCache(day, role) {
-        return (photosCache || {})[`${day}-${role}`] || [];
+        return photosFor(photosCache, day, role);
     }
 
     function compressImage(file, maxWidth = 1200, quality = 0.82) {
@@ -1369,17 +1369,14 @@
             
             const realId = (insertData && insertData[0]) ? insertData[0].id : Date.now();
 
-            if (!photosCache) photosCache = {};
-            const key = `${day}-${role}`;
-            if (!photosCache[key]) photosCache[key] = [];
-            photosCache[key].push({ id: realId, url: urlData.publicUrl });
+            photosCache = appendPhoto(photosCache, day, role, { id: realId, url: urlData.publicUrl });
             setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add_photo_alternate</span>Фото збережено</span>');
             
             // Оновлюємо обидва інтерфейси одночасно
             const desktopCont = document.getElementById(`photos-${day}-${role}`);
-            if (desktopCont) renderPhotoContainer(desktopCont, photosCache[key], day, role);
+            if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
             const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
-            if (mobileCont) renderPhotoContainer(mobileCont, photosCache[key], day, role, true);
+            if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
             if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
         } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка фото</span>'); }
     }
@@ -1396,10 +1393,7 @@
                 const path = url.split('/photos/')[1];
                 if (path) await db.storage.from('photos').remove([path]);
 
-                const key = `${day}-${role}`;
-                if (photosCache && photosCache[key]) {
-                    photosCache[key] = photosCache[key].filter(p => String(p.id) !== String(id));
-                }
+                photosCache = removePhoto(photosCache, day, role, id);
                 setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">hide_image</span>Фото видалено</span>');
 
                 const desktopCont = document.getElementById(`photos-${day}-${role}`);
@@ -1427,18 +1421,13 @@
     let lightboxIndex = 0;
     let lightboxFocusReturn = null;
 
-    function buildLightboxPhotos() {
-        lightboxPhotos = [];
-        if (!photosCache) return;
-        Object.values(photosCache).forEach(arr => arr.forEach(p => { const safeUrl = safeExternalUrl(p.url); if (safeUrl) lightboxPhotos.push(safeUrl); }));
-    }
-
     // Запобігаємо виходу лайтбоксу за межі наявних картинок
     function openLightbox(url) {
-        buildLightboxPhotos();
-        lightboxIndex = lightboxPhotos.indexOf(url);
-        if (lightboxIndex < 0) { lightboxPhotos = [url]; lightboxIndex = 0; }
-        document.getElementById('lightbox-img').src = url;
+        const state=createLightboxState(photosCache,url);
+        if(!state) return;
+        lightboxPhotos=state.photos;
+        lightboxIndex=state.index;
+        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
         const lightbox=document.getElementById('lightbox');
         lightboxFocusReturn = document.activeElement;
         lightbox.classList.add('open');
@@ -1454,12 +1443,12 @@
     // Виправлено: перемикання тепер працює стабільно по колу без застрягань
     function lightboxPrev() {
         if (!lightboxPhotos.length) return;
-        lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+        lightboxIndex = moveLightbox({photos:lightboxPhotos,index:lightboxIndex},-1).index;
         document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
     }
     function lightboxNext() {
         if (!lightboxPhotos.length) return;
-        lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+        lightboxIndex = moveLightbox({photos:lightboxPhotos,index:lightboxIndex},1).index;
         document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
     }
 
@@ -2941,15 +2930,6 @@
 
     // Календарна сітка диспетчера — той самий вигляд, що й у Журналі: квадрати днів,
     // клік відкриває day-detail-modal з подіями та фото за цей день.
-    // Статус дня для крапки в календарі, похідний від заявок: якщо є відкрита
-    // термінова заявка — urgent; якщо всі заявки виконано — done; інакше open.
-    function dispDayStatusKey(row) {
-        if (!row.ticketsList.length) return null;
-        if (row.ticketsList.some(t => t.priority === 'HIGH' && t.status !== 'done')) return 'urgent';
-        if (row.ticketsList.every(t => t.status === 'done')) return 'done';
-        return 'open';
-    }
-
     function dispRender() {
         const container = document.getElementById('disp-cards');
         if (!container) return;
@@ -2983,17 +2963,14 @@
             const row = dispGetDay(d);
             const photosCount = getPhotosFromCache(d, 'dispatcher').length;
             const hasEvent = row.ticketsList.length > 0 || photosCount > 0;
-            const query = dispSearchQuery.trim().toLowerCase();
-            const searchText = row.ticketsList.map(t => t.text).join(' ').toLowerCase();
-            const matchesSearch = !query || searchText.includes(query);
             const matchesFilter = dispMatchesFilter(row, hasEvent, d);
-            const matchesWorker = dispWorkerFilter === 'all' || row.ticketsList.some(ticket => ticket.role === dispWorkerFilter);
-            const isDimmed = !matchesSearch || !matchesFilter || !matchesWorker;
+            const matchesSearchAndWorker = matchesDispatcherSearchAndWorker(row, dispSearchQuery, dispWorkerFilter);
+            const isDimmed = !matchesSearchAndWorker || !matchesFilter;
             if (!isDimmed) visibleMatches++;
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-            const statusKey = dispDayStatusKey(row);
+            const statusKey = dispatcherDayStatus(row);
             const statusDot = statusKey === 'urgent' ? 'dispatcher-urgent' : statusKey === 'done' ? 'dispatcher-done' : 'dispatcher';
-            const statusLabel = statusKey === 'urgent' ? 'є термінові заявки' : statusKey === 'done' ? 'усі заявки виконано' : statusKey === 'open' ? 'є відкриті заявки' : 'подій немає';
+            const statusLabel = dispatcherDayStatusLabel(statusKey);
 
             const cell = document.createElement('button');
             cell.type = 'button';
@@ -3020,15 +2997,11 @@
 
     function dispRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const totals = { events: 0, tickets: 0, urgent: 0, done: 0 };
+        const entries = [];
         for (let d = 1; d <= daysInMonth; d++) {
-            const row = dispGetDay(d);
-            const hasEvent = row.ticketsList.length > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
-            if (hasEvent) totals.events++;
-            totals.tickets += row.ticketsList.length;
-            totals.urgent += row.ticketsList.filter(t => t.priority === 'HIGH' && t.status !== 'done').length;
-            totals.done += row.ticketsList.filter(t => t.status === 'done').length;
+            entries.push({ row: dispGetDay(d), photosCount: getPhotosFromCache(d, 'dispatcher').length });
         }
+        const totals = calculateDispatcherMonthStats(entries);
         const map = { 'disp-stat-events': totals.events, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-done': totals.done };
         Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
