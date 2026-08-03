@@ -7,8 +7,12 @@
         calculateAttendanceTotals,
     } from './osbb-attendance.js';
     import {
+        calculateDispatcherMonthStats,
         closeDispatcherTicket,
+        dispatcherDayStatus,
+        dispatcherDayStatusLabel,
         matchesDispatcherFilter,
+        matchesDispatcherSearchAndWorker,
         normalizeDispatcherDay,
         reopenDispatcherTicket,
     } from './osbb-dispatcher.js';
@@ -2926,15 +2930,6 @@
 
     // Календарна сітка диспетчера — той самий вигляд, що й у Журналі: квадрати днів,
     // клік відкриває day-detail-modal з подіями та фото за цей день.
-    // Статус дня для крапки в календарі, похідний від заявок: якщо є відкрита
-    // термінова заявка — urgent; якщо всі заявки виконано — done; інакше open.
-    function dispDayStatusKey(row) {
-        if (!row.ticketsList.length) return null;
-        if (row.ticketsList.some(t => t.priority === 'HIGH' && t.status !== 'done')) return 'urgent';
-        if (row.ticketsList.every(t => t.status === 'done')) return 'done';
-        return 'open';
-    }
-
     function dispRender() {
         const container = document.getElementById('disp-cards');
         if (!container) return;
@@ -2968,17 +2963,14 @@
             const row = dispGetDay(d);
             const photosCount = getPhotosFromCache(d, 'dispatcher').length;
             const hasEvent = row.ticketsList.length > 0 || photosCount > 0;
-            const query = dispSearchQuery.trim().toLowerCase();
-            const searchText = row.ticketsList.map(t => t.text).join(' ').toLowerCase();
-            const matchesSearch = !query || searchText.includes(query);
             const matchesFilter = dispMatchesFilter(row, hasEvent, d);
-            const matchesWorker = dispWorkerFilter === 'all' || row.ticketsList.some(ticket => ticket.role === dispWorkerFilter);
-            const isDimmed = !matchesSearch || !matchesFilter || !matchesWorker;
+            const matchesSearchAndWorker = matchesDispatcherSearchAndWorker(row, dispSearchQuery, dispWorkerFilter);
+            const isDimmed = !matchesSearchAndWorker || !matchesFilter;
             if (!isDimmed) visibleMatches++;
             const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-            const statusKey = dispDayStatusKey(row);
+            const statusKey = dispatcherDayStatus(row);
             const statusDot = statusKey === 'urgent' ? 'dispatcher-urgent' : statusKey === 'done' ? 'dispatcher-done' : 'dispatcher';
-            const statusLabel = statusKey === 'urgent' ? 'є термінові заявки' : statusKey === 'done' ? 'усі заявки виконано' : statusKey === 'open' ? 'є відкриті заявки' : 'подій немає';
+            const statusLabel = dispatcherDayStatusLabel(statusKey);
 
             const cell = document.createElement('button');
             cell.type = 'button';
@@ -3005,15 +2997,11 @@
 
     function dispRenderStats() {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const totals = { events: 0, tickets: 0, urgent: 0, done: 0 };
+        const entries = [];
         for (let d = 1; d <= daysInMonth; d++) {
-            const row = dispGetDay(d);
-            const hasEvent = row.ticketsList.length > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
-            if (hasEvent) totals.events++;
-            totals.tickets += row.ticketsList.length;
-            totals.urgent += row.ticketsList.filter(t => t.priority === 'HIGH' && t.status !== 'done').length;
-            totals.done += row.ticketsList.filter(t => t.status === 'done').length;
+            entries.push({ row: dispGetDay(d), photosCount: getPhotosFromCache(d, 'dispatcher').length });
         }
+        const totals = calculateDispatcherMonthStats(entries);
         const map = { 'disp-stat-events': totals.events, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-done': totals.done };
         Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
     }
