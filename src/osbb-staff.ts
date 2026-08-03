@@ -3,9 +3,16 @@ export type StaffRole = 'dispatcher' | 'admin' | 'board' | 'plumber' | 'janitor'
 export interface StaffSession {
     id: string | number;
     name: string;
-    role: string;
+    role: StaffRole;
 }
 
+export interface StaffListEntry {
+    id: string | number;
+    full_name: string;
+    role: StaffRole;
+}
+
+const STAFF_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES: readonly StaffRole[] = ['plumber', 'janitor', 'electrician'];
 export const WORKER_ALLOWED_TABS: readonly string[] = ['tabel', 'my-tickets'];
 
@@ -26,6 +33,30 @@ export const STAFF_ROLE_LABELS: Readonly<Record<StaffRole, string>> = {
     janitor: 'Двірник',
     electrician: 'Електрик',
 };
+
+export function parseStaffSession(value: unknown): StaffSession | null {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    const session = value as Record<string, unknown>;
+    const validId = typeof session.id === 'string' && session.id.trim() !== ''
+        || typeof session.id === 'number' && Number.isFinite(session.id);
+    if (!validId || typeof session.name !== 'string' || session.name.trim() === '') return null;
+    if (typeof session.role !== 'string' || !STAFF_ROLES.includes(session.role as StaffRole)) return null;
+    return {
+        id: typeof session.id === 'string' ? session.id.trim() : session.id as number,
+        name: session.name.trim(),
+        role: session.role as StaffRole,
+    };
+}
+
+export function parseStaffList(value: unknown): StaffListEntry[] {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const row = entry as Record<string, unknown>;
+        const session = parseStaffSession({ id: row.id, name: row.full_name, role: row.role });
+        return session ? [{ id: session.id, full_name: session.name, role: session.role }] : [];
+    });
+}
 
 export function isDispatcherSession(session: StaffSession | null | undefined): boolean {
     return Boolean(session) && ['dispatcher', 'admin', 'board'].includes(session?.role ?? '');

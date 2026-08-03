@@ -1,3 +1,33 @@
+function garbageCount(value) {
+    const count = Number(value);
+    return Number.isFinite(count) && count > 0 ? Math.trunc(count) : undefined;
+}
+
+export function normalizeGarbageMonth(value) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+    const month = {};
+    for (const [day, entry] of Object.entries(value)) {
+        const numericDay = Number(day);
+        if (!Number.isInteger(numericDay) || numericDay < 1 || numericDay > 31) continue;
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) continue;
+        if (!entry.types || typeof entry.types !== 'object' || Array.isArray(entry.types)) {
+            month[day] = { ...entry };
+            continue;
+        }
+        const types = {};
+        for (const type of ['plastic', 'glass', 'bins']) {
+            const count = garbageCount(entry.types[type]);
+            if (count !== undefined) types[type] = count;
+        }
+        month[day] = {
+            time: typeof entry.time === 'string' ? entry.time : '',
+            worker: typeof entry.worker === 'string' ? entry.worker : '',
+            types,
+        };
+    }
+    return month;
+}
+
 export function garbageMonthKey(year, month) {
     return `${year}-${month}`;
 }
