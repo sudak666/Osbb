@@ -124,6 +124,8 @@ fallback і unit-тестами:
 Ручні `database.types.ts` синхронізовано з актуальними staff/attendance/elevator
 таблицями та RPC; повну заміну на generated types усе ще слід робити лише після
 звірки з живою схемою Supabase.
+`createSupabaseRestClient` має generic-контракти для назв таблиць, Row/Insert/Update
+та RPC Args/Returns; browser-runnable JS fallback і transport-поведінка не змінені.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 

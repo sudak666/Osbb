@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const source = fs.readFileSync(new URL('../src/database.types.ts', import.meta.url), 'utf8');
+const apiSource = fs.readFileSync(new URL('../src/supabase-api.ts', import.meta.url), 'utf8');
 
 test('database types model merged OSBB month-key tables, not the old row schema', () => {
   assert.match(source, /schedule: RowOperation<\{\n\s+month_key: string;\n\s+data: Json;/);
@@ -27,4 +28,11 @@ test('database types model current OSBB staff, attendance and elevator tables', 
   }
   assert.match(source, /export type OsbbStaffRole = 'plumber' \| 'janitor' \| 'electrician' \| 'dispatcher' \| 'admin' \| 'board';/);
   assert.match(source, /save_attendance_day: \{[\s\S]*p_role: Extract<OsbbStaffRole, 'plumber' \| 'janitor' \| 'electrician'>;/);
+});
+
+test('Supabase REST transport exposes typed table and RPC boundaries', () => {
+  assert.match(apiSource, /from<Table extends PublicTableName>\(table: Table\)/);
+  assert.match(apiSource, /PublicTableRow<Table>,\n\s+PublicTableInsert<Table>,\n\s+PublicTableUpdate<Table>/);
+  assert.match(apiSource, /rpc<Fn extends PublicFunctionName>\(fn: Fn, params: PublicFunctionArgs<Fn>\): Promise<PublicFunctionReturns<Fn> \| null>/);
+  assert.match(apiSource, /data: T \| null;/);
 });
