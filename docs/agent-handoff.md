@@ -108,7 +108,13 @@ fallback і unit-тестами:
 - OSBB: `osbb-attendance`, `osbb-dispatcher`, `osbb-elevator`, `osbb-garbage`,
   `osbb-shifts`, `osbb-staff`, `osbb-tickets`;
 - Sklad: `sklad-audit`, `sklad-dates`, `sklad-domain`, `sklad-movements`,
-  `sklad-pricing`, `sklad-suppliers`.
+  `sklad-pricing`, `sklad-state`, `sklad-suppliers`.
+
+Межа завантаження масивів `inventory_items`, `inventory_logs` та
+`inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
+тепер перетворюється на порожній список замість потрапляння в UI-стан.
+Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
+ролі видаляються із `sessionStorage` до застосування role gating.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 

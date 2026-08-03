@@ -45,6 +45,7 @@
         isTabAllowedForSession as isStaffTabAllowed,
         isWorkerSession as isWorkerStaffSession,
         normalizeWorkerRole,
+        parseStaffSession,
     } from './osbb-staff.js';
     import {
         TICKET_PRIORITIES as ticketPriorities,
@@ -169,8 +170,12 @@
     function loadStaffSession() {
         try {
             const raw = sessionStorage.getItem(STAFF_SESSION_KEY);
-            staffSession = raw ? JSON.parse(raw) : null;
-        } catch(e) { staffSession = null; }
+            staffSession = raw ? parseStaffSession(JSON.parse(raw)) : null;
+            if (raw && !staffSession) sessionStorage.removeItem(STAFF_SESSION_KEY);
+        } catch(e) {
+            staffSession = null;
+            try { sessionStorage.removeItem(STAFF_SESSION_KEY); } catch {}
+        }
     }
 
     function saveStaffSession() {
