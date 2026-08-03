@@ -113,6 +113,8 @@ fallback і unit-тестами:
 Межа завантаження масивів `inventory_items`, `inventory_logs` та
 `inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
 тепер перетворюється на порожній список замість потрапляння в UI-стан.
+Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
+ролі видаляються із `sessionStorage` до застосування role gating.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 
