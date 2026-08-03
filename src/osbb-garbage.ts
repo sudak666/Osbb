@@ -20,6 +20,38 @@ export interface GarbageMigrationResult {
     migrated: boolean;
 }
 
+function garbageCount(value: unknown): number | undefined {
+    const count = Number(value);
+    return Number.isFinite(count) && count > 0 ? Math.trunc(count) : undefined;
+}
+
+export function normalizeGarbageMonth(value: unknown): GarbageMonthData {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+    const month: GarbageMonthData = {};
+    for (const [day, entry] of Object.entries(value)) {
+        const numericDay = Number(day);
+        if (!Number.isInteger(numericDay) || numericDay < 1 || numericDay > 31) continue;
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) continue;
+        const row = entry as Record<string, unknown>;
+        if (!row.types || typeof row.types !== 'object' || Array.isArray(row.types)) {
+            month[day] = { ...row };
+            continue;
+        }
+        const sourceTypes = row.types as Record<string, unknown>;
+        const types: GarbageTypes = {};
+        for (const type of ['plastic', 'glass', 'bins'] as const) {
+            const count = garbageCount(sourceTypes[type]);
+            if (count !== undefined) types[type] = count;
+        }
+        month[day] = {
+            time: typeof row.time === 'string' ? row.time : '',
+            worker: typeof row.worker === 'string' ? row.worker : '',
+            types,
+        };
+    }
+    return month;
+}
+
 export function garbageMonthKey(year: number, month: number): string {
     return `${year}-${month}`;
 }

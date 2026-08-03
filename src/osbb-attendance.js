@@ -9,7 +9,8 @@ export function normalizeAttendanceMonth(value) {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
     const month = {};
     for (const [day, roles] of Object.entries(value)) {
-        if (!/^\d{1,2}$/.test(day) || typeof roles !== 'object' || roles === null || Array.isArray(roles)) continue;
+        const numericDay = Number(day);
+        if (!Number.isInteger(numericDay) || numericDay < 1 || numericDay > 31 || typeof roles !== 'object' || roles === null || Array.isArray(roles)) continue;
         const normalizedRoles = {};
         for (const [role, cell] of Object.entries(roles)) {
             if (typeof cell !== 'object' || cell === null || Array.isArray(cell)) continue;

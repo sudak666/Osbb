@@ -17,6 +17,7 @@ test('normalizeDispatcherMonth залишає лише валідні дні т�
   assert.deepEqual(normalizeDispatcherMonth({
     1: { ticketsList: [{ id: 't1', text: 'Аварія' }, null, { text: 'без id' }] },
     invalid: { ticketsList: [{ id: 't2' }] },
+    99: { ticketsList: [{ id: 't3' }] },
   }), { 1: { ticketsList: [{ id: 't1', text: 'Аварія' }] } });
   assert.deepEqual(normalizeDispatcherMonth(null), {});
 });

@@ -14,6 +14,7 @@ test('workShiftRowsFromResponse індексує лише валідні змі�
   assert.deepEqual(workShiftRowsFromResponse([
     { shift_date: '2026-08-03', sergiy: ['day', 'invalid'], oleksandr: ['rest'] },
     { shift_date: '03.08.2026', sergiy: ['night'], oleksandr: [] },
+    { shift_date: '2026-02-31', sergiy: ['night'], oleksandr: [] },
     null,
   ]), {
     '2026-08-03': { shift_date: '2026-08-03', sergiy: ['day'], oleksandr: ['rest'] },

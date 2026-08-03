@@ -31,6 +31,7 @@
         garbageMonthKey,
         garbageMonthKeyCandidates,
         migrateGarbageData,
+        normalizeGarbageMonth,
     } from './osbb-garbage.js';
     import {
         calculateShiftMoney,
@@ -1932,7 +1933,7 @@
     // у новий формат { types: { plastic, glass, bins }, worker, time }.
     // Повертає { data, migrated } — migrated=true, якщо хоч один запис був перетворений.
     function gMigrateOldData(data) {
-        return migrateGarbageData(data);
+        return migrateGarbageData(normalizeGarbageMonth(data));
     }
 
 

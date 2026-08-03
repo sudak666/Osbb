@@ -18,10 +18,15 @@ export function photoCacheKey(day: string | number, role: string): string {
     return `${day}-${role}`;
 }
 
-export function buildPhotoCache(records: readonly PhotoRecord[]): PhotoCache {
+export function buildPhotoCache(records: unknown): PhotoCache {
     const cache: PhotoCache = {};
-    for (const photo of records) {
+    if (!Array.isArray(records)) return cache;
+    for (const value of records) {
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
+        const photo = value as Record<string, unknown>;
+        if (!(typeof photo.id === 'string' || typeof photo.id === 'number' && Number.isFinite(photo.id))) continue;
         if (photo.day === null || photo.day === undefined || !photo.role) continue;
+        if (typeof photo.day !== 'string' && typeof photo.day !== 'number' || typeof photo.role !== 'string') continue;
         const url = safeExternalUrl(photo.url);
         if (!url) continue;
         const key = photoCacheKey(photo.day, photo.role);

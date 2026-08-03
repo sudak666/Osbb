@@ -51,7 +51,8 @@ export function normalizeDispatcherDay(row: unknown): DispatcherDay {
 export function normalizeDispatcherMonth(value: unknown): DispatcherMonth {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
     return Object.fromEntries(Object.entries(value).flatMap(([day, row]) => {
-        if (!/^\d{1,2}$/.test(day)) return [];
+        const numericDay = Number(day);
+        if (!Number.isInteger(numericDay) || numericDay < 1 || numericDay > 31) return [];
         return [[day, normalizeDispatcherDay(row)]];
     }));
 }
