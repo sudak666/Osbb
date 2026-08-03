@@ -10,13 +10,13 @@ import {
   formatMoney as money,
   isPurchasePriceSchemaError,
   itemPriceValue as priceValue,
-  itemStockValue as stockValue,
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
-import { adjustedStockAfterMovementEdit, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
+import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
+import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -1219,14 +1219,17 @@ function openQuick(id){
   setTimeout(()=>document.getElementById('qmQtyI').focus(),100);
 }
 async function doQuickIssue(btn){
-  const qty=parseFloat(document.getElementById('qmQtyI').value);
-  const person=document.getElementById('qmPersonI').value.trim();
-  if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
-  if(!person) return toast('Вкажіть кому!','error');
+  const payload=buildIssuePayload({
+    itemId:quickId,
+    quantity:document.getElementById('qmQtyI').value,
+    person:document.getElementById('qmPersonI').value
+  });
+  if(!payload.ok) return toast(payload.error==='person'?'Вкажіть кому!':'Вкажіть кількість!','error');
   const done=setActionButtonLoading(btn,'Видаю...');
   if(!done) return;
   try{
-    const ok=await issueItem(quickId,qty,person,'');
+    const {itemId,quantity,person}=payload.value;
+    const ok=await issueItem(itemId,quantity,person,'');
     if(ok) closeModal('qModal');
   }finally{
     done();
@@ -1243,18 +1246,22 @@ function onIssueSel(){
   document.getElementById('issueInfoQty').textContent=item.quantity+' '+item.unit;
 }
 async function doIssue(btn){
-  const id=parseInt(document.getElementById('issueItemSel').value);
-  const qty=parseFloat(document.getElementById('issueQtyI').value);
-  const person=document.getElementById('issuePersonI').value.trim();
-  const note=document.getElementById('issueNoteI').value.trim();
-  const issueDate=document.getElementById('issueDateI').value;
-  if(!id) return toast('Оберіть товар!','error');
-  if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
-  if(!person) return toast('Вкажіть кому!','error');
+  const payload=buildIssuePayload({
+    itemId:document.getElementById('issueItemSel').value,
+    quantity:document.getElementById('issueQtyI').value,
+    person:document.getElementById('issuePersonI').value,
+    note:document.getElementById('issueNoteI').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('issueDateI').value)
+  });
+  if(!payload.ok){
+    const messages={item:'Оберіть товар!',quantity:'Вкажіть кількість!',person:'Вкажіть кому!'};
+    return toast(messages[payload.error]||'Перевірте дані видачі','error');
+  }
   const done=setActionButtonLoading(btn,'Видаю...');
   if(!done) return;
   try{
-    const ok=await issueItem(id,qty,person,note,issueDate);
+    const {itemId,quantity,person,note,occurredAt}=payload.value;
+    const ok=await issueItem(itemId,quantity,person,note,occurredAt);
     if(!ok) return;
     ['issueItemSel','issueQtyI','issuePersonI','issueNoteI'].forEach(k=>document.getElementById(k).value='');
     document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
@@ -1268,7 +1275,7 @@ async function doIssue(btn){
 async function issueItem(itemId,qty,person,note,issueDate){
   const item=allItems.find(i=>i.id===itemId);
   if(!item){toast('Товар не знайдено!','error');return false;}
-  const issuedAt=dateInputToTimestamp(issueDate);
+  const issuedAt=issueDate?.includes('T')?issueDate:dateInputToTimestamp(issueDate);
   // Атомарний RPC замість read-check-write з клієнта: перевірка залишку і
   // списання відбуваються однією транзакцією на сервері (issue_item),
   // тому паралельна видача того самого товару не може дати від'ємний залишок.
@@ -1424,20 +1431,21 @@ async function confirmEditLog(){
   if(!editLogId) return;
   const l=allLogs.find(x=>x.id===editLogId);
   if(!l) return closeModal('editLogModal');
-  const newQty=parseFloat(document.getElementById('editLogQty').value);
-  const issueDate=document.getElementById('editLogDate').value;
-  const person=document.getElementById('editLogPerson').value.trim();
-  const note=document.getElementById('editLogNote').value.trim();
-  if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
+  const patchResult=buildIssueEditPatch({
+    quantity:document.getElementById('editLogQty').value,
+    person:document.getElementById('editLogPerson').value,
+    note:document.getElementById('editLogNote').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('editLogDate').value)
+  });
+  if(!patchResult.ok) return toast('Введіть коректну кількість','error');
+  const logPatch=patchResult.value;
+  const newQty=logPatch.quantity;
   const item=allItems.find(i=>i.id===l.item_id);
   if(item){
     const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,l.quantity,newQty,'issue');
     if(adjustedStock===null) return toast('Недостатньо товару на складі для такої кількості','error');
     await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
   }
-  const logPatch={quantity:newQty,issued_to:person||null,note:note||null};
-  const issuedAt=dateInputToTimestamp(issueDate);
-  if(issuedAt) logPatch.issued_at=issuedAt;
   const {error}=await db.from('inventory_logs').update(logPatch).eq('id',editLogId);
   if(error) return toast('Помилка: '+error.message,'error');
   toast('Запис оновлено','success');
@@ -1552,13 +1560,19 @@ async function confirmEditReceipt(){
   if(!editReceiptId) return;
   const r=allReceipts.find(x=>x.id===editReceiptId);
   if(!r) return closeModal('editReceiptModal');
-  const newQty=parseFloat(document.getElementById('editReceiptQty').value);
-  const receiptDate=document.getElementById('editReceiptDate').value;
-  const purchasePrice=optionalPrice(document.getElementById('editReceiptPrice').value);
-  const supplier=document.getElementById('editReceiptSupplier').value.trim();
-  const note=document.getElementById('editReceiptNote').value.trim();
-  if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
-  if(Number.isNaN(purchasePrice)) return toast('Введіть коректну ціну закупівлі','error');
+  const patchResult=buildReceiptEditPatch({
+    quantity:document.getElementById('editReceiptQty').value,
+    purchasePrice:optionalPrice(document.getElementById('editReceiptPrice').value),
+    supplier:document.getElementById('editReceiptSupplier').value,
+    note:document.getElementById('editReceiptNote').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('editReceiptDate').value)
+  });
+  if(!patchResult.ok){
+    return toast(patchResult.error==='price'?'Введіть коректну ціну закупівлі':'Введіть коректну кількість','error');
+  }
+  const receiptPatch=patchResult.value;
+  const newQty=receiptPatch.quantity;
+  const purchasePrice=receiptPatch.purchase_price_unit;
   const item=allItems.find(i=>i.id===r.item_id);
   if(item){
     const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,r.quantity,newQty,'receipt');
@@ -1568,15 +1582,12 @@ async function confirmEditReceipt(){
     const {error:itemError}=await db.from('inventory_items').update(itemPatch).eq('id',item.id);
     if(itemError) return toast('Не вдалося оновити товар: '+itemError.message,'error');
   }
-  const receiptPatch={quantity:newQty,purchase_price_unit:purchasePrice,supplier:supplier||null,note:note||null};
-  const receivedAt=dateInputToTimestamp(receiptDate);
-  if(receivedAt) receiptPatch.received_at=receivedAt;
   let {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
   let priceHistorySaved=true;
   if(error&&isPurchasePriceSchemaError(error)){
     priceHistorySaved=false;
-    const legacyPatch={quantity:newQty,supplier:supplier||null,note:note||null};
-    if(receivedAt) legacyPatch.received_at=receivedAt;
+    const legacyPatch={...receiptPatch};
+    delete legacyPatch.purchase_price_unit;
     ({error}=await db.from('inventory_receipts').update(legacyPatch).eq('id',editReceiptId));
   }
   if(error) return toast('Помилка: '+error.message,'error');
@@ -1597,15 +1608,19 @@ function onRefillSel(){
   document.getElementById('refillCur').textContent=item.quantity+' '+item.unit;
 }
 async function doRefill(btn){
-  const id=parseInt(document.getElementById('refillSel').value);
-  const qty=parseFloat(document.getElementById('refillQtyI').value);
-  const purchasePrice=optionalPrice(document.getElementById('refillPriceI').value);
-  const supplier=document.getElementById('refillSupplierI').value.trim();
-  const note=document.getElementById('refillNoteI').value.trim();
-  const receiptDate=document.getElementById('refillDateI').value;
-  if(!id) return toast('Оберіть товар!','error');
-  if(!qty||qty<=0) return toast('Вкажіть кількість!','error');
-  if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
+  const payload=buildReceiptPayload({
+    itemId:document.getElementById('refillSel').value,
+    quantity:document.getElementById('refillQtyI').value,
+    purchasePrice:optionalPrice(document.getElementById('refillPriceI').value),
+    supplier:document.getElementById('refillSupplierI').value,
+    note:document.getElementById('refillNoteI').value,
+    occurredAt:dateInputToTimestamp(document.getElementById('refillDateI').value)
+  });
+  if(!payload.ok){
+    const messages={item:'Оберіть товар!',quantity:'Вкажіть кількість!',price:'Вкажіть коректну ціну закупівлі'};
+    return toast(messages[payload.error]||'Перевірте дані приходу','error');
+  }
+  const {itemId:id,quantity:qty,purchasePrice,supplier,note,occurredAt:receivedAt}=payload.value;
   const item=findItemForAction(id,'прихід');
   if(!item) return;
   const done=setActionButtonLoading(btn,'Поповнюю...');
@@ -1613,7 +1628,6 @@ async function doRefill(btn){
   try{
   // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
-  const receivedAt=dateInputToTimestamp(receiptDate);
   let {data,error}=await db.rpc('receive_item',{
     p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
   });
@@ -1930,49 +1944,40 @@ function getValueFilteredItems(){
 }
 function renderStats(){
   syncValueFilterOptions();
-  const internalCount=allItems.filter(i=>i.is_internal).length;
-  const priced=allItems.filter(i=>priceValue(i)>0);
-  const balanceValue=allItems.filter(i=>!i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
   const filteredItems=getValueFilteredItems();
-  const filteredValue=filteredItems.reduce((sum,i)=>sum+stockValue(i),0);
-  const filteredPriced=filteredItems.filter(i=>priceValue(i)>0).length;
-  const filteredInStock=filteredItems.filter(i=>Number(i.quantity||0)>0).length;
-  const filteredInternal=filteredItems.filter(i=>i.is_internal).length;
-  document.getElementById('bal-total').textContent=allItems.length-internalCount;
-  document.getElementById('bal-internal').textContent=internalCount;
-  document.getElementById('bal-value').textContent=balanceValue?money(balanceValue):'—';
-  document.getElementById('bal-priced').textContent=priced.length;
+  const stats=calculateInventoryValueSummary(allItems,filteredItems);
+  document.getElementById('bal-total').textContent=stats.balanceItems;
+  document.getElementById('bal-internal').textContent=stats.internalItems;
+  document.getElementById('bal-value').textContent=stats.balanceValue?money(stats.balanceValue):'—';
+  document.getElementById('bal-priced').textContent=stats.pricedItems;
   const filteredValueEl=document.getElementById('bal-filtered-value');
-  if(filteredValueEl) filteredValueEl.textContent=filteredValue?money(filteredValue):'—';
+  if(filteredValueEl) filteredValueEl.textContent=stats.filteredValue?money(stats.filteredValue):'—';
   const filteredCountEl=document.getElementById('bal-filtered-count');
-  if(filteredCountEl) filteredCountEl.innerHTML=`<span class="ms ic-13-2">filter_alt</span> ${filteredItems.length} поз. · ${filteredInStock} в наявності · ${filteredInternal} внутр.`;
+  if(filteredCountEl) filteredCountEl.innerHTML=`<span class="ms ic-13-2">filter_alt</span> ${stats.filteredItems} поз. · ${stats.filteredInStock} в наявності · ${stats.filteredInternal} внутр.`;
   const summary=document.getElementById('valueFilterSummary');
   if(summary){
-    const missing=filteredItems.length-filteredPriced;
-    summary.textContent=`У фільтрі: ${filteredItems.length} позицій, в наявності ${filteredInStock}, внутрішніх ${filteredInternal}, оцінено ${filteredPriced}, без ціни ${missing}. Сума рахується як залишок × ціна за одиницю.`;
+    const missing=stats.filteredItems-stats.filteredPriced;
+    summary.textContent=`У фільтрі: ${stats.filteredItems} позицій, в наявності ${stats.filteredInStock}, внутрішніх ${stats.filteredInternal}, оцінено ${stats.filteredPriced}, без ціни ${missing}. Сума рахується як залишок × ціна за одиницю.`;
   }
-  const cats=[...new Set(allItems.map(i=>i.category))];
-  document.getElementById('statCats').innerHTML=cats.map(cat=>{
-    const items=allItems.filter(i=>i.category===cat);
-    const pct=allItems.length?Math.round(items.length/allItems.length*100):0;
+  document.getElementById('statCats').innerHTML=summarizeInventoryCategories(allItems).map(({category:cat,count,percentage:pct})=>{
     const c=catColor[cat]||'#64748b';
     const safeCat=escapeHtml(cat||'—');
     return `<div>
       <div class="stat-cat-row-head">
         <span class="stat-cat-name">${catIconHtml[cat]||catIconHtmlDefault} ${safeCat}</span>
-        <span class="stat-cat-count">${items.length} поз.</span>
+        <span class="stat-cat-count">${count} поз.</span>
       </div>
       <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c};"></div></div>
     </div>`;
   }).join('');
-  const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity);
+  const low=sortLowStockItems(allItems);
   document.getElementById('statLow').innerHTML=low.length
     ? low.map(i=>`<div class="stat-low-row">
         <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
         <span class="${i.quantity==0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
       </div>`).join('')
     : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Всі товари в нормі!</div>';
-  const unpriced=allItems.filter(i=>!priceValue(i)).sort((a,b)=>Number(b.quantity||0)-Number(a.quantity||0));
+  const unpriced=sortUnpricedItems(allItems);
   const unpricedBox=document.getElementById('statUnpriced');
   if(unpricedBox) unpricedBox.innerHTML=unpriced.length
     ? unpriced.slice(0,12).map(i=>`<div class="stat-unpriced-row">
@@ -1997,25 +2002,15 @@ function renderStats(){
 // ===== EXCEL =====
 function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');
-  const ws=XLSX.utils.json_to_sheet(allItems.map((i,idx)=>({'№':idx+1,'Назва товару':i.name,'Категорія':i.category,'Залишок':i.quantity,'Одиниця':i.unit,'Ціна за од., грн':priceValue(i)||'','Оцінка залишку, грн':stockValue(i)||'','Джерело ціни':i.price_source||'','Дата ціни':i.price_checked_at?new Date(i.price_checked_at).toLocaleString('uk-UA'):'','Внутрішнє використання':i.is_internal?'Так':'Ні'})));
+  const ws=XLSX.utils.json_to_sheet(buildInventoryExportRows(allItems));
   ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:14},{wch:18},{wch:28},{wch:18},{wch:20}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Товари');
-  const internalCount=allItems.filter(i=>i.is_internal).length;
-  const balanceValue=allItems.filter(i=>!i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
-  const internalValue=allItems.filter(i=>i.is_internal).reduce((sum,i)=>sum+stockValue(i),0);
-  const wsBalance=XLSX.utils.json_to_sheet([
-    {'Показник':'Позицій на балансі (без внутрішнього використання)','Значення':allItems.length-internalCount},
-    {'Показник':'Позицій внутрішнього використання (хознужди)','Значення':internalCount},
-    {'Показник':'Всього позицій','Значення':allItems.length},
-    {'Показник':'Орієнтовна вартість залишку на балансі, грн','Значення':balanceValue},
-    {'Показник':'Орієнтовна вартість внутрішнього використання, грн','Значення':internalValue},
-    {'Показник':'Товарів з ціною','Значення':allItems.filter(i=>priceValue(i)>0).length}
-  ]);
+  const wsBalance=XLSX.utils.json_to_sheet(buildBalanceExportRows(allItems));
   wsBalance['!cols']=[{wch:50},{wch:12}];
   XLSX.utils.book_append_sheet(wb,wsBalance,'Баланс');
   if(allLogs.length){
-    const ws2=XLSX.utils.json_to_sheet(allLogs.map(l=>({'Дата':new Date(l.issued_at).toLocaleString('uk-UA'),'Товар':l.item_name,'К-сть':l.quantity,'Кому':l.issued_to||'','Примітка':l.note||''})));
+    const ws2=XLSX.utils.json_to_sheet(buildIssueExportRows(allLogs));
     ws2['!cols']=[{wch:18},{wch:50},{wch:8},{wch:25},{wch:30}];
     XLSX.utils.book_append_sheet(wb,ws2,'Журнал видач');
   }
