@@ -20,10 +20,8 @@ git log --oneline -8
 node scripts/smoke-check.mjs
 ```
 
-Expected recent work at the time this handoff was written:
-
-- `6c45dc0 Polish Sklad mobile light UI and price modal`
-- `78690a6 Centralize DOM event bindings, add auth TTL, sanitize external URLs and improve accessibility`
+Поточна гілка містить серію малих рефакторингів великих runtime-модулів. Перед
+продовженням орієнтуйтеся на фактичний `git log`, бо PR-и можуть бути squash-нуті.
 
 ## What has already been done
 
@@ -96,7 +94,31 @@ Many modals/lightbox surfaces now expose dialog semantics and focus behavior:
 
 Recent accessibility work added focus traps, `Esc` close paths, opener focus restoration, live regions, tab semantics, `aria-current`/`aria-selected` state sync, and labels for several icon-only controls. Continue auditing any newly added custom controls for keyboard support and stable accessible names.
 
-### 5. Sklad mobile UI polish
+### 5. Модульна міграція runtime
+
+Великі inline-скрипти вже винесені з HTML у браузерні entrypoint-и:
+
+- `src/osbb-app.js`;
+- `src/sklad-app.js`.
+
+Чиста логіка поступово винесена в TypeScript-модулі з browser-runnable JS
+fallback і unit-тестами:
+
+- спільні: `app-security`, `auth-session`, `shell-state`, `supabase-api`;
+- OSBB: `osbb-attendance`, `osbb-dispatcher`, `osbb-elevator`, `osbb-garbage`,
+  `osbb-shifts`, `osbb-staff`, `osbb-tickets`;
+- Sklad: `sklad-audit`, `sklad-dates`, `sklad-domain`, `sklad-movements`,
+  `sklad-pricing`, `sklad-suppliers`.
+
+Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
+
+- `scripts/check-js-fallback-parity.mjs`;
+- `package.json` → `test:runtime`;
+- відповідного combined reader у `scripts/smoke-check.mjs`.
+
+Не дублюйте вже винесену логіку назад у `osbb-app.js` або `sklad-app.js`.
+
+### 6. Sklad mobile UI polish
 
 Recent Sklad mobile fixes:
 
@@ -124,38 +146,59 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Latest known expected result: `134 smoke checks passed` after the accessibility/focus/escaping/mobile-topbar/menu hardening, Sklad foundational UI token pass, items-screen hero/filter redesign shell, calmer insight/mobile item card pass, issue workflow form pass, and log list shell pass.
+Актуальний baseline на момент оновлення документа: `89` unit-тестів і `236`
+smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
+лише на ці числа.
 
-## Suggested next work
+## Що залишилося по міграції
 
-### Priority 1 — Continue Sklad visual redesign
+### Пріоритет 1 — завершити декомпозицію великих entrypoint-ів
 
-- Read `docs/ui-redesign-notes.md` before making visual changes.
-- Build on the new Sklad design tokens (`--surface-*`, `--shadow-*`, `--radius-*`, `--motion-*`).
-- Continue the Sklad redesign: refine the new hero/filter/insight-card, issue workflow and log list shells, reduce remaining inline styles, and apply the same calm hierarchy to Receipt/Audit screens.
-- Ensure primary vs secondary actions are visually clear.
-- Check bottom nav overlap with modals, cards, long lists, and mobile item overflow menus.
+`src/osbb-app.js` і `src/sklad-app.js` усе ще є великими оркестраторами. Наступні
+безпечні кандидати для малих PR:
 
-### Priority 2 — Accessibility follow-up audit
+1. **Sklad форми руху товару** — валідація payload для видачі, приходу та
+   редагування; формування patch-об'єктів без DOM і Supabase-викликів.
+2. **Sklad статистика й експорт** — підготовка агрегатів/рядків Excel окремо від
+   DOM та `XLSX`.
+3. **OSBB фото** — побудова списку lightbox, нормалізація метаданих і вибір
+   попереднього/наступного фото; мережеві upload/delete лишити в orchestrator.
+4. **OSBB календар/диспетчер** — винести підсумки місяця та статус дня, не
+   переносячи DOM-render функції одним великим комітом.
+5. **Спільний Supabase transport** — поступово замінити локальний REST-wrapper в
+   `osbb-app.js`, але лише після тестів сумісності всіх `.from()`/`.rpc()` шляхів.
 
-- Keep focus trap / `Esc` / opener-return behavior intact when adding new modals or lightboxes.
-- Check newly added icon-only buttons for stable `aria-label`.
-- Prefer semantic controls over custom clickable elements; if custom controls are needed, preserve keyboard support.
-- Add smoke checks for new accessibility invariants where practical.
+### Пріоритет 2 — перевести entrypoint-и на TypeScript
 
-### Priority 3 — Safer rendering pass
+- Створити `src/osbb-app.ts` та `src/sklad-app.ts` тільки після подальшого
+  зменшення файлів; зараз пряме перейменування створить надто великий і ризиковий
+  diff.
+- Спочатку типізувати межі стану (`allItems`, `allLogs`, `allReceipts`, місячні
+  OSBB-дані) та відповіді Supabase.
+- Не видаляти JS fallback, доки GitHub Pages гарантовано використовує Vite build.
 
-- Continue auditing `innerHTML` renderers.
-- Prefer `escapeHtml`/`escapeAttr` or DOM APIs (`textContent`, `setAttribute`) for user-controlled data.
-- Add smoke guards when converting risky renderers.
+### Пріоритет 3 — типи Supabase
 
-### Priority 4 — Start reducing monoliths carefully
+- Замінити ручний `src/database.types.ts` на типи, згенеровані з актуальної
+  Supabase-схеми.
+- Після генерації звірити RPC `issue_item`, `receive_item`, PIN/reset/delete RPC
+  та таблиці OSBB; не приймати масовий diff без перевірки живої схеми.
 
-Only after the UX/security hardening is stable:
+### Пріоритет 4 — тести інтеграції
 
-- begin extracting CSS/JS in small PRs;
-- avoid large rewrites;
-- keep existing behavior covered by smoke checks.
+- Додати DOM/integration тести для основних orchestrator-flow: PIN-вхід, видача,
+  прихід, редагування руху, інвентаризація, диспетчерська заявка.
+- E2E/Playwright відкласти до окремого узгодження, бо це нова залежність.
+- Поточні pure unit-тести й smoke guards залишаються обов'язковими при кожному
+  наступному extraction PR.
+
+### Супутні задачі, не змішувати з міграцією
+
+- Продовжити аудит `innerHTML` і використовувати `escapeHtml`/`escapeAttr` або DOM
+  API для даних із Supabase.
+- Візуальні зміни виконувати окремо за `docs/ui-redesign-notes.md` зі screenshot,
+  щоб рефакторинг логіки залишався перевірюваним і без непомітних UI-регресій.
+- Не додавати framework або нові залежності без окремого погодження.
 
 ## Working rules for the next agent
 

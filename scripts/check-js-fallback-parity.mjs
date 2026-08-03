@@ -3,11 +3,24 @@ import path from 'node:path';
 
 const root = process.cwd();
 const fallbackPairs = [
+  ['src/app-security.ts', 'src/app-security.js'],
   ['src/auth-session.ts', 'src/auth-session.js'],
   ['src/shell-state.ts', 'src/shell-state.js'],
   ['src/supabase-api.ts', 'src/supabase-api.js'],
   ['src/promin-api.ts', 'src/promin-api.js'],
+  ['src/osbb-attendance.ts', 'src/osbb-attendance.js'],
+  ['src/osbb-dispatcher.ts', 'src/osbb-dispatcher.js'],
+  ['src/osbb-elevator.ts', 'src/osbb-elevator.js'],
+  ['src/osbb-garbage.ts', 'src/osbb-garbage.js'],
+  ['src/osbb-shifts.ts', 'src/osbb-shifts.js'],
+  ['src/osbb-staff.ts', 'src/osbb-staff.js'],
+  ['src/osbb-tickets.ts', 'src/osbb-tickets.js'],
+  ['src/sklad-audit.ts', 'src/sklad-audit.js'],
+  ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
+  ['src/sklad-movements.ts', 'src/sklad-movements.js'],
+  ['src/sklad-pricing.ts', 'src/sklad-pricing.js'],
+  ['src/sklad-suppliers.ts', 'src/sklad-suppliers.js'],
   ['src/shell-controller.ts', 'src/shell-controller.js'],
   ['src/shell.ts', 'src/shell.js'],
 ];

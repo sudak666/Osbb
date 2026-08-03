@@ -1,0 +1,3238 @@
+    import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
+    import { isAuthSessionValid, setAuthSession } from './auth-session.js';
+    import {
+        attendanceCellState,
+        attendanceDayState,
+        attendanceHours,
+        calculateAttendanceTotals,
+    } from './osbb-attendance.js';
+    import {
+        closeDispatcherTicket,
+        matchesDispatcherFilter,
+        normalizeDispatcherDay,
+        reopenDispatcherTicket,
+    } from './osbb-dispatcher.js';
+    import {
+        createElevatorEntry,
+        removeElevatorEntry,
+        sortElevatorEntries,
+    } from './osbb-elevator.js';
+    import {
+        garbageBins,
+        garbageMonthKey,
+        garbageMonthKeyCandidates,
+        migrateGarbageData,
+    } from './osbb-garbage.js';
+    import {
+        calculateShiftMoney,
+        shiftDateKey,
+        shiftErrorMessage,
+        shiftIsWorking,
+        shiftTypeDescription,
+    } from './osbb-shifts.js';
+    import {
+        STAFF_ROLE_ICONS,
+        STAFF_ROLE_LABELS,
+        WORKER_ROLES,
+        canManageStaffAccess as canManageStaffAccessForSession,
+        isDispatcherSession as isDispatcherStaffSession,
+        isTabAllowedForSession as isStaffTabAllowed,
+        isWorkerSession as isWorkerStaffSession,
+        normalizeWorkerRole,
+    } from './osbb-staff.js';
+    import {
+        TICKET_PRIORITIES as ticketPriorities,
+        jiraPriorityClass,
+        matchesDispatcherDateFilter,
+        normalizeTicketPriority,
+        ticketSortComparator,
+    } from './osbb-tickets.js';
+
+    const SUPABASE_URL = 'https://vkwkyhjjjmcpmiakxohw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9';
+    // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
+    // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
+    // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
+    const IS_EMBEDDED_SHELL = isEmbeddedShellFrame();
+
+    // Повідомляємо shell-оболонку про активність усередині iframe, щоб idle-lock
+    // не блокував застосунок, поки користувач реально працює в модулі.
+    function notifyShellActivity() {
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'osbb:user-activity' }, window.location.origin);
+        }
+    }
+    ['pointerdown','keydown','touchstart'].forEach(evt => document.addEventListener(evt, notifyShellActivity, { passive: true }));
+    const IS_PREVIEW = !IS_EMBEDDED_SHELL && (location.hostname.includes('claudeusercontent') || location.hostname.includes('claude.site') || window.self !== window.top);
+
+    // ==========================================
+    // ЕКРАН БЛОКУВАННЯ ВХОДУ
+    // PIN перевіряється на сервері (Supabase RPC verify_lock_pin),
+    // сам код нікому не відомий на клієнті.
+    // Якщо PIN вже введено на рівні shell-оболонки (спільний sessionStorage
+    // в межах одного origin), повторно не питаємо.
+    // ==========================================
+    let lockBuf = '';
+    let lockBusy = false;
+    let lockFails = 0;
+
+    if (IS_EMBEDDED_SHELL || isAuthSessionValid()) {
+        const lockScreen = document.getElementById('app-lock-screen');
+        if (lockScreen) lockScreen.style.display = 'none';
+        setTimeout(() => ensureStaffAuth(), 0);
+    }
+
+    function lockUpdateDots() {
+        for (let i = 0; i < 4; i++) {
+            const dot = document.getElementById('lock-d' + i);
+            if (!dot) continue;
+            dot.style.background = i < lockBuf.length ? '#22c55e' : 'rgba(255,255,255,0.2)';
+            dot.style.transform = i < lockBuf.length ? 'scale(1.2)' : 'scale(1)';
+        }
+    }
+
+    function lockDel() {
+        if (lockBusy) return;
+        if (lockBuf.length > 0) lockBuf = lockBuf.slice(0, -1);
+        const err = document.getElementById('lock-err');
+        if (err) err.textContent = '';
+        lockUpdateDots();
+    }
+
+    async function lockPress(digit) {
+        if (lockBusy || lockBuf.length >= 4) return;
+        lockBuf += digit;
+        lockUpdateDots();
+        if (lockBuf.length === 4) {
+            const attempt = lockBuf;
+            lockBusy = true;
+            let ok = false;
+            try { ok = await db.rpc('verify_lock_pin', { attempt }); } catch (e) { ok = false; }
+            if (ok) {
+                lockFails = 0;
+                lockBusy = false;
+                setAuthSession();
+                const screen = document.getElementById('app-lock-screen');
+                if (screen) {
+                    screen.style.transition = 'opacity 0.35s ease';
+                    screen.style.opacity = '0';
+                    setTimeout(() => { screen.style.display = 'none'; }, 350);
+                }
+                ensureStaffAuth();
+                lockBuf = '';
+            } else {
+                lockFails++;
+                const err = document.getElementById('lock-err');
+                if (err) err.textContent = 'Невірний PIN, спробуйте ще';
+                lockBuf = '';
+                lockUpdateDots();
+                // Тряска
+                const box = document.querySelector('#app-lock-screen > div');
+                if (box) {
+                    box.style.animation = 'none';
+                    box.style.transform = 'translateX(-8px)';
+                    setTimeout(() => box.style.transform = 'translateX(8px)', 80);
+                    setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
+                    setTimeout(() => box.style.transform = 'translateX(0)', 240);
+                }
+                const lockout = Math.min(lockFails * 500, 5000);
+                setTimeout(() => {
+                    lockBusy = false;
+                    const currentErr = document.getElementById('lock-err');
+                    if (currentErr) currentErr.textContent = '';
+                }, lockout);
+            }
+        }
+    }
+
+    // Мінімальний Supabase REST клієнт
+    const db = {
+        _auth: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY },
+
+        async _fetch(method, url, headers = {}, body = undefined) {
+            const r = await fetch(url, {
+                method,
+                headers: { ...this._auth, ...headers },
+                body
+            });
+            if (!r.ok) {
+                const txt = await r.text();
+                throw new Error(`${r.status}: ${txt || r.statusText}`);
+            }
+            const txt = await r.text();
+            return txt ? JSON.parse(txt) : null;
+        },
+
+        async rpc(fn, params = {}) {
+            const url = SUPABASE_URL + '/rest/v1/rpc/' + fn;
+            return this._fetch('POST', url, { 'Content-Type': 'application/json' }, JSON.stringify(params));
+        },
+
+        storage: {
+            from(bucket) {
+                const base = SUPABASE_URL + '/storage/v1/object';
+                const auth = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
+                return {
+                    async upload(path, blob, opts = {}) {
+                        const r = await fetch(`${base}/${bucket}/${path}`, {
+                            method: 'POST',
+                            headers: { ...auth, 'Content-Type': opts.contentType || 'image/jpeg', 'x-upsert': 'true' },
+                            body: blob
+                        });
+                        if (!r.ok) throw new Error(await r.text());
+                        return {};
+                    },
+                    getPublicUrl(path) {
+                        return { data: { publicUrl: `${base}/public/${bucket}/${path}` } };
+                    },
+                    async remove(paths) {
+                        await fetch(`${base}/${bucket}`, {
+                            method: 'DELETE',
+                            headers: { ...auth, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ prefixes: paths })
+                        }).catch(() => {});
+                        return {};
+                    }
+                };
+            }
+        },
+
+        from(table) {
+            const self = this;
+            const s = { filters: [], method: 'GET', body: null, isSingle: false, cols: '*', isUpsert: false, preferReturn: 'representation' };
+            const q = {
+                select(c = '*')    { s.cols = c; return q; },
+                eq(col, val)       { s.filters.push(`${col}=eq.${encodeURIComponent(val)}`); return q; },
+                order(col, opts)   { s.filters.push(`order=${col}.${opts?.ascending === false ? 'desc' : 'asc'}`); return q; },
+                limit(n)           { s.filters.push(`limit=${n}`); return q; },
+                single()           { s.isSingle = true; return q; },
+                insert(data)       { s.method = 'POST'; s.body = data; return q; },
+                upsert(data)       { s.method = 'POST'; s.body = data; s.isUpsert = true; return q; },
+                delete()           { s.method = 'DELETE'; return q; },
+
+                async then(resolve) {
+                    try {
+                        const params = [...s.filters];
+                        if (s.method === 'GET') params.push('select=' + s.cols);
+                        const url = SUPABASE_URL + '/rest/v1/' + table
+                            + (params.length ? '?' + params.join('&') : '');
+
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (s.isUpsert) {
+                            headers['Prefer'] = 'resolution=merge-duplicates,return=' + s.preferReturn;
+                        } else if (s.method === 'POST') {
+                            headers['Prefer'] = 'return=' + s.preferReturn;
+                        }
+
+                        const body = s.body ? JSON.stringify(s.body) : undefined;
+                        const arr = await self._fetch(s.method, url, headers, body);
+
+                        if (s.isSingle) {
+                            const row = Array.isArray(arr) ? (arr[0] ?? null) : null;
+                            resolve({ data: row, error: row ? null : { code: 'PGRST116' } });
+                        } else {
+                            resolve({ data: arr || [], error: null });
+                        }
+                    } catch(e) {
+                        resolve({ data: null, error: { code: 'FETCH_ERROR', message: e.message || String(e) } });
+                    }
+                }
+            };
+            return q;
+        }
+    };
+
+    // ==========================================
+    // STAFF AUTH: персональний вхід поверх спільного PIN журналу.
+    // Роль сесії визначає доступ до Табеля (редагування) і заявок
+    // (повний "Диспетчер" таб vs "Мої заявки"). Ролі "охорона" немає.
+    // ==========================================
+    const STAFF_SESSION_KEY = 'osbb_staff_session';
+    let staffSession = null;   // { id, name, role }
+    let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
+    let staffLoginList = [];
+    let staffLoginBuf = '';
+    let staffLoginSelected = null;
+    let staffLoginBusy = false;
+    let staffLoginFails = 0;
+    let staffReauthResolve = null; // очікує повторного підтвердження PIN після втрати staffPinCache (напр. після перезавантаження вкладки)
+
+    function loadStaffSession() {
+        try {
+            const raw = sessionStorage.getItem(STAFF_SESSION_KEY);
+            staffSession = raw ? JSON.parse(raw) : null;
+        } catch(e) { staffSession = null; }
+    }
+
+    function saveStaffSession() {
+        try { sessionStorage.setItem(STAFF_SESSION_KEY, JSON.stringify(staffSession)); } catch(e) {}
+    }
+
+    function staffLogout() {
+        staffSession = null;
+        staffPinCache = null;
+        try { sessionStorage.removeItem(STAFF_SESSION_KEY); } catch(e) {}
+        applyRoleGating();
+        openStaffLogin();
+    }
+
+    function canManageStaffAccess() {
+        return canManageStaffAccessForSession(staffSession);
+    }
+
+    async function openStaffSettings() {
+        if (!canManageStaffAccess()) return;
+        if (!staffPinCache && !await requestStaffReauth()) return;
+        const modal = document.getElementById('staff-settings-modal');
+        const list = document.getElementById('staff-settings-list');
+        if (!modal || !list) return;
+        modal.style.display = 'flex';
+        list.innerHTML = '<div class="staff-login-loading">Завантаження...</div>';
+        try {
+            const rows = await db.rpc('list_osbb_staff_settings', { p_staff_id: staffSession.id, attempt: staffPinCache });
+            renderStaffSettings(Array.isArray(rows) ? rows : []);
+        } catch (error) {
+            console.error('staff settings load error:', error);
+            list.innerHTML = '<div class="staff-login-loading">Не вдалося завантажити користувачів</div>';
+        }
+    }
+
+    function renderStaffSettings(rows) {
+        const list = document.getElementById('staff-settings-list');
+        if (!list) return;
+        list.innerHTML = rows.map(person => {
+            const isCurrent = String(person.id) === String(staffSession?.id);
+            return `<div class="staff-login-item">
+                <span class="staff-login-item-name">${escapeHtml(person.full_name)}</span>
+                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[person.role] || person.role)}</span>
+                <button type="button" class="journal-tonal-btn md-state-layer" data-staff-active="${escapeAttr(person.id)}" data-next-active="${person.active ? 'false' : 'true'}" ${isCurrent ? 'disabled' : ''}>${person.active ? 'Вимкнути' : 'Увімкнути'}</button>
+            </div>`;
+        }).join('') || '<div class="staff-login-loading">Налаштування доступу ще не оновлено в базі даних</div>';
+    }
+
+    async function setStaffActive(button) {
+        if (!canManageStaffAccess() || !staffPinCache) return;
+        button.disabled = true;
+        try {
+            const ok = await db.rpc('set_osbb_staff_active', {
+                p_staff_id: staffSession.id,
+                attempt: staffPinCache,
+                p_target_staff_id: button.dataset.staffActive,
+                p_active: button.dataset.nextActive === 'true'
+            });
+            if (!ok) throw new Error('Зміну відхилено');
+            await openStaffSettings();
+            showToast('Доступ користувача оновлено');
+        } catch (error) {
+            console.error('staff access update error:', error);
+            showToast(error instanceof Error ? error.message : 'Не вдалося змінити доступ');
+            button.disabled = false;
+        }
+    }
+
+    async function ensureStaffAuth() {
+        loadStaffSession();
+        if (staffSession) { applyRoleGating(); return; }
+        await openStaffLogin();
+    }
+
+    async function openStaffLogin() {
+        const modal = document.getElementById('staff-login-modal');
+        const listEl = document.getElementById('staff-login-list');
+        const pinStep = document.getElementById('staff-login-pin-step');
+        if (!modal || !listEl) return;
+        pinStep.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        listEl.innerHTML = '<div class="staff-login-loading">Завантаження списку...</div>';
+        modal.style.display = 'flex';
+
+        if (IS_PREVIEW) {
+            staffLoginList = [
+                { id: 'preview-dispatcher', full_name: 'Диспетчер (превʼю)', role: 'dispatcher' },
+                { id: 'preview-plumber', full_name: 'Сантехнік (превʼю)', role: 'plumber' }
+            ];
+            renderStaffLoginList();
+            return;
+        }
+        try {
+            const list = await db.rpc('list_osbb_staff', {});
+            staffLoginList = Array.isArray(list) ? list : [];
+        } catch(e) {
+            staffLoginList = [];
+        }
+        renderStaffLoginList();
+    }
+
+    function renderStaffLoginList() {
+        const listEl = document.getElementById('staff-login-list');
+        if (!listEl) return;
+        if (!staffLoginList.length) {
+            listEl.innerHTML = '<div class="staff-login-loading">Список співробітників порожній. Зверніться до адміністратора.</div>';
+            return;
+        }
+        listEl.innerHTML = staffLoginList.map(s => `
+            <button type="button" class="staff-login-item md-state-layer" data-staff-select="${escapeAttr(s.id)}">
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">${STAFF_ROLE_ICONS[s.role] || 'person'}</span>
+                <span class="staff-login-item-name">${escapeHtml(s.full_name)}</span>
+                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[s.role] || s.role)}</span>
+            </button>
+        `).join('');
+        listEl.querySelectorAll('[data-staff-select]').forEach(btn => {
+            btn.addEventListener('click', () => staffLoginSelectPerson(btn.dataset.staffSelect));
+        });
+    }
+
+    function staffLoginSelectPerson(id) {
+        staffLoginSelected = staffLoginList.find(s => String(s.id) === String(id)) || null;
+        if (!staffLoginSelected) return;
+        document.getElementById('staff-login-list').classList.add('hidden');
+        document.getElementById('staff-login-pin-step').classList.remove('hidden');
+        document.getElementById('staff-login-pin-sub').textContent = `PIN для «${staffLoginSelected.full_name}»`;
+        staffLoginBuf = '';
+        staffLoginUpdateDots();
+        document.getElementById('staff-login-err').textContent = '';
+    }
+
+    function staffLoginBack() {
+        if (staffReauthResolve) {
+            const resolve = staffReauthResolve;
+            staffReauthResolve = null;
+            staffLoginSelected = null;
+            document.getElementById('staff-login-modal').style.display = 'none';
+            resolve(false);
+            return;
+        }
+        staffLoginSelected = null;
+        staffLoginBuf = '';
+        document.getElementById('staff-login-pin-step').classList.add('hidden');
+        document.getElementById('staff-login-list').classList.remove('hidden');
+    }
+
+    // Викликається, коли staffPinCache загублений (перезавантаження вкладки), а
+    // дія (напр. збереження Табеля) вимагає server-side PIN. Показує лише крок
+    // вводу PIN (без списку — особа вже відома з staffSession), не зношуючи
+    // сесію: staffSession лишається тим самим, оновлюється тільки staffPinCache.
+    function requestStaffReauth() {
+        return new Promise(resolve => {
+            if (!staffSession) { resolve(false); return; }
+            staffReauthResolve = resolve;
+            staffLoginSelected = { id: staffSession.id, full_name: staffSession.name, role: staffSession.role };
+            staffLoginBuf = '';
+            document.getElementById('staff-login-list').classList.add('hidden');
+            document.getElementById('staff-login-pin-step').classList.remove('hidden');
+            document.getElementById('staff-login-pin-sub').textContent = `Підтвердіть PIN «${staffLoginSelected.full_name}»`;
+            document.getElementById('staff-login-err').textContent = '';
+            staffLoginUpdateDots();
+            document.getElementById('staff-login-modal').style.display = 'flex';
+        });
+    }
+
+    function staffLoginUpdateDots() {
+        for (let i = 0; i < 4; i++) {
+            const dot = document.getElementById('staff-pin-d' + i);
+            if (dot) dot.classList.toggle('is-entered', i < staffLoginBuf.length);
+        }
+    }
+
+    function staffLoginDel() {
+        if (staffLoginBusy) return;
+        if (staffLoginBuf.length > 0) staffLoginBuf = staffLoginBuf.slice(0, -1);
+        document.getElementById('staff-login-err').textContent = '';
+        staffLoginUpdateDots();
+    }
+
+    async function staffLoginPress(digit) {
+        if (staffLoginBusy || staffLoginBuf.length >= 4 || !staffLoginSelected) return;
+        staffLoginBuf += digit;
+        staffLoginUpdateDots();
+        if (staffLoginBuf.length !== 4) return;
+        const attempt = staffLoginBuf;
+        staffLoginBusy = true;
+
+        if (IS_PREVIEW) {
+            staffSession = { id: staffLoginSelected.id, name: staffLoginSelected.full_name, role: staffLoginSelected.role };
+            staffPinCache = attempt;
+            saveStaffSession();
+            document.getElementById('staff-login-modal').style.display = 'none';
+            applyRoleGating();
+            staffLoginBusy = false;
+            if (staffReauthResolve) { const resolve = staffReauthResolve; staffReauthResolve = null; resolve(true); }
+            return;
+        }
+
+        let result = null;
+        try {
+            const res = await db.rpc('verify_staff_pin', { p_staff_id: staffLoginSelected.id, attempt });
+            result = Array.isArray(res) ? res[0] : res;
+        } catch(e) { result = null; }
+
+        if (result && result.ok) {
+            staffLoginFails = 0;
+            staffSession = { id: staffLoginSelected.id, name: result.full_name || staffLoginSelected.full_name, role: result.role };
+            staffPinCache = attempt;
+            saveStaffSession();
+            document.getElementById('staff-login-modal').style.display = 'none';
+            applyRoleGating();
+            staffLoginBusy = false;
+            staffLoginBuf = '';
+            if (staffReauthResolve) { const resolve = staffReauthResolve; staffReauthResolve = null; resolve(true); }
+        } else {
+            staffLoginFails++;
+            document.getElementById('staff-login-err').textContent = 'Невірний PIN, спробуйте ще';
+            staffLoginBuf = '';
+            staffLoginUpdateDots();
+            const lockout = Math.min(staffLoginFails * 500, 5000);
+            setTimeout(() => { staffLoginBusy = false; }, lockout);
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        const digitBtn = e.target.closest('[data-staff-pin-digit]');
+        if (digitBtn) { staffLoginPress(digitBtn.dataset.staffPinDigit); return; }
+        if (e.target.closest('[data-staff-pin-delete]')) { staffLoginDel(); return; }
+        if (e.target.closest('[data-staff-pin-back]')) { staffLoginBack(); return; }
+    });
+
+    // dispatcher/admin/board — рівнозначні "повний доступ" ролі: увесь журнал,
+    // редагування Табеля, заявки. "Зміни" сюди не входять навмисно — той таб
+    // і раніше захищений окремим PIN (verify_work_shifts_pin), незалежним від ролей.
+    function isDispatcherSession() {
+        return isDispatcherStaffSession(staffSession);
+    }
+
+    function isWorkerSession() {
+        return isWorkerStaffSession(staffSession);
+    }
+
+    // Вкладки, доступні сантехніку/двірнику/електрику: тільки власний графік
+    // (перегляд) і власні заявки — жодного доступу до журналу, диспетчера,
+    // графіків, сміття, чату чи графіка змін інших людей.
+    // Єдине джерело правди про доступність таба для поточної staff-сесії —
+    // використовується і для приховування кнопок, і для блокування прямого
+    // виклику setTab/requestTab (щоб hidden-клас не був єдиним захистом).
+    function isTabAllowedForSession(tab) {
+        return isStaffTabAllowed(tab, staffSession);
+    }
+
+    // Приховує/показує вкладки залежно від ролі сесії і перемикає користувача
+    // на дозволений таб, якщо поточний йому недоступний.
+    function applyRoleGating() {
+        const dispatcherOnly = isDispatcherSession();
+        ALL_TABS.forEach(tab => {
+            const visible = isTabAllowedForSession(tab);
+            [document.getElementById('tab-' + tab), document.getElementById('tab-' + tab + '-m')].forEach(el => {
+                if (el) el.classList.toggle('hidden', !visible);
+            });
+        });
+        const badge = document.getElementById('staff-session-badge');
+        if (badge) {
+            if (staffSession) {
+                badge.textContent = `${STAFF_ROLE_LABELS[staffSession.role] || staffSession.role}: ${staffSession.name}`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+        document.getElementById('staff-settings-button')?.classList.toggle('hidden', !canManageStaffAccess());
+        if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
+        const attNote = document.getElementById('att-view-note');
+        if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
+        if (currentTab === 'tabel') attRender();
+    }
+
+    // ==========================================
+    // REALTIME: живі оновлення без ручного "Оновити"
+    // ==========================================
+    // Окремий клієнт лише для підписки на зміни — основний REST-шар (db вище)
+    // не чіпаємо, щоб не ризикувати вже робочою логікою.
+    function realtimeSafeRefresh(tab, fn) {
+        if (currentTab !== tab) return;
+        const active = document.activeElement;
+        // Не перебивати активне редагування коментаря/поля вводу realtime-рефрешем.
+        if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) return;
+        fn();
+    }
+    function initRealtime() {
+        if (IS_PREVIEW || typeof supabase === 'undefined') return;
+        try {
+            const rt = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            rt.channel('osbb-live')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'garbage' }, () => realtimeSafeRefresh('garbage', gInitTab))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'dispatcher' }, () => realtimeSafeRefresh('dispatcher', dispInitTab))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'elevator_visits' }, () => realtimeSafeRefresh('dispatcher', elevatorInitTab))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shifts' }, () => realtimeSafeRefresh('shifts', shiftLoadMonth))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shift_settings' }, () => realtimeSafeRefresh('shift-settings', shiftLoadSettings))
+                .subscribe();
+        } catch (e) { console.warn('osbb realtime init failed:', e); }
+    }
+
+    const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
+    const roles = ['electrician', 'janitor', 'plumber'];
+    const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
+
+    let currentYear, currentMonth;
+    let currentTab = 'dispatcher';
+
+    // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
+    let gData = {};          // { "1": {time,worker,types:{plastic:N,glass:N,bins:N}}, "2": {...}, ... }
+    let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
+    let gSaveTimer = null;
+    let gLoaded = false;
+
+    const gMonths = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
+    const gWorkerNames = {
+        'serhiy':    'Сергій Ш.',
+        'maksym':    'Максим А.',
+        'oleksandr': 'Олександр Б.'
+    };
+    // Типи сміття — тепер незалежні один від одного, в один день можна вказати кілька з власною кількістю
+    const gTypeLabels = {
+        'plastic': 'Пластик',
+        'glass':   'Скло',
+        'bins':    'Баки'
+    };
+    const gTypeMeta = {
+        plastic: { icon: 'recycling', description: 'Окремий вивіз пластику' },
+        glass: { icon: 'local_drink', description: 'Окремий вивіз скла' },
+        bins: { icon: 'delete', description: 'Звичайні сміттєві баки' }
+    };
+
+    const yearSelect = document.getElementById('year-select');
+    const monthSelect = document.getElementById('month-select');
+    const now = new Date();
+    // Явні локальні значення поточного дня — щоб уникнути UTC/local плутанини
+    const todayDay   = now.getDate();
+    const todayMonth = now.getMonth();
+    const todayYear  = now.getFullYear();
+
+    for (let y = 2025; y <= 2030; y++) { const o = document.createElement('option'); o.value = y; o.innerText = y; if (y === now.getFullYear()) o.selected = true; yearSelect.appendChild(o); }
+    monthNames.forEach((name, idx) => { const o = document.createElement('option'); o.value = idx; o.innerText = name; if (idx === now.getMonth()) o.selected = true; monthSelect.appendChild(o); });
+
+    // Кастомний select підключено зі shared/enhance-select.js.
+    enhanceSelect(yearSelect);
+    enhanceSelect(monthSelect);
+    enhanceSelect(document.querySelector('[data-disp-worker-filter]'));
+
+    function stepMonth(dir) {
+        let m = parseInt(monthSelect.value) + dir;
+        let y = parseInt(yearSelect.value);
+        if (m < 0)  { m = 11; y--; }
+        if (m > 11) { m = 0;  y++; }
+        if (y < 2025 || y > 2030) return;
+        yearSelect.value  = y;
+        monthSelect.value = m;
+        refreshEnhancedSelect(yearSelect);
+        refreshEnhancedSelect(monthSelect);
+        initCalendar();
+    }
+
+    function goToday() {
+        yearSelect.value  = now.getFullYear();
+        monthSelect.value = now.getMonth();
+        refreshEnhancedSelect(yearSelect);
+        refreshEnhancedSelect(monthSelect);
+        initCalendar();
+    }
+
+    function updateTodayBtn() {
+        const onTodayMonth = parseInt(yearSelect.value) === todayYear &&
+                             parseInt(monthSelect.value) === todayMonth;
+        document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
+    }
+
+    const ALL_TABS = ['garbage','dispatcher','shifts','tabel','my-tickets'];
+
+    function requestTab(tab) {
+        if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
+        if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }
+        if (tab !== 'shifts') { setTab(tab); return; }
+        showPinModal('PIN графіка змін', 'Введіть окремий PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
+    }
+
+    function setTab(tab) {
+        currentTab = tab;
+        document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
+        document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
+        document.getElementById('section-shifts').classList.toggle('hidden', tab !== 'shifts');
+        document.getElementById('section-tabel').classList.toggle('hidden', tab !== 'tabel');
+        document.getElementById('section-my-tickets').classList.toggle('hidden', tab !== 'my-tickets');
+
+        // Десктоп таби
+        ALL_TABS.forEach(t => {
+            const el = document.getElementById('tab-' + t);
+            if (el) {
+                el.classList.toggle('active', t === tab);
+                el.toggleAttribute('aria-current', t === tab);
+                el.setAttribute('aria-selected', String(t === tab));
+            }
+        });
+        // Мобільний bottom nav
+        ALL_TABS.forEach(t => {
+            const el = document.getElementById('tab-' + t + '-m');
+            if (el) {
+                el.classList.toggle('mob-active', t === tab);
+                el.toggleAttribute('aria-current', t === tab);
+                el.setAttribute('aria-selected', String(t === tab));
+            }
+        });
+
+        if (tab === 'garbage') gInitTab();
+        if (tab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
+        if (tab === 'shifts') shiftInitTab();
+        if (tab === 'tabel') attInitTab();
+        if (tab === 'my-tickets') myTicketsInitTab();
+    }
+
+    // ==========================================
+    // ГРАФІК ЗМІН (Supabase)
+    // ==========================================
+    const shiftMonths = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const shiftTypes = [
+        { key:'day', label:'Денна' },
+        { key:'night', label:'Нічна' },
+        { key:'night_half2', label:'Пів ночі' },
+        { key:'rest', label:'Вихідний' },
+    ];
+    let shiftCurrentDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let shiftRows = {};
+    let shiftSelectedDate = '';
+    let shiftEditorSelection = { sergiy:new Set(), oleksandr:new Set() };
+    let shiftNames = { sergiy:'Сергій', oleksandr:'Олександр' };
+    let shiftInitialized = false;
+    let shiftLoading = false;
+    let shiftEditorFocusReturn = null;
+
+    function shiftMonthKey() {
+        return `${shiftCurrentDate.getFullYear()}-${String(shiftCurrentDate.getMonth() + 1).padStart(2,'0')}`;
+    }
+
+    function shiftTodayKey() {
+        const now = new Date();
+        return shiftDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function shiftDayData(dateKey) {
+        if (shiftRows[dateKey]) return shiftRows[dateKey];
+        return dateKey <= shiftTodayKey() ? { sergiy:['day'], oleksandr:['night'] } : { sergiy:[], oleksandr:[] };
+    }
+
+    function shiftAppendIndicators(container, person, values) {
+        const hasFull = Array.isArray(values) && (values.includes('day') || values.includes('night'));
+        const hasHalf = Array.isArray(values) && values.includes('night_half2');
+        if (hasFull) {
+            const marker = document.createElement('i');
+            marker.className = `shift-dot is-${person} is-full`;
+            marker.setAttribute('aria-hidden','true');
+            container.appendChild(marker);
+        }
+        if (hasHalf) {
+            const marker = document.createElement('i');
+            marker.className = `shift-dot is-${person} is-half`;
+            marker.setAttribute('aria-hidden','true');
+            container.appendChild(marker);
+        }
+    }
+
+    function shiftSetStatus(text, state='ready') {
+        const status = document.getElementById('shift-sync-status');
+        if (!status) return;
+        status.textContent = text;
+        status.classList.toggle('is-syncing', state === 'loading');
+    }
+
+    function shiftApplyNames() {
+        const pairs = [
+            ['shift-legend-sergiy', shiftNames.sergiy], ['shift-stat-name-sergiy', shiftNames.sergiy], ['shift-editor-name-sergiy', shiftNames.sergiy],
+            ['shift-legend-oleksandr', shiftNames.oleksandr], ['shift-stat-name-oleksandr', shiftNames.oleksandr], ['shift-editor-name-oleksandr', shiftNames.oleksandr],
+        ];
+        pairs.forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
+        document.getElementById('shift-heading').textContent = `${shiftNames.sergiy} та ${shiftNames.oleksandr}`;
+    }
+
+    async function shiftLoadSettings() {
+        try {
+            const { data, error } = await db.from('work_shift_settings').select('employee_one_name,employee_two_name').eq('id', 1).maybeSingle();
+            if (error) throw new Error(error.message || 'Не вдалося завантажити імена');
+            if (data) shiftNames = { sergiy:data.employee_one_name, oleksandr:data.employee_two_name };
+            shiftApplyNames();
+            shiftRenderCalendar();
+        } catch (error) {
+            console.warn('shiftLoadSettings failed:', error);
+        }
+    }
+
+    function shiftRenderCalendar() {
+        const calendar = document.getElementById('shift-calendar');
+        const title = document.getElementById('shift-month-title');
+        if (!calendar || !title) return;
+        const year = shiftCurrentDate.getFullYear();
+        const month = shiftCurrentDate.getMonth();
+        title.textContent = `${shiftMonths[month]} ${year}`;
+        calendar.replaceChildren();
+        const firstDay = new Date(year, month, 1).getDay();
+        const offset = firstDay === 0 ? 6 : firstDay - 1;
+        for (let i=0; i<offset; i+=1) {
+            const placeholder = document.createElement('span');
+            placeholder.className = 'shift-day-placeholder';
+            placeholder.setAttribute('aria-hidden','true');
+            calendar.appendChild(placeholder);
+        }
+        const days = new Date(year, month + 1, 0).getDate();
+        const today = shiftTodayKey();
+        for (let day=1; day<=days; day+=1) {
+            const key = shiftDateKey(year, month, day);
+            const data = shiftDayData(key);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'shift-day md-state-layer';
+            if (key === today) button.classList.add('is-today');
+            if (!shiftRows[key] && key <= today) button.classList.add('is-auto');
+            button.dataset.shiftDate = key;
+            button.setAttribute('aria-label', `${day} ${shiftMonths[month]}: ${shiftNames.sergiy} — ${shiftTypeDescription(data.sergiy)}, ${shiftNames.oleksandr} — ${shiftTypeDescription(data.oleksandr)}`);
+            const number = document.createElement('span');
+            number.className = 'shift-day-number';
+            number.textContent = String(day);
+            const indicators = document.createElement('span');
+            indicators.className = 'shift-day-indicators';
+            shiftAppendIndicators(indicators, 'sergiy', data.sergiy);
+            shiftAppendIndicators(indicators, 'oleksandr', data.oleksandr);
+            button.append(number, indicators);
+            calendar.appendChild(button);
+        }
+        shiftRenderStats();
+    }
+
+    function shiftCount(person) {
+        const result = { day:0, night:0, night_half2:0 };
+        const year = shiftCurrentDate.getFullYear();
+        const month = shiftCurrentDate.getMonth();
+        const days = new Date(year, month + 1, 0).getDate();
+        for (let day=1; day<=days; day+=1) {
+            const values = shiftDayData(shiftDateKey(year, month, day))[person];
+            if (!Array.isArray(values)) continue;
+            values.forEach(value => { if (Object.hasOwn(result, value)) result[value] += 1; });
+        }
+        return result;
+    }
+
+    function shiftMoney(counts) {
+        return calculateShiftMoney(counts);
+    }
+
+    function shiftRenderStats() {
+        const sergiy = shiftCount('sergiy');
+        const oleksandr = shiftCount('oleksandr');
+        const sergiyMoney = shiftMoney(sergiy);
+        const oleksandrMoney = shiftMoney(oleksandr);
+        document.getElementById('shift-stats-sergiy').textContent = `${sergiy.day} / ${sergiy.night} / ${sergiy.night_half2}`;
+        document.getElementById('shift-stats-oleksandr').textContent = `${oleksandr.day} / ${oleksandr.night} / ${oleksandr.night_half2}`;
+        document.getElementById('shift-money-sergiy').textContent = `${sergiyMoney.toLocaleString('uk-UA')} грн`;
+        document.getElementById('shift-money-oleksandr').textContent = `${oleksandrMoney.toLocaleString('uk-UA')} грн`;
+        document.getElementById('shift-money-total').textContent = `${(sergiyMoney + oleksandrMoney).toLocaleString('uk-UA')} грн`;
+    }
+
+    async function shiftLoadMonth() {
+        if (shiftLoading) return;
+        shiftLoading = true;
+        shiftSetStatus('Оновлення…','loading');
+        try {
+            const { data, error } = await db.from('work_shifts').select('*').eq('month_key', shiftMonthKey()).order('shift_date',{ascending:true});
+            if (error) throw new Error(error.message || 'Не вдалося завантажити графік');
+            shiftRows = Object.fromEntries((data || []).map(row => [row.shift_date, row]));
+            shiftRenderCalendar();
+            shiftSetStatus('Синхронізовано');
+        } catch (error) {
+            console.warn('shiftLoadMonth failed:', error);
+            shiftRows = {};
+            shiftRenderCalendar();
+            shiftSetStatus('Помилка синхронізації');
+            showToast(shiftErrorMessage(error, 'Графік змін не завантажився'), TOAST_ICON_ERROR);
+        } finally {
+            shiftLoading = false;
+        }
+    }
+
+    function shiftInitTab() {
+        if (!shiftInitialized) {
+            shiftInitialized = true;
+            shiftLoadSettings();
+            shiftRenderCalendar();
+        }
+        shiftLoadMonth();
+    }
+
+    function shiftRenderChips(person) {
+        const container = document.getElementById(`shift-chips-${person}`);
+        if (!container) return;
+        container.replaceChildren();
+        shiftTypes.forEach(type => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'shift-chip md-state-layer';
+            button.dataset.shiftPerson = person;
+            button.dataset.shiftType = type.key;
+            const active = shiftEditorSelection[person].has(type.key);
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-pressed', String(active));
+            button.textContent = type.label;
+            container.appendChild(button);
+        });
+    }
+
+    function shiftOpenEditor(dateKey) {
+        const data = shiftDayData(dateKey);
+        shiftSelectedDate = dateKey;
+        shiftEditorSelection = {
+            sergiy:new Set(Array.isArray(data.sergiy) ? data.sergiy : []),
+            oleksandr:new Set(Array.isArray(data.oleksandr) ? data.oleksandr : []),
+        };
+        const [year,month,day] = dateKey.split('-');
+        document.getElementById('shift-editor-title').textContent = `Редагування: ${day}.${month}.${year}`;
+        shiftRenderChips('sergiy');
+        shiftRenderChips('oleksandr');
+        const editor = document.getElementById('shift-editor');
+        shiftEditorFocusReturn = document.activeElement;
+        editor.classList.add('is-open');
+        editor.setAttribute('aria-hidden','false');
+        requestAnimationFrame(() => editor.querySelector('.shift-editor-sheet')?.focus({preventScroll:true}));
+    }
+
+    function shiftCloseEditor() {
+        const editor = document.getElementById('shift-editor');
+        editor.classList.remove('is-open');
+        editor.setAttribute('aria-hidden','true');
+        shiftSelectedDate = '';
+        const returnTarget = shiftEditorFocusReturn;
+        shiftEditorFocusReturn = null;
+        if (returnTarget && document.contains(returnTarget)) returnTarget.focus({preventScroll:true});
+    }
+
+    function shiftTrapEditorFocus(event) {
+        if (event.key !== 'Tab') return;
+        const sheet = event.currentTarget.querySelector('.shift-editor-sheet');
+        const focusable = [...sheet.querySelectorAll('button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(element => element.offsetParent !== null);
+        if (!focusable.length) { event.preventDefault(); sheet.focus({preventScroll:true}); return; }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
+    }
+
+    function shiftToggleChip(person, type) {
+        if (!shiftEditorSelection[person]) return;
+        const selection = shiftEditorSelection[person];
+        if (type === 'rest') {
+            selection.clear();
+            selection.add('rest');
+        } else {
+            selection.delete('rest');
+            if (selection.has(type)) selection.delete(type); else selection.add(type);
+        }
+        shiftRenderChips(person);
+    }
+
+    function shiftSaveDay() {
+        if (!shiftSelectedDate) return;
+        const saveButton = document.querySelector('[data-shift-action="save-day"]');
+        if (!saveButton) return;
+        const sergiy = [...shiftEditorSelection.sergiy];
+        const oleksandr = [...shiftEditorSelection.oleksandr];
+        showPinModal('PIN графіка змін', 'Підтвердьте збереження окремим PIN', async attempt => {
+            saveButton.disabled = true;
+            try {
+                const ok = await db.rpc('save_work_shift_day', { p_shift_date:shiftSelectedDate, p_sergiy:sergiy, p_oleksandr:oleksandr, attempt });
+                if (!ok) throw new Error('Сервер відхилив операцію');
+                shiftCloseEditor();
+                await shiftLoadMonth();
+                showToast('Графік зміни збережено', TOAST_ICON_CHECK);
+            } catch (error) {
+                console.warn('shiftSaveDay failed:', error);
+                showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), TOAST_ICON_ERROR);
+            } finally { saveButton.disabled = false; }
+        }, false, 'verify_work_shifts_pin');
+    }
+
+    function shiftOpenNameEditor() {
+        document.getElementById('shift-name-sergiy').value = shiftNames.sergiy;
+        document.getElementById('shift-name-oleksandr').value = shiftNames.oleksandr;
+        const editor = document.getElementById('shift-name-editor');
+        editor.classList.add('is-open');
+        editor.setAttribute('aria-hidden','false');
+        requestAnimationFrame(() => document.getElementById('shift-name-sergiy').focus({preventScroll:true}));
+    }
+
+    function shiftCloseNameEditor() {
+        const editor = document.getElementById('shift-name-editor');
+        editor.classList.remove('is-open');
+        editor.setAttribute('aria-hidden','true');
+    }
+
+    function shiftTrapNameEditorFocus(event) {
+        if (event.key === 'Escape') { event.preventDefault(); shiftCloseNameEditor(); return; }
+        if (event.key !== 'Tab') return;
+        const focusable = [...event.currentTarget.querySelectorAll('button:not([disabled]),input:not([disabled])')];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
+    }
+
+    function shiftSaveNames() {
+        const first = document.getElementById('shift-name-sergiy').value.trim();
+        const second = document.getElementById('shift-name-oleksandr').value.trim();
+        if (!first || !second) { showToast('Вкажіть обидва імені', TOAST_ICON_ERROR); return; }
+        showPinModal('PIN графіка змін', 'Підтвердьте зміну імен окремим PIN', async attempt => {
+            try {
+                const ok = await db.rpc('update_work_shift_names', { p_employee_one_name:first, p_employee_two_name:second, attempt });
+                if (!ok) throw new Error('Сервер відхилив операцію');
+                shiftNames = { sergiy:first, oleksandr:second };
+                shiftApplyNames();
+                shiftRenderCalendar();
+                shiftCloseNameEditor();
+                showToast('Імена працівників оновлено', TOAST_ICON_CHECK);
+            } catch (error) {
+                console.warn('shiftSaveNames failed:', error);
+                showToast(shiftErrorMessage(error, 'Не вдалося змінити імена'), TOAST_ICON_ERROR);
+            }
+        }, false, 'verify_work_shifts_pin');
+    }
+
+    function shiftChangeMonth(direction) {
+        shiftCurrentDate = new Date(shiftCurrentDate.getFullYear(), shiftCurrentDate.getMonth() + direction, 1);
+        shiftRows = {};
+        shiftRenderCalendar();
+        shiftLoadMonth();
+    }
+
+    function shiftResetMonth() {
+        showPinModal('Скинути графік змін', 'Видалити ручні корекції за вибраний місяць?', async attempt => {
+            try {
+                const ok = await db.rpc('reset_work_shifts_month', { p_month_key:shiftMonthKey(), attempt });
+                if (!ok) throw new Error('Сервер відхилив операцію');
+                await shiftLoadMonth();
+                showToast('Корекції графіка скинуто', TOAST_ICON_TRASH);
+            } catch (error) {
+                console.warn('shiftResetMonth failed:', error);
+                showToast(shiftErrorMessage(error, 'Не вдалося скинути графік'), TOAST_ICON_ERROR);
+            }
+        }, true, 'verify_work_shifts_pin');
+    }
+
+    // ==========================================
+    // ТАБЕЛЬ: точний час приходу/відходу для 3 ролей (сантехнік/двірник/електрик).
+    // Редагувати може лише staff-сесія dispatcher/admin — save_attendance_day
+    // перевіряє це серверно (verify_staff_pin), не тільки на клієнті.
+    // Автопідрахунок годин/днів рахується локально з checkIn/checkOut.
+    // ==========================================
+    let attData = {};
+
+    function attKey() { return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`; }
+    function attOfflineKey() { return `att_${currentYear}_${currentMonth}`; }
+
+    function attSaveOffline() {
+        try { localStorage.setItem(attOfflineKey(), JSON.stringify(attData)); } catch(e) {}
+    }
+    function attLoadOffline() {
+        try { return JSON.parse(localStorage.getItem(attOfflineKey()) || 'null'); } catch { return null; }
+    }
+
+    function attSetStatus(type, text) {
+        const el = document.getElementById('att-sync-status');
+        if (!el) return;
+        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
+        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
+        el.innerHTML = text;
+    }
+
+    async function attInitTab() {
+        attSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
+        const offline = attLoadOffline();
+        if (offline) { attData = offline; attRender(); }
+        if (IS_PREVIEW) {
+            attData = offline || {};
+            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
+            attRender();
+            return;
+        }
+        try {
+            const res = await db.from('osbb_attendance').select('data').eq('month_key', attKey()).single();
+            const { data, error } = res;
+            if (error && error.code !== 'PGRST116') throw error;
+            attData = data?.data || offline || {};
+            attSaveOffline();
+            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
+        } catch(err) {
+            console.error('attendance load error:', err);
+            attSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
+            attData = offline || {};
+        }
+        attRender();
+    }
+
+    function attGetCell(d, role) {
+        const day = attData[d] || {};
+        return day[role] || { checkIn: '', checkOut: '' };
+    }
+
+    function attHoursForCell(cell) {
+        return attendanceHours(cell);
+    }
+
+    function attVisibleRoles() {
+        return isWorkerSession() ? [staffSession.role] : roles;
+    }
+
+    function attCellState(cell) {
+        return attendanceCellState(cell);
+    }
+
+    function attDayState(d, visibleRoles = attVisibleRoles()) {
+        const cells = visibleRoles.map(role => attGetCell(d, role));
+        return attendanceDayState(cells);
+    }
+
+    function attUpdateDayVisuals(d) {
+        const state = attDayState(d);
+        document.querySelectorAll(`[data-att-day-card="${d}"]`).forEach(card => {
+            card.classList.remove('is-empty-day', 'is-partial-day', 'is-filled-day');
+            card.classList.add(state);
+        });
+        attVisibleRoles().forEach(role => {
+            const cellState = attCellState(attGetCell(d, role));
+            document.querySelectorAll(`[data-att-cell="${d}-${role}"]`).forEach(cell => {
+                cell.classList.remove('is-empty-cell', 'is-partial-cell', 'is-complete-cell');
+                cell.classList.add(cellState);
+            });
+        });
+    }
+
+    async function attSaveDay(d, role, checkIn, checkOut) {
+        if (!isDispatcherSession()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
+        attData[d] = attData[d] || {};
+        attData[d][role] = { checkIn, checkOut };
+        attSaveOffline();
+        attRenderStats();
+        attUpdateDayVisuals(d);
+        if (IS_PREVIEW) return;
+        // staffPinCache живе лише в пам'яті (не в storage) — після перезавантаження
+        // вкладки staffSession лишається (sessionStorage), а PIN губиться. Замість
+        // мовчазної відмови просимо підтвердити PIN ще раз і продовжуємо збереження.
+        if (!staffPinCache) {
+            attSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>Підтвердіть PIN</span>');
+            const confirmed = await requestStaffReauth();
+            if (!confirmed) {
+                attSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
+                showToast('Збереження скасовано: потрібне підтвердження PIN');
+                return;
+            }
+        }
+        try {
+            const ok = await db.rpc('save_attendance_day', {
+                p_month_key: attKey(), p_day: Number(d), p_role: role,
+                p_check_in: checkIn, p_check_out: checkOut,
+                p_staff_id: staffSession.id, attempt: staffPinCache
+            });
+            if (!ok) throw new Error('Сервер відхилив запис (перевірте роль/PIN)');
+            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
+        } catch(err) {
+            console.error('attendance save error:', err);
+            staffPinCache = null; // можливо PIN вже недійсний (напр. змінений адміном) — наступна спроба знову спитає
+            attSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
+            showToast('Не вдалося зберегти. Спробуйте увійти в сесію Диспетчера ще раз.');
+        }
+    }
+
+    function attRenderStats() {
+        const grid = document.getElementById('att-stats-grid');
+        if (!grid) return;
+        const visibleRoles = attVisibleRoles();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const totals = calculateAttendanceTotals(attData, visibleRoles, daysInMonth);
+        grid.innerHTML = visibleRoles.map(role => `
+            <article class="att-stat-card role-${role}">
+                <span class="att-stat-role">${roleNames[role]}</span>
+                <strong class="att-stat-value">${totals[role].days}</strong>
+                <span class="att-stat-label">змін відпрацьовано</span>
+                <small>${totals[role].hours.toFixed(1)} год. загалом</small>
+            </article>
+        `).join('');
+    }
+
+    function attRender() {
+        const body = document.getElementById('att-body');
+        const calendar = document.getElementById('att-calendar');
+        const mobileList = document.getElementById('att-mobile-list');
+        if (!body || !calendar || !mobileList) return;
+        const editable = isDispatcherSession();
+        const visibleRoles = attVisibleRoles();
+        const viewNote = document.getElementById('att-view-note');
+        if (viewNote) {
+            viewNote.classList.toggle('hidden', editable);
+            viewNote.textContent = isWorkerSession()
+                ? `Ви бачите лише власний табель: ${roleNames[staffSession.role]}.`
+                : 'Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.';
+        }
+        document.querySelectorAll('[data-att-role-header]').forEach(header => {
+            header.classList.toggle('hidden', !visibleRoles.includes(header.dataset.attRoleHeader));
+        });
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        let html = '';
+        let calendarHtml = '';
+        let mobileHtml = '';
+        const firstDayOffset = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
+        calendarHtml += '<div class="att-calendar-spacer" aria-hidden="true"></div>'.repeat(firstDayOffset);
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+            const dayState = attDayState(d, visibleRoles);
+            html += `<tr class="${isWeekend ? 'is-weekend ' : ''}${dayState}" data-att-day-card="${d}"><td class="att-col-date">${d}</td>`;
+            const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
+            let mobileRolesHtml = '';
+            let calendarRolesHtml = '';
+            visibleRoles.forEach(role => {
+                const cell = attGetCell(d, role);
+                const cellState = attCellState(cell);
+                if (editable) {
+                    html += `<td class="is-${role} ${cellState}" data-att-cell="${d}-${role}">
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                    </td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
+                        <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
+                    </div>`;
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
+                        <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <div class="att-calendar-times">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Відхід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                        </div>
+                    </div>`;
+                } else {
+                    const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
+                    html += `<td class="is-${role} att-readonly ${cellState}" data-att-cell="${d}-${role}">${text}</td>`;
+                    mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
+                        <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <strong>${text}</strong>
+                    </div>`;
+                    calendarRolesHtml += `<div class="att-calendar-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
+                        <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
+                        <strong>${text}</strong>
+                    </div>`;
+                }
+            });
+            html += '</tr>';
+            calendarHtml += `<article class="att-calendar-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
+                <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
+                <div class="att-calendar-roles">${calendarRolesHtml}</div>
+            </article>`;
+            mobileHtml += `<article class="att-mobile-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
+                <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
+                <div class="att-mobile-roles">${mobileRolesHtml}</div>
+            </article>`;
+        }
+        body.innerHTML = html;
+        calendar.innerHTML = calendarHtml;
+        mobileList.innerHTML = mobileHtml;
+        if (editable) {
+            document.querySelectorAll('#att-body [data-att-day], #att-calendar [data-att-day], #att-mobile-list [data-att-day]').forEach(input => {
+                input.addEventListener('change', () => {
+                    const d = input.dataset.attDay, role = input.dataset.attRole;
+                    const rowCell = attGetCell(d, role);
+                    const next = { ...rowCell, [input.dataset.attField]: input.value };
+                    attSaveDay(d, role, next.checkIn, next.checkOut);
+                });
+            });
+        }
+        attRenderStats();
+    }
+
+    function animateStatCards() {
+        document.querySelectorAll('.stat-card').forEach((el, i) => {
+            setTimeout(() => { el.classList.add('animate-pop'); setTimeout(() => el.classList.remove('animate-pop'), 400); }, i * 100);
+        });
+    }
+
+    const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    // Плавно "перемотує" число від поточного значення до нового замість миттєвої
+    // заміни тексту — і на першому завантаженні (0 → 94), і на маленьких дельтах
+    // (6 → 7 після тогл), однаково коротка (380мс) відчутна анімація.
+    function animateNumber(el, target, { prefix = '', suffix = '' } = {}) {
+        if (!el) return;
+        const targetNum = Number(target) || 0;
+        const startNum = Number(el.dataset.animRaw ?? String(el.textContent || '').replace(/[^\d.-]/g, '')) || 0;
+        if (prefersReducedMotion() || startNum === targetNum) {
+            el.textContent = prefix + targetNum + suffix;
+            el.dataset.animRaw = String(targetNum);
+            return;
+        }
+        const t0 = performance.now();
+        const dur = 380;
+        function step(now) {
+            const p = Math.min(1, (now - t0) / dur);
+            const eased = 1 - Math.pow(1 - p, 3);
+            const val = Math.round(startNum + (targetNum - startNum) * eased);
+            el.textContent = prefix + val + suffix;
+            if (p < 1) requestAnimationFrame(step);
+            else el.dataset.animRaw = String(targetNum);
+        }
+        requestAnimationFrame(step);
+    }
+
+    function setSyncStatus(type, text) {
+        const el = document.getElementById('sync-status');
+        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
+        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
+        el.innerHTML = text;
+        // Оновлюємо колір favicon при синхронізації
+        const faviconColors = { loading: '%23f59e0b', ok: '%2322c55e', error: '%23ef4444' };
+        const fLink = document.getElementById('favicon-link');
+        if (fLink) fLink.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='${faviconColors[type] || '%2322c55e'}'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='${faviconColors[type] || '%2322c55e'}'/></svg>`;
+    }
+
+    // Спільний "перехід на місяць" — раніше вантажив і рендерив журнал
+    // чергувань (schedule), тепер лишає тільки те, що дійсно спільне для
+    // всіх табів: рік/місяць, кеш фото на місяць і перерендер активного табу.
+    async function initCalendar() {
+        currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
+        setSyncStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
+        photosCache = null;
+        if (!IS_PREVIEW) await loadAllPhotosForMonth();
+        setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
+        updateTodayBtn();
+        if (currentTab === 'garbage') gInitTab();
+        if (currentTab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
+        if (currentTab === 'tabel') attInitTab();
+        if (currentTab === 'my-tickets') myTicketsInitTab();
+        gInitDashboard();
+    }
+
+    let photosCache = null;
+
+    async function loadAllPhotosForMonth() {
+        if (IS_PREVIEW) { photosCache = {}; return; }
+        try {
+            const { data } = await db.from('photos').select('id, url, day, role').eq('month_key', `${currentYear}-${currentMonth}`);
+            photosCache = {};
+            (data || []).forEach(p => {
+                const key = `${p.day}-${p.role}`;
+                if (!photosCache[key]) photosCache[key] = [];
+                photosCache[key].push({ id: p.id, url: p.url });
+            });
+        } catch { photosCache = {}; }
+    }
+
+    function getPhotosFromCache(day, role) {
+        return (photosCache || {})[`${day}-${role}`] || [];
+    }
+
+    function compressImage(file, maxWidth = 1200, quality = 0.82) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                let w = img.width, h = img.height;
+                if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', quality);
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+            img.src = url;
+        });
+    }
+
+    async function uploadPhotoMobile(day, role, file) {
+        if (!file) return;
+        await uploadPhoto(day, role, file);
+    }
+
+    async function uploadPhoto(day, role, file) {
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>'); return; }
+        setSyncStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">cloud_upload</span>Завантажую...</span>');
+        try {
+            const compressed = await compressImage(file);
+            const ext = 'jpg';
+            const path = `osbb-duty/${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
+            const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
+            if (upErr) throw upErr;
+            const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
+            
+            // Отримуємо реальний ID з бази даних завдяки Prefer: return=representation
+            const { data: insertData, error: insErr } = await db.from('photos').insert({ month_key: `${currentYear}-${currentMonth}`, day, role, url: urlData.publicUrl });
+            if (insErr) throw insErr;
+            
+            const realId = (insertData && insertData[0]) ? insertData[0].id : Date.now();
+
+            if (!photosCache) photosCache = {};
+            const key = `${day}-${role}`;
+            if (!photosCache[key]) photosCache[key] = [];
+            photosCache[key].push({ id: realId, url: urlData.publicUrl });
+            setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add_photo_alternate</span>Фото збережено</span>');
+            
+            // Оновлюємо обидва інтерфейси одночасно
+            const desktopCont = document.getElementById(`photos-${day}-${role}`);
+            if (desktopCont) renderPhotoContainer(desktopCont, photosCache[key], day, role);
+            const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
+            if (mobileCont) renderPhotoContainer(mobileCont, photosCache[key], day, role, true);
+            if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
+        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка фото</span>'); }
+    }
+
+    async function deletePhoto(id, url, day, role) {
+        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>'); return; }
+        showPinModal('Видалення фото', 'PIN для видалення фото', async (pin) => {
+            try {
+                const ok = await db.rpc('delete_photo', { p_photo_id: id, attempt: pin });
+                if (!ok) {
+                    setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> PIN не підтверджено</span>');
+                    return;
+                }
+                const path = url.split('/photos/')[1];
+                if (path) await db.storage.from('photos').remove([path]);
+
+                const key = `${day}-${role}`;
+                if (photosCache && photosCache[key]) {
+                    photosCache[key] = photosCache[key].filter(p => String(p.id) !== String(id));
+                }
+                setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">hide_image</span>Фото видалено</span>');
+
+                const desktopCont = document.getElementById(`photos-${day}-${role}`);
+                if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
+                const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
+                if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
+                if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
+            } catch (err) { console.error('delete error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка видалення</span>'); }
+        }, true);
+    }
+
+    function renderPhotoContainer(container, photos, day, role, isMobile = false) {
+        container.innerHTML = photos.map(p => {
+            const safeUrl = safeExternalUrl(p.url);
+            if (!safeUrl) return '';
+            return `
+            <div class="relative group">
+                <img src="${safeUrl}" alt="Фото запису за день ${day}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
+                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+            </div>`;
+        }).join('');
+    }
+
+    let lightboxPhotos = [];
+    let lightboxIndex = 0;
+    let lightboxFocusReturn = null;
+
+    function buildLightboxPhotos() {
+        lightboxPhotos = [];
+        if (!photosCache) return;
+        Object.values(photosCache).forEach(arr => arr.forEach(p => { const safeUrl = safeExternalUrl(p.url); if (safeUrl) lightboxPhotos.push(safeUrl); }));
+    }
+
+    // Запобігаємо виходу лайтбоксу за межі наявних картинок
+    function openLightbox(url) {
+        buildLightboxPhotos();
+        lightboxIndex = lightboxPhotos.indexOf(url);
+        if (lightboxIndex < 0) { lightboxPhotos = [url]; lightboxIndex = 0; }
+        document.getElementById('lightbox-img').src = url;
+        const lightbox=document.getElementById('lightbox');
+        lightboxFocusReturn = document.activeElement;
+        lightbox.classList.add('open');
+        requestAnimationFrame(()=>lightbox.focus({preventScroll:true}));
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        const opener = lightboxFocusReturn;
+        lightboxFocusReturn = null;
+        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
+    }
+
+    // Виправлено: перемикання тепер працює стабільно по колу без застрягань
+    function lightboxPrev() {
+        if (!lightboxPhotos.length) return;
+        lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
+    }
+    function lightboxNext() {
+        if (!lightboxPhotos.length) return;
+        lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
+    }
+
+    (function() {
+        let startX = 0, startY = 0;
+        const lb = document.getElementById('lightbox');
+        lb.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, { passive: true });
+        lb.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - startX;
+            const dy = e.changedTouches[0].clientY - startY;
+            if (Math.abs(dy) > Math.abs(dx) && dy > 60) { closeLightbox(); return; }
+            if (Math.abs(dx) > 50 && Math.abs(dy) < 80) {
+                if (dx < 0) lightboxNext(); else lightboxPrev();
+            }
+        }, { passive: true });
+        document.addEventListener('keydown', e => {
+            if (!lb.classList.contains('open')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') lightboxNext();
+            if (e.key === 'ArrowLeft') lightboxPrev();
+            if (e.key === 'Tab') {
+                const focusables = [...lb.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el => el.offsetParent !== null);
+                if (!focusables.length) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus({ preventScroll: true });
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus({ preventScroll: true });
+                }
+            }
+        });
+    })();
+
+    function closeDayDetail() {
+        document.getElementById('day-detail-modal')?.classList.remove('open');
+        dispEditingTicketId = null;
+    }
+
+    // Спільний хелпер: якщо модалка деталізації дня зараз відкрита саме для цього
+    // контексту/дня — перебудувати її вміст (щоб чекбокси/поля всередині модалки одразу
+    // відображали ефект щойно зробленої зміни, а не лише після закриття й повторного відкриття).
+    function refreshOpenDayDetail(context, day) {
+        const modal = document.getElementById('day-detail-modal');
+        if (!modal || !modal.classList.contains('open')) return;
+        if (modal.dataset.context !== context || modal.dataset.day !== String(day)) return;
+        if (context === 'garbage') gOpenDayDetail(day);
+        else if (context === 'dispatcher') dispOpenDayDetail(Number(day));
+    }
+
+    // СВАЙП-ЗАКРИТТЯ модалки дня — тягнеш за ручку або заголовок вниз, відпускаєш —
+    // якщо протягнув достатньо (або досить швидко) — закривається, інакше повертається на місце.
+    function bindDayDetailSwipe() {
+        const sheet = document.querySelector('.day-detail-sheet');
+        const body = document.querySelector('.day-detail-body');
+        const handleZones = [document.querySelector('.day-detail-sheet-handle'), document.querySelector('.day-detail-header')].filter(Boolean);
+        if (!sheet) return;
+        let startY = 0, deltaY = 0, dragging = false, fromBody = false, startTime = 0;
+
+        // Ручка/заголовок завжди тягнуться. .day-detail-body теж — але лише коли він
+        // прокручений до самого верху (інакше свайп вниз означав би "прокрутити вміст",
+        // а не "закрити день"): якщо перший рух пальця вгору (гортання вниз по списку),
+        // перемикаємось назад на звичайний скрол замість закриття.
+        function onStart(isBody) {
+            return (e) => {
+                if (isBody && body.scrollTop > 0) { dragging = false; return; }
+                dragging = true;
+                fromBody = isBody;
+                startY = e.touches[0].clientY;
+                deltaY = 0;
+                startTime = Date.now();
+                sheet.style.transition = 'none';
+            };
+        }
+        function onMove(e) {
+            if (!dragging) return;
+            const rawDelta = e.touches[0].clientY - startY;
+            if (fromBody && rawDelta < 0) { dragging = false; sheet.style.transform = ''; return; }
+            deltaY = Math.max(0, rawDelta);
+            if (deltaY > 0) {
+                if (fromBody && e.cancelable) e.preventDefault();
+                sheet.style.transform = `translateY(${deltaY}px)`;
+            }
+        }
+        function onEnd() {
+            if (!dragging) return;
+            dragging = false;
+            sheet.style.transition = '';
+            const elapsed = Date.now() - startTime;
+            const velocity = deltaY / Math.max(elapsed, 1);
+            sheet.style.transform = '';
+            if (deltaY > 110 || (deltaY > 24 && velocity > 0.55)) closeDayDetail();
+        }
+        handleZones.forEach((zone) => {
+            zone.addEventListener('touchstart', onStart(false), { passive: true });
+            zone.addEventListener('touchmove', onMove, { passive: true });
+            zone.addEventListener('touchend', onEnd);
+            zone.addEventListener('touchcancel', onEnd);
+        });
+        if (body) {
+            body.addEventListener('touchstart', onStart(true), { passive: true });
+            body.addEventListener('touchmove', onMove, { passive: false });
+            body.addEventListener('touchend', onEnd);
+            body.addEventListener('touchcancel', onEnd);
+        }
+    }
+
+    function changeTheme(themeName) {
+        document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
+        localStorage.setItem('selected_theme', themeName);
+        const isDark = themeName === 'theme-dark';
+        document.getElementById('journalThemeLabel').textContent = isDark ? 'Темна' : 'Світла';
+        // Оновлюємо колір рядка стану браузера/PWA
+        const themeColors = { 'theme-light': '#22c55e', 'theme-dark': '#000000' };
+        const metaColor = document.getElementById('meta-theme-color');
+        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#22c55e');
+    }
+    function toggleTheme() {
+        changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
+    }
+
+    function bindOsbbStaticControls() {
+        document.querySelectorAll('[data-lock-digit]').forEach((button) => {
+            button.addEventListener('click', () => lockPress(button.dataset.lockDigit));
+        });
+        document.querySelector('[data-lock-delete]')?.addEventListener('click', lockDel);
+
+        document.querySelectorAll('[data-pin-modal-digit]').forEach((button) => {
+            button.addEventListener('click', () => pinModalPress(button.dataset.pinModalDigit));
+        });
+        document.querySelector('[data-pin-modal-cancel]')?.addEventListener('click', pinModalCancel);
+        document.querySelector('[data-pin-modal-delete]')?.addEventListener('click', pinModalDel);
+        document.getElementById('pin-modal')?.addEventListener('keydown', trapPinModalFocus);
+
+        document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
+        document.querySelector('[data-staff-switch]')?.addEventListener('click', staffLogout);
+        document.querySelector('[data-staff-settings-open]')?.addEventListener('click', openStaffSettings);
+        document.querySelector('[data-staff-settings-close]')?.addEventListener('click', () => {
+            document.getElementById('staff-settings-modal').style.display = 'none';
+        });
+        document.getElementById('staff-settings-list')?.addEventListener('click', event => {
+            const button = event.target.closest('[data-staff-active]');
+            if (button) setStaffActive(button);
+        });
+        document.querySelectorAll('[data-calendar-select]').forEach((select) => {
+            select.addEventListener('change', initCalendar);
+        });
+        document.querySelectorAll('[data-month-step]').forEach((button) => {
+            button.addEventListener('click', () => stepMonth(Number(button.dataset.monthStep)));
+        });
+        document.querySelectorAll('[data-osbb-tab]').forEach((button) => {
+            button.addEventListener('click', () => requestTab(button.dataset.osbbTab));
+        });
+        document.querySelectorAll('[data-shift-action]').forEach((button) => {
+            const handlers = {
+                'previous-month': () => shiftChangeMonth(-1),
+                'next-month': () => shiftChangeMonth(1),
+                'close-editor': shiftCloseEditor,
+                'save-day': shiftSaveDay,
+                'reset-month': shiftResetMonth,
+                'edit-names': shiftOpenNameEditor,
+                'close-names': shiftCloseNameEditor,
+                'save-names': shiftSaveNames,
+            };
+            const handler = handlers[button.dataset.shiftAction];
+            if (handler) button.addEventListener('click', handler);
+        });
+        document.getElementById('shift-calendar')?.addEventListener('click', event => {
+            const day = event.target.closest('[data-shift-date]');
+            if (day) shiftOpenEditor(day.dataset.shiftDate);
+        });
+        document.getElementById('shift-name-editor')?.addEventListener('keydown', shiftTrapNameEditorFocus);
+        document.querySelectorAll('.shift-chip-row').forEach(container => {
+            container.addEventListener('click', event => {
+                const chip = event.target.closest('[data-shift-person][data-shift-type]');
+                if (chip) shiftToggleChip(chip.dataset.shiftPerson, chip.dataset.shiftType);
+            });
+        });
+        document.getElementById('shift-editor')?.addEventListener('click', event => {
+            if (event.target === event.currentTarget) shiftCloseEditor();
+        });
+        document.getElementById('shift-editor')?.addEventListener('keydown', shiftTrapEditorFocus);
+
+        const actionHandlers = {
+            'garbage-clear-month': gClearMonth,
+            'dispatcher-clear-month': dispClearMonth,
+            'go-today': goToday,
+            'refresh-data': refreshData,
+            'elevator-add': () => {
+                const dayEl = document.getElementById('elevator-new-day');
+                const textEl = document.getElementById('elevator-new-text');
+                elevatorAdd(dayEl?.value, textEl?.value || '');
+                if (textEl) textEl.value = '';
+            },
+        };
+        document.getElementById('elevator-list')?.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-action="elevator-delete"]');
+            if (!button) return;
+            elevatorDelete(button.dataset.elevatorId);
+        });
+        document.querySelectorAll('[data-action]').forEach((button) => {
+            const handler = actionHandlers[button.dataset.action];
+            if (handler) button.addEventListener('click', handler);
+        });
+
+        document.querySelector('[data-lightbox-backdrop]')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget || event.target.id === 'lightbox-img') closeLightbox();
+        });
+        document.querySelectorAll('[data-lightbox-action]').forEach((button) => {
+            const handlers = { prev: lightboxPrev, next: lightboxNext, close: closeLightbox };
+            const handler = handlers[button.dataset.lightboxAction];
+            if (handler) button.addEventListener('click', handler);
+        });
+        document.querySelector('[data-day-detail-backdrop]')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) closeDayDetail();
+        });
+        document.querySelector('[data-day-detail-close]')?.addEventListener('click', closeDayDetail);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && document.getElementById('day-detail-modal')?.classList.contains('open')) closeDayDetail();
+            if (event.key === 'Escape' && document.getElementById('shift-editor')?.classList.contains('is-open')) shiftCloseEditor();
+        });
+    }
+
+    function bindOsbbPhotoActions() {
+        document.addEventListener('click', (event) => {
+            const trigger = event.target.closest('[data-photo-action]');
+            if (!trigger) return;
+            event.preventDefault();
+            if (trigger.dataset.photoAction === 'open') {
+                openLightbox(trigger.dataset.photoUrl || '');
+                return;
+            }
+            if (trigger.dataset.photoAction === 'delete') {
+                deletePhoto(
+                    trigger.dataset.photoId,
+                    trigger.dataset.photoUrl,
+                    Number(trigger.dataset.photoDay),
+                    trigger.dataset.photoRole
+                );
+            }
+        });
+        // Завантаження фото з day-detail-modal (диспетчер/сміття рендерять свої
+        // поля <input type="file" data-journal-action="photo-upload-mobile"> всередині неї).
+        document.getElementById('day-detail-body')?.addEventListener('change', (event) => {
+            const field = event.target.closest('[data-journal-action="photo-upload-mobile"]');
+            if (!field) return;
+            const day = Number(field.dataset.day);
+            const role = field.dataset.role;
+            Array.from(field.files || []).forEach((file) => uploadPhotoMobile(day, role, file));
+            field.value = '';
+        });
+    }
+
+    function formatTimeMaskInput(input) {
+        const digits = input.value.replace(/\D/g, '').slice(0, 4);
+        if (digits.length <= 2) { input.value = digits; return; }
+        let h = digits.slice(0, 2);
+        let m = digits.slice(2, 4);
+        if (Number(h) > 23) h = '23';
+        if (m.length === 2 && Number(m) > 59) m = '59';
+        input.value = `${h}:${m}`;
+    }
+
+    function bindGarbageEntryActions() {
+        // att-body (Табель) теж використовує масковані ГГ:ХХ поля (data-time-mask) —
+        // додано сюди лише заради спільного input/blur форматування, не g-специфічної логіки.
+        ['g-days-list', 'day-detail-body', 'att-body', 'att-calendar', 'att-mobile-list'].forEach((id) => {
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.addEventListener('input', (event) => {
+                if (event.target.matches('[data-time-mask]')) formatTimeMaskInput(event.target);
+            });
+            container.addEventListener('blur', (event) => {
+                const field = event.target;
+                if (!field.matches?.('[data-time-mask]')) return;
+                if (field.value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(field.value)) field.value = '';
+            }, true);
+            container.addEventListener('change', (event) => {
+                const field = event.target.closest('[data-g-action]');
+                if (!field) return;
+                const day = field.dataset.gDay;
+                const type = field.dataset.gType;
+                if (field.dataset.gAction === 'row-update') {
+                    gUpdateRow(day, field.dataset.gField, field.value);
+                }
+                if (field.dataset.gAction === 'type-toggle') {
+                    const countInput = document.getElementById(`g-cnt-${day}-${type}`);
+                    const nextValue = field.checked
+                        ? (field.dataset.gHasCount === '1' ? (countInput?.value || 1) : 1)
+                        : 0;
+                    gUpdateType(day, type, nextValue);
+                }
+                if (field.dataset.gAction === 'type-count') {
+                    gUpdateType(day, type, field.value);
+                }
+                refreshOpenDayDetail('garbage', day);
+            });
+        });
+    }
+
+    function bindDispatcherEntryActions() {
+        ['disp-cards', 'day-detail-body'].forEach((id) => {
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.addEventListener('click', async (event) => {
+                const action = event.target.closest('[data-disp-action]');
+                if (!action) return;
+                if (action.dataset.dispAction === 'ticket-add') {
+                    event.preventDefault();
+                    const d = Number(action.dataset.dispDay);
+                    const textEl = document.getElementById(`ticket-new-text-${d}`);
+                    const roleEl = document.getElementById(`ticket-new-role-${d}`);
+                    const priorityEl = document.getElementById(`ticket-new-priority-${d}`);
+                    const photosEl = document.getElementById(`ticket-new-photos-${d}`);
+                    action.disabled = true;
+                    action.setAttribute('aria-busy', 'true');
+                    await dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM', Array.from(photosEl?.files || []));
+                    if (action.isConnected) {
+                        action.disabled = false;
+                        action.removeAttribute('aria-busy');
+                    }
+                }
+                if (action.dataset.dispAction === 'ticket-delete') {
+                    event.preventDefault();
+                    openTicketDeleteConfirm(Number(action.dataset.dispDay), action.dataset.ticketId, action);
+                }
+                if (action.dataset.dispAction === 'ticket-edit-toggle') {
+                    event.preventDefault();
+                    dispToggleTicketEdit(Number(action.dataset.dispDay), action.dataset.ticketId);
+                }
+                if (action.dataset.dispAction === 'ticket-edit-cancel') {
+                    event.preventDefault();
+                    dispEditingTicketId = null;
+                    dispOpenDayDetail(Number(action.dataset.dispDay));
+                }
+                if (action.dataset.dispAction === 'ticket-edit-save') {
+                    event.preventDefault();
+                    const ticketId = action.dataset.ticketId;
+                    const textEl = document.getElementById(`ticket-edit-text-${ticketId}`);
+                    const roleEl = document.getElementById(`ticket-edit-role-${ticketId}`);
+                    const priorityEl = document.getElementById(`ticket-edit-priority-${ticketId}`);
+                    dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
+                }
+                if (action.dataset.dispAction === 'ticket-reopen') {
+                    event.preventDefault();
+                    dispReopenTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
+                }
+            });
+            container.addEventListener('change', (event) => {
+                const photoInput = event.target.closest('[data-ticket-photo-input]');
+                if (photoInput) {
+                    const label = document.getElementById(`ticket-photo-label-${photoInput.dataset.dispDay}`);
+                    const count = photoInput.files?.length || 0;
+                    if (label) label.textContent = count ? `Вибрано фото: ${count}` : 'Додати фото проблеми';
+                    return;
+                }
+                const filter = event.target.closest('[data-ticket-filter]');
+                if (!filter) return;
+                if (filter.dataset.ticketFilter === 'worker') {
+                    dispWorkerFilter = WORKER_ROLES.includes(filter.value) ? filter.value : 'all';
+                }
+                if (filter.dataset.ticketFilter === 'status') {
+                    dispTicketStatusFilter = ['open', 'done'].includes(filter.value) ? filter.value : 'all';
+                }
+                dispOpenDayDetail(Number(filter.dataset.dispDay));
+            });
+        });
+        document.querySelector('[data-ticket-delete-cancel]')?.addEventListener('click', closeTicketDeleteConfirm);
+        document.querySelector('[data-ticket-delete-confirm]')?.addEventListener('click', () => {
+            if (!window.osbbTicketDeleteState.pending) return;
+            const { day, ticketId } = window.osbbTicketDeleteState.pending;
+            closeTicketDeleteConfirm(false);
+            dispDeleteTicket(day, ticketId);
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) closeTicketDeleteConfirm();
+        });
+        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeTicketDeleteConfirm();
+            }
+        });
+    }
+
+    // Стан зберігаємо у властивості window, а не в top-level `let`: повторне
+    // виконання inline-скрипту після відновлення iframe не спричинить SyntaxError.
+    window.osbbTicketDeleteState = window.osbbTicketDeleteState || { pending: null, focusReturn: null };
+
+    function openTicketDeleteConfirm(day, ticketId, opener) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal || !Number.isInteger(day) || !ticketId) return;
+        window.osbbTicketDeleteState.pending = { day, ticketId };
+        window.osbbTicketDeleteState.focusReturn = opener || document.activeElement;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
+    }
+
+    function closeTicketDeleteConfirm(restoreFocus = true) {
+        const modal = document.getElementById('ticket-delete-confirm');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        window.osbbTicketDeleteState.pending = null;
+        const focusReturn = window.osbbTicketDeleteState.focusReturn;
+        if (restoreFocus && focusReturn?.isConnected) focusReturn.focus();
+        window.osbbTicketDeleteState.focusReturn = null;
+    }
+
+    document.querySelector('[data-disp-search]')?.addEventListener('input', (event) => {
+        dispSearchQuery = event.target.value || '';
+        dispRender();
+    });
+
+    function dispResetSearchAndFilters() {
+        dispSearchQuery = '';
+        dispFilter = 'all';
+        dispWorkerFilter = 'all';
+        const search = document.querySelector('[data-disp-search]');
+        if (search) search.value = '';
+        const workerFilter = document.querySelector('[data-disp-worker-filter]');
+        if (workerFilter) {
+            workerFilter.value = 'all';
+            refreshEnhancedSelect(workerFilter);
+        }
+        document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
+        dispRender();
+    }
+
+    document.querySelector('[data-disp-reset]')?.addEventListener('click', dispResetSearchAndFilters);
+    document.querySelector('[data-disp-worker-filter]')?.addEventListener('change', (event) => {
+        dispWorkerFilter = WORKER_ROLES.includes(event.target.value) ? event.target.value : 'all';
+        dispRender();
+    });
+    document.querySelectorAll('[data-disp-filter]').forEach((button) => {
+        button.addEventListener('click', () => {
+            dispFilter = button.dataset.dispFilter || 'all';
+            document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn === button));
+            dispRender();
+        });
+    });
+    document.addEventListener('keydown', (event) => {
+        const search = document.querySelector('[data-disp-search]');
+        const section = document.getElementById('section-dispatcher');
+        if (!search || !section || section.classList.contains('hidden')) return;
+        const target = event.target;
+        const isEditing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+        if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditing) {
+            event.preventDefault();
+            search.focus();
+            search.select();
+        }
+        if (event.key === 'Escape' && document.activeElement === search && (search.value || dispFilter !== 'all' || dispWorkerFilter !== 'all')) {
+            event.preventDefault();
+            dispResetSearchAndFilters();
+            search.focus();
+        }
+    });
+
+    bindOsbbStaticControls();
+    bindOsbbPhotoActions();
+    bindGarbageEntryActions();
+    bindDispatcherEntryActions();
+    bindDayDetailSwipe();
+
+    const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
+    changeTheme(savedTheme);
+    setTab(currentTab);
+    initCalendar();
+    initRealtime();
+
+    setTimeout(() => {
+        const splash = document.getElementById('intro-splash');
+        if(splash) splash.addEventListener('animationend', () => splash.classList.add('hidden'));
+    }, 100);
+
+    (function() {
+        let sx = 0, sy = 0, moving = false;
+        const hint = document.getElementById('swipe-hint');
+        let hintTimer = null;
+
+        function showHint(text) {
+            hint.textContent = text;
+            hint.classList.add('show');
+            clearTimeout(hintTimer);
+            hintTimer = setTimeout(() => hint.classList.remove('show'), 900);
+        }
+
+        document.addEventListener('touchstart', e => {
+            if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') { moving = false; return; }
+            sx = e.touches[0].clientX;
+            sy = e.touches[0].clientY;
+            moving = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', e => {
+            if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
+            const dx = e.touches[0].clientX - sx;
+            const dy = e.touches[0].clientY - sy;
+            if (!moving && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) moving = true;
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            if (document.getElementById('lightbox').classList.contains('open')) return;
+            if (currentTab === 'tabel') return;
+            if (!moving) return;
+            const dx = e.changedTouches[0].clientX - sx;
+            const dy = e.changedTouches[0].clientY - sy;
+            if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+            if (dx < 0) { showHint('▶ Наступний місяць'); stepMonth(1); }
+            else         { showHint('◀ Попередній місяць'); stepMonth(-1); }
+        }, { passive: true });
+    })();
+
+    // Розреєструвати тільки SW журналу і не чіпати shell/склад.
+    if ('serviceWorker' in navigator) {
+        try {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => {
+                    const scopePath = new URL(r.scope).pathname;
+                    if (scopePath.startsWith('/Osbb/osbb/')) r.unregister();
+                });
+            }).catch(() => {});
+            if ('caches' in window) {
+                caches.keys().then(keys => keys
+                    .filter(k => k.startsWith('osbb-journal'))
+                    .forEach(k => caches.delete(k))
+                ).catch(() => {});
+            }
+        } catch(e) {}
+    }
+
+    // ==========================================
+    // ЖУРНАЛ ВИВОЗУ СМІТТЯ
+    // Таблиця Supabase: garbage (month_key TEXT PK, data JSONB)
+    // ==========================================
+
+
+    function gKey() { return garbageMonthKey(currentYear, currentMonth); }
+    function gOfflineKey() { return `garbage_${currentYear}_${currentMonth}`; }
+    function gMonthKeyCandidates(year = currentYear, month = currentMonth) {
+        return garbageMonthKeyCandidates(year, month);
+    }
+    async function gFetchGarbageMonthData(year = currentYear, month = currentMonth) {
+        for (const monthKey of gMonthKeyCandidates(year, month)) {
+            const { data, error } = await db.from('garbage').select('data').eq('month_key', monthKey).single();
+            if (!error && data) return { data, monthKey };
+            if (error && error.code !== 'PGRST116') throw error;
+        }
+        return { data: null, monthKey: gKey() };
+    }
+
+    // Міграція старого формату записів сміття { count, note, worker, time }
+    // у новий формат { types: { plastic, glass, bins }, worker, time }.
+    // Повертає { data, migrated } — migrated=true, якщо хоч один запис був перетворений.
+    function gMigrateOldData(data) {
+        return migrateGarbageData(data);
+    }
+
+
+    function gSaveOffline() {
+        try { localStorage.setItem(gOfflineKey(), JSON.stringify(gData)); } catch(e) {}
+    }
+    function gLoadOffline() {
+        try { return JSON.parse(localStorage.getItem(gOfflineKey()) || 'null'); } catch { return null; }
+    }
+
+    function gSetStatus(type, text) {
+        const el = document.getElementById('g-sync-status');
+        if (!el) return;
+        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
+        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
+        el.innerHTML = text;
+    }
+
+    async function gInitTab() {
+        gSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
+        const offlineMig = gMigrateOldData(gLoadOffline());
+        const offline = offlineMig.data;
+        if (offline) { gData = offline; gRender(); }
+
+        if (IS_PREVIEW) {
+            gData = offline || {};
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
+            gRender();
+            return;
+        }
+        try {
+            const { data } = await gFetchGarbageMonthData();
+            const cloudMig = gMigrateOldData(data?.data);
+            gData = cloudMig.data || offline || {};
+            gSaveOffline();
+            // Якщо дані щойно мігровано зі старого формату — одразу зберігаємо новий формат у хмару
+            if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
+        } catch(err) {
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
+            gSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
+            gData = offline || {};
+        }
+        gLoaded = true;
+        gRender();
+    }
+
+    function gScheduleSave() {
+        gSetStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span>Зберігаю...</span>');
+        gSaveOffline();
+        clearTimeout(gSaveTimer);
+        gSaveTimer = setTimeout(gSaveCloud, 1200);
+    }
+
+    async function gSaveCloud() {
+        if (IS_PREVIEW) { gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span> Превью</span>'); return; }
+        try {
+            const { error } = await db.from('garbage').upsert({ month_key: gKey(), data: gData });
+            if (error) throw error;
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
+        } catch(err) {
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage save error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
+            gSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
+        }
+    }
+
+    function gUpdateRow(day, field, value) {
+        if (!gData[day]) gData[day] = { time:'', worker:'', types:{} };
+        if (!gData[day].types) gData[day].types = {};
+        gData[day][field] = value;
+        gScheduleSave();
+        gRender();
+    }
+
+    // Оновлення кількості для конкретного типу сміття за день (пластик/скло/баки незалежно)
+    function gUpdateType(day, type, value) {
+        if (!gData[day]) gData[day] = { time:'', worker:'', types:{} };
+        if (!gData[day].types) gData[day].types = {};
+        const num = parseInt(value) || 0;
+        if (num > 0) gData[day].types[type] = num;
+        else delete gData[day].types[type];
+        // Авто-час при першому введенні кількості
+        if (num > 0 && !gData[day].time) {
+            const n = new Date();
+            gData[day].time = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+        }
+        gScheduleSave();
+        gRender();
+    }
+
+    function gRender() {
+        gRenderDaysList();
+        gRenderStats();
+        gRenderChart();
+    }
+
+    // Незалежне завантаження даних сміття для дашборду (без перемикання вкладки) —
+    // прогріває gData заздалегідь, щоб вкладка "Сміття" відкривалась без затримки.
+    async function gInitDashboard() {
+        const offlineMig = gMigrateOldData(gLoadOffline());
+        const offline = offlineMig.data;
+        if (offline && !gLoaded) gData = offline;
+        if (currentTab === 'garbage') return; // вже завантажується через gInitTab
+        if (IS_PREVIEW) {
+            if (!gLoaded) gData = offline || {};
+            return;
+        }
+        try {
+            const { data } = await gFetchGarbageMonthData();
+            const cloudMig = gMigrateOldData(data?.data);
+            gData = cloudMig.data || offline || {};
+            gSaveOffline();
+            if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
+        } catch (err) {
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage dashboard load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
+            gData = offline || {};
+        }
+        await gLoadGarbageYearFromCloud(currentYear);
+    }
+
+    // Розмітка для одного дня сміття (час/працівник/типи) — використовується лише в
+    // модалці деталізації дня (gOpenDayDetail), сам календар показує тільки квадрати.
+    function gBuildDayBodyHtml(day) {
+        const row = gData[day] || { time:'', worker:'', types:{} };
+        const types = row.types || {};
+        return `
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Час</div>
+                    <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" data-time-mask aria-label="Час вивозу сміття за день ${day}"
+                        class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
+                </div>
+                <div>
+                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">person</span>Працівник</div>
+                    <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker" aria-label="Працівник сміття за день ${day}"
+                        class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                        <option value="">—</option>
+                        ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="garbage-types-heading">
+                <span>Що вивезли</span>
+                <span class="garbage-types-support">Можна вибрати кілька типів</span>
+            </div>
+            <div class="garbage-type-grid">
+                ${Object.entries(gTypeLabels).map(([k,label]) => {
+                    const checked = (parseInt(types[k]) || 0) > 0;
+                    const val = types[k] || '';
+                    const hasCount = k === 'bins';
+                    const meta = gTypeMeta[k];
+                    return `
+                    <div class="garbage-type-card">
+                        <label class="garbage-type-select md-state-layer">
+                            <input type="checkbox" ${checked?'checked':''} class="garbage-type-input sr-only"
+                                data-g-action="type-toggle" data-g-day="${day}" data-g-type="${k}" data-g-has-count="${hasCount ? '1' : '0'}"
+                                aria-label="${label}, відмітити вивіз за день ${day}">
+                            <span class="garbage-type-icon" aria-hidden="true"><span class="material-symbols-rounded">${meta.icon}</span></span>
+                            <span class="garbage-type-copy">
+                                <strong>${label}</strong>
+                                <small>${meta.description}</small>
+                            </span>
+                            <span class="garbage-type-indicator" aria-hidden="true"><span class="material-symbols-rounded">check</span></span>
+                        </label>
+                        ${hasCount ? `<label class="garbage-bin-count">
+                            <span>Кількість баків</span>
+                            <input id="g-cnt-${day}-${k}" type="number" min="1" max="99" placeholder="0" value="${escapeAttr(String(val))}"
+                                data-g-action="type-count" data-g-day="${day}" data-g-type="${k}" aria-label="Кількість баків за день ${day}"
+                                ${checked ? '' : 'disabled'}>
+                        </label>` : ''}
+                    </div>`;
+                }).join('')}
+            </div>`;
+    }
+
+    function gOpenDayDetail(day) {
+        const modal = document.getElementById('day-detail-modal');
+        const titleEl = document.getElementById('day-detail-title');
+        const bodyEl = document.getElementById('day-detail-body');
+        if (!modal || !titleEl || !bodyEl) return;
+        const d = parseInt(day, 10);
+        const dateObj = new Date(currentYear, currentMonth, d);
+        const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+        titleEl.innerHTML = `${day} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
+        bodyEl.innerHTML = gBuildDayBodyHtml(day);
+        bodyEl.querySelectorAll('select[data-g-field="worker"]').forEach((sel) => enhanceSelect(sel));
+        modal.dataset.day = day;
+        modal.dataset.context = 'garbage';
+        modal.classList.add('open');
+    }
+
+    // Календарна сітка сміття — той самий вигляд, що й у Журналі: квадрати днів,
+    // клік відкриває day-detail-modal з часом/працівником/типами сміття за цей день.
+    function gRenderDaysList() {
+        const container = document.getElementById('g-days-list');
+        if (!container) return;
+        container.innerHTML = '';
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+        const leadingBlanks = (firstDow + 6) % 7;
+
+        const weekdayRow = document.createElement('div');
+        weekdayRow.className = 'month-grid-weekdays';
+        weekdayRow.innerHTML = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map(w => `<span>${w}</span>`).join('');
+        container.appendChild(weekdayRow);
+
+        const grid = document.createElement('div');
+        grid.className = 'month-grid';
+        container.appendChild(grid);
+
+        for (let i = 0; i < leadingBlanks; i++) {
+            const blank = document.createElement('div');
+            blank.className = 'month-grid-cell is-empty';
+            blank.setAttribute('aria-hidden', 'true');
+            grid.appendChild(blank);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const day = String(d).padStart(2,'0');
+            const row = gData[day] || { time:'', worker:'', types:{} };
+            const types = row.types || {};
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const isToday2 = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+            const activeTypes = Object.entries(types).filter(([, value]) => (parseInt(value) || 0) > 0);
+            const hasAny = activeTypes.length > 0;
+            const typeSummary = activeTypes.map(([type, value]) => {
+                const count = parseInt(value) || 0;
+                const label = gTypeLabels[type] || type;
+                return type === 'bins' && count > 0 ? `${label}: ${count}` : label;
+            }).join(', ');
+            const typeDots = activeTypes.map(([type]) => `<span class="month-grid-dot month-grid-dot-garbage-${escapeAttr(type)}" aria-hidden="true"></span>`).join('');
+            const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday2 ? ' is-today' : '') + (hasAny ? ' has-shifts' : '');
+            cell.setAttribute('aria-label', `${d} ${dowLabel}${hasAny ? `, є вивіз сміття: ${typeSummary}` : ', порожньо'} — відкрити день`);
+            cell.setAttribute('aria-haspopup', 'dialog');
+            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${typeDots}</span>`;
+            cell.addEventListener('click', () => gOpenDayDetail(day));
+            grid.appendChild(cell);
+        }
+    }
+
+    function gRenderStats() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        let total = 0, days = 0, plasticDays = 0, glassDays = 0;
+        for (let d = 1; d <= daysInMonth; d++) {
+            const day = String(d).padStart(2,'0');
+            const row = gData[day];
+            if (!row || !row.types) continue;
+            const dayTotal = parseInt(row.types.bins) || 0;
+            if (dayTotal > 0) { total += dayTotal; days++; }
+            if ((parseInt(row.types.plastic) || 0) > 0) plasticDays++;
+            if ((parseInt(row.types.glass) || 0) > 0) glassDays++;
+        }
+        const totalEl = document.getElementById('g-total-month');
+        const daysEl = document.getElementById('g-total-days');
+        const plasticEl = document.getElementById('g-total-plastic');
+        const glassEl = document.getElementById('g-total-glass');
+        if (totalEl) totalEl.textContent = total;
+        if (daysEl) daysEl.textContent = days;
+        if (plasticEl) plasticEl.textContent = plasticDays;
+        if (glassEl) glassEl.textContent = glassDays;
+    }
+
+    async function gLoadGarbageYearFromCloud(year) {
+        if (IS_PREVIEW) return;
+        try {
+            const { data, error } = await db.from('garbage').select('month_key,data');
+            if (error) throw error;
+            const rows = Array.isArray(data) ? data : [];
+            for (let month = 0; month <= 11; month++) {
+                const candidates = gMonthKeyCandidates(year, month);
+                const row = candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean);
+                if (!row?.data) {
+                    try { localStorage.removeItem(`garbage_${year}_${month}`); } catch(e) {}
+                    continue;
+                }
+                const migrated = gMigrateOldData(row.data);
+                try { localStorage.setItem(`garbage_${year}_${month}`, JSON.stringify(migrated.data || {})); } catch(e) {}
+            }
+        } catch (err) {
+            if (err && err.code !== 'FETCH_ERROR') console.error('garbage yearly chart load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
+        }
+    }
+
+    async function gRenderChart() {
+        const container = document.getElementById('g-chart');
+        if (!container) return;
+
+        function getBins(types) {
+            return garbageBins(types);
+        }
+
+        await gLoadGarbageYearFromCloud(currentYear);
+
+        // Завантажуємо дані по всіх місяцях з локального кешу — тільки баки
+        const monthlyTotals = [];
+        for (let m = 0; m <= 11; m++) {
+            const key = `garbage_${currentYear}_${m}`;
+            let tot = 0;
+            try {
+                const d = JSON.parse(localStorage.getItem(key) || '{}');
+                Object.values(d).forEach(r => tot += getBins(r.types));
+            } catch(e) {}
+            // Якщо це поточний місяць — беремо актуальні дані
+            if (m === currentMonth) {
+                tot = 0;
+                const dim = new Date(currentYear, currentMonth + 1, 0).getDate();
+                for (let d = 1; d <= dim; d++) {
+                    tot += getBins(gData[String(d).padStart(2,'0')]?.types);
+                }
+            }
+            monthlyTotals.push(tot);
+        }
+
+        const maxVal = Math.max(...monthlyTotals, 1);
+        container.innerHTML = monthlyTotals.map((val, i) => {
+            const h = Math.max(4, Math.round((val / maxVal) * 68));
+            const isCur = i === currentMonth;
+            return `<div class="flex flex-col items-center gap-1 flex-1">
+                <div class="text-[10px] font-bold ${isCur ? 'text-amber-500' : 'text-[var(--text-sub)]'}">${val||''}</div>
+                <div class="g-chart-bar${isCur ? ' is-current' : ''}" style="height:${h}px"></div>
+                <div class="text-[9px] text-[var(--text-sub)]">${gMonths[i].slice(0,3)}</div>
+            </div>`;
+        }).join('');
+    }
+
+    async function gClearMonth() {
+        showPinModal('Скидання сміття', 'PIN для очищення місяця', async (pin) => {
+            gData = {};
+            gSaveOffline();
+            if (!IS_PREVIEW) {
+                try { await db.rpc('reset_month', { table_name: 'garbage', p_month_key: gKey(), attempt: pin }); } catch(e) {}
+            }
+            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Скинуто</span>');
+            gRender();
+        }, true);
+    }
+    // ==========================================
+    // PIN MODAL
+    // ==========================================
+    let pinModalBuf = '';
+    let pinModalCallback = null;
+    let pinModalVerifyRpc = 'verify_reset_pin';
+    let pinModalFocusReturn = null;
+    const pinModalFocusableSelector = 'button:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+    function focusPinModal() {
+        const modal = document.getElementById('pin-modal');
+        const dialog = modal.querySelector('[role="dialog"]');
+        const firstButton = dialog?.querySelector(pinModalFocusableSelector);
+        (firstButton || dialog)?.focus({preventScroll:true});
+    }
+
+    function restorePinModalFocus() {
+        const opener = pinModalFocusReturn;
+        pinModalFocusReturn = null;
+        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
+    }
+
+    function hidePinModal() {
+        document.getElementById('pin-modal').style.display = 'none';
+        restorePinModalFocus();
+    }
+
+    function trapPinModalFocus(event) {
+        if (document.getElementById('pin-modal').style.display !== 'flex') return;
+        if (event.key === 'Escape') { event.preventDefault(); pinModalCancel(); return; }
+        if (event.key !== 'Tab') return;
+        const dialog = document.querySelector('#pin-modal [role="dialog"]');
+        const focusables = [...dialog.querySelectorAll(pinModalFocusableSelector)].filter(el => el.offsetParent !== null || el === document.activeElement);
+        if (!focusables.length) { event.preventDefault(); dialog.focus({preventScroll:true}); return; }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
+    }
+
+    function showPinModal(title, sub, callback, danger = false, verifyRpc = 'verify_reset_pin') {
+        pinModalBuf = '';
+        pinModalCallback = callback;
+        pinModalVerifyRpc = verifyRpc;
+        document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
+        document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
+        const lockIcon = '<span class="pin-modal-icon-wrap is-indigo"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
+        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">delete</span></span>';
+        document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
+        document.getElementById('pin-err').textContent = '';
+        pinUpdateDots();
+        const modal = document.getElementById('pin-modal');
+        pinModalFocusReturn = document.activeElement;
+        modal.style.display = 'flex';
+        requestAnimationFrame(()=>focusPinModal());
+    }
+
+    function pinModalCancel() {
+        hidePinModal();
+        pinModalBuf = '';
+        pinModalCallback = null;
+    }
+
+    function pinUpdateDots() {
+        for (let i = 0; i < 4; i++) {
+            const dot = document.getElementById('pin-d' + i);
+            dot.classList.toggle('is-entered', i < pinModalBuf.length);
+        }
+    }
+
+    function pinModalDel() {
+        if (pinModalBuf.length > 0) pinModalBuf = pinModalBuf.slice(0, -1);
+        document.getElementById('pin-err').textContent = '';
+        pinUpdateDots();
+    }
+
+    async function pinModalPress(digit) {
+        if (pinModalBuf.length >= 4) return;
+        pinModalBuf += digit;
+        pinUpdateDots();
+        if (pinModalBuf.length === 4) {
+            const attempt = pinModalBuf;
+            let ok = false;
+            try { ok = await db.rpc(pinModalVerifyRpc, { attempt }); } catch (e) { ok = false; }
+            if (ok) {
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span></span>';
+                hidePinModal();
+                pinModalBuf = '';
+                // PIN передаємо в callback: серверна reset_month() перевіряє
+                // його ще раз перед видаленням, а не покладається лише на
+                // клієнтську перевірку тут.
+                if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
+            } else {
+                document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
+                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
+                pinModalBuf = '';
+                pinUpdateDots();
+                // Тряска
+                const box = document.querySelector('#pin-modal > div');
+                box.style.animation = 'none';
+                box.style.transform = 'translateX(-8px)';
+                setTimeout(() => box.style.transform = 'translateX(8px)', 80);
+                setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
+                setTimeout(() => box.style.transform = 'translateX(0)', 240);
+            }
+        }
+    }
+
+    // ==========================================
+    // ДИСПЕТЧЕР
+    // ==========================================
+    let dispData = {};
+    let dispSaveTimer = null;
+    let dispSearchQuery = '';
+    let dispFilter = 'all';
+    let dispWorkerFilter = 'all';
+    let dispTicketStatusFilter = 'all';
+    const dispWorkerName = 'Диспетчер';
+
+    // Заявки з пріоритетом (нова структурована модель, ticketsList).
+    // Старі текстові дні (поле `tickets` — просто число) лишаються як є для
+    // місяців, збережених до цієї зміни — не мігруємо їх автоматично.
+    let dispNewTicketPriority = 'MEDIUM';
+    let dispNewTicketRole = 'plumber';
+
+    function dispKey() { return `${currentYear}-${currentMonth}`; }
+    function dispOfflineKey() { return `dispatcher_${currentYear}_${currentMonth}`; }
+
+    function dispSaveOffline() {
+        try { localStorage.setItem(dispOfflineKey(), JSON.stringify(dispData)); } catch(e) {}
+    }
+    function dispLoadOffline() {
+        try { return JSON.parse(localStorage.getItem(dispOfflineKey()) || 'null'); } catch { return null; }
+    }
+
+    function dispSetStatus(type, text) {
+        const el = document.getElementById('disp-sync-status');
+        if (!el) return;
+        const cls = { loading:'is-loading', ok:'is-ok', error:'is-error' };
+        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
+        el.innerHTML = text;
+    }
+
+    async function dispInitTab() {
+        dispSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
+        const offline = dispLoadOffline();
+        if (offline) { dispData = offline; dispRender(); }
+
+        if (IS_PREVIEW) {
+            dispData = offline || {};
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
+            dispRender();
+            return;
+        }
+        try {
+            const res = await db.from('dispatcher').select('data').eq('month_key', dispKey()).single();
+            const { data, error } = res;
+            if (error && error.code !== 'PGRST116') throw error;
+            dispData = data?.data || offline || {};
+            dispSaveOffline();
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
+        } catch(err) {
+            console.error('dispatcher load error:', err);
+            dispSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
+            dispData = offline || {};
+        }
+        dispRender();
+    }
+
+    function dispScheduleSave() {
+        dispSetStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span>Зберігаю...</span>');
+        dispSaveOffline();
+        clearTimeout(dispSaveTimer);
+        dispSaveTimer = setTimeout(dispSaveCloud, 1200);
+    }
+
+    async function dispSaveCloud() {
+        if (IS_PREVIEW) { dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span> Превью</span>'); return; }
+        try {
+            const { error } = await db.from('dispatcher').upsert({ month_key: dispKey(), data: dispData });
+            if (error) throw error;
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
+        } catch(err) {
+            console.error('dispatcher save error:', err);
+            dispSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
+        }
+    }
+
+    function dispNormalizeDay(row = {}) {
+        return normalizeDispatcherDay(row);
+    }
+
+    function dispGetDay(d) {
+        dispData[d] = dispNormalizeDay(dispData[d]);
+        return dispData[d];
+    }
+
+
+    // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
+    async function dispAddTicket(d, text, role, priority, photoFiles = []) {
+        if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
+        const trimmed = (text || '').trim();
+        if (!trimmed) { showToast('Опишіть заявку'); return; }
+        const row = dispGetDay(d);
+        const ticketId = `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
+        const ticket = {
+            id: ticketId,
+            text: trimmed,
+            role: normalizeWorkerRole(role),
+            priority: normalizeTicketPriority(priority),
+            status: 'open',
+            comment: '',
+            photos: [],
+            createdAt: new Date().toISOString(),
+            createdBy: staffSession?.name || dispWorkerName
+        };
+        row.ticketsList.push(ticket);
+        dispScheduleSave();
+        for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
+        if (!IS_PREVIEW) {
+            try {
+                ticket.jira = await createJiraIssue(ticket, d);
+                dispScheduleSave();
+            } catch (error) {
+                console.error('jira create issue error:', error);
+                showToast('Заявку додано, але Jira недоступна');
+            }
+        }
+        dispOpenDayDetail(Number(d));
+        if (ticket.jira) showToast(`Заявку додано в Jira: ${ticket.jira.key}`);
+        else if (IS_PREVIEW) showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
+    }
+
+    function dispDeleteTicket(d, ticketId) {
+        if (!isDispatcherSession()) return;
+        const row = dispGetDay(d);
+        row.ticketsList = row.ticketsList.filter(t => t.id !== ticketId);
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+    }
+
+    // Id заявки, яка зараз редагується в модалці дня (тільки одна одразу,
+    // локальний UI-стан, не зберігається в даних). Скидається при перевідкритті дня.
+    let dispEditingTicketId = null;
+
+    function dispToggleTicketEdit(d, ticketId) {
+        if (!isDispatcherSession()) return;
+        dispEditingTicketId = dispEditingTicketId === ticketId ? null : ticketId;
+        dispOpenDayDetail(Number(d));
+    }
+
+    // Редагувати текст/роль/пріоритет уже створеної заявки — тільки Диспетчер/Адмін.
+    function dispSaveTicketEdit(d, ticketId, text, role, priority) {
+        if (!isDispatcherSession()) return;
+        const trimmed = (text || '').trim();
+        if (!trimmed) { showToast('Опишіть заявку'); return; }
+        const row = dispGetDay(d);
+        const ticket = row.ticketsList.find(t => t.id === ticketId);
+        if (!ticket) return;
+        ticket.text = trimmed;
+        ticket.role = normalizeWorkerRole(role, ticket.role);
+        ticket.priority = normalizeTicketPriority(priority, normalizeTicketPriority(ticket.priority));
+        dispEditingTicketId = null;
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+        showToast('Заявку оновлено');
+    }
+
+    // Закрити заявку — для будь-кого (диспетчер або сам виконавець), з коментарем.
+    function dispCloseTicket(d, ticketId, comment) {
+        const row = dispGetDay(d);
+        const ticket = row.ticketsList.find(t => t.id === ticketId);
+        if (!ticket) return;
+        closeDispatcherTicket(ticket, comment, staffSession?.name);
+        dispScheduleSave();
+    }
+
+    // Повторно відкрити помилково закриту заявку може лише Диспетчер/Адмін.
+    function dispReopenTicket(d, ticketId) {
+        if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }
+        const row = dispGetDay(d);
+        const ticket = row.ticketsList.find(t => t.id === ticketId);
+        if (!ticket || !reopenDispatcherTicket(ticket)) return;
+        dispScheduleSave();
+        dispOpenDayDetail(Number(d));
+        showToast('Заявку знову відкрито');
+    }
+
+    function dispAddTicketPhoto(d, ticketId, url) {
+        const row = dispGetDay(d);
+        const ticket = row.ticketsList.find(t => t.id === ticketId);
+        if (!ticket) return;
+        ticket.photos = ticket.photos || [];
+        ticket.photos.push(url);
+        dispScheduleSave();
+    }
+
+    function ticketPhotosHtml(ticket) {
+        const photos = Array.isArray(ticket?.photos) ? ticket.photos : [];
+        const items = photos.map((url, index) => {
+            const safeUrl = safeExternalUrl(url);
+            if (!safeUrl) return '';
+            const escapedUrl = escapeAttr(safeUrl);
+            return `<button type="button" class="ticket-photo-thumb md-state-layer" data-photo-action="open" data-photo-url="${escapedUrl}" aria-label="Відкрити фото ${index + 1} до заявки">
+                <img src="${escapedUrl}" alt="Фото проблеми до заявки" loading="lazy">
+            </button>`;
+        }).join('');
+        return items ? `<div class="ticket-photo-list" aria-label="Фото до заявки">${items}</div>` : '';
+    }
+
+    // ==========================================
+    // МОЇ ЗАЯВКИ — відкриті заявки Jira проєкту MS.
+    // ==========================================
+    let jiraIssues = [];
+    let jiraAssignmentFilter = 'all';
+    let jiraStatusFilter = 'all';
+    let jiraCategoryFilter = 'all';
+
+    async function jiraRequest(action, extra = {}) {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/jira-issues`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action, staffId: staffSession?.id, pin: staffPinCache, ...extra })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data?.error || `Jira HTTP ${response.status}`);
+        return data;
+    }
+
+    async function myTicketsInitTab() {
+        if (!staffSession) return;
+        const statusEl = document.getElementById('my-tickets-sync-status');
+        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>';
+        if (!staffPinCache && !await requestStaffReauth()) {
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>';
+            return;
+        }
+        try {
+            const data = await jiraRequest('list');
+            jiraIssues = Array.isArray(data.issues) ? data.issues : [];
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
+        } catch (error) {
+            console.error('jira issues load error:', error);
+            jiraIssues = [];
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>';
+            showToast('Не вдалося завантажити Jira-заявки');
+        }
+        myTicketsRender();
+    }
+
+    function myTicketsRender() {
+        const list = document.getElementById('my-tickets-list');
+        if (!list || !staffSession) return;
+        const statuses = [...new Set(jiraIssues.map(issue => issue.status).filter(Boolean))].sort();
+        const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
+        const statusCounts = jiraIssues.reduce((counts, issue) => {
+            const status = issue.status || 'Без статусу';
+            counts[status] = (counts[status] || 0) + 1;
+            return counts;
+        }, {});
+        const filteredIssues = jiraIssues.filter(issue => {
+            const assignmentMatches = jiraAssignmentFilter === 'all'
+                || (jiraAssignmentFilter === 'assigned' ? Boolean(issue.assignedRole) : !issue.assignedRole);
+            return assignmentMatches
+                && (jiraStatusFilter === 'all' || issue.status === jiraStatusFilter)
+                && (jiraCategoryFilter === 'all' || (issue.category || 'Без категорії') === jiraCategoryFilter);
+        });
+        const countersHtml = `<div class="jira-status-counters" aria-label="Кількість Jira-заявок за статусом">
+            <button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === 'all' ? 'is-active' : ''}" data-jira-status-counter="all"><span>Усі</span><strong>${jiraIssues.length}</strong></button>
+            ${Object.entries(statusCounts).map(([status, count]) => `<button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === status ? 'is-active' : ''}" data-jira-status-counter="${escapeAttr(status)}"><span>${escapeHtml(status)}</span><strong>${count}</strong></button>`).join('')}
+        </div>`;
+        const filtersHtml = countersHtml + `<div class="dispatcher-filter-chips jira-ticket-filters" aria-label="Фільтри Jira-заявок">
+            <select class="journal-select" data-jira-filter="assignment" aria-label="Фільтр за призначенням">
+                <option value="all">Усі призначення</option><option value="assigned" ${jiraAssignmentFilter === 'assigned' ? 'selected' : ''}>Призначені</option><option value="unassigned" ${jiraAssignmentFilter === 'unassigned' ? 'selected' : ''}>Непризначені</option>
+            </select>
+            <select class="journal-select" data-jira-filter="status" aria-label="Фільтр за статусом">
+                <option value="all">Усі статуси</option>${statuses.map(status => `<option value="${escapeAttr(status)}" ${jiraStatusFilter === status ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}
+            </select>
+            <select class="journal-select" data-jira-filter="category" aria-label="Фільтр за категорією">
+                <option value="all">Усі категорії</option>${categories.map(category => `<option value="${escapeAttr(category)}" ${jiraCategoryFilter === category ? 'selected' : ''}>${escapeHtml(category)}</option>`).join('')}
+            </select>
+        </div>`;
+        if (!jiraIssues.length) { list.innerHTML = '<div class="staff-login-loading">Відкритих Jira-заявок немає</div>'; return; }
+        list.innerHTML = filtersHtml + (filteredIssues.length ? filteredIssues.map(issue => {
+            const priority = jiraPriorityClass(issue.priority);
+            const safeUrl = safeExternalUrl(issue.url);
+            return `<div class="my-ticket-card priority-${priority}">
+                <div class="ticket-item-head">
+                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${escapeHtml(issue.priority || 'Без пріоритету')}</span>
+                    <span class="ticket-role-badge">${escapeHtml(issue.status || 'Відкрита')}</span>
+                </div>
+                <div class="ticket-item-text">${escapeHtml(issue.summary)}</div>
+                <div class="ticket-item-comment">${escapeHtml(issue.key)} · ${escapeHtml(issue.category || 'Без категорії')}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
+                <div class="my-ticket-close-actions">
+                    ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
+                </div>
+            </div>`;
+        }).join('') : '<div class="staff-login-loading">За вибраними фільтрами заявок немає</div>');
+
+        list.querySelectorAll('[data-jira-filter]').forEach(select => {
+            select.addEventListener('change', () => {
+                if (select.dataset.jiraFilter === 'assignment') jiraAssignmentFilter = select.value;
+                if (select.dataset.jiraFilter === 'status') jiraStatusFilter = select.value;
+                if (select.dataset.jiraFilter === 'category') jiraCategoryFilter = select.value;
+                myTicketsRender();
+            });
+        });
+        list.querySelectorAll('[data-jira-status-counter]').forEach(button => {
+            button.addEventListener('click', () => {
+                jiraStatusFilter = button.dataset.jiraStatusCounter || 'all';
+                myTicketsRender();
+            });
+        });
+        list.querySelectorAll('[data-jira-filter]').forEach(select => enhanceSelect(select));
+    }
+
+    function collectTicketsForRole(role) {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const result = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+            const row = dispData[d] ? dispNormalizeDay(dispData[d]) : null;
+            if (!row) continue;
+            row.ticketsList.filter(t => t.role === role).forEach(t => result.push({ ...t, day: d }));
+        }
+        return result.sort((a, b) => {
+            if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
+            return ticketSortComparator(a, b);
+        });
+    }
+
+    function dispMatchesCurrentDateFilter(d, filter) {
+        return matchesDispatcherDateFilter(currentYear, currentMonth, d, filter);
+    }
+
+    function dispMatchesFilter(row, hasEvent, d) {
+        return matchesDispatcherFilter(row, hasEvent, dispFilter, dispMatchesCurrentDateFilter(d, dispFilter));
+    }
+
+    // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
+    // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
+    function dispBuildTicketsBlockHtml(d, row) {
+        const visibleTickets = row.ticketsList.filter(ticket => {
+            const matchesWorker = dispWorkerFilter === 'all' || ticket.role === dispWorkerFilter;
+            const matchesStatus = dispTicketStatusFilter === 'all' || ticket.status === dispTicketStatusFilter;
+            return matchesWorker && matchesStatus;
+        });
+        const sorted = [...visibleTickets].sort(ticketSortComparator);
+        const canManage = isDispatcherSession();
+        const items = sorted.map(t => {
+            const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
+            const isDone = t.status === 'done';
+            if (canManage && dispEditingTicketId === t.id) {
+                return `<li class="ticket-item priority-${t.priority}">
+                    <div class="ticket-add-form">
+                        <input type="text" id="ticket-edit-text-${t.id}" class="dispatcher-location-input" value="${escapeAttr(t.text)}" aria-label="Текст заявки">
+                        <select id="ticket-edit-role-${t.id}" class="journal-select" aria-label="Виконавець заявки">
+                            ${roles.map(r => `<option value="${r}" ${r === t.role ? 'selected' : ''}>${roleNames[r]}</option>`).join('')}
+                        </select>
+                        <select id="ticket-edit-priority-${t.id}" class="journal-select" aria-label="Пріоритет заявки">
+                            ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === t.priority ? 'selected' : ''}>${v.label}</option>`).join('')}
+                        </select>
+                        <div class="my-ticket-close-actions">
+                            <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-edit-save" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Зберегти</button>
+                            <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="ticket-edit-cancel" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}">Скасувати</button>
+                        </div>
+                    </div>
+                </li>`;
+            }
+            return `<li class="ticket-item priority-${t.priority} ${isDone ? 'is-done' : ''}">
+                <div class="ticket-item-head">
+                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
+                    <span class="ticket-role-badge">${roleNames[t.role] || t.role}</span>
+                    ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
+                </div>
+                <div class="ticket-item-text">${escapeHtml(t.text)}</div>
+                ${ticketPhotosHtml(t)}
+                ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
+                ${canManage && isDone ? `<button type="button" class="dispatcher-copy-btn ticket-reopen-btn md-state-layer" data-disp-action="ticket-reopen" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">refresh</span>Відкрити знову</button>` : ''}
+                ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>` : ''}
+                ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : ''}
+            </li>`;
+        }).join('');
+        const addForm = canManage ? `
+            <div class="ticket-add-form">
+                <input type="text" id="ticket-new-text-${d}" class="dispatcher-location-input" placeholder="Опис нової заявки..." aria-label="Текст нової заявки">
+                <select id="ticket-new-role-${d}" class="journal-select" aria-label="Виконавець заявки">
+                    ${roles.map(r => `<option value="${r}">${roleNames[r]}</option>`).join('')}
+                </select>
+                <select id="ticket-new-priority-${d}" class="journal-select" aria-label="Пріоритет заявки">
+                    ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === 'MEDIUM' ? 'selected' : ''}>${v.label}</option>`).join('')}
+                </select>
+                <label class="ticket-photo-picker md-state-layer">
+                    <span class="material-symbols-rounded" aria-hidden="true">add_a_photo</span>
+                    <span id="ticket-photo-label-${d}">Додати фото проблеми</span>
+                    <input id="ticket-new-photos-${d}" type="file" accept="image/*" multiple class="sr-only" data-ticket-photo-input data-disp-day="${d}" aria-label="Додати фото проблеми до нової заявки">
+                </label>
+                <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add</span>Додати заявку</button>
+            </div>` : '';
+        return `<div class="dispatcher-tickets-block">
+            <div class="dispatcher-ticket-filters" aria-label="Фільтри заявок">
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Виконавець</span>
+                    <select class="journal-select" data-ticket-filter="worker" data-disp-day="${d}" aria-label="Фільтр заявок за виконавцем">
+                        <option value="all" ${dispWorkerFilter === 'all' ? 'selected' : ''}>Усі працівники</option>
+                        ${roles.map(role => `<option value="${role}" ${dispWorkerFilter === role ? 'selected' : ''}>${roleNames[role]}</option>`).join('')}
+                    </select>
+                </label>
+                <label class="dispatcher-ticket-filter-field">
+                    <span>Статус</span>
+                    <select class="journal-select" data-ticket-filter="status" data-disp-day="${d}" aria-label="Фільтр заявок за статусом">
+                        <option value="all" ${dispTicketStatusFilter === 'all' ? 'selected' : ''}>Усі заявки</option>
+                        <option value="open" ${dispTicketStatusFilter === 'open' ? 'selected' : ''}>Не виконані</option>
+                        <option value="done" ${dispTicketStatusFilter === 'done' ? 'selected' : ''}>Виконані</option>
+                    </select>
+                </label>
+            </div>
+            <div class="journal-field-label">Показано заявок: ${sorted.length} з ${row.ticketsList.length}</div>
+            <ul class="ticket-list">${items || '<li class="ticket-empty">За вибраними фільтрами заявок немає</li>'}</ul>
+            ${addForm}
+        </div>`;
+    }
+
+    function dispBuildDayBodyHtml(d) {
+        const row = dispGetDay(d);
+        return `<div class="journal-event-sheet role-dispatcher">
+            ${dispBuildTicketsBlockHtml(d, row)}
+            <div class="journal-photo-section">
+                <div class="journal-field-label">Фото подій:</div>
+                <div id="mobile-photos-${d}-dispatcher" class="flex gap-2 flex-wrap mb-2"></div>
+                <div class="flex gap-2 flex-wrap">
+                    <label class="journal-photo-action md-state-layer">
+                        <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">photo_camera</span> Камера
+                        <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера за день ${d}">
+                    </label>
+                    <label class="journal-photo-action is-secondary md-state-layer">
+                        Галерея
+                        <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера з галереї за день ${d}">
+                    </label>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function dispOpenDayDetail(d) {
+        const modal = document.getElementById('day-detail-modal');
+        const titleEl = document.getElementById('day-detail-title');
+        const bodyEl = document.getElementById('day-detail-body');
+        if (!modal || !titleEl || !bodyEl) return;
+        const dateObj = new Date(currentYear, currentMonth, d);
+        const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+        titleEl.innerHTML = `${String(d).padStart(2,'0')} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
+        bodyEl.innerHTML = dispBuildDayBodyHtml(d);
+        const photosEl = document.getElementById(`mobile-photos-${d}-dispatcher`);
+        if (photosEl) renderPhotoContainer(photosEl, getPhotosFromCache(d, 'dispatcher'), d, 'dispatcher', true);
+        const ticketRoleSel = document.getElementById(`ticket-new-role-${d}`);
+        const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
+        if (ticketRoleSel) enhanceSelect(ticketRoleSel);
+        if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
+        bodyEl.querySelectorAll('[data-ticket-filter]').forEach(select => enhanceSelect(select));
+        if (dispEditingTicketId) {
+            const editRoleSel = document.getElementById(`ticket-edit-role-${dispEditingTicketId}`);
+            const editPrioritySel = document.getElementById(`ticket-edit-priority-${dispEditingTicketId}`);
+            if (editRoleSel) enhanceSelect(editRoleSel);
+            if (editPrioritySel) enhanceSelect(editPrioritySel);
+        }
+        modal.dataset.day = String(d);
+        modal.dataset.context = 'dispatcher';
+        modal.classList.add('open');
+    }
+
+    // Календарна сітка диспетчера — той самий вигляд, що й у Журналі: квадрати днів,
+    // клік відкриває day-detail-modal з подіями та фото за цей день.
+    // Статус дня для крапки в календарі, похідний від заявок: якщо є відкрита
+    // термінова заявка — urgent; якщо всі заявки виконано — done; інакше open.
+    function dispDayStatusKey(row) {
+        if (!row.ticketsList.length) return null;
+        if (row.ticketsList.some(t => t.priority === 'HIGH' && t.status !== 'done')) return 'urgent';
+        if (row.ticketsList.every(t => t.status === 'done')) return 'done';
+        return 'open';
+    }
+
+    function dispRender() {
+        const container = document.getElementById('disp-cards');
+        if (!container) return;
+        container.innerHTML = '';
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+        const leadingBlanks = (firstDow + 6) % 7;
+        dispRenderStats();
+        let visibleMatches = 0;
+
+        const weekdayRow = document.createElement('div');
+        weekdayRow.className = 'month-grid-weekdays';
+        weekdayRow.innerHTML = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map(w => `<span>${w}</span>`).join('');
+        container.appendChild(weekdayRow);
+
+        const grid = document.createElement('div');
+        grid.className = 'month-grid';
+        container.appendChild(grid);
+
+        for (let i = 0; i < leadingBlanks; i++) {
+            const blank = document.createElement('div');
+            blank.className = 'month-grid-cell is-empty';
+            blank.setAttribute('aria-hidden', 'true');
+            grid.appendChild(blank);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateObj = new Date(currentYear, currentMonth, d);
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+            const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
+            const row = dispGetDay(d);
+            const photosCount = getPhotosFromCache(d, 'dispatcher').length;
+            const hasEvent = row.ticketsList.length > 0 || photosCount > 0;
+            const query = dispSearchQuery.trim().toLowerCase();
+            const searchText = row.ticketsList.map(t => t.text).join(' ').toLowerCase();
+            const matchesSearch = !query || searchText.includes(query);
+            const matchesFilter = dispMatchesFilter(row, hasEvent, d);
+            const matchesWorker = dispWorkerFilter === 'all' || row.ticketsList.some(ticket => ticket.role === dispWorkerFilter);
+            const isDimmed = !matchesSearch || !matchesFilter || !matchesWorker;
+            if (!isDimmed) visibleMatches++;
+            const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
+            const statusKey = dispDayStatusKey(row);
+            const statusDot = statusKey === 'urgent' ? 'dispatcher-urgent' : statusKey === 'done' ? 'dispatcher-done' : 'dispatcher';
+            const statusLabel = statusKey === 'urgent' ? 'є термінові заявки' : statusKey === 'done' ? 'усі заявки виконано' : statusKey === 'open' ? 'є відкриті заявки' : 'подій немає';
+
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (hasEvent ? ' has-shifts' : '');
+            cell.className += ' dispatcher-grid-cell' + (isDimmed ? ' is-dimmed' : '') + ` disp-status-${statusKey || 'none'}`;
+            cell.setAttribute('aria-label', `${d} ${dowLabel}, ${statusLabel} — відкрити день`);
+            cell.setAttribute('aria-haspopup', 'dialog');
+            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${hasEvent ? `<span class="month-grid-dot month-grid-dot-${statusDot}"></span>` : ''}</span>`;
+            cell.addEventListener('click', () => dispOpenDayDetail(d));
+            grid.appendChild(cell);
+        }
+        dispRenderResultSummary(visibleMatches, daysInMonth);
+    }
+
+    function dispRenderResultSummary(visibleMatches, daysInMonth) {
+        const summary = document.getElementById('disp-result-summary');
+        const reset = document.querySelector('[data-disp-reset]');
+        const hasSearch = Boolean(dispSearchQuery.trim());
+        const hasFilter = dispFilter !== 'all';
+        const hasWorkerFilter = dispWorkerFilter !== 'all';
+        if (summary) summary.textContent = (hasSearch || hasFilter || hasWorkerFilter) ? `Знайдено: ${visibleMatches} з ${daysInMonth}` : 'Показано всі дні';
+        if (reset) reset.hidden = !(hasSearch || hasFilter || hasWorkerFilter);
+    }
+
+    function dispRenderStats() {
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const totals = { events: 0, tickets: 0, urgent: 0, done: 0 };
+        for (let d = 1; d <= daysInMonth; d++) {
+            const row = dispGetDay(d);
+            const hasEvent = row.ticketsList.length > 0 || getPhotosFromCache(d, 'dispatcher').length > 0;
+            if (hasEvent) totals.events++;
+            totals.tickets += row.ticketsList.length;
+            totals.urgent += row.ticketsList.filter(t => t.priority === 'HIGH' && t.status !== 'done').length;
+            totals.done += row.ticketsList.filter(t => t.status === 'done').length;
+        }
+        const map = { 'disp-stat-events': totals.events, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-done': totals.done };
+        Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
+    }
+
+    async function dispClearMonth() {
+        showPinModal('Скидання диспетчера', 'PIN для очищення місяця', async (pin) => {
+            dispData = {};
+            dispSaveOffline();
+            if (!IS_PREVIEW) {
+                try { await db.rpc('reset_month', { table_name: 'dispatcher', p_month_key: dispKey(), attempt: pin }); } catch(e) {}
+            }
+            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Скинуто</span>');
+            dispRender();
+        }, true);
+    }
+
+    // ==========================================
+    // ЛІФТЕР: короткий журнал відміток (декілька разів на місяць), живе
+    // всередині вкладки "Диспетчер". Один рядок на місяць у elevator_visits,
+    // data — масив {id, day, text, createdAt, createdBy}.
+    // ==========================================
+    let elevatorData = [];
+
+    function elevatorKey() { return `${currentYear}-${currentMonth}`; }
+    function elevatorOfflineKey() { return `elevator_${currentYear}_${currentMonth}`; }
+
+    function elevatorSaveOffline() {
+        try { localStorage.setItem(elevatorOfflineKey(), JSON.stringify(elevatorData)); } catch(e) {}
+    }
+    function elevatorLoadOffline() {
+        try { return JSON.parse(localStorage.getItem(elevatorOfflineKey()) || 'null'); } catch { return null; }
+    }
+
+    function elevatorSetStatus(type, text) {
+        const el = document.getElementById('elevator-sync-status');
+        if (!el) return;
+        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
+        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
+        el.innerHTML = text;
+    }
+
+    async function elevatorInitTab() {
+        elevatorSetStatus('loading', '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>');
+        const offline = elevatorLoadOffline();
+        if (offline) { elevatorData = offline; elevatorRender(); }
+        if (IS_PREVIEW) {
+            elevatorData = offline || [];
+            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>');
+            elevatorRender();
+            return;
+        }
+        try {
+            const res = await db.from('elevator_visits').select('data').eq('month_key', elevatorKey()).single();
+            const { data, error } = res;
+            if (error && error.code !== 'PGRST116') throw error;
+            elevatorData = Array.isArray(data?.data) ? data.data : (offline || []);
+            elevatorSaveOffline();
+            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>');
+        } catch(err) {
+            console.error('elevator load error:', err);
+            elevatorSetStatus('error', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>');
+            elevatorData = offline || [];
+        }
+        elevatorRender();
+    }
+
+    async function elevatorSaveCloud() {
+        if (IS_PREVIEW) return;
+        try {
+            const { error } = await db.from('elevator_visits').upsert({ month_key: elevatorKey(), data: elevatorData });
+            if (error) throw error;
+            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>');
+        } catch(err) {
+            console.error('elevator save error:', err);
+            elevatorSetStatus('error', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>');
+        }
+    }
+
+    function elevatorAdd(day, text) {
+        const entry = createElevatorEntry(day, text, staffSession?.name || dispWorkerName);
+        if (!entry) { showToast('Опишіть, що зробив ліфтер'); return; }
+        elevatorData.push(entry);
+        elevatorSaveOffline();
+        elevatorSaveCloud();
+        elevatorRender();
+        showToast('Запис додано');
+    }
+
+    function elevatorDelete(id) {
+        elevatorData = removeElevatorEntry(elevatorData, id);
+        elevatorSaveOffline();
+        elevatorSaveCloud();
+        elevatorRender();
+    }
+
+    function elevatorRender() {
+        const daySelect = document.getElementById('elevator-new-day');
+        const list = document.getElementById('elevator-list');
+        if (!daySelect || !list) return;
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const currentValue = daySelect.value;
+        daySelect.innerHTML = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+            .map(d => `<option value="${d}" ${d === todayDay && currentMonth === todayMonth ? 'selected' : ''}>${d}</option>`).join('');
+        if (currentValue && Number(currentValue) <= daysInMonth) daySelect.value = currentValue;
+        if (daySelect.dataset.enhanced) refreshEnhancedSelect(daySelect); else enhanceSelect(daySelect);
+
+        const sorted = sortElevatorEntries(elevatorData);
+        list.innerHTML = sorted.length ? sorted.map(entry => `
+            <div class="elevator-entry">
+                <span class="elevator-entry-day">${String(entry.day).padStart(2, '0')}</span>
+                <span class="elevator-entry-text">${escapeHtml(entry.text)}</span>
+                <button type="button" class="ticket-delete-btn md-state-layer" data-action="elevator-delete" data-elevator-id="${escapeAttr(entry.id)}" aria-label="Видалити запис"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
+            </div>
+        `).join('') : '<div class="staff-login-loading">Записів цього місяця ще немає</div>';
+    }
+
+    // ==========================================
+    // ОНОВИТИ ДАНІ (примусовий refresh)
+    // ==========================================
+    async function refreshData() {
+        const btn = document.getElementById('btn-refresh');
+        if (btn) { btn.style.animation = 'spin 0.6s linear'; btn.disabled = true; }
+        gLoaded = false;
+        await initCalendar();
+        if (btn) { btn.style.animation = ''; btn.disabled = false; }
+        showToast('Дані оновлено');
+    }
+
+    // ==========================================
+    // ============================================================
+    // iOS TOAST повідомлення
+    // ============================================================
+    let toastTimer = null;
+    const TOAST_ICON_CHECK = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">done</span>';
+    const TOAST_ICON_WARN  = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">warning</span>';
+    const TOAST_ICON_TRASH = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span>';
+    const TOAST_ICON_ERROR = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">close</span>';
+    function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
+        const el = document.getElementById('ios-toast');
+        if (!el) return;
+        el.innerHTML = `<span class="toast-icon-badge">${icon}</span>${escapeHtml(msg)}`;
+        el.style.opacity = '1';
+        el.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(-50%) translateY(20px)';
+        }, duration);
+    }
+
+    // Виклик toast при збереженні — перехопити setSyncStatus 'ok'
+    const _origSetSyncStatus = setSyncStatus;
+    setSyncStatus = function(type, text) {
+        _origSetSyncStatus(type, text);
+        if (type === 'ok' && text.includes('Синхронізовано')) showToast('Збережено', TOAST_ICON_CHECK);
+    };
+
+    // ============================================================
+    // ONLINE / OFFLINE ІНДИКАТОР
+    // ============================================================
+    function updateNetworkBadge() {
+        const badge = document.getElementById('network-badge');
+        if (!badge) return;
+        if (navigator.onLine) {
+            badge.style.display = 'none';
+        } else {
+            badge.style.display = 'flex';
+        }
+    }
+    window.addEventListener('online',  () => { updateNetworkBadge(); showToast('Мережа відновлена', TOAST_ICON_CHECK); });
+    window.addEventListener('offline', () => { updateNetworkBadge(); showToast('Немає мережі — працюємо офлайн', TOAST_ICON_WARN, 4000); });
+    updateNetworkBadge();
+
+    // ============================================================
+    // AUTO-LOCK — блокування через 30 хвилин бездіяльності
+    // ============================================================
+    const AUTO_LOCK_MS = 30 * 60 * 1000; // 30 хвилин
+    let autoLockTimer = null;
+
+    function resetAutoLock() {
+        clearTimeout(autoLockTimer);
+        autoLockTimer = setTimeout(triggerAutoLock, AUTO_LOCK_MS);
+    }
+
+    function triggerAutoLock() {
+        lockBuf = '';
+        lockUpdateDots();
+        const screen = document.getElementById('app-lock-screen');
+        if (screen) {
+            screen.style.transition = 'none';
+            screen.style.opacity = '1';
+            screen.style.display = 'flex';
+        }
+        const err = document.getElementById('lock-err');
+        if (err) err.textContent = '';
+    }
+
+    // Скидати таймер на будь-яку активність користувача
+    ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
+        document.addEventListener(evt, resetAutoLock, { passive: true })
+    );
+    resetAutoLock(); // Запустити таймер
+
+    // CSS для спін-анімації кнопки refresh
+    const styleEl = document.createElement('style');
+    styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+    document.head.appendChild(styleEl);
