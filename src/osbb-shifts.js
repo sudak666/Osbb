@@ -1,3 +1,24 @@
+const WORK_SHIFT_TYPES = ['day', 'night', 'night_half2', 'rest'];
+
+function normalizeShiftTypes(value) {
+    if (!Array.isArray(value)) return [];
+    return value.filter((type) => typeof type === 'string' && WORK_SHIFT_TYPES.includes(type));
+}
+
+export function workShiftRowsFromResponse(value) {
+    if (!Array.isArray(value)) return {};
+    return Object.fromEntries(value.flatMap((row) => {
+        if (typeof row !== 'object' || row === null || Array.isArray(row)) return [];
+        if (typeof row.shift_date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(row.shift_date)) return [];
+        return [[row.shift_date, {
+            ...row,
+            shift_date: row.shift_date,
+            sergiy: normalizeShiftTypes(row.sergiy),
+            oleksandr: normalizeShiftTypes(row.oleksandr),
+        }]];
+    }));
+}
+
 export const SHIFT_RATES = {
     day: 900,
     night: 900,

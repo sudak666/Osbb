@@ -6,7 +6,17 @@ import {
   attendanceDayState,
   attendanceHours,
   calculateAttendanceTotals,
+  normalizeAttendanceMonth,
 } from '../src/osbb-attendance.js';
+
+test('normalizeAttendanceMonth відкидає некоректні дні, клітинки й час', () => {
+  assert.deepEqual(normalizeAttendanceMonth({
+    1: { plumber: { checkIn: '08:15', checkOut: '17:30' }, janitor: { checkIn: '99:00' } },
+    bad: { plumber: { checkIn: '08:00' } },
+    2: null,
+  }), { 1: { plumber: { checkIn: '08:15', checkOut: '17:30' } } });
+  assert.deepEqual(normalizeAttendanceMonth([]), {});
+});
 
 test('attendanceHours supports regular and overnight shifts', () => {
   assert.equal(attendanceHours({ checkIn: '08:30', checkOut: '17:00' }), 8.5);

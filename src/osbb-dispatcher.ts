@@ -35,10 +35,25 @@ export interface DispatcherMonthStats {
     done: number;
 }
 
+export type DispatcherMonth = Record<string, DispatcherDay>;
+
+function isDispatcherTicket(value: unknown): value is DispatcherTicket {
+    return typeof value === 'object' && value !== null && !Array.isArray(value) && typeof (value as Record<string, unknown>).id === 'string';
+}
+
 export function normalizeDispatcherDay(row: unknown): DispatcherDay {
     if (typeof row !== 'object' || row === null) return { ticketsList: [] };
-    const ticketsList = 'ticketsList' in row && Array.isArray(row.ticketsList) ? row.ticketsList : [];
+    const source = 'ticketsList' in row && Array.isArray(row.ticketsList) ? row.ticketsList : [];
+    const ticketsList = source.every(isDispatcherTicket) ? source : source.filter(isDispatcherTicket);
     return { ticketsList };
+}
+
+export function normalizeDispatcherMonth(value: unknown): DispatcherMonth {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).flatMap(([day, row]) => {
+        if (!/^\d{1,2}$/.test(day)) return [];
+        return [[day, normalizeDispatcherDay(row)]];
+    }));
 }
 
 export function closeDispatcherTicket(

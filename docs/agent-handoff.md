@@ -117,6 +117,8 @@ fallback і unit-тестами:
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через
 `parseStaffList`/`parseStaffSession` до запису персональної сесії.
+Місячні дані Табеля, Диспетчера, Змін і журнал ліфтера нормалізуються у
+відповідних typed-модулях перед записом cloud/localStorage-відповідей у runtime.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 

@@ -6,6 +6,7 @@
         attendanceDayState,
         attendanceHours,
         calculateAttendanceTotals,
+        normalizeAttendanceMonth,
     } from './osbb-attendance.js';
     import {
         calculateDispatcherMonthStats,
@@ -15,10 +16,12 @@
         matchesDispatcherFilter,
         matchesDispatcherSearchAndWorker,
         normalizeDispatcherDay,
+        normalizeDispatcherMonth,
         reopenDispatcherTicket,
     } from './osbb-dispatcher.js';
     import {
         createElevatorEntry,
+        elevatorEntriesFromResponse,
         removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
@@ -35,6 +38,7 @@
         shiftErrorMessage,
         shiftIsWorking,
         shiftTypeDescription,
+        workShiftRowsFromResponse,
     } from './osbb-shifts.js';
     import {
         STAFF_ROLE_ICONS,
@@ -758,7 +762,7 @@
         try {
             const { data, error } = await db.from('work_shifts').select('*').eq('month_key', shiftMonthKey()).order('shift_date',{ascending:true});
             if (error) throw new Error(error.message || 'Не вдалося завантажити графік');
-            shiftRows = Object.fromEntries((data || []).map(row => [row.shift_date, row]));
+            shiftRows = workShiftRowsFromResponse(data);
             shiftRenderCalendar();
             shiftSetStatus('Синхронізовано');
         } catch (error) {
@@ -954,7 +958,7 @@
         try { localStorage.setItem(attOfflineKey(), JSON.stringify(attData)); } catch(e) {}
     }
     function attLoadOffline() {
-        try { return JSON.parse(localStorage.getItem(attOfflineKey()) || 'null'); } catch { return null; }
+        try { return normalizeAttendanceMonth(JSON.parse(localStorage.getItem(attOfflineKey()) || 'null')); } catch { return {}; }
     }
 
     function attSetStatus(type, text) {
@@ -979,7 +983,10 @@
             const res = await db.from('osbb_attendance').select('data').eq('month_key', attKey()).single();
             const { data, error } = res;
             if (error && error.code !== 'PGRST116') throw error;
-            attData = data?.data || offline || {};
+            const cloudAttendance = data?.data;
+            attData = cloudAttendance && typeof cloudAttendance === 'object' && !Array.isArray(cloudAttendance)
+                ? normalizeAttendanceMonth(cloudAttendance)
+                : offline;
             attSaveOffline();
             attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
         } catch(err) {
@@ -2400,7 +2407,7 @@
         try { localStorage.setItem(dispOfflineKey(), JSON.stringify(dispData)); } catch(e) {}
     }
     function dispLoadOffline() {
-        try { return JSON.parse(localStorage.getItem(dispOfflineKey()) || 'null'); } catch { return null; }
+        try { return normalizeDispatcherMonth(JSON.parse(localStorage.getItem(dispOfflineKey()) || 'null')); } catch { return {}; }
     }
 
     function dispSetStatus(type, text) {
@@ -2426,7 +2433,10 @@
             const res = await db.from('dispatcher').select('data').eq('month_key', dispKey()).single();
             const { data, error } = res;
             if (error && error.code !== 'PGRST116') throw error;
-            dispData = data?.data || offline || {};
+            const cloudDispatcher = data?.data;
+            dispData = cloudDispatcher && typeof cloudDispatcher === 'object' && !Array.isArray(cloudDispatcher)
+                ? normalizeDispatcherMonth(cloudDispatcher)
+                : offline;
             dispSaveOffline();
             dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
         } catch(err) {
@@ -2947,7 +2957,7 @@
         try { localStorage.setItem(elevatorOfflineKey(), JSON.stringify(elevatorData)); } catch(e) {}
     }
     function elevatorLoadOffline() {
-        try { return JSON.parse(localStorage.getItem(elevatorOfflineKey()) || 'null'); } catch { return null; }
+        try { return elevatorEntriesFromResponse(JSON.parse(localStorage.getItem(elevatorOfflineKey()) || 'null')); } catch { return []; }
     }
 
     function elevatorSetStatus(type, text) {
@@ -2972,7 +2982,7 @@
             const res = await db.from('elevator_visits').select('data').eq('month_key', elevatorKey()).single();
             const { data, error } = res;
             if (error && error.code !== 'PGRST116') throw error;
-            elevatorData = Array.isArray(data?.data) ? data.data : (offline || []);
+            elevatorData = Array.isArray(data?.data) ? elevatorEntriesFromResponse(data.data) : offline;
             elevatorSaveOffline();
             elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>');
         } catch(err) {
