@@ -2,11 +2,50 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+    calculateDispatcherMonthStats,
     closeDispatcherTicket,
+    dispatcherDayStatus,
+    dispatcherDayStatusLabel,
     matchesDispatcherFilter,
+    matchesDispatcherSearchAndWorker,
     normalizeDispatcherDay,
     reopenDispatcherTicket,
 } from '../src/osbb-dispatcher.js';
+
+test('dispatcherDayStatus визначає стан і доступний опис дня', () => {
+    const urgent = normalizeDispatcherDay({ ticketsList: [{ id: '1', priority: 'HIGH', status: 'open' }] });
+    const done = normalizeDispatcherDay({ ticketsList: [{ id: '2', priority: 'HIGH', status: 'done' }] });
+    const open = normalizeDispatcherDay({ ticketsList: [{ id: '3', priority: 'LOW', status: 'open' }] });
+    assert.equal(dispatcherDayStatus(urgent), 'urgent');
+    assert.equal(dispatcherDayStatus(done), 'done');
+    assert.equal(dispatcherDayStatus(open), 'open');
+    assert.equal(dispatcherDayStatus(normalizeDispatcherDay({})), null);
+    assert.equal(dispatcherDayStatusLabel('urgent'), 'є термінові заявки');
+    assert.equal(dispatcherDayStatusLabel(null), 'подій немає');
+});
+
+test('matchesDispatcherSearchAndWorker поєднує пошук і виконавця', () => {
+    const row = normalizeDispatcherDay({ ticketsList: [
+        { id: '1', text: 'Замінити лампу', role: 'electrician' },
+        { id: '2', text: 'Перевірити кран', role: 'plumber' },
+    ] });
+    assert.equal(matchesDispatcherSearchAndWorker(row, 'ЛАМПУ', 'electrician'), true);
+    assert.equal(matchesDispatcherSearchAndWorker(row, 'кран', 'electrician'), true);
+    assert.equal(matchesDispatcherSearchAndWorker(row, 'дах', 'all'), false);
+    assert.equal(matchesDispatcherSearchAndWorker(row, '', 'janitor'), false);
+});
+
+test('calculateDispatcherMonthStats рахує заявки, події та виконання', () => {
+    const stats = calculateDispatcherMonthStats([
+        { row: normalizeDispatcherDay({ ticketsList: [
+            { id: '1', priority: 'HIGH', status: 'open' },
+            { id: '2', priority: 'LOW', status: 'done' },
+        ] }) },
+        { row: normalizeDispatcherDay({}), photosCount: 2 },
+        { row: normalizeDispatcherDay({}) },
+    ]);
+    assert.deepEqual(stats, { events: 2, tickets: 2, urgent: 1, done: 1 });
+});
 
 test('normalizeDispatcherDay повертає безпечний список заявок', () => {
     const ticketsList = [{ id: 'ticket-1', status: 'open' }];

@@ -17,6 +17,7 @@ function readSkladCombined() {
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-movements.ts',
+    'src/sklad-reporting.ts',
     'src/sklad-pricing.js',
     'src/sklad-pricing.ts',
     'src/sklad-suppliers.ts',
@@ -38,6 +39,7 @@ function readOsbbCombined() {
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
+    'src/osbb-photos.ts',
     'src/osbb-shifts.ts',
     'src/osbb-staff.ts',
     'src/osbb-tickets.ts',
@@ -180,6 +182,23 @@ const allFiles = [...walk('.')];
 
 let failed = 0;
 let passed = 0;
+
+// Журнал має використовувати спільний REST transport, а не повертати локальну
+// неповну копію fluent API (зокрема без maybeSingle()).
+{
+  const osbb = readOsbbCombined();
+  const transport = readFileSync('src/supabase-api.ts', 'utf8');
+  const label = 'journal uses shared Supabase REST transport';
+  const required = [
+    [osbb, 'const db = createSupabaseRestClient();'],
+    [transport, 'maybeSingle()'],
+    [transport, "isMaybeSingle ? null : { code: 'PGRST116' }"],
+  ];
+  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
+  if (osbb.includes('const db = {')) missing.push('local db wrapper removed');
+  if (missing.length) { failed += 1; console.error(`not ok - ${label} (missing: ${missing.join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
 
 for (const file of allFiles) {
   const text = readFileSync(file, 'utf8');
@@ -2341,7 +2360,8 @@ ${sharedSelectText}`;
     [osbb, 'const safeUrl = safeExternalUrl(p.url);'],
     [osbb, 'if (!safeUrl) return \'\';'],
     [osbb, 'data-photo-url="${safeUrl}"'],
-    [osbb, 'if (safeUrl) lightboxPhotos.push(safeUrl);'],
+    [osbb, 'const requested = safeExternalUrl(requestedUrl);'],
+    [osbb, 'group.map((photo) => safeExternalUrl(photo.url)).filter(Boolean)'],
     [sklad, 'const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):\'\';'],
     [sklad, 'data-photo-url="${safePhoto}"'],
   ];
