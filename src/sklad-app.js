@@ -15,7 +15,7 @@ import {
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
-import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
+import { adjustedStockAfterMovementEdit, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -1431,9 +1431,8 @@ async function confirmEditLog(){
   if(isNaN(newQty)||newQty<0) return toast('Введіть коректну кількість','error');
   const item=allItems.find(i=>i.id===l.item_id);
   if(item){
-    const diff=l.quantity-newQty;
-    const adjustedStock=Math.round((item.quantity+diff)*100)/100;
-    if(adjustedStock<0) return toast('Недостатньо товару на складі для такої кількості','error');
+    const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,l.quantity,newQty,'issue');
+    if(adjustedStock===null) return toast('Недостатньо товару на складі для такої кількості','error');
     await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
   }
   const logPatch={quantity:newQty,issued_to:person||null,note:note||null};
@@ -1562,9 +1561,8 @@ async function confirmEditReceipt(){
   if(Number.isNaN(purchasePrice)) return toast('Введіть коректну ціну закупівлі','error');
   const item=allItems.find(i=>i.id===r.item_id);
   if(item){
-    const diff=newQty-r.quantity;
-    const adjustedStock=Math.round((item.quantity+diff)*100)/100;
-    if(adjustedStock<0) return toast('Це призведе до від\'ємного залишку','error');
+    const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,r.quantity,newQty,'receipt');
+    if(adjustedStock===null) return toast('Це призведе до від\'ємного залишку','error');
     const itemPatch={quantity:adjustedStock};
     if(purchasePrice!==null) Object.assign(itemPatch,{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()});
     const {error:itemError}=await db.from('inventory_items').update(itemPatch).eq('id',item.id);

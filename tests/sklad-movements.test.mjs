@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { filterInventoryLogs, filterInventoryReceipts } from '../src/sklad-movements.js';
+import {
+    adjustedStockAfterMovementEdit,
+    filterInventoryLogs,
+    filterInventoryReceipts,
+} from '../src/sklad-movements.js';
 
 const items = [
     { id: 1, category: 'Електрика', unit: 'шт' },
@@ -33,4 +37,17 @@ test('filterInventoryReceipts шукає за товаром, постачаль
     assert.deepEqual(filterInventoryReceipts(receipts, 'епіцентр накладна').map((receipt) => receipt.id), [20]);
     assert.deepEqual(filterInventoryReceipts(receipts, 'рукавиці').map((receipt) => receipt.id), [21]);
     assert.equal(filterInventoryReceipts(receipts).length, 2);
+});
+
+test('adjustedStockAfterMovementEdit коригує залишок після редагування видачі', () => {
+    assert.equal(adjustedStockAfterMovementEdit(8, 2, 5, 'issue'), 5);
+    assert.equal(adjustedStockAfterMovementEdit(8, 5, 2, 'issue'), 11);
+    assert.equal(adjustedStockAfterMovementEdit(1, 2, 5, 'issue'), null);
+});
+
+test('adjustedStockAfterMovementEdit коригує залишок після редагування приходу', () => {
+    assert.equal(adjustedStockAfterMovementEdit(8, 2, 5, 'receipt'), 11);
+    assert.equal(adjustedStockAfterMovementEdit(8, 5, 2, 'receipt'), 5);
+    assert.equal(adjustedStockAfterMovementEdit(2, 5, 1, 'receipt'), null);
+    assert.equal(adjustedStockAfterMovementEdit('invalid', 1, 2, 'receipt'), null);
 });

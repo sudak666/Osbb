@@ -19,6 +19,23 @@ export interface InventoryReceipt {
     note?: string | null;
 }
 
+export type MovementKind = 'issue' | 'receipt';
+
+export function adjustedStockAfterMovementEdit(
+    currentStock: unknown,
+    previousQuantity: unknown,
+    nextQuantity: unknown,
+    kind: MovementKind,
+): number | null {
+    const current = Number(currentStock);
+    const previous = Number(previousQuantity);
+    const next = Number(nextQuantity);
+    if (![current, previous, next].every(Number.isFinite) || current < 0 || previous < 0 || next < 0) return null;
+    const delta = kind === 'issue' ? previous - next : next - previous;
+    const adjusted = Math.round((current + delta) * 100) / 100;
+    return adjusted >= 0 ? adjusted : null;
+}
+
 export function filterInventoryLogs<T extends InventoryLog>(
     logs: readonly T[],
     items: readonly MovementInventoryItem[],
