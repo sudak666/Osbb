@@ -126,6 +126,8 @@ fallback і unit-тестами:
 звірки з живою схемою Supabase.
 `createSupabaseRestClient` має generic-контракти для назв таблиць, Row/Insert/Update
 та RPC Args/Returns; browser-runnable JS fallback і transport-поведінка не змінені.
+REST query builder підтримує всі фактично використані операції, включно з
+`update()` через HTTP `PATCH`; цей шлях покрито transport unit-тестом.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 

@@ -185,7 +185,7 @@ let failed = 0;
 let passed = 0;
 
 // Журнал має використовувати спільний REST transport, а не повертати локальну
-// неповну копію fluent API (зокрема без maybeSingle()).
+// неповну копію fluent API (зокрема без maybeSingle() або update()).
 {
   const osbb = readOsbbCombined();
   const transport = readFileSync('src/supabase-api.ts', 'utf8');
@@ -193,6 +193,8 @@ let passed = 0;
   const required = [
     [osbb, 'const db = createSupabaseRestClient();'],
     [transport, 'maybeSingle()'],
+    [transport, "update(data: unknown) { state.method = 'PATCH';"],
+    [transport, "state.method === 'POST' || state.method === 'PATCH'"],
     [transport, "isMaybeSingle ? null : { code: 'PGRST116' }"],
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
