@@ -39,6 +39,16 @@ export function garbageMonthKeyCandidates(year, month) {
     ])];
 }
 
+export function garbageYearRowsFromResponse(value) {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        if (typeof entry.month_key !== 'string' || !/^\d{4}-(?:\d|0\d|1[01])$/.test(entry.month_key)) return [];
+        if (typeof entry.data !== 'object' || entry.data === null || Array.isArray(entry.data)) return [];
+        return [{ month_key: entry.month_key, data: normalizeGarbageMonth(entry.data) }];
+    });
+}
+
 export function migrateGarbageData(data) {
     if (!data) return { data, migrated: false };
     let migrated = false;
