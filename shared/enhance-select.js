@@ -34,7 +34,7 @@
       const rect = btn.getBoundingClientRect();
       const viewportGap = 8;
       const maxWidth = Math.max(240, window.innerWidth - viewportGap * 2);
-      const width = Math.min(Math.max(rect.width, panel.scrollWidth), maxWidth);
+      const width = Math.min(Math.max(rect.width, 240), maxWidth);
       const left = Math.min(Math.max(viewportGap, rect.left), window.innerWidth - width - viewportGap);
       panel.style.width = `${width}px`;
       panel.style.left = `${left}px`;

@@ -7,8 +7,19 @@ import {
   shiftErrorMessage,
   shiftIsWorking,
   shiftTypeDescription,
+  workShiftNamesFromResponse,
   workShiftRowsFromResponse,
 } from '../src/osbb-shifts.js';
+
+test('workShiftNamesFromResponse нормалізує налаштування імен', () => {
+  const fallback = { sergiy: 'Сергій', oleksandr: 'Олександр' };
+  assert.deepEqual(workShiftNamesFromResponse({
+    employee_one_name: '  Іван  ',
+    employee_two_name: '',
+  }, fallback), { sergiy: 'Іван', oleksandr: 'Олександр' });
+  assert.deepEqual(workShiftNamesFromResponse(null, fallback), fallback);
+  assert.notEqual(workShiftNamesFromResponse(null, fallback), fallback);
+});
 
 test('workShiftRowsFromResponse індексує лише валідні зміни', () => {
   assert.deepEqual(workShiftRowsFromResponse([
