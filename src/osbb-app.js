@@ -25,7 +25,7 @@
         removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
-    import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photosFor, removePhoto } from './osbb-photos.js';
+    import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photoIdFromInsertResponse, photosFor, removePhoto } from './osbb-photos.js';
     import {
         garbageMonthBinsTotal,
         garbageMonthKey,
@@ -1292,7 +1292,7 @@
             const { data: insertData, error: insErr } = await db.from('photos').insert({ month_key: `${currentYear}-${currentMonth}`, day, role, url: urlData.publicUrl });
             if (insErr) throw insErr;
             
-            const realId = (insertData && insertData[0]) ? insertData[0].id : Date.now();
+            const realId = photoIdFromInsertResponse(insertData, Date.now());
 
             photosCache = appendPhoto(photosCache, day, role, { id: realId, url: urlData.publicUrl });
             setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add_photo_alternate</span>Фото збережено</span>');
