@@ -113,14 +113,30 @@ fallback і unit-тестами:
 Межа завантаження масивів `inventory_items`, `inventory_logs` та
 `inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
 тепер перетворюється на порожній список замість потрапляння в UI-стан.
+Хмарний список тегів постачальників проходить `supplierTagsFromResponse`, тому
+malformed-рядки не потрапляють у локальний кеш і кнопки швидкого вибору.
+ID заголовка інвентаризації перевіряється через `auditIdFromInsertResponse` перед
+створенням дочірніх рядків; без валідного ID операція завершується з UI-помилкою.
+Останні видачі та історія товару також проходять `inventoryLogsFromResponse`, а
+некоректні timestamps рухів відкидаються до форматування дат і HTML-рендерингу.
+Одиниця виміру з RPC `issue_item`/`receive_item` проходить
+`inventoryUnitFromRpcResponse`; malformed-відповідь використовує одиницю товару.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через
 `parseStaffList`/`parseStaffSession` до запису персональної сесії.
 Місячні дані Табеля, Диспетчера, Змін і журнал ліфтера нормалізуються у
 відповідних typed-модулях перед записом cloud/localStorage-відповідей у runtime.
+Налаштування імен графіка змін проходять `workShiftNamesFromResponse`; порожні або
+некоректні значення Supabase не замінюють чинні fallback-імена в інтерфейсі.
 Той самий boundary-підхід застосовано до журналу сміття й списку фото; календарні
 ключі обмежені днями 1–31, а дати змін перевіряються як реальні ISO-дати.
+ID щойно доданого фото перевіряється через `photoIdFromInsertResponse`; malformed
+insert-відповідь використовує локальний fallback ID замість `undefined` у кеші.
+Річна відповідь таблиці `garbage` також проходить `garbageYearRowsFromResponse`:
+некоректні `month_key` і JSON payload не потрапляють до локального кешу графіка.
+Підсумок баків у річному графіку обчислює `garbageMonthBinsTotal`, тому пошкоджені
+локальні записи не обнуляють увесь місяць і не викликають помилку рендерингу.
 Ручні `database.types.ts` синхронізовано з актуальними staff/attendance/elevator
 таблицями та RPC; повну заміну на generated types усе ще слід робити лише після
 звірки з живою схемою Supabase.
@@ -156,6 +172,11 @@ Recent Sklad mobile fixes:
 
 This specifically addressed screenshots where the light mobile UI looked messy and the price lookup panel could not be closed because the button was below the mobile viewport.
 
+Кастомні списки Складу позиціонуються через `position: fixed`, узгоджено з
+viewport-координатами `getBoundingClientRect()`: відкриття категорії в нижній
+формі більше не прокручує сторінку до секції поповнення. Категорія модалки
+редагування товару також використовує кастомний округлений список.
+
 ## Smoke-check status
 
 `node scripts/smoke-check.mjs` was expanded substantially. It currently guards, among other things:
@@ -169,7 +190,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `89` unit-тестів і `236`
+Актуальний baseline на момент оновлення документа: `129` unit-тестів і `239`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
