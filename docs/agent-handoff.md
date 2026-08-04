@@ -113,6 +113,8 @@ fallback і unit-тестами:
 Межа завантаження масивів `inventory_items`, `inventory_logs` та
 `inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
 тепер перетворюється на порожній список замість потрапляння в UI-стан.
+Останні видачі та історія товару також проходять `inventoryLogsFromResponse`, а
+некоректні timestamps рухів відкидаються до форматування дат і HTML-рендерингу.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через

@@ -1304,8 +1304,9 @@ async function issueItem(itemId,qty,person,note,issueDate){
 async function loadRecentIssues(){
   const {data}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
   const el=document.getElementById('recentIssues');
-  if(!data||!data.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">inbox</span> Видач ще не було</div>';return;}
-  el.innerHTML=data.map(l=>{
+  const rows=inventoryLogsFromResponse(data);
+  if(!rows.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">inbox</span> Видач ще не було</div>';return;}
+  el.innerHTML=rows.map(l=>{
     const d=new Date(l.issued_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const safeName=escapeHtml(l.item_name||'—');
@@ -2163,11 +2164,12 @@ async function openHistory(itemId){
   document.getElementById('histList').innerHTML=skeletonStack(3);
   openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
-  if(!data||!data.length){
+  const rows=inventoryLogsFromResponse(data);
+  if(!rows.length){
     document.getElementById('histList').innerHTML='<div class="history-modal-state">Видач не було</div>';
     return;
   }
-  document.getElementById('histList').innerHTML=data.map(l=>{
+  document.getElementById('histList').innerHTML=rows.map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     const t=new Date(l.issued_at).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     return `<div class="hist-row">

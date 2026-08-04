@@ -23,6 +23,10 @@ function nullableNumber(value: unknown): number | null {
     return isFiniteNumber(value) ? value : null;
 }
 
+function isTimestamp(value: unknown): value is string {
+    return typeof value === 'string' && value.trim() !== '' && Number.isFinite(Date.parse(value));
+}
+
 export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
     return rows(value).flatMap((row) => {
         if (!isFiniteNumber(row.id) || typeof row.name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.unit !== 'string') return [];
@@ -51,7 +55,7 @@ export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
 
 export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.issued_at !== 'string') return [];
+        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.issued_at)) return [];
         return [{
             id: row.id,
             item_id: nullableNumber(row.item_id),
@@ -66,7 +70,7 @@ export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
 
 export function inventoryReceiptsFromResponse(value: unknown): InventoryReceiptRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.received_at !== 'string') return [];
+        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.received_at)) return [];
         return [{
             id: row.id,
             item_id: nullableNumber(row.item_id),
