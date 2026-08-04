@@ -119,6 +119,8 @@ ID заголовка інвентаризації перевіряється ч
 створенням дочірніх рядків; без валідного ID операція завершується з UI-помилкою.
 Останні видачі та історія товару також проходять `inventoryLogsFromResponse`, а
 некоректні timestamps рухів відкидаються до форматування дат і HTML-рендерингу.
+Одиниця виміру з RPC `issue_item`/`receive_item` проходить
+`inventoryUnitFromRpcResponse`; malformed-відповідь використовує одиницю товару.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через
@@ -183,7 +185,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `128` unit-тестів і `237`
+Актуальний baseline на момент оновлення документа: `129` unit-тестів і `237`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 

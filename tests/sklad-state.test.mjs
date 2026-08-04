@@ -5,7 +5,15 @@ import {
   inventoryItemsFromResponse,
   inventoryLogsFromResponse,
   inventoryReceiptsFromResponse,
+  inventoryUnitFromRpcResponse,
 } from '../src/sklad-state.js';
+
+test('inventoryUnitFromRpcResponse перевіряє одиницю з RPC-відповіді', () => {
+  assert.equal(inventoryUnitFromRpcResponse([{ unit: '  шт ' }], 'од.'), 'шт');
+  assert.equal(inventoryUnitFromRpcResponse([{ unit: '' }], 'од.'), 'од.');
+  assert.equal(inventoryUnitFromRpcResponse([{ unit: 5 }], 'од.'), 'од.');
+  assert.equal(inventoryUnitFromRpcResponse(null, 'од.'), 'од.');
+});
 
 test('inventoryItemsFromResponse validates required fields and normalizes optional fields', () => {
   assert.deepEqual(inventoryItemsFromResponse([

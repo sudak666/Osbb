@@ -27,6 +27,16 @@ function isTimestamp(value: unknown): value is string {
     return typeof value === 'string' && value.trim() !== '' && Number.isFinite(Date.parse(value));
 }
 
+export function inventoryUnitFromRpcResponse(value: unknown, fallback: string): string {
+    if (!Array.isArray(value) || value.length === 0) return fallback;
+    const row = value[0];
+    if (typeof row !== 'object' || row === null || Array.isArray(row)) return fallback;
+    const unit = (row as Record<string, unknown>).unit;
+    if (typeof unit !== 'string') return fallback;
+    const normalized = unit.trim();
+    return normalized && normalized.length <= 50 ? normalized : fallback;
+}
+
 export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
     return rows(value).flatMap((row) => {
         if (!isFiniteNumber(row.id) || typeof row.name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.unit !== 'string') return [];

@@ -17,7 +17,7 @@ import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, pars
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse } from './sklad-state.js';
+import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -1296,8 +1296,7 @@ async function issueItem(itemId,qty,person,note,issueDate){
     }
     return false;
   }
-  const row=data && data[0];
-  const unit=row?.unit||item.unit;
+  const unit=inventoryUnitFromRpcResponse(data,item.unit);
   toast('Видано: '+qty+' '+unit+' → '+person,'success');
   notifyTelegram('📤 Видача: '+item.name+' −'+qty+' '+unit+' → '+person+(note?' ('+note+')':''));
   await loadItems();
@@ -1652,8 +1651,7 @@ async function doRefill(btn){
     }
   }
   if(error) return toast('Помилка: '+error.message,'error');
-  const row=data && data[0];
-  const unit=row?.unit||item.unit;
+  const unit=inventoryUnitFromRpcResponse(data,item.unit);
   toast('Поповнено +'+qty+' '+unit,'success');
   notifyTelegram('📦 Прихід: '+item.name+' +'+qty+' '+item.unit+(supplier?' від '+supplier:'')+(note?' ('+note+')':''));
   document.getElementById('refillQtyI').value='';
