@@ -119,6 +119,8 @@ fallback і unit-тестами:
 `parseStaffList`/`parseStaffSession` до запису персональної сесії.
 Місячні дані Табеля, Диспетчера, Змін і журнал ліфтера нормалізуються у
 відповідних typed-модулях перед записом cloud/localStorage-відповідей у runtime.
+Налаштування імен графіка змін проходять `workShiftNamesFromResponse`; порожні або
+некоректні значення Supabase не замінюють чинні fallback-імена в інтерфейсі.
 Той самий boundary-підхід застосовано до журналу сміття й списку фото; календарні
 ключі обмежені днями 1–31, а дати змін перевіряються як реальні ISO-дати.
 Річна відповідь таблиці `garbage` також проходить `garbageYearRowsFromResponse`:
@@ -173,7 +175,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `124` unit-тести і `237`
+Актуальний baseline на момент оновлення документа: `125` unit-тестів і `237`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 

@@ -40,6 +40,7 @@
         shiftErrorMessage,
         shiftIsWorking,
         shiftTypeDescription,
+        workShiftNamesFromResponse,
         workShiftRowsFromResponse,
     } from './osbb-shifts.js';
     import {
@@ -679,7 +680,7 @@
         try {
             const { data, error } = await db.from('work_shift_settings').select('employee_one_name,employee_two_name').eq('id', 1).maybeSingle();
             if (error) throw new Error(error.message || 'Не вдалося завантажити імена');
-            if (data) shiftNames = { sergiy:data.employee_one_name, oleksandr:data.employee_two_name };
+            shiftNames = workShiftNamesFromResponse(data, shiftNames);
             shiftApplyNames();
             shiftRenderCalendar();
         } catch (error) {
