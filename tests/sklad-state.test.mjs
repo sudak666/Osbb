@@ -17,8 +17,10 @@ test('inventoryUnitFromRpcResponse перевіряє одиницю з RPC-ві
 
 test('inventoryItemsFromResponse validates required fields and normalizes optional fields', () => {
   assert.deepEqual(inventoryItemsFromResponse([
-    { id: 1, name: 'Лампа', quantity: 2, unit: 'шт', price_unit: Number.NaN, is_internal: 'yes' },
+    { id: 1, name: '  Лампа  ', quantity: 2, unit: ' шт ', price_unit: Number.NaN, is_internal: 'yes' },
     { id: '2', name: 'Некоректний товар', quantity: 1, unit: 'шт' },
+    { id: 3, name: '   ', quantity: 1, unit: 'шт' },
+    { id: 4, name: 'Без одиниці', quantity: 1, unit: '' },
     null,
   ]), [{
     id: 1,

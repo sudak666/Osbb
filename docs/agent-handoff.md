@@ -112,7 +112,9 @@ fallback і unit-тестами:
 
 Межа завантаження масивів `inventory_items`, `inventory_logs` та
 `inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
-тепер перетворюється на порожній список замість потрапляння в UI-стан.
+тепер перетворюється на порожній список замість потрапляння в UI-стан. Товари
+також відкидають порожні/надмірні `name` і `unit`, а валідні значення
+нормалізують пробіли до запису в `allItems`.
 Хмарний список тегів постачальників проходить `supplierTagsFromResponse`, тому
 malformed-рядки не потрапляють у локальний кеш і кнопки швидкого вибору.
 ID заголовка інвентаризації перевіряється через `auditIdFromInsertResponse` перед
@@ -144,8 +146,10 @@ insert-відповідь використовує локальний fallback I
 та RPC Args/Returns; browser-runnable JS fallback і transport-поведінка не змінені.
 REST query builder підтримує всі фактично використані операції, включно з
 `update()` через HTTP `PATCH`; цей шлях покрито transport unit-тестом.
-OSBB використовує throwing/raw `db.rpc()`, а Sklad — `db.rpcResult()` із
-`{data,error}`. Не змішуйте ці два контракти: це різні orchestrator-патерни.
+OSBB використовує throwing/raw `db.rpc()` зі спільного REST-wrapper, а Sklad —
+нативний Supabase JS `db.rpc()` із `{ data, error }`. Не використовуйте
+`db.rpcResult()` у Sklad entrypoint: це helper REST-wrapper-а, а не контракт
+браузерного Supabase client.
 Storage `upload()` повертає `{data,error}` і не кидає transport exception, щоб
 однаково працювали Sklad callback-flow та OSBB `try`/перевірка `error`.
 
@@ -190,8 +194,8 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `129` unit-тестів і `239`
-smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
+Актуальний baseline на момент оновлення документа: `129` unit-тестів і `243`
+smoke-перевірки. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
 ## Що залишилося по міграції

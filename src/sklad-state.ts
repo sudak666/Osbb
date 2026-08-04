@@ -19,6 +19,12 @@ function nullableString(value: unknown): string | null {
     return typeof value === 'string' ? value : null;
 }
 
+function boundedText(value: unknown, maxLength: number): string | null {
+    if (typeof value !== 'string') return null;
+    const normalized = value.trim();
+    return normalized && normalized.length <= maxLength ? normalized : null;
+}
+
 function nullableNumber(value: unknown): number | null {
     return isFiniteNumber(value) ? value : null;
 }
@@ -39,13 +45,15 @@ export function inventoryUnitFromRpcResponse(value: unknown, fallback: string): 
 
 export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.unit !== 'string') return [];
+        const name = boundedText(row.name, 200);
+        const unit = boundedText(row.unit, 50);
+        if (!isFiniteNumber(row.id) || !name || !isFiniteNumber(row.quantity) || !unit) return [];
         return [{
             id: row.id,
-            name: row.name,
+            name,
             category: nullableString(row.category),
             quantity: row.quantity,
-            unit: row.unit,
+            unit,
             min_quantity: nullableNumber(row.min_quantity),
             photo_url: nullableString(row.photo_url),
             created_at: nullableString(row.created_at),
