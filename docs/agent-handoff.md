@@ -113,6 +113,8 @@ fallback і unit-тестами:
 Межа завантаження масивів `inventory_items`, `inventory_logs` та
 `inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
 тепер перетворюється на порожній список замість потрапляння в UI-стан.
+Хмарний список тегів постачальників проходить `supplierTagsFromResponse`, тому
+malformed-рядки не потрапляють у локальний кеш і кнопки швидкого вибору.
 Останні видачі та історія товару також проходять `inventoryLogsFromResponse`, а
 некоректні timestamps рухів відкидаються до форматування дат і HTML-рендерингу.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
@@ -179,7 +181,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `126` unit-тестів і `237`
+Актуальний baseline на момент оновлення документа: `127` unit-тестів і `237`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 

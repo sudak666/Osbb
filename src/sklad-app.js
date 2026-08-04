@@ -15,7 +15,7 @@ import {
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
-import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
+import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse } from './sklad-state.js';
 
@@ -764,7 +764,7 @@ async function loadSupplierTagsCloud(){
   }
   supplierTagsCloudAvailable=true;
   const localTags=loadCustomSupplierTags();
-  const remoteTags=mergeSupplierTags([(data||[]).map(row=>row.name)],50);
+  const remoteTags=supplierTagsFromResponse(data,50);
   const missingRemote=localTags.filter(tag=>!hasSupplierTag(remoteTags,tag));
   if(missingRemote.length){
     const {error:syncError}=await db.from('inventory_supplier_tags').insert(missingRemote.map(name=>({name})));
