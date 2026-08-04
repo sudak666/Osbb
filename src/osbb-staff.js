@@ -1,3 +1,4 @@
+const STAFF_ROLES = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES = ['plumber', 'janitor', 'electrician'];
 export const WORKER_ALLOWED_TABS = ['tabel', 'my-tickets'];
 
@@ -18,6 +19,28 @@ export const STAFF_ROLE_LABELS = {
     janitor: 'Двірник',
     electrician: 'Електрик',
 };
+
+export function parseStaffSession(value) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    const validId = typeof value.id === 'string' && value.id.trim() !== ''
+        || typeof value.id === 'number' && Number.isFinite(value.id);
+    if (!validId || typeof value.name !== 'string' || value.name.trim() === '') return null;
+    if (typeof value.role !== 'string' || !STAFF_ROLES.includes(value.role)) return null;
+    return {
+        id: typeof value.id === 'string' ? value.id.trim() : value.id,
+        name: value.name.trim(),
+        role: value.role,
+    };
+}
+
+export function parseStaffList(value) {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const session = parseStaffSession({ id: entry.id, name: entry.full_name, role: entry.role });
+        return session ? [{ id: session.id, full_name: session.name, role: session.role }] : [];
+    });
+}
 
 export function isDispatcherSession(session) {
     return Boolean(session) && ['dispatcher', 'admin', 'board'].includes(session?.role ?? '');

@@ -20,6 +20,25 @@ function parseTime(value: unknown): number | null {
     return hours * 60 + minutes;
 }
 
+export function normalizeAttendanceMonth(value: unknown): AttendanceMonth {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+    const month: AttendanceMonth = {};
+    for (const [day, roles] of Object.entries(value)) {
+        const numericDay = Number(day);
+        if (!Number.isInteger(numericDay) || numericDay < 1 || numericDay > 31 || typeof roles !== 'object' || roles === null || Array.isArray(roles)) continue;
+        const normalizedRoles: Record<string, AttendanceCell> = {};
+        for (const [role, cell] of Object.entries(roles)) {
+            if (typeof cell !== 'object' || cell === null || Array.isArray(cell)) continue;
+            const raw = cell as Record<string, unknown>;
+            const checkIn = parseTime(raw.checkIn) === null ? undefined : raw.checkIn as string;
+            const checkOut = parseTime(raw.checkOut) === null ? undefined : raw.checkOut as string;
+            if (checkIn || checkOut) normalizedRoles[role] = { checkIn, checkOut };
+        }
+        if (Object.keys(normalizedRoles).length) month[day] = normalizedRoles;
+    }
+    return month;
+}
+
 export function attendanceHours(cell: AttendanceCell): number {
     const checkIn = parseTime(cell.checkIn);
     const checkOut = parseTime(cell.checkOut);

@@ -8,9 +8,19 @@ import {
     dispatcherDayStatusLabel,
     matchesDispatcherFilter,
     matchesDispatcherSearchAndWorker,
-    normalizeDispatcherDay,
+  normalizeDispatcherDay,
+  normalizeDispatcherMonth,
     reopenDispatcherTicket,
 } from '../src/osbb-dispatcher.js';
+
+test('normalizeDispatcherMonth залишає лише валідні дні та заявки', () => {
+  assert.deepEqual(normalizeDispatcherMonth({
+    1: { ticketsList: [{ id: 't1', text: 'Аварія' }, null, { text: 'без id' }] },
+    invalid: { ticketsList: [{ id: 't2' }] },
+    99: { ticketsList: [{ id: 't3' }] },
+  }), { 1: { ticketsList: [{ id: 't1', text: 'Аварія' }] } });
+  assert.deepEqual(normalizeDispatcherMonth(null), {});
+});
 
 test('dispatcherDayStatus визначає стан і доступний опис дня', () => {
     const urgent = normalizeDispatcherDay({ ticketsList: [{ id: '1', priority: 'HIGH', status: 'open' }] });

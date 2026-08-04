@@ -17,6 +17,7 @@ import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sk
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
+import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse } from './sklad-state.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -344,7 +345,9 @@ async function loadItems(){
     toast('Товари не завантажились: '+error.message,'error');
     throw error;
   }
-  if(data){allItems=data;renderItems();updateStats();}
+  allItems=inventoryItemsFromResponse(data);
+  renderItems();
+  updateStats();
   markDataUpdated();
 }
 async function loadLogs(){
@@ -353,7 +356,8 @@ async function loadLogs(){
     toast('Журнал не завантажився: '+error.message,'error');
     throw error;
   }
-  if(data){allLogs=data;renderLog();}
+  allLogs=inventoryLogsFromResponse(data);
+  renderLog();
 }
 let allReceipts=[];
 async function loadReceipts(){
@@ -369,7 +373,7 @@ async function loadReceipts(){
     toast('Прихід: '+error.message,'error');
     return;
   }
-  allReceipts=data||[];
+  allReceipts=inventoryReceiptsFromResponse(data);
   renderReceipts();
 }
 async function refreshAll(){
@@ -1279,7 +1283,7 @@ async function issueItem(itemId,qty,person,note,issueDate){
   // Атомарний RPC замість read-check-write з клієнта: перевірка залишку і
   // списання відбуваються однією транзакцією на сервері (issue_item),
   // тому паралельна видача того самого товару не може дати від'ємний залишок.
-  const {data,error}=await db.rpc('issue_item',{
+  const {data,error}=await db.rpcResult('issue_item',{
     p_item_id:itemId, p_qty:qty, p_person:person, p_note:note||null, p_issued_at:issuedAt||null
   });
   if(error){
@@ -1405,7 +1409,7 @@ async function confirmDeleteLog(){
   const id=deleteLogId;
   closeModal('delLogModal');
   showDeletePinModal('PIN для видалення запису', async (pin)=>{
-    const {data,error}=await db.rpc('delete_inventory_log',{p_log_id:id,attempt:pin});
+    const {data,error}=await db.rpcResult('delete_inventory_log',{p_log_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
     if(data && data.ok){
       toast('Запис видалено, товар повернуто на склад','success');
@@ -1532,7 +1536,7 @@ async function confirmDeleteReceipt(){
   const id=deleteReceiptId;
   closeModal('delReceiptModal');
   showDeletePinModal('PIN для видалення приходу', async (pin)=>{
-    const {data,error}=await db.rpc('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
+    const {data,error}=await db.rpcResult('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
     if(data && data.ok){
       toast('Прихід видалено, залишок скориговано','success');
@@ -1628,13 +1632,13 @@ async function doRefill(btn){
   try{
   // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
-  let {data,error}=await db.rpc('receive_item',{
+  let {data,error}=await db.rpcResult('receive_item',{
     p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
   });
   let priceHistorySaved=true;
   if(error&&purchasePrice!==null&&isPurchasePriceSchemaError(error)){
     priceHistorySaved=false;
-    ({data,error}=await db.rpc('receive_item',{
+    ({data,error}=await db.rpcResult('receive_item',{
       p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
     }));
     if(!error){
@@ -1819,7 +1823,7 @@ async function confirmDelete(){
   const id=deleteItemId;
   closeModal('delModal');
   showDeletePinModal('PIN для видалення товару', async (pin)=>{
-    const {data,error}=await db.rpc('delete_inventory_item',{p_item_id:id,attempt:pin});
+    const {data,error}=await db.rpcResult('delete_inventory_item',{p_item_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
     if(data && data.ok){
       toast('Товар видалено','info');
@@ -1885,7 +1889,7 @@ async function uploadPhoto(){
 async function deletePhoto(){
   if(!photoItemId) return;
   showDeletePinModal('PIN для видалення фото', async (pin)=>{
-    const {data:pinOk,error:pinErr}=await db.rpc('verify_pin',{attempt:pin});
+    const {data:pinOk,error:pinErr}=await db.rpcResult('verify_pin',{attempt:pin});
     if(pinErr) return {ok:false,reason:'network'};
     if(pinOk!==true) return {ok:false,reason:'bad_pin'};
 

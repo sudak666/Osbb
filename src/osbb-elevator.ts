@@ -34,6 +34,23 @@ export function createElevatorEntry(
     };
 }
 
+export function elevatorEntriesFromResponse(value: unknown): ElevatorEntry[] {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const row = entry as Record<string, unknown>;
+        if (typeof row.id !== 'string' || !row.id || !Number.isInteger(row.day) || (row.day as number) < 1 || (row.day as number) > 31) return [];
+        if (typeof row.text !== 'string' || !row.text.trim()) return [];
+        return [{
+            id: row.id,
+            day: row.day as number,
+            text: row.text.trim(),
+            createdAt: typeof row.createdAt === 'string' ? row.createdAt : '',
+            createdBy: typeof row.createdBy === 'string' ? row.createdBy : '',
+        }];
+    });
+}
+
 export function removeElevatorEntry(entries: readonly ElevatorEntry[], id: unknown): ElevatorEntry[] {
     return entries.filter((entry) => entry.id !== id);
 }

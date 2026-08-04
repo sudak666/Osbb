@@ -108,7 +108,30 @@ fallback і unit-тестами:
 - OSBB: `osbb-attendance`, `osbb-dispatcher`, `osbb-elevator`, `osbb-garbage`,
   `osbb-shifts`, `osbb-staff`, `osbb-tickets`;
 - Sklad: `sklad-audit`, `sklad-dates`, `sklad-domain`, `sklad-movements`,
-  `sklad-pricing`, `sklad-suppliers`.
+  `sklad-pricing`, `sklad-state`, `sklad-suppliers`.
+
+Межа завантаження масивів `inventory_items`, `inventory_logs` та
+`inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
+тепер перетворюється на порожній список замість потрапляння в UI-стан.
+Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
+ролі видаляються із `sessionStorage` до застосування role gating.
+Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через
+`parseStaffList`/`parseStaffSession` до запису персональної сесії.
+Місячні дані Табеля, Диспетчера, Змін і журнал ліфтера нормалізуються у
+відповідних typed-модулях перед записом cloud/localStorage-відповідей у runtime.
+Той самий boundary-підхід застосовано до журналу сміття й списку фото; календарні
+ключі обмежені днями 1–31, а дати змін перевіряються як реальні ISO-дати.
+Ручні `database.types.ts` синхронізовано з актуальними staff/attendance/elevator
+таблицями та RPC; повну заміну на generated types усе ще слід робити лише після
+звірки з живою схемою Supabase.
+`createSupabaseRestClient` має generic-контракти для назв таблиць, Row/Insert/Update
+та RPC Args/Returns; browser-runnable JS fallback і transport-поведінка не змінені.
+REST query builder підтримує всі фактично використані операції, включно з
+`update()` через HTTP `PATCH`; цей шлях покрито transport unit-тестом.
+OSBB використовує throwing/raw `db.rpc()`, а Sklad — `db.rpcResult()` із
+`{data,error}`. Не змішуйте ці два контракти: це різні orchestrator-патерни.
+Storage `upload()` повертає `{data,error}` і не кидає transport exception, щоб
+однаково працювали Sklad callback-flow та OSBB `try`/перевірка `error`.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 

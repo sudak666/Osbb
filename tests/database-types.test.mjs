@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const source = fs.readFileSync(new URL('../src/database.types.ts', import.meta.url), 'utf8');
+const apiSource = fs.readFileSync(new URL('../src/supabase-api.ts', import.meta.url), 'utf8');
 
 test('database types model merged OSBB month-key tables, not the old row schema', () => {
   assert.match(source, /schedule: RowOperation<\{\n\s+month_key: string;\n\s+data: Json;/);
@@ -16,7 +17,25 @@ test('database types expose Sklad movement column names used by the UI and RPCs'
 });
 
 test('database types include critical security-definer RPC contracts', () => {
-  for (const fn of ['verify_lock_pin', 'verify_reset_pin', 'reset_month', 'verify_pin', 'issue_item', 'receive_item', 'delete_inventory_item', 'delete_inventory_log', 'delete_inventory_receipt', 'delete_chat_message', 'delete_photo']) {
+  for (const fn of ['verify_lock_pin', 'verify_reset_pin', 'list_osbb_staff', 'verify_staff_pin', 'list_osbb_staff_settings', 'set_osbb_staff_active', 'save_attendance_day', 'reset_month', 'verify_pin', 'issue_item', 'receive_item', 'delete_inventory_item', 'delete_inventory_log', 'delete_inventory_receipt', 'delete_chat_message', 'delete_photo']) {
     assert.match(source, new RegExp(`${fn}: \\{`));
   }
+});
+
+test('database types model current OSBB staff, attendance and elevator tables', () => {
+  for (const table of ['osbb_staff', 'osbb_staff_pin_attempts', 'osbb_attendance', 'elevator_visits']) {
+    assert.match(source, new RegExp(`${table}: RowOperation<\\{`));
+  }
+  assert.match(source, /export type OsbbStaffRole = 'plumber' \| 'janitor' \| 'electrician' \| 'dispatcher' \| 'admin' \| 'board';/);
+  assert.match(source, /save_attendance_day: \{[\s\S]*p_role: Extract<OsbbStaffRole, 'plumber' \| 'janitor' \| 'electrician'>;/);
+});
+
+test('Supabase REST transport exposes typed table and RPC boundaries', () => {
+  assert.match(apiSource, /from<Table extends PublicTableName>\(table: Table\)/);
+  assert.match(apiSource, /PublicTableRow<Table>,\n\s+PublicTableInsert<Table>,\n\s+PublicTableUpdate<Table>/);
+  assert.match(apiSource, /rpc<Fn extends PublicFunctionName>\(fn: Fn, params: PublicFunctionArgs<Fn>\): Promise<PublicFunctionReturns<Fn> \| null>/);
+  assert.match(apiSource, /data: T \| null;/);
+  assert.match(apiSource, /update\(data: Update\): RestQuery<Row, Insert, Update, Row\[]>;/);
+  assert.match(apiSource, /rpcResult<Fn extends PublicFunctionName>\(fn: Fn, params: PublicFunctionArgs<Fn>\): Promise<RestResult<PublicFunctionReturns<Fn>>>;/);
+  assert.match(apiSource, /upload\(path: string, blob: BodyInit, settings\?: \{ contentType\?: string; upsert\?: boolean \}\): Promise<RestResult<\{ path: string \}>>;/);
 });
