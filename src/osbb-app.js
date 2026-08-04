@@ -27,9 +27,10 @@
     } from './osbb-elevator.js';
     import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photosFor, removePhoto } from './osbb-photos.js';
     import {
-        garbageBins,
+        garbageMonthBinsTotal,
         garbageMonthKey,
         garbageMonthKeyCandidates,
+        garbageYearRowsFromResponse,
         migrateGarbageData,
         normalizeGarbageMonth,
     } from './osbb-garbage.js';
@@ -39,6 +40,7 @@
         shiftErrorMessage,
         shiftIsWorking,
         shiftTypeDescription,
+        workShiftNamesFromResponse,
         workShiftRowsFromResponse,
     } from './osbb-shifts.js';
     import {
@@ -678,7 +680,7 @@
         try {
             const { data, error } = await db.from('work_shift_settings').select('employee_one_name,employee_two_name').eq('id', 1).maybeSingle();
             if (error) throw new Error(error.message || 'Не вдалося завантажити імена');
-            if (data) shiftNames = { sergiy:data.employee_one_name, oleksandr:data.employee_two_name };
+            shiftNames = workShiftNamesFromResponse(data, shiftNames);
             shiftApplyNames();
             shiftRenderCalendar();
         } catch (error) {
@@ -2207,7 +2209,7 @@
         try {
             const { data, error } = await db.from('garbage').select('month_key,data');
             if (error) throw error;
-            const rows = Array.isArray(data) ? data : [];
+            const rows = garbageYearRowsFromResponse(data);
             for (let month = 0; month <= 11; month++) {
                 const candidates = gMonthKeyCandidates(year, month);
                 const row = candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean);
@@ -2227,10 +2229,6 @@
         const container = document.getElementById('g-chart');
         if (!container) return;
 
-        function getBins(types) {
-            return garbageBins(types);
-        }
-
         await gLoadGarbageYearFromCloud(currentYear);
 
         // Завантажуємо дані по всіх місяцях з локального кешу — тільки баки
@@ -2239,16 +2237,11 @@
             const key = `garbage_${currentYear}_${m}`;
             let tot = 0;
             try {
-                const d = JSON.parse(localStorage.getItem(key) || '{}');
-                Object.values(d).forEach(r => tot += getBins(r.types));
+                tot = garbageMonthBinsTotal(JSON.parse(localStorage.getItem(key) || '{}'));
             } catch(e) {}
             // Якщо це поточний місяць — беремо актуальні дані
             if (m === currentMonth) {
-                tot = 0;
-                const dim = new Date(currentYear, currentMonth + 1, 0).getDate();
-                for (let d = 1; d <= dim; d++) {
-                    tot += getBins(gData[String(d).padStart(2,'0')]?.types);
-                }
+                tot = garbageMonthBinsTotal(gData);
             }
             monthlyTotals.push(tot);
         }

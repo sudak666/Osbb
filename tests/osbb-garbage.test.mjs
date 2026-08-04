@@ -3,11 +3,27 @@ import assert from 'node:assert/strict';
 
 import {
   garbageBins,
+  garbageMonthBinsTotal,
   garbageMonthKey,
   garbageMonthKeyCandidates,
+  garbageYearRowsFromResponse,
   migrateGarbageData,
   normalizeGarbageMonth,
 } from '../src/osbb-garbage.js';
+
+test('garbageYearRowsFromResponse перевіряє межу річної відповіді', () => {
+  assert.deepEqual(garbageYearRowsFromResponse([
+    { month_key: '2026-7', data: { 1: { time: '08:00', worker: 'Іван', types: { bins: '2' } } } },
+    { month_key: '2026-07', data: { 32: { types: { bins: 4 } } } },
+    { month_key: '2026-12', data: {} },
+    { month_key: 202607, data: {} },
+    { month_key: '2026-8', data: null },
+  ]), [
+    { month_key: '2026-7', data: { 1: { time: '08:00', worker: 'Іван', types: { bins: 2 } } } },
+    { month_key: '2026-07', data: {} },
+  ]);
+  assert.deepEqual(garbageYearRowsFromResponse({}), []);
+});
 
 test('normalizeGarbageMonth перевіряє дні, записи та кількість', () => {
   assert.deepEqual(normalizeGarbageMonth({
@@ -52,4 +68,11 @@ test('garbage migration and bin totals fail safely on empty values', () => {
   assert.equal(garbageBins({ bins: '12' }), 12);
   assert.equal(garbageBins({ bins: 'невідомо' }), 0);
   assert.equal(garbageBins(null), 0);
+  assert.equal(garbageMonthBinsTotal({
+    1: { types: { bins: '3' } },
+    2: { count: '4', note: 'mixed' },
+    3: null,
+    32: { types: { bins: 100 } },
+  }), 7);
+  assert.equal(garbageMonthBinsTotal([]), 0);
 });
