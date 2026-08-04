@@ -25,6 +25,11 @@ function boundedText(value: unknown, maxLength: number): string | null {
     return normalized && normalized.length <= maxLength ? normalized : null;
 }
 
+function optionalText(value: unknown, maxLength: number): string | null {
+    if (value === null || value === undefined || value === '') return null;
+    return boundedText(value, maxLength);
+}
+
 function nullableNumber(value: unknown): number | null {
     return isFiniteNumber(value) ? value : null;
 }
@@ -51,18 +56,18 @@ export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
         return [{
             id: row.id,
             name,
-            category: nullableString(row.category),
+            category: optionalText(row.category, 80),
             quantity: row.quantity,
             unit,
             min_quantity: nullableNumber(row.min_quantity),
             photo_url: nullableString(row.photo_url),
-            created_at: nullableString(row.created_at),
-            updated_at: nullableString(row.updated_at),
+            created_at: isTimestamp(row.created_at) ? row.created_at : null,
+            updated_at: isTimestamp(row.updated_at) ? row.updated_at : null,
             is_internal: row.is_internal === true,
             price_unit: nullableNumber(row.price_unit),
-            price_source: nullableString(row.price_source),
+            price_source: optionalText(row.price_source, 80),
             price_url: nullableString(row.price_url),
-            price_checked_at: nullableString(row.price_checked_at),
+            price_checked_at: isTimestamp(row.price_checked_at) ? row.price_checked_at : null,
             price_confidence: row.price_confidence === 'manual' || row.price_confidence === 'internet'
                 || row.price_confidence === 'low' || row.price_confidence === 'medium' || row.price_confidence === 'high'
                 ? row.price_confidence
