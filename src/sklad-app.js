@@ -2386,7 +2386,7 @@ applyTheme(document.body.className || 'theme-light');
 // ===== INIT =====
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
 document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
-['issueItemSel','refillSel','newCat','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
+['issueItemSel','refillSel','newCat','editItemCategory','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
 function isTypingTarget(el){
   return !!el && (['INPUT','TEXTAREA','SELECT'].includes(el.tagName) || el.isContentEditable);
 }

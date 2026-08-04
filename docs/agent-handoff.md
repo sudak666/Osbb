@@ -172,6 +172,11 @@ Recent Sklad mobile fixes:
 
 This specifically addressed screenshots where the light mobile UI looked messy and the price lookup panel could not be closed because the button was below the mobile viewport.
 
+Кастомні списки Складу позиціонуються через `position: fixed`, узгоджено з
+viewport-координатами `getBoundingClientRect()`: відкриття категорії в нижній
+формі більше не прокручує сторінку до секції поповнення. Категорія модалки
+редагування товару також використовує кастомний округлений список.
+
 ## Smoke-check status
 
 `node scripts/smoke-check.mjs` was expanded substantially. It currently guards, among other things:
@@ -185,7 +190,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `129` unit-тестів і `237`
+Актуальний baseline на момент оновлення документа: `129` unit-тестів і `239`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
