@@ -35,7 +35,7 @@ test('movement response boundaries reject incomplete and malformed rows', () => 
   const log = { id: 1, item_id: 2, item_name: 'Лампа', quantity: 1, issued_at: '2026-08-03T10:00:00Z' };
   const receipt = { id: 2, item_id: 2, item_name: 'Лампа', quantity: 4, received_at: '2026-08-03T11:00:00Z' };
 
-  assert.deepEqual(inventoryLogsFromResponse([log, { id: 3 }]), [{ ...log, issued_to: null, note: null }]);
-  assert.deepEqual(inventoryReceiptsFromResponse([receipt, []]), [{ ...receipt, purchase_price_unit: null, supplier: null, note: null }]);
+  assert.deepEqual(inventoryLogsFromResponse([log, { id: 3 }, { ...log, id: 4, issued_at: 'invalid' }]), [{ ...log, issued_to: null, note: null }]);
+  assert.deepEqual(inventoryReceiptsFromResponse([receipt, [], { ...receipt, id: 5, received_at: '' }]), [{ ...receipt, purchase_price_unit: null, supplier: null, note: null }]);
   assert.deepEqual(inventoryReceiptsFromResponse({ data: [] }), []);
 });
