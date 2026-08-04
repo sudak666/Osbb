@@ -5,9 +5,24 @@ import {
   garbageBins,
   garbageMonthKey,
   garbageMonthKeyCandidates,
+  garbageYearRowsFromResponse,
   migrateGarbageData,
   normalizeGarbageMonth,
 } from '../src/osbb-garbage.js';
+
+test('garbageYearRowsFromResponse перевіряє межу річної відповіді', () => {
+  assert.deepEqual(garbageYearRowsFromResponse([
+    { month_key: '2026-7', data: { 1: { time: '08:00', worker: 'Іван', types: { bins: '2' } } } },
+    { month_key: '2026-07', data: { 32: { types: { bins: 4 } } } },
+    { month_key: '2026-12', data: {} },
+    { month_key: 202607, data: {} },
+    { month_key: '2026-8', data: null },
+  ]), [
+    { month_key: '2026-7', data: { 1: { time: '08:00', worker: 'Іван', types: { bins: 2 } } } },
+    { month_key: '2026-07', data: {} },
+  ]);
+  assert.deepEqual(garbageYearRowsFromResponse({}), []);
+});
 
 test('normalizeGarbageMonth перевіряє дні, записи та кількість', () => {
   assert.deepEqual(normalizeGarbageMonth({

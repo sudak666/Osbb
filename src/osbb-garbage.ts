@@ -20,6 +20,11 @@ export interface GarbageMigrationResult {
     migrated: boolean;
 }
 
+export interface GarbageMonthRow {
+    month_key: string;
+    data: GarbageMonthData;
+}
+
 function garbageCount(value: unknown): number | undefined {
     const count = Number(value);
     return Number.isFinite(count) && count > 0 ? Math.trunc(count) : undefined;
@@ -61,6 +66,17 @@ export function garbageMonthKeyCandidates(year: number, month: number): string[]
         garbageMonthKey(year, month),
         `${year}-${String(month).padStart(2, '0')}`,
     ])];
+}
+
+export function garbageYearRowsFromResponse(value: unknown): GarbageMonthRow[] {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const row = entry as Record<string, unknown>;
+        if (typeof row.month_key !== 'string' || !/^\d{4}-(?:\d|0\d|1[01])$/.test(row.month_key)) return [];
+        if (typeof row.data !== 'object' || row.data === null || Array.isArray(row.data)) return [];
+        return [{ month_key: row.month_key, data: normalizeGarbageMonth(row.data) }];
+    });
 }
 
 export function migrateGarbageData(data: GarbageMonthData | null | undefined): GarbageMigrationResult {

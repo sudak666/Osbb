@@ -30,6 +30,7 @@
         garbageBins,
         garbageMonthKey,
         garbageMonthKeyCandidates,
+        garbageYearRowsFromResponse,
         migrateGarbageData,
         normalizeGarbageMonth,
     } from './osbb-garbage.js';
@@ -2207,7 +2208,7 @@
         try {
             const { data, error } = await db.from('garbage').select('month_key,data');
             if (error) throw error;
-            const rows = Array.isArray(data) ? data : [];
+            const rows = garbageYearRowsFromResponse(data);
             for (let month = 0; month <= 11; month++) {
                 const candidates = gMonthKeyCandidates(year, month);
                 const row = candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean);
