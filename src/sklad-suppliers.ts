@@ -8,6 +8,16 @@ export function supplierTagKey(value: unknown): string {
     return normalizeSupplierTag(value).toLocaleLowerCase('uk-UA');
 }
 
+export function supplierTagsFromResponse(value: unknown, limit = 50): string[] {
+    if (!Array.isArray(value)) return [];
+    const names = value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const name = (entry as Record<string, unknown>).name;
+        return typeof name === 'string' ? [name] : [];
+    });
+    return mergeSupplierTags([names], limit);
+}
+
 export function mergeSupplierTags(
     collections: readonly (readonly unknown[])[],
     limit = MAX_SUPPLIER_TAGS,
