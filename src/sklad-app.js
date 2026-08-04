@@ -13,7 +13,7 @@ import {
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
-import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
+import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
@@ -273,10 +273,12 @@ async function confirmAudit(){
     items_with_diff:diffs.length
   }]).select().single();
   if(auditErr) return toast('Помилка збереження: '+auditErr.message,'error');
+  const auditId=auditIdFromInsertResponse(auditRow);
+  if(auditId===null) return toast('Помилка збереження: сервер не повернув ID інвентаризації','error');
 
   // 2. Зберігаємо рядки
   const auditItems=counted.map(item=>({
-    audit_id:auditRow.id,
+    audit_id:auditId,
     item_id:item.id,
     item_name:item.name,
     category:item.category||'',
