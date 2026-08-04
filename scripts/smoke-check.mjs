@@ -2218,7 +2218,8 @@ for (const file of ['index.html', 'osbb/index.html']) {
   ];
   const required = [
     'data-person-preset="Електрик"',
-    'data-sklad-action="issue-submit"',
+    'id="issueForm" class="form-stack"',
+    "document.getElementById('issueForm')?.addEventListener('submit'",
     'data-issue-select data-searchable="1"',
     'data-search-placeholder="Пошук товару для видачі..."',
     'data-log-category-filter="Ремонт"',
@@ -3511,6 +3512,28 @@ ${sharedSelectText}`;
   if (bootstrap < 0 || requiredBindings.some(index => index < 0 || index > bootstrap)) {
     failed += 1;
     console.error(`not ok - ${label} (bootstrap: ${bootstrap}; bindings: ${requiredBindings.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Видача оформлюється нативним submit форми: клік і Enter проходять через
+// один обробник, який блокує перезавантаження сторінки.
+{
+  const html = readFileSync('sklad/index.html', 'utf8');
+  const js = readFileSync('src/sklad-app.js', 'utf8');
+  const label = 'sklad issue form has a guarded submit handler';
+  const required = [
+    html.includes('<form id="issueForm" class="form-stack">'),
+    html.includes('<button type="submit" class="btn btn-primary full-width-action">'),
+    js.includes("document.getElementById('issueForm')?.addEventListener('submit'"),
+    js.includes('event.preventDefault();'),
+    js.includes("toast('Не вдалося виконати видачу. Спробуйте ще раз.','error');"),
+  ];
+  if (required.some(value => !value)) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);

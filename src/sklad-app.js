@@ -644,7 +644,6 @@ function bindSkladStaticControls(){
     'refresh':refreshAll,
     'theme':toggleTheme,
     'reset-item-filters':resetItemFilters,
-    'issue-submit':(button)=>doIssue(button),
     'refill-submit':(button)=>doRefill(button),
     'add-new-submit':(button)=>doAddNew(button),
     'barcode-add-open':openBarcodeAddScanner,
@@ -710,6 +709,10 @@ function bindSkladStaticControls(){
   document.querySelector('[data-new-product-input]')?.addEventListener('input',debounce(renderNewProductMatches,200));
   document.querySelector('[data-unit-word-input]')?.addEventListener('blur',(event)=>validateUnitWordInput(event.target));
   document.querySelector('[data-issue-select]')?.addEventListener('change',onIssueSel);
+  document.getElementById('issueForm')?.addEventListener('submit',(event)=>{
+    event.preventDefault();
+    void doIssue(event.submitter);
+  });
   document.querySelector('[data-refill-select]')?.addEventListener('change',onRefillSel);
   document.querySelectorAll('[data-stats-filter]').forEach(select=>select.addEventListener('change',renderStats));
   document.querySelector('[data-photo-file]')?.addEventListener('change',uploadPhoto);
@@ -1274,6 +1277,9 @@ async function doIssue(btn){
     refreshEnhancedSelect(document.getElementById('issueItemSel'));
     document.getElementById('issueInfo').style.display='none';
     loadRecentIssues();
+  }catch(error){
+    console.error('issue submit failed:',error);
+    toast('Не вдалося виконати видачу. Спробуйте ще раз.','error');
   }finally{
     done();
   }
