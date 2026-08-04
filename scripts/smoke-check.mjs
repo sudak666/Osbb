@@ -203,9 +203,21 @@ let passed = 0;
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
   if (osbb.includes('const db = {')) missing.push('local db wrapper removed');
-  const skladRuntime = readFileSync('src/sklad-app.js', 'utf8');
-  if (/\{data(?:,error|:pinOk,error:pinErr)\}=await db\.rpc\(/.test(skladRuntime)) missing.push('Sklad REST result-style RPC uses rpcResult');
   if (missing.length) { failed += 1; console.error(`not ok - ${label} (missing: ${missing.join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+
+// Склад використовує офіційний Supabase JS client, де rpc() вже повертає
+// об'єкт { data, error }; REST-only rpcResult() тут недоступний.
+{
+  const html = readFileSync('sklad/index.html', 'utf8');
+  const runtime = readFileSync('src/sklad-app.js', 'utf8');
+  const label = 'sklad uses native Supabase RPC results';
+  const valid = html.includes('const db=createClient(')
+    && runtime.includes("await db.rpc('issue_item'")
+    && runtime.includes("await db.rpc('receive_item'")
+    && !runtime.includes('db.rpcResult(');
+  if (!valid) { failed += 1; console.error(`not ok - ${label}`); }
   else { passed += 1; console.log(`ok - ${label}`); }
 }
 
