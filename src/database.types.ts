@@ -2,7 +2,9 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Timestamp = string;
 export type BigIntId = number;
+export type Uuid = string;
 export type WorkShiftType = 'day' | 'night' | 'night_half2' | 'rest';
+export type OsbbStaffRole = 'plumber' | 'janitor' | 'electrician' | 'dispatcher' | 'admin' | 'board';
 
 export interface RowOperation<Row> {
     Row: Row;
@@ -140,6 +142,30 @@ export interface Database {
                 locked_until: Timestamp | null;
                 last_failed_at: Timestamp;
             }>;
+            osbb_staff: RowOperation<{
+                id: Uuid;
+                full_name: string;
+                role: OsbbStaffRole;
+                pin_hash: string;
+                active: boolean;
+                created_at: Timestamp;
+            }>;
+            osbb_staff_pin_attempts: RowOperation<{
+                staff_id: Uuid;
+                failed_count: number;
+                locked_until: Timestamp | null;
+                last_failed_at: Timestamp;
+            }>;
+            osbb_attendance: RowOperation<{
+                month_key: string;
+                data: Json;
+                updated_at: Timestamp;
+            }>;
+            elevator_visits: RowOperation<{
+                month_key: string;
+                data: Json;
+                updated_at: Timestamp;
+            }>;
             osbb_telegram_config: RowOperation<{
                 id: number;
                 chat_id: string;
@@ -159,12 +185,32 @@ export interface Database {
                 Args: { attempt: string };
                 Returns: boolean;
             };
+            list_osbb_staff: {
+                Args: Record<string, never>;
+                Returns: Array<{ id: Uuid; full_name: string; role: OsbbStaffRole }>;
+            };
+            verify_staff_pin: {
+                Args: { p_staff_id: Uuid; attempt: string };
+                Returns: Array<{ ok: boolean; role: OsbbStaffRole | null; full_name: string | null }>;
+            };
             list_osbb_staff_settings: {
-                Args: { p_staff_id: string; attempt: string };
-                Returns: Array<{ id: string; full_name: string; role: string; active: boolean }>;
+                Args: { p_staff_id: Uuid; attempt: string };
+                Returns: Array<{ id: Uuid; full_name: string; role: OsbbStaffRole; active: boolean }>;
             };
             set_osbb_staff_active: {
-                Args: { p_staff_id: string; attempt: string; p_target_staff_id: string; p_active: boolean };
+                Args: { p_staff_id: Uuid; attempt: string; p_target_staff_id: Uuid; p_active: boolean };
+                Returns: boolean;
+            };
+            save_attendance_day: {
+                Args: {
+                    p_month_key: string;
+                    p_day: number;
+                    p_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'>;
+                    p_check_in: string;
+                    p_check_out: string;
+                    p_staff_id: Uuid;
+                    attempt: string;
+                };
                 Returns: boolean;
             };
             reset_month: {

@@ -2,10 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-    createElevatorEntry,
+  createElevatorEntry,
+  elevatorEntriesFromResponse,
     removeElevatorEntry,
     sortElevatorEntries,
 } from '../src/osbb-elevator.js';
+
+test('elevatorEntriesFromResponse нормалізує серверний журнал', () => {
+  assert.deepEqual(elevatorEntriesFromResponse([
+    { id: 'e1', day: 4, text: '  Заміна кнопки  ', createdAt: null, createdBy: 'Диспетчер' },
+    { id: 'e2', day: 40, text: 'Некоректний день' },
+    { id: 'e3', day: 5, text: '' },
+  ]), [{ id: 'e1', day: 4, text: 'Заміна кнопки', createdAt: '', createdBy: 'Диспетчер' }]);
+  assert.deepEqual(elevatorEntriesFromResponse({}), []);
+});
 
 test('createElevatorEntry нормалізує запис ліфтера', () => {
     const entry = createElevatorEntry('7', '  Перевірив кабіну  ', 'Іван', {

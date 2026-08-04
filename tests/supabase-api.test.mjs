@@ -98,6 +98,52 @@ test('createSupabaseRestClient підтримує upsert, RPC і storage', async
   assert.equal(calls[3].init.body, '{"prefixes":["folder/a.jpg"]}');
 });
 
+test('createSupabaseRestClient виконує update через PATCH з фільтром', async () => {
+  const calls = [];
+  const client = createSupabaseRestClient({
+    supabaseUrl: 'https://example.supabase.co',
+    supabaseKey: 'test-key',
+    fetcher: async (url, init) => {
+      calls.push({ url, init });
+      return { ok: true, status: 200, statusText: 'OK', text: async () => '[{"id":7,"quantity":4}]' };
+    },
+  });
+
+  const result = await client.from('inventory_items').update({ quantity: 4 }).eq('id', 7);
+
+  assert.deepEqual(result, { data: [{ id: 7, quantity: 4 }], error: null });
+  assert.equal(calls[0].url, 'https://example.supabase.co/rest/v1/inventory_items?id=eq.7');
+  assert.equal(calls[0].init.method, 'PATCH');
+  assert.equal(calls[0].init.headers.Prefer, 'return=representation');
+  assert.equal(calls[0].init.body, '{"quantity":4}');
+});
+
+test('rpcResult повертає Supabase-сумісний результат для Sklad flows', async () => {
+  const successClient = createSupabaseRestClient({
+    fetcher: async () => ({ ok: true, status: 200, statusText: 'OK', text: async () => '[{"new_quantity":3}]' }),
+  });
+  assert.deepEqual(await successClient.rpcResult('issue_item', {
+    p_item_id: 7,
+    p_qty: 2,
+    p_person: 'Іван',
+  }), {
+    data: [{ new_quantity: 3 }],
+    error: null,
+  });
+
+  const failedClient = createSupabaseRestClient({
+    fetcher: async () => ({ ok: false, status: 409, statusText: 'Conflict', text: async () => 'insufficient_stock' }),
+  });
+  assert.deepEqual(await failedClient.rpcResult('issue_item', {
+    p_item_id: 7,
+    p_qty: 20,
+    p_person: 'Іван',
+  }), {
+    data: null,
+    error: { code: 'FETCH_ERROR', message: '409: insufficient_stock' },
+  });
+});
+
 test('createSupabaseRestClient повертає структуровану помилку таблиці', async () => {
   const client = createSupabaseRestClient({
     fetcher: async () => ({ ok: false, status: 503, statusText: 'Unavailable', text: async () => 'offline' }),

@@ -6,8 +6,12 @@ export function photoCacheKey(day, role) {
 
 export function buildPhotoCache(records) {
     const cache = {};
+    if (!Array.isArray(records)) return cache;
     for (const photo of records) {
+        if (typeof photo !== 'object' || photo === null || Array.isArray(photo)) continue;
+        if (!(typeof photo.id === 'string' || typeof photo.id === 'number' && Number.isFinite(photo.id))) continue;
         if (photo.day === null || photo.day === undefined || !photo.role) continue;
+        if (typeof photo.day !== 'string' && typeof photo.day !== 'number' || typeof photo.role !== 'string') continue;
         const url = safeExternalUrl(photo.url);
         if (!url) continue;
         const key = photoCacheKey(photo.day, photo.role);

@@ -1,4 +1,12 @@
-import type { PublicFunctionArgs, PublicFunctionName, PublicFunctionReturns } from './database.types.ts';
+import type {
+    PublicFunctionArgs,
+    PublicFunctionName,
+    PublicFunctionReturns,
+    PublicTableInsert,
+    PublicTableName,
+    PublicTableRow,
+    PublicTableUpdate,
+} from './database.types.ts';
 
 export type RpcParams = Record<string, unknown>;
 export type RpcFetch = (input: string, init: RequestInit) => Promise<Response>;
@@ -11,9 +19,51 @@ export interface RpcClientOptions {
 
 export interface SupabaseRestClientOptions extends RpcClientOptions {}
 
+export interface RestError {
+    code: string;
+    message?: string;
+}
+
+export interface RestResult<T> {
+    data: T | null;
+    error: RestError | null;
+}
+
+export interface RestQuery<Row, Insert, Update, Result = Row[]> extends PromiseLike<RestResult<Result>> {
+    select(columns?: string): RestQuery<Row, Insert, Update, Result>;
+    eq(column: keyof Row & string, value: unknown): RestQuery<Row, Insert, Update, Result>;
+    order(column: keyof Row & string, settings?: { ascending?: boolean }): RestQuery<Row, Insert, Update, Result>;
+    limit(value: number): RestQuery<Row, Insert, Update, Result>;
+    single(): RestQuery<Row, Insert, Update, Row | null>;
+    maybeSingle(): RestQuery<Row, Insert, Update, Row | null>;
+    insert(data: Insert | readonly Insert[]): RestQuery<Row, Insert, Update, Row[]>;
+    update(data: Update): RestQuery<Row, Insert, Update, Row[]>;
+    upsert(data: Insert | Update | readonly (Insert | Update)[]): RestQuery<Row, Insert, Update, Row[]>;
+    delete(): RestQuery<Row, Insert, Update, Row[]>;
+}
+
+export interface SupabaseRestClient {
+    rpc<Fn extends PublicFunctionName>(fn: Fn, params: PublicFunctionArgs<Fn>): Promise<PublicFunctionReturns<Fn> | null>;
+    rpc<T = unknown>(fn: string, params?: RpcParams): Promise<T | null>;
+    rpcResult<Fn extends PublicFunctionName>(fn: Fn, params: PublicFunctionArgs<Fn>): Promise<RestResult<PublicFunctionReturns<Fn>>>;
+    rpcResult<T = unknown>(fn: string, params?: RpcParams): Promise<RestResult<T>>;
+    from<Table extends PublicTableName>(table: Table): RestQuery<
+        PublicTableRow<Table>,
+        PublicTableInsert<Table>,
+        PublicTableUpdate<Table>
+    >;
+    storage: {
+        from(bucket: string): {
+            upload(path: string, blob: BodyInit, settings?: { contentType?: string }): Promise<Record<string, never>>;
+            getPublicUrl(path: string): { data: { publicUrl: string } };
+            remove(paths: string[]): Promise<Record<string, never>>;
+        };
+    };
+}
+
 interface RestQueryState {
     filters: string[];
-    method: 'GET' | 'POST' | 'DELETE';
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
     body: unknown;
     isSingle: boolean;
     isMaybeSingle: boolean;
@@ -62,7 +112,7 @@ export function createRpcClient(options: RpcClientOptions = {}) {
 
 export const rpc = createRpcClient();
 
-export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}) {
+export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}): SupabaseRestClient {
     const fetcher = options.fetcher ?? fetch;
     const supabaseUrl = (options.supabaseUrl ?? SUPABASE_URL).replace(/\/$/, '');
     const supabaseKey = options.supabaseKey ?? SUPABASE_KEY;
@@ -77,7 +127,7 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
         return parseRpcResponseText(await response.text());
     }
 
-    function from(table: string) {
+    function from<Table extends PublicTableName>(table: Table) {
         const state: RestQueryState = { filters: [], method: 'GET', body: null, isSingle: false, isMaybeSingle: false, columns: '*', isUpsert: false };
         const query = {
             select(columns = '*') { state.columns = columns; return query; },
@@ -87,6 +137,7 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
             single() { state.isSingle = true; return query; },
             maybeSingle() { state.isSingle = true; state.isMaybeSingle = true; return query; },
             insert(data: unknown) { state.method = 'POST'; state.body = data; return query; },
+            update(data: unknown) { state.method = 'PATCH'; state.body = data; return query; },
             upsert(data: unknown) { state.method = 'POST'; state.body = data; state.isUpsert = true; return query; },
             delete() { state.method = 'DELETE'; return query; },
             async then(resolve: (result: { data: unknown; error: unknown }) => void) {
@@ -96,7 +147,7 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
                     const url = `${supabaseUrl}/rest/v1/${table}${params.length ? `?${params.join('&')}` : ''}`;
                     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
                     if (state.isUpsert) headers['Prefer'] = 'resolution=merge-duplicates,return=representation';
-                    else if (state.method === 'POST') headers['Prefer'] = 'return=representation';
+                    else if (state.method === 'POST' || state.method === 'PATCH') headers['Prefer'] = 'return=representation';
                     const data = await request(state.method, url, headers, state.body ? JSON.stringify(state.body) : undefined);
                     if (state.isSingle) {
                         const row = Array.isArray(data) ? (data[0] ?? null) : null;
@@ -107,11 +158,38 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
                 }
             },
         };
-        return query;
+        return query as unknown as RestQuery<PublicTableRow<Table>, PublicTableInsert<Table>, PublicTableUpdate<Table>>;
+    }
+
+    async function restRpc<Fn extends PublicFunctionName>(
+        fn: Fn,
+        params: PublicFunctionArgs<Fn>,
+    ): Promise<PublicFunctionReturns<Fn> | null>;
+    async function restRpc<T = unknown>(fn: string, params?: RpcParams): Promise<T | null>;
+    async function restRpc<T = unknown>(fn: string, params: RpcParams = {}): Promise<T | null> {
+        return request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params)) as Promise<T | null>;
+    }
+
+    async function rpcResult<Fn extends PublicFunctionName>(
+        fn: Fn,
+        params: PublicFunctionArgs<Fn>,
+    ): Promise<RestResult<PublicFunctionReturns<Fn>>>;
+    async function rpcResult<T = unknown>(fn: string, params?: RpcParams): Promise<RestResult<T>>;
+    async function rpcResult<T = unknown>(fn: string, params: RpcParams = {}): Promise<RestResult<T>> {
+        try {
+            const data = await restRpc<T>(fn, params);
+            return { data, error: null };
+        } catch (error) {
+            return {
+                data: null,
+                error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) },
+            };
+        }
     }
 
     return {
-        rpc: (fn: string, params: RpcParams = {}) => request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params)),
+        rpc: restRpc,
+        rpcResult,
         from,
         storage: {
             from(bucket: string) {

@@ -6,7 +6,19 @@ import {
   garbageMonthKey,
   garbageMonthKeyCandidates,
   migrateGarbageData,
+  normalizeGarbageMonth,
 } from '../src/osbb-garbage.js';
+
+test('normalizeGarbageMonth перевіряє дні, записи та кількість', () => {
+  assert.deepEqual(normalizeGarbageMonth({
+    1: { time: '08:00', worker: 'Іван', types: { bins: '3', glass: -1, unknown: 5 } },
+    32: { types: { bins: 2 } },
+    bad: 'invalid',
+  }), {
+    1: { time: '08:00', worker: 'Іван', types: { bins: 3 } },
+  });
+  assert.deepEqual(normalizeGarbageMonth([]), {});
+});
 
 test('garbage month keys preserve legacy and zero-padded lookup formats', () => {
   assert.equal(garbageMonthKey(2026, 7), '2026-7');

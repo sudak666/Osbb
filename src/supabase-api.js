@@ -55,6 +55,7 @@ export function createSupabaseRestClient(options = {}) {
             single() { state.isSingle = true; return query; },
             maybeSingle() { state.isSingle = true; state.isMaybeSingle = true; return query; },
             insert(data) { state.method = 'POST'; state.body = data; return query; },
+            update(data) { state.method = 'PATCH'; state.body = data; return query; },
             upsert(data) { state.method = 'POST'; state.body = data; state.isUpsert = true; return query; },
             delete() { state.method = 'DELETE'; return query; },
             async then(resolve) {
@@ -64,7 +65,7 @@ export function createSupabaseRestClient(options = {}) {
                     const url = `${supabaseUrl}/rest/v1/${table}${params.length ? `?${params.join('&')}` : ''}`;
                     const headers = { 'Content-Type': 'application/json' };
                     if (state.isUpsert) headers['Prefer'] = 'resolution=merge-duplicates,return=representation';
-                    else if (state.method === 'POST') headers['Prefer'] = 'return=representation';
+                    else if (state.method === 'POST' || state.method === 'PATCH') headers['Prefer'] = 'return=representation';
                     const data = await request(state.method, url, headers, state.body ? JSON.stringify(state.body) : undefined);
                     if (state.isSingle) {
                         const row = Array.isArray(data) ? (data[0] ?? null) : null;
@@ -77,8 +78,17 @@ export function createSupabaseRestClient(options = {}) {
         };
         return query;
     }
+    async function rpcResult(fn, params = {}) {
+        try {
+            const data = await request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params));
+            return { data, error: null };
+        } catch (error) {
+            return { data: null, error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) } };
+        }
+    }
     return {
         rpc: (fn, params = {}) => request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params)),
+        rpcResult,
         from,
         storage: { from(bucket) {
             const base = `${supabaseUrl}/storage/v1/object`;
