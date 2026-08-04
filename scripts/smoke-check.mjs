@@ -195,6 +195,7 @@ let passed = 0;
     [transport, 'maybeSingle()'],
     [transport, "update(data: unknown) { state.method = 'PATCH';"],
     [transport, 'async function rpcResult'],
+    [transport, "error: { code: 'STORAGE_ERROR'"],
     [transport, "state.method === 'POST' || state.method === 'PATCH'"],
     [transport, "isMaybeSingle ? null : { code: 'PGRST116' }"],
   ];

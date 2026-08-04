@@ -93,7 +93,17 @@ export function createSupabaseRestClient(options = {}) {
         storage: { from(bucket) {
             const base = `${supabaseUrl}/storage/v1/object`;
             return {
-                async upload(path, blob, settings = {}) { await request('POST', `${base}/${bucket}/${path}`, { 'Content-Type': settings.contentType || 'image/jpeg', 'x-upsert': 'true' }, blob); return {}; },
+                async upload(path, blob, settings = {}) {
+                    try {
+                        await request('POST', `${base}/${bucket}/${path}`, {
+                            'Content-Type': settings.contentType || 'image/jpeg',
+                            'x-upsert': String(settings.upsert !== false),
+                        }, blob);
+                        return { data: { path }, error: null };
+                    } catch (error) {
+                        return { data: null, error: { code: 'STORAGE_ERROR', message: error instanceof Error ? error.message : String(error) } };
+                    }
+                },
                 getPublicUrl(path) { return { data: { publicUrl: `${base}/public/${bucket}/${path}` } }; },
                 async remove(paths) { try { await request('DELETE', `${base}/${bucket}`, { 'Content-Type': 'application/json' }, JSON.stringify({ prefixes: paths })); } catch {} return {}; },
             };

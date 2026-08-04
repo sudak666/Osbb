@@ -130,6 +130,8 @@ REST query builder підтримує всі фактично використа
 `update()` через HTTP `PATCH`; цей шлях покрито transport unit-тестом.
 OSBB використовує throwing/raw `db.rpc()`, а Sklad — `db.rpcResult()` із
 `{data,error}`. Не змішуйте ці два контракти: це різні orchestrator-патерни.
+Storage `upload()` повертає `{data,error}` і не кидає transport exception, щоб
+однаково працювали Sklad callback-flow та OSBB `try`/перевірка `error`.
 
 Кожну нову пару `*.ts`/`*.js` потрібно додавати до:
 

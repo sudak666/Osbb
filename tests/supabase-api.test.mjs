@@ -90,12 +90,26 @@ test('createSupabaseRestClient підтримує upsert, RPC і storage', async
   assert.equal(await client.rpc('verify_lock_pin', { attempt: '1234' }), true);
   const storage = client.storage.from('photos');
   assert.equal(storage.getPublicUrl('folder/a.jpg').data.publicUrl, 'https://example.supabase.co/storage/v1/object/public/photos/folder/a.jpg');
-  await storage.upload('folder/a.jpg', new Blob(['photo']), { contentType: 'image/jpeg' });
+  assert.deepEqual(await storage.upload('folder/a.jpg', new Blob(['photo']), { contentType: 'image/jpeg' }), {
+    data: { path: 'folder/a.jpg' },
+    error: null,
+  });
   await storage.remove(['folder/a.jpg']);
   assert.equal(calls[0].init.headers.Prefer, 'resolution=merge-duplicates,return=representation');
   assert.equal(calls[1].url, 'https://example.supabase.co/rest/v1/rpc/verify_lock_pin');
   assert.equal(calls[2].init.headers['x-upsert'], 'true');
   assert.equal(calls[3].init.body, '{"prefixes":["folder/a.jpg"]}');
+});
+
+test('storage upload повертає структуровану помилку без rejected promise', async () => {
+  const client = createSupabaseRestClient({
+    fetcher: async () => ({ ok: false, status: 404, statusText: 'Not Found', text: async () => 'Bucket not found' }),
+  });
+
+  assert.deepEqual(await client.storage.from('photos').upload('items/a.jpg', new Blob(['photo']), { upsert: false }), {
+    data: null,
+    error: { code: 'STORAGE_ERROR', message: '404: Bucket not found' },
+  });
 });
 
 test('createSupabaseRestClient виконує update через PATCH з фільтром', async () => {

@@ -54,7 +54,7 @@ export interface SupabaseRestClient {
     >;
     storage: {
         from(bucket: string): {
-            upload(path: string, blob: BodyInit, settings?: { contentType?: string }): Promise<Record<string, never>>;
+            upload(path: string, blob: BodyInit, settings?: { contentType?: string; upsert?: boolean }): Promise<RestResult<{ path: string }>>;
             getPublicUrl(path: string): { data: { publicUrl: string } };
             remove(paths: string[]): Promise<Record<string, never>>;
         };
@@ -195,9 +195,19 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
             from(bucket: string) {
                 const base = `${supabaseUrl}/storage/v1/object`;
                 return {
-                    async upload(path: string, blob: BodyInit, settings: { contentType?: string } = {}) {
-                        await request('POST', `${base}/${bucket}/${path}`, { 'Content-Type': settings.contentType || 'image/jpeg', 'x-upsert': 'true' }, blob);
-                        return {};
+                    async upload(path: string, blob: BodyInit, settings: { contentType?: string; upsert?: boolean } = {}) {
+                        try {
+                            await request('POST', `${base}/${bucket}/${path}`, {
+                                'Content-Type': settings.contentType || 'image/jpeg',
+                                'x-upsert': String(settings.upsert !== false),
+                            }, blob);
+                            return { data: { path }, error: null };
+                        } catch (error) {
+                            return {
+                                data: null,
+                                error: { code: 'STORAGE_ERROR', message: error instanceof Error ? error.message : String(error) },
+                            };
+                        }
                     },
                     getPublicUrl(path: string) { return { data: { publicUrl: `${base}/public/${bucket}/${path}` } }; },
                     async remove(paths: string[]) {
