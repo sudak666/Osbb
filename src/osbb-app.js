@@ -1844,9 +1844,6 @@
 
     const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
     changeTheme(savedTheme);
-    setTab(currentTab);
-    initCalendar();
-    initRealtime();
 
     setTimeout(() => {
         const splash = document.getElementById('intro-splash');
@@ -3128,3 +3125,9 @@
     const styleEl = document.createElement('style');
     styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
     document.head.appendChild(styleEl);
+
+    // Запускаємо початкове завантаження лише після ініціалізації всіх
+    // lexical state bindings, які читають активні вкладки.
+    setTab(currentTab);
+    initCalendar();
+    initRealtime();

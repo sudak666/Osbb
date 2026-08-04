@@ -3498,6 +3498,25 @@ ${sharedSelectText}`;
   }
 }
 
+// Початкове відкриття вкладки запускає async-завантаження диспетчера та
+// ліфтера, тому воно має бути нижче за їхні lexical state bindings.
+{
+  const text = readFileSync('src/osbb-app.js', 'utf8');
+  const label = 'journal bootstrap runs after tab state initialization';
+  const bootstrap = text.lastIndexOf('setTab(currentTab);');
+  const requiredBindings = [
+    text.indexOf('let dispData = {};'),
+    text.indexOf('let elevatorData = [];'),
+  ];
+  if (bootstrap < 0 || requiredBindings.some(index => index < 0 || index > bootstrap)) {
+    failed += 1;
+    console.error(`not ok - ${label} (bootstrap: ${bootstrap}; bindings: ${requiredBindings.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);
