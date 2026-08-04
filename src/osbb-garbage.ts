@@ -105,3 +105,8 @@ export function migrateGarbageData(data: GarbageMonthData | null | undefined): G
 export function garbageBins(types: GarbageTypes | null | undefined): number {
     return Number.parseInt(String(types?.bins ?? ''), 10) || 0;
 }
+
+export function garbageMonthBinsTotal(value: unknown): number {
+    const { data } = migrateGarbageData(normalizeGarbageMonth(value));
+    return Object.values(data || {}).reduce((total, row) => total + garbageBins(row.types), 0);
+}

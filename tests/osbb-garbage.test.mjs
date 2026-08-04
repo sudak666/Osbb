@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
   garbageBins,
+  garbageMonthBinsTotal,
   garbageMonthKey,
   garbageMonthKeyCandidates,
   garbageYearRowsFromResponse,
@@ -67,4 +68,11 @@ test('garbage migration and bin totals fail safely on empty values', () => {
   assert.equal(garbageBins({ bins: '12' }), 12);
   assert.equal(garbageBins({ bins: 'невідомо' }), 0);
   assert.equal(garbageBins(null), 0);
+  assert.equal(garbageMonthBinsTotal({
+    1: { types: { bins: '3' } },
+    2: { count: '4', note: 'mixed' },
+    3: null,
+    32: { types: { bins: 100 } },
+  }), 7);
+  assert.equal(garbageMonthBinsTotal([]), 0);
 });

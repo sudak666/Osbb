@@ -75,3 +75,8 @@ export function migrateGarbageData(data) {
 export function garbageBins(types) {
     return Number.parseInt(String(types?.bins ?? ''), 10) || 0;
 }
+
+export function garbageMonthBinsTotal(value) {
+    const { data } = migrateGarbageData(normalizeGarbageMonth(value));
+    return Object.values(data || {}).reduce((total, row) => total + garbageBins(row.types), 0);
+}
