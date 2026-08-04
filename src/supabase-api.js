@@ -78,8 +78,17 @@ export function createSupabaseRestClient(options = {}) {
         };
         return query;
     }
+    async function rpcResult(fn, params = {}) {
+        try {
+            const data = await request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params));
+            return { data, error: null };
+        } catch (error) {
+            return { data: null, error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) } };
+        }
+    }
     return {
         rpc: (fn, params = {}) => request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params)),
+        rpcResult,
         from,
         storage: { from(bucket) {
             const base = `${supabaseUrl}/storage/v1/object`;

@@ -36,4 +36,5 @@ test('Supabase REST transport exposes typed table and RPC boundaries', () => {
   assert.match(apiSource, /rpc<Fn extends PublicFunctionName>\(fn: Fn, params: PublicFunctionArgs<Fn>\): Promise<PublicFunctionReturns<Fn> \| null>/);
   assert.match(apiSource, /data: T \| null;/);
   assert.match(apiSource, /update\(data: Update\): RestQuery<Row, Insert, Update, Row\[]>;/);
+  assert.match(apiSource, /rpcResult<Fn extends PublicFunctionName>\(fn: Fn, params: PublicFunctionArgs<Fn>\): Promise<RestResult<PublicFunctionReturns<Fn>>>;/);
 });

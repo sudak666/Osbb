@@ -194,11 +194,14 @@ let passed = 0;
     [osbb, 'const db = createSupabaseRestClient();'],
     [transport, 'maybeSingle()'],
     [transport, "update(data: unknown) { state.method = 'PATCH';"],
+    [transport, 'async function rpcResult'],
     [transport, "state.method === 'POST' || state.method === 'PATCH'"],
     [transport, "isMaybeSingle ? null : { code: 'PGRST116' }"],
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
   if (osbb.includes('const db = {')) missing.push('local db wrapper removed');
+  const skladRuntime = readFileSync('src/sklad-app.js', 'utf8');
+  if (/\{data(?:,error|:pinOk,error:pinErr)\}=await db\.rpc\(/.test(skladRuntime)) missing.push('Sklad REST result-style RPC uses rpcResult');
   if (missing.length) { failed += 1; console.error(`not ok - ${label} (missing: ${missing.join(', ')})`); }
   else { passed += 1; console.log(`ok - ${label}`); }
 }

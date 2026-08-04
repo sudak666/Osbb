@@ -45,6 +45,8 @@ export interface RestQuery<Row, Insert, Update, Result = Row[]> extends PromiseL
 export interface SupabaseRestClient {
     rpc<Fn extends PublicFunctionName>(fn: Fn, params: PublicFunctionArgs<Fn>): Promise<PublicFunctionReturns<Fn> | null>;
     rpc<T = unknown>(fn: string, params?: RpcParams): Promise<T | null>;
+    rpcResult<Fn extends PublicFunctionName>(fn: Fn, params: PublicFunctionArgs<Fn>): Promise<RestResult<PublicFunctionReturns<Fn>>>;
+    rpcResult<T = unknown>(fn: string, params?: RpcParams): Promise<RestResult<T>>;
     from<Table extends PublicTableName>(table: Table): RestQuery<
         PublicTableRow<Table>,
         PublicTableInsert<Table>,
@@ -168,8 +170,26 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
         return request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params)) as Promise<T | null>;
     }
 
+    async function rpcResult<Fn extends PublicFunctionName>(
+        fn: Fn,
+        params: PublicFunctionArgs<Fn>,
+    ): Promise<RestResult<PublicFunctionReturns<Fn>>>;
+    async function rpcResult<T = unknown>(fn: string, params?: RpcParams): Promise<RestResult<T>>;
+    async function rpcResult<T = unknown>(fn: string, params: RpcParams = {}): Promise<RestResult<T>> {
+        try {
+            const data = await restRpc<T>(fn, params);
+            return { data, error: null };
+        } catch (error) {
+            return {
+                data: null,
+                error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) },
+            };
+        }
+    }
+
     return {
         rpc: restRpc,
+        rpcResult,
         from,
         storage: {
             from(bucket: string) {

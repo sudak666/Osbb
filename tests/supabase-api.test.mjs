@@ -118,6 +118,32 @@ test('createSupabaseRestClient виконує update через PATCH з філ�
   assert.equal(calls[0].init.body, '{"quantity":4}');
 });
 
+test('rpcResult повертає Supabase-сумісний результат для Sklad flows', async () => {
+  const successClient = createSupabaseRestClient({
+    fetcher: async () => ({ ok: true, status: 200, statusText: 'OK', text: async () => '[{"new_quantity":3}]' }),
+  });
+  assert.deepEqual(await successClient.rpcResult('issue_item', {
+    p_item_id: 7,
+    p_qty: 2,
+    p_person: 'Іван',
+  }), {
+    data: [{ new_quantity: 3 }],
+    error: null,
+  });
+
+  const failedClient = createSupabaseRestClient({
+    fetcher: async () => ({ ok: false, status: 409, statusText: 'Conflict', text: async () => 'insufficient_stock' }),
+  });
+  assert.deepEqual(await failedClient.rpcResult('issue_item', {
+    p_item_id: 7,
+    p_qty: 20,
+    p_person: 'Іван',
+  }), {
+    data: null,
+    error: { code: 'FETCH_ERROR', message: '409: insufficient_stock' },
+  });
+});
+
 test('createSupabaseRestClient повертає структуровану помилку таблиці', async () => {
   const client = createSupabaseRestClient({
     fetcher: async () => ({ ok: false, status: 503, statusText: 'Unavailable', text: async () => 'offline' }),
