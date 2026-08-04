@@ -14,6 +14,15 @@ export interface LightboxState {
     index: number;
 }
 
+export function photoIdFromInsertResponse(value: unknown, fallback: string | number): string | number {
+    if (!Array.isArray(value) || value.length === 0) return fallback;
+    const row = value[0];
+    if (typeof row !== 'object' || row === null || Array.isArray(row)) return fallback;
+    const id = (row as Record<string, unknown>).id;
+    if (typeof id === 'string' && id.trim()) return id;
+    return typeof id === 'number' && Number.isFinite(id) ? id : fallback;
+}
+
 export function photoCacheKey(day: string | number, role: string): string {
     return `${day}-${role}`;
 }
