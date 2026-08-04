@@ -26,8 +26,9 @@ export function createAuditData(items: readonly AuditableItem[], useCurrentQuant
 }
 
 export function parseAuditQuantity(value: unknown): number | null {
-    if (value === '') return null;
-    const quantity = Number.parseFloat(String(value));
+    const normalized = String(value ?? '').trim().replace(',', '.');
+    if (!normalized || !/^\d+(?:\.\d+)?$/.test(normalized)) return null;
+    const quantity = Number(normalized);
     return Number.isFinite(quantity) ? quantity : null;
 }
 

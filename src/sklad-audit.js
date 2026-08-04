@@ -9,8 +9,9 @@ export function createAuditData(items, useCurrentQuantity = false) {
 }
 
 export function parseAuditQuantity(value) {
-    if (value === '') return null;
-    const quantity = Number.parseFloat(String(value));
+    const normalized = String(value ?? '').trim().replace(',', '.');
+    if (!normalized || !/^\d+(?:\.\d+)?$/.test(normalized)) return null;
+    const quantity = Number(normalized);
     return Number.isFinite(quantity) ? quantity : null;
 }
 

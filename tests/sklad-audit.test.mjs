@@ -23,6 +23,9 @@ test('createAuditData створює початковий стан інвент�
 
 test('parseAuditQuantity безпечно обробляє введену кількість', () => {
     assert.equal(parseAuditQuantity('2.5'), 2.5);
+    assert.equal(parseAuditQuantity(' 2,5 '), 2.5);
+    assert.equal(parseAuditQuantity('2abc'), null);
+    assert.equal(parseAuditQuantity('-1'), null);
     assert.equal(parseAuditQuantity(''), null);
     assert.equal(parseAuditQuantity('invalid'), null);
 });
