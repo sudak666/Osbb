@@ -77,6 +77,8 @@ const checks = [
   ['shared/enhance-select.js', 'document.body.appendChild(panel)', 'custom select panels escape clipped containers'],
   ['shared/enhance-select.js', 'function positionPanel()', 'custom select panels stay inside the viewport'],
   ['shared/enhance-select.js', 'Math.max(rect.width, 240)', 'custom select panels preserve trigger width'],
+  ['shared/enhance-select.js', "searchInput.name = `${select.id || select.name || 'select'}_search`;", 'custom select search inputs have names'],
+  ['shared/enhance-select.js', "searchInput.setAttribute('aria-label'", 'custom select search inputs have labels'],
   ['src/sklad-app.js', "'newCat','editItemCategory'", 'sklad category fields use rounded custom selects'],
   ['sklad/index.html', '/Osbb/shared/enhance-date.js', 'sklad loads rounded custom date picker'],
   ['sklad/index.html', 'inputmode="none" autocomplete="off" pattern="\\d{4}-\\d{2}-\\d{2}" class="inp" id="issueDateI" name="issue_date"', 'sklad date fields avoid native browser picker'],

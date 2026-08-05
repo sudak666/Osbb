@@ -59,6 +59,13 @@ test('Sklad receipt flow remembers legacy receive_item fallback when migration 0
   assertIncludes(skladApp, 'purchasePrice!==null&&purchasePriceRpcAvailable', 'price RPC should be skipped after fallback is remembered');
 });
 
+
+test('Shared custom select search inputs keep accessible names', () => {
+  const enhanceSelect = readFileSync(new URL('../shared/enhance-select.js', import.meta.url), 'utf8');
+  assertIncludes(enhanceSelect, "searchInput.name = `${select.id || select.name || 'select'}_search`;", 'custom select search input must have a name');
+  assertIncludes(enhanceSelect, "searchInput.setAttribute('aria-label'", 'custom select search input must have aria-label');
+});
+
 test('Sklad movement edit modals keep centralized save actions', () => {
   assert.match(skladHtml, /data-sklad-action="edit-log-confirm"/u);
   assert.match(skladHtml, /data-sklad-action="edit-receipt-confirm"/u);

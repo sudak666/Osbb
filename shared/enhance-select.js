@@ -69,6 +69,8 @@
         const searchInput = document.createElement('input');
         searchInput.className = 'inp custom-select-search';
         searchInput.type = 'search';
+        searchInput.name = `${select.id || select.name || 'select'}_search`;
+        searchInput.setAttribute('aria-label', select.dataset.searchPlaceholder || 'Пошук у списку');
         searchInput.placeholder = select.dataset.searchPlaceholder || 'Пошук...';
         searchInput.value = selectSearchTerm;
         searchInput.addEventListener('input', () => {
