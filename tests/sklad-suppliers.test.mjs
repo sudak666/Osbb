@@ -1,7 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { hasSupplierTag, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from '../src/sklad-suppliers.js';
+import { hasSupplierTag, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from '../src/sklad-suppliers.js';
+
+test('supplierTagsFromResponse перевіряє хмарні теги постачальників', () => {
+    assert.deepEqual(supplierTagsFromResponse([
+        { name: '  Епіцентр ' },
+        { name: 'епіцентр' },
+        { name: 42 },
+        null,
+    ]), ['Епіцентр']);
+    assert.deepEqual(supplierTagsFromResponse({ data: [] }), []);
+});
 
 test('normalizeSupplierTag очищає пробіли в назві', () => {
     assert.equal(normalizeSupplierTag('  Нова   Лінія  '), 'Нова Лінія');
