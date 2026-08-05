@@ -191,8 +191,9 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 у `dist/shared/` і доданий у shell service worker cache allowlist. Date-поля
 Складу в HTML мають `type="text"` + ISO `pattern`, щоб браузер не встиг показати
 нативний календар із гострими кутами навіть до завантаження helper-а. Пошукові
-input-и кастомних select мають `name` та `aria-label`, щоб не створювати зайві
-DevTools Issues.
+input-и кастомних select мають `name` та `aria-label`, а Sklad startup
+доставляє відсутні `name` і `label[for]` для полів з `id`, щоб не створювати
+зайві DevTools Issues.
 
 ## Smoke-check status
 
@@ -207,7 +208,7 @@ DevTools Issues.
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `140` unit-тестів і `250`
+Актуальний baseline на момент оновлення документа: `141` unit-тестів і `252`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 

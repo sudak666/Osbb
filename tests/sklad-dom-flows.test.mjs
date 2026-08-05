@@ -60,6 +60,14 @@ test('Sklad receipt flow remembers legacy receive_item fallback when migration 0
 });
 
 
+
+test('Sklad runtime normalizes field names and label associations', () => {
+  assertIncludes(skladApp, 'function normalizeSkladFieldMetadata(root=document){', 'field metadata normalizer is missing');
+  assertIncludes(skladApp, "field.setAttribute('name',field.id);", 'fields with IDs must receive fallback names');
+  assertIncludes(skladApp, "label.setAttribute('for',field.id);", 'labels must be associated with nearby fields');
+  assertIncludes(skladApp, 'normalizeSkladFieldMetadata();', 'field metadata normalizer must run at startup');
+});
+
 test('Shared custom select search inputs keep accessible names', () => {
   const enhanceSelect = readFileSync(new URL('../shared/enhance-select.js', import.meta.url), 'utf8');
   assertIncludes(enhanceSelect, "searchInput.name = `${select.id || select.name || 'select'}_search`;", 'custom select search input must have a name');

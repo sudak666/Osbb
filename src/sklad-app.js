@@ -2408,6 +2408,17 @@ function toggleTheme(){
 }
 applyTheme(document.body.className || 'theme-light');
 
+function normalizeSkladFieldMetadata(root=document){
+  root.querySelectorAll('input[id],select[id],textarea[id]').forEach((field)=>{
+    if(!field.getAttribute('name')) field.setAttribute('name',field.id);
+  });
+  root.querySelectorAll('label:not([for])').forEach((label)=>{
+    const field=label.parentElement?.querySelector('input[id],select[id],textarea[id]');
+    if(field) label.setAttribute('for',field.id);
+  });
+}
+normalizeSkladFieldMetadata();
+
 // ===== INIT =====
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
 document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
