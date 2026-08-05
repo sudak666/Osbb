@@ -112,15 +112,35 @@ fallback і unit-тестами:
 
 Межа завантаження масивів `inventory_items`, `inventory_logs` та
 `inventory_receipts` типізована в `sklad-state`; некоректна відповідь transport
-тепер перетворюється на порожній список замість потрапляння в UI-стан.
+тепер перетворюється на порожній список замість потрапляння в UI-стан. Товари
+також відкидають порожні/надмірні `name` і `unit`, нормалізують короткі
+текстові метадані та відкидають некоректні timestamps до запису в `allItems`.
+Хмарний список тегів постачальників проходить `supplierTagsFromResponse`, тому
+malformed-рядки не потрапляють у локальний кеш і кнопки швидкого вибору.
+ID заголовка інвентаризації перевіряється через `auditIdFromInsertResponse` перед
+створенням дочірніх рядків; без валідного ID операція завершується з UI-помилкою.
+Кількість фактичного залишку в інвентаризації проходить strict `parseAuditQuantity`:
+підтримує десяткову кому/крапку, але відкидає відʼємні та змішані рядки.
+Останні видачі та історія товару також проходять `inventoryLogsFromResponse`, а
+некоректні timestamps рухів відкидаються до форматування дат і HTML-рендерингу.
+Одиниця виміру з RPC `issue_item`/`receive_item` проходить
+`inventoryUnitFromRpcResponse`; malformed-відповідь використовує одиницю товару.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через
 `parseStaffList`/`parseStaffSession` до запису персональної сесії.
 Місячні дані Табеля, Диспетчера, Змін і журнал ліфтера нормалізуються у
 відповідних typed-модулях перед записом cloud/localStorage-відповідей у runtime.
+Налаштування імен графіка змін проходять `workShiftNamesFromResponse`; порожні або
+некоректні значення Supabase не замінюють чинні fallback-імена в інтерфейсі.
 Той самий boundary-підхід застосовано до журналу сміття й списку фото; календарні
 ключі обмежені днями 1–31, а дати змін перевіряються як реальні ISO-дати.
+ID щойно доданого фото перевіряється через `photoIdFromInsertResponse`; malformed
+insert-відповідь використовує локальний fallback ID замість `undefined` у кеші.
+Річна відповідь таблиці `garbage` також проходить `garbageYearRowsFromResponse`:
+некоректні `month_key` і JSON payload не потрапляють до локального кешу графіка.
+Підсумок баків у річному графіку обчислює `garbageMonthBinsTotal`, тому пошкоджені
+локальні записи не обнуляють увесь місяць і не викликають помилку рендерингу.
 Ручні `database.types.ts` синхронізовано з актуальними staff/attendance/elevator
 таблицями та RPC; повну заміну на generated types усе ще слід робити лише після
 звірки з живою схемою Supabase.
@@ -128,8 +148,15 @@ fallback і unit-тестами:
 та RPC Args/Returns; browser-runnable JS fallback і transport-поведінка не змінені.
 REST query builder підтримує всі фактично використані операції, включно з
 `update()` через HTTP `PATCH`; цей шлях покрито transport unit-тестом.
-OSBB використовує throwing/raw `db.rpc()`, а Sklad — `db.rpcResult()` із
-`{data,error}`. Не змішуйте ці два контракти: це різні orchestrator-патерни.
+OSBB використовує throwing/raw `db.rpc()` зі спільного REST-wrapper, а Sklad —
+нативний Supabase JS `db.rpc()` із `{ data, error }`. Не використовуйте
+`db.rpcResult()` у Sklad entrypoint: це helper REST-wrapper-а, а не контракт
+браузерного Supabase client.
+Якщо база ще без міграції 009, перший прихід із ціною може отримати schema/RPC
+помилку `receive_item`; після цього Sklad зберігає локальний fallback-прапорець і
+наступні приходи йдуть legacy RPC-шляхом без повторних 404, а ціну товару оновлюють
+окремим `inventory_items.update()`. Після застосування 009 можна очистити
+`sklad_purchase_price_rpc_unavailable_v1` у localStorage, щоб знову писати історію цін.
 Storage `upload()` повертає `{data,error}` і не кидає transport exception, щоб
 однаково працювали Sklad callback-flow та OSBB `try`/перевірка `error`.
 
@@ -156,6 +183,11 @@ Recent Sklad mobile fixes:
 
 This specifically addressed screenshots where the light mobile UI looked messy and the price lookup panel could not be closed because the button was below the mobile viewport.
 
+Кастомні списки Складу позиціонуються через `position: fixed`, узгоджено з
+viewport-координатами `getBoundingClientRect()`: відкриття категорії в нижній
+формі більше не прокручує сторінку до секції поповнення. Категорія модалки
+редагування товару також використовує кастомний округлений список.
+
 ## Smoke-check status
 
 `node scripts/smoke-check.mjs` was expanded substantially. It currently guards, among other things:
@@ -169,7 +201,7 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `89` unit-тестів і `236`
+Актуальний baseline на момент оновлення документа: `139` unit-тестів і `245`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
@@ -213,8 +245,11 @@ REST-wrapper журналу замінено спільним `createSupabaseRes
 
 ### Пріоритет 4 — тести інтеграції
 
-- Додати DOM/integration тести для основних orchestrator-flow: PIN-вхід, видача,
-  прихід, редагування руху, інвентаризація, диспетчерська заявка.
+- Частково додано lightweight DOM-flow smoke unit-тести без нових залежностей:
+  Sklad PIN, видача через form submit, прихід/новий товар, редагування рухів,
+  delegated controls інвентаризації, OSBB staff/PIN guards та dispatcher add/edit
+  routing. Sklad date-поля використовують кастомний rounded picker замість нативного popup. Далі, за
+  потреби, перевести ці static-flow guards у справжні DOM-тести з виконанням JS.
 - E2E/Playwright відкласти до окремого узгодження, бо це нова залежність.
 - Поточні pure unit-тести й smoke guards залишаються обов'язковими при кожному
   наступному extraction PR.

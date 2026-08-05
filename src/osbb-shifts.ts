@@ -15,6 +15,11 @@ export interface WorkShiftRow {
 
 export type WorkShiftRows = Record<string, WorkShiftRow>;
 
+export interface WorkShiftNames {
+    sergiy: string;
+    oleksandr: string;
+}
+
 const WORK_SHIFT_TYPES: readonly WorkShiftType[] = ['day', 'night', 'night_half2', 'rest'];
 
 function normalizeShiftTypes(value: unknown): WorkShiftType[] {
@@ -27,6 +32,21 @@ function isIsoDate(value: unknown): value is string {
     const [year, month, day] = value.split('-').map(Number);
     const date = new Date(Date.UTC(year, month - 1, day));
     return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+function normalizedEmployeeName(value: unknown, fallback: string): string {
+    if (typeof value !== 'string') return fallback;
+    const name = value.trim();
+    return name && name.length <= 100 ? name : fallback;
+}
+
+export function workShiftNamesFromResponse(value: unknown, fallback: WorkShiftNames): WorkShiftNames {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return { ...fallback };
+    const row = value as Record<string, unknown>;
+    return {
+        sergiy: normalizedEmployeeName(row.employee_one_name, fallback.sergiy),
+        oleksandr: normalizedEmployeeName(row.employee_two_name, fallback.oleksandr),
+    };
 }
 
 export function workShiftRowsFromResponse(value: unknown): WorkShiftRows {
