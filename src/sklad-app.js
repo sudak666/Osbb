@@ -2393,6 +2393,7 @@ applyTheme(document.body.className || 'theme-light');
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
 document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
 ['issueItemSel','refillSel','newCat','editItemCategory','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
+['issueDateI','refillDateI','editLogDate','editReceiptDate'].forEach(id=>window.enhanceDateInput?.(document.getElementById(id)));
 function isTypingTarget(el){
   return !!el && (['INPUT','TEXTAREA','SELECT'].includes(el.tagName) || el.isContentEditable);
 }

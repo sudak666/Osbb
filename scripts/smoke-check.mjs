@@ -6,7 +6,7 @@ import { join } from 'node:path';
 // Sklad markup, styles and runtime were extracted into separate files.
 // Most Sklad-specific checks assert invariants across those layers, so search
 // their concatenation instead of coupling each check to a physical file.
-const SHARED_JS_CSS = '\n' + readFileSync('shared/ui.css', 'utf8') + '\n' + readFileSync('shared/enhance-select.js', 'utf8');
+const SHARED_JS_CSS = '\n' + readFileSync('shared/ui.css', 'utf8') + '\n' + readFileSync('shared/enhance-select.js', 'utf8') + '\n' + readFileSync('shared/enhance-date.js', 'utf8');
 
 function readSkladCombined() {
   return [
@@ -78,6 +78,8 @@ const checks = [
   ['shared/enhance-select.js', 'function positionPanel()', 'custom select panels stay inside the viewport'],
   ['shared/enhance-select.js', 'Math.max(rect.width, 240)', 'custom select panels preserve trigger width'],
   ['src/sklad-app.js', "'newCat','editItemCategory'", 'sklad category fields use rounded custom selects'],
+  ['sklad/index.html', '/Osbb/shared/enhance-date.js', 'sklad loads rounded custom date picker'],
+  ['shared/enhance-date.js', "className = 'custom-date-panel'", 'custom date picker uses a rounded panel'],
   ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
   ['supabase/functions/jira-issues/index.ts', 'parent IS NOT EMPTY', 'Jira counters exclude parent category items'],
   ['supabase/functions/jira-issues/index.ts', '/rest/agile/1.0/board/', 'Jira issues use the board filter'],
@@ -3020,7 +3022,7 @@ ${sharedSelectText}`;
 // Усі кастомні списки позиціонуються відносно viewport і не обрізаються
 // контейнерами чи правим краєм мобільного екрана.
 {
-  const js = readFileSync('shared/enhance-select.js', 'utf8');
+  const js = readFileSync('shared/enhance-select.js', 'utf8') + '\n' + readFileSync('shared/enhance-date.js', 'utf8');
   const label = 'garbage worker listbox stays inside the mobile viewport';
   const required = [
     'document.body.appendChild(panel)',

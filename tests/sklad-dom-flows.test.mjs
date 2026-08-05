@@ -42,6 +42,11 @@ test('Sklad PIN flow keeps server verification and guarded keypad binding', () =
   assertIncludes(skladHtml, 'if(pinBusy) return;', 'PIN keypad must guard concurrent input');
 });
 
+test('Sklad date fields use the rounded custom date picker instead of the native popup', () => {
+  assertIncludes(skladHtml, '/Osbb/shared/enhance-date.js', 'custom date enhancer script is missing');
+  assertIncludes(skladApp, "['issueDateI','refillDateI','editLogDate','editReceiptDate'].forEach(id=>window.enhanceDateInput?.(document.getElementById(id)));", 'date fields must be enhanced at startup');
+});
+
 test('Sklad movement edit modals keep centralized save actions', () => {
   assert.match(skladHtml, /data-sklad-action="edit-log-confirm"/u);
   assert.match(skladHtml, /data-sklad-action="edit-receipt-confirm"/u);
