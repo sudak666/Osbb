@@ -187,6 +187,9 @@ This specifically addressed screenshots where the light mobile UI looked messy a
 viewport-координатами `getBoundingClientRect()`: відкриття категорії в нижній
 формі більше не прокручує сторінку до секції поповнення. Категорія модалки
 редагування товару також використовує кастомний округлений список.
+Кастомний rounded date picker (`shared/enhance-date.js`) обовʼязково копіюється
+у `dist/shared/`, інакше GitHub Pages віддасть 404 та браузер знову покаже
+нативний календар із гострими кутами.
 
 ## Smoke-check status
 
@@ -201,7 +204,7 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `139` unit-тестів і `245`
+Актуальний baseline на момент оновлення документа: `139` unit-тестів і `246`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
