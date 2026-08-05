@@ -6,7 +6,7 @@ import { join } from 'node:path';
 // Sklad markup, styles and runtime were extracted into separate files.
 // Most Sklad-specific checks assert invariants across those layers, so search
 // their concatenation instead of coupling each check to a physical file.
-const SHARED_JS_CSS = '\n' + readFileSync('shared/ui.css', 'utf8') + '\n' + readFileSync('shared/enhance-select.js', 'utf8');
+const SHARED_JS_CSS = '\n' + readFileSync('shared/ui.css', 'utf8') + '\n' + readFileSync('shared/enhance-select.js', 'utf8') + '\n' + readFileSync('shared/enhance-date.js', 'utf8');
 
 function readSkladCombined() {
   return [
@@ -76,6 +76,11 @@ const checks = [
   ['osbb/styles.css', '.att-table td.is-complete-cell { background:color-mix', 'attendance complete cells use tint without color strips'],
   ['shared/enhance-select.js', 'document.body.appendChild(panel)', 'custom select panels escape clipped containers'],
   ['shared/enhance-select.js', 'function positionPanel()', 'custom select panels stay inside the viewport'],
+  ['shared/enhance-select.js', 'Math.max(rect.width, 240)', 'custom select panels preserve trigger width'],
+  ['src/sklad-app.js', "'newCat','editItemCategory'", 'sklad category fields use rounded custom selects'],
+  ['sklad/index.html', '/Osbb/shared/enhance-date.js', 'sklad loads rounded custom date picker'],
+  ['scripts/copy-static-assets.mjs', "'shared/enhance-date.js'", 'build copies rounded custom date picker'],
+  ['shared/enhance-date.js', "className = 'custom-date-panel'", 'custom date picker uses a rounded panel'],
   ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
   ['supabase/functions/jira-issues/index.ts', 'parent IS NOT EMPTY', 'Jira counters exclude parent category items'],
   ['supabase/functions/jira-issues/index.ts', '/rest/agile/1.0/board/', 'Jira issues use the board filter'],
@@ -201,9 +206,21 @@ let passed = 0;
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
   if (osbb.includes('const db = {')) missing.push('local db wrapper removed');
-  const skladRuntime = readFileSync('src/sklad-app.js', 'utf8');
-  if (/\{data(?:,error|:pinOk,error:pinErr)\}=await db\.rpc\(/.test(skladRuntime)) missing.push('Sklad REST result-style RPC uses rpcResult');
   if (missing.length) { failed += 1; console.error(`not ok - ${label} (missing: ${missing.join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+
+// Склад використовує офіційний Supabase JS client, де rpc() вже повертає
+// об'єкт { data, error }; REST-only rpcResult() тут недоступний.
+{
+  const html = readFileSync('sklad/index.html', 'utf8');
+  const runtime = readFileSync('src/sklad-app.js', 'utf8');
+  const label = 'sklad uses native Supabase RPC results';
+  const valid = html.includes('const db=createClient(')
+    && runtime.includes("await db.rpc('issue_item'")
+    && runtime.includes("await db.rpc('receive_item'")
+    && !runtime.includes('db.rpcResult(');
+  if (!valid) { failed += 1; console.error(`not ok - ${label}`); }
   else { passed += 1; console.log(`ok - ${label}`); }
 }
 
@@ -2216,7 +2233,8 @@ for (const file of ['index.html', 'osbb/index.html']) {
   ];
   const required = [
     'data-person-preset="Електрик"',
-    'data-sklad-action="issue-submit"',
+    'id="issueForm" class="form-stack"',
+    "document.getElementById('issueForm')?.addEventListener('submit'",
     'data-issue-select data-searchable="1"',
     'data-search-placeholder="Пошук товару для видачі..."',
     'data-log-category-filter="Ремонт"',
@@ -2746,6 +2764,10 @@ ${sharedSelectText}`;
     'function isPurchasePriceSchemaError(error)',
     "showPurchasePriceMigrationNotice()",
     "console.info('Історія закупівельних цін стане доступною після міграції 009.')",
+    "const PURCHASE_PRICE_RPC_UNAVAILABLE_KEY='sklad_purchase_price_rpc_unavailable_v1'",
+    'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable();',
+    'disablePurchasePriceRpc();',
+    'purchasePrice!==null&&purchasePriceRpcAvailable',
     "delete receiptRow.purchase_price_unit",
     'data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI"',
     'data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier"',
@@ -2986,7 +3008,7 @@ ${sharedSelectText}`;
     'min-height:56px;font-size:16px;',
     '.inp:focus{border:2px solid var(--md-sys-color-primary',
     'background:var(--md-sys-color-surface-container-highest',
-    '.custom-select-panel{position:absolute;',
+    '.custom-select-panel{position:fixed;',
     'background:var(--md-sys-color-surface-container-high',
     '.custom-select-option{display:flex;align-items:center;min-height:48px;',
     '.custom-select-option.active{background:var(--md-sys-color-secondary-container',
@@ -3005,7 +3027,7 @@ ${sharedSelectText}`;
 // Усі кастомні списки позиціонуються відносно viewport і не обрізаються
 // контейнерами чи правим краєм мобільного екрана.
 {
-  const js = readFileSync('shared/enhance-select.js', 'utf8');
+  const js = readFileSync('shared/enhance-select.js', 'utf8') + '\n' + readFileSync('shared/enhance-date.js', 'utf8');
   const label = 'garbage worker listbox stays inside the mobile viewport';
   const required = [
     'document.body.appendChild(panel)',
@@ -3490,6 +3512,47 @@ ${sharedSelectText}`;
   if (missing.length || legacyNav) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; legacy nav: ${legacyNav})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Початкове відкриття вкладки запускає async-завантаження диспетчера та
+// ліфтера, тому воно має бути нижче за їхні lexical state bindings.
+{
+  const text = readFileSync('src/osbb-app.js', 'utf8');
+  const label = 'journal bootstrap runs after tab state initialization';
+  const bootstrap = text.lastIndexOf('setTab(currentTab);');
+  const requiredBindings = [
+    text.indexOf('let dispData = {};'),
+    text.indexOf('let elevatorData = [];'),
+  ];
+  if (bootstrap < 0 || requiredBindings.some(index => index < 0 || index > bootstrap)) {
+    failed += 1;
+    console.error(`not ok - ${label} (bootstrap: ${bootstrap}; bindings: ${requiredBindings.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Видача оформлюється нативним submit форми: клік і Enter проходять через
+// один обробник, який блокує перезавантаження сторінки.
+{
+  const html = readFileSync('sklad/index.html', 'utf8');
+  const js = readFileSync('src/sklad-app.js', 'utf8');
+  const label = 'sklad issue form has a guarded submit handler';
+  const required = [
+    html.includes('<form id="issueForm" class="form-stack">'),
+    html.includes('<button type="submit" class="btn btn-primary full-width-action">'),
+    js.includes("document.getElementById('issueForm')?.addEventListener('submit'"),
+    js.includes('event.preventDefault();'),
+    js.includes("toast('Не вдалося виконати видачу. Спробуйте ще раз.','error');"),
+  ];
+  if (required.some(value => !value)) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
