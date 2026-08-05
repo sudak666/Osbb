@@ -44,6 +44,8 @@ test('Sklad PIN flow keeps server verification and guarded keypad binding', () =
 
 test('Sklad date fields use the rounded custom date picker instead of the native popup', () => {
   assertIncludes(skladHtml, '/Osbb/shared/enhance-date.js', 'custom date enhancer script is missing');
+  assertIncludes(skladHtml, 'id="issueDateI"', 'issue date field is missing');
+  assertIncludes(skladHtml, 'inputmode="none" autocomplete="off" pattern="\\d{4}-\\d{2}-\\d{2}" class="inp" id="issueDateI"', 'issue date field must not use native date popup');
   assertIncludes(skladApp, "['issueDateI','refillDateI','editLogDate','editReceiptDate'].forEach(id=>window.enhanceDateInput?.(document.getElementById(id)));", 'date fields must be enhanced at startup');
 });
 

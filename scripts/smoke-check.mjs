@@ -79,6 +79,7 @@ const checks = [
   ['shared/enhance-select.js', 'Math.max(rect.width, 240)', 'custom select panels preserve trigger width'],
   ['src/sklad-app.js', "'newCat','editItemCategory'", 'sklad category fields use rounded custom selects'],
   ['sklad/index.html', '/Osbb/shared/enhance-date.js', 'sklad loads rounded custom date picker'],
+  ['sklad/index.html', 'inputmode="none" autocomplete="off" pattern="\\d{4}-\\d{2}-\\d{2}" class="inp" id="issueDateI"', 'sklad date fields avoid native browser picker'],
   ['scripts/copy-static-assets.mjs', "'shared/enhance-date.js'", 'build copies rounded custom date picker'],
   ['shared/enhance-date.js', "className = 'custom-date-panel'", 'custom date picker uses a rounded panel'],
   ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],

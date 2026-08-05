@@ -188,9 +188,9 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 формі більше не прокручує сторінку до секції поповнення. Категорія модалки
 редагування товару також використовує кастомний округлений список.
 Кастомний rounded date picker (`shared/enhance-date.js`) обовʼязково копіюється
-у `dist/shared/` і доданий у shell service worker cache allowlist; інакше GitHub
-Pages віддасть 404 або старий cache знову покаже нативний календар із гострими
-кутами.
+у `dist/shared/` і доданий у shell service worker cache allowlist. Date-поля
+Складу в HTML мають `type="text"` + ISO `pattern`, щоб браузер не встиг показати
+нативний календар із гострими кутами навіть до завантаження helper-а.
 
 ## Smoke-check status
 
@@ -205,7 +205,7 @@ Pages віддасть 404 або старий cache знову покаже н�
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `139` unit-тестів і `246`
+Актуальний baseline на момент оновлення документа: `139` unit-тестів і `247`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
