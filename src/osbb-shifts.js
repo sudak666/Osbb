@@ -12,6 +12,20 @@ function isIsoDate(value) {
     return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
+function normalizedEmployeeName(value, fallback) {
+    if (typeof value !== 'string') return fallback;
+    const name = value.trim();
+    return name && name.length <= 100 ? name : fallback;
+}
+
+export function workShiftNamesFromResponse(value, fallback) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return { ...fallback };
+    return {
+        sergiy: normalizedEmployeeName(value.employee_one_name, fallback.sergiy),
+        oleksandr: normalizedEmployeeName(value.employee_two_name, fallback.oleksandr),
+    };
+}
+
 export function workShiftRowsFromResponse(value) {
     if (!Array.isArray(value)) return {};
     return Object.fromEntries(value.flatMap((row) => {

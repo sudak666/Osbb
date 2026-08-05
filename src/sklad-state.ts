@@ -19,28 +19,55 @@ function nullableString(value: unknown): string | null {
     return typeof value === 'string' ? value : null;
 }
 
+function boundedText(value: unknown, maxLength: number): string | null {
+    if (typeof value !== 'string') return null;
+    const normalized = value.trim();
+    return normalized && normalized.length <= maxLength ? normalized : null;
+}
+
+function optionalText(value: unknown, maxLength: number): string | null {
+    if (value === null || value === undefined || value === '') return null;
+    return boundedText(value, maxLength);
+}
+
 function nullableNumber(value: unknown): number | null {
     return isFiniteNumber(value) ? value : null;
 }
 
+function isTimestamp(value: unknown): value is string {
+    return typeof value === 'string' && value.trim() !== '' && Number.isFinite(Date.parse(value));
+}
+
+export function inventoryUnitFromRpcResponse(value: unknown, fallback: string): string {
+    if (!Array.isArray(value) || value.length === 0) return fallback;
+    const row = value[0];
+    if (typeof row !== 'object' || row === null || Array.isArray(row)) return fallback;
+    const unit = (row as Record<string, unknown>).unit;
+    if (typeof unit !== 'string') return fallback;
+    const normalized = unit.trim();
+    return normalized && normalized.length <= 50 ? normalized : fallback;
+}
+
 export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.unit !== 'string') return [];
+        const name = boundedText(row.name, 200);
+        const unit = boundedText(row.unit, 50);
+        if (!isFiniteNumber(row.id) || !name || !isFiniteNumber(row.quantity) || !unit) return [];
         return [{
             id: row.id,
-            name: row.name,
-            category: nullableString(row.category),
+            name,
+            category: optionalText(row.category, 80),
             quantity: row.quantity,
-            unit: row.unit,
+            unit,
             min_quantity: nullableNumber(row.min_quantity),
             photo_url: nullableString(row.photo_url),
-            created_at: nullableString(row.created_at),
-            updated_at: nullableString(row.updated_at),
+            created_at: isTimestamp(row.created_at) ? row.created_at : null,
+            updated_at: isTimestamp(row.updated_at) ? row.updated_at : null,
             is_internal: row.is_internal === true,
             price_unit: nullableNumber(row.price_unit),
-            price_source: nullableString(row.price_source),
+            price_source: optionalText(row.price_source, 80),
             price_url: nullableString(row.price_url),
-            price_checked_at: nullableString(row.price_checked_at),
+            price_checked_at: isTimestamp(row.price_checked_at) ? row.price_checked_at : null,
             price_confidence: row.price_confidence === 'manual' || row.price_confidence === 'internet'
                 || row.price_confidence === 'low' || row.price_confidence === 'medium' || row.price_confidence === 'high'
                 ? row.price_confidence
@@ -51,7 +78,7 @@ export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
 
 export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.issued_at !== 'string') return [];
+        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.issued_at)) return [];
         return [{
             id: row.id,
             item_id: nullableNumber(row.item_id),
@@ -66,7 +93,7 @@ export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
 
 export function inventoryReceiptsFromResponse(value: unknown): InventoryReceiptRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || typeof row.received_at !== 'string') return [];
+        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.received_at)) return [];
         return [{
             id: row.id,
             item_id: nullableNumber(row.item_id),

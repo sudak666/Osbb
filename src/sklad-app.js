@@ -13,11 +13,11 @@ import {
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
-import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
+import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
-import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey } from './sklad-suppliers.js';
+import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse } from './sklad-state.js';
+import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -273,10 +273,12 @@ async function confirmAudit(){
     items_with_diff:diffs.length
   }]).select().single();
   if(auditErr) return toast('Помилка збереження: '+auditErr.message,'error');
+  const auditId=auditIdFromInsertResponse(auditRow);
+  if(auditId===null) return toast('Помилка збереження: сервер не повернув ID інвентаризації','error');
 
   // 2. Зберігаємо рядки
   const auditItems=counted.map(item=>({
-    audit_id:auditRow.id,
+    audit_id:auditId,
     item_id:item.id,
     item_name:item.name,
     category:item.category||'',
@@ -642,7 +644,6 @@ function bindSkladStaticControls(){
     'refresh':refreshAll,
     'theme':toggleTheme,
     'reset-item-filters':resetItemFilters,
-    'issue-submit':(button)=>doIssue(button),
     'refill-submit':(button)=>doRefill(button),
     'add-new-submit':(button)=>doAddNew(button),
     'barcode-add-open':openBarcodeAddScanner,
@@ -708,6 +709,10 @@ function bindSkladStaticControls(){
   document.querySelector('[data-new-product-input]')?.addEventListener('input',debounce(renderNewProductMatches,200));
   document.querySelector('[data-unit-word-input]')?.addEventListener('blur',(event)=>validateUnitWordInput(event.target));
   document.querySelector('[data-issue-select]')?.addEventListener('change',onIssueSel);
+  document.getElementById('issueForm')?.addEventListener('submit',(event)=>{
+    event.preventDefault();
+    void doIssue(event.submitter);
+  });
   document.querySelector('[data-refill-select]')?.addEventListener('change',onRefillSel);
   document.querySelectorAll('[data-stats-filter]').forEach(select=>select.addEventListener('change',renderStats));
   document.querySelector('[data-photo-file]')?.addEventListener('change',uploadPhoto);
@@ -764,7 +769,7 @@ async function loadSupplierTagsCloud(){
   }
   supplierTagsCloudAvailable=true;
   const localTags=loadCustomSupplierTags();
-  const remoteTags=mergeSupplierTags([(data||[]).map(row=>row.name)],50);
+  const remoteTags=supplierTagsFromResponse(data,50);
   const missingRemote=localTags.filter(tag=>!hasSupplierTag(remoteTags,tag));
   if(missingRemote.length){
     const {error:syncError}=await db.from('inventory_supplier_tags').insert(missingRemote.map(name=>({name})));
@@ -1272,6 +1277,9 @@ async function doIssue(btn){
     refreshEnhancedSelect(document.getElementById('issueItemSel'));
     document.getElementById('issueInfo').style.display='none';
     loadRecentIssues();
+  }catch(error){
+    console.error('issue submit failed:',error);
+    toast('Не вдалося виконати видачу. Спробуйте ще раз.','error');
   }finally{
     done();
   }
@@ -1283,7 +1291,7 @@ async function issueItem(itemId,qty,person,note,issueDate){
   // Атомарний RPC замість read-check-write з клієнта: перевірка залишку і
   // списання відбуваються однією транзакцією на сервері (issue_item),
   // тому паралельна видача того самого товару не може дати від'ємний залишок.
-  const {data,error}=await db.rpcResult('issue_item',{
+  const {data,error}=await db.rpc('issue_item',{
     p_item_id:itemId, p_qty:qty, p_person:person, p_note:note||null, p_issued_at:issuedAt||null
   });
   if(error){
@@ -1294,8 +1302,7 @@ async function issueItem(itemId,qty,person,note,issueDate){
     }
     return false;
   }
-  const row=data && data[0];
-  const unit=row?.unit||item.unit;
+  const unit=inventoryUnitFromRpcResponse(data,item.unit);
   toast('Видано: '+qty+' '+unit+' → '+person,'success');
   notifyTelegram('📤 Видача: '+item.name+' −'+qty+' '+unit+' → '+person+(note?' ('+note+')':''));
   await loadItems();
@@ -1304,8 +1311,9 @@ async function issueItem(itemId,qty,person,note,issueDate){
 async function loadRecentIssues(){
   const {data}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
   const el=document.getElementById('recentIssues');
-  if(!data||!data.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">inbox</span> Видач ще не було</div>';return;}
-  el.innerHTML=data.map(l=>{
+  const rows=inventoryLogsFromResponse(data);
+  if(!rows.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">inbox</span> Видач ще не було</div>';return;}
+  el.innerHTML=rows.map(l=>{
     const d=new Date(l.issued_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const safeName=escapeHtml(l.item_name||'—');
@@ -1409,7 +1417,7 @@ async function confirmDeleteLog(){
   const id=deleteLogId;
   closeModal('delLogModal');
   showDeletePinModal('PIN для видалення запису', async (pin)=>{
-    const {data,error}=await db.rpcResult('delete_inventory_log',{p_log_id:id,attempt:pin});
+    const {data,error}=await db.rpc('delete_inventory_log',{p_log_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
     if(data && data.ok){
       toast('Запис видалено, товар повернуто на склад','success');
@@ -1536,7 +1544,7 @@ async function confirmDeleteReceipt(){
   const id=deleteReceiptId;
   closeModal('delReceiptModal');
   showDeletePinModal('PIN для видалення приходу', async (pin)=>{
-    const {data,error}=await db.rpcResult('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
+    const {data,error}=await db.rpc('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
     if(data && data.ok){
       toast('Прихід видалено, залишок скориговано','success');
@@ -1632,13 +1640,13 @@ async function doRefill(btn){
   try{
   // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
-  let {data,error}=await db.rpcResult('receive_item',{
+  let {data,error}=await db.rpc('receive_item',{
     p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
   });
   let priceHistorySaved=true;
   if(error&&purchasePrice!==null&&isPurchasePriceSchemaError(error)){
     priceHistorySaved=false;
-    ({data,error}=await db.rpcResult('receive_item',{
+    ({data,error}=await db.rpc('receive_item',{
       p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
     }));
     if(!error){
@@ -1649,8 +1657,7 @@ async function doRefill(btn){
     }
   }
   if(error) return toast('Помилка: '+error.message,'error');
-  const row=data && data[0];
-  const unit=row?.unit||item.unit;
+  const unit=inventoryUnitFromRpcResponse(data,item.unit);
   toast('Поповнено +'+qty+' '+unit,'success');
   notifyTelegram('📦 Прихід: '+item.name+' +'+qty+' '+item.unit+(supplier?' від '+supplier:'')+(note?' ('+note+')':''));
   document.getElementById('refillQtyI').value='';
@@ -1823,7 +1830,7 @@ async function confirmDelete(){
   const id=deleteItemId;
   closeModal('delModal');
   showDeletePinModal('PIN для видалення товару', async (pin)=>{
-    const {data,error}=await db.rpcResult('delete_inventory_item',{p_item_id:id,attempt:pin});
+    const {data,error}=await db.rpc('delete_inventory_item',{p_item_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
     if(data && data.ok){
       toast('Товар видалено','info');
@@ -1889,7 +1896,7 @@ async function uploadPhoto(){
 async function deletePhoto(){
   if(!photoItemId) return;
   showDeletePinModal('PIN для видалення фото', async (pin)=>{
-    const {data:pinOk,error:pinErr}=await db.rpcResult('verify_pin',{attempt:pin});
+    const {data:pinOk,error:pinErr}=await db.rpc('verify_pin',{attempt:pin});
     if(pinErr) return {ok:false,reason:'network'};
     if(pinOk!==true) return {ok:false,reason:'bad_pin'};
 
@@ -2163,11 +2170,12 @@ async function openHistory(itemId){
   document.getElementById('histList').innerHTML=skeletonStack(3);
   openModal('histModal');
   const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
-  if(!data||!data.length){
+  const rows=inventoryLogsFromResponse(data);
+  if(!rows.length){
     document.getElementById('histList').innerHTML='<div class="history-modal-state">Видач не було</div>';
     return;
   }
-  document.getElementById('histList').innerHTML=data.map(l=>{
+  document.getElementById('histList').innerHTML=rows.map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     const t=new Date(l.issued_at).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     return `<div class="hist-row">
@@ -2384,7 +2392,8 @@ applyTheme(document.body.className || 'theme-light');
 // ===== INIT =====
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
 document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
-['issueItemSel','refillSel','newCat','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
+['issueItemSel','refillSel','newCat','editItemCategory','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
+['issueDateI','refillDateI','editLogDate','editReceiptDate'].forEach(id=>window.enhanceDateInput?.(document.getElementById(id)));
 function isTypingTarget(el){
   return !!el && (['INPUT','TEXTAREA','SELECT'].includes(el.tagName) || el.isContentEditable);
 }

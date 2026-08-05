@@ -6,9 +6,18 @@ import {
   buildPhotoCache,
   createLightboxState,
   moveLightbox,
+  photoIdFromInsertResponse,
   photosFor,
   removePhoto,
 } from '../src/osbb-photos.js';
+
+test('photoIdFromInsertResponse приймає лише валідний ID вставленого фото', () => {
+  assert.equal(photoIdFromInsertResponse([{ id: 42 }], 100), 42);
+  assert.equal(photoIdFromInsertResponse([{ id: 'photo-id' }], 100), 'photo-id');
+  assert.equal(photoIdFromInsertResponse([{ id: Number.NaN }], 100), 100);
+  assert.equal(photoIdFromInsertResponse([{ id: '' }], 100), 100);
+  assert.equal(photoIdFromInsertResponse(null, 100), 100);
+});
 
 const records = [
   { id: 1, url: 'https://example.com/one.jpg', day: 3, role: 'dispatcher' },
