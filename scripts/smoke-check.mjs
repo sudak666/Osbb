@@ -280,11 +280,15 @@ for (const [file, needle, label] of checks) {
   const sharedCss = readFileSync('shared/ui.css', 'utf8');
   const loader = readFileSync('shared/material-symbols-ready.js', 'utf8');
   const copyScript = readFileSync('scripts/copy-static-assets.mjs', 'utf8');
+  const shellSw = readFileSync('sw.js', 'utf8');
   const missing = entrypoints.filter(file => !readFileSync(file, 'utf8').includes('/Osbb/shared/material-symbols-ready.js'));
   const valid = sharedCss.includes('.material-symbols-rounded { visibility: hidden; }') &&
     sharedCss.includes('.material-symbols-ready .material-symbols-rounded { visibility: visible; }') &&
     loader.includes('document.fonts') && loader.includes("classList.add('material-symbols-ready')") &&
-    copyScript.includes("'shared/material-symbols-ready.js'");
+    copyScript.includes("'shared/material-symbols-ready.js'") &&
+    copyScript.includes("'shared/enhance-date.js'") &&
+    shellSw.includes("'/Osbb/shared/enhance-date.js'") &&
+    shellSw.includes("url.pathname === '/Osbb/shared/enhance-date.js'");
   if (missing.length || !valid) {
     failed += 1;
     console.error(`not ok - ${label} (entrypoints: ${missing.join(', ')}; loader: ${valid})`);
