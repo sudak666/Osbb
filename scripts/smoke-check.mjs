@@ -2445,6 +2445,8 @@ ${sharedSelectText}`;
     'function bindPhotoCurrentActions',
     'data-price-badge-action="manual-price"',
     'data-audit-input',
+    'name="audit_${item.id}"',
+    'aria-label="Фактичний залишок: ${name}"',
     'data-log-action="edit"',
     'data-receipt-action="delete"',
     'data-new-match-action="refill"',

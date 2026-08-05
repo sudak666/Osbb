@@ -29,6 +29,8 @@ test('Sklad refill and new-item submits remain centrally bound actions', () => {
 
 test('Sklad audit flow keeps dynamic controls delegated from the list container', () => {
   assertIncludes(skladApp, 'data-audit-input data-item-id="${item.id}"', 'audit quantity inputs need delegated hooks');
+  assertIncludes(skladApp, 'name="audit_${item.id}"', 'audit quantity inputs must have names');
+  assertIncludes(skladApp, 'aria-label="Фактичний залишок: ${name}"', 'audit quantity inputs must have accessible labels');
   assertIncludes(skladApp, 'data-audit-clear data-item-id="${item.id}"', 'audit clear buttons need delegated hooks');
   assertIncludes(skladApp, "list.addEventListener('input',(event)=>{", 'audit input delegation is missing');
   assertIncludes(skladApp, "list.addEventListener('click',(event)=>{", 'audit clear delegation is missing');

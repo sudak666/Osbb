@@ -192,8 +192,9 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 Складу в HTML мають `type="text"` + ISO `pattern`, щоб браузер не встиг показати
 нативний календар із гострими кутами навіть до завантаження helper-а. Пошукові
 input-и кастомних select мають `name` та `aria-label`, а Sklad startup
-доставляє відсутні `name` і `label[for]` для полів з `id`, щоб не створювати
-зайві DevTools Issues.
+доставляє відсутні `name` і `label[for]` для полів з `id`; динамічні audit
+quantity inputs мають власні `name` та `aria-label`, щоб не створювати зайві
+DevTools Issues.
 
 ## Smoke-check status
 

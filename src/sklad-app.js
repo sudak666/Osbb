@@ -175,6 +175,8 @@ function renderAuditList(){
         <div class="audit-input-row">
           <input type="number"
             id="audit_${item.id}"
+            name="audit_${item.id}"
+            aria-label="Фактичний залишок: ${name}"
             value="${isCounted?actual:''}"
             placeholder="?"
             min="0" step="any"
