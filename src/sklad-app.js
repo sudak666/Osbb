@@ -32,6 +32,16 @@ Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Майно та матеріали'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
+const PURCHASE_PRICE_RPC_UNAVAILABLE_KEY='sklad_purchase_price_rpc_unavailable_v1';
+function loadPurchasePriceRpcAvailable(){
+  try{return localStorage.getItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY)!=='1';}
+  catch(e){return true;}
+}
+let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable();
+function disablePurchasePriceRpc(){
+  purchasePriceRpcAvailable=false;
+  try{localStorage.setItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY,'1');}catch(e){}
+}
 function showPurchasePriceMigrationNotice(){
   console.info('Історія закупівельних цін стане доступною після міграції 009.');
 }
@@ -1640,12 +1650,21 @@ async function doRefill(btn){
   try{
   // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
   // одній транзакції на сервері, замість двох окремих незалежних запитів.
-  let {data,error}=await db.rpc('receive_item',{
-    p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
-  });
+  let data=null;
+  let error=null;
+  if(purchasePrice!==null&&purchasePriceRpcAvailable){
+    ({data,error}=await db.rpc('receive_item',{
+      p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
+    }));
+  }else{
+    ({data,error}=await db.rpc('receive_item',{
+      p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
+    }));
+  }
   let priceHistorySaved=true;
   if(error&&purchasePrice!==null&&isPurchasePriceSchemaError(error)){
     priceHistorySaved=false;
+    disablePurchasePriceRpc();
     ({data,error}=await db.rpc('receive_item',{
       p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
     }));

@@ -152,6 +152,11 @@ OSBB використовує throwing/raw `db.rpc()` зі спільного RE
 нативний Supabase JS `db.rpc()` із `{ data, error }`. Не використовуйте
 `db.rpcResult()` у Sklad entrypoint: це helper REST-wrapper-а, а не контракт
 браузерного Supabase client.
+Якщо база ще без міграції 009, перший прихід із ціною може отримати schema/RPC
+помилку `receive_item`; після цього Sklad зберігає локальний fallback-прапорець і
+наступні приходи йдуть legacy RPC-шляхом без повторних 404, а ціну товару оновлюють
+окремим `inventory_items.update()`. Після застосування 009 можна очистити
+`sklad_purchase_price_rpc_unavailable_v1` у localStorage, щоб знову писати історію цін.
 Storage `upload()` повертає `{data,error}` і не кидає transport exception, щоб
 однаково працювали Sklad callback-flow та OSBB `try`/перевірка `error`.
 
@@ -196,7 +201,7 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `138` unit-тестів і `245`
+Актуальний baseline на момент оновлення документа: `139` unit-тестів і `245`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 

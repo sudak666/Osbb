@@ -47,6 +47,15 @@ test('Sklad date fields use the rounded custom date picker instead of the native
   assertIncludes(skladApp, "['issueDateI','refillDateI','editLogDate','editReceiptDate'].forEach(id=>window.enhanceDateInput?.(document.getElementById(id)));", 'date fields must be enhanced at startup');
 });
 
+
+test('Sklad receipt flow remembers legacy receive_item fallback when migration 009 is missing', () => {
+  assertIncludes(skladApp, "const PURCHASE_PRICE_RPC_UNAVAILABLE_KEY='sklad_purchase_price_rpc_unavailable_v1'", 'receipt RPC fallback flag key is missing');
+  assertIncludes(skladApp, 'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable();', 'receipt RPC fallback flag must be loaded at startup');
+  assertIncludes(skladApp, 'function disablePurchasePriceRpc(){', 'receipt RPC fallback disabler is missing');
+  assertIncludes(skladApp, 'disablePurchasePriceRpc();', 'schema fallback must be remembered after the first failed price RPC');
+  assertIncludes(skladApp, 'purchasePrice!==null&&purchasePriceRpcAvailable', 'price RPC should be skipped after fallback is remembered');
+});
+
 test('Sklad movement edit modals keep centralized save actions', () => {
   assert.match(skladHtml, /data-sklad-action="edit-log-confirm"/u);
   assert.match(skladHtml, /data-sklad-action="edit-receipt-confirm"/u);
