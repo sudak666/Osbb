@@ -26,6 +26,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/Osbb/shared/enhance-select.js"></script>
+<script src="/Osbb/shared/enhance-date.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -293,19 +294,19 @@ async function checkPin(attempt){
             <div class="workflow-copy">Обери товар, кількість і відповідального — система одразу оновить залишок та журнал руху.</div>
           </div>
         </div>
-        <div class="form-stack">
+        <form id="issueForm" class="form-stack">
           <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для видачі..."><option value="">— Оберіть товар —</option></select></div>
           <div id="issueInfo" class="info-callout" style="display:none;">
             <div class="info-row"><span>Залишок:</span><strong id="issueInfoQty"></strong></div>
           </div>
           <div class="field-grid two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="issueQtyI" min="0.1" step="0.1" placeholder="0"></div>
-            <div><label>Дата</label><input type="date" class="inp" id="issueDateI"></div>
+            <div><label for="issueDateI">Дата</label><input type="text" inputmode="none" autocomplete="off" pattern="\d{4}-\d{2}-\d{2}" class="inp" id="issueDateI" name="issue_date"></div>
           </div>
           <div><label>Кому видано</label><div class="preset-row"><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Охорона">Охорона</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Прибиральниця">Прибиральниця</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
-          <button type="button" class="btn btn-primary full-width-action" data-sklad-action="issue-submit"><span class="ms ic-16-3">check_circle</span> Видати зі складу</button>
-        </div>
+          <button type="submit" class="btn btn-primary full-width-action"><span class="ms ic-16-3">check_circle</span> Видати зі складу</button>
+        </form>
       </div>
       <div class="card side-panel">
         <div class="side-panel-title"><span class="ms ic-15" aria-hidden="true">history</span> Останні видачі</div>
@@ -352,7 +353,7 @@ async function checkPin(attempt){
           <div id="refillInfo" class="refill-info">Поточний залишок: <span id="refillCur"></span></div>
           <div class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
-            <div><label>Дата приходу</label><input type="date" class="inp" id="refillDateI"></div>
+            <div><label for="refillDateI">Дата приходу</label><input type="text" inputmode="none" autocomplete="off" pattern="\d{4}-\d{2}-\d{2}" class="inp" id="refillDateI" name="receipt_date"></div>
           </div>
           <div><label>Ціна закупівлі за одиницю <span class="form-note">(необов'язково)</span></label><input type="number" class="inp" id="refillPriceI" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
           <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="refillSupplierI">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="refillSupplierI">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="refillSupplierI">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="refillSupplierI">Місцевий</button></div><div class="supplier-tag-create"><input type="text" class="inp" id="newSupplierTag" maxlength="40" placeholder="Новий тег постачальника"><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="supplier-tag-add"><span class="ms" aria-hidden="true">add</span> Додати тег</button></div></div>
@@ -655,8 +656,8 @@ async function checkPin(attempt){
         <input type="number" class="inp" id="editLogQty" step="any">
       </div>
       <div>
-        <label>Дата видачі</label>
-        <input type="date" class="inp" id="editLogDate">
+        <label for="editLogDate">Дата видачі</label>
+        <input type="text" inputmode="none" autocomplete="off" pattern="\d{4}-\d{2}-\d{2}" class="inp" id="editLogDate" name="edit_issue_date">
       </div>
       <div>
         <label>Кому видано</label>
@@ -699,8 +700,8 @@ async function checkPin(attempt){
         <input type="number" class="inp" id="editReceiptQty" step="any">
       </div>
       <div>
-        <label>Дата приходу</label>
-        <input type="date" class="inp" id="editReceiptDate">
+        <label for="editReceiptDate">Дата приходу</label>
+        <input type="text" inputmode="none" autocomplete="off" pattern="\d{4}-\d{2}-\d{2}" class="inp" id="editReceiptDate" name="edit_receipt_date">
       </div>
       <div>
         <label>Ціна закупівлі за одиницю</label>

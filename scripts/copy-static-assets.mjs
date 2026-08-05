@@ -11,6 +11,7 @@ const files = [
   'shared/material-tokens.css',
   'shared/material-symbols-ready.js',
   'shared/enhance-select.js',
+  'shared/enhance-date.js',
   'osbb/manifest.json',
   'osbb/sw.js',
   'osbb/icon-192.png',
