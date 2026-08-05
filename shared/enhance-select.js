@@ -34,7 +34,7 @@
       const rect = btn.getBoundingClientRect();
       const viewportGap = 8;
       const maxWidth = Math.max(240, window.innerWidth - viewportGap * 2);
-      const width = Math.min(Math.max(rect.width, panel.scrollWidth), maxWidth);
+      const width = Math.min(Math.max(rect.width, 240), maxWidth);
       const left = Math.min(Math.max(viewportGap, rect.left), window.innerWidth - width - viewportGap);
       panel.style.width = `${width}px`;
       panel.style.left = `${left}px`;
@@ -69,6 +69,8 @@
         const searchInput = document.createElement('input');
         searchInput.className = 'inp custom-select-search';
         searchInput.type = 'search';
+        searchInput.name = `${select.id || select.name || 'select'}_search`;
+        searchInput.setAttribute('aria-label', select.dataset.searchPlaceholder || 'Пошук у списку');
         searchInput.placeholder = select.dataset.searchPlaceholder || 'Пошук...';
         searchInput.value = selectSearchTerm;
         searchInput.addEventListener('input', () => {

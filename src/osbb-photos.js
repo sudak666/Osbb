@@ -1,5 +1,14 @@
 import { safeExternalUrl } from './app-security.js';
 
+export function photoIdFromInsertResponse(value, fallback) {
+    if (!Array.isArray(value) || value.length === 0) return fallback;
+    const row = value[0];
+    if (typeof row !== 'object' || row === null || Array.isArray(row)) return fallback;
+    const id = row.id;
+    if (typeof id === 'string' && id.trim()) return id;
+    return typeof id === 'number' && Number.isFinite(id) ? id : fallback;
+}
+
 export function photoCacheKey(day, role) {
     return `${day}-${role}`;
 }
