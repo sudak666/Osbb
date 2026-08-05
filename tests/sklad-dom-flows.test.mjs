@@ -32,3 +32,30 @@ test('Sklad audit flow keeps dynamic controls delegated from the list container'
   assertIncludes(skladApp, "list.addEventListener('click',(event)=>{", 'audit clear delegation is missing');
   assertIncludes(skladApp, 'onAuditInput(Number(input.dataset.itemId),input.value);', 'audit input must route through parser boundary');
 });
+
+test('Sklad PIN flow keeps server verification and guarded keypad binding', () => {
+  assertIncludes(skladHtml, "db.rpc('verify_pin',{attempt})", 'embedded Sklad PIN check must use server RPC');
+  assertIncludes(skladHtml, 'const AUTH_TTL_MS = 12 * 60 * 60 * 1000;', 'embedded Sklad auth must keep TTL');
+  assertIncludes(skladApp, "document.querySelectorAll('[data-auth-pin-key]').forEach(button=>{", 'runtime PIN keypad binding is missing');
+  assertIncludes(skladHtml, 'if(pinBusy) return;', 'PIN keypad must guard concurrent input');
+});
+
+test('Sklad movement edit modals keep centralized save actions', () => {
+  assert.match(skladHtml, /data-sklad-action="edit-log-confirm"/u);
+  assert.match(skladHtml, /data-sklad-action="edit-receipt-confirm"/u);
+  assertIncludes(skladApp, "'edit-log-confirm':confirmEditLog", 'issue edit save action is not registered');
+  assertIncludes(skladApp, "'edit-receipt-confirm':confirmEditReceipt", 'receipt edit save action is not registered');
+  assertIncludes(skladApp, 'async function confirmEditLog(){', 'issue edit handler is missing');
+  assertIncludes(skladApp, 'async function confirmEditReceipt(){', 'receipt edit handler is missing');
+});
+
+test('OSBB dispatcher ticket flow stays delegated and routes add/edit actions', () => {
+  const osbbHtml = readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8');
+  const osbbApp = readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8');
+  assert.match(osbbHtml, /data-disp-search/u);
+  assertIncludes(osbbApp, 'function bindDispatcherEntryActions() {', 'dispatcher delegated binder is missing');
+  assertIncludes(osbbApp, "event.target.closest('[data-disp-action]')", 'dispatcher actions must use delegated hooks');
+  assertIncludes(osbbApp, "action.dataset.dispAction === 'ticket-add'", 'dispatcher add action is not routed');
+  assertIncludes(osbbApp, "action.dataset.dispAction === 'ticket-edit-save'", 'dispatcher edit save action is not routed');
+  assertIncludes(osbbApp, 'dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId', 'dispatcher edit must use save boundary');
+});

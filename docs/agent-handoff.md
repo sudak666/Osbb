@@ -196,7 +196,7 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `132` unit-тести і `243`
+Актуальний baseline на момент оновлення документа: `135` unit-тестів і `243`
 smoke-перевірки. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
@@ -240,10 +240,10 @@ REST-wrapper журналу замінено спільним `createSupabaseRes
 
 ### Пріоритет 4 — тести інтеграції
 
-- Частково додано lightweight DOM-flow smoke unit-тести для Складу: видача через
-  form submit, централізовані submit action-и приходу/нового товару та delegated
-  controls інвентаризації. Далі розширити покриття на PIN-вхід, редагування руху
-  та диспетчерську заявку.
+- Частково додано lightweight DOM-flow smoke unit-тести без нових залежностей:
+  Sklad PIN, видача через form submit, прихід/новий товар, редагування рухів,
+  delegated controls інвентаризації та dispatcher add/edit routing. Далі, за
+  потреби, перевести ці static-flow guards у справжні DOM-тести з виконанням JS.
 - E2E/Playwright відкласти до окремого узгодження, бо це нова залежність.
 - Поточні pure unit-тести й smoke guards залишаються обов'язковими при кожному
   наступному extraction PR.
