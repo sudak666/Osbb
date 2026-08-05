@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 
 const skladHtml = readFileSync(new URL('../sklad/index.html', import.meta.url), 'utf8');
 const skladApp = readFileSync(new URL('../src/sklad-app.js', import.meta.url), 'utf8');
+const osbbHtml = readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8');
+const osbbApp = readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8');
 
 function assertIncludes(source, snippet, message) {
   assert.notEqual(source.indexOf(snippet), -1, message);
@@ -50,12 +52,30 @@ test('Sklad movement edit modals keep centralized save actions', () => {
 });
 
 test('OSBB dispatcher ticket flow stays delegated and routes add/edit actions', () => {
-  const osbbHtml = readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8');
-  const osbbApp = readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8');
   assert.match(osbbHtml, /data-disp-search/u);
   assertIncludes(osbbApp, 'function bindDispatcherEntryActions() {', 'dispatcher delegated binder is missing');
   assertIncludes(osbbApp, "event.target.closest('[data-disp-action]')", 'dispatcher actions must use delegated hooks');
   assertIncludes(osbbApp, "action.dataset.dispAction === 'ticket-add'", 'dispatcher add action is not routed');
   assertIncludes(osbbApp, "action.dataset.dispAction === 'ticket-edit-save'", 'dispatcher edit save action is not routed');
   assertIncludes(osbbApp, 'dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId', 'dispatcher edit must use save boundary');
+});
+
+test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
+  assert.match(osbbHtml, /id="staff-login-modal"/u);
+  assert.match(osbbHtml, /data-staff-pin-digit="1"/u);
+  assert.match(osbbHtml, /data-staff-pin-delete/u);
+  assertIncludes(osbbApp, "db.rpc('list_osbb_staff', {})", 'staff list must load through RPC');
+  assertIncludes(osbbApp, 'staffLoginList = parseStaffList(list);', 'staff list must pass parser boundary');
+  assertIncludes(osbbApp, "db.rpc('verify_staff_pin', { p_staff_id: staffLoginSelected.id, attempt })", 'staff PIN must verify on server');
+  assertIncludes(osbbApp, 'parseStaffSession({', 'verified staff session must pass parser boundary');
+});
+
+test('OSBB privileged action PIN modal keeps delegated keypad and server verification', () => {
+  assert.match(osbbHtml, /data-pin-modal-digit="1"/u);
+  assert.match(osbbHtml, /data-pin-modal-delete/u);
+  assert.match(osbbHtml, /data-pin-modal-cancel/u);
+  assertIncludes(osbbApp, "document.querySelectorAll('[data-pin-modal-digit]').forEach((button) => {", 'PIN modal keypad binding is missing');
+  assertIncludes(osbbApp, 'pinModalVerifyRpc', 'PIN modal must keep configurable verify RPC');
+  assertIncludes(osbbApp, 'await db.rpc(pinModalVerifyRpc, { attempt });', 'PIN modal must verify on server');
+  assertIncludes(osbbApp, "document.getElementById('pin-modal')?.addEventListener('keydown', trapPinModalFocus);", 'PIN modal focus trap binding is missing');
 });
