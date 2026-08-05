@@ -58,6 +58,10 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 12. `012_fix_work_shifts_month_key.sql` — виправляє constraint формату місяця у ранніх інсталяціях `011`, через який Supabase відхиляв збереження зміни.
 13. `013_secure_work_shifts.sql` — додає окремий PIN графіка, редаговані імена працівників і закриває прямий запис у `work_shifts`; перед виконанням замініть прикладовий PIN `2468` на власний.
 
+Для вже розгорнутої бази, де запит до `inventory_supplier_tags` повертає `404`,
+застосуйте `021_repair_supplier_tags.sql`: міграція безпечно відновлює таблицю,
+RLS-політики, права клієнта та Realtime-публікацію.
+
 `supabase/migrations/` тепер містить timestamp-дзеркала цих самих `001_...` → `008_...` SQL-файлів у форматі Supabase CLI. Поки історичні файли в `sklad/supabase/` лишаються основним людським джерелом правди, `npm run test:migrations` перевіряє, що CLI-міграції не роз'їхались із ними. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта. Коли проєкт повністю перейде на Supabase CLI, нові зміни БД треба додавати одразу як нові timestamp-файли в `supabase/migrations/`, а функції — у `supabase/functions/`, а не як ручні snippets.
 
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
