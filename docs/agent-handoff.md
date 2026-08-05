@@ -205,7 +205,7 @@ viewport-координатами `getBoundingClientRect()`: відкриття 
 - dynamic Sklad renderers avoiding inline event attributes;
 - Sklad mobile price modal scrollability/closeability.
 
-Актуальний baseline на момент оновлення документа: `139` unit-тестів і `247`
+Актуальний baseline на момент оновлення документа: `139` unit-тестів і `248`
 smoke-перевірок. Завжди звіряйте фактичний результат `npm test`, а не покладайтеся
 лише на ці числа.
 
