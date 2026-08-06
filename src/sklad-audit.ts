@@ -19,6 +19,8 @@ export interface AuditSummary<T extends AuditableItem> {
 
 export const auditIdFromInsertResponse = numericIdFromInsertResponse;
 
+export const auditIdFromInsertResponse = numericIdFromInsertResponse;
+
 export function createAuditData(items: readonly AuditableItem[], useCurrentQuantity = false): AuditData {
     return Object.fromEntries(items.map((item) => [String(item.id), useCurrentQuantity ? item.quantity : null]));
 }

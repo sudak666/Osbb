@@ -2,11 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  inventoryItemIdFromInsertResponse,
   inventoryItemsFromResponse,
   inventoryLogsFromResponse,
   inventoryReceiptsFromResponse,
   inventoryUnitFromRpcResponse,
 } from '../src/sklad-state.js';
+
+test('inventoryItemIdFromInsertResponse перевіряє ID створеного товару', () => {
+  assert.equal(inventoryItemIdFromInsertResponse({ id: 7 }), 7);
+  assert.equal(inventoryItemIdFromInsertResponse({ id: '7' }), null);
+  assert.equal(inventoryItemIdFromInsertResponse({ id: Number.NaN }), null);
+  assert.equal(inventoryItemIdFromInsertResponse([]), null);
+  assert.equal(inventoryItemIdFromInsertResponse(null), null);
+});
 
 test('inventoryUnitFromRpcResponse перевіряє одиницю з RPC-відповіді', () => {
   assert.equal(inventoryUnitFromRpcResponse([{ unit: '  шт ' }], 'од.'), 'шт');

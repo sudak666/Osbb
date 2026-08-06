@@ -2,6 +2,8 @@ import { numericIdFromInsertResponse } from './supabase-api.js';
 
 export const auditIdFromInsertResponse = numericIdFromInsertResponse;
 
+export const auditIdFromInsertResponse = numericIdFromInsertResponse;
+
 export function createAuditData(items, useCurrentQuantity = false) {
     return Object.fromEntries(items.map((item) => [String(item.id), useCurrentQuantity ? item.quantity : null]));
 }
