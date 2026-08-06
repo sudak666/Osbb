@@ -9,6 +9,12 @@ export function parseRpcResponseText(text) {
     return text ? JSON.parse(text) : null;
 }
 
+export function numericIdFromInsertResponse(value) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    const id = value.id;
+    return typeof id === 'number' && Number.isFinite(id) ? id : null;
+}
+
 export function createRpcClient(options = {}) {
     const fetcher = options.fetcher ?? fetch;
     const supabaseUrl = options.supabaseUrl ?? SUPABASE_URL;

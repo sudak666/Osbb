@@ -1,11 +1,3 @@
-export function numericIdFromInsertResponse(value) {
-    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
-    const id = value.id;
-    return typeof id === 'number' && Number.isFinite(id) ? id : null;
-}
-
-export const auditIdFromInsertResponse = numericIdFromInsertResponse;
-
 export function createAuditData(items, useCurrentQuantity = false) {
     return Object.fromEntries(items.map((item) => [String(item.id), useCurrentQuantity ? item.quantity : null]));
 }
