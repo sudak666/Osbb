@@ -68,6 +68,10 @@ export function inventoryItemsFromResponse(value) {
     });
 }
 
+export function inventoryItemFromInsertResponse(value) {
+    return inventoryItemsFromResponse([value])[0] ?? null;
+}
+
 export function inventoryLogsFromResponse(value) {
     return rows(value).flatMap((row) => {
         if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.issued_at)) return [];

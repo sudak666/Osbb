@@ -76,6 +76,10 @@ export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
     });
 }
 
+export function inventoryItemFromInsertResponse(value: unknown): InventoryItemRow | null {
+    return inventoryItemsFromResponse([value])[0] ?? null;
+}
+
 export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
     return rows(value).flatMap((row) => {
         if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.issued_at)) return [];
