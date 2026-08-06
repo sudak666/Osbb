@@ -82,6 +82,12 @@ export function parseRpcResponseText<T = unknown>(text: string): T | null {
     return text ? JSON.parse(text) as T : null;
 }
 
+export function numericIdFromInsertResponse(value: unknown): number | null {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    const id = (value as Record<string, unknown>).id;
+    return typeof id === 'number' && Number.isFinite(id) ? id : null;
+}
+
 export function createRpcClient(options: RpcClientOptions = {}) {
     const fetcher = options.fetcher ?? fetch;
     const supabaseUrl = options.supabaseUrl ?? SUPABASE_URL;
