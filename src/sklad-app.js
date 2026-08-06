@@ -1752,8 +1752,8 @@ async function doAddNew(btn){
   const {data:newItemResponse,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
   const newItemId=inventoryItemIdFromInsertResponse(newItemResponse);
-  let priceHistorySaved=true;
-  let initialReceiptSkipped=false;
+  let initialReceiptSaved=quantity<=0;
+  let purchasePriceSchemaUnavailable=false;
   // записуємо початковий прихід якщо кількість > 0
   if(quantity>0 && newItemId!==null){
     try{
@@ -1767,20 +1767,20 @@ async function doAddNew(btn){
       };
       let {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
       if(receiptError&&isPurchasePriceSchemaError(receiptError)){
-        priceHistorySaved=false;
+        purchasePriceSchemaUnavailable=true;
         delete receiptRow.purchase_price_unit;
         ({error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]));
       }
       if(receiptError) console.warn('receipt insert failed',receiptError);
+      else initialReceiptSaved=true;
     }catch(e){console.warn('receipt insert failed',e);}
   }
   if(quantity>0 && newItemId===null){
-    initialReceiptSkipped=true;
     console.warn('receipt insert skipped: inventory item insert response has no valid id');
   }
-  if(initialReceiptSkipped) toast('"'+name+'" додано, але початкове надходження не записано','info');
+  if(!initialReceiptSaved) toast('"'+name+'" додано, але початкове надходження не записано','info');
   else toast('"'+name+'" додано!','success');
-  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
+  if(purchasePriceSchemaUnavailable) showPurchasePriceMigrationNotice();
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty','newPrice','newItemSupplier'].forEach(k=>document.getElementById(k).value='');
   syncSupplierTags('newItemSupplier','');
