@@ -68,8 +68,9 @@ export function inventoryItemsFromResponse(value) {
     });
 }
 
-export function inventoryItemFromInsertResponse(value) {
-    return inventoryItemsFromResponse([value])[0] ?? null;
+export function inventoryItemIdFromInsertResponse(value) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    return isFiniteNumber(value.id) ? value.id : null;
 }
 
 export function inventoryLogsFromResponse(value) {

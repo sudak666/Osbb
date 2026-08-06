@@ -76,8 +76,10 @@ export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
     });
 }
 
-export function inventoryItemFromInsertResponse(value: unknown): InventoryItemRow | null {
-    return inventoryItemsFromResponse([value])[0] ?? null;
+export function inventoryItemIdFromInsertResponse(value: unknown): number | null {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    const id = (value as UnknownRow).id;
+    return isFiniteNumber(id) ? id : null;
 }
 
 export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
