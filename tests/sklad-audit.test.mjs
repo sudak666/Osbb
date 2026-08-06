@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, parseAuditQuantity } from '../src/sklad-audit.js';
+import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, numericIdFromInsertResponse, parseAuditQuantity } from '../src/sklad-audit.js';
 
 const items = [
     { id: 1, quantity: 5 },
@@ -10,9 +10,11 @@ const items = [
 ];
 
 test('auditIdFromInsertResponse перевіряє ID створеної інвентаризації', () => {
+    assert.equal(auditIdFromInsertResponse, numericIdFromInsertResponse);
     assert.equal(auditIdFromInsertResponse({ id: 42 }), 42);
     assert.equal(auditIdFromInsertResponse({ id: '42' }), null);
     assert.equal(auditIdFromInsertResponse({ id: Number.NaN }), null);
+    assert.equal(auditIdFromInsertResponse([]), null);
     assert.equal(auditIdFromInsertResponse(null), null);
 });
 
