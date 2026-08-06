@@ -17,7 +17,7 @@ import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, pars
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
+import { inventoryItemIdFromInsertResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -1749,14 +1749,16 @@ async function doAddNew(btn){
   if(!done) return;
   try{
   const priceFields=purchasePrice===null?{}:{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()};
-  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
+  const {data:newItemResponse,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
-  let priceHistorySaved=true;
+  const newItemId=inventoryItemIdFromInsertResponse(newItemResponse);
+  let initialReceiptSaved=quantity<=0;
+  let purchasePriceSchemaUnavailable=false;
   // записуємо початковий прихід якщо кількість > 0
-  if(quantity>0 && newItem){
+  if(quantity>0 && newItemId!==null){
     try{
       const receiptRow={
-        item_id:newItem.id,
+        item_id:newItemId,
         item_name:name,
         quantity,
         purchase_price_unit:purchasePrice,
@@ -1765,15 +1767,20 @@ async function doAddNew(btn){
       };
       let {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
       if(receiptError&&isPurchasePriceSchemaError(receiptError)){
-        priceHistorySaved=false;
+        purchasePriceSchemaUnavailable=true;
         delete receiptRow.purchase_price_unit;
         ({error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]));
       }
       if(receiptError) console.warn('receipt insert failed',receiptError);
+      else initialReceiptSaved=true;
     }catch(e){console.warn('receipt insert failed',e);}
   }
-  toast('"'+name+'" додано!','success');
-  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
+  if(quantity>0 && newItemId===null){
+    console.warn('receipt insert skipped: inventory item insert response has no valid id');
+  }
+  if(!initialReceiptSaved) toast('"'+name+'" додано, але початкове надходження не записано','info');
+  else toast('"'+name+'" додано!','success');
+  if(purchasePriceSchemaUnavailable) showPurchasePriceMigrationNotice();
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty','newPrice','newItemSupplier'].forEach(k=>document.getElementById(k).value='');
   syncSupplierTags('newItemSupplier','');
