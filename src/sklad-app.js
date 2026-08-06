@@ -13,7 +13,8 @@ import {
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
-import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
+import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
+import { numericIdFromInsertResponse } from './supabase-api.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
@@ -285,7 +286,7 @@ async function confirmAudit(){
     items_with_diff:diffs.length
   }]).select().single();
   if(auditErr) return toast('Помилка збереження: '+auditErr.message,'error');
-  const auditId=auditIdFromInsertResponse(auditRow);
+  const auditId=numericIdFromInsertResponse(auditRow);
   if(auditId===null) return toast('Помилка збереження: сервер не повернув ID інвентаризації','error');
 
   // 2. Зберігаємо рядки
@@ -1321,8 +1322,13 @@ async function issueItem(itemId,qty,person,note,issueDate){
   return true;
 }
 async function loadRecentIssues(){
-  const {data}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
   const el=document.getElementById('recentIssues');
+  const {data,error}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
+  if(error){
+    console.warn('recent issues load failed',error);
+    el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">cloud_off</span> Не вдалося завантажити останні видачі</div>';
+    return;
+  }
   const rows=inventoryLogsFromResponse(data);
   if(!rows.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">inbox</span> Видач ще не було</div>';return;}
   el.innerHTML=rows.map(l=>{
@@ -1749,14 +1755,16 @@ async function doAddNew(btn){
   if(!done) return;
   try{
   const priceFields=purchasePrice===null?{}:{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()};
-  const {data:newItem,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
+  const {data:newItemResponse,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
-  let priceHistorySaved=true;
+  const newItemId=numericIdFromInsertResponse(newItemResponse);
+  let initialReceiptSaved=quantity<=0;
+  let purchasePriceSchemaUnavailable=false;
   // записуємо початковий прихід якщо кількість > 0
-  if(quantity>0 && newItem){
+  if(quantity>0 && newItemId!==null){
     try{
       const receiptRow={
-        item_id:newItem.id,
+        item_id:newItemId,
         item_name:name,
         quantity,
         purchase_price_unit:purchasePrice,
@@ -1765,15 +1773,20 @@ async function doAddNew(btn){
       };
       let {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
       if(receiptError&&isPurchasePriceSchemaError(receiptError)){
-        priceHistorySaved=false;
+        purchasePriceSchemaUnavailable=true;
         delete receiptRow.purchase_price_unit;
         ({error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]));
       }
       if(receiptError) console.warn('receipt insert failed',receiptError);
+      else initialReceiptSaved=true;
     }catch(e){console.warn('receipt insert failed',e);}
   }
-  toast('"'+name+'" додано!','success');
-  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
+  if(quantity>0 && newItemId===null){
+    console.warn('receipt insert skipped: inventory item insert response has no valid id');
+  }
+  if(!initialReceiptSaved) toast('"'+name+'" додано, але початкове надходження не записано','info');
+  else toast('"'+name+'" додано!','success');
+  if(purchasePriceSchemaUnavailable) showPurchasePriceMigrationNotice();
   notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty','newPrice','newItemSupplier'].forEach(k=>document.getElementById(k).value='');
   syncSupplierTags('newItemSupplier','');
@@ -2190,7 +2203,13 @@ async function openHistory(itemId){
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
   document.getElementById('histList').innerHTML=skeletonStack(3);
   openModal('histModal');
-  const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
+  const {data,error}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
+  if(error){
+    console.warn('item history load failed',error);
+    document.getElementById('histList').innerHTML='<div class="history-modal-state">Не вдалося завантажити історію</div>';
+    toast('Не вдалося завантажити історію товару','error');
+    return;
+  }
   const rows=inventoryLogsFromResponse(data);
   if(!rows.length){
     document.getElementById('histList').innerHTML='<div class="history-modal-state">Видач не було</div>';

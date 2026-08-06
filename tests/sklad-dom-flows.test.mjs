@@ -61,6 +61,13 @@ test('Sklad receipt flow remembers legacy receive_item fallback when migration 0
   assertIncludes(skladApp, 'purchasePrice!==null&&purchasePriceRpcAvailable', 'price RPC should be skipped after fallback is remembered');
 });
 
+test('Sklad movement history distinguishes transport errors from empty results', () => {
+  assertIncludes(skladApp, "if(error){\n    console.warn('recent issues load failed',error);", 'recent issues must handle transport errors');
+  assertIncludes(skladApp, 'Не вдалося завантажити останні видачі', 'recent issues must show a load error');
+  assertIncludes(skladApp, "console.warn('item history load failed',error);", 'item history must handle transport errors');
+  assertIncludes(skladApp, "toast('Не вдалося завантажити історію товару','error');", 'item history must report a load error');
+});
+
 
 
 test('Sklad runtime normalizes field names and label associations', () => {
