@@ -1322,8 +1322,13 @@ async function issueItem(itemId,qty,person,note,issueDate){
   return true;
 }
 async function loadRecentIssues(){
-  const {data}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
   const el=document.getElementById('recentIssues');
+  const {data,error}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(7);
+  if(error){
+    console.warn('recent issues load failed',error);
+    el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">cloud_off</span> Не вдалося завантажити останні видачі</div>';
+    return;
+  }
   const rows=inventoryLogsFromResponse(data);
   if(!rows.length){el.innerHTML='<div class="empty" style="padding:24px;font-size:13px;"><span class="ms ic-16-3">inbox</span> Видач ще не було</div>';return;}
   el.innerHTML=rows.map(l=>{
@@ -2198,7 +2203,13 @@ async function openHistory(itemId){
   document.getElementById('histSubtitle').textContent='Поточний залишок: '+item.quantity+' '+item.unit;
   document.getElementById('histList').innerHTML=skeletonStack(3);
   openModal('histModal');
-  const {data}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
+  const {data,error}=await db.from('inventory_logs').select('*').eq('item_id',itemId).order('issued_at',{ascending:false}).limit(30);
+  if(error){
+    console.warn('item history load failed',error);
+    document.getElementById('histList').innerHTML='<div class="history-modal-state">Не вдалося завантажити історію</div>';
+    toast('Не вдалося завантажити історію товару','error');
+    return;
+  }
   const rows=inventoryLogsFromResponse(data);
   if(!rows.length){
     document.getElementById('histList').innerHTML='<div class="history-modal-state">Видач не було</div>';
