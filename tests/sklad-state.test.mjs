@@ -2,11 +2,36 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  inventoryItemFromInsertResponse,
   inventoryItemsFromResponse,
   inventoryLogsFromResponse,
   inventoryReceiptsFromResponse,
   inventoryUnitFromRpcResponse,
 } from '../src/sklad-state.js';
+
+test('inventoryItemFromInsertResponse validates a single inserted item', () => {
+  const item = { id: 7, name: '  Кабель ', quantity: 3, unit: ' м ' };
+
+  assert.equal(inventoryItemFromInsertResponse(null), null);
+  assert.equal(inventoryItemFromInsertResponse({ ...item, id: '7' }), null);
+  assert.deepEqual(inventoryItemFromInsertResponse(item), {
+    id: 7,
+    name: 'Кабель',
+    category: null,
+    quantity: 3,
+    unit: 'м',
+    min_quantity: null,
+    photo_url: null,
+    created_at: null,
+    updated_at: null,
+    is_internal: false,
+    price_unit: null,
+    price_source: null,
+    price_url: null,
+    price_checked_at: null,
+    price_confidence: null,
+  });
+});
 
 test('inventoryUnitFromRpcResponse перевіряє одиницю з RPC-відповіді', () => {
   assert.equal(inventoryUnitFromRpcResponse([{ unit: '  шт ' }], 'од.'), 'шт');
