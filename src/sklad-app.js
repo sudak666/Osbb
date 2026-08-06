@@ -13,7 +13,7 @@ import {
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
-import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
+import { auditIdFromInsertResponse, calculateAuditSummary, createAuditData, numericIdFromInsertResponse, parseAuditQuantity } from './sklad-audit.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
@@ -1751,7 +1751,7 @@ async function doAddNew(btn){
   const priceFields=purchasePrice===null?{}:{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()};
   const {data:newItemResponse,error}=await db.from('inventory_items').insert([{name,category,unit,quantity,is_internal,...priceFields}]).select().single();
   if(error) return toast('Помилка: '+error.message,'error');
-  const newItemId=inventoryItemIdFromInsertResponse(newItemResponse);
+  const newItemId=numericIdFromInsertResponse(newItemResponse);
   let initialReceiptSaved=quantity<=0;
   let purchasePriceSchemaUnavailable=false;
   // записуємо початковий прихід якщо кількість > 0

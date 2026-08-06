@@ -15,11 +15,13 @@ export interface AuditSummary<T extends AuditableItem> {
     progress: number;
 }
 
-export function auditIdFromInsertResponse(value: unknown): number | null {
+export function numericIdFromInsertResponse(value: unknown): number | null {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
     const id = (value as Record<string, unknown>).id;
     return typeof id === 'number' && Number.isFinite(id) ? id : null;
 }
+
+export const auditIdFromInsertResponse = numericIdFromInsertResponse;
 
 export function createAuditData(items: readonly AuditableItem[], useCurrentQuantity = false): AuditData {
     return Object.fromEntries(items.map((item) => [String(item.id), useCurrentQuantity ? item.quantity : null]));
