@@ -2342,10 +2342,12 @@ function trapModalFocus(event){
 // анонімним ключем, щоб бот з ключем зі сторінки не міг видаляти дані.
 let deletePinBuf = '';
 let deletePinAction = null;
+let deletePinBusy = false;
 
 function showDeletePinModal(title, action) {
   deletePinBuf = '';
   deletePinAction = action;
+  deletePinBusy = false;
   document.getElementById('delPinTitle').textContent = title;
   document.getElementById('delPinErr').textContent = '';
   updateDeletePinDots();
@@ -2362,6 +2364,7 @@ function updateDeletePinDots() {
   for (let i = 0; i < 4; i++) document.getElementById('dp' + i).classList.toggle('filled', i < deletePinBuf.length);
 }
 async function deletePinPress(k) {
+  if (deletePinBusy) return;
   if (k === 'C') { deletePinBuf = ''; }
   else if (k === 'DEL') { deletePinBuf = deletePinBuf.slice(0, -1); }
   else if (deletePinBuf.length < 4) { deletePinBuf += k; }
@@ -2373,7 +2376,16 @@ async function deletePinPress(k) {
     deletePinBuf = '';
     updateDeletePinDots();
     if (!action) return;
-    const result = await action(pin);
+    let result;
+    deletePinBusy = true;
+    try {
+      result = await action(pin);
+    } catch (error) {
+      console.warn('delete PIN action failed', error);
+      result = { ok: false, reason: 'network' };
+    } finally {
+      deletePinBusy = false;
+    }
     if (result && result.ok) {
       closeModal('delPinModal');
       deletePinAction = null;

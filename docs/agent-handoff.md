@@ -135,6 +135,8 @@ ID заголовка інвентаризації перевіряється ч
 сприймаються як успішне видалення.
 `runDeleteInventoryRpc` також перетворює як Supabase `{ error }`, так і rejected transport
 в однаковий retryable-результат `network` для PIN-модалки.
+PIN-модалка видалення блокує повторний submit під час запиту, а помилки
+обробника повертають UI до retryable-стану замість unhandled rejection.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через

@@ -77,6 +77,14 @@ test('Sklad delete RPC flow handles returned and thrown transport errors', () =>
   assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_item'", 'item deletion must use the guarded RPC wrapper');
 });
 
+test('Sklad delete PIN flow blocks concurrent actions and catches handler failures', () => {
+  assertIncludes(skladApp, 'let deletePinBusy = false;', 'delete PIN flow needs a busy state');
+  assertIncludes(skladApp, 'if (deletePinBusy) return;', 'delete PIN keypad must block concurrent actions');
+  assertIncludes(skladApp, 'deletePinBusy = true;', 'delete PIN action must enter busy state');
+  assertIncludes(skladApp, "console.warn('delete PIN action failed', error);", 'delete PIN action failures must be handled');
+  assertIncludes(skladApp, 'deletePinBusy = false;', 'delete PIN action must always leave busy state');
+});
+
 
 
 test('Sklad runtime normalizes field names and label associations', () => {
