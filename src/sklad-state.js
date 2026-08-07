@@ -40,6 +40,16 @@ export function inventoryUnitFromRpcResponse(value, fallback) {
     return normalized && normalized.length <= 50 ? normalized : fallback;
 }
 
+export function deleteInventoryResultFromRpcResponse(value) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return { ok: false };
+    if (value.ok === true) return { ok: true };
+    if (value.ok !== false) return { ok: false };
+    const reason = value.reason;
+    return reason === 'bad_pin' || reason === 'negative_stock' || reason === 'not_found'
+        ? { ok: false, reason }
+        : { ok: false };
+}
+
 export function inventoryItemsFromResponse(value) {
     return rows(value).flatMap((row) => {
         const name = boundedText(row.name, 200);
