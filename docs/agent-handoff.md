@@ -130,6 +130,9 @@ ID заголовка інвентаризації перевіряється ч
 показують окремий UI-стан, а не повідомлення про порожню історію.
 Одиниця виміру з RPC `issue_item`/`receive_item` проходить
 `inventoryUnitFromRpcResponse`; malformed-відповідь використовує одиницю товару.
+Відповіді RPC видалення товару, видачі та надходження проходять
+`deleteInventoryResultFromRpcResponse`; невідомі `reason` й malformed-значення не
+сприймаються як успішне видалення.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через

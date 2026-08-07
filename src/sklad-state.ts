@@ -3,6 +3,11 @@ import type { PublicTableRow } from './database.types.ts';
 export type InventoryItemRow = PublicTableRow<'inventory_items'>;
 export type InventoryLogRow = PublicTableRow<'inventory_logs'>;
 export type InventoryReceiptRow = PublicTableRow<'inventory_receipts'>;
+export type DeleteInventoryReason = 'bad_pin' | 'negative_stock' | 'not_found';
+export interface DeleteInventoryResult {
+    ok: boolean;
+    reason?: DeleteInventoryReason;
+}
 
 type UnknownRow = Record<string, unknown>;
 
@@ -46,6 +51,17 @@ export function inventoryUnitFromRpcResponse(value: unknown, fallback: string): 
     if (typeof unit !== 'string') return fallback;
     const normalized = unit.trim();
     return normalized && normalized.length <= 50 ? normalized : fallback;
+}
+
+export function deleteInventoryResultFromRpcResponse(value: unknown): DeleteInventoryResult {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return { ok: false };
+    const result = value as UnknownRow;
+    if (result.ok === true) return { ok: true };
+    if (result.ok !== false) return { ok: false };
+    const reason = result.reason;
+    return reason === 'bad_pin' || reason === 'negative_stock' || reason === 'not_found'
+        ? { ok: false, reason }
+        : { ok: false };
 }
 
 export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {

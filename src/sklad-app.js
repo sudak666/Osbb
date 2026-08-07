@@ -18,7 +18,7 @@ import { numericIdFromInsertResponse } from './supabase-api.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { inventoryItemIdFromInsertResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
+import { deleteInventoryResultFromRpcResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 
 let allItems=[],allLogs=[],curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -1437,12 +1437,13 @@ async function confirmDeleteLog(){
   showDeletePinModal('PIN для видалення запису', async (pin)=>{
     const {data,error}=await db.rpc('delete_inventory_log',{p_log_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
-    if(data && data.ok){
+    const result=deleteInventoryResultFromRpcResponse(data);
+    if(result.ok){
       toast('Запис видалено, товар повернуто на склад','success');
       deleteLogId=null;
       await loadItems();await loadLogs();
     }
-    return data || {ok:false};
+    return result;
   });
 }
 function openEditLog(id){
@@ -1564,12 +1565,13 @@ async function confirmDeleteReceipt(){
   showDeletePinModal('PIN для видалення приходу', async (pin)=>{
     const {data,error}=await db.rpc('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
-    if(data && data.ok){
+    const result=deleteInventoryResultFromRpcResponse(data);
+    if(result.ok){
       toast('Прихід видалено, залишок скориговано','success');
       deleteReceiptId=null;
       await loadItems();await loadReceipts();
     }
-    return data || {ok:false};
+    return result;
   });
 }
 function openEditReceipt(id){
@@ -1866,12 +1868,13 @@ async function confirmDelete(){
   showDeletePinModal('PIN для видалення товару', async (pin)=>{
     const {data,error}=await db.rpc('delete_inventory_item',{p_item_id:id,attempt:pin});
     if(error) return {ok:false,reason:'network'};
-    if(data && data.ok){
+    const result=deleteInventoryResultFromRpcResponse(data);
+    if(result.ok){
       toast('Товар видалено','info');
       deleteItemId=null;
       await loadItems();
     }
-    return data || {ok:false};
+    return result;
   });
 }
 
