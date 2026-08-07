@@ -2347,6 +2347,7 @@ let deletePinBusy = false;
 function showDeletePinModal(title, action) {
   deletePinBuf = '';
   deletePinAction = action;
+  deletePinBusy = false;
   document.getElementById('delPinTitle').textContent = title;
   document.getElementById('delPinErr').textContent = '';
   updateDeletePinDots();
