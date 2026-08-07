@@ -83,6 +83,8 @@ test('Sklad delete PIN flow blocks concurrent actions and catches handler failur
   assertIncludes(skladApp, 'deletePinBusy = true;', 'delete PIN action must enter busy state');
   assertIncludes(skladApp, "console.warn('delete PIN action failed', error);", 'delete PIN action failures must be handled');
   assertIncludes(skladApp, 'deletePinBusy = false;', 'delete PIN action must always leave busy state');
+  assertIncludes(skladApp, 'if (deletePinAction !== action) return;', 'stale delete results must not update a newer modal');
+  assert.doesNotMatch(skladApp, /deletePinAction = action;\s+deletePinBusy = false;/u, 'opening another modal must not unlock a pending request');
 });
 
 

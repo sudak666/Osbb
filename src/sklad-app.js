@@ -2347,7 +2347,6 @@ let deletePinBusy = false;
 function showDeletePinModal(title, action) {
   deletePinBuf = '';
   deletePinAction = action;
-  deletePinBusy = false;
   document.getElementById('delPinTitle').textContent = title;
   document.getElementById('delPinErr').textContent = '';
   updateDeletePinDots();
@@ -2386,6 +2385,7 @@ async function deletePinPress(k) {
     } finally {
       deletePinBusy = false;
     }
+    if (deletePinAction !== action) return;
     if (result && result.ok) {
       closeModal('delPinModal');
       deletePinAction = null;
