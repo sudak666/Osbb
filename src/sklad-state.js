@@ -1,3 +1,11 @@
+export function createInventoryCollectionState() {
+    return {
+        allItems: [],
+        allLogs: [],
+        allReceipts: [],
+    };
+}
+
 function rows(value) {
     if (!Array.isArray(value)) return [];
     return value.filter((row) => typeof row === 'object' && row !== null && !Array.isArray(row));

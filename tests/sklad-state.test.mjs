@@ -2,12 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  createInventoryCollectionState,
   deleteInventoryResultFromRpcResponse,
   inventoryItemsFromResponse,
   inventoryLogsFromResponse,
   inventoryReceiptsFromResponse,
   inventoryUnitFromRpcResponse,
 } from '../src/sklad-state.js';
+
+test('createInventoryCollectionState returns isolated empty typed collections', () => {
+  const first = createInventoryCollectionState();
+  const second = createInventoryCollectionState();
+
+  assert.deepEqual(first, { allItems: [], allLogs: [], allReceipts: [] });
+  assert.notEqual(first.allItems, second.allItems);
+  assert.notEqual(first.allLogs, second.allLogs);
+  assert.notEqual(first.allReceipts, second.allReceipts);
+});
 
 test('deleteInventoryResultFromRpcResponse перевіряє RPC-результат видалення', () => {
   assert.deepEqual(deleteInventoryResultFromRpcResponse({ ok: true, reason: 'bad_pin' }), { ok: true });
