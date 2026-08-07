@@ -9,6 +9,20 @@ export interface DeleteInventoryResult {
     reason?: DeleteInventoryReason;
 }
 
+export interface InventoryCollectionState {
+    allItems: InventoryItemRow[];
+    allLogs: InventoryLogRow[];
+    allReceipts: InventoryReceiptRow[];
+}
+
+export function createInventoryCollectionState(): InventoryCollectionState {
+    return {
+        allItems: [],
+        allLogs: [],
+        allReceipts: [],
+    };
+}
+
 type UnknownRow = Record<string, unknown>;
 
 function rows(value: unknown): UnknownRow[] {
