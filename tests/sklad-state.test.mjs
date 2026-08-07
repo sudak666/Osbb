@@ -2,11 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  deleteInventoryResultFromRpcResponse,
   inventoryItemsFromResponse,
   inventoryLogsFromResponse,
   inventoryReceiptsFromResponse,
   inventoryUnitFromRpcResponse,
 } from '../src/sklad-state.js';
+
+test('deleteInventoryResultFromRpcResponse перевіряє RPC-результат видалення', () => {
+  assert.deepEqual(deleteInventoryResultFromRpcResponse({ ok: true, reason: 'bad_pin' }), { ok: true });
+  assert.deepEqual(deleteInventoryResultFromRpcResponse({ ok: false, reason: 'not_found' }), { ok: false, reason: 'not_found' });
+  assert.deepEqual(deleteInventoryResultFromRpcResponse({ ok: false, reason: 'unknown' }), { ok: false });
+  assert.deepEqual(deleteInventoryResultFromRpcResponse({ ok: 'yes' }), { ok: false });
+  assert.deepEqual(deleteInventoryResultFromRpcResponse(null), { ok: false });
+});
 
 test('inventoryUnitFromRpcResponse перевіряє одиницю з RPC-відповіді', () => {
   assert.equal(inventoryUnitFromRpcResponse([{ unit: '  шт ' }], 'од.'), 'шт');

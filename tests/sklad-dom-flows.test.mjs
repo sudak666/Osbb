@@ -61,6 +61,22 @@ test('Sklad receipt flow remembers legacy receive_item fallback when migration 0
   assertIncludes(skladApp, 'purchasePrice!==null&&purchasePriceRpcAvailable', 'price RPC should be skipped after fallback is remembered');
 });
 
+test('Sklad movement history distinguishes transport errors from empty results', () => {
+  assertIncludes(skladApp, "if(error){\n    console.warn('recent issues load failed',error);", 'recent issues must handle transport errors');
+  assertIncludes(skladApp, 'Не вдалося завантажити останні видачі', 'recent issues must show a load error');
+  assertIncludes(skladApp, "console.warn('item history load failed',error);", 'item history must handle transport errors');
+  assertIncludes(skladApp, "toast('Не вдалося завантажити історію товару','error');", 'item history must report a load error');
+});
+
+test('Sklad delete RPC flow handles returned and thrown transport errors', () => {
+  assertIncludes(skladApp, 'async function runDeleteInventoryRpc(name,args){', 'delete RPC wrapper is missing');
+  assertIncludes(skladApp, 'return deleteInventoryResultFromRpcResponse(data);', 'delete RPC response must pass the typed boundary');
+  assertIncludes(skladApp, "return {ok:false,reason:'network'};", 'delete RPC transport errors must remain retryable');
+  assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_log'", 'log deletion must use the guarded RPC wrapper');
+  assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_receipt'", 'receipt deletion must use the guarded RPC wrapper');
+  assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_item'", 'item deletion must use the guarded RPC wrapper');
+});
+
 
 
 test('Sklad runtime normalizes field names and label associations', () => {

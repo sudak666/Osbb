@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildRpcUrl, createRpcClient, createSupabaseRestClient, parseRpcResponseText, SUPABASE_KEY, SUPABASE_URL } from '../src/supabase-api.js';
+import { buildRpcUrl, createRpcClient, createSupabaseRestClient, numericIdFromInsertResponse, parseRpcResponseText, SUPABASE_KEY, SUPABASE_URL } from '../src/supabase-api.js';
 
 test('buildRpcUrl trims trailing slash and encodes RPC function names', () => {
   assert.equal(
@@ -13,6 +13,14 @@ test('buildRpcUrl trims trailing slash and encodes RPC function names', () => {
 test('parseRpcResponseText returns null for empty RPC responses', () => {
   assert.equal(parseRpcResponseText(''), null);
   assert.deepEqual(parseRpcResponseText('{"ok":true}'), { ok: true });
+});
+
+test('numericIdFromInsertResponse validates inserted record IDs', () => {
+  assert.equal(numericIdFromInsertResponse({ id: 7 }), 7);
+  assert.equal(numericIdFromInsertResponse({ id: '7' }), null);
+  assert.equal(numericIdFromInsertResponse({ id: Number.NaN }), null);
+  assert.equal(numericIdFromInsertResponse([]), null);
+  assert.equal(numericIdFromInsertResponse(null), null);
 });
 
 test('createRpcClient sends Supabase RPC requests with auth headers and JSON body', async () => {
