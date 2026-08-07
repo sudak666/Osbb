@@ -2624,6 +2624,7 @@ ${sharedSelectText}`;
     [pages, 'workflow_dispatch:', '.github/workflows/pages.yml:manual trigger'],
     [pages, 'actions/upload-pages-artifact@v5', '.github/workflows/pages.yml:artifact'],
     [pages, 'actions/deploy-pages@v5', '.github/workflows/pages.yml:deploy'],
+    [pages, 'timeout: 1200000', '.github/workflows/pages.yml:deploy timeout'],
     [copy, "'sw.js'", 'copy-static-assets.mjs:root sw'],
     [copy, "'osbb/sw.js'", 'copy-static-assets.mjs:osbb sw'],
     [copy, "'sklad/sw.js'", 'copy-static-assets.mjs:sklad sw'],
