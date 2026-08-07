@@ -133,6 +133,8 @@ ID заголовка інвентаризації перевіряється ч
 Відповіді RPC видалення товару, видачі та надходження проходять
 `deleteInventoryResultFromRpcResponse`; невідомі `reason` й malformed-значення не
 сприймаються як успішне видалення.
+`runDeleteInventoryRpc` також перетворює як Supabase `{ error }`, так і rejected transport
+в однаковий retryable-результат `network` для PIN-модалки.
 Збережена staff-сесія OSBB проходить `parseStaffSession`; пошкоджені або невідомі
 ролі видаляються із `sessionStorage` до застосування role gating.
 Відповіді `list_osbb_staff` і `verify_staff_pin` також перевіряються через

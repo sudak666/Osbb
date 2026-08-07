@@ -1423,6 +1423,19 @@ function renderLog(){
 
 // ===== EDIT / DELETE LOG =====
 let deleteLogId=null,editLogId=null;
+async function runDeleteInventoryRpc(name,args){
+  try{
+    const {data,error}=await db.rpc(name,args);
+    if(error){
+      console.warn(name+' failed',error);
+      return {ok:false,reason:'network'};
+    }
+    return deleteInventoryResultFromRpcResponse(data);
+  }catch(error){
+    console.warn(name+' failed',error);
+    return {ok:false,reason:'network'};
+  }
+}
 function openDeleteLog(id){
   const l=allLogs.find(x=>x.id===id);
   if(!l) return;
@@ -1435,9 +1448,7 @@ async function confirmDeleteLog(){
   const id=deleteLogId;
   closeModal('delLogModal');
   showDeletePinModal('PIN для видалення запису', async (pin)=>{
-    const {data,error}=await db.rpc('delete_inventory_log',{p_log_id:id,attempt:pin});
-    if(error) return {ok:false,reason:'network'};
-    const result=deleteInventoryResultFromRpcResponse(data);
+    const result=await runDeleteInventoryRpc('delete_inventory_log',{p_log_id:id,attempt:pin});
     if(result.ok){
       toast('Запис видалено, товар повернуто на склад','success');
       deleteLogId=null;
@@ -1563,9 +1574,7 @@ async function confirmDeleteReceipt(){
   const id=deleteReceiptId;
   closeModal('delReceiptModal');
   showDeletePinModal('PIN для видалення приходу', async (pin)=>{
-    const {data,error}=await db.rpc('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
-    if(error) return {ok:false,reason:'network'};
-    const result=deleteInventoryResultFromRpcResponse(data);
+    const result=await runDeleteInventoryRpc('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
     if(result.ok){
       toast('Прихід видалено, залишок скориговано','success');
       deleteReceiptId=null;
@@ -1866,9 +1875,7 @@ async function confirmDelete(){
   const id=deleteItemId;
   closeModal('delModal');
   showDeletePinModal('PIN для видалення товару', async (pin)=>{
-    const {data,error}=await db.rpc('delete_inventory_item',{p_item_id:id,attempt:pin});
-    if(error) return {ok:false,reason:'network'};
-    const result=deleteInventoryResultFromRpcResponse(data);
+    const result=await runDeleteInventoryRpc('delete_inventory_item',{p_item_id:id,attempt:pin});
     if(result.ok){
       toast('Товар видалено','info');
       deleteItemId=null;
