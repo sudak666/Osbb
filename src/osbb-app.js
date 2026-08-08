@@ -2,6 +2,7 @@
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import { createAutoLockController } from './osbb-auto-lock.js';
     import { createOsbbLockController } from './osbb-lock-controller.js';
+    import { createOsbbLightboxController } from './osbb-lightbox-controller.js';
     import { createOsbbPinModalController } from './osbb-pin-modal-controller.js';
     import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
@@ -32,7 +33,7 @@
         removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
-    import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photoIdFromInsertResponse, photosFor, removePhoto } from './osbb-photos.js';
+    import { appendPhoto, buildPhotoCache, photoIdFromInsertResponse, photosFor, removePhoto } from './osbb-photos.js';
     import {
         garbageMonthBinsTotal,
         garbageMonthKey,
@@ -122,10 +123,14 @@
         dispatcher: dispData,
         shiftRows,
         photosCache,
-        lightboxPhotos,
         jiraIssues,
         elevatorData,
     } = createOsbbRuntimeState();
+
+    const lightboxController = createOsbbLightboxController({
+        document,
+        getPhotoCache: () => photosCache,
+    });
 
     function loadStaffSession() {
         staffSession = loadStoredStaffSession(sessionStorage);
@@ -1126,72 +1131,19 @@
         }).join('');
     }
 
-    let lightboxIndex = 0;
-    let lightboxFocusReturn = null;
-
-    // Запобігаємо виходу лайтбоксу за межі наявних картинок
     function openLightbox(url) {
-        const state=createLightboxState(photosCache,url);
-        if(!state) return;
-        lightboxPhotos=state.photos;
-        lightboxIndex=state.index;
-        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
-        const lightbox=document.getElementById('lightbox');
-        lightboxFocusReturn = document.activeElement;
-        lightbox.classList.add('open');
-        requestAnimationFrame(()=>lightbox.focus({preventScroll:true}));
+        lightboxController.open(url);
     }
     function closeLightbox() {
-        document.getElementById('lightbox').classList.remove('open');
-        const opener = lightboxFocusReturn;
-        lightboxFocusReturn = null;
-        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
+        lightboxController.close();
     }
-
-    // Виправлено: перемикання тепер працює стабільно по колу без застрягань
     function lightboxPrev() {
-        if (!lightboxPhotos.length) return;
-        lightboxIndex = moveLightbox({photos:lightboxPhotos,index:lightboxIndex},-1).index;
-        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
+        lightboxController.previous();
     }
     function lightboxNext() {
-        if (!lightboxPhotos.length) return;
-        lightboxIndex = moveLightbox({photos:lightboxPhotos,index:lightboxIndex},1).index;
-        document.getElementById('lightbox-img').src = lightboxPhotos[lightboxIndex];
+        lightboxController.next();
     }
-
-    (function() {
-        let startX = 0, startY = 0;
-        const lb = document.getElementById('lightbox');
-        lb.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, { passive: true });
-        lb.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - startX;
-            const dy = e.changedTouches[0].clientY - startY;
-            if (Math.abs(dy) > Math.abs(dx) && dy > 60) { closeLightbox(); return; }
-            if (Math.abs(dx) > 50 && Math.abs(dy) < 80) {
-                if (dx < 0) lightboxNext(); else lightboxPrev();
-            }
-        }, { passive: true });
-        document.addEventListener('keydown', e => {
-            if (!lb.classList.contains('open')) return;
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowRight') lightboxNext();
-            if (e.key === 'ArrowLeft') lightboxPrev();
-            if (e.key === 'Tab') {
-                const focusables = [...lb.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el => el.offsetParent !== null);
-                if (!focusables.length) return;
-                const first = focusables[0];
-                const last = focusables[focusables.length - 1];
-                if (e.shiftKey && document.activeElement === first) {
-                    e.preventDefault();
-                    last.focus({ preventScroll: true });
-                } else if (!e.shiftKey && document.activeElement === last) {
-                    e.preventDefault();
-                    first.focus({ preventScroll: true });
-                }
-            }
-        });
-    })();
+    lightboxController.bind();
 
     function closeDayDetail() {
         document.getElementById('day-detail-modal')?.classList.remove('open');

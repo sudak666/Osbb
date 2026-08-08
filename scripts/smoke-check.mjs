@@ -47,6 +47,7 @@ function readOsbbCombined() {
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
+    'src/osbb-lightbox-controller.ts',
     'src/osbb-lock-controller.ts',
     'src/osbb-pin-modal-controller.ts',
     'src/osbb-photos.ts',
@@ -612,7 +613,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'const focusDialog = (): void =>',
     'function handleKeydown(event: KeyboardEvent)',
     'let focusReturn: Element | null = null',
-    'lightboxFocusReturn',
+    'let focusReturn: Element | null = null',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1345,8 +1346,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb lightbox has a Tab focus trap';
   const required = [
-    "if (e.key === 'Tab') {",
-    'const focusables = [...lb.querySelectorAll(\'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])\')].filter(el => el.offsetParent !== null);',
+    "if (event.key !== 'Tab') return;",
+    'const focusables = [...modal.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)].filter(control => control.offsetParent !== null);',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
