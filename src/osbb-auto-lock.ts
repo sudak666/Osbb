@@ -11,19 +11,29 @@ export interface AutoLockController {
     stop(): void;
 }
 
+export function createAutoLockTimerApi(
+    host: Pick<Window, 'setTimeout' | 'clearTimeout'>,
+): AutoLockTimerApi {
+    return {
+        setTimeout: (callback, delay) => host.setTimeout(callback, delay),
+        clearTimeout: (handle) => host.clearTimeout(handle),
+    };
+}
+
 export function createAutoLockController(
     onLock: () => void,
     delay = DEFAULT_AUTO_LOCK_MS,
-    timers: AutoLockTimerApi = { setTimeout, clearTimeout },
+    timers?: AutoLockTimerApi,
 ): AutoLockController {
     if (typeof onLock !== 'function') throw new TypeError('Auto-lock callback is required');
     if (!Number.isSafeInteger(delay) || delay <= 0) throw new TypeError('Invalid auto-lock delay');
+    const timerApi = timers ?? createAutoLockTimerApi(window);
 
     let timer: number | null = null;
 
     const stop = (): void => {
         if (timer === null) return;
-        timers.clearTimeout(timer);
+        timerApi.clearTimeout(timer);
         timer = null;
     };
 
@@ -34,7 +44,7 @@ export function createAutoLockController(
 
     const reset = (): void => {
         stop();
-        timer = timers.setTimeout(lockNow, delay);
+        timer = timerApi.setTimeout(lockNow, delay);
     };
 
     return { reset, lockNow, stop };
