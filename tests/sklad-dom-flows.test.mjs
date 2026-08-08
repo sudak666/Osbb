@@ -151,6 +151,9 @@ test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
   assertIncludes(osbbStaffAuthController, 'parseStaffSettingsList(await deps.loadStaffSettings(session, pin))', 'staff settings must pass parser boundary');
   assertIncludes(osbbStaffAuthController, 'if (settingsBusy || !session || !canManageStaffAccess(session)', 'staff access updates must be role-gated and single-flight');
   assertIncludes(osbbStaffAuthController, '? parseStaffSession({', 'verified staff session must pass parser boundary');
+  assertIncludes(osbbApp, 'canManageStaffAccess as canManageStaffAccessForSession', 'staff settings gating helper must stay imported');
+  assertIncludes(osbbApp, '!canManageStaffAccessForSession(staffSession)', 'role gating must use the imported staff helper');
+  assert.doesNotMatch(osbbApp, /!canManageStaffAccess\(\)/u, 'removed local staff helper must not be called');
 });
 
 test('OSBB privileged action PIN modal keeps delegated keypad and server verification', () => {
