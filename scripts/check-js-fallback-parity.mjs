@@ -35,6 +35,7 @@ const fallbackPairs = [
   ['src/sklad-data-controller.ts', 'src/sklad-data-controller.js'],
   ['src/sklad-delete-pin-controller.ts', 'src/sklad-delete-pin-controller.js'],
   ['src/sklad-modal-controller.ts', 'src/sklad-modal-controller.js'],
+  ['src/sklad-item-menu-controller.ts', 'src/sklad-item-menu-controller.js'],
   ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
   ['src/sklad-movements.ts', 'src/sklad-movements.js'],

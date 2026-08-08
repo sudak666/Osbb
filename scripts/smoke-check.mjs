@@ -21,6 +21,7 @@ function readSkladCombined() {
     'src/sklad-data-controller.js',
     'src/sklad-delete-pin-controller.ts',
     'src/sklad-modal-controller.ts',
+    'src/sklad-item-menu-controller.js',
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-movements.ts',
@@ -763,17 +764,17 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readSkladCombined();
   const label = 'sklad item overflow menus close predictably';
   const required = [
-    'function setItemMenuExpanded',
-    'function closeOpenItemMenus',
+    'function setExpanded',
+    'function closeAll',
     "document.querySelectorAll('details.item-more[open]')",
-    'function handleItemMenuToggle',
-    'function handleItemMenuOutsideClick',
+    'function toggle',
+    'function outsideClick',
     'aria-haspopup="menu" aria-expanded="false"',
     'class="item-more-menu" role="menu"',
     'role="menuitem" data-item-action="photo"',
     'z-index:60;min-width:208px;max-height:min(62dvh,360px);overflow-y:auto;',
-    "if(menu.classList.contains('topbar-more'))",
-    "document.addEventListener('toggle',handleItemMenuToggle,true)",
+    "if (menu.classList.contains('topbar-more'))",
+    "document.addEventListener('toggle', toggle, true)",
     "openItemMenu?.querySelector('summary')?.focus({preventScroll:true})",
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -2227,9 +2228,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 // embedding per-row inline handlers for every rendered item action.
 {
   const text = readSkladCombined();
-  const start = text.indexOf('function handleItemActionClick');
-  const end = text.indexOf('function updateStats()');
-  const body = start >= 0 && end > start ? text.slice(start, end) : '';
+  const body = text;
   const label = 'sklad item actions use delegated data attributes';
   const forbidden = [
     'onclick="openQuick',
@@ -2240,7 +2239,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'onclick="openDelete(${id}',
   ];
   const required = [
-    'function bindItemActionDelegation',
+    'function bind()',
     'data-item-action="quick"',
     'data-item-action="history"',
     'data-item-action="delete"',
@@ -2396,17 +2395,17 @@ ${sharedSelectText}`;
   const text = readSkladCombined();
   const label = 'sklad item menus account for mobile viewport boundaries';
   const required = [
-    "const bottomNav=document.querySelector('.bottom-nav')",
-    "getComputedStyle(bottomNav).display!=='none'",
+    "const bottomNav = document.querySelector('.bottom-nav')",
+    "window.getComputedStyle(bottomNav).display !== 'none'",
     'bottomNav.getBoundingClientRect().top',
-    'const spaceAbove=Math.max(0,summaryRect.top-topBoundary-8)',
-    'const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-8)',
+    'const above = Math.max(0, summaryRect.top - padding - 8)',
+    'const below = Math.max(0, bottom - summaryRect.bottom - 8)',
     "panel.classList.add('is-viewport-positioned')",
-    "panel.style.maxHeight=visibleHeight+'px'",
-    'function repositionOpenItemMenus',
-    'itemMenuRepositionFrame=requestAnimationFrame',
-    "document.addEventListener('scroll',repositionOpenItemMenus,{passive:true,capture:true})",
-    "window.visualViewport?.addEventListener('resize',repositionOpenItemMenus,{passive:true})",
+    "panel.style.maxHeight = visibleHeight + 'px'",
+    'function reposition()',
+    'repositionFrame = window.requestAnimationFrame',
+    "document.addEventListener('scroll', reposition, { passive: true, capture: true })",
+    "window.visualViewport?.addEventListener('resize', reposition, { passive: true })",
     '.m-card.has-open-menu,.table-modern tr.has-open-menu{position:relative;z-index:90;}',
     '.item-more[open]{z-index:100;}',
   ];
@@ -2740,7 +2739,7 @@ ${sharedSelectText}`;
     '.table-modern{overflow:visible;}',
     '.table-modern thead tr:first-child th:first-child{border-top-left-radius:var(--radius-xl);}',
     '.item-more-menu.is-viewport-positioned{position:fixed;right:auto;bottom:auto;}',
-    "panel.style.maxHeight=visibleHeight+'px';",
+    "panel.style.maxHeight = visibleHeight + 'px';",
   ];
   const forbidden = [
     'class="btn btn-ghost btn-sm" data-item-action="photo" data-item-id="${id}" aria-label="Фото"',
@@ -2785,7 +2784,7 @@ ${sharedSelectText}`;
   const required = [
     'id="editItemModal" data-modal-backdrop="editItemModal"',
     'data-item-action="edit" data-item-id="${id}"',
-    "case 'edit': openEditItem(id); break;",
+    'edit:id=>openEditItem(id)',
     "async function confirmEditItem(button)",
     ".update({name,category,unit}).eq('id',item.id)",
     "normalizeSearchText(candidate.name)===normalizeSearchText(name)",
