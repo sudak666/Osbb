@@ -41,6 +41,7 @@ function readOsbbCombined() {
     'src/auth-session.ts',
     'src/shell-state.ts',
     'src/osbb-attendance.ts',
+    'src/osbb-client-state.ts',
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
