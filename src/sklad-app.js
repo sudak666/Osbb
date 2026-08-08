@@ -19,6 +19,7 @@ import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload,
 import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 import { createInventoryCollectionState, deleteInventoryResultFromRpcResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
+import { loadPurchasePriceRpcAvailable, loadStoredSupplierTags, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme, saveStoredSupplierTags } from './sklad-client-state.js';
 
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -33,16 +34,10 @@ const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Майно та матеріали'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
-const SUPPLIER_TAGS_STORAGE_KEY='sklad_supplier_tags_v1';
-const PURCHASE_PRICE_RPC_UNAVAILABLE_KEY='sklad_purchase_price_rpc_unavailable_v1';
-function loadPurchasePriceRpcAvailable(){
-  try{return localStorage.getItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY)!=='1';}
-  catch(e){return true;}
-}
-let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable();
+let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);
 function disablePurchasePriceRpc(){
   purchasePriceRpcAvailable=false;
-  try{localStorage.setItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY,'1');}catch(e){}
+  markPurchasePriceRpcUnavailable(localStorage);
 }
 function showPurchasePriceMigrationNotice(){
   console.info('Історія закупівельних цін стане доступною після міграції 009.');
@@ -763,14 +758,7 @@ function syncSupplierTags(targetId,value){
   });
 }
 function loadCustomSupplierTags(){
-  try{
-    const parsed=JSON.parse(localStorage.getItem(SUPPLIER_TAGS_STORAGE_KEY)||'[]');
-    const local=Array.isArray(parsed)?parsed:[];
-    return mergeSupplierTags([cloudSupplierTags,local]);
-  }catch(error){
-    console.warn('supplier tags load failed',error);
-    return [];
-  }
+  return mergeSupplierTags([cloudSupplierTags,loadStoredSupplierTags(localStorage)]);
 }
 async function loadSupplierTagsCloud(){
   const {data,error}=await db.from('inventory_supplier_tags').select('name').order('name').limit(50);
@@ -796,7 +784,7 @@ async function loadSupplierTagsCloud(){
 }
 function saveCustomSupplierTags(tags){
   try{
-    localStorage.setItem(SUPPLIER_TAGS_STORAGE_KEY,JSON.stringify(tags));
+    if(!saveStoredSupplierTags(localStorage,tags)) throw new Error('supplier tags storage unavailable');
     return true;
   }catch(error){
     console.warn('supplier tags save failed',error);
@@ -2445,8 +2433,8 @@ function applyTheme(theme){
   if(meta) meta.setAttribute('content', theme==='theme-dark' ? '#121214' : '#F2F2F7');
 }
 function toggleTheme(){
-  const next = document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark';
-  localStorage.setItem('sklad_theme', next);
+  const next = nextSkladTheme(document.body.classList.contains('theme-dark')?'theme-dark':'theme-light');
+  saveSkladTheme(localStorage,next);
   applyTheme(next);
 }
 applyTheme(document.body.className || 'theme-light');
