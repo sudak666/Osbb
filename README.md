@@ -9,15 +9,15 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | Шлях | Призначення |
 | --- | --- |
 | `index.html` | Головна shell-оболонка з PIN-входом, вкладками та iframe-завантаженням модулів; підключає TypeScript entrypoint `src/shell.ts` через Vite. |
-| `osbb/index.html` | Журнал ОСББ: чергування, сміття, диспетчер, фото, чат і локальний офлайн-кеш. |
+| `osbb/index.html` | Журнал ОСББ: заявки/диспетчер, сміття, табель, ліфтер і «Мої заявки». Старі журнал чергувань, графіки та чат видалені. |
 | `sklad/index.html` | Склад: товари, видача, приходи, інвентаризація, фото, QR, графіки та Excel-експорт. |
-| `src/shell.ts`, `src/shell-state.ts`, `src/auth-session.ts`, `src/supabase-api.ts` | TypeScript-шар головної shell-оболонки: DOM-контролер, стор стану, TTL сесії та typed RPC helper. |
+| `src/*.ts`, `src/*.js` | TypeScript-шар shell, спільний Supabase transport, чисті доменні модулі та browser-runnable JS fallback для журналу і складу. |
 | `src/database.types.ts` | Базові TypeScript-типи Supabase-сутностей і RPC, підготовлені до заміни на автоматично згенеровані типи зі схеми. |
 | `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `012_fix_work_shifts_month_key.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `021_repair_supplier_tags.sql`). |
 | `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
 
 ## Як працює авторизація
@@ -33,16 +33,16 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 Основні сутності, які видно з коду:
 
-- журнал: `schedule`, `photos`, `garbage`, `dispatcher`, `chat`, `work_shifts`, `osbb_app_auth`, `osbb_app_pin_attempts`, `osbb_telegram_config`;
+- журнал: `schedule`, `photos`, `garbage`, `dispatcher`, `work_shifts`, `osbb_staff`, `osbb_attendance`, `elevator_visits`, `osbb_app_auth`, `osbb_app_pin_attempts`;
 - склад: `inventory_items`, `inventory_logs`, `inventory_receipts`, `inventory_audits`, `inventory_audit_items`, `app_auth`, `app_pin_attempts`, `telegram_config`;
-- RPC: `verify_lock_pin`, `verify_reset_pin`, `reset_month`, `reset_work_shifts_month`, `verify_pin`, `delete_inventory_item`, `delete_inventory_log`, `delete_inventory_receipt`, `delete_chat_message`, `delete_photo`;
+- RPC: `verify_lock_pin`, `verify_reset_pin`, `list_osbb_staff`, `verify_staff_pin`, `save_attendance_day`, `reset_month`, `reset_work_shifts_month`, `verify_pin`, `issue_item`, `receive_item`, `delete_inventory_item`, `delete_inventory_log`, `delete_inventory_receipt`, `delete_photo`;
 - Storage bucket: `photos` (фото складу без префіксу, фото чергувань журналу — під `osbb-duty/`).
 
 Журнал і склад мають окремі `app_auth`-таблиці (`osbb_app_auth` — два PIN, вхід+скидання; `app_auth` складу — один PIN) — це не помилка, а свідоме рішення: два незалежні PIN-контури, а не єдина авторизація.
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `008_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `021_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -57,16 +57,20 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 11. `011_add_work_shifts.sql` — додає інтегрований графік змін Сергія та Олександра, realtime і PIN-захищене скидання корекцій місяця.
 12. `012_fix_work_shifts_month_key.sql` — виправляє constraint формату місяця у ранніх інсталяціях `011`, через який Supabase відхиляв збереження зміни.
 13. `013_secure_work_shifts.sql` — додає окремий PIN графіка, редаговані імена працівників і закриває прямий запис у `work_shifts`; перед виконанням замініть прикладовий PIN `2468` на власний.
+14. `014_journal_staff_auth.sql` — персональні staff-акаунти та ролі журналу.
+15. `015_add_board_role.sql` — роль «Правління» з повним доступом.
+16. `016_add_elevator_log.sql` — журнал приїздів ліфтера.
+17. `017_fix_attendance_board_role.sql` — дозволяє ролі `board` зберігати табель.
+18. `018_fix_attendance_jsonb_set.sql` — виправляє збереження першого запису дня в табелі.
+19. `019_staff_login_settings.sql` — керування персональним PIN-входом.
+20. `020_allow_board_manage_staff_access.sql` — дозволяє правлінню керувати доступом працівників.
+21. `021_repair_supplier_tags.sql` — безпечно відновлює теги постачальників, права, RLS і Realtime.
 
-Для вже розгорнутої бази, де запит до `inventory_supplier_tags` повертає `404`,
-застосуйте `021_repair_supplier_tags.sql`: міграція безпечно відновлює таблицю,
-RLS-політики, права клієнта та Realtime-публікацію.
-
-`supabase/migrations/` тепер містить timestamp-дзеркала цих самих `001_...` → `008_...` SQL-файлів у форматі Supabase CLI. Поки історичні файли в `sklad/supabase/` лишаються основним людським джерелом правди, `npm run test:migrations` перевіряє, що CLI-міграції не роз'їхались із ними. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта. Коли проєкт повністю перейде на Supabase CLI, нові зміни БД треба додавати одразу як нові timestamp-файли в `supabase/migrations/`, а функції — у `supabase/functions/`, а не як ручні snippets.
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `021_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
 
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
-Перед production-використанням замініть прикладові PIN-и у SQL-файлах на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), скидання місяця, видалення фото/чату та видалення складських записів.
+Перед production-використанням замініть прикладові PIN-и у Supabase Dashboard на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), staff-вхід, табель, скидання місяця, видалення фото та складських записів.
 
 ## Товари для внутрішнього використання (хознужди)
 
@@ -92,8 +96,6 @@ supabase secrets set TELEGRAM_CHAT_ID=ваш_chat_id --project-ref vkwkyhjjjmcpm
 ```
 
 `--no-verify-jwt` потрібен тому, що клієнт авторизується новим форматом ключів Supabase (`sb_publishable_...`), який не є JWT. Після деплою перевірте, що додавання/прихід/видача товару в Складі надсилають повідомлення у ваш Telegram-чат.
-
-Той самий бот (токен у таблиці `telegram_config`) шле і сповіщення про повідомлення в чаті журналу — але в інший Telegram-чат: `chat_id` для журналу зберігається окремо, в `osbb_telegram_config` (див. `sklad/supabase/005_merge_osbb_journal.sql`), не в `telegram_config`.
 
 Швидка перевірка після деплою з Windows PowerShell:
 
