@@ -16,20 +16,14 @@
     <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="/Osbb/shared/ui.css">
     <link rel="stylesheet" href="/Osbb/shared/material-tokens.css">
+    <link rel="stylesheet" href="./tailwind.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
     <script src="/Osbb/shared/material-symbols-ready.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал ОСББ "Микитська Слобода"</title>
-    <script>
-        // Придушуємо Tailwind CDN warning
-        const _cw = console.warn.bind(console);
-        console.warn = (...a) => { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; _cw(...a); };
-    </script>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://vkwkyhjjjmcpmiakxohw.supabase.co" crossorigin>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
