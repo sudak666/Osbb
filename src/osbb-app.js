@@ -54,14 +54,12 @@
         STAFF_ROLE_ICONS,
         STAFF_ROLE_LABELS,
         WORKER_ROLES,
-        canManageStaffAccess as canManageStaffAccessForSession,
         clearStoredStaffSession,
         isDispatcherSession as isDispatcherStaffSession,
         isTabAllowedForSession as isStaffTabAllowed,
         isWorkerSession as isWorkerStaffSession,
         loadStoredStaffSession,
         normalizeWorkerRole,
-        parseStaffSettingsList,
         saveStoredStaffSession,
     } from './osbb-staff.js';
     import {
@@ -145,60 +143,6 @@
         openStaffLogin();
     }
 
-    function canManageStaffAccess() {
-        return canManageStaffAccessForSession(staffSession);
-    }
-
-    async function openStaffSettings() {
-        if (!canManageStaffAccess()) return;
-        if (!staffPinCache && !await requestStaffReauth()) return;
-        const modal = document.getElementById('staff-settings-modal');
-        const list = document.getElementById('staff-settings-list');
-        if (!modal || !list) return;
-        modal.style.display = 'flex';
-        list.innerHTML = '<div class="staff-login-loading">Завантаження...</div>';
-        try {
-            const rows = await db.rpc('list_osbb_staff_settings', { p_staff_id: staffSession.id, attempt: staffPinCache });
-            renderStaffSettings(parseStaffSettingsList(rows));
-        } catch (error) {
-            console.error('staff settings load error:', error);
-            list.innerHTML = '<div class="staff-login-loading">Не вдалося завантажити користувачів</div>';
-        }
-    }
-
-    function renderStaffSettings(rows) {
-        const list = document.getElementById('staff-settings-list');
-        if (!list) return;
-        list.innerHTML = rows.map(person => {
-            const isCurrent = String(person.id) === String(staffSession?.id);
-            return `<div class="staff-login-item">
-                <span class="staff-login-item-name">${escapeHtml(person.full_name)}</span>
-                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[person.role] || person.role)}</span>
-                <button type="button" class="journal-tonal-btn md-state-layer" data-staff-active="${escapeAttr(person.id)}" data-next-active="${person.active ? 'false' : 'true'}" ${isCurrent ? 'disabled' : ''}>${person.active ? 'Вимкнути' : 'Увімкнути'}</button>
-            </div>`;
-        }).join('') || '<div class="staff-login-loading">Налаштування доступу ще не оновлено в базі даних</div>';
-    }
-
-    async function setStaffActive(button) {
-        if (!canManageStaffAccess() || !staffPinCache) return;
-        button.disabled = true;
-        try {
-            const ok = await db.rpc('set_osbb_staff_active', {
-                p_staff_id: staffSession.id,
-                attempt: staffPinCache,
-                p_target_staff_id: button.dataset.staffActive,
-                p_active: button.dataset.nextActive === 'true'
-            });
-            if (!ok) throw new Error('Зміну відхилено');
-            await openStaffSettings();
-            showToast('Доступ користувача оновлено');
-        } catch (error) {
-            console.error('staff access update error:', error);
-            showToast(error instanceof Error ? error.message : 'Не вдалося змінити доступ');
-            button.disabled = false;
-        }
-    }
-
     const staffAuthController = createOsbbStaffAuthController({
         document,
         isPreview: IS_PREVIEW,
@@ -211,12 +155,33 @@
                 <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[s.role] || s.role)}</span>
             </button>
         `).join(''),
+        renderStaffSettings: (rows, currentStaffId) => rows.map(person => `
+            <div class="staff-login-item">
+                <span class="staff-login-item-name">${escapeHtml(person.full_name)}</span>
+                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[person.role] || person.role)}</span>
+                <button type="button" class="journal-tonal-btn md-state-layer" data-staff-active="${escapeAttr(person.id)}" data-next-active="${person.active ? 'false' : 'true'}" ${String(person.id) === String(currentStaffId) ? 'disabled' : ''}>${person.active ? 'Вимкнути' : 'Увімкнути'}</button>
+            </div>
+        `).join(''),
+        getSession: () => staffSession,
+        getPin: () => staffPinCache,
+        loadStaffSettings: (session, pin) => db.rpc('list_osbb_staff_settings', { p_staff_id: session.id, attempt: pin }),
+        setStaffActive: (session, pin, targetStaffId, active) => db.rpc('set_osbb_staff_active', {
+            p_staff_id: session.id,
+            attempt: pin,
+            p_target_staff_id: targetStaffId,
+            p_active: active,
+        }),
         onAuthenticated: (session, pin) => {
             staffSession = session;
             staffPinCache = pin;
             saveStaffSession();
             applyRoleGating();
-        }
+        },
+        onAccessUpdated: () => showToast('Доступ користувача оновлено'),
+        onError: (message, error) => {
+            console.error('staff access error:', error);
+            showToast(message);
+        },
     });
 
     const pinModalController = createOsbbPinModalController({
@@ -1330,13 +1295,11 @@
 
         document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
         document.querySelector('[data-staff-switch]')?.addEventListener('click', staffLogout);
-        document.querySelector('[data-staff-settings-open]')?.addEventListener('click', openStaffSettings);
-        document.querySelector('[data-staff-settings-close]')?.addEventListener('click', () => {
-            document.getElementById('staff-settings-modal').style.display = 'none';
-        });
+        document.querySelector('[data-staff-settings-open]')?.addEventListener('click', staffAuthController.openSettings);
+        document.querySelector('[data-staff-settings-close]')?.addEventListener('click', staffAuthController.closeSettings);
         document.getElementById('staff-settings-list')?.addEventListener('click', event => {
             const button = event.target.closest('[data-staff-active]');
-            if (button) setStaffActive(button);
+            if (button) staffAuthController.toggleAccess(button);
         });
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
             select.addEventListener('change', initCalendar);
