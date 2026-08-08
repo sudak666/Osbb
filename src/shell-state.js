@@ -18,7 +18,7 @@ export class ShellStore {
     get lockFails() { return this.#lockFails; }
 
     pushDigit(digit) {
-        if (this.#lockBusy || this.#lockBuf.length >= 4) return;
+        if (this.#lockBusy || this.#lockBuf.length >= 4 || typeof digit !== 'string' || !/^\d$/.test(digit)) return;
         this.#lockBuf += digit;
     }
 
@@ -41,8 +41,8 @@ export class ShellStore {
         this.#lockBusy = false;
     }
 
-    isTabLoaded(name) { return Boolean(this.#loadedTabs[name]); }
-    markTabLoaded(name) { this.#loadedTabs[name] = true; }
+    isTabLoaded(name) { return isShellTabName(name) && Boolean(this.#loadedTabs[name]); }
+    markTabLoaded(name) { if (isShellTabName(name)) this.#loadedTabs[name] = true; }
 
     snapshot() {
         return {

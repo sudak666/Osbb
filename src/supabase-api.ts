@@ -73,12 +73,32 @@ interface RestQueryState {
 
 export const SUPABASE_URL = 'https://vkwkyhjjjmcpmiakxohw.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_KV2ZYS0ELpHPO9cX10Z9Tw_veUObkM9';
+const MAX_RESPONSE_TEXT_LENGTH = 1_000_000;
+const MAX_ERROR_TEXT_LENGTH = 4_000;
+
+function boundedErrorMessage(error: unknown): string {
+    const message = error instanceof Error ? error.message : String(error);
+    return message.slice(0, MAX_ERROR_TEXT_LENGTH);
+}
+
+function assertIdentifier(value: unknown, label: string): string {
+    if (typeof value !== 'string' || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) throw new TypeError(`Invalid ${label}`);
+    return value;
+}
+
+function storagePath(value: unknown): string {
+    if (typeof value !== 'string' || !value || value.length > 1024) throw new TypeError('Invalid storage path');
+    const segments = value.split('/');
+    if (segments.some((segment) => !segment || segment === '.' || segment === '..')) throw new TypeError('Invalid storage path');
+    return segments.map(encodeURIComponent).join('/');
+}
 
 export function buildRpcUrl(fn: string, supabaseUrl = SUPABASE_URL): string {
     return `${supabaseUrl.replace(/\/$/, '')}/rest/v1/rpc/${encodeURIComponent(fn)}`;
 }
 
 export function parseRpcResponseText<T = unknown>(text: string): T | null {
+    if (typeof text !== 'string' || text.length > MAX_RESPONSE_TEXT_LENGTH) throw new RangeError('Supabase response is too large');
     return text ? JSON.parse(text) as T : null;
 }
 
@@ -109,7 +129,8 @@ export function createRpcClient(options: RpcClientOptions = {}) {
             body: JSON.stringify(params)
         });
         const txt = await r.text();
-        if (!r.ok) throw new Error(txt || r.statusText);
+        if (txt.length > MAX_RESPONSE_TEXT_LENGTH) throw new RangeError('Supabase response is too large');
+        if (!r.ok) throw new Error((txt || r.statusText).slice(0, MAX_ERROR_TEXT_LENGTH));
         return parseRpcResponseText<T>(txt);
     }
 
@@ -128,12 +149,14 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
         const response = await fetcher(url, { method, headers: { ...auth, ...headers }, body });
         if (!response.ok) {
             const text = await response.text();
-            throw new Error(`${response.status}: ${text || response.statusText}`);
+            if (text.length > MAX_RESPONSE_TEXT_LENGTH) throw new RangeError('Supabase response is too large');
+            throw new Error(`${response.status}: ${(text || response.statusText).slice(0, MAX_ERROR_TEXT_LENGTH)}`);
         }
         return parseRpcResponseText(await response.text());
     }
 
     function from<Table extends PublicTableName>(table: Table) {
+        assertIdentifier(table, 'table name');
         const state: RestQueryState = { filters: [], method: 'GET', body: null, isSingle: false, isMaybeSingle: false, columns: '*', isUpsert: false };
         const query = {
             select(columns = '*') { state.columns = columns; return query; },
@@ -160,7 +183,7 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
                         resolve({ data: row, error: row || state.isMaybeSingle ? null : { code: 'PGRST116' } });
                     } else resolve({ data: data || [], error: null });
                 } catch (error) {
-                    resolve({ data: null, error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) } });
+                    resolve({ data: null, error: { code: 'FETCH_ERROR', message: boundedErrorMessage(error) } });
                 }
             },
         };
@@ -188,7 +211,7 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
         } catch (error) {
             return {
                 data: null,
-                error: { code: 'FETCH_ERROR', message: error instanceof Error ? error.message : String(error) },
+                error: { code: 'FETCH_ERROR', message: boundedErrorMessage(error) },
             };
         }
     }
@@ -199,11 +222,13 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
         from,
         storage: {
             from(bucket: string) {
+                assertIdentifier(bucket, 'storage bucket');
                 const base = `${supabaseUrl}/storage/v1/object`;
                 return {
                     async upload(path: string, blob: BodyInit, settings: { contentType?: string; upsert?: boolean } = {}) {
                         try {
-                            await request('POST', `${base}/${bucket}/${path}`, {
+                            const encodedPath = storagePath(path);
+                            await request('POST', `${base}/${bucket}/${encodedPath}`, {
                                 'Content-Type': settings.contentType || 'image/jpeg',
                                 'x-upsert': String(settings.upsert !== false),
                             }, blob);
@@ -211,13 +236,17 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
                         } catch (error) {
                             return {
                                 data: null,
-                                error: { code: 'STORAGE_ERROR', message: error instanceof Error ? error.message : String(error) },
+                                error: { code: 'STORAGE_ERROR', message: boundedErrorMessage(error) },
                             };
                         }
                     },
-                    getPublicUrl(path: string) { return { data: { publicUrl: `${base}/public/${bucket}/${path}` } }; },
+                    getPublicUrl(path: string) { return { data: { publicUrl: `${base}/public/${bucket}/${storagePath(path)}` } }; },
                     async remove(paths: string[]) {
-                        try { await request('DELETE', `${base}/${bucket}`, { 'Content-Type': 'application/json' }, JSON.stringify({ prefixes: paths })); } catch { /* сумісність із попереднім клієнтом */ }
+                        try {
+                            if (!Array.isArray(paths) || paths.length > 100) throw new TypeError('Invalid storage paths');
+                            paths.forEach(storagePath);
+                            await request('DELETE', `${base}/${bucket}`, { 'Content-Type': 'application/json' }, JSON.stringify({ prefixes: paths }));
+                        } catch { /* сумісність із попереднім клієнтом */ }
                         return {};
                     },
                 };

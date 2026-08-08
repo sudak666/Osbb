@@ -113,6 +113,16 @@ test('ShellController switches tabs with lazy iframe loading and ARIA state', ()
   assert.equal(doc.getElementById('shell-tab-journal').getAttribute('aria-selected'), 'false');
 });
 
+test('ShellController ignores unknown tab payloads', () => {
+  globalThis.sessionStorage = memoryStorage();
+  const { controller, doc } = makeController();
+  controller.switchTab('__proto__');
+  controller.switchTab('<img onerror=alert(1)>');
+  assert.equal(doc.getElementById('frame-journal').src, '');
+  assert.equal(doc.getElementById('frame-sklad').src, '');
+  assert.equal(doc.getElementById('frame-promin').src, '');
+});
+
 test('ShellController verifies a complete PIN through Supabase RPC and unlocks shell on success', async () => {
   globalThis.sessionStorage = memoryStorage();
   const { controller, doc, calls } = makeController({ rpcResult: true });

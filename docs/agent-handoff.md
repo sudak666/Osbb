@@ -280,6 +280,9 @@ DevTools Issues.
   - Серпень 2026: завершено пакет складських supplier tags і зовнішнього Promin API:
     bounded ingress для назв/HTML/ID, ліміти масивів та полів, відсікання вкладених
     call/pult payload. Звіти й аудит перевірені як downstream валідованих складських даних.
+  - Серпень 2026: завершено пакет shell/auth/Supabase transport: timestamps не можуть
+    бути майбутніми або malformed, PIN/tab/postMessage мають whitelist/source guards,
+    REST/storage ingress обмежує response/error size і відхиляє traversal/resource payload.
 - Візуальні зміни виконувати окремо за `docs/ui-redesign-notes.md` зі screenshot,
   щоб рефакторинг логіки залишався перевірюваним і без непомітних UI-регресій.
 - Не додавати framework або нові залежності без окремого погодження.

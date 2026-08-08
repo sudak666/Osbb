@@ -147,6 +147,9 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         doc.addEventListener('visibilitychange', handleVisibilityLockTimer);
         win.addEventListener('message', (event: MessageEvent) => {
             if (event.origin !== win.location.origin) return;
+            const fromShellFrame = [...doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe')]
+                .some((frame) => frame.contentWindow === event.source);
+            if (!fromShellFrame) return;
             if (event.data && event.data.type === 'osbb:user-activity') resetIdleLockTimer();
         });
 
@@ -166,6 +169,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     }
 
     function switchTab(name: ShellTabName): void {
+        if (!isShellTabName(name)) return;
         loadTab(name);
         doc.querySelectorAll('.shell-tab-btn').forEach(b => {
             b.classList.remove('active');
