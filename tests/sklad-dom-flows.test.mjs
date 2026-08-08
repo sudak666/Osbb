@@ -9,6 +9,7 @@ const skladClientState = normalizeNewlines(readFileSync(new URL('../src/sklad-cl
 const skladAuth = normalizeNewlines(readFileSync(new URL('../src/sklad-auth.js', import.meta.url), 'utf8'));
 const skladAuthController = normalizeNewlines(readFileSync(new URL('../src/sklad-auth-controller.js', import.meta.url), 'utf8'));
 const skladDeletePinController = normalizeNewlines(readFileSync(new URL('../src/sklad-delete-pin-controller.js', import.meta.url), 'utf8'));
+const skladDataController = normalizeNewlines(readFileSync(new URL('../src/sklad-data-controller.js', import.meta.url), 'utf8'));
 const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
 const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
 const osbbStaffAuthController = normalizeNewlines(readFileSync(new URL('../src/osbb-staff-auth-controller.js', import.meta.url), 'utf8'));
@@ -78,7 +79,7 @@ test('Sklad movement history distinguishes transport errors from empty results',
 });
 
 test('Sklad receipt load errors escape transport text before HTML rendering', () => {
-  assertIncludes(skladApp, "const msg=msIcon('warning')+' '+escapeHtml(error.message);", 'receipt error HTML must escape transport text');
+  assertIncludes(skladDataController, "const message = iconHtml('warning') + ' ' + escapeHtml(error.message);", 'receipt error HTML must escape transport text');
 });
 
 test('Sklad delete RPC flow handles returned and thrown transport errors', () => {
