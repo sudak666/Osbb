@@ -16,6 +16,14 @@ export interface StaffSettingsEntry extends StaffListEntry {
     active: boolean;
 }
 
+export interface StaffSessionStorage {
+    getItem(key: string): string | null;
+    setItem(key: string, value: string): void;
+    removeItem(key: string): void;
+}
+
+export const STAFF_SESSION_KEY = 'osbb_staff_session';
+
 const STAFF_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES: readonly StaffRole[] = ['plumber', 'janitor', 'electrician'];
 export const WORKER_ALLOWED_TABS: readonly string[] = ['tabel', 'my-tickets'];
@@ -52,6 +60,34 @@ export function parseStaffSession(value: unknown): StaffSession | null {
         name,
         role: session.role as StaffRole,
     };
+}
+
+export function loadStoredStaffSession(storage: StaffSessionStorage): StaffSession | null {
+    try {
+        const raw = storage.getItem(STAFF_SESSION_KEY);
+        if (!raw) return null;
+        const session = parseStaffSession(JSON.parse(raw));
+        if (!session) storage.removeItem(STAFF_SESSION_KEY);
+        return session;
+    } catch {
+        try { storage.removeItem(STAFF_SESSION_KEY); } catch {}
+        return null;
+    }
+}
+
+export function saveStoredStaffSession(storage: StaffSessionStorage, value: StaffSession): boolean {
+    const session = parseStaffSession(value);
+    if (!session) return false;
+    try {
+        storage.setItem(STAFF_SESSION_KEY, JSON.stringify(session));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export function clearStoredStaffSession(storage: StaffSessionStorage): void {
+    try { storage.removeItem(STAFF_SESSION_KEY); } catch {}
 }
 
 export function parseStaffSettingsList(value: unknown): StaffSettingsEntry[] {
