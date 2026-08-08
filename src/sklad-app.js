@@ -5,7 +5,6 @@ import {
   normalizeSearchText,
   valuesMatchSearch,
 } from './sklad-domain.js';
-import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';
 import {
   formatMoney as money,
   isPurchasePriceSchemaError,
@@ -15,9 +14,9 @@ import {
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { isAuthSessionValid } from './auth-session.js';
 import { numericIdFromInsertResponse } from './supabase-api.js';
-import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
+import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { createInventoryCollectionState, deleteInventoryResultFromRpcResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
+import { createInventoryCollectionState, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 import { loadPurchasePriceRpcAvailable, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 import { createSkladModalController } from './sklad-modal-controller.js';
@@ -99,8 +98,24 @@ const addCustomSupplierTag=()=>supplierController.add();
 const requestRemoveCustomSupplierTag=tag=>supplierController.requestRemove(tag);
 const confirmRemoveCustomSupplierTag=()=>supplierController.confirmRemove();
 
-const movementsController=createSkladMovementsController({db});
+const movementsController=createSkladMovementsController({db,document,getItems:()=>allItems,getLogs:()=>allLogs,getReceipts:()=>allReceipts,
+  openModal,closeModal,requestDeletePin:showDeletePinModal,toast,loadItems,loadLogs,loadReceipts,optionalPrice,syncSupplierTags,
+  isPurchasePriceSchemaError,showPurchasePriceMigrationNotice,setButtonLoading:setActionButtonLoading,refreshSelect:refreshEnhancedSelect,
+  notifyTelegram,inventoryUnit:inventoryUnitFromRpcResponse,getPurchasePriceRpcAvailable:()=>purchasePriceRpcAvailable,disablePurchasePriceRpc,
+  populateSelects:populateSels,renderLowStock:renderAddLow,loadRecentIssues,findItem:findItemForAction});
 const runDeleteInventoryRpc=(name,args)=>movementsController.runDelete(name,args);
+const openDeleteLog=id=>movementsController.openDeleteLog(id);
+const confirmDeleteLog=()=>movementsController.confirmDeleteLog();
+const openDeleteReceipt=id=>movementsController.openDeleteReceipt(id);
+const confirmDeleteReceipt=()=>movementsController.confirmDeleteReceipt();
+const openEditLog=id=>movementsController.openEditLog(id);
+const confirmEditLog=()=>movementsController.saveEditLog();
+const openEditReceipt=id=>movementsController.openEditReceipt(id);
+const confirmEditReceipt=()=>movementsController.saveEditReceipt();
+const doQuickIssue=button=>movementsController.submitQuickIssue(button,quickId);
+const doIssue=button=>movementsController.submitIssue(button);
+const issueItem=(itemId,quantity,person,note,occurredAt)=>movementsController.issueItem(itemId,quantity,person,note,occurredAt);
+const doRefill=button=>movementsController.submitReceipt(button);
 
 const photoController=createSkladPhotoController({db,document,window,getItem:findItemForAction,loadItems,openModal,closeModal,requestDeletePin:showDeletePinModal,toast});
 const openPhotoModal=id=>photoController.open(id);
@@ -705,24 +720,6 @@ function openQuick(id){
   openModal('qModal');
   setTimeout(()=>document.getElementById('qmQtyI').focus(),100);
 }
-async function doQuickIssue(btn){
-  const payload=buildIssuePayload({
-    itemId:quickId,
-    quantity:document.getElementById('qmQtyI').value,
-    person:document.getElementById('qmPersonI').value
-  });
-  if(!payload.ok) return toast(payload.error==='person'?'Вкажіть кому!':'Вкажіть кількість!','error');
-  const done=setActionButtonLoading(btn,'Видаю...');
-  if(!done) return;
-  try{
-    const {itemId,quantity,person}=payload.value;
-    const ok=await issueItem(itemId,quantity,person,'');
-    if(ok) closeModal('qModal');
-  }finally{
-    done();
-  }
-}
-
 // ===== ISSUE PAGE =====
 function onIssueSel(){
   const id=parseInt(document.getElementById('issueItemSel').value);
@@ -731,60 +728,6 @@ function onIssueSel(){
   if(!item){box.style.display='none';return;}
   box.style.display='block';
   document.getElementById('issueInfoQty').textContent=item.quantity+' '+item.unit;
-}
-async function doIssue(btn){
-  const payload=buildIssuePayload({
-    itemId:document.getElementById('issueItemSel').value,
-    quantity:document.getElementById('issueQtyI').value,
-    person:document.getElementById('issuePersonI').value,
-    note:document.getElementById('issueNoteI').value,
-    occurredAt:dateInputToTimestamp(document.getElementById('issueDateI').value)
-  });
-  if(!payload.ok){
-    const messages={item:'Оберіть товар!',quantity:'Вкажіть кількість!',person:'Вкажіть кому!'};
-    return toast(messages[payload.error]||'Перевірте дані видачі','error');
-  }
-  const done=setActionButtonLoading(btn,'Видаю...');
-  if(!done) return;
-  try{
-    const {itemId,quantity,person,note,occurredAt}=payload.value;
-    const ok=await issueItem(itemId,quantity,person,note,occurredAt);
-    if(!ok) return;
-    ['issueItemSel','issueQtyI','issuePersonI','issueNoteI'].forEach(k=>document.getElementById(k).value='');
-    document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
-    refreshEnhancedSelect(document.getElementById('issueItemSel'));
-    document.getElementById('issueInfo').style.display='none';
-    loadRecentIssues();
-  }catch(error){
-    console.error('issue submit failed:',error);
-    toast('Не вдалося виконати видачу. Спробуйте ще раз.','error');
-  }finally{
-    done();
-  }
-}
-async function issueItem(itemId,qty,person,note,issueDate){
-  const item=allItems.find(i=>i.id===itemId);
-  if(!item){toast('Товар не знайдено!','error');return false;}
-  const issuedAt=issueDate?.includes('T')?issueDate:dateInputToTimestamp(issueDate);
-  // Атомарний RPC замість read-check-write з клієнта: перевірка залишку і
-  // списання відбуваються однією транзакцією на сервері (issue_item),
-  // тому паралельна видача того самого товару не може дати від'ємний залишок.
-  const {data,error}=await db.rpc('issue_item',{
-    p_item_id:itemId, p_qty:qty, p_person:person, p_note:note||null, p_issued_at:issuedAt||null
-  });
-  if(error){
-    if((error.message||'').includes('insufficient_stock')){
-      toast('Недостатньо! Залишок: '+item.quantity+' '+item.unit,'error');
-    }else{
-      toast('Помилка: '+error.message,'error');
-    }
-    return false;
-  }
-  const unit=inventoryUnitFromRpcResponse(data,item.unit);
-  toast('Видано: '+qty+' '+unit+' → '+person,'success');
-  notifyTelegram('📤 Видача: '+item.name+' −'+qty+' '+unit+' → '+person+(note?' ('+note+')':''));
-  await loadItems();
-  return true;
 }
 async function loadRecentIssues(){
   const el=document.getElementById('recentIssues');
@@ -887,68 +830,6 @@ function renderLog(){
 }
 
 // ===== EDIT / DELETE LOG =====
-let deleteLogId=null,editLogId=null;
-function openDeleteLog(id){
-  const l=allLogs.find(x=>x.id===id);
-  if(!l) return;
-  deleteLogId=id;
-  document.getElementById('delLogItemName').textContent=`${l.item_name} · ${l.quantity} ${(allItems.find(i=>i.id===l.item_id)||{}).unit||''} · ${l.issued_to||'—'}`;
-  openModal('delLogModal');
-}
-async function confirmDeleteLog(){
-  if(!deleteLogId) return;
-  const id=deleteLogId;
-  closeModal('delLogModal');
-  showDeletePinModal('PIN для видалення запису', async (pin)=>{
-    const result=await runDeleteInventoryRpc('delete_inventory_log',{p_log_id:id,attempt:pin});
-    if(result.ok){
-      toast('Запис видалено, товар повернуто на склад','success');
-      deleteLogId=null;
-      await loadItems();await loadLogs();
-    }
-    return result;
-  });
-}
-function openEditLog(id){
-  const l=allLogs.find(x=>x.id===id);
-  if(!l) return;
-  editLogId=id;
-  const item=allItems.find(i=>i.id===l.item_id);
-  document.getElementById('editLogItemName').textContent=`${l.item_name}${item?' · поточний залишок: '+item.quantity+' '+item.unit:''}`;
-  document.getElementById('editLogQty').value=l.quantity;
-  document.getElementById('editLogDate').value=dateToInputValue(l.issued_at);
-  document.getElementById('editLogPerson').value=l.issued_to||'';
-  document.getElementById('editLogNote').value=l.note||'';
-  openModal('editLogModal');
-}
-async function confirmEditLog(){
-  if(!editLogId) return;
-  const l=allLogs.find(x=>x.id===editLogId);
-  if(!l) return closeModal('editLogModal');
-  const patchResult=buildIssueEditPatch({
-    quantity:document.getElementById('editLogQty').value,
-    person:document.getElementById('editLogPerson').value,
-    note:document.getElementById('editLogNote').value,
-    occurredAt:dateInputToTimestamp(document.getElementById('editLogDate').value)
-  });
-  if(!patchResult.ok) return toast('Введіть коректну кількість','error');
-  const logPatch=patchResult.value;
-  const newQty=logPatch.quantity;
-  const item=allItems.find(i=>i.id===l.item_id);
-  if(item){
-    const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,l.quantity,newQty,'issue');
-    if(adjustedStock===null) return toast('Недостатньо товару на складі для такої кількості','error');
-    await db.from('inventory_items').update({quantity:adjustedStock}).eq('id',item.id);
-  }
-  const {error}=await db.from('inventory_logs').update(logPatch).eq('id',editLogId);
-  if(error) return toast('Помилка: '+error.message,'error');
-  toast('Запис оновлено','success');
-  closeModal('editLogModal');
-  editLogId=null;
-  await loadItems();await loadLogs();
-}
-
-// ===== RECEIPTS (ПРИХІД) =====
 function renderReceipts(){
   const s=document.getElementById('recSearch').value;
   const recs=filterInventoryReceipts(allReceipts,s);
@@ -1013,84 +894,6 @@ function renderReceipts(){
     </div>`;
   }).join('');
 }
-let deleteReceiptId=null,editReceiptId=null;
-function openDeleteReceipt(id){
-  const r=allReceipts.find(x=>x.id===id);
-  if(!r) return;
-  deleteReceiptId=id;
-  document.getElementById('delReceiptItemName').textContent=`${r.item_name} · +${r.quantity} ${(allItems.find(i=>i.id===r.item_id)||{}).unit||''} · ${r.supplier||'—'}`;
-  openModal('delReceiptModal');
-}
-async function confirmDeleteReceipt(){
-  if(!deleteReceiptId) return;
-  const id=deleteReceiptId;
-  closeModal('delReceiptModal');
-  showDeletePinModal('PIN для видалення приходу', async (pin)=>{
-    const result=await runDeleteInventoryRpc('delete_inventory_receipt',{p_receipt_id:id,attempt:pin});
-    if(result.ok){
-      toast('Прихід видалено, залишок скориговано','success');
-      deleteReceiptId=null;
-      await loadItems();await loadReceipts();
-    }
-    return result;
-  });
-}
-function openEditReceipt(id){
-  const r=allReceipts.find(x=>x.id===id);
-  if(!r) return;
-  editReceiptId=id;
-  const item=allItems.find(i=>i.id===r.item_id);
-  document.getElementById('editReceiptItemName').textContent=`${r.item_name}${item?' · поточний залишок: '+item.quantity+' '+item.unit:''}`;
-  document.getElementById('editReceiptQty').value=r.quantity;
-  document.getElementById('editReceiptDate').value=dateToInputValue(r.received_at);
-  document.getElementById('editReceiptPrice').value=r.purchase_price_unit||item?.price_unit||'';
-  document.getElementById('editReceiptSupplier').value=r.supplier||'';
-  syncSupplierTags('editReceiptSupplier',r.supplier||'');
-  document.getElementById('editReceiptNote').value=r.note||'';
-  openModal('editReceiptModal');
-}
-async function confirmEditReceipt(){
-  if(!editReceiptId) return;
-  const r=allReceipts.find(x=>x.id===editReceiptId);
-  if(!r) return closeModal('editReceiptModal');
-  const patchResult=buildReceiptEditPatch({
-    quantity:document.getElementById('editReceiptQty').value,
-    purchasePrice:optionalPrice(document.getElementById('editReceiptPrice').value),
-    supplier:document.getElementById('editReceiptSupplier').value,
-    note:document.getElementById('editReceiptNote').value,
-    occurredAt:dateInputToTimestamp(document.getElementById('editReceiptDate').value)
-  });
-  if(!patchResult.ok){
-    return toast(patchResult.error==='price'?'Введіть коректну ціну закупівлі':'Введіть коректну кількість','error');
-  }
-  const receiptPatch=patchResult.value;
-  const newQty=receiptPatch.quantity;
-  const purchasePrice=receiptPatch.purchase_price_unit;
-  const item=allItems.find(i=>i.id===r.item_id);
-  if(item){
-    const adjustedStock=adjustedStockAfterMovementEdit(item.quantity,r.quantity,newQty,'receipt');
-    if(adjustedStock===null) return toast('Це призведе до від\'ємного залишку','error');
-    const itemPatch={quantity:adjustedStock};
-    if(purchasePrice!==null) Object.assign(itemPatch,{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()});
-    const {error:itemError}=await db.from('inventory_items').update(itemPatch).eq('id',item.id);
-    if(itemError) return toast('Не вдалося оновити товар: '+itemError.message,'error');
-  }
-  let {error}=await db.from('inventory_receipts').update(receiptPatch).eq('id',editReceiptId);
-  let priceHistorySaved=true;
-  if(error&&isPurchasePriceSchemaError(error)){
-    priceHistorySaved=false;
-    const legacyPatch={...receiptPatch};
-    delete legacyPatch.purchase_price_unit;
-    ({error}=await db.from('inventory_receipts').update(legacyPatch).eq('id',editReceiptId));
-  }
-  if(error) return toast('Помилка: '+error.message,'error');
-  toast('Прихід оновлено','success');
-  closeModal('editReceiptModal');
-  editReceiptId=null;
-  await loadItems();await loadReceipts();
-  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
-}
-
 // ===== ADD PAGE =====
 function onRefillSel(){
   const id=parseInt(document.getElementById('refillSel').value);
@@ -1099,70 +902,6 @@ function onRefillSel(){
   if(!item){box.style.display='none';return;}
   box.style.display='block';
   document.getElementById('refillCur').textContent=item.quantity+' '+item.unit;
-}
-async function doRefill(btn){
-  const payload=buildReceiptPayload({
-    itemId:document.getElementById('refillSel').value,
-    quantity:document.getElementById('refillQtyI').value,
-    purchasePrice:optionalPrice(document.getElementById('refillPriceI').value),
-    supplier:document.getElementById('refillSupplierI').value,
-    note:document.getElementById('refillNoteI').value,
-    occurredAt:dateInputToTimestamp(document.getElementById('refillDateI').value)
-  });
-  if(!payload.ok){
-    const messages={item:'Оберіть товар!',quantity:'Вкажіть кількість!',price:'Вкажіть коректну ціну закупівлі'};
-    return toast(messages[payload.error]||'Перевірте дані приходу','error');
-  }
-  const {itemId:id,quantity:qty,purchasePrice,supplier,note,occurredAt:receivedAt}=payload.value;
-  const item=findItemForAction(id,'прихід');
-  if(!item) return;
-  const done=setActionButtonLoading(btn,'Поповнюю...');
-  if(!done) return;
-  try{
-  // Атомарний RPC (receive_item): оновлення залишку і запис приходу в
-  // одній транзакції на сервері, замість двох окремих незалежних запитів.
-  let data=null;
-  let error=null;
-  if(purchasePrice!==null&&purchasePriceRpcAvailable){
-    ({data,error}=await db.rpc('receive_item',{
-      p_item_id:id, p_qty:qty, p_supplier:supplier||null, p_note:note||null, p_received_at:receivedAt||null, p_price_unit:purchasePrice
-    }));
-  }else{
-    ({data,error}=await db.rpc('receive_item',{
-      p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
-    }));
-  }
-  let priceHistorySaved=true;
-  if(error&&purchasePrice!==null&&isPurchasePriceSchemaError(error)){
-    priceHistorySaved=false;
-    disablePurchasePriceRpc();
-    ({data,error}=await db.rpc('receive_item',{
-      p_item_id:id,p_qty:qty,p_supplier:supplier||null,p_note:note||null,p_received_at:receivedAt||null
-    }));
-    if(!error){
-      const {error:priceError}=await db.from('inventory_items').update({
-        price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()
-      }).eq('id',id);
-      if(priceError) return toast('Прихід збережено, але ціну не оновлено: '+priceError.message,'error');
-    }
-  }
-  if(error) return toast('Помилка: '+error.message,'error');
-  const unit=inventoryUnitFromRpcResponse(data,item.unit);
-  toast('Поповнено +'+qty+' '+unit,'success');
-  notifyTelegram('📦 Прихід: '+item.name+' +'+qty+' '+item.unit+(supplier?' від '+supplier:'')+(note?' ('+note+')':''));
-  document.getElementById('refillQtyI').value='';
-  document.getElementById('refillPriceI').value='';
-  document.getElementById('refillSupplierI').value='';
-  syncSupplierTags('refillSupplierI','');
-  document.getElementById('refillNoteI').value='';
-  document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
-  document.getElementById('refillInfo').style.display='none';
-  document.getElementById('refillSel').value='';
-  await loadItems();populateSels();renderAddLow();
-  if(!priceHistorySaved) showPurchasePriceMigrationNotice();
-  }finally{
-    done();
-  }
 }
 function itemMatchesSearch(item, query){
   return valuesMatchSearch([item.name,item.category,item.unit,item.price_source],query);

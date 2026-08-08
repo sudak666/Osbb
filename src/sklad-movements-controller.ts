@@ -1,8 +1,23 @@
 import { deleteInventoryResultFromRpcResponse } from './sklad-state.js';
+import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload } from './sklad-movements.js';
+import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';
 void deleteInventoryResultFromRpcResponse;
+void adjustedStockAfterMovementEdit; void buildIssueEditPatch; void buildIssuePayload; void buildReceiptEditPatch; void buildReceiptPayload; void dateInputToTimestamp; void dateToInputValue;
 export type MovementPendingKey = 'deletingLogId' | 'editingLogId' | 'deletingReceiptId' | 'editingReceiptId';
 export declare function createSkladMovementsController(options: Record<string, unknown>): {
+  confirmDeleteLog(): Promise<void>;
+  confirmDeleteReceipt(): Promise<void>;
+  openDeleteLog(id: number): void;
+  openDeleteReceipt(id: number): void;
+  openEditLog(id: number): void;
+  openEditReceipt(id: number): void;
   pending(kind: MovementPendingKey): number | null;
   runDelete(name: string, args: Record<string, unknown>): Promise<{ ok: boolean; reason?: string }>;
   setPending(kind: MovementPendingKey, id: unknown): boolean;
+  saveEditLog(): Promise<void>;
+  saveEditReceipt(): Promise<void>;
+  issueItem(itemId: number, quantity: number, person: string, note?: string | null, occurredAt?: string | null): Promise<boolean>;
+  submitIssue(button?: HTMLElement | null): Promise<void>;
+  submitQuickIssue(button: HTMLElement | null, itemId: number | null): Promise<void>;
+  submitReceipt(button?: HTMLElement | null): Promise<void>;
 };
