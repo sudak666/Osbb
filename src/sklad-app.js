@@ -20,6 +20,7 @@ import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplier
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 import { createInventoryCollectionState, deleteInventoryResultFromRpcResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 import { loadPurchasePriceRpcAvailable, loadStoredSupplierTags, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme, saveStoredSupplierTags } from './sklad-client-state.js';
+import { applyPinKey, isPinComplete } from './pin-entry.js';
 
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -2352,12 +2353,12 @@ function updateDeletePinDots() {
 }
 async function deletePinPress(k) {
   if (deletePinBusy) return;
-  if (k === 'C') { deletePinBuf = ''; }
-  else if (k === 'DEL') { deletePinBuf = deletePinBuf.slice(0, -1); }
-  else if (deletePinBuf.length < 4) { deletePinBuf += k; }
+  const nextBuffer=applyPinKey(deletePinBuf,k);
+  if(nextBuffer===deletePinBuf && k!=='C') return;
+  deletePinBuf=nextBuffer;
   updateDeletePinDots();
   document.getElementById('delPinErr').textContent = '';
-  if (deletePinBuf.length === 4) {
+  if (isPinComplete(deletePinBuf)) {
     const pin = deletePinBuf;
     const action = deletePinAction;
     deletePinBuf = '';
