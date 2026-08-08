@@ -16,16 +16,16 @@ import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { isAuthSessionValid } from './auth-session.js';
 import { numericIdFromInsertResponse } from './supabase-api.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
-import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplierTag, supplierTagKey, supplierTagsFromResponse } from './sklad-suppliers.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 import { createInventoryCollectionState, deleteInventoryResultFromRpcResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
-import { loadPurchasePriceRpcAvailable, loadStoredSupplierTags, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme, saveStoredSupplierTags } from './sklad-client-state.js';
+import { loadPurchasePriceRpcAvailable, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 import { createSkladModalController } from './sklad-modal-controller.js';
 import { createSkladDataController } from './sklad-data-controller.js';
 import { createSkladAuditController } from './sklad-audit-controller.js';
+import { createSkladSupplierController } from './sklad-supplier-controller.js';
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
-let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
+let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
@@ -85,6 +85,15 @@ function skeletonStack(rows=3){
       <span class="skel skel-fluid-md"></span>
     </div>`).join('')}</div>`;
 }
+
+const supplierController=createSkladSupplierController({db,document,window,storage:localStorage,toast,openModal,closeModal});
+const setSupplierPreset=button=>supplierController.select(button);
+const syncSupplierTags=(targetId,value)=>supplierController.sync(targetId,value);
+const loadSupplierTagsCloud=()=>supplierController.loadCloud();
+const renderCustomSupplierTags=()=>supplierController.render();
+const addCustomSupplierTag=()=>supplierController.add();
+const requestRemoveCustomSupplierTag=tag=>supplierController.requestRemove(tag);
+const confirmRemoveCustomSupplierTag=()=>supplierController.confirmRemove();
 
 const {
   initPullToRefresh,
@@ -417,130 +426,6 @@ function bindSkladStaticControls(){
 function validateUnitWordInput(input){
   if(/^\d+([.,]\d+)?$/.test(input.value.trim())) toast('Одиниця має бути словом, не числом!','error');
 }
-function setSupplierPreset(button){
-  const input=document.getElementById(button.dataset.supplierTarget||'');
-  const supplier=String(button.dataset.supplierPreset||'').trim();
-  if(!input||!supplier) return;
-  input.value=supplier;
-  syncSupplierTags(button.dataset.supplierTarget,supplier);
-  input.dispatchEvent(new Event('input',{bubbles:true}));
-}
-function syncSupplierTags(targetId,value){
-  const normalized=supplierTagKey(value);
-  document.querySelectorAll(`[data-supplier-target="${targetId}"]`).forEach(tag=>{
-    const selected=supplierTagKey(tag.dataset.supplierPreset)===normalized;
-    tag.classList.toggle('active',selected);
-    tag.setAttribute('aria-pressed',String(selected));
-  });
-}
-function loadCustomSupplierTags(){
-  return mergeSupplierTags([cloudSupplierTags,loadStoredSupplierTags(localStorage)]);
-}
-async function loadSupplierTagsCloud(){
-  const {data,error}=await db.from('inventory_supplier_tags').select('name').order('name').limit(50);
-  if(error){
-    supplierTagsCloudAvailable=false;
-    console.info('Cloud supplier tags are unavailable; local tags remain active.');
-    renderCustomSupplierTags();
-    return;
-  }
-  supplierTagsCloudAvailable=true;
-  const localTags=loadCustomSupplierTags();
-  const remoteTags=supplierTagsFromResponse(data,50);
-  const missingRemote=localTags.filter(tag=>!hasSupplierTag(remoteTags,tag));
-  if(missingRemote.length){
-    const {error:syncError}=await db.from('inventory_supplier_tags').insert(missingRemote.map(name=>({name})));
-    if(syncError) console.warn('supplier tags cloud merge failed',syncError);
-    else remoteTags.push(...missingRemote);
-  }
-  cloudSupplierTags=remoteTags;
-  const merged=loadCustomSupplierTags();
-  saveCustomSupplierTags(merged);
-  renderCustomSupplierTags();
-}
-function saveCustomSupplierTags(tags){
-  try{
-    if(!saveStoredSupplierTags(localStorage,tags)) throw new Error('supplier tags storage unavailable');
-    return true;
-  }catch(error){
-    console.warn('supplier tags save failed',error);
-    toast('Не вдалося зберегти тег у цьому браузері','error');
-    return false;
-  }
-}
-function renderCustomSupplierTags(){
-  const tags=loadCustomSupplierTags();
-  document.querySelectorAll('[data-supplier-tags]').forEach(row=>{
-    row.querySelectorAll('[data-custom-supplier-tag]').forEach(node=>node.remove());
-    const targetId=row.querySelector('[data-supplier-target]')?.dataset.supplierTarget;
-    if(!targetId) return;
-    tags.forEach(tag=>{
-      const group=document.createElement('span');
-      group.className='supplier-custom-tag';
-      group.dataset.customSupplierTag=tag;
-      const select=document.createElement('button');
-      select.type='button';
-      select.className='supplier-tag';
-      select.dataset.supplierPreset=tag;
-      select.dataset.supplierTarget=targetId;
-      select.textContent=tag;
-      select.addEventListener('click',()=>setSupplierPreset(select));
-      const remove=document.createElement('button');
-      remove.type='button';
-      remove.className='supplier-tag-remove';
-      remove.setAttribute('aria-label',`Видалити тег ${tag}`);
-      remove.innerHTML='<span class="ms" aria-hidden="true">close</span>';
-      remove.addEventListener('click',()=>requestRemoveCustomSupplierTag(tag));
-      group.append(select,remove);
-      row.append(group);
-    });
-    syncSupplierTags(targetId,document.getElementById(targetId)?.value||'');
-  });
-}
-async function addCustomSupplierTag(){
-  const input=document.getElementById('newSupplierTag');
-  const tag=normalizeSupplierTag(input?.value);
-  if(!tag) return toast('Введіть назву постачальника','error');
-  const tags=loadCustomSupplierTags();
-  const known=[...document.querySelectorAll('[data-supplier-preset]')].map(button=>button.dataset.supplierPreset);
-  if(hasSupplierTag(known,tag)) return toast('Такий тег уже є','info');
-  if(tags.length>=MAX_SUPPLIER_TAGS) return toast(`Можна зберегти до ${MAX_SUPPLIER_TAGS} власних тегів`,'info');
-  if(!saveCustomSupplierTags([...tags,tag])) return;
-  if(supplierTagsCloudAvailable){
-    const {error}=await db.from('inventory_supplier_tags').insert([{name:tag}]);
-    if(error){
-      console.warn('supplier tag cloud save failed',error);
-      toast('Тег збережено на цьому пристрої, синхронізація недоступна','info');
-    }else cloudSupplierTags=[...new Set([...cloudSupplierTags,tag])];
-  }
-  input.value='';
-  renderCustomSupplierTags();
-  const created=[...document.querySelectorAll('[data-supplier-target="refillSupplierI"][data-supplier-preset]')]
-    .find(button=>button.dataset.supplierPreset===tag);
-  if(created) setSupplierPreset(created);
-  toast('Тег постачальника додано','success');
-}
-function requestRemoveCustomSupplierTag(tag){
-  pendingSupplierTagDelete=tag;
-  document.getElementById('supplierTagDeleteName').textContent=`«${tag}»`;
-  openModal('supplierTagDeleteModal');
-}
-async function confirmRemoveCustomSupplierTag(){
-  const tag=pendingSupplierTagDelete;
-  if(!tag) return closeModal('supplierTagDeleteModal');
-  if(supplierTagsCloudAvailable){
-    const {error}=await db.from('inventory_supplier_tags').delete().eq('name',tag);
-    if(error) return toast('Не вдалося видалити тег: '+error.message,'error');
-  }
-  cloudSupplierTags=cloudSupplierTags.filter(saved=>saved!==tag);
-  const tags=loadCustomSupplierTags().filter(saved=>saved!==tag);
-  if(!saveCustomSupplierTags(tags)) return;
-  pendingSupplierTagDelete=null;
-  closeModal('supplierTagDeleteModal');
-  renderCustomSupplierTags();
-  toast('Тег видалено','success');
-}
-
 function handleItemActionClick(event){
   const trigger=event.target.closest('[data-item-action]');
   if(!trigger) return;
