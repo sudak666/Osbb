@@ -14,6 +14,7 @@ function readSkladCombined() {
     'sklad/styles.css',
     'src/sklad-app.js',
     'src/sklad-audit.ts',
+    'src/sklad-audit-controller.js',
     'src/sklad-auth-controller.ts',
     'src/sklad-auth.ts',
     'src/sklad-client-state.ts',
@@ -152,7 +153,7 @@ const checks = [
   ['src/sklad-app.js', 'return true;', 'sklad issueItem reports success to callers'],
   ['sklad/index.html', '<script type="module" src="../src/sklad-app.js"></script>', 'sklad loads extracted module runtime'],
   ['src/sklad-app.js', 'filterSkladItems,', 'sklad uses typed domain filters'],
-  ['src/sklad-app.js', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
+  ['src/sklad-audit-controller.js', 'current.filter(item => itemMatchesSearch(item, search))', 'sklad item search uses normalized multi-field matching'],
   ['sklad/index.html', 'id="itemsResultSummary"', 'sklad shows item result summary'],
   ['src/sklad-app.js', 'function updateItemsResultSummary', 'sklad updates item result summary'],
   ['src/sklad-app.js', 'function resetItemFilters', 'sklad can reset item filters'],
@@ -1742,7 +1743,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="audit-search-row"',
     'class="audit-legend"',
     'class="audit-list"',
-    'class="audit-item ${stateClass}"',
+    'class="audit-item ${state}"',
     'class="audit-qty-input"',
     '.receipts-toolbar,.audit-toolbar{position:sticky;',
     '.audit-item{',
@@ -2084,7 +2085,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
   const text = readSkladCombined();
   const label = 'sklad HTML quantity renderers escape values';
   const required = [
-    '${escapeHtml(String(item.quantity??0))} ${unit}',
+    '${escapeHtml(String(item.quantity ?? 0))} ${unit}',
     '<span class="${qc}">${escapeHtml(String(item.quantity??0))}</span>',
     '<span class="${qc} m-card-qty-value">${escapeHtml(String(item.quantity??0))}</span>',
     '−${escapeHtml(String(l.quantity??0))}</div>',
