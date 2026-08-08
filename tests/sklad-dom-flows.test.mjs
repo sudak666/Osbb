@@ -148,7 +148,8 @@ test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
   assertIncludes(osbbApp, "db.rpc('list_osbb_staff', {})", 'staff list must load through RPC');
   assertIncludes(osbbApp, "db.rpc('verify_staff_pin', { p_staff_id: staffId, attempt })", 'staff PIN must verify on server');
   assertIncludes(osbbStaffAuthController, 'list = parseStaffList(await deps.loadStaff());', 'staff list must pass parser boundary');
-  assertIncludes(osbbApp, 'renderStaffSettings(parseStaffSettingsList(rows));', 'staff settings must pass parser boundary');
+  assertIncludes(osbbStaffAuthController, 'parseStaffSettingsList(await deps.loadStaffSettings(session, pin))', 'staff settings must pass parser boundary');
+  assertIncludes(osbbStaffAuthController, 'if (settingsBusy || !session || !canManageStaffAccess(session)', 'staff access updates must be role-gated and single-flight');
   assertIncludes(osbbStaffAuthController, '? parseStaffSession({', 'verified staff session must pass parser boundary');
 });
 

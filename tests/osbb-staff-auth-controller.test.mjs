@@ -26,21 +26,30 @@ function deferred() {
 
 function makeController(overrides = {}) {
   const document = new FakeDocument();
-  for (const id of ['staff-login-modal', 'staff-login-list', 'staff-login-pin-step', 'staff-login-pin-sub', 'staff-login-err']) document.add(id);
+  for (const id of ['staff-login-modal', 'staff-login-list', 'staff-login-pin-step', 'staff-login-pin-sub', 'staff-login-err', 'staff-settings-modal', 'staff-settings-list']) document.add(id);
   for (let i = 0; i < 4; i++) document.add(`staff-pin-d${i}`);
   const authenticated = [];
   const timers = [];
+  const accessUpdates = [];
+  const errors = [];
   const controller = createOsbbStaffAuthController({
     document,
     isPreview: false,
     loadStaff: async () => [{ id: 7, full_name: 'Диспетчер', role: 'dispatcher' }],
     verifyPin: async () => [{ ok: true, full_name: 'Диспетчер', role: 'dispatcher' }],
     renderStaffList: rows => rows.map(row => `<button data-staff-select="${row.id}">${row.full_name}</button>`).join(''),
+    renderStaffSettings: (rows, currentId) => rows.map(row => `${row.id}:${row.active}:${row.id === currentId}`).join(','),
+    getSession: () => ({ id: 7, name: 'Адмін', role: 'admin' }),
+    getPin: () => '1234',
+    loadStaffSettings: async () => [{ id: 7, full_name: 'Адмін', role: 'admin', active: true }],
+    setStaffActive: async () => true,
     onAuthenticated: (session, pin) => authenticated.push({ session, pin }),
+    onAccessUpdated: () => accessUpdates.push(true),
+    onError: (message, error) => errors.push({ message, error }),
     setTimeout: (callback, delay) => { timers.push({ callback, delay }); return timers.length; },
     ...overrides,
   });
-  return { controller, document, authenticated, timers };
+  return { controller, document, authenticated, timers, accessUpdates, errors };
 }
 
 async function enterPin(controller, pin = '1234') {
@@ -106,4 +115,50 @@ test('pending stale verification cannot authenticate a replacement selection', a
   pending.resolve([{ ok: true, full_name: 'Перший', role: 'dispatcher' }]);
   await first;
   assert.deepEqual(authenticated, []);
+});
+
+test('staff settings load only for privileged sessions through parser boundary', async () => {
+  const calls = [];
+  const { controller, document } = makeController({
+    loadStaffSettings: async (session, pin) => {
+      calls.push({ session, pin });
+      return [
+        { id: 7, full_name: 'Адмін', role: 'admin', active: true },
+        { id: null, full_name: '<bad>', role: 'root', active: true },
+      ];
+    },
+  });
+  await controller.openSettings();
+  assert.equal(document.getElementById('staff-settings-modal').style.display, 'flex');
+  assert.equal(document.getElementById('staff-settings-list').innerHTML, '7:true:true');
+  assert.equal(calls.length, 1);
+});
+
+test('staff access toggle is single-flight and refreshes settings on success', async () => {
+  const pending = deferred();
+  const changes = [];
+  const { controller, accessUpdates } = makeController({
+    setStaffActive: async (...args) => { changes.push(args); return pending.promise; },
+  });
+  const firstButton = { dataset: { staffActive: '8', nextActive: 'false' }, disabled: false };
+  const secondButton = { dataset: { staffActive: '9', nextActive: 'true' }, disabled: false };
+  const first = controller.toggleAccess(firstButton);
+  await controller.toggleAccess(secondButton);
+  assert.equal(changes.length, 1);
+  assert.equal(firstButton.disabled, true);
+  pending.resolve(true);
+  await first;
+  assert.deepEqual(changes[0].slice(1), ['1234', '8', false]);
+  assert.deepEqual(accessUpdates, [true]);
+});
+
+test('closing settings ignores a stale load response', async () => {
+  const pending = deferred();
+  const { controller, document } = makeController({ loadStaffSettings: async () => pending.promise });
+  const loading = controller.openSettings();
+  controller.closeSettings();
+  pending.resolve([{ id: 8, full_name: 'Працівник', role: 'plumber', active: true }]);
+  await loading;
+  assert.equal(document.getElementById('staff-settings-modal').style.display, 'none');
+  assert.match(document.getElementById('staff-settings-list').innerHTML, /Завантаження/u);
 });
