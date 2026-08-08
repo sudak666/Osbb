@@ -56,7 +56,6 @@ export function workShiftRowsFromResponse(value: unknown): WorkShiftRows {
         const source = row as Record<string, unknown>;
         if (!isIsoDate(source.shift_date)) return [];
         return [[source.shift_date, {
-            ...source,
             shift_date: source.shift_date,
             sergiy: normalizeShiftTypes(source.sergiy),
             oleksandr: normalizeShiftTypes(source.oleksandr),

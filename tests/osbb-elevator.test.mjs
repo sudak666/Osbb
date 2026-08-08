@@ -59,3 +59,12 @@ test('sortElevatorEntries сортує копію записів за днем',
     assert.deepEqual(sortElevatorEntries(entries).map((entry) => entry.id), ['first', 'second']);
     assert.deepEqual(entries.map((entry) => entry.id), ['second', 'first']);
 });
+
+test('elevator boundary rejects oversized and attribute-breaking payloads', () => {
+    assert.deepEqual(elevatorEntriesFromResponse([
+        { id: '\" onclick=alert(1)', day: 1, text: 'Опис' },
+        { id: 'safe-id', day: 2, text: '<img src=x onerror=alert(1)>', createdAt: 'not-a-date', createdBy: '  Диспетчер  ' },
+        { id: 'too-long', day: 3, text: 'x'.repeat(1001) },
+    ]), [{ id: 'safe-id', day: 2, text: '<img src=x onerror=alert(1)>', createdAt: '', createdBy: 'Диспетчер' }]);
+    assert.equal(createElevatorEntry(1, 'x'.repeat(1001), 'Диспетчер'), null);
+});

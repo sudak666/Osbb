@@ -30,6 +30,16 @@ function garbageCount(value: unknown): number | undefined {
     return Number.isFinite(count) && count > 0 ? Math.trunc(count) : undefined;
 }
 
+function garbageTime(value: unknown): string {
+    return typeof value === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : '';
+}
+
+function garbageWorker(value: unknown): string {
+    if (typeof value !== 'string') return '';
+    const worker = value.trim();
+    return worker.length <= 100 ? worker : '';
+}
+
 export function normalizeGarbageMonth(value: unknown): GarbageMonthData {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
     const month: GarbageMonthData = {};
@@ -39,7 +49,12 @@ export function normalizeGarbageMonth(value: unknown): GarbageMonthData {
         if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) continue;
         const row = entry as Record<string, unknown>;
         if (!row.types || typeof row.types !== 'object' || Array.isArray(row.types)) {
-            month[day] = { ...row };
+            month[day] = {
+                time: garbageTime(row.time),
+                worker: garbageWorker(row.worker),
+                count: row.count,
+                note: typeof row.note === 'string' ? row.note : '',
+            };
             continue;
         }
         const sourceTypes = row.types as Record<string, unknown>;
@@ -49,8 +64,8 @@ export function normalizeGarbageMonth(value: unknown): GarbageMonthData {
             if (count !== undefined) types[type] = count;
         }
         month[day] = {
-            time: typeof row.time === 'string' ? row.time : '',
-            worker: typeof row.worker === 'string' ? row.worker : '',
+            time: garbageTime(row.time),
+            worker: garbageWorker(row.worker),
             types,
         };
     }
@@ -96,7 +111,7 @@ export function migrateGarbageData(data: GarbageMonthData | null | undefined): G
                 types.glass = count;
             } else types.bins = count;
         }
-        output[day] = { time: row.time || '', worker: row.worker || '', types };
+        output[day] = { time: garbageTime(row.time), worker: garbageWorker(row.worker), types };
         migrated = true;
     }
     return { data: output, migrated };

@@ -3,6 +3,16 @@ function garbageCount(value) {
     return Number.isFinite(count) && count > 0 ? Math.trunc(count) : undefined;
 }
 
+function garbageTime(value) {
+    return typeof value === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : '';
+}
+
+function garbageWorker(value) {
+    if (typeof value !== 'string') return '';
+    const worker = value.trim();
+    return worker.length <= 100 ? worker : '';
+}
+
 export function normalizeGarbageMonth(value) {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
     const month = {};
@@ -11,7 +21,12 @@ export function normalizeGarbageMonth(value) {
         if (!Number.isInteger(numericDay) || numericDay < 1 || numericDay > 31) continue;
         if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) continue;
         if (!entry.types || typeof entry.types !== 'object' || Array.isArray(entry.types)) {
-            month[day] = { ...entry };
+            month[day] = {
+                time: garbageTime(entry.time),
+                worker: garbageWorker(entry.worker),
+                count: entry.count,
+                note: typeof entry.note === 'string' ? entry.note : '',
+            };
             continue;
         }
         const types = {};
@@ -20,8 +35,8 @@ export function normalizeGarbageMonth(value) {
             if (count !== undefined) types[type] = count;
         }
         month[day] = {
-            time: typeof entry.time === 'string' ? entry.time : '',
-            worker: typeof entry.worker === 'string' ? entry.worker : '',
+            time: garbageTime(entry.time),
+            worker: garbageWorker(entry.worker),
             types,
         };
     }
@@ -66,7 +81,7 @@ export function migrateGarbageData(data) {
                 types.glass = count;
             } else types.bins = count;
         }
-        output[day] = { time: row.time || '', worker: row.worker || '', types };
+        output[day] = { time: garbageTime(row.time), worker: garbageWorker(row.worker), types };
         migrated = true;
     }
     return { data: output, migrated };

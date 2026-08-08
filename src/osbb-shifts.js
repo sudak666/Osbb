@@ -32,7 +32,6 @@ export function workShiftRowsFromResponse(value) {
         if (typeof row !== 'object' || row === null || Array.isArray(row)) return [];
         if (!isIsoDate(row.shift_date)) return [];
         return [[row.shift_date, {
-            ...row,
             shift_date: row.shift_date,
             sergiy: normalizeShiftTypes(row.sergiy),
             oleksandr: normalizeShiftTypes(row.oleksandr),

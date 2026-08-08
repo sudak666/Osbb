@@ -1,6 +1,6 @@
 export function createElevatorEntry(day, text, createdBy, options = {}) {
     const normalizedText = String(text ?? '').trim();
-    if (!normalizedText) return null;
+    if (!normalizedText || normalizedText.length > 1000) return null;
 
     const now = options.now ?? new Date();
     const numericDay = Number(day);
@@ -12,7 +12,7 @@ export function createElevatorEntry(day, text, createdBy, options = {}) {
         day: normalizedDay,
         text: normalizedText,
         createdAt: now.toISOString(),
-        createdBy: String(createdBy ?? ''),
+        createdBy: String(createdBy ?? '').trim().slice(0, 100),
     };
 }
 
@@ -20,14 +20,14 @@ export function elevatorEntriesFromResponse(value) {
     if (!Array.isArray(value)) return [];
     return value.flatMap((entry) => {
         if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
-        if (typeof entry.id !== 'string' || !entry.id || !Number.isInteger(entry.day) || entry.day < 1 || entry.day > 31) return [];
-        if (typeof entry.text !== 'string' || !entry.text.trim()) return [];
+        if (typeof entry.id !== 'string' || !/^[A-Za-z0-9_-]{1,100}$/.test(entry.id) || !Number.isInteger(entry.day) || entry.day < 1 || entry.day > 31) return [];
+        if (typeof entry.text !== 'string' || !entry.text.trim() || entry.text.trim().length > 1000) return [];
         return [{
             id: entry.id,
             day: entry.day,
             text: entry.text.trim(),
-            createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : '',
-            createdBy: typeof entry.createdBy === 'string' ? entry.createdBy : '',
+            createdAt: typeof entry.createdAt === 'string' && Number.isFinite(Date.parse(entry.createdAt)) ? entry.createdAt : '',
+            createdBy: typeof entry.createdBy === 'string' && entry.createdBy.trim().length <= 100 ? entry.createdBy.trim() : '',
         }];
     });
 }

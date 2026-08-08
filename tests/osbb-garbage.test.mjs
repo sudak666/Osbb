@@ -76,3 +76,13 @@ test('garbage migration and bin totals fail safely on empty values', () => {
   }), 7);
   assert.equal(garbageMonthBinsTotal([]), 0);
 });
+
+test('normalizeGarbageMonth strips malicious and unknown payload fields', () => {
+  assert.deepEqual(normalizeGarbageMonth({
+    1: { time: '\" onfocus=\"alert(1)', worker: '<img onerror=alert(1)>', types: { bins: 2 }, html: '<script>alert(1)</script>' },
+    2: { time: '09:15', worker: 'maksym', count: '3', note: 'plastic', html: '<svg onload=alert(1)>' },
+  }), {
+    1: { time: '', worker: '<img onerror=alert(1)>', types: { bins: 2 } },
+    2: { time: '09:15', worker: 'maksym', count: '3', note: 'plastic' },
+  });
+});

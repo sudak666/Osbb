@@ -33,6 +33,14 @@ test('workShiftRowsFromResponse індексує лише валідні змі�
   assert.deepEqual(workShiftRowsFromResponse(null), {});
 });
 
+test('work shift boundaries do not propagate arbitrary payload properties', () => {
+  const rows = workShiftRowsFromResponse([{
+    shift_date: '2026-08-04', sergiy: ['day', '<img onerror=alert(1)>'], oleksandr: ['rest'], malicious: '<svg onload=alert(1)>',
+  }]);
+  assert.deepEqual(rows['2026-08-04'], { shift_date: '2026-08-04', sergiy: ['day'], oleksandr: ['rest'] });
+  assert.equal('malicious' in rows['2026-08-04'], false);
+});
+
 test('shift helpers format keys and describe combinations', () => {
   assert.equal(shiftDateKey(2026, 0, 5), '2026-01-05');
   assert.equal(shiftIsWorking(['rest']), false);
