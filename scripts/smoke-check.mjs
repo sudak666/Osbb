@@ -266,6 +266,17 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
+  const text = readFileSync(file, 'utf8');
+  if (text.includes('cdn.tailwindcss.com')) {
+    failed += 1;
+    console.error(`not ok - ${file} must not load the Tailwind production CDN`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${file} avoids the Tailwind production CDN`);
+  }
+}
+
 
 
 // The shell's <style> block was extracted the same way, but unlike
