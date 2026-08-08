@@ -45,10 +45,6 @@
         normalizeGarbageMonth,
     } from './osbb-garbage.js';
     import {
-        shiftErrorMessage,
-        shiftIsWorking,
-    } from './osbb-shifts.js';
-    import {
         STAFF_ROLE_ICONS,
         STAFF_ROLE_LABELS,
         WORKER_ROLES,
@@ -441,16 +437,7 @@
     // ==========================================
     // ГРАФІК ЗМІН (Supabase)
     // ==========================================
-    const shiftTypes = [
-        { key:'day', label:'Денна' },
-        { key:'night', label:'Нічна' },
-        { key:'night_half2', label:'Пів ночі' },
-        { key:'rest', label:'Вихідний' },
-    ];
-    let shiftSelectedDate = '';
-    let shiftEditorSelection = { sergiy:new Set(), oleksandr:new Set() };
     let shiftNames = { sergiy:'Сергій', oleksandr:'Олександр' };
-    let shiftEditorFocusReturn = null;
     let shiftCalendarController;
 
     const shiftSettingsController = createOsbbShiftSettingsController({
@@ -468,27 +455,15 @@
         loadRows: monthKey => db.from('work_shifts').select('*').eq('month_key', monthKey).order('shift_date',{ascending:true}),
         getNames: () => shiftNames,
         showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
+        requestPin: showPinModal,
+        saveDay: (date, first, second, attempt) => db.rpc('save_work_shift_day', { p_shift_date:date, p_sergiy:first, p_oleksandr:second, attempt }),
+        resetMonth: (monthKey, attempt) => db.rpc('reset_work_shifts_month', { p_month_key:monthKey, attempt }),
     });
     const shiftLoadSettings = () => shiftSettingsController.load();
     const shiftOpenNameEditor = () => shiftSettingsController.open();
     const shiftCloseNameEditor = () => shiftSettingsController.close();
     const shiftTrapNameEditorFocus = event => shiftSettingsController.trapFocus(event);
     const shiftSaveNames = () => shiftSettingsController.save();
-    const shiftMonthKey = () => shiftCalendarController.monthKey();
-    const shiftDayData = dateKey => shiftCalendarController.dayData(dateKey);
-
-    function shiftRenderCalendar() {
-        return shiftCalendarController.render();
-    }
-
-    function shiftCount(person) {
-        return shiftCalendarController.count(person);
-    }
-
-    function shiftRenderStats() {
-        return shiftCalendarController.renderStats();
-    }
-
     async function shiftLoadMonth() {
         return shiftCalendarController.load();
     }
@@ -498,94 +473,27 @@
     }
 
     function shiftRenderChips(person) {
-        const container = document.getElementById(`shift-chips-${person}`);
-        if (!container) return;
-        container.replaceChildren();
-        shiftTypes.forEach(type => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'shift-chip md-state-layer';
-            button.dataset.shiftPerson = person;
-            button.dataset.shiftType = type.key;
-            const active = shiftEditorSelection[person].has(type.key);
-            button.classList.toggle('is-active', active);
-            button.setAttribute('aria-pressed', String(active));
-            button.textContent = type.label;
-            container.appendChild(button);
-        });
+        return shiftCalendarController.renderChips(person);
     }
 
     function shiftOpenEditor(dateKey) {
-        const data = shiftDayData(dateKey);
-        shiftSelectedDate = dateKey;
-        shiftEditorSelection = {
-            sergiy:new Set(Array.isArray(data.sergiy) ? data.sergiy : []),
-            oleksandr:new Set(Array.isArray(data.oleksandr) ? data.oleksandr : []),
-        };
-        const [year,month,day] = dateKey.split('-');
-        document.getElementById('shift-editor-title').textContent = `Редагування: ${day}.${month}.${year}`;
-        shiftRenderChips('sergiy');
-        shiftRenderChips('oleksandr');
-        const editor = document.getElementById('shift-editor');
-        shiftEditorFocusReturn = document.activeElement;
-        editor.classList.add('is-open');
-        editor.setAttribute('aria-hidden','false');
-        requestAnimationFrame(() => editor.querySelector('.shift-editor-sheet')?.focus({preventScroll:true}));
+        return shiftCalendarController.openEditor(dateKey);
     }
 
     function shiftCloseEditor() {
-        const editor = document.getElementById('shift-editor');
-        editor.classList.remove('is-open');
-        editor.setAttribute('aria-hidden','true');
-        shiftSelectedDate = '';
-        const returnTarget = shiftEditorFocusReturn;
-        shiftEditorFocusReturn = null;
-        if (returnTarget && document.contains(returnTarget)) returnTarget.focus({preventScroll:true});
+        return shiftCalendarController.closeEditor();
     }
 
     function shiftTrapEditorFocus(event) {
-        if (event.key !== 'Tab') return;
-        const sheet = event.currentTarget.querySelector('.shift-editor-sheet');
-        const focusable = [...sheet.querySelectorAll('button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(element => element.offsetParent !== null);
-        if (!focusable.length) { event.preventDefault(); sheet.focus({preventScroll:true}); return; }
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
+        return shiftCalendarController.trapEditorFocus(event);
     }
 
     function shiftToggleChip(person, type) {
-        if (!shiftEditorSelection[person]) return;
-        const selection = shiftEditorSelection[person];
-        if (type === 'rest') {
-            selection.clear();
-            selection.add('rest');
-        } else {
-            selection.delete('rest');
-            if (selection.has(type)) selection.delete(type); else selection.add(type);
-        }
-        shiftRenderChips(person);
+        return shiftCalendarController.toggleChip(person, type);
     }
 
     function shiftSaveDay() {
-        if (!shiftSelectedDate) return;
-        const saveButton = document.querySelector('[data-shift-action="save-day"]');
-        if (!saveButton) return;
-        const sergiy = [...shiftEditorSelection.sergiy];
-        const oleksandr = [...shiftEditorSelection.oleksandr];
-        showPinModal('PIN графіка змін', 'Підтвердьте збереження окремим PIN', async attempt => {
-            saveButton.disabled = true;
-            try {
-                const ok = await db.rpc('save_work_shift_day', { p_shift_date:shiftSelectedDate, p_sergiy:sergiy, p_oleksandr:oleksandr, attempt });
-                if (!ok) throw new Error('Сервер відхилив операцію');
-                shiftCloseEditor();
-                await shiftLoadMonth();
-                showToast('Графік зміни збережено', TOAST_ICON_CHECK);
-            } catch (error) {
-                console.warn('shiftSaveDay failed:', error);
-                showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), TOAST_ICON_ERROR);
-            } finally { saveButton.disabled = false; }
-        }, false, 'verify_work_shifts_pin');
+        return shiftCalendarController.submitDay();
     }
 
     function shiftChangeMonth(direction) {
@@ -593,17 +501,7 @@
     }
 
     function shiftResetMonth() {
-        showPinModal('Скинути графік змін', 'Видалити ручні корекції за вибраний місяць?', async attempt => {
-            try {
-                const ok = await db.rpc('reset_work_shifts_month', { p_month_key:shiftMonthKey(), attempt });
-                if (!ok) throw new Error('Сервер відхилив операцію');
-                await shiftLoadMonth();
-                showToast('Корекції графіка скинуто', TOAST_ICON_TRASH);
-            } catch (error) {
-                console.warn('shiftResetMonth failed:', error);
-                showToast(shiftErrorMessage(error, 'Не вдалося скинути графік'), TOAST_ICON_ERROR);
-            }
-        }, true, 'verify_work_shifts_pin');
+        return shiftCalendarController.reset();
     }
 
     // ==========================================
