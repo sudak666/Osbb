@@ -4,7 +4,7 @@ export const PROMIN_OBOR_POLL_INTERVAL_MS = 2_000;
 export const PROMIN_DU_PULSE_MS = 5_000;
 
 export type ProminDuAction = 'On' | 'Off';
-export type ProminCall = Record<string, unknown>;
+export type ProminCall = Record<string, string>;
 export type ProminFetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 export interface ProminHouse {
@@ -45,8 +45,10 @@ function isRecord(value: unknown): value is UnknownRecord {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function stringValue(value: unknown): string {
-    return value == null ? '' : String(value);
+function boundedString(value: unknown, maxLength: number): string {
+    if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') return '';
+    const text = String(value).trim();
+    return text.length <= maxLength ? text : '';
 }
 
 function recordArray(value: unknown): UnknownRecord[] {
@@ -57,36 +59,46 @@ function errorFromUnknown(error: unknown): Error {
     return error instanceof Error ? error : new Error(String(error));
 }
 
+function parseProminRecord(value: unknown): Record<string, string> | null {
+    if (!isRecord(value)) return null;
+    return Object.fromEntries(Object.entries(value).slice(0, 20).flatMap(([key, field]) => {
+        const safeKey = boundedString(key, 100);
+        const safeValue = boundedString(field, 500);
+        return safeKey && safeValue ? [[safeKey, safeValue]] : [];
+    }));
+}
+
 export function parseProminHouse(value: unknown): ProminHouse | null {
     if (!isRecord(value)) return null;
-    const globalId = stringValue(value.GlobalID);
+    const globalId = boundedString(value.GlobalID, 100);
     if (!globalId) return null;
     return {
         globalId,
-        caption: stringValue(value.Caption),
-        alarmed: stringValue(value.Alarmed) === '-1',
-        disconnected: stringValue(value.Color) === '12615935'
+        caption: boundedString(value.Caption, 300),
+        alarmed: boundedString(value.Alarmed, 20) === '-1',
+        disconnected: boundedString(value.Color, 20) === '12615935'
     };
 }
 
 export function parsePultState(value: unknown): ProminPultState {
     const payload = isRecord(value) ? value : {};
     return {
-        pults: Array.isArray(payload.pults) ? payload.pults : [],
+        pults: recordArray(payload.pults).slice(0, 100).map(parseProminRecord).filter((entry): entry is Record<string, string> => entry !== null),
         houses: (Array.isArray(payload.streetAndHouses) ? payload.streetAndHouses : [])
             .map(parseProminHouse)
             .filter((house): house is ProminHouse => house !== null)
+            .slice(0, 500)
     };
 }
 
 export function parseEquipmentState(value: unknown): ProminEquipmentState {
     const payload = isRecord(value) ? value : {};
     return {
-        avariasAsHtml: stringValue(payload.AvariasAsHtml),
-        temperatureAsHtml: stringValue(payload.TemperatureAsHtml),
-        calls: recordArray(payload.Calls),
-        updated: stringValue(payload.Updated),
-        currentWindow: stringValue(payload.CurrentWindow)
+        avariasAsHtml: boundedString(payload.AvariasAsHtml, 20_000),
+        temperatureAsHtml: boundedString(payload.TemperatureAsHtml, 20_000),
+        calls: recordArray(payload.Calls).slice(0, 200).map(parseProminRecord).filter((entry): entry is ProminCall => entry !== null),
+        updated: boundedString(payload.Updated, 200),
+        currentWindow: boundedString(payload.CurrentWindow, 200)
     };
 }
 
@@ -117,13 +129,13 @@ export function createProminClient(options: ProminClientOptions = {}) {
 
     async function getEquipmentState(equipmentId: string): Promise<ProminEquipmentState> {
         const normalizedId = String(equipmentId || '').trim();
-        if (!normalizedId) throw new TypeError('Потрібно вказати ID обладнання');
+        if (!normalizedId || normalizedId.length > 100) throw new TypeError('Потрібно вказати валідний ID обладнання');
         return parseEquipmentState(await getJson('/oborState', { obor: normalizedId }));
     }
 
     async function executeDU(equipmentId: string, action: ProminDuAction): Promise<void> {
         const normalizedId = String(equipmentId || '').trim();
-        if (!normalizedId) throw new TypeError('Потрібно вказати ID обладнання');
+        if (!normalizedId || normalizedId.length > 100) throw new TypeError('Потрібно вказати валідний ID обладнання');
         if (action !== 'On' && action !== 'Off') throw new TypeError('action має бути On або Off');
         await getJson('/du', { action, state: 'Down', obor: normalizedId });
         await sleep(PROMIN_DU_PULSE_MS);
@@ -176,7 +188,8 @@ export function createProminPolling(client: ProminClient, handlers: ProminPollin
     }
 
     function selectEquipment(equipmentId: string | null): void {
-        selectedEquipmentId = equipmentId ? String(equipmentId).trim() || null : null;
+        const normalizedId = equipmentId ? String(equipmentId).trim() : '';
+        selectedEquipmentId = normalizedId && normalizedId.length <= 100 ? normalizedId : null;
         if (equipmentTimer) clearInterval(equipmentTimer);
         equipmentTimer = null;
         if (selectedEquipmentId) {

@@ -36,9 +36,37 @@ test('parseEquipmentState safely handles Calls and HTML fields', () => {
     AvariasAsHtml: '<b>Аварія</b>', TemperatureAsHtml: '21 °C', Calls: [{ id: 1 }, null, 'bad'],
     Updated: '12:00', CurrentWindow: 'main',
   }), {
-    avariasAsHtml: '<b>Аварія</b>', temperatureAsHtml: '21 °C', calls: [{ id: 1 }],
+    avariasAsHtml: '<b>Аварія</b>', temperatureAsHtml: '21 °C', calls: [{ id: '1' }],
     updated: '12:00', currentWindow: 'main',
   });
+});
+
+test('Promin boundaries limit malicious HTML, nested calls and oversized identifiers', async () => {
+  const state = parseEquipmentState({
+    AvariasAsHtml: '<img src=x onerror=alert(1)>',
+    TemperatureAsHtml: 'x'.repeat(20_001),
+    Calls: [
+      { id: 1, nested: { html: '<script>alert(1)</script>' }, payload: '<svg onload=alert(1)>' },
+      ...Array.from({ length: 205 }, (_, id) => ({ id })),
+    ],
+    Updated: 'x'.repeat(201),
+  });
+  assert.equal(state.avariasAsHtml, '<img src=x onerror=alert(1)>');
+  assert.equal(state.temperatureAsHtml, '');
+  assert.deepEqual(state.calls[0], { id: '1', payload: '<svg onload=alert(1)>' });
+  assert.equal(state.calls.length, 200);
+  assert.equal(state.updated, '');
+
+  const pults = parsePultState({
+    pults: [{ GlobalID: 'p1', nested: { attack: true } }],
+    streetAndHouses: [{ GlobalID: 'x'.repeat(101), Caption: 'bad' }, { GlobalID: 'ok', Caption: 'x'.repeat(301) }],
+  });
+  assert.deepEqual(pults.pults, [{ GlobalID: 'p1' }]);
+  assert.deepEqual(pults.houses, [{ globalId: 'ok', caption: '', alarmed: false, disconnected: false }]);
+
+  const client = createProminClient({ fetcher: async () => jsonResponse({}) });
+  await assert.rejects(() => client.getEquipmentState('x'.repeat(101)), /валідний ID/);
+  await assert.rejects(() => client.executeDU('x'.repeat(101), 'On'), /валідний ID/);
 });
 
 test('client sends GET JSON requests to configured Promin endpoints', async () => {

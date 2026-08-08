@@ -1,7 +1,10 @@
 export const MAX_SUPPLIER_TAGS = 12;
+const MAX_SUPPLIER_TAG_LENGTH = 200;
 
 export function normalizeSupplierTag(value) {
-    return String(value ?? '').trim().replace(/\s+/g, ' ');
+    if (typeof value !== 'string') return '';
+    const tag = value.trim().replace(/\s+/g, ' ');
+    return tag.length <= MAX_SUPPLIER_TAG_LENGTH ? tag : '';
 }
 
 export function supplierTagKey(value) {
@@ -18,16 +21,19 @@ export function supplierTagsFromResponse(value, limit = 50) {
 }
 
 export function mergeSupplierTags(collections, limit = MAX_SUPPLIER_TAGS) {
+    if (!Array.isArray(collections)) return [];
+    const normalizedLimit = Number.isInteger(limit) && limit > 0 ? limit : MAX_SUPPLIER_TAGS;
     const tags = [];
     const known = new Set();
     for (const collection of collections) {
+        if (!Array.isArray(collection)) continue;
         for (const value of collection) {
             const tag = normalizeSupplierTag(value);
             const key = supplierTagKey(tag);
             if (!tag || known.has(key)) continue;
             known.add(key);
             tags.push(tag);
-            if (tags.length >= limit) return tags;
+            if (tags.length >= normalizedLimit) return tags;
         }
     }
     return tags;
