@@ -8,17 +8,11 @@
     import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
     import { createOsbbShiftSettingsController } from './osbb-shift-settings-controller.js';
     import { createOsbbShiftCalendarController } from './osbb-shift-calendar-controller.js';
+    import { createOsbbAttendanceController } from './osbb-attendance-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
-    import {
-        attendanceCellState,
-        attendanceDayState,
-        attendanceHours,
-        calculateAttendanceTotals,
-        normalizeAttendanceMonth,
-    } from './osbb-attendance.js';
     import {
         calculateDispatcherMonthStats,
         closeDispatcherTicket,
@@ -113,7 +107,6 @@
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let {
         garbage: gData,
-        attendance: attData,
         dispatcher: dispData,
         photosCache,
         jiraIssues,
@@ -511,139 +504,42 @@
     // Автопідрахунок годин/днів рахується локально з checkIn/checkOut.
     // ==========================================
 
-    function attKey() { return oneBasedMonthKey(currentYear, currentMonth); }
-    function attOfflineKey() { return osbbOfflineMonthKey('att', currentYear, currentMonth); }
-
-    function attSaveOffline() {
-        writeOsbbOfflineValue(localStorage, attOfflineKey(), attData);
-    }
-    function attLoadOffline() {
-        return normalizeAttendanceMonth(readOsbbOfflineValue(localStorage, attOfflineKey()));
-    }
-
-    function attSetStatus(type, text) {
-        const el = document.getElementById('att-sync-status');
-        if (!el) return;
-        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
-        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
-        el.innerHTML = text;
-    }
-
+    const attendanceController = createOsbbAttendanceController({
+        document, storage:localStorage, isPreview:IS_PREVIEW, roles, roleNames,
+        getMonth: () => ({ year:currentYear, month:currentMonth, days:calendarMonthDays(currentYear, currentMonth) }),
+        getSession: () => staffSession, getPin: () => staffPinCache, clearPin: () => { staffPinCache = null; },
+        isDispatcher:isDispatcherSession, isWorker:isWorkerSession,
+        readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue,
+        loadCloud: monthKey => db.from('osbb_attendance').select('data').eq('month_key', monthKey).single(),
+        saveCloud: args => db.rpc('save_attendance_day', args), requestReauth:requestStaffReauth, showToast,
+        render:attRender,
+    });
     async function attInitTab() {
-        attSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
-        const offline = attLoadOffline();
-        if (offline) { attData = offline; attRender(); }
-        if (IS_PREVIEW) {
-            attData = offline || {};
-            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
-            attRender();
-            return;
-        }
-        try {
-            const res = await db.from('osbb_attendance').select('data').eq('month_key', attKey()).single();
-            const { data, error } = res;
-            if (error && error.code !== 'PGRST116') throw error;
-            const cloudAttendance = data?.data;
-            attData = cloudAttendance && typeof cloudAttendance === 'object' && !Array.isArray(cloudAttendance)
-                ? normalizeAttendanceMonth(cloudAttendance)
-                : offline;
-            attSaveOffline();
-            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
-        } catch(err) {
-            console.error('attendance load error:', err);
-            attSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
-            attData = offline || {};
-        }
-        attRender();
+        return attendanceController.init();
     }
 
     function attGetCell(d, role) {
-        const day = attData[d] || {};
-        return day[role] || { checkIn: '', checkOut: '' };
-    }
-
-    function attHoursForCell(cell) {
-        return attendanceHours(cell);
+        return attendanceController.getCell(d, role);
     }
 
     function attVisibleRoles() {
-        return isWorkerSession() ? [staffSession.role] : roles;
+        return attendanceController.visibleRoles();
     }
 
     function attCellState(cell) {
-        return attendanceCellState(cell);
+        return attendanceController.cellState(cell);
     }
 
     function attDayState(d, visibleRoles = attVisibleRoles()) {
-        const cells = visibleRoles.map(role => attGetCell(d, role));
-        return attendanceDayState(cells);
-    }
-
-    function attUpdateDayVisuals(d) {
-        const state = attDayState(d);
-        document.querySelectorAll(`[data-att-day-card="${d}"]`).forEach(card => {
-            card.classList.remove('is-empty-day', 'is-partial-day', 'is-filled-day');
-            card.classList.add(state);
-        });
-        attVisibleRoles().forEach(role => {
-            const cellState = attCellState(attGetCell(d, role));
-            document.querySelectorAll(`[data-att-cell="${d}-${role}"]`).forEach(cell => {
-                cell.classList.remove('is-empty-cell', 'is-partial-cell', 'is-complete-cell');
-                cell.classList.add(cellState);
-            });
-        });
+        return attendanceController.dayState(d, visibleRoles);
     }
 
     async function attSaveDay(d, role, checkIn, checkOut) {
-        if (!isDispatcherSession()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
-        attData[d] = attData[d] || {};
-        attData[d][role] = { checkIn, checkOut };
-        attSaveOffline();
-        attRenderStats();
-        attUpdateDayVisuals(d);
-        if (IS_PREVIEW) return;
-        // staffPinCache живе лише в пам'яті (не в storage) — після перезавантаження
-        // вкладки staffSession лишається (sessionStorage), а PIN губиться. Замість
-        // мовчазної відмови просимо підтвердити PIN ще раз і продовжуємо збереження.
-        if (!staffPinCache) {
-            attSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>Підтвердіть PIN</span>');
-            const confirmed = await requestStaffReauth();
-            if (!confirmed) {
-                attSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
-                showToast('Збереження скасовано: потрібне підтвердження PIN');
-                return;
-            }
-        }
-        try {
-            const ok = await db.rpc('save_attendance_day', {
-                p_month_key: attKey(), p_day: Number(d), p_role: role,
-                p_check_in: checkIn, p_check_out: checkOut,
-                p_staff_id: staffSession.id, attempt: staffPinCache
-            });
-            if (!ok) throw new Error('Сервер відхилив запис (перевірте роль/PIN)');
-            attSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
-        } catch(err) {
-            console.error('attendance save error:', err);
-            staffPinCache = null; // можливо PIN вже недійсний (напр. змінений адміном) — наступна спроба знову спитає
-            attSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
-            showToast('Не вдалося зберегти. Спробуйте увійти в сесію Диспетчера ще раз.');
-        }
+        return attendanceController.saveDay(d, role, checkIn, checkOut);
     }
 
     function attRenderStats() {
-        const grid = document.getElementById('att-stats-grid');
-        if (!grid) return;
-        const visibleRoles = attVisibleRoles();
-        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
-        const totals = calculateAttendanceTotals(attData, visibleRoles, daysInMonth);
-        grid.innerHTML = visibleRoles.map(role => `
-            <article class="att-stat-card role-${role}">
-                <span class="att-stat-role">${roleNames[role]}</span>
-                <strong class="att-stat-value">${totals[role].days}</strong>
-                <span class="att-stat-label">змін відпрацьовано</span>
-                <small>${totals[role].hours.toFixed(1)} год. загалом</small>
-            </article>
-        `).join('');
+        return attendanceController.renderStats();
     }
 
     function attRender() {
