@@ -1,6 +1,7 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import { createAutoLockController } from './osbb-auto-lock.js';
+    import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
@@ -488,10 +489,9 @@
     // Окремий клієнт лише для підписки на зміни — основний REST-шар (db вище)
     // не чіпаємо, щоб не ризикувати вже робочою логікою.
     function realtimeSafeRefresh(tab, fn) {
-        if (currentTab !== tab) return;
         const active = document.activeElement;
         // Не перебивати активне редагування коментаря/поля вводу realtime-рефрешем.
-        if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) return;
+        if (!shouldApplyRealtimeRefresh(currentTab, tab, active?.tagName)) return;
         fn();
     }
     function initRealtime() {
@@ -1491,8 +1491,8 @@
     }
 
     function changeTheme(themeName) {
+        themeName = saveOsbbTheme(localStorage, themeName);
         document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
-        localStorage.setItem('selected_theme', themeName);
         const isDark = themeName === 'theme-dark';
         document.getElementById('journalThemeLabel').textContent = isDark ? 'Темна' : 'Світла';
         // Оновлюємо колір рядка стану браузера/PWA
@@ -1501,7 +1501,7 @@
         if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#22c55e');
     }
     function toggleTheme() {
-        changeTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
+        changeTheme(nextOsbbTheme(document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light'));
     }
 
     function bindOsbbStaticControls() {
@@ -1637,13 +1637,7 @@
     }
 
     function formatTimeMaskInput(input) {
-        const digits = input.value.replace(/\D/g, '').slice(0, 4);
-        if (digits.length <= 2) { input.value = digits; return; }
-        let h = digits.slice(0, 2);
-        let m = digits.slice(2, 4);
-        if (Number(h) > 23) h = '23';
-        if (m.length === 2 && Number(m) > 59) m = '59';
-        input.value = `${h}:${m}`;
+        input.value = formatTimeMaskValue(input.value);
     }
 
     function bindGarbageEntryActions() {
@@ -1658,7 +1652,7 @@
             container.addEventListener('blur', (event) => {
                 const field = event.target;
                 if (!field.matches?.('[data-time-mask]')) return;
-                if (field.value && !/^([01]\d|2[0-3]):[0-5]\d$/.test(field.value)) field.value = '';
+                if (field.value && !isCompleteTimeValue(field.value)) field.value = '';
             }, true);
             container.addEventListener('change', (event) => {
                 const field = event.target.closest('[data-g-action]');
@@ -1849,7 +1843,7 @@
     bindDispatcherEntryActions();
     bindDayDetailSwipe();
 
-    const savedTheme = localStorage.getItem('selected_theme') || 'theme-light';
+    const savedTheme = loadOsbbTheme(localStorage);
     changeTheme(savedTheme);
 
     setTimeout(() => {
