@@ -60,6 +60,7 @@ function readOsbbCombined() {
     'src/osbb-photos.ts',
     'src/osbb-photo-controller.ts',
     'src/osbb-shifts.ts',
+    'src/osbb-shift-settings-controller.js',
     'src/osbb-staff.ts',
     'src/osbb-staff-auth-controller.ts',
     'src/osbb-tickets.ts',

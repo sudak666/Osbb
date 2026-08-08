@@ -24,6 +24,7 @@ const fallbackPairs = [
   ['src/pin-entry.ts', 'src/pin-entry.js'],
   ['src/osbb-state.ts', 'src/osbb-state.js'],
   ['src/osbb-shifts.ts', 'src/osbb-shifts.js'],
+  ['src/osbb-shift-settings-controller.ts', 'src/osbb-shift-settings-controller.js'],
   ['src/osbb-staff.ts', 'src/osbb-staff.js'],
   ['src/osbb-staff-auth-controller.ts', 'src/osbb-staff-auth-controller.js'],
   ['src/osbb-tickets.ts', 'src/osbb-tickets.js'],
