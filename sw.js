@@ -1,4 +1,4 @@
-const CACHE_NAME = 'osbb-shell-v7';
+const CACHE_NAME = 'osbb-shell-v8';
 const urlsToCache = [
   '/Osbb/',
   '/Osbb/index.html',
