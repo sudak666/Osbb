@@ -7,6 +7,7 @@
     import { createOsbbPinModalController } from './osbb-pin-modal-controller.js';
     import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
     import { createOsbbShiftSettingsController } from './osbb-shift-settings-controller.js';
+    import { createOsbbShiftCalendarController } from './osbb-shift-calendar-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
@@ -44,12 +45,8 @@
         normalizeGarbageMonth,
     } from './osbb-garbage.js';
     import {
-        calculateShiftMoney,
-        shiftDateKey,
         shiftErrorMessage,
         shiftIsWorking,
-        shiftTypeDescription,
-        workShiftRowsFromResponse,
     } from './osbb-shifts.js';
     import {
         STAFF_ROLE_ICONS,
@@ -122,7 +119,6 @@
         garbage: gData,
         attendance: attData,
         dispatcher: dispData,
-        shiftRows,
         photosCache,
         jiraIssues,
         elevatorData,
@@ -445,20 +441,17 @@
     // ==========================================
     // ГРАФІК ЗМІН (Supabase)
     // ==========================================
-    const shiftMonths = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
     const shiftTypes = [
         { key:'day', label:'Денна' },
         { key:'night', label:'Нічна' },
         { key:'night_half2', label:'Пів ночі' },
         { key:'rest', label:'Вихідний' },
     ];
-    let shiftCurrentDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     let shiftSelectedDate = '';
     let shiftEditorSelection = { sergiy:new Set(), oleksandr:new Set() };
     let shiftNames = { sergiy:'Сергій', oleksandr:'Олександр' };
-    let shiftInitialized = false;
-    let shiftLoading = false;
     let shiftEditorFocusReturn = null;
+    let shiftCalendarController;
 
     const shiftSettingsController = createOsbbShiftSettingsController({
         document,
@@ -468,150 +461,40 @@
         }),
         requestPin: showPinModal,
         showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
-        onNamesChanged: names => { shiftNames = names; shiftRenderCalendar(); },
+        onNamesChanged: names => { shiftNames = names; shiftCalendarController?.render(); },
+    });
+    shiftCalendarController = createOsbbShiftCalendarController({
+        document,
+        loadRows: monthKey => db.from('work_shifts').select('*').eq('month_key', monthKey).order('shift_date',{ascending:true}),
+        getNames: () => shiftNames,
+        showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
     });
     const shiftLoadSettings = () => shiftSettingsController.load();
     const shiftOpenNameEditor = () => shiftSettingsController.open();
     const shiftCloseNameEditor = () => shiftSettingsController.close();
     const shiftTrapNameEditorFocus = event => shiftSettingsController.trapFocus(event);
     const shiftSaveNames = () => shiftSettingsController.save();
-
-    function shiftMonthKey() {
-        return `${shiftCurrentDate.getFullYear()}-${String(shiftCurrentDate.getMonth() + 1).padStart(2,'0')}`;
-    }
-
-    function shiftTodayKey() {
-        const now = new Date();
-        return shiftDateKey(now.getFullYear(), now.getMonth(), now.getDate());
-    }
-
-    function shiftDayData(dateKey) {
-        if (shiftRows[dateKey]) return shiftRows[dateKey];
-        return dateKey <= shiftTodayKey() ? { sergiy:['day'], oleksandr:['night'] } : { sergiy:[], oleksandr:[] };
-    }
-
-    function shiftAppendIndicators(container, person, values) {
-        const hasFull = Array.isArray(values) && (values.includes('day') || values.includes('night'));
-        const hasHalf = Array.isArray(values) && values.includes('night_half2');
-        if (hasFull) {
-            const marker = document.createElement('i');
-            marker.className = `shift-dot is-${person} is-full`;
-            marker.setAttribute('aria-hidden','true');
-            container.appendChild(marker);
-        }
-        if (hasHalf) {
-            const marker = document.createElement('i');
-            marker.className = `shift-dot is-${person} is-half`;
-            marker.setAttribute('aria-hidden','true');
-            container.appendChild(marker);
-        }
-    }
-
-    function shiftSetStatus(text, state='ready') {
-        const status = document.getElementById('shift-sync-status');
-        if (!status) return;
-        status.textContent = text;
-        status.classList.toggle('is-syncing', state === 'loading');
-    }
+    const shiftMonthKey = () => shiftCalendarController.monthKey();
+    const shiftDayData = dateKey => shiftCalendarController.dayData(dateKey);
 
     function shiftRenderCalendar() {
-        const calendar = document.getElementById('shift-calendar');
-        const title = document.getElementById('shift-month-title');
-        if (!calendar || !title) return;
-        const year = shiftCurrentDate.getFullYear();
-        const month = shiftCurrentDate.getMonth();
-        title.textContent = `${shiftMonths[month]} ${year}`;
-        calendar.replaceChildren();
-        const firstDay = new Date(year, month, 1).getDay();
-        const offset = firstDay === 0 ? 6 : firstDay - 1;
-        for (let i=0; i<offset; i+=1) {
-            const placeholder = document.createElement('span');
-            placeholder.className = 'shift-day-placeholder';
-            placeholder.setAttribute('aria-hidden','true');
-            calendar.appendChild(placeholder);
-        }
-        const days = new Date(year, month + 1, 0).getDate();
-        const today = shiftTodayKey();
-        for (let day=1; day<=days; day+=1) {
-            const key = shiftDateKey(year, month, day);
-            const data = shiftDayData(key);
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'shift-day md-state-layer';
-            if (key === today) button.classList.add('is-today');
-            if (!shiftRows[key] && key <= today) button.classList.add('is-auto');
-            button.dataset.shiftDate = key;
-            button.setAttribute('aria-label', `${day} ${shiftMonths[month]}: ${shiftNames.sergiy} — ${shiftTypeDescription(data.sergiy)}, ${shiftNames.oleksandr} — ${shiftTypeDescription(data.oleksandr)}`);
-            const number = document.createElement('span');
-            number.className = 'shift-day-number';
-            number.textContent = String(day);
-            const indicators = document.createElement('span');
-            indicators.className = 'shift-day-indicators';
-            shiftAppendIndicators(indicators, 'sergiy', data.sergiy);
-            shiftAppendIndicators(indicators, 'oleksandr', data.oleksandr);
-            button.append(number, indicators);
-            calendar.appendChild(button);
-        }
-        shiftRenderStats();
+        return shiftCalendarController.render();
     }
 
     function shiftCount(person) {
-        const result = { day:0, night:0, night_half2:0 };
-        const year = shiftCurrentDate.getFullYear();
-        const month = shiftCurrentDate.getMonth();
-        const days = new Date(year, month + 1, 0).getDate();
-        for (let day=1; day<=days; day+=1) {
-            const values = shiftDayData(shiftDateKey(year, month, day))[person];
-            if (!Array.isArray(values)) continue;
-            values.forEach(value => { if (Object.hasOwn(result, value)) result[value] += 1; });
-        }
-        return result;
-    }
-
-    function shiftMoney(counts) {
-        return calculateShiftMoney(counts);
+        return shiftCalendarController.count(person);
     }
 
     function shiftRenderStats() {
-        const sergiy = shiftCount('sergiy');
-        const oleksandr = shiftCount('oleksandr');
-        const sergiyMoney = shiftMoney(sergiy);
-        const oleksandrMoney = shiftMoney(oleksandr);
-        document.getElementById('shift-stats-sergiy').textContent = `${sergiy.day} / ${sergiy.night} / ${sergiy.night_half2}`;
-        document.getElementById('shift-stats-oleksandr').textContent = `${oleksandr.day} / ${oleksandr.night} / ${oleksandr.night_half2}`;
-        document.getElementById('shift-money-sergiy').textContent = `${sergiyMoney.toLocaleString('uk-UA')} грн`;
-        document.getElementById('shift-money-oleksandr').textContent = `${oleksandrMoney.toLocaleString('uk-UA')} грн`;
-        document.getElementById('shift-money-total').textContent = `${(sergiyMoney + oleksandrMoney).toLocaleString('uk-UA')} грн`;
+        return shiftCalendarController.renderStats();
     }
 
     async function shiftLoadMonth() {
-        if (shiftLoading) return;
-        shiftLoading = true;
-        shiftSetStatus('Оновлення…','loading');
-        try {
-            const { data, error } = await db.from('work_shifts').select('*').eq('month_key', shiftMonthKey()).order('shift_date',{ascending:true});
-            if (error) throw new Error(error.message || 'Не вдалося завантажити графік');
-            shiftRows = workShiftRowsFromResponse(data);
-            shiftRenderCalendar();
-            shiftSetStatus('Синхронізовано');
-        } catch (error) {
-            console.warn('shiftLoadMonth failed:', error);
-            shiftRows = {};
-            shiftRenderCalendar();
-            shiftSetStatus('Помилка синхронізації');
-            showToast(shiftErrorMessage(error, 'Графік змін не завантажився'), TOAST_ICON_ERROR);
-        } finally {
-            shiftLoading = false;
-        }
+        return shiftCalendarController.load();
     }
 
     function shiftInitTab() {
-        if (!shiftInitialized) {
-            shiftInitialized = true;
-            shiftLoadSettings();
-            shiftRenderCalendar();
-        }
-        shiftLoadMonth();
+        return shiftCalendarController.init(shiftLoadSettings);
     }
 
     function shiftRenderChips(person) {
@@ -706,10 +589,7 @@
     }
 
     function shiftChangeMonth(direction) {
-        shiftCurrentDate = new Date(shiftCurrentDate.getFullYear(), shiftCurrentDate.getMonth() + direction, 1);
-        shiftRows = {};
-        shiftRenderCalendar();
-        shiftLoadMonth();
+        return shiftCalendarController.changeMonth(direction);
     }
 
     function shiftResetMonth() {
