@@ -55,6 +55,7 @@ function readOsbbCombined() {
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
+    'src/osbb-garbage-controller.js',
     'src/osbb-lightbox-controller.ts',
     'src/osbb-lock-controller.ts',
     'src/osbb-pin-modal-controller.ts',
@@ -1889,15 +1890,14 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'journal garbage chart fetches yearly cloud data';
   const required = [
-    'function gMonthKeyCandidates(year = currentYear, month = currentMonth)',
-    'async function gFetchGarbageMonthData(year = currentYear, month = currentMonth)',
+    'async function findMonth(year = getMonth().year, month = getMonth().month)',
+    'for (const key of garbageMonthKeyCandidates(year, month))',
     "String(month).padStart(2, '0')",
-    'async function gLoadGarbageYearFromCloud(year)',
+    'async function loadYear(year)',
     "db.from('garbage').select('month_key,data')",
-    'const candidates = gMonthKeyCandidates(year, month)',
-    'candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean)',
-    "removeOsbbOfflineValue(localStorage, osbbOfflineMonthKey('garbage', year, month))",
-    'await gLoadGarbageYearFromCloud(currentYear)',
+    'garbageMonthKeyCandidates(year, month).map(key => rows.find(item => item.month_key === key)).find(Boolean)',
+    'removeOffline(storage, key)',
+    'await garbageController.loadYear(currentYear)',
     "String(d).padStart(2,'0')",
   ];
   const forbidden = ["String(d).padStart(2,'00')", 'const oneBasedMonth =', ".select('month_key,data').in(", "keys.map(monthKey =>", 'Promise.all(Array.from({ length: 12 }, async (_, month) =>'];
