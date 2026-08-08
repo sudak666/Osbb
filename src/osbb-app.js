@@ -48,13 +48,16 @@
         STAFF_ROLE_LABELS,
         WORKER_ROLES,
         canManageStaffAccess as canManageStaffAccessForSession,
+        clearStoredStaffSession,
         isDispatcherSession as isDispatcherStaffSession,
         isTabAllowedForSession as isStaffTabAllowed,
         isWorkerSession as isWorkerStaffSession,
+        loadStoredStaffSession,
         normalizeWorkerRole,
         parseStaffList,
         parseStaffSettingsList,
         parseStaffSession,
+        saveStoredStaffSession,
     } from './osbb-staff.js';
     import {
         TICKET_PRIORITIES as ticketPriorities,
@@ -167,7 +170,6 @@
     // Роль сесії визначає доступ до Табеля (редагування) і заявок
     // (повний "Диспетчер" таб vs "Мої заявки"). Ролі "охорона" немає.
     // ==========================================
-    const STAFF_SESSION_KEY = 'osbb_staff_session';
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let {
@@ -188,24 +190,17 @@
     let staffReauthResolve = null; // очікує повторного підтвердження PIN після втрати staffPinCache (напр. після перезавантаження вкладки)
 
     function loadStaffSession() {
-        try {
-            const raw = sessionStorage.getItem(STAFF_SESSION_KEY);
-            staffSession = raw ? parseStaffSession(JSON.parse(raw)) : null;
-            if (raw && !staffSession) sessionStorage.removeItem(STAFF_SESSION_KEY);
-        } catch(e) {
-            staffSession = null;
-            try { sessionStorage.removeItem(STAFF_SESSION_KEY); } catch {}
-        }
+        staffSession = loadStoredStaffSession(sessionStorage);
     }
 
     function saveStaffSession() {
-        try { sessionStorage.setItem(STAFF_SESSION_KEY, JSON.stringify(staffSession)); } catch(e) {}
+        if (staffSession) saveStoredStaffSession(sessionStorage, staffSession);
     }
 
     function staffLogout() {
         staffSession = null;
         staffPinCache = null;
-        try { sessionStorage.removeItem(STAFF_SESSION_KEY); } catch(e) {}
+        clearStoredStaffSession(sessionStorage);
         applyRoleGating();
         openStaffLogin();
     }

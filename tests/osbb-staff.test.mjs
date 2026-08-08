@@ -3,16 +3,29 @@ import assert from 'node:assert/strict';
 
 import {
   canManageStaffAccess,
+  clearStoredStaffSession,
   isDispatcherSession,
   isTabAllowedForSession,
   isWorkerSession,
+  loadStoredStaffSession,
   normalizeWorkerRole,
   parseStaffList,
   parseStaffSettingsList,
   parseStaffSession,
+  saveStoredStaffSession,
 } from '../src/osbb-staff.js';
 
 const session = (role) => ({ id: role, name: role, role });
+
+const memoryStorage = (initial = {}) => {
+  const values = new Map(Object.entries(initial));
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value),
+    removeItem: (key) => values.delete(key),
+    values,
+  };
+};
 
 test('staff session parser accepts only complete known-role sessions', () => {
   assert.deepEqual(parseStaffSession({ id: ' worker-1 ', name: '  Іван  ', role: 'plumber' }), {
@@ -23,6 +36,30 @@ test('staff session parser accepts only complete known-role sessions', () => {
   assert.equal(parseStaffSession({ id: 'worker-1', name: 'Іван', role: 'unknown' }), null);
   assert.equal(parseStaffSession({ id: Number.NaN, name: 'Іван', role: 'plumber' }), null);
   assert.equal(parseStaffSession(null), null);
+});
+
+test('staff session storage round-trips validated sessions', () => {
+  const storage = memoryStorage();
+  const value = { id: ' worker-1 ', name: '  Іван  ', role: 'plumber' };
+  assert.equal(saveStoredStaffSession(storage, value), true);
+  assert.deepEqual(loadStoredStaffSession(storage), { id: 'worker-1', name: 'Іван', role: 'plumber' });
+  clearStoredStaffSession(storage);
+  assert.equal(loadStoredStaffSession(storage), null);
+});
+
+test('staff session storage removes malformed persisted data and tolerates storage failures', () => {
+  const malformed = memoryStorage({ osbb_staff_session: '{broken' });
+  assert.equal(loadStoredStaffSession(malformed), null);
+  assert.equal(malformed.values.has('osbb_staff_session'), false);
+
+  const unavailable = {
+    getItem() { throw new Error('blocked'); },
+    setItem() { throw new Error('blocked'); },
+    removeItem() { throw new Error('blocked'); },
+  };
+  assert.equal(loadStoredStaffSession(unavailable), null);
+  assert.equal(saveStoredStaffSession(unavailable, session('admin')), false);
+  assert.doesNotThrow(() => clearStoredStaffSession(unavailable));
 });
 
 test('staff list parser removes malformed server rows', () => {
