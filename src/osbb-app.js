@@ -6,6 +6,7 @@
     import { createOsbbPhotoController } from './osbb-photo-controller.js';
     import { createOsbbPinModalController } from './osbb-pin-modal-controller.js';
     import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
+    import { createOsbbShiftSettingsController } from './osbb-shift-settings-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
@@ -48,7 +49,6 @@
         shiftErrorMessage,
         shiftIsWorking,
         shiftTypeDescription,
-        workShiftNamesFromResponse,
         workShiftRowsFromResponse,
     } from './osbb-shifts.js';
     import {
@@ -460,6 +460,22 @@
     let shiftLoading = false;
     let shiftEditorFocusReturn = null;
 
+    const shiftSettingsController = createOsbbShiftSettingsController({
+        document,
+        loadSettings: () => db.from('work_shift_settings').select('employee_one_name,employee_two_name').eq('id', 1).maybeSingle(),
+        saveNames: (first, second, attempt) => db.rpc('update_work_shift_names', {
+            p_employee_one_name:first, p_employee_two_name:second, attempt,
+        }),
+        requestPin: showPinModal,
+        showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
+        onNamesChanged: names => { shiftNames = names; shiftRenderCalendar(); },
+    });
+    const shiftLoadSettings = () => shiftSettingsController.load();
+    const shiftOpenNameEditor = () => shiftSettingsController.open();
+    const shiftCloseNameEditor = () => shiftSettingsController.close();
+    const shiftTrapNameEditorFocus = event => shiftSettingsController.trapFocus(event);
+    const shiftSaveNames = () => shiftSettingsController.save();
+
     function shiftMonthKey() {
         return `${shiftCurrentDate.getFullYear()}-${String(shiftCurrentDate.getMonth() + 1).padStart(2,'0')}`;
     }
@@ -496,27 +512,6 @@
         if (!status) return;
         status.textContent = text;
         status.classList.toggle('is-syncing', state === 'loading');
-    }
-
-    function shiftApplyNames() {
-        const pairs = [
-            ['shift-legend-sergiy', shiftNames.sergiy], ['shift-stat-name-sergiy', shiftNames.sergiy], ['shift-editor-name-sergiy', shiftNames.sergiy],
-            ['shift-legend-oleksandr', shiftNames.oleksandr], ['shift-stat-name-oleksandr', shiftNames.oleksandr], ['shift-editor-name-oleksandr', shiftNames.oleksandr],
-        ];
-        pairs.forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
-        document.getElementById('shift-heading').textContent = `${shiftNames.sergiy} та ${shiftNames.oleksandr}`;
-    }
-
-    async function shiftLoadSettings() {
-        try {
-            const { data, error } = await db.from('work_shift_settings').select('employee_one_name,employee_two_name').eq('id', 1).maybeSingle();
-            if (error) throw new Error(error.message || 'Не вдалося завантажити імена');
-            shiftNames = workShiftNamesFromResponse(data, shiftNames);
-            shiftApplyNames();
-            shiftRenderCalendar();
-        } catch (error) {
-            console.warn('shiftLoadSettings failed:', error);
-        }
     }
 
     function shiftRenderCalendar() {
@@ -707,52 +702,6 @@
                 console.warn('shiftSaveDay failed:', error);
                 showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), TOAST_ICON_ERROR);
             } finally { saveButton.disabled = false; }
-        }, false, 'verify_work_shifts_pin');
-    }
-
-    function shiftOpenNameEditor() {
-        document.getElementById('shift-name-sergiy').value = shiftNames.sergiy;
-        document.getElementById('shift-name-oleksandr').value = shiftNames.oleksandr;
-        const editor = document.getElementById('shift-name-editor');
-        editor.classList.add('is-open');
-        editor.setAttribute('aria-hidden','false');
-        requestAnimationFrame(() => document.getElementById('shift-name-sergiy').focus({preventScroll:true}));
-    }
-
-    function shiftCloseNameEditor() {
-        const editor = document.getElementById('shift-name-editor');
-        editor.classList.remove('is-open');
-        editor.setAttribute('aria-hidden','true');
-    }
-
-    function shiftTrapNameEditorFocus(event) {
-        if (event.key === 'Escape') { event.preventDefault(); shiftCloseNameEditor(); return; }
-        if (event.key !== 'Tab') return;
-        const focusable = [...event.currentTarget.querySelectorAll('button:not([disabled]),input:not([disabled])')];
-        if (!focusable.length) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
-    }
-
-    function shiftSaveNames() {
-        const first = document.getElementById('shift-name-sergiy').value.trim();
-        const second = document.getElementById('shift-name-oleksandr').value.trim();
-        if (!first || !second) { showToast('Вкажіть обидва імені', TOAST_ICON_ERROR); return; }
-        showPinModal('PIN графіка змін', 'Підтвердьте зміну імен окремим PIN', async attempt => {
-            try {
-                const ok = await db.rpc('update_work_shift_names', { p_employee_one_name:first, p_employee_two_name:second, attempt });
-                if (!ok) throw new Error('Сервер відхилив операцію');
-                shiftNames = { sergiy:first, oleksandr:second };
-                shiftApplyNames();
-                shiftRenderCalendar();
-                shiftCloseNameEditor();
-                showToast('Імена працівників оновлено', TOAST_ICON_CHECK);
-            } catch (error) {
-                console.warn('shiftSaveNames failed:', error);
-                showToast(shiftErrorMessage(error, 'Не вдалося змінити імена'), TOAST_ICON_ERROR);
-            }
         }, false, 'verify_work_shifts_pin');
     }
 
