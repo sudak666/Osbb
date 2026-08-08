@@ -27,6 +27,7 @@ import { createSkladSupplierController } from './sklad-supplier-controller.js';
 import { createSkladItemMenuController } from './sklad-item-menu-controller.js';
 import { createSkladPhotoController } from './sklad-photo-controller.js';
 import { createSkladItemCrudController } from './sklad-item-crud-controller.js';
+import { createSkladMovementsController } from './sklad-movements-controller.js';
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -97,6 +98,9 @@ const renderCustomSupplierTags=()=>supplierController.render();
 const addCustomSupplierTag=()=>supplierController.add();
 const requestRemoveCustomSupplierTag=tag=>supplierController.requestRemove(tag);
 const confirmRemoveCustomSupplierTag=()=>supplierController.confirmRemove();
+
+const movementsController=createSkladMovementsController({db});
+const runDeleteInventoryRpc=(name,args)=>movementsController.runDelete(name,args);
 
 const photoController=createSkladPhotoController({db,document,window,getItem:findItemForAction,loadItems,openModal,closeModal,requestDeletePin:showDeletePinModal,toast});
 const openPhotoModal=id=>photoController.open(id);
@@ -884,19 +888,6 @@ function renderLog(){
 
 // ===== EDIT / DELETE LOG =====
 let deleteLogId=null,editLogId=null;
-async function runDeleteInventoryRpc(name,args){
-  try{
-    const {data,error}=await db.rpc(name,args);
-    if(error){
-      console.warn(name+' failed',error);
-      return {ok:false,reason:'network'};
-    }
-    return deleteInventoryResultFromRpcResponse(data);
-  }catch(error){
-    console.warn(name+' failed',error);
-    return {ok:false,reason:'network'};
-  }
-}
 function openDeleteLog(id){
   const l=allLogs.find(x=>x.id===id);
   if(!l) return;

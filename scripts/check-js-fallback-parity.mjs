@@ -40,6 +40,7 @@ const fallbackPairs = [
   ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
   ['src/sklad-movements.ts', 'src/sklad-movements.js'],
+  ['src/sklad-movements-controller.ts', 'src/sklad-movements-controller.js'],
   ['src/sklad-pricing.ts', 'src/sklad-pricing.js'],
   ['src/sklad-photo-controller.ts', 'src/sklad-photo-controller.js'],
   ['src/sklad-reporting.ts', 'src/sklad-reporting.js'],
