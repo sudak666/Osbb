@@ -88,3 +88,16 @@ test('movement response boundaries reject incomplete and malformed rows', () => 
   assert.deepEqual(inventoryReceiptsFromResponse([receipt, [], { ...receipt, id: 5, received_at: '' }]), [{ ...receipt, purchase_price_unit: null, supplier: null, note: null }]);
   assert.deepEqual(inventoryReceiptsFromResponse({ data: [] }), []);
 });
+
+test('inventory boundaries bound malicious text payloads without propagating extra fields', () => {
+  const payload = '<img src=x onerror=alert(1)>';
+  const timestamp = '2026-08-03T10:00:00Z';
+  assert.deepEqual(inventoryLogsFromResponse([{
+    id: 10, item_id: 2, item_name: `  ${payload}  `, quantity: 1, issued_at: timestamp,
+    issued_to: payload, note: 'x'.repeat(1001), malicious: '<script>alert(1)</script>',
+  }]), [{ id: 10, item_id: 2, item_name: payload, quantity: 1, issued_to: payload, note: null, issued_at: timestamp }]);
+  assert.deepEqual(inventoryReceiptsFromResponse([{
+    id: 11, item_id: 2, item_name: 'Лампа', quantity: 1, received_at: timestamp,
+    supplier: 'x'.repeat(201), note: payload, malicious: '<script>alert(1)</script>',
+  }]), [{ id: 11, item_id: 2, item_name: 'Лампа', quantity: 1, purchase_price_unit: null, supplier: null, note: payload, received_at: timestamp }]);
+});

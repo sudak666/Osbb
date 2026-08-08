@@ -5,6 +5,8 @@ function parseTime(value) {
     return hours * 60 + minutes;
 }
 
+const ATTENDANCE_ROLES = new Set(['plumber', 'janitor', 'electrician']);
+
 export function normalizeAttendanceMonth(value) {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
     const month = {};
@@ -13,6 +15,7 @@ export function normalizeAttendanceMonth(value) {
         if (!Number.isInteger(numericDay) || numericDay < 1 || numericDay > 31 || typeof roles !== 'object' || roles === null || Array.isArray(roles)) continue;
         const normalizedRoles = {};
         for (const [role, cell] of Object.entries(roles)) {
+            if (!ATTENDANCE_ROLES.has(role)) continue;
             if (typeof cell !== 'object' || cell === null || Array.isArray(cell)) continue;
             const checkIn = parseTime(cell.checkIn) === null ? undefined : cell.checkIn;
             const checkOut = parseTime(cell.checkOut) === null ? undefined : cell.checkOut;

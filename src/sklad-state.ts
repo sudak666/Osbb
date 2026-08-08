@@ -114,14 +114,15 @@ export function inventoryItemIdFromInsertResponse(value: unknown): number | null
 
 export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.issued_at)) return [];
+        const itemName = boundedText(row.item_name, 200);
+        if (!isFiniteNumber(row.id) || !itemName || !isFiniteNumber(row.quantity) || !isTimestamp(row.issued_at)) return [];
         return [{
             id: row.id,
             item_id: nullableNumber(row.item_id),
-            item_name: row.item_name,
+            item_name: itemName,
             quantity: row.quantity,
-            issued_to: nullableString(row.issued_to),
-            note: nullableString(row.note),
+            issued_to: optionalText(row.issued_to, 200),
+            note: optionalText(row.note, 1000),
             issued_at: row.issued_at,
         }];
     });
@@ -129,15 +130,16 @@ export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
 
 export function inventoryReceiptsFromResponse(value: unknown): InventoryReceiptRow[] {
     return rows(value).flatMap((row) => {
-        if (!isFiniteNumber(row.id) || typeof row.item_name !== 'string' || !isFiniteNumber(row.quantity) || !isTimestamp(row.received_at)) return [];
+        const itemName = boundedText(row.item_name, 200);
+        if (!isFiniteNumber(row.id) || !itemName || !isFiniteNumber(row.quantity) || !isTimestamp(row.received_at)) return [];
         return [{
             id: row.id,
             item_id: nullableNumber(row.item_id),
-            item_name: row.item_name,
+            item_name: itemName,
             quantity: row.quantity,
             purchase_price_unit: nullableNumber(row.purchase_price_unit),
-            supplier: nullableString(row.supplier),
-            note: nullableString(row.note),
+            supplier: optionalText(row.supplier, 200),
+            note: optionalText(row.note, 1000),
             received_at: row.received_at,
         }];
     });

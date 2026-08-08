@@ -38,6 +38,15 @@ test('attendance states distinguish empty, partial and completed records', () =>
   ]), 'is-filled-day');
 });
 
+test('normalizeAttendanceMonth ignores injected role and time payloads', () => {
+  assert.deepEqual(normalizeAttendanceMonth({
+    1: {
+      plumber: { checkIn: '08:00', checkOut: '\" autofocus onfocus=alert(1) x=\"' },
+      '<img onerror=alert(1)>': { checkIn: '09:00', checkOut: '17:00' },
+    },
+  }), { 1: { plumber: { checkIn: '08:00', checkOut: undefined } } });
+});
+
 test('calculateAttendanceTotals aggregates days and fractional hours by role', () => {
   const totals = calculateAttendanceTotals({
     1: { plumber: { checkIn: '08:00', checkOut: '17:00' }, janitor: { checkIn: '09:00', checkOut: '13:30' } },

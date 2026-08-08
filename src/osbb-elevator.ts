@@ -18,7 +18,7 @@ export function createElevatorEntry(
     options: ElevatorEntryOptions = {},
 ): ElevatorEntry | null {
     const normalizedText = String(text ?? '').trim();
-    if (!normalizedText) return null;
+    if (!normalizedText || normalizedText.length > 1000) return null;
 
     const now = options.now ?? new Date();
     const numericDay = Number(day);
@@ -30,7 +30,7 @@ export function createElevatorEntry(
         day: normalizedDay,
         text: normalizedText,
         createdAt: now.toISOString(),
-        createdBy: String(createdBy ?? ''),
+        createdBy: String(createdBy ?? '').trim().slice(0, 100),
     };
 }
 
@@ -39,14 +39,14 @@ export function elevatorEntriesFromResponse(value: unknown): ElevatorEntry[] {
     return value.flatMap((entry) => {
         if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
         const row = entry as Record<string, unknown>;
-        if (typeof row.id !== 'string' || !row.id || !Number.isInteger(row.day) || (row.day as number) < 1 || (row.day as number) > 31) return [];
-        if (typeof row.text !== 'string' || !row.text.trim()) return [];
+        if (typeof row.id !== 'string' || !/^[A-Za-z0-9_-]{1,100}$/.test(row.id) || !Number.isInteger(row.day) || (row.day as number) < 1 || (row.day as number) > 31) return [];
+        if (typeof row.text !== 'string' || !row.text.trim() || row.text.trim().length > 1000) return [];
         return [{
             id: row.id,
             day: row.day as number,
             text: row.text.trim(),
-            createdAt: typeof row.createdAt === 'string' ? row.createdAt : '',
-            createdBy: typeof row.createdBy === 'string' ? row.createdBy : '',
+            createdAt: typeof row.createdAt === 'string' && Number.isFinite(Date.parse(row.createdAt)) ? row.createdAt : '',
+            createdBy: typeof row.createdBy === 'string' && row.createdBy.trim().length <= 100 ? row.createdBy.trim() : '',
         }];
     });
 }
