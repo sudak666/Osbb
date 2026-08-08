@@ -1,5 +1,6 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
+    import { createAutoLockController } from './osbb-auto-lock.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
     import {
         attendanceCellState,
@@ -26,6 +27,7 @@
         sortElevatorEntries,
     } from './osbb-elevator.js';
     import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photoIdFromInsertResponse, photosFor, removePhoto } from './osbb-photos.js';
+    import { appendPinDigit, deletePinDigit, isPinComplete, pinLockoutDelay } from './osbb-pin.js';
     import {
         garbageMonthBinsTotal,
         garbageMonthKey,
@@ -111,17 +113,19 @@
 
     function lockDel() {
         if (lockBusy) return;
-        if (lockBuf.length > 0) lockBuf = lockBuf.slice(0, -1);
+        lockBuf = deletePinDigit(lockBuf);
         const err = document.getElementById('lock-err');
         if (err) err.textContent = '';
         lockUpdateDots();
     }
 
     async function lockPress(digit) {
-        if (lockBusy || lockBuf.length >= 4) return;
-        lockBuf += digit;
+        if (lockBusy) return;
+        const nextBuffer = appendPinDigit(lockBuf, digit);
+        if (nextBuffer === lockBuf) return;
+        lockBuf = nextBuffer;
         lockUpdateDots();
-        if (lockBuf.length === 4) {
+        if (isPinComplete(lockBuf)) {
             const attempt = lockBuf;
             lockBusy = true;
             let ok = false;
@@ -153,7 +157,7 @@
                     setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
                     setTimeout(() => box.style.transform = 'translateX(0)', 240);
                 }
-                const lockout = Math.min(lockFails * 500, 5000);
+                const lockout = pinLockoutDelay(lockFails);
                 setTimeout(() => {
                     lockBusy = false;
                     const currentErr = document.getElementById('lock-err');
@@ -365,16 +369,18 @@
 
     function staffLoginDel() {
         if (staffLoginBusy) return;
-        if (staffLoginBuf.length > 0) staffLoginBuf = staffLoginBuf.slice(0, -1);
+        staffLoginBuf = deletePinDigit(staffLoginBuf);
         document.getElementById('staff-login-err').textContent = '';
         staffLoginUpdateDots();
     }
 
     async function staffLoginPress(digit) {
-        if (staffLoginBusy || staffLoginBuf.length >= 4 || !staffLoginSelected) return;
-        staffLoginBuf += digit;
+        if (staffLoginBusy || !staffLoginSelected) return;
+        const nextBuffer = appendPinDigit(staffLoginBuf, digit);
+        if (nextBuffer === staffLoginBuf) return;
+        staffLoginBuf = nextBuffer;
         staffLoginUpdateDots();
-        if (staffLoginBuf.length !== 4) return;
+        if (!isPinComplete(staffLoginBuf)) return;
         const attempt = staffLoginBuf;
         staffLoginBusy = true;
 
@@ -415,7 +421,7 @@
             document.getElementById('staff-login-err').textContent = 'Невірний PIN, спробуйте ще';
             staffLoginBuf = '';
             staffLoginUpdateDots();
-            const lockout = Math.min(staffLoginFails * 500, 5000);
+            const lockout = pinLockoutDelay(staffLoginFails);
             setTimeout(() => { staffLoginBusy = false; }, lockout);
         }
     }
@@ -2339,16 +2345,17 @@
     }
 
     function pinModalDel() {
-        if (pinModalBuf.length > 0) pinModalBuf = pinModalBuf.slice(0, -1);
+        pinModalBuf = deletePinDigit(pinModalBuf);
         document.getElementById('pin-err').textContent = '';
         pinUpdateDots();
     }
 
     async function pinModalPress(digit) {
-        if (pinModalBuf.length >= 4) return;
-        pinModalBuf += digit;
+        const nextBuffer = appendPinDigit(pinModalBuf, digit);
+        if (nextBuffer === pinModalBuf) return;
+        pinModalBuf = nextBuffer;
         pinUpdateDots();
-        if (pinModalBuf.length === 4) {
+        if (isPinComplete(pinModalBuf)) {
             const attempt = pinModalBuf;
             let ok = false;
             try { ok = await db.rpc(pinModalVerifyRpc, { attempt }); } catch (e) { ok = false; }
@@ -3093,14 +3100,6 @@
     // ============================================================
     // AUTO-LOCK — блокування через 30 хвилин бездіяльності
     // ============================================================
-    const AUTO_LOCK_MS = 30 * 60 * 1000; // 30 хвилин
-    let autoLockTimer = null;
-
-    function resetAutoLock() {
-        clearTimeout(autoLockTimer);
-        autoLockTimer = setTimeout(triggerAutoLock, AUTO_LOCK_MS);
-    }
-
     function triggerAutoLock() {
         lockBuf = '';
         lockUpdateDots();
@@ -3114,11 +3113,13 @@
         if (err) err.textContent = '';
     }
 
+    const autoLockController = createAutoLockController(triggerAutoLock);
+
     // Скидати таймер на будь-яку активність користувача
     ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
-        document.addEventListener(evt, resetAutoLock, { passive: true })
+        document.addEventListener(evt, autoLockController.reset, { passive: true })
     );
-    resetAutoLock(); // Запустити таймер
+    autoLockController.reset(); // Запустити таймер
 
     // CSS для спін-анімації кнопки refresh
     const styleEl = document.createElement('style');
