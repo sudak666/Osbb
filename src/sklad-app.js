@@ -25,8 +25,9 @@ import { createSkladDataController } from './sklad-data-controller.js';
 import { createSkladAuditController } from './sklad-audit-controller.js';
 import { createSkladSupplierController } from './sklad-supplier-controller.js';
 import { createSkladItemMenuController } from './sklad-item-menu-controller.js';
+import { createSkladPhotoController } from './sklad-photo-controller.js';
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
-let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='';
+let curCat='',logCat='',quickId=null,editItemId=null,deleteItemId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
@@ -95,6 +96,14 @@ const renderCustomSupplierTags=()=>supplierController.render();
 const addCustomSupplierTag=()=>supplierController.add();
 const requestRemoveCustomSupplierTag=tag=>supplierController.requestRemove(tag);
 const confirmRemoveCustomSupplierTag=()=>supplierController.confirmRemove();
+
+const photoController=createSkladPhotoController({db,document,window,getItem:findItemForAction,loadItems,openModal,closeModal,requestDeletePin:showDeletePinModal,toast});
+const openPhotoModal=id=>photoController.open(id);
+const uploadPhoto=()=>photoController.upload();
+const deletePhoto=()=>photoController.remove();
+const openLightbox=(url,itemId=null)=>photoController.openLightbox(url,itemId);
+const closeLightbox=()=>photoController.closeLightbox();
+const deleteLightboxPhoto=event=>photoController.removeFromLightbox(event);
 
 const itemMenuController=createSkladItemMenuController({document,window,actions:{
   quick:id=>openQuick(id),history:id=>openHistory(id),edit:id=>openEditItem(id),photo:id=>openPhotoModal(id),
@@ -1326,101 +1335,6 @@ async function confirmDelete(){
     }
     return result;
   });
-}
-
-// ===== PHOTO =====
-function openPhotoModal(id){
-  const item=findItemForAction(id,'фото');
-  if(!item) return;
-  photoItemId=id;
-  document.getElementById('photoItemName').textContent=item.name;
-  document.getElementById('photoStatus').textContent='';
-  document.getElementById('photoFileI').value='';
-  const cur=document.getElementById('photoCurrent');
-  const delBtn=document.getElementById('delPhotoBtn');
-  const safePhoto=item.photo_url?safeExternalUrl(item.photo_url):'';
-  if(safePhoto){
-    cur.innerHTML=`<img src="${safePhoto}" loading="lazy" alt="Фото товару ${escapeHtml(item.name||'')}" class="photo-current-img" data-photo-current-lightbox data-item-id="${item.id}" data-photo-url="${safePhoto}">`;
-    delBtn.style.display='inline-flex';
-  } else {
-    cur.innerHTML='<div class="photo-empty-state">Фото ще не додано</div>';
-    delBtn.style.display='none';
-  }
-  openModal('photoModal');
-}
-async function uploadPhoto(){
-  const file=document.getElementById('photoFileI').files[0];
-  if(!file) return;
-  const status=document.getElementById('photoStatus');
-  status.textContent='Завантаження...';
-  const canvas=document.createElement('canvas');
-  const img2=new Image();
-  img2.onload=async()=>{
-    const MAX=800;let w=img2.width,h=img2.height;
-    if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-    canvas.width=w;canvas.height=h;
-    canvas.getContext('2d').drawImage(img2,0,0,w,h);
-    canvas.toBlob(async(blob)=>{
-      const path='items/'+photoItemId+'_'+Date.now()+'.jpg';
-      const {error:upErr}=await db.storage.from('photos').upload(path,blob,{contentType:'image/jpeg',upsert:true});
-      if(upErr){
-        if(/bucket/i.test(upErr.message)){
-          status.innerHTML='<span class="ms ic-15-3">cancel</span> Сховище фото не налаштовано.<br><small>Потрібно створити Storage bucket "photos" (Public) в Supabase Dashboard.</small>';
-        } else {
-          status.textContent='Помилка: '+upErr.message;
-        }
-        return;
-      }
-      const {data:{publicUrl}}=db.storage.from('photos').getPublicUrl(path);
-      const {error:dbErr}=await db.from('inventory_items').update({photo_url:publicUrl}).eq('id',photoItemId);
-      if(dbErr){status.textContent='Помилка: '+dbErr.message;return;}
-      status.innerHTML='<span class="ms ic-14-2">check_circle</span> Збережено!';
-      await loadItems();openPhotoModal(photoItemId);
-    },'image/jpeg',0.82);
-  };
-  img2.src=URL.createObjectURL(file);
-}
-async function deletePhoto(){
-  if(!photoItemId) return;
-  showDeletePinModal('PIN для видалення фото', async (pin)=>{
-    const {data:pinOk,error:pinErr}=await db.rpc('verify_pin',{attempt:pin});
-    if(pinErr) return {ok:false,reason:'network'};
-    if(pinOk!==true) return {ok:false,reason:'bad_pin'};
-
-    const {error}=await db.from('inventory_items').update({photo_url:null}).eq('id',photoItemId);
-    if(error){toast('Помилка: '+error.message,'error');return {ok:false,reason:'network'};}
-    toast('Фото видалено','info');
-    closeModal('photoModal');await loadItems();
-    return {ok:true};
-  });
-}
-let lightboxPhotoItemId=null;
-let lightboxFocusReturn=null;
-function openLightbox(url,itemId=null){
-  lightboxPhotoItemId=itemId||photoItemId||null;
-  lightboxFocusReturn=document.activeElement;
-  document.getElementById('lbImg').src=url;
-  document.getElementById('lbDelBtn').style.display=lightboxPhotoItemId?'inline-flex':'none';
-  const lightbox=document.getElementById('lightbox');
-  lightbox.classList.add('open');
-  requestAnimationFrame(()=>{
-    const deleteBtn=document.getElementById('lbDelBtn');
-    (deleteBtn.style.display==='none' ? lightbox : deleteBtn).focus({preventScroll:true});
-  });
-}
-function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('open');
-  lightboxPhotoItemId=null;
-  const opener=lightboxFocusReturn;
-  lightboxFocusReturn=null;
-  if(opener && document.contains(opener) && typeof opener.focus==='function') opener.focus({preventScroll:true});
-}
-async function deleteLightboxPhoto(e){
-  e.stopPropagation();
-  if(!lightboxPhotoItemId) return;
-  photoItemId=lightboxPhotoItemId;
-  closeLightbox();
-  await deletePhoto();
 }
 
 // ===== STATS =====
