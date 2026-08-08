@@ -9,6 +9,7 @@
     import { createOsbbShiftSettingsController } from './osbb-shift-settings-controller.js';
     import { createOsbbShiftCalendarController } from './osbb-shift-calendar-controller.js';
     import { createOsbbAttendanceController } from './osbb-attendance-controller.js';
+    import { createOsbbGarbageController } from './osbb-garbage-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
@@ -30,14 +31,6 @@
         removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
-    import {
-        garbageMonthBinsTotal,
-        garbageMonthKey,
-        garbageMonthKeyCandidates,
-        garbageYearRowsFromResponse,
-        migrateGarbageData,
-        normalizeGarbageMonth,
-    } from './osbb-garbage.js';
     import {
         STAFF_ROLE_ICONS,
         STAFF_ROLE_LABELS,
@@ -106,7 +99,6 @@
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let {
-        garbage: gData,
         dispatcher: dispData,
         photosCache,
         jiraIssues,
@@ -323,8 +315,6 @@
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
     let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
-    let gSaveTimer = null;
-    let gLoaded = false;
 
     const gMonths = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
     const gWorkerNames = {
@@ -1255,114 +1245,20 @@
     // ==========================================
 
 
-    function gKey() { return garbageMonthKey(currentYear, currentMonth); }
-    function gOfflineKey() { return osbbOfflineMonthKey('garbage', currentYear, currentMonth); }
-    function gMonthKeyCandidates(year = currentYear, month = currentMonth) {
-        return garbageMonthKeyCandidates(year, month);
-    }
-    async function gFetchGarbageMonthData(year = currentYear, month = currentMonth) {
-        for (const monthKey of gMonthKeyCandidates(year, month)) {
-            const { data, error } = await db.from('garbage').select('data').eq('month_key', monthKey).single();
-            if (!error && data) return { data, monthKey };
-            if (error && error.code !== 'PGRST116') throw error;
-        }
-        return { data: null, monthKey: gKey() };
-    }
-
-    // Міграція старого формату записів сміття { count, note, worker, time }
-    // у новий формат { types: { plastic, glass, bins }, worker, time }.
-    // Повертає { data, migrated } — migrated=true, якщо хоч один запис був перетворений.
-    function gMigrateOldData(data) {
-        return migrateGarbageData(normalizeGarbageMonth(data));
-    }
-
-
-    function gSaveOffline() {
-        writeOsbbOfflineValue(localStorage, gOfflineKey(), gData);
-    }
-    function gLoadOffline() {
-        return readOsbbOfflineValue(localStorage, gOfflineKey());
-    }
-
-    function gSetStatus(type, text) {
-        const el = document.getElementById('g-sync-status');
-        if (!el) return;
-        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
-        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
-        el.innerHTML = text;
-    }
-
-    async function gInitTab() {
-        gSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
-        const offlineMig = gMigrateOldData(gLoadOffline());
-        const offline = offlineMig.data;
-        if (offline) { gData = offline; gRender(); }
-
-        if (IS_PREVIEW) {
-            gData = offline || {};
-            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
-            gRender();
-            return;
-        }
-        try {
-            const { data } = await gFetchGarbageMonthData();
-            const cloudMig = gMigrateOldData(data?.data);
-            gData = cloudMig.data || offline || {};
-            gSaveOffline();
-            // Якщо дані щойно мігровано зі старого формату — одразу зберігаємо новий формат у хмару
-            if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
-            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
-        } catch(err) {
-            if (err && err.code !== 'FETCH_ERROR') console.error('garbage load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
-            gData = offline || {};
-        }
-        gLoaded = true;
-        gRender();
-    }
-
-    function gScheduleSave() {
-        gSetStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span>Зберігаю...</span>');
-        gSaveOffline();
-        clearTimeout(gSaveTimer);
-        gSaveTimer = setTimeout(gSaveCloud, 1200);
-    }
-
-    async function gSaveCloud() {
-        if (IS_PREVIEW) { gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span> Превью</span>'); return; }
-        try {
-            const { error } = await db.from('garbage').upsert({ month_key: gKey(), data: gData });
-            if (error) throw error;
-            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
-        } catch(err) {
-            if (err && err.code !== 'FETCH_ERROR') console.error('garbage save error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
-        }
-    }
-
-    function gUpdateRow(day, field, value) {
-        if (!gData[day]) gData[day] = { time:'', worker:'', types:{} };
-        if (!gData[day].types) gData[day].types = {};
-        gData[day][field] = value;
-        gScheduleSave();
-        gRender();
-    }
-
-    // Оновлення кількості для конкретного типу сміття за день (пластик/скло/баки незалежно)
-    function gUpdateType(day, type, value) {
-        if (!gData[day]) gData[day] = { time:'', worker:'', types:{} };
-        if (!gData[day].types) gData[day].types = {};
-        const num = parseInt(value) || 0;
-        if (num > 0) gData[day].types[type] = num;
-        else delete gData[day].types[type];
-        // Авто-час при першому введенні кількості
-        if (num > 0 && !gData[day].time) {
-            const n = new Date();
-            gData[day].time = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
-        }
-        gScheduleSave();
-        gRender();
-    }
+    const garbageController = createOsbbGarbageController({
+        document, storage:localStorage, isPreview:IS_PREVIEW,
+        getMonth:() => ({ year:currentYear, month:currentMonth }), getCurrentTab:() => currentTab,
+        readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue, removeOffline:removeOsbbOfflineValue,
+        fetchMonth:async monthKey => db.from('garbage').select('data').eq('month_key', monthKey).single(),
+        upsertMonth:row => db.from('garbage').upsert(row), fetchYear:() => db.from('garbage').select('month_key,data'),
+        resetMonth:args => db.rpc('reset_month', args),
+        requestResetPin:callback => showPinModal('Скидання сміття', 'PIN для очищення місяця', callback, true),
+        render:() => { gData = garbageController.getData(); gRender(); },
+    });
+    let gData = garbageController.getData();
+    const gInitTab = () => garbageController.init();
+    const gUpdateRow = (day, field, value) => garbageController.updateRow(day, field, value);
+    const gUpdateType = (day, type, value) => garbageController.updateType(day, type, value);
 
     function gRender() {
         gRenderDaysList();
@@ -1372,30 +1268,8 @@
 
     // Незалежне завантаження даних сміття для дашборду (без перемикання вкладки) —
     // прогріває gData заздалегідь, щоб вкладка "Сміття" відкривалась без затримки.
-    async function gInitDashboard() {
-        const offlineMig = gMigrateOldData(gLoadOffline());
-        const offline = offlineMig.data;
-        if (offline && !gLoaded) gData = offline;
-        if (currentTab === 'garbage') return; // вже завантажується через gInitTab
-        if (IS_PREVIEW) {
-            if (!gLoaded) gData = offline || {};
-            return;
-        }
-        try {
-            const { data } = await gFetchGarbageMonthData();
-            const cloudMig = gMigrateOldData(data?.data);
-            gData = cloudMig.data || offline || {};
-            gSaveOffline();
-            if (cloudMig.migrated || offlineMig.migrated) gSaveCloud();
-        } catch (err) {
-            if (err && err.code !== 'FETCH_ERROR') console.error('garbage dashboard load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-            gData = offline || {};
-        }
-        await gLoadGarbageYearFromCloud(currentYear);
-    }
+    const gInitDashboard = () => garbageController.initDashboard();
 
-    // Розмітка для одного дня сміття (час/працівник/типи) — використовується лише в
-    // модалці деталізації дня (gOpenDayDetail), сам календар показує тільки квадрати.
     function gBuildDayBodyHtml(day) {
         const row = gData[day] || { time:'', worker:'', types:{} };
         const types = row.types || {};
@@ -1542,44 +1416,12 @@
         if (glassEl) glassEl.textContent = glassDays;
     }
 
-    async function gLoadGarbageYearFromCloud(year) {
-        if (IS_PREVIEW) return;
-        try {
-            const { data, error } = await db.from('garbage').select('month_key,data');
-            if (error) throw error;
-            const rows = garbageYearRowsFromResponse(data);
-            for (let month = 0; month <= 11; month++) {
-                const candidates = gMonthKeyCandidates(year, month);
-                const row = candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean);
-                if (!row?.data) {
-                    removeOsbbOfflineValue(localStorage, osbbOfflineMonthKey('garbage', year, month));
-                    continue;
-                }
-                const migrated = gMigrateOldData(row.data);
-                writeOsbbOfflineValue(localStorage, osbbOfflineMonthKey('garbage', year, month), migrated.data || {});
-            }
-        } catch (err) {
-            if (err && err.code !== 'FETCH_ERROR') console.error('garbage yearly chart load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
-        }
-    }
-
     async function gRenderChart() {
         const container = document.getElementById('g-chart');
         if (!container) return;
 
-        await gLoadGarbageYearFromCloud(currentYear);
-
-        // Завантажуємо дані по всіх місяцях з локального кешу — тільки баки
-        const monthlyTotals = [];
-        for (let m = 0; m <= 11; m++) {
-            const key = osbbOfflineMonthKey('garbage', currentYear, m);
-            let tot = garbageMonthBinsTotal(readOsbbOfflineValue(localStorage, key));
-            // Якщо це поточний місяць — беремо актуальні дані
-            if (m === currentMonth) {
-                tot = garbageMonthBinsTotal(gData);
-            }
-            monthlyTotals.push(tot);
-        }
+        await garbageController.loadYear(currentYear);
+        const monthlyTotals = garbageController.monthlyTotals(currentYear);
 
         const maxVal = Math.max(...monthlyTotals, 1);
         container.innerHTML = monthlyTotals.map((val, i) => {
@@ -1593,17 +1435,7 @@
         }).join('');
     }
 
-    async function gClearMonth() {
-        showPinModal('Скидання сміття', 'PIN для очищення місяця', async (pin) => {
-            gData = {};
-            gSaveOffline();
-            if (!IS_PREVIEW) {
-                try { await db.rpc('reset_month', { table_name: 'garbage', p_month_key: gKey(), attempt: pin }); } catch(e) {}
-            }
-            gSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Скинуто</span>');
-            gRender();
-        }, true);
-    }
+    const gClearMonth = () => garbageController.clearMonth();
     // ==========================================
     // PIN MODAL
     // ==========================================
@@ -2274,7 +2106,7 @@
     async function refreshData() {
         const btn = document.getElementById('btn-refresh');
         if (btn) { btn.style.animation = 'spin 0.6s linear'; btn.disabled = true; }
-        gLoaded = false;
+        garbageController.resetLoaded();
         await initCalendar();
         if (btn) { btn.style.animation = ''; btn.disabled = false; }
         showToast('Дані оновлено');
