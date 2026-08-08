@@ -35,3 +35,12 @@ test('hasSupplierTag порівнює назви без урахування р�
     assert.equal(hasSupplierTag(['Нова Лінія'], 'Rozetka'), false);
     assert.equal(hasSupplierTag([], ''), false);
 });
+
+test('supplier boundaries reject oversized and malformed collections', () => {
+    assert.equal(normalizeSupplierTag('<img onerror=alert(1)>'), '<img onerror=alert(1)>');
+    assert.equal(normalizeSupplierTag('x'.repeat(201)), '');
+    assert.equal(normalizeSupplierTag({ toString: () => '<script>alert(1)</script>' }), '');
+    assert.deepEqual(mergeSupplierTags([null, { 0: 'bad' }, ['Безпечний'], 'string']), ['Безпечний']);
+    assert.deepEqual(mergeSupplierTags(null), []);
+    assert.deepEqual(mergeSupplierTags([['A', 'B']], -1), ['A', 'B']);
+});
