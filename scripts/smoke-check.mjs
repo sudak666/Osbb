@@ -26,6 +26,7 @@ function readSkladCombined() {
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-movements.ts',
+    'src/sklad-movements-controller.js',
     'src/sklad-reporting.ts',
     'src/sklad-state.ts',
     'src/sklad-pricing.js',
@@ -149,12 +150,12 @@ const checks = [
   ['sklad/index.html', "scopePath.startsWith('/Osbb/sklad/')", 'sklad SW cleanup is scoped'],
   ['src/sklad-app.js', 'function notifyTelegram', 'sklad has Telegram notify helper'],
   ['src/sklad-app.js', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
-  ['src/sklad-app.js', "notifyTelegram('📦 Прихід:", 'sklad notifies on receipt'],
-  ['src/sklad-app.js', "notifyTelegram('📤 Видача:", 'sklad notifies on issue'],
+  ['src/sklad-movements-controller.js', '📦 Прихід:', 'sklad notifies on receipt'],
+  ['src/sklad-movements-controller.js', '📤 Видача:', 'sklad notifies on issue'],
   ['src/sklad-data-controller.js', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
   ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
   ['src/sklad-app.js', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
-  ['src/sklad-app.js', 'return true;', 'sklad issueItem reports success to callers'],
+  ['src/sklad-movements-controller.js', 'return true;', 'sklad issueItem reports success to callers'],
   ['sklad/index.html', '<script type="module" src="../src/sklad-app.js"></script>', 'sklad loads extracted module runtime'],
   ['src/sklad-app.js', 'filterSkladItems,', 'sklad uses typed domain filters'],
   ['src/sklad-audit-controller.js', 'current.filter(item => itemMatchesSearch(item, search))', 'sklad item search uses normalized multi-field matching'],
@@ -172,7 +173,7 @@ const checks = [
   ['src/sklad-app.js', "e.key==='/'", 'sklad supports slash keyboard search shortcut'],
   ['src/sklad-app.js', 'function clearSearchInput', 'sklad can clear active search with keyboard'],
   ['src/sklad-app.js', "e.key==='Escape' && clearSearchInput", 'sklad Escape shortcut clears active search first'],
-  ['src/sklad-app.js', "import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';", 'sklad uses typed operation-date helpers'],
+  ['src/sklad-movements-controller.js', "import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';", 'sklad uses typed operation-date helpers'],
   ['src/sklad-app.js', "document.getElementById('issueDateI').value", 'sklad issue flow reads selected issue date'],
   ['sklad/index.html', 'id="refillDateI"', 'sklad refill form has receipt date input'],
   ['src/sklad-app.js', "document.getElementById('refillDateI').value", 'sklad refill flow reads selected receipt date'],
@@ -239,7 +240,7 @@ let passed = 0;
 // об'єкт { data, error }; REST-only rpcResult() тут недоступний.
 {
   const html = readFileSync('sklad/index.html', 'utf8');
-  const runtime = readFileSync('src/sklad-app.js', 'utf8');
+  const runtime = readSkladCombined();
   const label = 'sklad uses native Supabase RPC results';
   const valid = html.includes('const db=createClient(')
     && runtime.includes("await db.rpc('issue_item'")
@@ -2151,7 +2152,7 @@ for (const file of ['index.html', 'osbb/index.html']) {
 {
   const text = readSkladCombined();
   const start = text.indexOf('function renderReceipts()');
-  const end = text.indexOf('let deleteReceiptId=');
+  const end = text.indexOf('// ===== ADD PAGE =====', start);
   const body = start >= 0 && end > start ? text.slice(start, end) : '';
   const label = 'sklad renderReceipts defines safeUnit before using it';
   if (!body || !body.includes('const safeUnit=escapeHtml')) {
@@ -2560,7 +2561,7 @@ ${sharedSelectText}`;
   const required = [
     'function findItemForAction',
     "findItemForAction(id,'видача')",
-    "findItemForAction(id,'прихід')",
+    "findItem(itemId, 'прихід')",
     "findItem(id, 'видалення')",
     "getItem(id, 'фото')",
     "findItemForAction(itemId,'історія')",
@@ -2813,20 +2814,20 @@ ${sharedSelectText}`;
     'id="newPrice" min="0.01" step="0.01"',
     'id="refillPriceI" min="0.01" step="0.01"',
     'id="editReceiptPrice" min="0.01" step="0.01"',
-    'p_price_unit:purchasePrice',
+    'p_price_unit: purchasePrice',
     'purchase_price_unit:purchasePrice',
     '<th>Ціна закупівлі</th>',
     'money(hasReceiptPrice?r.purchase_price_unit:item?.price_unit)',
     'hasReceiptPrice?r.purchase_price_unit:item?.price_unit',
     'class="price-origin-note">поточна</span>',
-    "r.purchase_price_unit||item?.price_unit||''",
+    "receipt.purchase_price_unit || item?.price_unit || ''",
     'function isPurchasePriceSchemaError(error)',
     "showPurchasePriceMigrationNotice()",
     "console.info('Історія закупівельних цін стане доступною після міграції 009.')",
     "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'",
     'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);',
     'disablePurchasePriceRpc();',
-    'purchasePrice!==null&&purchasePriceRpcAvailable',
+    'purchasePrice !== null && getPurchasePriceRpcAvailable()',
     "delete receiptRow.purchase_price_unit",
     'data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI"',
     'data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier"',
@@ -3601,14 +3602,14 @@ ${sharedSelectText}`;
 // один обробник, який блокує перезавантаження сторінки.
 {
   const html = readFileSync('sklad/index.html', 'utf8');
-  const js = readFileSync('src/sklad-app.js', 'utf8');
+  const js = readSkladCombined();
   const label = 'sklad issue form has a guarded submit handler';
   const required = [
     html.includes('<form id="issueForm" class="form-stack">'),
     html.includes('<button type="submit" class="btn btn-primary full-width-action">'),
     js.includes("document.getElementById('issueForm')?.addEventListener('submit'"),
     js.includes('event.preventDefault();'),
-    js.includes("toast('Не вдалося виконати видачу. Спробуйте ще раз.','error');"),
+    js.includes("toast('Не вдалося виконати видачу. Спробуйте ще раз.', 'error');"),
   ];
   if (required.some(value => !value)) {
     failed += 1;

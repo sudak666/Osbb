@@ -12,6 +12,7 @@ const skladAuthController = normalizeNewlines(readFileSync(new URL('../src/sklad
 const skladDeletePinController = normalizeNewlines(readFileSync(new URL('../src/sklad-delete-pin-controller.js', import.meta.url), 'utf8'));
 const skladDataController = normalizeNewlines(readFileSync(new URL('../src/sklad-data-controller.js', import.meta.url), 'utf8'));
 const skladItemCrudController = normalizeNewlines(readFileSync(new URL('../src/sklad-item-crud-controller.js', import.meta.url), 'utf8'));
+const skladMovementsController = normalizeNewlines(readFileSync(new URL('../src/sklad-movements-controller.js', import.meta.url), 'utf8'));
 const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
 const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
 const osbbStaffAuthController = normalizeNewlines(readFileSync(new URL('../src/osbb-staff-auth-controller.js', import.meta.url), 'utf8'));
@@ -69,8 +70,8 @@ test('Sklad receipt flow remembers legacy receive_item fallback when migration 0
   assertIncludes(skladClientState, "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'", 'receipt RPC fallback flag key is missing');
   assertIncludes(skladApp, 'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);', 'receipt RPC fallback flag must be loaded at startup');
   assertIncludes(skladApp, 'function disablePurchasePriceRpc(){', 'receipt RPC fallback disabler is missing');
-  assertIncludes(skladApp, 'disablePurchasePriceRpc();', 'schema fallback must be remembered after the first failed price RPC');
-  assertIncludes(skladApp, 'purchasePrice!==null&&purchasePriceRpcAvailable', 'price RPC should be skipped after fallback is remembered');
+  assertIncludes(skladMovementsController, 'disablePurchasePriceRpc();', 'schema fallback must be remembered after the first failed price RPC');
+  assertIncludes(skladMovementsController, 'purchasePrice !== null && getPurchasePriceRpcAvailable()', 'price RPC should be skipped after fallback is remembered');
 });
 
 test('Sklad movement history distinguishes transport errors from empty results', () => {
@@ -85,11 +86,11 @@ test('Sklad receipt load errors escape transport text before HTML rendering', ()
 });
 
 test('Sklad delete RPC flow handles returned and thrown transport errors', () => {
-  assertIncludes(skladApp, 'async function runDeleteInventoryRpc(name,args){', 'delete RPC wrapper is missing');
-  assertIncludes(skladApp, 'return deleteInventoryResultFromRpcResponse(data);', 'delete RPC response must pass the typed boundary');
-  assertIncludes(skladApp, "return {ok:false,reason:'network'};", 'delete RPC transport errors must remain retryable');
-  assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_log'", 'log deletion must use the guarded RPC wrapper');
-  assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_receipt'", 'receipt deletion must use the guarded RPC wrapper');
+  assertIncludes(skladApp, 'const runDeleteInventoryRpc=(name,args)=>movementsController.runDelete(name,args);', 'delete RPC wrapper is missing');
+  assertIncludes(skladMovementsController, 'return deleteInventoryResultFromRpcResponse(data);', 'delete RPC response must pass the typed boundary');
+  assertIncludes(skladMovementsController, "return { ok: false, reason: 'network' };", 'delete RPC transport errors must remain retryable');
+  assertIncludes(skladMovementsController, "runDelete('delete_inventory_log'", 'log deletion must use the guarded RPC wrapper');
+  assertIncludes(skladMovementsController, "runDelete('delete_inventory_receipt'", 'receipt deletion must use the guarded RPC wrapper');
   assertIncludes(skladItemCrudController, "runDeleteRpc('delete_inventory_item'", 'item deletion must use the guarded RPC wrapper');
 });
 
@@ -123,8 +124,8 @@ test('Sklad movement edit modals keep centralized save actions', () => {
   assert.match(skladHtml, /data-sklad-action="edit-receipt-confirm"/u);
   assertIncludes(skladApp, "'edit-log-confirm':confirmEditLog", 'issue edit save action is not registered');
   assertIncludes(skladApp, "'edit-receipt-confirm':confirmEditReceipt", 'receipt edit save action is not registered');
-  assertIncludes(skladApp, 'async function confirmEditLog(){', 'issue edit handler is missing');
-  assertIncludes(skladApp, 'async function confirmEditReceipt(){', 'receipt edit handler is missing');
+  assertIncludes(skladMovementsController, 'async function saveEditLog()', 'issue edit handler is missing');
+  assertIncludes(skladMovementsController, 'async function saveEditReceipt()', 'receipt edit handler is missing');
 });
 
 test('OSBB dispatcher ticket flow stays delegated and routes add/edit actions', () => {
