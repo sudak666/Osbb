@@ -12,6 +12,7 @@ const skladDeletePinController = normalizeNewlines(readFileSync(new URL('../src/
 const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
 const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
 const osbbStaffAuthController = normalizeNewlines(readFileSync(new URL('../src/osbb-staff-auth-controller.js', import.meta.url), 'utf8'));
+const osbbPinModalController = normalizeNewlines(readFileSync(new URL('../src/osbb-pin-modal-controller.js', import.meta.url), 'utf8'));
 
 function assertIncludes(source, snippet, message) {
   assert.notEqual(source.indexOf(snippet), -1, message);
@@ -156,7 +157,8 @@ test('OSBB privileged action PIN modal keeps delegated keypad and server verific
   assert.match(osbbHtml, /data-pin-modal-delete/u);
   assert.match(osbbHtml, /data-pin-modal-cancel/u);
   assertIncludes(osbbApp, "document.querySelectorAll('[data-pin-modal-digit]').forEach((button) => {", 'PIN modal keypad binding is missing');
-  assertIncludes(osbbApp, 'pinModalVerifyRpc', 'PIN modal must keep configurable verify RPC');
-  assertIncludes(osbbApp, 'await db.rpc(pinModalVerifyRpc, { attempt });', 'PIN modal must verify on server');
-  assertIncludes(osbbApp, "document.getElementById('pin-modal')?.addEventListener('keydown', trapPinModalFocus);", 'PIN modal focus trap binding is missing');
+  assertIncludes(osbbApp, "verifyPin: (rpc, attempt) => db.rpc(rpc, { attempt })", 'PIN modal must verify on server');
+  assertIncludes(osbbApp, "addEventListener('keydown', pinModalController.handleKeydown)", 'PIN modal focus trap binding is missing');
+  assertIncludes(osbbPinModalController, "verifyRpc = options.verifyRpc || 'verify_reset_pin'", 'PIN modal must keep configurable verify RPC');
+  assertIncludes(osbbPinModalController, 'if (busy || !callback) return;', 'PIN modal must block concurrent verification');
 });

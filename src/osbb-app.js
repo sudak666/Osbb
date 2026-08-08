@@ -1,6 +1,7 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import { createAutoLockController } from './osbb-auto-lock.js';
+    import { createOsbbPinModalController } from './osbb-pin-modal-controller.js';
     import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
@@ -277,6 +278,11 @@
             saveStaffSession();
             applyRoleGating();
         }
+    });
+
+    const pinModalController = createOsbbPinModalController({
+        document,
+        verifyPin: (rpc, attempt) => db.rpc(rpc, { attempt }),
     });
 
     async function ensureStaffAuth() {
@@ -1377,11 +1383,11 @@
         document.querySelector('[data-lock-delete]')?.addEventListener('click', lockDel);
 
         document.querySelectorAll('[data-pin-modal-digit]').forEach((button) => {
-            button.addEventListener('click', () => pinModalPress(button.dataset.pinModalDigit));
+            button.addEventListener('click', () => pinModalController.press(button.dataset.pinModalDigit));
         });
-        document.querySelector('[data-pin-modal-cancel]')?.addEventListener('click', pinModalCancel);
-        document.querySelector('[data-pin-modal-delete]')?.addEventListener('click', pinModalDel);
-        document.getElementById('pin-modal')?.addEventListener('keydown', trapPinModalFocus);
+        document.querySelector('[data-pin-modal-cancel]')?.addEventListener('click', pinModalController.cancel);
+        document.querySelector('[data-pin-modal-delete]')?.addEventListener('click', pinModalController.deleteDigit);
+        document.getElementById('pin-modal')?.addEventListener('keydown', pinModalController.handleKeydown);
 
         document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
         document.querySelector('[data-staff-switch]')?.addEventListener('click', staffLogout);
@@ -2133,110 +2139,8 @@
     // ==========================================
     // PIN MODAL
     // ==========================================
-    let pinModalBuf = '';
-    let pinModalCallback = null;
-    let pinModalVerifyRpc = 'verify_reset_pin';
-    let pinModalFocusReturn = null;
-    const pinModalFocusableSelector = 'button:not([disabled]),[tabindex]:not([tabindex="-1"])';
-
-    function focusPinModal() {
-        const modal = document.getElementById('pin-modal');
-        const dialog = modal.querySelector('[role="dialog"]');
-        const firstButton = dialog?.querySelector(pinModalFocusableSelector);
-        (firstButton || dialog)?.focus({preventScroll:true});
-    }
-
-    function restorePinModalFocus() {
-        const opener = pinModalFocusReturn;
-        pinModalFocusReturn = null;
-        if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
-    }
-
-    function hidePinModal() {
-        document.getElementById('pin-modal').style.display = 'none';
-        restorePinModalFocus();
-    }
-
-    function trapPinModalFocus(event) {
-        if (document.getElementById('pin-modal').style.display !== 'flex') return;
-        if (event.key === 'Escape') { event.preventDefault(); pinModalCancel(); return; }
-        if (event.key !== 'Tab') return;
-        const dialog = document.querySelector('#pin-modal [role="dialog"]');
-        const focusables = [...dialog.querySelectorAll(pinModalFocusableSelector)].filter(el => el.offsetParent !== null || el === document.activeElement);
-        if (!focusables.length) { event.preventDefault(); dialog.focus({preventScroll:true}); return; }
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus({preventScroll:true}); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({preventScroll:true}); }
-    }
-
     function showPinModal(title, sub, callback, danger = false, verifyRpc = 'verify_reset_pin') {
-        pinModalBuf = '';
-        pinModalCallback = callback;
-        pinModalVerifyRpc = verifyRpc;
-        document.getElementById('pin-modal-title').textContent = title || 'Пароль для скидання';
-        document.getElementById('pin-modal-sub').textContent = sub || 'Введіть 4-значний PIN';
-        const lockIcon = '<span class="pin-modal-icon-wrap is-indigo"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
-        const trashIcon = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">delete</span></span>';
-        document.getElementById('pin-modal-icon').innerHTML = danger ? trashIcon : lockIcon;
-        document.getElementById('pin-err').textContent = '';
-        pinUpdateDots();
-        const modal = document.getElementById('pin-modal');
-        pinModalFocusReturn = document.activeElement;
-        modal.style.display = 'flex';
-        requestAnimationFrame(()=>focusPinModal());
-    }
-
-    function pinModalCancel() {
-        hidePinModal();
-        pinModalBuf = '';
-        pinModalCallback = null;
-    }
-
-    function pinUpdateDots() {
-        for (let i = 0; i < 4; i++) {
-            const dot = document.getElementById('pin-d' + i);
-            dot.classList.toggle('is-entered', i < pinModalBuf.length);
-        }
-    }
-
-    function pinModalDel() {
-        pinModalBuf = deletePinDigit(pinModalBuf);
-        document.getElementById('pin-err').textContent = '';
-        pinUpdateDots();
-    }
-
-    async function pinModalPress(digit) {
-        const nextBuffer = appendPinDigit(pinModalBuf, digit);
-        if (nextBuffer === pinModalBuf) return;
-        pinModalBuf = nextBuffer;
-        pinUpdateDots();
-        if (isPinComplete(pinModalBuf)) {
-            const attempt = pinModalBuf;
-            let ok = false;
-            try { ok = await db.rpc(pinModalVerifyRpc, { attempt }); } catch (e) { ok = false; }
-            if (ok) {
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-green"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span></span>';
-                hidePinModal();
-                pinModalBuf = '';
-                // PIN передаємо в callback: серверна reset_month() перевіряє
-                // його ще раз перед видаленням, а не покладається лише на
-                // клієнтську перевірку тут.
-                if (pinModalCallback) { const cb = pinModalCallback; pinModalCallback = null; cb(attempt); }
-            } else {
-                document.getElementById('pin-err').textContent = 'Невірний PIN, спробуйте ще';
-                document.getElementById('pin-modal-icon').innerHTML = '<span class="pin-modal-icon-wrap is-red"><span class="material-symbols-rounded" aria-hidden="true">lock</span></span>';
-                pinModalBuf = '';
-                pinUpdateDots();
-                // Тряска
-                const box = document.querySelector('#pin-modal > div');
-                box.style.animation = 'none';
-                box.style.transform = 'translateX(-8px)';
-                setTimeout(() => box.style.transform = 'translateX(8px)', 80);
-                setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
-                setTimeout(() => box.style.transform = 'translateX(0)', 240);
-            }
-        }
+        pinModalController.show(callback, { title, subtitle: sub, danger, verifyRpc });
     }
 
     // ==========================================

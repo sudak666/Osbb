@@ -47,9 +47,11 @@ function readOsbbCombined() {
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
+    'src/osbb-pin-modal-controller.ts',
     'src/osbb-photos.ts',
     'src/osbb-shifts.ts',
     'src/osbb-staff.ts',
+    'src/osbb-staff-auth-controller.ts',
     'src/osbb-tickets.ts',
   ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
@@ -606,9 +608,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" tabindex="-1"',
     'data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1"',
-    'function focusPinModal',
-    'function trapPinModalFocus',
-    'pinModalFocusReturn',
+    'const focusDialog = (): void =>',
+    'function handleKeydown(event: KeyboardEvent)',
+    'let focusReturn: Element | null = null',
     'lightboxFocusReturn',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -3204,7 +3206,7 @@ ${sharedSelectText}`;
     '.pin-modal-dialog .pin-dot.is-entered { background:var(--md-sys-color-primary',
     '.pin-modal-overlay { align-items:flex-end; }',
     '.pin-modal-dialog::before { content:',
-    "dot.classList.toggle('is-entered', i < pinModalBuf.length)",
+    "element('pin-d' + i)?.classList.toggle('is-entered', i < buffer.length)",
     'data-pin-modal-delete',
     'stroke="currentColor"',
   ];
