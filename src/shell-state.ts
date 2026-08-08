@@ -35,7 +35,7 @@ export class ShellStore {
     }
 
     pushDigit(digit: string): void {
-        if (this.#lockBusy || this.#lockBuf.length >= 4) return;
+        if (this.#lockBusy || this.#lockBuf.length >= 4 || !/^\d$/.test(digit)) return;
         this.#lockBuf += digit;
     }
 
@@ -67,11 +67,11 @@ export class ShellStore {
     }
 
     isTabLoaded(name: ShellTabName): boolean {
-        return Boolean(this.#loadedTabs[name]);
+        return isShellTabName(name) && Boolean(this.#loadedTabs[name]);
     }
 
     markTabLoaded(name: ShellTabName): void {
-        this.#loadedTabs[name] = true;
+        if (isShellTabName(name)) this.#loadedTabs[name] = true;
     }
 
     snapshot(): ShellStateSnapshot {

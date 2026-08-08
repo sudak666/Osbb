@@ -10,6 +10,7 @@ export interface AuthSessionStorage {
 }
 
 export function setAuthSession(storage: AuthSessionStorage = sessionStorage, now = Date.now()): void {
+    if (!Number.isSafeInteger(now) || now <= 0) throw new TypeError('Invalid auth timestamp');
     storage.setItem(AUTH_KEY, 'ok');
     storage.setItem(AUTH_AT_KEY, String(now));
 }
@@ -22,7 +23,7 @@ export function clearAuthSession(storage: AuthSessionStorage = sessionStorage): 
 export function isAuthSessionValid(storage: AuthSessionStorage = sessionStorage, now = Date.now()): boolean {
     if (storage.getItem(AUTH_KEY) !== 'ok') return false;
     const authAt = Number(storage.getItem(AUTH_AT_KEY) || 0);
-    if (!authAt || now - authAt >= AUTH_TTL_MS) {
+    if (!Number.isSafeInteger(now) || now <= 0 || !Number.isSafeInteger(authAt) || authAt <= 0 || authAt > now || now - authAt >= AUTH_TTL_MS) {
         clearAuthSession(storage);
         return false;
     }

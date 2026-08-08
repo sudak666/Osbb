@@ -11,6 +11,15 @@ test('ShellStore keeps PIN input bounded to four digits', () => {
   assert.equal(store.lockBuf, '1234');
 });
 
+test('ShellStore rejects malicious PIN and tab keys', () => {
+  const store = new ShellStore();
+  for (const value of ['12', '<', 'a', '', '__proto__']) store.pushDigit(value);
+  assert.equal(store.lockBuf, '');
+  store.markTabLoaded('__proto__');
+  assert.equal(store.isTabLoaded('__proto__'), false);
+  assert.deepEqual(store.snapshot().loadedTabs, {});
+});
+
 test('ShellStore blocks PIN edits while busy', () => {
   const store = new ShellStore();
   store.pushDigit('1');

@@ -51,3 +51,13 @@ test('clearAuthSession removes both session keys', () => {
 
   assert.deepEqual(storage.dump(), { other: 'keep' });
 });
+
+test('auth session rejects future, malformed and unsafe timestamps', () => {
+  for (const authAt of ['NaN', 'Infinity', '2000.5', String(Number.MAX_SAFE_INTEGER + 1), '2001']) {
+    const storage = memoryStorage({ auth: 'ok', auth_at: authAt });
+    assert.equal(isAuthSessionValid(storage, 2000), false);
+    assert.deepEqual(storage.dump(), {});
+  }
+  assert.throws(() => setAuthSession(memoryStorage(), Number.NaN), /Invalid auth timestamp/);
+  assert.throws(() => setAuthSession(memoryStorage(), -1), /Invalid auth timestamp/);
+});

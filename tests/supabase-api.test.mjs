@@ -15,6 +15,29 @@ test('parseRpcResponseText returns null for empty RPC responses', () => {
   assert.deepEqual(parseRpcResponseText('{"ok":true}'), { ok: true });
 });
 
+test('Supabase transport rejects oversized responses and unsafe resource paths', async () => {
+  assert.throws(() => parseRpcResponseText('x'.repeat(1_000_001)), /too large/);
+  const client = createSupabaseRestClient({ fetcher: async () => ({ ok: true, status: 200, statusText: 'OK', text: async () => '[]' }) });
+  assert.throws(() => client.from('../photos'), /Invalid table name/);
+  assert.throws(() => client.storage.from('../photos'), /Invalid storage bucket/);
+  const storage = client.storage.from('photos');
+  assert.throws(() => storage.getPublicUrl('../secret'), /Invalid storage path/);
+  assert.deepEqual(await storage.upload('folder/../secret', new Blob(['x'])), {
+    data: null,
+    error: { code: 'STORAGE_ERROR', message: 'Invalid storage path' },
+  });
+});
+
+test('Supabase transport bounds untrusted error text', async () => {
+  const client = createSupabaseRestClient({
+    fetcher: async () => ({ ok: false, status: 500, statusText: 'Error', text: async () => '<img onerror=alert(1)>' + 'x'.repeat(10_000) }),
+  });
+  const result = await client.from('photos').select();
+  assert.equal(result.error.code, 'FETCH_ERROR');
+  assert.equal(result.error.message.startsWith('500: <img onerror=alert(1)>'), true);
+  assert.equal(result.error.message.length <= 4005, true);
+});
+
 test('numericIdFromInsertResponse validates inserted record IDs', () => {
   assert.equal(numericIdFromInsertResponse({ id: 7 }), 7);
   assert.equal(numericIdFromInsertResponse({ id: '7' }), null);
