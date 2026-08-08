@@ -17,7 +17,7 @@ export function parseOptionalPrice(value: unknown): number | null {
     const raw = String(value ?? '').trim().replace(',', '.');
     if (!raw) return null;
     const price = Number(raw);
-    return Number.isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : Number.NaN;
+    return Number.isFinite(price) && price > 0 && price <= 1_000_000_000 ? Math.round(price * 100) / 100 : Number.NaN;
 }
 
 export function isPurchasePriceSchemaError(error: unknown): boolean {
@@ -30,10 +30,11 @@ export function isPurchasePriceSchemaError(error: unknown): boolean {
 
 export function itemPriceValue(item: PriceFields | null | undefined): number {
     const price = Number(item?.price_unit);
-    return Number.isFinite(price) && price > 0 ? price : 0;
+    return Number.isFinite(price) && price > 0 && price <= 1_000_000_000 ? price : 0;
 }
 
 export function itemStockValue(item: PriceFields | null | undefined): number {
     const quantity = Number(item?.quantity ?? 0);
-    return itemPriceValue(item) * (Number.isFinite(quantity) ? quantity : 0);
+    const value = itemPriceValue(item) * (Number.isFinite(quantity) && quantity >= 0 && quantity <= 1_000_000_000 ? quantity : 0);
+    return Number.isFinite(value) ? value : 0;
 }

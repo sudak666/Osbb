@@ -1,5 +1,5 @@
 export function dateInputToTimestamp(dateValue, now = new Date()) {
-    if (typeof dateValue !== 'string' || !dateValue) return null;
+    if (typeof dateValue !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return null;
     const [year, month, day] = dateValue.split('-').map(Number);
     if (!year || !month || !day || Number.isNaN(now.getTime())) return null;
     const timestamp = new Date(
@@ -10,7 +10,8 @@ export function dateInputToTimestamp(dateValue, now = new Date()) {
         now.getMinutes(),
         now.getSeconds(),
     );
-    return Number.isNaN(timestamp.getTime()) ? null : timestamp.toISOString();
+    if (Number.isNaN(timestamp.getTime()) || timestamp.getFullYear() !== year || timestamp.getMonth() !== month - 1 || timestamp.getDate() !== day) return null;
+    return timestamp.toISOString();
 }
 
 export function dateToInputValue(value, fallback = new Date()) {

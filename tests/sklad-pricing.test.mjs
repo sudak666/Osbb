@@ -36,3 +36,11 @@ test('schema error detection only accepts known purchase-price failures', () => 
   assert.equal(isPurchasePriceSchemaError({ message: 'network unavailable' }), false);
   assert.equal(isPurchasePriceSchemaError(null), false);
 });
+
+test('price boundaries reject overflow-scale payloads', () => {
+  assert.equal(Number.isNaN(parseOptionalPrice('1000000001')), true);
+  assert.equal(itemPriceValue({ price_unit: 1_000_000_001 }), 0);
+  assert.equal(itemStockValue({ price_unit: 1_000_000_000, quantity: 1_000_000_000 }), 1_000_000_000_000_000_000);
+  assert.equal(itemStockValue({ price_unit: 1, quantity: 1_000_000_001 }), 0);
+  assert.equal(itemStockValue({ price_unit: 1e308, quantity: 1e308 }), 0);
+});

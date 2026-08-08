@@ -283,6 +283,10 @@ DevTools Issues.
   - Серпень 2026: завершено пакет shell/auth/Supabase transport: timestamps не можуть
     бути майбутніми або malformed, PIN/tab/postMessage мають whitelist/source guards,
     REST/storage ingress обмежує response/error size і відхиляє traversal/resource payload.
+  - Серпень 2026: завершено пакет складських movement/date/price inputs: точна календарна
+    валідація без rollover, bounded текст/суми/timestamps, whitelist виду руху та захист
+    розрахунку вартості від overflow-scale значень. `.xlsx` export перевірено як string-cell,
+    тому CSV formula injection до поточного формату не застосовується.
 - Візуальні зміни виконувати окремо за `docs/ui-redesign-notes.md` зі screenshot,
   щоб рефакторинг логіки залишався перевірюваним і без непомітних UI-регресій.
 - Не додавати framework або нові залежності без окремого погодження.
