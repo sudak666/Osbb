@@ -1,6 +1,7 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import { createAutoLockController } from './osbb-auto-lock.js';
+    import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
     import {
@@ -554,13 +555,10 @@
     enhanceSelect(document.querySelector('[data-disp-worker-filter]'));
 
     function stepMonth(dir) {
-        let m = parseInt(monthSelect.value) + dir;
-        let y = parseInt(yearSelect.value);
-        if (m < 0)  { m = 11; y--; }
-        if (m > 11) { m = 0;  y++; }
-        if (y < 2025 || y > 2030) return;
-        yearSelect.value  = y;
-        monthSelect.value = m;
+        const next = shiftCalendarMonth(parseInt(yearSelect.value), parseInt(monthSelect.value), dir, 2025, 2030);
+        if (!next) return;
+        yearSelect.value  = next.year;
+        monthSelect.value = next.month;
         refreshEnhancedSelect(yearSelect);
         refreshEnhancedSelect(monthSelect);
         initCalendar();
@@ -575,8 +573,7 @@
     }
 
     function updateTodayBtn() {
-        const onTodayMonth = parseInt(yearSelect.value) === todayYear &&
-                             parseInt(monthSelect.value) === todayMonth;
+        const onTodayMonth = isCalendarMonth(parseInt(yearSelect.value), parseInt(monthSelect.value), now);
         document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
@@ -965,7 +962,7 @@
     // Автопідрахунок годин/днів рахується локально з checkIn/checkOut.
     // ==========================================
 
-    function attKey() { return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`; }
+    function attKey() { return oneBasedMonthKey(currentYear, currentMonth); }
     function attOfflineKey() { return osbbOfflineMonthKey('att', currentYear, currentMonth); }
 
     function attSaveOffline() {
@@ -1088,7 +1085,7 @@
         const grid = document.getElementById('att-stats-grid');
         if (!grid) return;
         const visibleRoles = attVisibleRoles();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         const totals = calculateAttendanceTotals(attData, visibleRoles, daysInMonth);
         grid.innerHTML = visibleRoles.map(role => `
             <article class="att-stat-card role-${role}">
@@ -1117,11 +1114,11 @@
         document.querySelectorAll('[data-att-role-header]').forEach(header => {
             header.classList.toggle('hidden', !visibleRoles.includes(header.dataset.attRoleHeader));
         });
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         let html = '';
         let calendarHtml = '';
         let mobileHtml = '';
-        const firstDayOffset = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
+        const firstDayOffset = mondayFirstDayOffset(currentYear, currentMonth);
         calendarHtml += '<div class="att-calendar-spacer" aria-hidden="true"></div>'.repeat(firstDayOffset);
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
@@ -1255,7 +1252,7 @@
     async function loadAllPhotosForMonth() {
         if (IS_PREVIEW) { photosCache = {}; return; }
         try {
-            const { data } = await db.from('photos').select('id, url, day, role').eq('month_key', `${currentYear}-${currentMonth}`);
+            const { data } = await db.from('photos').select('id, url, day, role').eq('month_key', zeroBasedMonthKey(currentYear, currentMonth));
             photosCache = buildPhotoCache(data || []);
         } catch { photosCache = {}; }
     }
@@ -1293,13 +1290,13 @@
         try {
             const compressed = await compressImage(file);
             const ext = 'jpg';
-            const path = `osbb-duty/${currentYear}-${currentMonth}/${day}-${role}-${Date.now()}.${ext}`;
+            const path = `osbb-duty/${zeroBasedMonthKey(currentYear, currentMonth)}/${day}-${role}-${Date.now()}.${ext}`;
             const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
             if (upErr) throw upErr;
             const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
             
             // Отримуємо реальний ID з бази даних завдяки Prefer: return=representation
-            const { data: insertData, error: insErr } = await db.from('photos').insert({ month_key: `${currentYear}-${currentMonth}`, day, role, url: urlData.publicUrl });
+            const { data: insertData, error: insErr } = await db.from('photos').insert({ month_key: zeroBasedMonthKey(currentYear, currentMonth), day, role, url: urlData.publicUrl });
             if (insErr) throw insErr;
             
             const realId = photoIdFromInsertResponse(insertData, Date.now());
@@ -2140,8 +2137,8 @@
         const container = document.getElementById('g-days-list');
         if (!container) return;
         container.innerHTML = '';
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
+        const firstDow = sundayFirstDayOffset(currentYear, currentMonth);
         const leadingBlanks = (firstDow + 6) % 7;
 
         const weekdayRow = document.createElement('div');
@@ -2189,7 +2186,7 @@
     }
 
     function gRenderStats() {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         let total = 0, days = 0, plasticDays = 0, glassDays = 0;
         for (let d = 1; d <= daysInMonth; d++) {
             const day = String(d).padStart(2,'0');
@@ -2397,7 +2394,7 @@
     let dispNewTicketPriority = 'MEDIUM';
     let dispNewTicketRole = 'plumber';
 
-    function dispKey() { return `${currentYear}-${currentMonth}`; }
+    function dispKey() { return zeroBasedMonthKey(currentYear, currentMonth); }
     function dispOfflineKey() { return osbbOfflineMonthKey('dispatcher', currentYear, currentMonth); }
 
     function dispSaveOffline() {
@@ -2695,7 +2692,7 @@
     }
 
     function collectTicketsForRole(role) {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         const result = [];
         for (let d = 1; d <= daysInMonth; d++) {
             const row = dispData[d] ? dispNormalizeDay(dispData[d]) : null;
@@ -2855,8 +2852,8 @@
         const container = document.getElementById('disp-cards');
         if (!container) return;
         container.innerHTML = '';
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
+        const firstDow = sundayFirstDayOffset(currentYear, currentMonth);
         const leadingBlanks = (firstDow + 6) % 7;
         dispRenderStats();
         let visibleMatches = 0;
@@ -2917,7 +2914,7 @@
     }
 
     function dispRenderStats() {
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         const entries = [];
         for (let d = 1; d <= daysInMonth; d++) {
             entries.push({ row: dispGetDay(d), photosCount: getPhotosFromCache(d, 'dispatcher').length });
@@ -2945,7 +2942,7 @@
     // data — масив {id, day, text, createdAt, createdBy}.
     // ==========================================
 
-    function elevatorKey() { return `${currentYear}-${currentMonth}`; }
+    function elevatorKey() { return zeroBasedMonthKey(currentYear, currentMonth); }
     function elevatorOfflineKey() { return osbbOfflineMonthKey('elevator', currentYear, currentMonth); }
 
     function elevatorSaveOffline() {
@@ -3021,7 +3018,7 @@
         const daySelect = document.getElementById('elevator-new-day');
         const list = document.getElementById('elevator-list');
         if (!daySelect || !list) return;
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         const currentValue = daySelect.value;
         daySelect.innerHTML = Array.from({ length: daysInMonth }, (_, i) => i + 1)
             .map(d => `<option value="${d}" ${d === todayDay && currentMonth === todayMonth ? 'selected' : ''}>${d}</option>`).join('');

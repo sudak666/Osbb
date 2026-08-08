@@ -1854,7 +1854,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'await gLoadGarbageYearFromCloud(currentYear)',
     "String(d).padStart(2,'0')",
   ];
-  const forbidden = ["String(d).padStart(2,'00')", 'oneBasedMonth', ".select('month_key,data').in(", "keys.map(monthKey =>", 'Promise.all(Array.from({ length: 12 }, async (_, month) =>'];
+  const forbidden = ["String(d).padStart(2,'00')", 'const oneBasedMonth =', ".select('month_key,data').in(", "keys.map(monthKey =>", 'Promise.all(Array.from({ length: 12 }, async (_, month) =>'];
   const missing = required.filter(needle => !text.includes(needle));
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   if (missing.length || hasForbidden) {
