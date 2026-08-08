@@ -18,6 +18,7 @@ function readSkladCombined() {
     'src/sklad-auth.ts',
     'src/sklad-client-state.ts',
     'src/sklad-delete-pin-controller.ts',
+    'src/sklad-modal-controller.ts',
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-movements.ts',
@@ -1316,9 +1317,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readSkladCombined();
   const label = 'sklad delPinModal always closes via closeModal(); lightbox is Tab-trapped';
   const required = [
-    "closeModal('delPinModal');",
-    "if(lightbox && lightbox.classList.contains('open')) openModals.push(lightbox);",
-    'modalBg.matches(\'[role="dialog"]\') ? modalBg : modalBg.querySelector(\'[role="dialog"]\')',
+    "deps.closeModal('delPinModal');",
+    "if (lightbox?.classList.contains('open')) openModals.push(lightbox);",
+    'modal.matches(\'[role="dialog"]\') ? modal : modal.querySelector<HTMLElement>(\'[role="dialog"]\')',
   ];
   const forbidden = [
     "document.getElementById('delPinModal').classList.remove('open');",
@@ -1696,7 +1697,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus',
     'function clearTextSelection()',
     'selection.removeAllRanges()',
-    "const preferredFocus = dialog.querySelector('[data-modal-initial-focus]')",
+    "const preferred = dialog.querySelector<HTMLElement>('[data-modal-initial-focus]')",
     'requestAnimationFrame(clearTextSelection)',
   ];
   const missing = required.filter(needle => !text.includes(needle));
@@ -2344,13 +2345,13 @@ ${sharedSelectText}`;
   const dialogCount = (text.match(/role="dialog" aria-modal="true" tabindex="-1"/g) || []).length;
   const required = [
     'function openModal',
-    'function focusModalDialog',
-    'focusModalDialog(modalBg)',
+    'function focusDialog',
+    'focusDialog(modal)',
     'function trapModalFocus',
-    'modalFocusReturn',
+    'focusReturn',
     "openModal('qModal')",
     "openModal('photoModal')",
-    "openModal('delPinModal')",
+    "deps.openModal('delPinModal')",
   ];
   const forbidden = [
     "document.getElementById('qModal').classList.add('open')",

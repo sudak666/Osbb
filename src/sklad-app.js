@@ -22,6 +22,7 @@ import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows,
 import { createInventoryCollectionState, deleteInventoryResultFromRpcResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 import { loadPurchasePriceRpcAvailable, loadStoredSupplierTags, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme, saveStoredSupplierTags } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
+import { createSkladModalController } from './sklad-modal-controller.js';
 
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -2255,72 +2256,13 @@ function populateSels(){
 
 // Кастомний select підключено зі shared/enhance-select.js.
 // ===== MODAL =====
-const focusableModalSelector = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
-const modalFocusReturn = new Map();
+const modalController = createSkladModalController({ document, window });
 
-function getFocusableModalElements(container){
-  return [...container.querySelectorAll(focusableModalSelector)].filter(el=>el.offsetParent!==null || el === document.activeElement);
-}
-function clearTextSelection(){
-  const selection = window.getSelection?.();
-  if(selection && !selection.isCollapsed) selection.removeAllRanges();
-}
-function focusModalDialog(modalBg){
-  const dialog = modalBg.querySelector('[role="dialog"]');
-  if(!dialog) return;
-  const preferredFocus = dialog.querySelector('[data-modal-initial-focus]');
-  const focusTarget = preferredFocus || getFocusableModalElements(dialog)[0] || dialog;
-  clearTextSelection();
-  focusTarget.focus({preventScroll:true});
-}
-function openModal(id){
-  const modalBg=document.getElementById(id);
-  if(!modalBg) return;
-  if(!modalBg.classList.contains('open')) modalFocusReturn.set(id,document.activeElement);
-  modalBg.classList.add('open');
-  requestAnimationFrame(()=>focusModalDialog(modalBg));
-}
-function restoreModalFocus(id){
-  const opener = modalFocusReturn.get(id);
-  modalFocusReturn.delete(id);
-  if(opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({preventScroll:true});
-}
-function closeModal(id,e){
-  const modalBg=document.getElementById(id);
-  if(!modalBg || (e&&e.target!==modalBg)) return;
-  if(modalBg.classList.contains('open')){
-    modalBg.classList.remove('open');
-    restoreModalFocus(id);
-  }
-}
-function closeOpenModals(){
-  document.querySelectorAll('.modal-bg.open').forEach(modal=>closeModal(modal.id));
-}
-function trapModalFocus(event){
-  if(event.key !== 'Tab') return;
-  const openModals = [...document.querySelectorAll('.modal-bg.open')];
-  const lightbox = document.getElementById('lightbox');
-  if(lightbox && lightbox.classList.contains('open')) openModals.push(lightbox);
-  const modalBg = openModals[openModals.length-1];
-  if(!modalBg) return;
-  const dialog = modalBg.matches('[role="dialog"]') ? modalBg : modalBg.querySelector('[role="dialog"]');
-  if(!dialog) return;
-  const focusables = getFocusableModalElements(dialog);
-  if(!focusables.length){
-    event.preventDefault();
-    dialog.focus({preventScroll:true});
-    return;
-  }
-  const first = focusables[0];
-  const last = focusables[focusables.length-1];
-  if(event.shiftKey && document.activeElement === first){
-    event.preventDefault();
-    last.focus({preventScroll:true});
-  } else if(!event.shiftKey && document.activeElement === last){
-    event.preventDefault();
-    first.focus({preventScroll:true});
-  }
-}
+function clearTextSelection() { modalController.clearTextSelection(); }
+function openModal(id) { modalController.open(id); }
+function closeModal(id, event) { modalController.close(id, event); }
+function closeOpenModals() { modalController.closeAll(); }
+function trapModalFocus(event) { modalController.trapFocus(event); }
 
 // ===== PIN ПРИ ВИДАЛЕННІ =====
 // Видалення товару/запису/приходу тепер вимагає повторного вводу того ж
