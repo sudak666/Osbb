@@ -7,9 +7,23 @@ import {
   createLightboxState,
   moveLightbox,
   photoIdFromInsertResponse,
+  photoStoragePathFromPublicUrl,
+  photoUploadPath,
   photosFor,
   removePhoto,
 } from '../src/osbb-photos.js';
+
+test('photo storage helpers build and recover scoped object paths', () => {
+  assert.equal(photoUploadPath('2026-7', 5, 'dispatcher', 1234.9), 'osbb-duty/2026-7/5-dispatcher-1234.jpg');
+  assert.equal(photoUploadPath('bad', 5, 'dispatcher', 1234), null);
+  assert.equal(photoUploadPath('2026-7', 0, 'dispatcher', 1234), null);
+  assert.equal(
+    photoStoragePathFromPublicUrl('https://example.supabase.co/storage/v1/object/public/photos/osbb-duty/2026-7/a.jpg'),
+    'osbb-duty/2026-7/a.jpg',
+  );
+  assert.equal(photoStoragePathFromPublicUrl('https://example.com/photos/a.jpg'), null);
+  assert.equal(photoStoragePathFromPublicUrl('javascript:alert(1)'), null);
+});
 
 test('photoIdFromInsertResponse приймає лише валідний ID вставленого фото', () => {
   assert.equal(photoIdFromInsertResponse([{ id: 42 }], 100), 42);

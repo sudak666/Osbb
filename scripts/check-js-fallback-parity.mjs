@@ -20,6 +20,7 @@ const fallbackPairs = [
   ['src/osbb-offline.ts', 'src/osbb-offline.js'],
   ['src/osbb-pin-modal-controller.ts', 'src/osbb-pin-modal-controller.js'],
   ['src/osbb-photos.ts', 'src/osbb-photos.js'],
+  ['src/osbb-photo-controller.ts', 'src/osbb-photo-controller.js'],
   ['src/pin-entry.ts', 'src/pin-entry.js'],
   ['src/osbb-state.ts', 'src/osbb-state.js'],
   ['src/osbb-shifts.ts', 'src/osbb-shifts.js'],

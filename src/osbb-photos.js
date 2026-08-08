@@ -21,6 +21,24 @@ export function photoIdFromInsertResponse(value, fallback) {
     return validPhotoId(id) ? id : fallback;
 }
 
+export function photoUploadPath(monthKey, day, role, timestamp) {
+    if (!/^\d{4}-\d{1,2}$/.test(monthKey) || !validPhotoCoordinates(day, role) || !Number.isFinite(timestamp)) return null;
+    return `osbb-duty/${monthKey}/${Number(day)}-${role}-${Math.trunc(timestamp)}.jpg`;
+}
+
+export function photoStoragePathFromPublicUrl(value) {
+    const url = safeExternalUrl(value);
+    if (!url) return null;
+    try {
+        const marker = '/storage/v1/object/public/photos/';
+        const parsed = new URL(url);
+        const index = parsed.pathname.indexOf(marker);
+        if (index < 0) return null;
+        const path = decodeURIComponent(parsed.pathname.slice(index + marker.length));
+        return path && !path.split('/').some(segment => segment === '..') ? path : null;
+    } catch { return null; }
+}
+
 export function photoCacheKey(day, role) {
     return `${day}-${role}`;
 }

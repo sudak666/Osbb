@@ -27,6 +27,24 @@ export interface LightboxState {
     index: number;
 }
 
+export function photoUploadPath(monthKey: string, day: string | number, role: string, timestamp: number): string | null {
+    if (!/^\d{4}-\d{1,2}$/.test(monthKey) || !validPhotoCoordinates(day, role) || !Number.isFinite(timestamp)) return null;
+    return `osbb-duty/${monthKey}/${Number(day)}-${role}-${Math.trunc(timestamp)}.jpg`;
+}
+
+export function photoStoragePathFromPublicUrl(value: unknown): string | null {
+    const url = safeExternalUrl(value);
+    if (!url) return null;
+    try {
+        const marker = '/storage/v1/object/public/photos/';
+        const parsed = new URL(url);
+        const index = parsed.pathname.indexOf(marker);
+        if (index < 0) return null;
+        const path = decodeURIComponent(parsed.pathname.slice(index + marker.length));
+        return path && !path.split('/').some(segment => segment === '..') ? path : null;
+    } catch { return null; }
+}
+
 export function photoIdFromInsertResponse(value: unknown, fallback: string | number): string | number {
     if (!Array.isArray(value) || value.length === 0) return fallback;
     const row = value[0];
