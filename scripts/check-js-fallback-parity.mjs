@@ -15,6 +15,7 @@ const fallbackPairs = [
   ['src/osbb-dispatcher.ts', 'src/osbb-dispatcher.js'],
   ['src/osbb-elevator.ts', 'src/osbb-elevator.js'],
   ['src/osbb-garbage.ts', 'src/osbb-garbage.js'],
+  ['src/osbb-lock-controller.ts', 'src/osbb-lock-controller.js'],
   ['src/osbb-offline.ts', 'src/osbb-offline.js'],
   ['src/osbb-pin-modal-controller.ts', 'src/osbb-pin-modal-controller.js'],
   ['src/osbb-photos.ts', 'src/osbb-photos.js'],

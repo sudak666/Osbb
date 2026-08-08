@@ -1,6 +1,7 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import { createAutoLockController } from './osbb-auto-lock.js';
+    import { createOsbbLockController } from './osbb-lock-controller.js';
     import { createOsbbPinModalController } from './osbb-pin-modal-controller.js';
     import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
@@ -32,7 +33,6 @@
         sortElevatorEntries,
     } from './osbb-elevator.js';
     import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photoIdFromInsertResponse, photosFor, removePhoto } from './osbb-photos.js';
-    import { appendPinDigit, deletePinDigit, isPinComplete, pinLockoutDelay } from './pin-entry.js';
     import {
         garbageMonthBinsTotal,
         garbageMonthKey,
@@ -95,82 +95,21 @@
     // Якщо PIN вже введено на рівні shell-оболонки (спільний sessionStorage
     // в межах одного origin), повторно не питаємо.
     // ==========================================
-    let lockBuf = '';
-    let lockBusy = false;
-    let lockFails = 0;
+    const db = createSupabaseRestClient();
+
+    const lockController = createOsbbLockController({
+        document,
+        verifyPin: attempt => db.rpc('verify_lock_pin', { attempt }),
+        onUnlocked: () => {
+            setAuthSession();
+            return ensureStaffAuth();
+        },
+    });
 
     if (IS_EMBEDDED_SHELL || isAuthSessionValid()) {
-        const lockScreen = document.getElementById('app-lock-screen');
-        if (lockScreen) lockScreen.style.display = 'none';
+        lockController.hide();
         setTimeout(() => ensureStaffAuth(), 0);
     }
-
-    function lockUpdateDots() {
-        for (let i = 0; i < 4; i++) {
-            const dot = document.getElementById('lock-d' + i);
-            if (!dot) continue;
-            dot.style.background = i < lockBuf.length ? '#22c55e' : 'rgba(255,255,255,0.2)';
-            dot.style.transform = i < lockBuf.length ? 'scale(1.2)' : 'scale(1)';
-        }
-    }
-
-    function lockDel() {
-        if (lockBusy) return;
-        lockBuf = deletePinDigit(lockBuf);
-        const err = document.getElementById('lock-err');
-        if (err) err.textContent = '';
-        lockUpdateDots();
-    }
-
-    async function lockPress(digit) {
-        if (lockBusy) return;
-        const nextBuffer = appendPinDigit(lockBuf, digit);
-        if (nextBuffer === lockBuf) return;
-        lockBuf = nextBuffer;
-        lockUpdateDots();
-        if (isPinComplete(lockBuf)) {
-            const attempt = lockBuf;
-            lockBusy = true;
-            let ok = false;
-            try { ok = await db.rpc('verify_lock_pin', { attempt }); } catch (e) { ok = false; }
-            if (ok) {
-                lockFails = 0;
-                lockBusy = false;
-                setAuthSession();
-                const screen = document.getElementById('app-lock-screen');
-                if (screen) {
-                    screen.style.transition = 'opacity 0.35s ease';
-                    screen.style.opacity = '0';
-                    setTimeout(() => { screen.style.display = 'none'; }, 350);
-                }
-                ensureStaffAuth();
-                lockBuf = '';
-            } else {
-                lockFails++;
-                const err = document.getElementById('lock-err');
-                if (err) err.textContent = 'Невірний PIN, спробуйте ще';
-                lockBuf = '';
-                lockUpdateDots();
-                // Тряска
-                const box = document.querySelector('#app-lock-screen > div');
-                if (box) {
-                    box.style.animation = 'none';
-                    box.style.transform = 'translateX(-8px)';
-                    setTimeout(() => box.style.transform = 'translateX(8px)', 80);
-                    setTimeout(() => box.style.transform = 'translateX(-5px)', 160);
-                    setTimeout(() => box.style.transform = 'translateX(0)', 240);
-                }
-                const lockout = pinLockoutDelay(lockFails);
-                setTimeout(() => {
-                    lockBusy = false;
-                    const currentErr = document.getElementById('lock-err');
-                    if (currentErr) currentErr.textContent = '';
-                }, lockout);
-            }
-        }
-    }
-
-    const db = createSupabaseRestClient();
 
     // ==========================================
     // STAFF AUTH: персональний вхід поверх спільного PIN журналу.
@@ -1378,9 +1317,9 @@
 
     function bindOsbbStaticControls() {
         document.querySelectorAll('[data-lock-digit]').forEach((button) => {
-            button.addEventListener('click', () => lockPress(button.dataset.lockDigit));
+            button.addEventListener('click', () => lockController.press(button.dataset.lockDigit));
         });
-        document.querySelector('[data-lock-delete]')?.addEventListener('click', lockDel);
+        document.querySelector('[data-lock-delete]')?.addEventListener('click', lockController.deleteDigit);
 
         document.querySelectorAll('[data-pin-modal-digit]').forEach((button) => {
             button.addEventListener('click', () => pinModalController.press(button.dataset.pinModalDigit));
@@ -2861,16 +2800,7 @@
     // AUTO-LOCK — блокування через 30 хвилин бездіяльності
     // ============================================================
     function triggerAutoLock() {
-        lockBuf = '';
-        lockUpdateDots();
-        const screen = document.getElementById('app-lock-screen');
-        if (screen) {
-            screen.style.transition = 'none';
-            screen.style.opacity = '1';
-            screen.style.display = 'flex';
-        }
-        const err = document.getElementById('lock-err');
-        if (err) err.textContent = '';
+        lockController.show();
     }
 
     const autoLockController = createAutoLockController(triggerAutoLock);

@@ -47,6 +47,7 @@ function readOsbbCombined() {
     'src/osbb-dispatcher.ts',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
+    'src/osbb-lock-controller.ts',
     'src/osbb-pin-modal-controller.ts',
     'src/osbb-photos.ts',
     'src/osbb-shifts.ts',
