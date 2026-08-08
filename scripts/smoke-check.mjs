@@ -53,6 +53,7 @@ function readOsbbCombined() {
     'src/osbb-attendance-controller.js',
     'src/osbb-client-state.ts',
     'src/osbb-dispatcher.ts',
+    'src/osbb-dispatcher-controller.js',
     'src/osbb-elevator.ts',
     'src/osbb-garbage.ts',
     'src/osbb-garbage-controller.js',
