@@ -10,6 +10,7 @@
     import { createOsbbShiftCalendarController } from './osbb-shift-calendar-controller.js';
     import { createOsbbAttendanceController } from './osbb-attendance-controller.js';
     import { createOsbbGarbageController } from './osbb-garbage-controller.js';
+    import { createOsbbDispatcherController } from './osbb-dispatcher-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
@@ -1459,6 +1460,18 @@
     let dispNewTicketPriority = 'MEDIUM';
     let dispNewTicketRole = 'plumber';
 
+    const dispatcherController = createOsbbDispatcherController({
+        document, storage:localStorage, isPreview:IS_PREVIEW,
+        getMonth:() => ({ year:currentYear, month:currentMonth }), getStaffSession:() => staffSession,
+        getStaffPin:() => staffPinCache, isDispatcher:isDispatcherSession, normalizeWorkerRole,
+        readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue,
+        fetchMonth:async key => db.from('dispatcher').select('data').eq('month_key',key).single(),
+        upsertMonth:row => db.from('dispatcher').upsert(row), resetMonth:args => db.rpc('reset_month',args),
+        requestResetPin:callback => showPinModal('Скидання диспетчера','PIN для очищення місяця',callback,true),
+        requestStaffReauth, requestJira:jiraRequest, renderDispatcher:dispRender, renderMyTickets:myTicketsRender,
+        showToast, onDataChanged:value => { dispData=value; },
+    });
+
     function dispKey() { return zeroBasedMonthKey(currentYear, currentMonth); }
     function dispOfflineKey() { return osbbOfflineMonthKey('dispatcher', currentYear, currentMonth); }
 
@@ -1478,6 +1491,7 @@
     }
 
     async function dispInitTab() {
+        return dispatcherController.init();
         dispSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
         const offline = dispLoadOffline();
         if (offline) { dispData = offline; dispRender(); }
@@ -1507,6 +1521,7 @@
     }
 
     function dispScheduleSave() {
+        return dispatcherController.scheduleSave();
         dispSetStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span>Зберігаю...</span>');
         dispSaveOffline();
         clearTimeout(dispSaveTimer);
@@ -1514,6 +1529,7 @@
     }
 
     async function dispSaveCloud() {
+        return dispatcherController.saveCloud();
         if (IS_PREVIEW) { dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span> Превью</span>'); return; }
         try {
             const { error } = await db.from('dispatcher').upsert({ month_key: dispKey(), data: dispData });
@@ -1530,6 +1546,7 @@
     }
 
     function dispGetDay(d) {
+        return dispatcherController.getDay(d);
         dispData[d] = dispNormalizeDay(dispData[d]);
         return dispData[d];
     }
@@ -1537,6 +1554,12 @@
 
     // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
     async function dispAddTicket(d, text, role, priority, photoFiles = []) {
+        const controllerTicket = await dispatcherController.addTicket(d, text, role, priority);
+        if (!controllerTicket) return;
+        for (const file of photoFiles) await photoController.upload(Number(d), 'dispatcher', file);
+        dispOpenDayDetail(Number(d));
+        showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
+        return;
         if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
         const trimmed = (text || '').trim();
         if (!trimmed) { showToast('Опишіть заявку'); return; }
@@ -1571,6 +1594,8 @@
     }
 
     function dispDeleteTicket(d, ticketId) {
+        if (dispatcherController.deleteTicket(d, ticketId)) dispOpenDayDetail(Number(d));
+        return;
         if (!isDispatcherSession()) return;
         const row = dispGetDay(d);
         row.ticketsList = row.ticketsList.filter(t => t.id !== ticketId);
@@ -1583,6 +1608,9 @@
     let dispEditingTicketId = null;
 
     function dispToggleTicketEdit(d, ticketId) {
+        dispEditingTicketId = dispatcherController.toggleTicketEdit(ticketId);
+        dispOpenDayDetail(Number(d));
+        return;
         if (!isDispatcherSession()) return;
         dispEditingTicketId = dispEditingTicketId === ticketId ? null : ticketId;
         dispOpenDayDetail(Number(d));
@@ -1590,6 +1618,10 @@
 
     // Редагувати текст/роль/пріоритет уже створеної заявки — тільки Диспетчер/Адмін.
     function dispSaveTicketEdit(d, ticketId, text, role, priority) {
+        if (dispatcherController.saveTicketEdit(d, ticketId, text, role, priority)) {
+            dispEditingTicketId = null; dispOpenDayDetail(Number(d)); showToast('Заявку оновлено');
+        }
+        return;
         if (!isDispatcherSession()) return;
         const trimmed = (text || '').trim();
         if (!trimmed) { showToast('Опишіть заявку'); return; }
@@ -1607,6 +1639,7 @@
 
     // Закрити заявку — для будь-кого (диспетчер або сам виконавець), з коментарем.
     function dispCloseTicket(d, ticketId, comment) {
+        return dispatcherController.closeTicket(d, ticketId, comment);
         const row = dispGetDay(d);
         const ticket = row.ticketsList.find(t => t.id === ticketId);
         if (!ticket) return;
@@ -1616,6 +1649,8 @@
 
     // Повторно відкрити помилково закриту заявку може лише Диспетчер/Адмін.
     function dispReopenTicket(d, ticketId) {
+        if (dispatcherController.reopenTicket(d, ticketId)) { dispOpenDayDetail(Number(d)); showToast('Заявку знову відкрито'); }
+        return;
         if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }
         const row = dispGetDay(d);
         const ticket = row.ticketsList.find(t => t.id === ticketId);
@@ -1626,6 +1661,7 @@
     }
 
     function dispAddTicketPhoto(d, ticketId, url) {
+        return dispatcherController.addTicketPhoto(d, ticketId, url);
         const row = dispGetDay(d);
         const ticket = row.ticketsList.find(t => t.id === ticketId);
         if (!ticket) return;
@@ -1670,6 +1706,10 @@
     }
 
     async function myTicketsInitTab() {
+        await dispatcherController.loadJira();
+        jiraIssues = dispatcherController.getJiraIssues();
+        myTicketsRender();
+        return;
         if (!staffSession) return;
         const statusEl = document.getElementById('my-tickets-sync-status');
         if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>';
@@ -1757,6 +1797,7 @@
     }
 
     function collectTicketsForRole(role) {
+        return dispatcherController.collectTicketsForRole(role);
         const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         const result = [];
         for (let d = 1; d <= daysInMonth; d++) {
@@ -1775,6 +1816,7 @@
     }
 
     function dispMatchesFilter(row, hasEvent, d) {
+        return dispatcherController.matchesFilter(row, hasEvent, d, dispFilter);
         return matchesDispatcherFilter(row, hasEvent, dispFilter, dispMatchesCurrentDateFilter(d, dispFilter));
     }
 
@@ -1990,6 +2032,7 @@
     }
 
     async function dispClearMonth() {
+        return dispatcherController.clearMonth();
         showPinModal('Скидання диспетчера', 'PIN для очищення місяця', async (pin) => {
             dispData = {};
             dispSaveOffline();

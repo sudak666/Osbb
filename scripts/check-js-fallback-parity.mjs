@@ -14,6 +14,7 @@ const fallbackPairs = [
   ['src/osbb-attendance.ts', 'src/osbb-attendance.js'],
   ['src/osbb-attendance-controller.ts', 'src/osbb-attendance-controller.js'],
   ['src/osbb-dispatcher.ts', 'src/osbb-dispatcher.js'],
+  ['src/osbb-dispatcher-controller.ts', 'src/osbb-dispatcher-controller.js'],
   ['src/osbb-elevator.ts', 'src/osbb-elevator.js'],
   ['src/osbb-garbage.ts', 'src/osbb-garbage.js'],
   ['src/osbb-garbage-controller.ts', 'src/osbb-garbage-controller.js'],
