@@ -2,8 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const source = fs.readFileSync(new URL('../src/database.types.ts', import.meta.url), 'utf8');
-const apiSource = fs.readFileSync(new URL('../src/supabase-api.ts', import.meta.url), 'utf8');
+const normalizeNewlines = value => value.replace(/\r\n?/g, '\n');
+const source = normalizeNewlines(fs.readFileSync(new URL('../src/database.types.ts', import.meta.url), 'utf8'));
+const apiSource = normalizeNewlines(fs.readFileSync(new URL('../src/supabase-api.ts', import.meta.url), 'utf8'));
 
 test('database types model merged OSBB month-key tables, not the old row schema', () => {
   assert.match(source, /schedule: RowOperation<\{\n\s+month_key: string;\n\s+data: Json;/);

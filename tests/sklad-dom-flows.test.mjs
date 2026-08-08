@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const skladHtml = readFileSync(new URL('../sklad/index.html', import.meta.url), 'utf8');
-const skladApp = readFileSync(new URL('../src/sklad-app.js', import.meta.url), 'utf8');
-const osbbHtml = readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8');
-const osbbApp = readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8');
+const normalizeNewlines = value => value.replace(/\r\n?/g, '\n');
+const skladHtml = normalizeNewlines(readFileSync(new URL('../sklad/index.html', import.meta.url), 'utf8'));
+const skladApp = normalizeNewlines(readFileSync(new URL('../src/sklad-app.js', import.meta.url), 'utf8'));
+const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
+const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
 
 function assertIncludes(source, snippet, message) {
   assert.notEqual(source.indexOf(snippet), -1, message);

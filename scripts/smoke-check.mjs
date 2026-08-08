@@ -2539,7 +2539,12 @@ ${sharedSelectText}`;
 // repo — catches stale references like a UI hint pointing at a script that
 // was never committed.
 {
-  const sqlFilesOnDisk = new Set(allFiles.filter(f => f.endsWith('.sql')).map(f => f.split('/').pop()));
+  const sqlFilesOnDisk = new Set(
+    allFiles
+      .map(file => file.replaceAll('\\', '/'))
+      .filter(file => file.endsWith('.sql'))
+      .map(file => file.split('/').pop()),
+  );
   const sqlMentionRe = /\b[\w-]+\.sql\b/g;
   for (const src of ['README.md', 'index.html', 'osbb/index.html', 'sklad/index.html']) {
     const text = readFileSync(src, 'utf8');
