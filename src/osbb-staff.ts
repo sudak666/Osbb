@@ -12,6 +12,10 @@ export interface StaffListEntry {
     role: StaffRole;
 }
 
+export interface StaffSettingsEntry extends StaffListEntry {
+    active: boolean;
+}
+
 const STAFF_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES: readonly StaffRole[] = ['plumber', 'janitor', 'electrician'];
 export const WORKER_ALLOWED_TABS: readonly string[] = ['tabel', 'my-tickets'];
@@ -39,13 +43,27 @@ export function parseStaffSession(value: unknown): StaffSession | null {
     const session = value as Record<string, unknown>;
     const validId = typeof session.id === 'string' && session.id.trim() !== ''
         || typeof session.id === 'number' && Number.isFinite(session.id);
-    if (!validId || typeof session.name !== 'string' || session.name.trim() === '') return null;
+    const name = typeof session.name === 'string' ? session.name.trim() : '';
+    const id = typeof session.id === 'string' ? session.id.trim() : session.id;
+    if (!validId || String(id).length > 100 || !name || name.length > 100) return null;
     if (typeof session.role !== 'string' || !STAFF_ROLES.includes(session.role as StaffRole)) return null;
     return {
-        id: typeof session.id === 'string' ? session.id.trim() : session.id as number,
-        name: session.name.trim(),
+        id: id as string | number,
+        name,
         role: session.role as StaffRole,
     };
+}
+
+export function parseStaffSettingsList(value: unknown): StaffSettingsEntry[] {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const row = entry as Record<string, unknown>;
+        const session = parseStaffSession({ id: row.id, name: row.full_name, role: row.role });
+        return session && typeof row.active === 'boolean'
+            ? [{ id: session.id, full_name: session.name, role: session.role, active: row.active }]
+            : [];
+    });
 }
 
 export function parseStaffList(value: unknown): StaffListEntry[] {

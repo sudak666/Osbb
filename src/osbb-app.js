@@ -53,6 +53,7 @@
         isWorkerSession as isWorkerStaffSession,
         normalizeWorkerRole,
         parseStaffList,
+        parseStaffSettingsList,
         parseStaffSession,
     } from './osbb-staff.js';
     import {
@@ -223,7 +224,7 @@
         list.innerHTML = '<div class="staff-login-loading">Завантаження...</div>';
         try {
             const rows = await db.rpc('list_osbb_staff_settings', { p_staff_id: staffSession.id, attempt: staffPinCache });
-            renderStaffSettings(Array.isArray(rows) ? rows : []);
+            renderStaffSettings(parseStaffSettingsList(rows));
         } catch (error) {
             console.error('staff settings load error:', error);
             list.innerHTML = '<div class="staff-login-loading">Не вдалося завантажити користувачів</div>';

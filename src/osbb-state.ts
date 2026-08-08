@@ -42,8 +42,10 @@ export function createOsbbRuntimeState(): OsbbRuntimeState {
     };
 }
 
-function optionalString(value: unknown): string | undefined {
-    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+function optionalString(value: unknown, maxLength: number): string | undefined {
+    if (typeof value !== 'string') return undefined;
+    const text = value.trim();
+    return text && text.length <= maxLength ? text : undefined;
 }
 
 export function jiraIssuesFromResponse(value: unknown): JiraIssue[] {
@@ -51,17 +53,19 @@ export function jiraIssuesFromResponse(value: unknown): JiraIssue[] {
     return value.flatMap((entry) => {
         if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
         const row = entry as Record<string, unknown>;
-        const key = optionalString(row.key);
-        const summary = optionalString(row.summary);
+        const key = optionalString(row.key, 100);
+        const summary = optionalString(row.summary, 1000);
         if (!key || !summary) return [];
         return [{
             key,
             summary,
-            priority: optionalString(row.priority),
-            status: optionalString(row.status),
-            category: optionalString(row.category),
-            assignedRole: optionalString(row.assignedRole),
-            url: optionalString(row.url),
+            priority: optionalString(row.priority, 100),
+            status: optionalString(row.status, 100),
+            category: optionalString(row.category, 200),
+            assignedRole: row.assignedRole === 'plumber' || row.assignedRole === 'janitor' || row.assignedRole === 'electrician'
+                ? row.assignedRole
+                : undefined,
+            url: optionalString(row.url, 2000),
         }];
     });
 }

@@ -1,5 +1,18 @@
 import { safeExternalUrl } from './app-security.ts';
 
+const PHOTO_ROLES = new Set(['dispatcher']);
+
+function validPhotoId(value: unknown): value is string | number {
+    return typeof value === 'number' && Number.isFinite(value)
+        || typeof value === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(value);
+}
+
+function validPhotoCoordinates(day: unknown, role: unknown): role is string {
+    const numericDay = Number(day);
+    return Number.isInteger(numericDay) && numericDay >= 1 && numericDay <= 31
+        && typeof role === 'string' && PHOTO_ROLES.has(role);
+}
+
 export interface PhotoRecord {
     id: string | number;
     url: string;
@@ -19,8 +32,7 @@ export function photoIdFromInsertResponse(value: unknown, fallback: string | num
     const row = value[0];
     if (typeof row !== 'object' || row === null || Array.isArray(row)) return fallback;
     const id = (row as Record<string, unknown>).id;
-    if (typeof id === 'string' && id.trim()) return id;
-    return typeof id === 'number' && Number.isFinite(id) ? id : fallback;
+    return validPhotoId(id) ? id : fallback;
 }
 
 export function photoCacheKey(day: string | number, role: string): string {
@@ -33,12 +45,10 @@ export function buildPhotoCache(records: unknown): PhotoCache {
     for (const value of records) {
         if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
         const photo = value as Record<string, unknown>;
-        if (!(typeof photo.id === 'string' || typeof photo.id === 'number' && Number.isFinite(photo.id))) continue;
-        if (photo.day === null || photo.day === undefined || !photo.role) continue;
-        if (typeof photo.day !== 'string' && typeof photo.day !== 'number' || typeof photo.role !== 'string') continue;
+        if (!validPhotoId(photo.id) || !validPhotoCoordinates(photo.day, photo.role)) continue;
         const url = safeExternalUrl(photo.url);
         if (!url) continue;
-        const key = photoCacheKey(photo.day, photo.role);
+        const key = photoCacheKey(Number(photo.day), photo.role);
         (cache[key] ||= []).push({ id: photo.id, url });
     }
     return cache;
@@ -50,10 +60,11 @@ export function appendPhoto(
     role: string,
     photo: Pick<PhotoRecord, 'id' | 'url'>,
 ): PhotoCache {
+    if (!validPhotoCoordinates(day, role) || !photo || !validPhotoId(photo.id)) return cache || {};
     const url = safeExternalUrl(photo.url);
     if (!url) return cache || {};
     const current = cache || {};
-    const key = photoCacheKey(day, role);
+    const key = photoCacheKey(Number(day), role);
     return { ...current, [key]: [...(current[key] || []), { id: photo.id, url }] };
 }
 

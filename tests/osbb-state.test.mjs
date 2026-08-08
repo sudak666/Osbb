@@ -33,3 +33,13 @@ test('jiraIssuesFromResponse rejects malformed issues and normalizes text', () =
   }]);
   assert.deepEqual(jiraIssuesFromResponse({ issues: [] }), []);
 });
+
+test('jira issue boundary bounds malicious payloads and whitelists roles', () => {
+  assert.deepEqual(jiraIssuesFromResponse([
+    { key: 'MS-9', summary: '<img src=x onerror=alert(1)>', assignedRole: '<svg onload=alert(1)>', status: 'x'.repeat(101), url: 'javascript:alert(1)', malicious: '<script>alert(1)</script>' },
+    { key: 'MS-10', summary: 'x'.repeat(1001), assignedRole: 'plumber' },
+  ]), [{
+    key: 'MS-9', summary: '<img src=x onerror=alert(1)>', priority: undefined, status: undefined,
+    category: undefined, assignedRole: undefined, url: 'javascript:alert(1)',
+  }]);
+});
