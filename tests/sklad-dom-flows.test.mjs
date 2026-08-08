@@ -128,6 +128,17 @@ test('Sklad movement edit modals keep centralized save actions', () => {
   assertIncludes(skladMovementsController, 'async function saveEditReceipt()', 'receipt edit handler is missing');
 });
 
+test('Sklad controllers initialize only after data loader bindings', () => {
+  const dataBindings = skladApp.indexOf('}=createSkladDataController({');
+  const movementsInit = skladApp.indexOf('movementsController=createSkladMovementsController({');
+  const photoInit = skladApp.indexOf('photoController=createSkladPhotoController({');
+  const itemCrudInit = skladApp.indexOf('itemCrudController=createSkladItemCrudController({');
+  assert.ok(dataBindings >= 0, 'data controller bindings are missing');
+  assert.ok(movementsInit > dataBindings, 'movements controller must not read loadItems in its temporal dead zone');
+  assert.ok(photoInit > dataBindings, 'photo controller must not read loadItems in its temporal dead zone');
+  assert.ok(itemCrudInit > dataBindings, 'item CRUD controller must not read loadItems in its temporal dead zone');
+});
+
 test('OSBB dispatcher ticket flow stays delegated and routes add/edit actions', () => {
   assert.match(osbbHtml, /data-disp-search/u);
   assertIncludes(osbbApp, 'function bindDispatcherEntryActions() {', 'dispatcher delegated binder is missing');

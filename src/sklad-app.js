@@ -98,11 +98,7 @@ const addCustomSupplierTag=()=>supplierController.add();
 const requestRemoveCustomSupplierTag=tag=>supplierController.requestRemove(tag);
 const confirmRemoveCustomSupplierTag=()=>supplierController.confirmRemove();
 
-const movementsController=createSkladMovementsController({db,document,getItems:()=>allItems,getLogs:()=>allLogs,getReceipts:()=>allReceipts,
-  openModal,closeModal,requestDeletePin:showDeletePinModal,toast,loadItems,loadLogs,loadReceipts,optionalPrice,syncSupplierTags,
-  isPurchasePriceSchemaError,showPurchasePriceMigrationNotice,setButtonLoading:setActionButtonLoading,refreshSelect:refreshEnhancedSelect,
-  notifyTelegram,inventoryUnit:inventoryUnitFromRpcResponse,getPurchasePriceRpcAvailable:()=>purchasePriceRpcAvailable,disablePurchasePriceRpc,
-  populateSelects:populateSels,renderLowStock:renderAddLow,loadRecentIssues,findItem:findItemForAction});
+let movementsController;
 const runDeleteInventoryRpc=(name,args)=>movementsController.runDelete(name,args);
 const openDeleteLog=id=>movementsController.openDeleteLog(id);
 const confirmDeleteLog=()=>movementsController.confirmDeleteLog();
@@ -117,7 +113,7 @@ const doIssue=button=>movementsController.submitIssue(button);
 const issueItem=(itemId,quantity,person,note,occurredAt)=>movementsController.issueItem(itemId,quantity,person,note,occurredAt);
 const doRefill=button=>movementsController.submitReceipt(button);
 
-const photoController=createSkladPhotoController({db,document,window,getItem:findItemForAction,loadItems,openModal,closeModal,requestDeletePin:showDeletePinModal,toast});
+let photoController;
 const openPhotoModal=id=>photoController.open(id);
 const uploadPhoto=()=>photoController.upload();
 const deletePhoto=()=>photoController.remove();
@@ -125,9 +121,7 @@ const openLightbox=(url,itemId=null)=>photoController.openLightbox(url,itemId);
 const closeLightbox=()=>photoController.closeLightbox();
 const deleteLightboxPhoto=event=>photoController.removeFromLightbox(event);
 
-const itemCrudController=createSkladItemCrudController({db,document,categories:catBadge,getItems:()=>allItems,findItem:findItemForAction,
-  refreshSelect:refreshEnhancedSelect,openModal,closeModal,setButtonLoading:setActionButtonLoading,loadItems,populateSelects:populateSels,
-  renderLowStock:renderAddLow,requestDeletePin:showDeletePinModal,runDeleteRpc:runDeleteInventoryRpc,toast});
+let itemCrudController;
 const openEditItem=id=>itemCrudController.openEdit(id);
 const confirmEditItem=button=>itemCrudController.saveEdit(button);
 const openDelete=id=>itemCrudController.openDelete(id);
@@ -165,6 +159,16 @@ const {
   onLogs(logs){ allLogs=logs; renderLog(); },
   onReceipts(receipts){ allReceipts=receipts; renderReceipts(); },
 });
+
+movementsController=createSkladMovementsController({db,document,getItems:()=>allItems,getLogs:()=>allLogs,getReceipts:()=>allReceipts,
+  openModal,closeModal,requestDeletePin:showDeletePinModal,toast,loadItems,loadLogs,loadReceipts,optionalPrice,syncSupplierTags,
+  isPurchasePriceSchemaError,showPurchasePriceMigrationNotice,setButtonLoading:setActionButtonLoading,refreshSelect:refreshEnhancedSelect,
+  notifyTelegram,inventoryUnit:inventoryUnitFromRpcResponse,getPurchasePriceRpcAvailable:()=>purchasePriceRpcAvailable,disablePurchasePriceRpc,
+  populateSelects:populateSels,renderLowStock:renderAddLow,loadRecentIssues,findItem:findItemForAction});
+photoController=createSkladPhotoController({db,document,window,getItem:findItemForAction,loadItems,openModal,closeModal,requestDeletePin:showDeletePinModal,toast});
+itemCrudController=createSkladItemCrudController({db,document,categories:catBadge,getItems:()=>allItems,findItem:findItemForAction,
+  refreshSelect:refreshEnhancedSelect,openModal,closeModal,setButtonLoading:setActionButtonLoading,loadItems,populateSelects:populateSels,
+  renderLowStock:renderAddLow,requestDeletePin:showDeletePinModal,runDeleteRpc:runDeleteInventoryRpc,toast});
 
 const auditController=createSkladAuditController({
   db,document,
