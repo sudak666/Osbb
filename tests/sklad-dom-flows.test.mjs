@@ -6,6 +6,8 @@ const normalizeNewlines = value => value.replace(/\r\n?/g, '\n');
 const skladHtml = normalizeNewlines(readFileSync(new URL('../sklad/index.html', import.meta.url), 'utf8'));
 const skladApp = normalizeNewlines(readFileSync(new URL('../src/sklad-app.js', import.meta.url), 'utf8'));
 const skladClientState = normalizeNewlines(readFileSync(new URL('../src/sklad-client-state.js', import.meta.url), 'utf8'));
+const skladAuth = normalizeNewlines(readFileSync(new URL('../src/sklad-auth.js', import.meta.url), 'utf8'));
+const skladAuthController = normalizeNewlines(readFileSync(new URL('../src/sklad-auth-controller.js', import.meta.url), 'utf8'));
 const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
 const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
 
@@ -40,10 +42,10 @@ test('Sklad audit flow keeps dynamic controls delegated from the list container'
 });
 
 test('Sklad PIN flow keeps server verification and guarded keypad binding', () => {
-  assertIncludes(skladHtml, "db.rpc('verify_pin',{attempt})", 'embedded Sklad PIN check must use server RPC');
-  assertIncludes(skladHtml, 'const AUTH_TTL_MS = 12 * 60 * 60 * 1000;', 'embedded Sklad auth must keep TTL');
-  assertIncludes(skladApp, "document.querySelectorAll('[data-auth-pin-key]').forEach(button=>{", 'runtime PIN keypad binding is missing');
-  assertIncludes(skladHtml, 'if(pinBusy) return;', 'PIN keypad must guard concurrent input');
+  assertIncludes(skladAuth, "db.rpc('verify_pin', { attempt })", 'Sklad PIN check must use server RPC');
+  assertIncludes(skladHtml, '<script type="module" src="../src/sklad-auth.js"></script>', 'typed Sklad auth runtime must be loaded');
+  assertIncludes(skladAuthController, "doc.querySelectorAll('[data-auth-pin-key]').forEach", 'runtime PIN keypad binding is missing');
+  assertIncludes(skladAuthController, 'if (busy) return;', 'PIN keypad must guard concurrent input');
   assertIncludes(skladApp, 'const nextBuffer=applyPinKey(deletePinBuf,k);', 'runtime delete PIN must use the shared keypad boundary');
   assertIncludes(skladApp, 'if (isPinComplete(deletePinBuf))', 'runtime delete PIN must verify complete input');
 });

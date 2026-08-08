@@ -13,6 +13,7 @@ import {
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
+import { isAuthSessionValid } from './auth-session.js';
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from './sklad-audit.js';
 import { numericIdFromInsertResponse } from './supabase-api.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload, filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
@@ -633,9 +634,6 @@ function animateNumber(el,target,{prefix='',suffix=''}={}){
   requestAnimationFrame(step);
 }
 function bindSkladStaticControls(){
-  document.querySelectorAll('[data-auth-pin-key]').forEach(button=>{
-    button.addEventListener('click',()=>pinPress(button.dataset.authPinKey));
-  });
   document.querySelectorAll('[data-sklad-page], .ni[data-page], .bn-item[data-page]').forEach(trigger=>{
     trigger.addEventListener('click',()=>activateSkladPageTrigger(trigger));
     trigger.addEventListener('keydown',handleSkladStaticKeydown);

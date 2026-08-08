@@ -117,69 +117,8 @@ if (EMBEDDED_SHELL_AUTH || (sessionStorage.getItem('auth') === 'ok' && earlyAuth
 window.addEventListener('message',event=>{
   if(event.origin===window.location.origin && event.data?.type==='osbb:shell-unlocked') hideEmbeddedAuthScreen();
 });
-// PIN перевіряється на сервері (Supabase RPC verify_pin), сам код нікому не відомий на клієнті
-const AUTH_TTL_MS = 12 * 60 * 60 * 1000;
-function setAuthSession(){
-  sessionStorage.setItem('auth','ok');
-  sessionStorage.setItem('auth_at',String(Date.now()));
-}
-function clearAuthSession(){
-  sessionStorage.removeItem('auth');
-  sessionStorage.removeItem('auth_at');
-}
-function isAuthSessionValid(){
-  if(sessionStorage.getItem('auth')!=='ok') return false;
-  const authAt=Number(sessionStorage.getItem('auth_at')||0);
-  if(!authAt || Date.now()-authAt>=AUTH_TTL_MS){
-    clearAuthSession();
-    return false;
-  }
-  return true;
-}
-let pinEntered='';
-let pinBusy=false;
-let pinFails=0;
-function pinPress(k){
-  if(pinBusy) return;
-  if(k==='C'){pinEntered='';}
-  else if(k==='DEL'){pinEntered=pinEntered.slice(0,-1);}
-  else if(pinEntered.length<4){pinEntered+=k;}
-  for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled',i<pinEntered.length);
-  document.getElementById('authErr').textContent='';
-  if(pinEntered.length===4) checkPin(pinEntered);
-}
-async function checkPin(attempt){
-  pinBusy=true;
-  document.getElementById('authErr').textContent='';
-  let ok=false;
-  try{
-    const {data,error}=await db.rpc('verify_pin',{attempt});
-    ok=!error && data===true;
-  }catch(e){ ok=false; }
-  if(ok){
-    pinFails=0;
-    const scr=document.getElementById('authScreen');
-    scr.style.transition='opacity .3s';
-    scr.style.opacity='0';
-    setAuthSession();
-    setTimeout(()=>{scr.style.display='none';scr.style.opacity='';},320);
-    pinBusy=false;
-  } else {
-    pinFails++;
-    document.getElementById('authErr').innerHTML='<span class="ms ic-14-2">cancel</span> Невірний PIN-код';
-    const box=document.querySelector('.auth-box');
-    box.style.animation='shake .4s';
-    setTimeout(()=>box.style.animation='',400);
-    pinEntered='';
-    const lockout=Math.min(pinFails*500,5000);
-    setTimeout(()=>{
-      for(let i=0;i<4;i++) document.getElementById('d'+i).classList.remove('filled');
-      document.getElementById('authErr').textContent='';
-      pinBusy=false;
-    },400+lockout);
-  }
-}
 </script>
+<script type="module" src="../src/sklad-auth.js"></script>
 
 <div class="sidebar">
   <div class="sb-logo">

@@ -14,6 +14,8 @@ function readSkladCombined() {
     'sklad/styles.css',
     'src/sklad-app.js',
     'src/sklad-audit.ts',
+    'src/sklad-auth-controller.ts',
+    'src/sklad-auth.ts',
     'src/sklad-client-state.ts',
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
@@ -23,6 +25,7 @@ function readSkladCombined() {
     'src/sklad-pricing.js',
     'src/sklad-pricing.ts',
     'src/sklad-suppliers.ts',
+    'src/auth-session.ts',
     'src/app-security.js',
     'src/app-security.ts',
   ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
@@ -126,7 +129,7 @@ const checks = [
   ['sklad/index.html', 'data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad delete PIN delete has accessible label'],
 
   ['src/sklad-app.js', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
-  ['sklad/index.html', "db.rpc('verify_pin'", 'sklad verifies delete PIN via RPC'],
+  ['src/sklad-auth.js', "db.rpc('verify_pin'", 'sklad verifies login PIN via RPC'],
   ['src/sklad-app.js', 'deleteLightboxPhoto', 'sklad lightbox has delete handler'],
   ['sklad/index.html', "scopePath.startsWith('/Osbb/sklad/')", 'sklad SW cleanup is scoped'],
   ['src/sklad-app.js', 'function notifyTelegram', 'sklad has Telegram notify helper'],
@@ -136,7 +139,7 @@ const checks = [
   ['src/sklad-app.js', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
   ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
   ['src/sklad-app.js', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
-  ['sklad/index.html', 'return true;', 'sklad issueItem reports success to callers'],
+  ['src/sklad-app.js', 'return true;', 'sklad issueItem reports success to callers'],
   ['sklad/index.html', '<script type="module" src="../src/sklad-app.js"></script>', 'sklad loads extracted module runtime'],
   ['src/sklad-app.js', 'filterSkladItems,', 'sklad uses typed domain filters'],
   ['src/sklad-app.js', 'items.filter(i=>itemMatchesSearch(i,s))', 'sklad item search uses normalized multi-field matching'],
@@ -447,7 +450,7 @@ for (const [file, needle, label] of checks) {
   const text = readShellCombined();
   const label = 'shell auth session has TTL';
   const required = [
-    'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
+    'AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     "storage.setItem(AUTH_AT_KEY, String(now))",
     'function isAuthSessionValid',
     'now - authAt >= AUTH_TTL_MS',
@@ -481,7 +484,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     : readOsbbCombined();
   const label = `${file} auth session respects TTL`;
   const required = [
-    'const AUTH_TTL_MS = 12 * 60 * 60 * 1000',
+    'AUTH_TTL_MS = 12 * 60 * 60 * 1000',
     'function setAuthSession',
     'function clearAuthSession',
     'function isAuthSessionValid',
