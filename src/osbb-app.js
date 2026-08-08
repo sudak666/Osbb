@@ -1168,12 +1168,6 @@
         }
     });
 
-    bindOsbbStaticControls();
-    bindOsbbPhotoActions();
-    bindGarbageEntryActions();
-    bindDispatcherEntryActions();
-    bindDayDetailSwipe();
-
     const savedTheme = loadOsbbTheme(localStorage);
     changeTheme(savedTheme);
 
@@ -2222,6 +2216,11 @@
 
     // Запускаємо початкове завантаження лише після ініціалізації всіх
     // lexical state bindings, які читають активні вкладки.
+    bindOsbbStaticControls();
+    bindOsbbPhotoActions();
+    bindGarbageEntryActions();
+    bindDispatcherEntryActions();
+    bindDayDetailSwipe();
     setTab(currentTab, { load: false });
     initCalendar();
     initRealtime();

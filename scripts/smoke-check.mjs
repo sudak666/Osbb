@@ -3592,8 +3592,12 @@ ${sharedSelectText}`;
   const requiredBindings = [
     text.indexOf('dispatcher: dispData,'),
     text.indexOf('elevatorData,'),
+    text.indexOf('const gClearMonth ='),
+    text.indexOf('const dispatcherController ='),
   ];
-  if (bootstrap < 0 || calendarInit < bootstrap || requiredBindings.some(index => index < 0 || index > bootstrap)) {
+  const staticBinder = text.lastIndexOf('bindOsbbStaticControls();');
+  if (bootstrap < 0 || calendarInit < bootstrap || staticBinder < 0 || staticBinder > bootstrap
+      || requiredBindings.some(index => index < 0 || index > staticBinder)) {
     failed += 1;
     console.error(`not ok - ${label} (bootstrap: ${bootstrap}; bindings: ${requiredBindings.join(', ')})`);
   } else {
