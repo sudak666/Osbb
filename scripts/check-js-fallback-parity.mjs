@@ -27,6 +27,7 @@ const fallbackPairs = [
   ['src/sklad-auth.ts', 'src/sklad-auth.js'],
   ['src/sklad-client-state.ts', 'src/sklad-client-state.js'],
   ['src/sklad-delete-pin-controller.ts', 'src/sklad-delete-pin-controller.js'],
+  ['src/sklad-modal-controller.ts', 'src/sklad-modal-controller.js'],
   ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
   ['src/sklad-movements.ts', 'src/sklad-movements.js'],
