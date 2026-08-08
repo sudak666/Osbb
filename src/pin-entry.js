@@ -14,6 +14,12 @@ export function isPinComplete(value) {
     return value.length === PIN_LENGTH && /^\d+$/.test(value);
 }
 
+export function applyPinKey(value, key) {
+    if (key === 'C') return '';
+    if (key === 'DEL') return deletePinDigit(value);
+    return appendPinDigit(value, key);
+}
+
 export function pinLockoutDelay(failedAttempts) {
     if (!Number.isFinite(failedAttempts) || failedAttempts <= 0) return 0;
     return Math.min(Math.trunc(failedAttempts) * 500, MAX_PIN_LOCKOUT_MS);

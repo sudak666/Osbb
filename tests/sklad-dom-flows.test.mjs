@@ -44,6 +44,8 @@ test('Sklad PIN flow keeps server verification and guarded keypad binding', () =
   assertIncludes(skladHtml, 'const AUTH_TTL_MS = 12 * 60 * 60 * 1000;', 'embedded Sklad auth must keep TTL');
   assertIncludes(skladApp, "document.querySelectorAll('[data-auth-pin-key]').forEach(button=>{", 'runtime PIN keypad binding is missing');
   assertIncludes(skladHtml, 'if(pinBusy) return;', 'PIN keypad must guard concurrent input');
+  assertIncludes(skladApp, 'const nextBuffer=applyPinKey(deletePinBuf,k);', 'runtime delete PIN must use the shared keypad boundary');
+  assertIncludes(skladApp, 'if (isPinComplete(deletePinBuf))', 'runtime delete PIN must verify complete input');
 });
 
 test('Sklad date fields use the rounded custom date picker instead of the native popup', () => {

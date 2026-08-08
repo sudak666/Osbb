@@ -1,13 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import {
-  MAX_PIN_LOCKOUT_MS,
-  appendPinDigit,
-  deletePinDigit,
-  isPinComplete,
-  pinLockoutDelay,
-} from '../src/osbb-pin.js';
+import { MAX_PIN_LOCKOUT_MS, appendPinDigit, applyPinKey, deletePinDigit, isPinComplete, pinLockoutDelay } from '../src/pin-entry.js';
 
 test('PIN input accepts one decimal digit and remains four digits long', () => {
   let value = '';
@@ -18,11 +12,16 @@ test('PIN input accepts one decimal digit and remains four digits long', () => {
 });
 
 test('PIN input rejects malformed delegated-control payloads', () => {
-  for (const digit of ['', '10', '-1', 'x', null, undefined]) {
-    assert.equal(appendPinDigit('12', digit), '12');
-  }
+  for (const digit of ['', '10', '-1', 'x', null, undefined]) assert.equal(appendPinDigit('12', digit), '12');
   assert.equal(deletePinDigit('123'), '12');
   assert.equal(deletePinDigit(''), '');
+});
+
+test('PIN keypad commands clear, delete, and reject unknown keys', () => {
+  assert.equal(applyPinKey('123', 'C'), '');
+  assert.equal(applyPinKey('123', 'DEL'), '12');
+  assert.equal(applyPinKey('12', '3'), '123');
+  assert.equal(applyPinKey('12', '<script>'), '12');
 });
 
 test('PIN lockout delay grows gradually and stays bounded', () => {

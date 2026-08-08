@@ -29,7 +29,7 @@
         sortElevatorEntries,
     } from './osbb-elevator.js';
     import { appendPhoto, buildPhotoCache, createLightboxState, moveLightbox, photoIdFromInsertResponse, photosFor, removePhoto } from './osbb-photos.js';
-    import { appendPinDigit, deletePinDigit, isPinComplete, pinLockoutDelay } from './osbb-pin.js';
+    import { appendPinDigit, deletePinDigit, isPinComplete, pinLockoutDelay } from './pin-entry.js';
     import {
         garbageMonthBinsTotal,
         garbageMonthKey,
