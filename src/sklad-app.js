@@ -24,6 +24,7 @@ import { createSkladModalController } from './sklad-modal-controller.js';
 import { createSkladDataController } from './sklad-data-controller.js';
 import { createSkladAuditController } from './sklad-audit-controller.js';
 import { createSkladSupplierController } from './sklad-supplier-controller.js';
+import { createSkladItemMenuController } from './sklad-item-menu-controller.js';
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -94,6 +95,16 @@ const renderCustomSupplierTags=()=>supplierController.render();
 const addCustomSupplierTag=()=>supplierController.add();
 const requestRemoveCustomSupplierTag=tag=>supplierController.requestRemove(tag);
 const confirmRemoveCustomSupplierTag=()=>supplierController.confirmRemove();
+
+const itemMenuController=createSkladItemMenuController({document,window,actions:{
+  quick:id=>openQuick(id),history:id=>openHistory(id),edit:id=>openEditItem(id),photo:id=>openPhotoModal(id),
+  internal:(id,trigger)=>toggleInternal(id,trigger.dataset.internalNext==='true'),
+  'manual-price':id=>openManualPriceModal(id),delete:id=>openDelete(id),
+  lightbox:(id,trigger)=>openLightbox(trigger.dataset.photoUrl||'',id),
+}});
+const closeOpenItemMenus=except=>itemMenuController.closeAll(except);
+const repositionOpenItemMenus=()=>itemMenuController.reposition();
+const bindItemActionDelegation=()=>itemMenuController.bind();
 
 const {
   initPullToRefresh,
@@ -426,123 +437,6 @@ function bindSkladStaticControls(){
 function validateUnitWordInput(input){
   if(/^\d+([.,]\d+)?$/.test(input.value.trim())) toast('Одиниця має бути словом, не числом!','error');
 }
-function handleItemActionClick(event){
-  const trigger=event.target.closest('[data-item-action]');
-  if(!trigger) return;
-  const scope=trigger.closest('#itemsTable,#mobileCards');
-  if(!scope) return;
-  event.preventDefault();
-  const id=Number(trigger.dataset.itemId);
-  if(!id) return;
-  const menu=trigger.closest('details.item-more');
-  if(menu){
-    menu.removeAttribute('open');
-    setItemMenuExpanded(menu,false);
-  }
-  switch(trigger.dataset.itemAction){
-    case 'quick': openQuick(id); break;
-    case 'history': openHistory(id); break;
-    case 'edit': openEditItem(id); break;
-    case 'photo': openPhotoModal(id); break;
-    case 'internal': toggleInternal(id, trigger.dataset.internalNext==='true'); break;
-    case 'manual-price': openManualPriceModal(id); break;
-    case 'delete': openDelete(id); break;
-    case 'lightbox': openLightbox(trigger.dataset.photoUrl||'', id); break;
-  }
-}
-function handleItemActionKeydown(event){
-  if(event.key!=='Enter'&&event.key!==' ') return;
-  const trigger=event.target.closest('[data-item-action]');
-  if(!trigger || !trigger.closest('#itemsTable,#mobileCards')) return;
-  event.preventDefault();
-  trigger.click();
-}
-function setItemMenuExpanded(menu,expanded){
-  menu?.querySelector('summary')?.setAttribute('aria-expanded', String(expanded));
-  menu?.closest?.('.m-card,tr')?.classList.toggle('has-open-menu', Boolean(expanded));
-}
-function closeOpenItemMenus(except=null){
-  document.querySelectorAll('details.item-more[open]').forEach(menu=>{
-    if(menu!==except){
-      menu.removeAttribute('open');
-      setItemMenuExpanded(menu,false);
-    }
-  });
-}
-function positionItemMenu(menu){
-  const panel=menu.querySelector('.item-more-menu');
-  if(!panel) return;
-  menu.classList.remove('opens-down');
-  panel.classList.remove('is-viewport-positioned');
-  panel.style.left='';
-  panel.style.top='';
-  panel.style.maxHeight='';
-  const summaryRect=menu.getBoundingClientRect();
-  // backdrop-filter у topbar створює власний containing block. `position: fixed`
-  // у ньому рахується не від viewport і виносить меню за межі екрана, тому
-  // верхнє меню позиціонуємо локально під кнопкою.
-  if(menu.classList.contains('topbar-more')){
-    menu.classList.add('opens-down');
-    panel.style.maxHeight=Math.max(120,window.innerHeight-summaryRect.bottom-16)+'px';
-    return;
-  }
-  const bottomNav=document.querySelector('.bottom-nav');
-  const viewportPadding=8;
-  const topBoundary=viewportPadding;
-  const bottomBoundary=bottomNav && getComputedStyle(bottomNav).display!=='none'
-    ? Math.min(window.innerHeight-viewportPadding,bottomNav.getBoundingClientRect().top-viewportPadding)
-    : window.innerHeight-viewportPadding;
-  const panelHeight=panel.offsetHeight;
-  const panelWidth=panel.offsetWidth;
-  const spaceAbove=Math.max(0,summaryRect.top-topBoundary-8);
-  const spaceBelow=Math.max(0,bottomBoundary-summaryRect.bottom-8);
-  const opensDown=spaceBelow>=Math.min(panelHeight,360) || spaceBelow>spaceAbove;
-  const available=opensDown?spaceBelow:spaceAbove;
-  if(opensDown) menu.classList.add('opens-down');
-  const visibleHeight=Math.max(0,Math.min(360,available));
-  const left=Math.min(
-    window.innerWidth-panelWidth-viewportPadding,
-    Math.max(viewportPadding,summaryRect.right-panelWidth)
-  );
-  const top=opensDown
-    ? summaryRect.bottom+8
-    : Math.max(topBoundary,summaryRect.top-8-Math.min(panelHeight,visibleHeight));
-  panel.classList.add('is-viewport-positioned');
-  panel.style.left=Math.max(viewportPadding,left)+'px';
-  panel.style.top=top+'px';
-  panel.style.maxHeight=visibleHeight+'px';
-}
-function handleItemMenuToggle(event){
-  const menu=event.target;
-  if(!menu.matches?.('details.item-more')) return;
-  setItemMenuExpanded(menu,menu.open);
-  if(menu.open){ closeOpenItemMenus(menu); positionItemMenu(menu); }
-}
-function handleItemMenuOutsideClick(event){
-  if(!event.target.closest?.('details.item-more')) closeOpenItemMenus();
-}
-let itemMenuRepositionFrame=0;
-function repositionOpenItemMenus(){
-  if(itemMenuRepositionFrame) return;
-  itemMenuRepositionFrame=requestAnimationFrame(()=>{
-    itemMenuRepositionFrame=0;
-    document.querySelectorAll('details.item-more[open]').forEach(positionItemMenu);
-  });
-}
-function bindItemActionDelegation(){
-  ['itemsTable','mobileCards'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.addEventListener('click',handleItemActionClick);
-    el.addEventListener('keydown',handleItemActionKeydown);
-  });
-  document.addEventListener('toggle',handleItemMenuToggle,true);
-  document.addEventListener('click',handleItemMenuOutsideClick);
-  document.addEventListener('scroll',repositionOpenItemMenus,{passive:true,capture:true});
-  window.addEventListener('resize',repositionOpenItemMenus,{passive:true});
-  window.visualViewport?.addEventListener('resize',repositionOpenItemMenus,{passive:true});
-}
-
 function bindPriceBadgeActions(){
   document.addEventListener('click',(event)=>{
     const button=event.target.closest('[data-price-badge-action="manual-price"]');
