@@ -1,6 +1,7 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import { createAutoLockController } from './osbb-auto-lock.js';
+    import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
     import {
         attendanceCellState,
@@ -965,13 +966,13 @@
     // ==========================================
 
     function attKey() { return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`; }
-    function attOfflineKey() { return `att_${currentYear}_${currentMonth}`; }
+    function attOfflineKey() { return osbbOfflineMonthKey('att', currentYear, currentMonth); }
 
     function attSaveOffline() {
-        try { localStorage.setItem(attOfflineKey(), JSON.stringify(attData)); } catch(e) {}
+        writeOsbbOfflineValue(localStorage, attOfflineKey(), attData);
     }
     function attLoadOffline() {
-        try { return normalizeAttendanceMonth(JSON.parse(localStorage.getItem(attOfflineKey()) || 'null')); } catch { return {}; }
+        return normalizeAttendanceMonth(readOsbbOfflineValue(localStorage, attOfflineKey()));
     }
 
     function attSetStatus(type, text) {
@@ -1923,7 +1924,7 @@
 
 
     function gKey() { return garbageMonthKey(currentYear, currentMonth); }
-    function gOfflineKey() { return `garbage_${currentYear}_${currentMonth}`; }
+    function gOfflineKey() { return osbbOfflineMonthKey('garbage', currentYear, currentMonth); }
     function gMonthKeyCandidates(year = currentYear, month = currentMonth) {
         return garbageMonthKeyCandidates(year, month);
     }
@@ -1945,10 +1946,10 @@
 
 
     function gSaveOffline() {
-        try { localStorage.setItem(gOfflineKey(), JSON.stringify(gData)); } catch(e) {}
+        writeOsbbOfflineValue(localStorage, gOfflineKey(), gData);
     }
     function gLoadOffline() {
-        try { return JSON.parse(localStorage.getItem(gOfflineKey()) || 'null'); } catch { return null; }
+        return readOsbbOfflineValue(localStorage, gOfflineKey());
     }
 
     function gSetStatus(type, text) {
@@ -2219,11 +2220,11 @@
                 const candidates = gMonthKeyCandidates(year, month);
                 const row = candidates.map(key => rows.find(item => String(item.month_key) === key)).find(Boolean);
                 if (!row?.data) {
-                    try { localStorage.removeItem(`garbage_${year}_${month}`); } catch(e) {}
+                    removeOsbbOfflineValue(localStorage, osbbOfflineMonthKey('garbage', year, month));
                     continue;
                 }
                 const migrated = gMigrateOldData(row.data);
-                try { localStorage.setItem(`garbage_${year}_${month}`, JSON.stringify(migrated.data || {})); } catch(e) {}
+                writeOsbbOfflineValue(localStorage, osbbOfflineMonthKey('garbage', year, month), migrated.data || {});
             }
         } catch (err) {
             if (err && err.code !== 'FETCH_ERROR') console.error('garbage yearly chart load error:', err && err.message ? err.message : err, err && err.code ? `(code: ${err.code})` : '');
@@ -2239,11 +2240,8 @@
         // Завантажуємо дані по всіх місяцях з локального кешу — тільки баки
         const monthlyTotals = [];
         for (let m = 0; m <= 11; m++) {
-            const key = `garbage_${currentYear}_${m}`;
-            let tot = 0;
-            try {
-                tot = garbageMonthBinsTotal(JSON.parse(localStorage.getItem(key) || '{}'));
-            } catch(e) {}
+            const key = osbbOfflineMonthKey('garbage', currentYear, m);
+            let tot = garbageMonthBinsTotal(readOsbbOfflineValue(localStorage, key));
             // Якщо це поточний місяць — беремо актуальні дані
             if (m === currentMonth) {
                 tot = garbageMonthBinsTotal(gData);
@@ -2400,13 +2398,13 @@
     let dispNewTicketRole = 'plumber';
 
     function dispKey() { return `${currentYear}-${currentMonth}`; }
-    function dispOfflineKey() { return `dispatcher_${currentYear}_${currentMonth}`; }
+    function dispOfflineKey() { return osbbOfflineMonthKey('dispatcher', currentYear, currentMonth); }
 
     function dispSaveOffline() {
-        try { localStorage.setItem(dispOfflineKey(), JSON.stringify(dispData)); } catch(e) {}
+        writeOsbbOfflineValue(localStorage, dispOfflineKey(), dispData);
     }
     function dispLoadOffline() {
-        try { return normalizeDispatcherMonth(JSON.parse(localStorage.getItem(dispOfflineKey()) || 'null')); } catch { return {}; }
+        return normalizeDispatcherMonth(readOsbbOfflineValue(localStorage, dispOfflineKey()));
     }
 
     function dispSetStatus(type, text) {
@@ -2948,13 +2946,13 @@
     // ==========================================
 
     function elevatorKey() { return `${currentYear}-${currentMonth}`; }
-    function elevatorOfflineKey() { return `elevator_${currentYear}_${currentMonth}`; }
+    function elevatorOfflineKey() { return osbbOfflineMonthKey('elevator', currentYear, currentMonth); }
 
     function elevatorSaveOffline() {
-        try { localStorage.setItem(elevatorOfflineKey(), JSON.stringify(elevatorData)); } catch(e) {}
+        writeOsbbOfflineValue(localStorage, elevatorOfflineKey(), elevatorData);
     }
     function elevatorLoadOffline() {
-        try { return elevatorEntriesFromResponse(JSON.parse(localStorage.getItem(elevatorOfflineKey()) || 'null')); } catch { return []; }
+        return elevatorEntriesFromResponse(readOsbbOfflineValue(localStorage, elevatorOfflineKey()));
     }
 
     function elevatorSetStatus(type, text) {
