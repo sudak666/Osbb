@@ -308,6 +308,18 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+{
+  const copyScript = readFileSync('scripts/copy-static-assets.mjs', 'utf8');
+  const label = 'shell build copies every service-worker precache asset';
+  if (copyScript.includes("'styles.css'")) {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  } else {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  }
+}
+
 
 // Shared Material Design 3 tokens must stay wired into every entrypoint and
 // consumed by the three UI surfaces. This prevents future polish passes from
@@ -3546,12 +3558,13 @@ ${sharedSelectText}`;
 {
   const text = readFileSync('src/osbb-app.js', 'utf8');
   const label = 'journal bootstrap runs after tab state initialization';
-  const bootstrap = text.lastIndexOf('setTab(currentTab);');
+  const bootstrap = text.lastIndexOf('setTab(currentTab, { load: false });');
+  const calendarInit = text.lastIndexOf('initCalendar();');
   const requiredBindings = [
     text.indexOf('dispatcher: dispData,'),
     text.indexOf('elevatorData,'),
   ];
-  if (bootstrap < 0 || requiredBindings.some(index => index < 0 || index > bootstrap)) {
+  if (bootstrap < 0 || calendarInit < bootstrap || requiredBindings.some(index => index < 0 || index > bootstrap)) {
     failed += 1;
     console.error(`not ok - ${label} (bootstrap: ${bootstrap}; bindings: ${requiredBindings.join(', ')})`);
   } else {

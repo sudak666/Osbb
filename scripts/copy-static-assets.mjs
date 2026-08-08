@@ -3,6 +3,7 @@ import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const files = [
+  'styles.css',
   'manifest.json',
   'sw.js',
   'icon-192.png',

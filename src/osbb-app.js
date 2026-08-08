@@ -586,7 +586,7 @@
         showPinModal('PIN графіка змін', 'Введіть окремий PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
     }
 
-    function setTab(tab) {
+    function setTab(tab, { load = true } = {}) {
         currentTab = tab;
         document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
         document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
@@ -613,6 +613,7 @@
             }
         });
 
+        if (!load) return;
         if (tab === 'garbage') gInitTab();
         if (tab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
         if (tab === 'shifts') shiftInitTab();
@@ -3123,6 +3124,6 @@
 
     // Запускаємо початкове завантаження лише після ініціалізації всіх
     // lexical state bindings, які читають активні вкладки.
-    setTab(currentTab);
+    setTab(currentTab, { load: false });
     initCalendar();
     initRealtime();
