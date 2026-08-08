@@ -88,3 +88,14 @@ test('adjustedStockAfterMovementEdit коригує залишок після р
     assert.equal(adjustedStockAfterMovementEdit(2, 5, 1, 'receipt'), null);
     assert.equal(adjustedStockAfterMovementEdit('invalid', 1, 2, 'receipt'), null);
 });
+
+test('movement builders bound malicious text, timestamps and numeric payloads', () => {
+    assert.deepEqual(buildIssuePayload({ itemId: 1, quantity: 1, person: { toString: () => '<img onerror=alert(1)>' } }), { ok: false, error: 'person' });
+    assert.deepEqual(buildIssuePayload({ itemId: 1, quantity: 1_000_000_001, person: 'Іван' }), { ok: false, error: 'quantity' });
+    assert.deepEqual(buildIssuePayload({
+        itemId: 1, quantity: 1, person: 'Іван', note: 'x'.repeat(1001), occurredAt: '\" onfocus=alert(1)',
+    }), { ok: true, value: { itemId: 1, quantity: 1, person: 'Іван', note: null, occurredAt: null } });
+    assert.deepEqual(buildReceiptPayload({ itemId: 1, quantity: 1, purchasePrice: 1_000_000_001 }), { ok: false, error: 'price' });
+    assert.equal(buildReceiptPayload({ itemId: 1, quantity: 1, purchasePrice: 10, supplier: 'x'.repeat(201) }).value.supplier, null);
+    assert.equal(adjustedStockAfterMovementEdit(5, 1, 2, 'malicious'), null);
+});

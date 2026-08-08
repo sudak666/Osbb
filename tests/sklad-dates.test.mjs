@@ -14,6 +14,9 @@ test('dateInputToTimestamp rejects empty and malformed values', () => {
   assert.equal(dateInputToTimestamp('', now), null);
   assert.equal(dateInputToTimestamp('not-a-date', now), null);
   assert.equal(dateInputToTimestamp(null, now), null);
+  assert.equal(dateInputToTimestamp('2026-02-31', now), null);
+  assert.equal(dateInputToTimestamp('2026-2-01', now), null);
+  assert.equal(dateInputToTimestamp('2026-01-01<script>', now), null);
 });
 
 test('dateToInputValue formats local dates and uses a deterministic fallback', () => {

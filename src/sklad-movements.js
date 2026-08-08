@@ -4,39 +4,49 @@ export function adjustedStockAfterMovementEdit(currentStock, previousQuantity, n
     const current = Number(currentStock);
     const previous = Number(previousQuantity);
     const next = Number(nextQuantity);
-    if (![current, previous, next].every(Number.isFinite) || current < 0 || previous < 0 || next < 0) return null;
+    if (!['issue', 'receipt'].includes(kind) || ![current, previous, next].every(Number.isFinite) || current < 0 || previous < 0 || next < 0) return null;
     const delta = kind === 'issue' ? previous - next : next - previous;
     const adjusted = Math.round((current + delta) * 100) / 100;
     return adjusted >= 0 ? adjusted : null;
 }
 
-function trimmedOrNull(value) {
-    const normalized = String(value ?? '').trim();
-    return normalized || null;
+function trimmedOrNull(value, maxLength = 1000) {
+    if (typeof value !== 'string') return null;
+    const normalized = value.trim();
+    return normalized && normalized.length <= maxLength ? normalized : null;
+}
+
+function validAmount(value, allowZero = false) {
+    const amount = Number(value);
+    return Number.isFinite(amount) && amount <= 1_000_000_000 && (allowZero ? amount >= 0 : amount > 0) ? amount : null;
+}
+
+function validTimestamp(value) {
+    return typeof value === 'string' && value.length <= 100 && Number.isFinite(Date.parse(value)) ? value : null;
 }
 
 export function buildIssuePayload(input) {
     const itemId = Number(input.itemId);
-    const quantity = Number(input.quantity);
-    const person = trimmedOrNull(input.person);
+    const quantity = validAmount(input.quantity);
+    const person = trimmedOrNull(input.person, 200);
     if (!Number.isInteger(itemId) || itemId <= 0) return { ok: false, error: 'item' };
-    if (!Number.isFinite(quantity) || quantity <= 0) return { ok: false, error: 'quantity' };
+    if (quantity === null) return { ok: false, error: 'quantity' };
     if (!person) return { ok: false, error: 'person' };
     return {
         ok: true,
-        value: { itemId, quantity, person, note: trimmedOrNull(input.note), occurredAt: input.occurredAt || null },
+        value: { itemId, quantity, person, note: trimmedOrNull(input.note), occurredAt: validTimestamp(input.occurredAt) },
     };
 }
 
 export function buildReceiptPayload(input) {
     const itemId = Number(input.itemId);
-    const quantity = Number(input.quantity);
+    const quantity = validAmount(input.quantity);
     const purchasePrice = input.purchasePrice === null || input.purchasePrice === ''
         ? null
         : Number(input.purchasePrice);
     if (!Number.isInteger(itemId) || itemId <= 0) return { ok: false, error: 'item' };
-    if (!Number.isFinite(quantity) || quantity <= 0) return { ok: false, error: 'quantity' };
-    if (purchasePrice !== null && (!Number.isFinite(purchasePrice) || purchasePrice < 0)) {
+    if (quantity === null) return { ok: false, error: 'quantity' };
+    if (purchasePrice !== null && (!Number.isFinite(purchasePrice) || purchasePrice < 0 || purchasePrice > 1_000_000_000)) {
         return { ok: false, error: 'price' };
     }
     return {
@@ -45,41 +55,43 @@ export function buildReceiptPayload(input) {
             itemId,
             quantity,
             purchasePrice,
-            supplier: trimmedOrNull(input.supplier),
+            supplier: trimmedOrNull(input.supplier, 200),
             note: trimmedOrNull(input.note),
-            occurredAt: input.occurredAt || null,
+            occurredAt: validTimestamp(input.occurredAt),
         },
     };
 }
 
 export function buildIssueEditPatch(input) {
-    const quantity = Number(input.quantity);
-    if (!Number.isFinite(quantity) || quantity < 0) return { ok: false, error: 'quantity' };
+    const quantity = validAmount(input.quantity, true);
+    if (quantity === null) return { ok: false, error: 'quantity' };
     const value = {
         quantity,
-        issued_to: trimmedOrNull(input.person),
+        issued_to: trimmedOrNull(input.person, 200),
         note: trimmedOrNull(input.note),
     };
-    if (input.occurredAt) value.issued_at = input.occurredAt;
+    const occurredAt = validTimestamp(input.occurredAt);
+    if (occurredAt) value.issued_at = occurredAt;
     return { ok: true, value };
 }
 
 export function buildReceiptEditPatch(input) {
-    const quantity = Number(input.quantity);
+    const quantity = validAmount(input.quantity, true);
     const purchasePrice = input.purchasePrice === null || input.purchasePrice === ''
         ? null
         : Number(input.purchasePrice);
-    if (!Number.isFinite(quantity) || quantity < 0) return { ok: false, error: 'quantity' };
-    if (purchasePrice !== null && (!Number.isFinite(purchasePrice) || purchasePrice < 0)) {
+    if (quantity === null) return { ok: false, error: 'quantity' };
+    if (purchasePrice !== null && (!Number.isFinite(purchasePrice) || purchasePrice < 0 || purchasePrice > 1_000_000_000)) {
         return { ok: false, error: 'price' };
     }
     const value = {
         quantity,
         purchase_price_unit: purchasePrice,
-        supplier: trimmedOrNull(input.supplier),
+        supplier: trimmedOrNull(input.supplier, 200),
         note: trimmedOrNull(input.note),
     };
-    if (input.occurredAt) value.received_at = input.occurredAt;
+    const occurredAt = validTimestamp(input.occurredAt);
+    if (occurredAt) value.received_at = occurredAt;
     return { ok: true, value };
 }
 
