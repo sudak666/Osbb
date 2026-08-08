@@ -106,7 +106,7 @@ fallback і unit-тестами:
 
 - спільні: `app-security`, `auth-session`, `shell-state`, `supabase-api`;
 - OSBB: `osbb-attendance`, `osbb-dispatcher`, `osbb-elevator`, `osbb-garbage`,
-  `osbb-shifts`, `osbb-staff`, `osbb-tickets`;
+  `osbb-state`, `osbb-shifts`, `osbb-staff`, `osbb-tickets`;
 - Sklad: `sklad-audit`, `sklad-dates`, `sklad-domain`, `sklad-movements`,
   `sklad-pricing`, `sklad-state`, `sklad-suppliers`.
 
@@ -117,6 +117,8 @@ fallback і unit-тестами:
 текстові метадані та відкидають некоректні timestamps до запису в `allItems`.
 Хмарний список тегів постачальників проходить `supplierTagsFromResponse`, тому
 malformed-рядки не потрапляють у локальний кеш і кнопки швидкого вибору.
+Початкові місячні стани сміття, табеля та диспетчера створює typed factory
+`createOsbbMonthState`; кожен виклик повертає незалежні колекції.
 ID заголовка інвентаризації перевіряється через `numericIdFromInsertResponse` перед
 створенням дочірніх рядків; без валідного ID операція завершується з UI-помилкою.
 Відповідь insert після створення товару також проходить

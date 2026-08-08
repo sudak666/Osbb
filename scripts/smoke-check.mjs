@@ -3544,7 +3544,7 @@ ${sharedSelectText}`;
   const label = 'journal bootstrap runs after tab state initialization';
   const bootstrap = text.lastIndexOf('setTab(currentTab);');
   const requiredBindings = [
-    text.indexOf('let dispData = {};'),
+    text.indexOf('dispatcher: dispData,'),
     text.indexOf('let elevatorData = [];'),
   ];
   if (bootstrap < 0 || requiredBindings.some(index => index < 0 || index > bootstrap)) {
