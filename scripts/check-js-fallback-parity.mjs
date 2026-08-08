@@ -22,6 +22,7 @@ const fallbackPairs = [
   ['src/osbb-staff.ts', 'src/osbb-staff.js'],
   ['src/osbb-tickets.ts', 'src/osbb-tickets.js'],
   ['src/sklad-audit.ts', 'src/sklad-audit.js'],
+  ['src/sklad-client-state.ts', 'src/sklad-client-state.js'],
   ['src/sklad-dates.ts', 'src/sklad-dates.js'],
   ['src/sklad-domain.ts', 'src/sklad-domain.js'],
   ['src/sklad-movements.ts', 'src/sklad-movements.js'],
