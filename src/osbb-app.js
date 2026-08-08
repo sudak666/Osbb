@@ -1,6 +1,7 @@
     import { escapeAttr, escapeHtml, safeExternalUrl } from './app-security.js';
     import { isAuthSessionValid, setAuthSession } from './auth-session.js';
     import { createAutoLockController } from './osbb-auto-lock.js';
+    import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
@@ -59,9 +60,7 @@
         isWorkerSession as isWorkerStaffSession,
         loadStoredStaffSession,
         normalizeWorkerRole,
-        parseStaffList,
         parseStaffSettingsList,
-        parseStaffSession,
         saveStoredStaffSession,
     } from './osbb-staff.js';
     import {
@@ -180,7 +179,6 @@
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let {
-        staffLoginList,
         garbage: gData,
         attendance: attData,
         dispatcher: dispData,
@@ -190,11 +188,6 @@
         jiraIssues,
         elevatorData,
     } = createOsbbRuntimeState();
-    let staffLoginBuf = '';
-    let staffLoginSelected = null;
-    let staffLoginBusy = false;
-    let staffLoginFails = 0;
-    let staffReauthResolve = null; // очікує повторного підтвердження PIN після втрати staffPinCache (напр. після перезавантаження вкладки)
 
     function loadStaffSession() {
         staffSession = loadStoredStaffSession(sessionStorage);
@@ -266,174 +259,47 @@
         }
     }
 
+    const staffAuthController = createOsbbStaffAuthController({
+        document,
+        isPreview: IS_PREVIEW,
+        loadStaff: () => db.rpc('list_osbb_staff', {}),
+        verifyPin: (staffId, attempt) => db.rpc('verify_staff_pin', { p_staff_id: staffId, attempt }),
+        renderStaffList: rows => rows.map(s => `
+            <button type="button" class="staff-login-item md-state-layer" data-staff-select="${escapeAttr(s.id)}">
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">${STAFF_ROLE_ICONS[s.role] || 'person'}</span>
+                <span class="staff-login-item-name">${escapeHtml(s.full_name)}</span>
+                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[s.role] || s.role)}</span>
+            </button>
+        `).join(''),
+        onAuthenticated: (session, pin) => {
+            staffSession = session;
+            staffPinCache = pin;
+            saveStaffSession();
+            applyRoleGating();
+        }
+    });
+
     async function ensureStaffAuth() {
         loadStaffSession();
         if (staffSession) { applyRoleGating(); return; }
         await openStaffLogin();
     }
 
-    async function openStaffLogin() {
-        const modal = document.getElementById('staff-login-modal');
-        const listEl = document.getElementById('staff-login-list');
-        const pinStep = document.getElementById('staff-login-pin-step');
-        if (!modal || !listEl) return;
-        pinStep.classList.add('hidden');
-        listEl.classList.remove('hidden');
-        listEl.innerHTML = '<div class="staff-login-loading">Завантаження списку...</div>';
-        modal.style.display = 'flex';
-
-        if (IS_PREVIEW) {
-            staffLoginList = [
-                { id: 'preview-dispatcher', full_name: 'Диспетчер (превʼю)', role: 'dispatcher' },
-                { id: 'preview-plumber', full_name: 'Сантехнік (превʼю)', role: 'plumber' }
-            ];
-            renderStaffLoginList();
-            return;
-        }
-        try {
-            const list = await db.rpc('list_osbb_staff', {});
-            staffLoginList = parseStaffList(list);
-        } catch(e) {
-            staffLoginList = [];
-        }
-        renderStaffLoginList();
+    function openStaffLogin() {
+        return staffAuthController.open();
     }
 
-    function renderStaffLoginList() {
-        const listEl = document.getElementById('staff-login-list');
-        if (!listEl) return;
-        if (!staffLoginList.length) {
-            listEl.innerHTML = '<div class="staff-login-loading">Список співробітників порожній. Зверніться до адміністратора.</div>';
-            return;
-        }
-        listEl.innerHTML = staffLoginList.map(s => `
-            <button type="button" class="staff-login-item md-state-layer" data-staff-select="${escapeAttr(s.id)}">
-                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">${STAFF_ROLE_ICONS[s.role] || 'person'}</span>
-                <span class="staff-login-item-name">${escapeHtml(s.full_name)}</span>
-                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[s.role] || s.role)}</span>
-            </button>
-        `).join('');
-        listEl.querySelectorAll('[data-staff-select]').forEach(btn => {
-            btn.addEventListener('click', () => staffLoginSelectPerson(btn.dataset.staffSelect));
-        });
-    }
-
-    function staffLoginSelectPerson(id) {
-        staffLoginSelected = staffLoginList.find(s => String(s.id) === String(id)) || null;
-        if (!staffLoginSelected) return;
-        document.getElementById('staff-login-list').classList.add('hidden');
-        document.getElementById('staff-login-pin-step').classList.remove('hidden');
-        document.getElementById('staff-login-pin-sub').textContent = `PIN для «${staffLoginSelected.full_name}»`;
-        staffLoginBuf = '';
-        staffLoginUpdateDots();
-        document.getElementById('staff-login-err').textContent = '';
-    }
-
-    function staffLoginBack() {
-        if (staffReauthResolve) {
-            const resolve = staffReauthResolve;
-            staffReauthResolve = null;
-            staffLoginSelected = null;
-            document.getElementById('staff-login-modal').style.display = 'none';
-            resolve(false);
-            return;
-        }
-        staffLoginSelected = null;
-        staffLoginBuf = '';
-        document.getElementById('staff-login-pin-step').classList.add('hidden');
-        document.getElementById('staff-login-list').classList.remove('hidden');
-    }
-
-    // Викликається, коли staffPinCache загублений (перезавантаження вкладки), а
-    // дія (напр. збереження Табеля) вимагає server-side PIN. Показує лише крок
-    // вводу PIN (без списку — особа вже відома з staffSession), не зношуючи
-    // сесію: staffSession лишається тим самим, оновлюється тільки staffPinCache.
     function requestStaffReauth() {
-        return new Promise(resolve => {
-            if (!staffSession) { resolve(false); return; }
-            staffReauthResolve = resolve;
-            staffLoginSelected = { id: staffSession.id, full_name: staffSession.name, role: staffSession.role };
-            staffLoginBuf = '';
-            document.getElementById('staff-login-list').classList.add('hidden');
-            document.getElementById('staff-login-pin-step').classList.remove('hidden');
-            document.getElementById('staff-login-pin-sub').textContent = `Підтвердіть PIN «${staffLoginSelected.full_name}»`;
-            document.getElementById('staff-login-err').textContent = '';
-            staffLoginUpdateDots();
-            document.getElementById('staff-login-modal').style.display = 'flex';
-        });
-    }
-
-    function staffLoginUpdateDots() {
-        for (let i = 0; i < 4; i++) {
-            const dot = document.getElementById('staff-pin-d' + i);
-            if (dot) dot.classList.toggle('is-entered', i < staffLoginBuf.length);
-        }
-    }
-
-    function staffLoginDel() {
-        if (staffLoginBusy) return;
-        staffLoginBuf = deletePinDigit(staffLoginBuf);
-        document.getElementById('staff-login-err').textContent = '';
-        staffLoginUpdateDots();
-    }
-
-    async function staffLoginPress(digit) {
-        if (staffLoginBusy || !staffLoginSelected) return;
-        const nextBuffer = appendPinDigit(staffLoginBuf, digit);
-        if (nextBuffer === staffLoginBuf) return;
-        staffLoginBuf = nextBuffer;
-        staffLoginUpdateDots();
-        if (!isPinComplete(staffLoginBuf)) return;
-        const attempt = staffLoginBuf;
-        staffLoginBusy = true;
-
-        if (IS_PREVIEW) {
-            staffSession = { id: staffLoginSelected.id, name: staffLoginSelected.full_name, role: staffLoginSelected.role };
-            staffPinCache = attempt;
-            saveStaffSession();
-            document.getElementById('staff-login-modal').style.display = 'none';
-            applyRoleGating();
-            staffLoginBusy = false;
-            if (staffReauthResolve) { const resolve = staffReauthResolve; staffReauthResolve = null; resolve(true); }
-            return;
-        }
-
-        let result = null;
-        try {
-            const res = await db.rpc('verify_staff_pin', { p_staff_id: staffLoginSelected.id, attempt });
-            result = Array.isArray(res) ? res[0] : res;
-        } catch(e) { result = null; }
-
-        const verifiedSession = result?.ok ? parseStaffSession({
-            id: staffLoginSelected.id,
-            name: result.full_name || staffLoginSelected.full_name,
-            role: result.role,
-        }) : null;
-        if (verifiedSession) {
-            staffLoginFails = 0;
-            staffSession = verifiedSession;
-            staffPinCache = attempt;
-            saveStaffSession();
-            document.getElementById('staff-login-modal').style.display = 'none';
-            applyRoleGating();
-            staffLoginBusy = false;
-            staffLoginBuf = '';
-            if (staffReauthResolve) { const resolve = staffReauthResolve; staffReauthResolve = null; resolve(true); }
-        } else {
-            staffLoginFails++;
-            document.getElementById('staff-login-err').textContent = 'Невірний PIN, спробуйте ще';
-            staffLoginBuf = '';
-            staffLoginUpdateDots();
-            const lockout = pinLockoutDelay(staffLoginFails);
-            setTimeout(() => { staffLoginBusy = false; }, lockout);
-        }
+        return staffSession ? staffAuthController.requestReauth(staffSession) : Promise.resolve(false);
     }
 
     document.addEventListener('click', (e) => {
+        const staffButton = e.target.closest('[data-staff-select]');
+        if (staffButton) { staffAuthController.select(staffButton.dataset.staffSelect); return; }
         const digitBtn = e.target.closest('[data-staff-pin-digit]');
-        if (digitBtn) { staffLoginPress(digitBtn.dataset.staffPinDigit); return; }
-        if (e.target.closest('[data-staff-pin-delete]')) { staffLoginDel(); return; }
-        if (e.target.closest('[data-staff-pin-back]')) { staffLoginBack(); return; }
+        if (digitBtn) { staffAuthController.press(digitBtn.dataset.staffPinDigit); return; }
+        if (e.target.closest('[data-staff-pin-delete]')) { staffAuthController.deleteDigit(); return; }
+        if (e.target.closest('[data-staff-pin-back]')) { staffAuthController.back(); return; }
     });
 
     // dispatcher/admin/board — рівнозначні "повний доступ" ролі: увесь журнал,
