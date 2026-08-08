@@ -11,6 +11,7 @@ const skladAuthController = normalizeNewlines(readFileSync(new URL('../src/sklad
 const skladDeletePinController = normalizeNewlines(readFileSync(new URL('../src/sklad-delete-pin-controller.js', import.meta.url), 'utf8'));
 const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
 const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
+const osbbStaffAuthController = normalizeNewlines(readFileSync(new URL('../src/osbb-staff-auth-controller.js', import.meta.url), 'utf8'));
 
 function assertIncludes(source, snippet, message) {
   assert.notEqual(source.indexOf(snippet), -1, message);
@@ -144,10 +145,10 @@ test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
   assert.match(osbbHtml, /data-staff-pin-digit="1"/u);
   assert.match(osbbHtml, /data-staff-pin-delete/u);
   assertIncludes(osbbApp, "db.rpc('list_osbb_staff', {})", 'staff list must load through RPC');
-  assertIncludes(osbbApp, 'staffLoginList = parseStaffList(list);', 'staff list must pass parser boundary');
+  assertIncludes(osbbApp, "db.rpc('verify_staff_pin', { p_staff_id: staffId, attempt })", 'staff PIN must verify on server');
+  assertIncludes(osbbStaffAuthController, 'list = parseStaffList(await deps.loadStaff());', 'staff list must pass parser boundary');
   assertIncludes(osbbApp, 'renderStaffSettings(parseStaffSettingsList(rows));', 'staff settings must pass parser boundary');
-  assertIncludes(osbbApp, "db.rpc('verify_staff_pin', { p_staff_id: staffLoginSelected.id, attempt })", 'staff PIN must verify on server');
-  assertIncludes(osbbApp, 'parseStaffSession({', 'verified staff session must pass parser boundary');
+  assertIncludes(osbbStaffAuthController, '? parseStaffSession({', 'verified staff session must pass parser boundary');
 });
 
 test('OSBB privileged action PIN modal keeps delegated keypad and server verification', () => {
