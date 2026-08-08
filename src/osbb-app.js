@@ -55,6 +55,7 @@
         STAFF_ROLE_ICONS,
         STAFF_ROLE_LABELS,
         WORKER_ROLES,
+        canManageStaffAccess as canManageStaffAccessForSession,
         clearStoredStaffSession,
         isDispatcherSession as isDispatcherStaffSession,
         isTabAllowedForSession as isStaffTabAllowed,
@@ -296,7 +297,7 @@
                 badge.classList.add('hidden');
             }
         }
-        document.getElementById('staff-settings-button')?.classList.toggle('hidden', !canManageStaffAccess());
+        document.getElementById('staff-settings-button')?.classList.toggle('hidden', !canManageStaffAccessForSession(staffSession));
         if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
