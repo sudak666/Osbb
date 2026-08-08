@@ -72,6 +72,7 @@ function readShellCombined() {
 }
 
 const checks = [
+  ['osbb/index.html', './tailwind.css', 'journal loads locally built Tailwind CSS'],
   ['shell', 'verify_lock_pin', 'shell PIN uses server RPC'],
   ['shell', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
   ['shell', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
