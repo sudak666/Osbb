@@ -28,6 +28,7 @@ function readSkladCombined() {
     'src/sklad-reporting.ts',
     'src/sklad-state.ts',
     'src/sklad-pricing.js',
+    'src/sklad-photo-controller.js',
     'src/sklad-pricing.ts',
     'src/sklad-suppliers.ts',
     'src/sklad-supplier-controller.js',
@@ -141,7 +142,7 @@ const checks = [
   ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],
   ['sklad/index.html', 'data-delete-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad delete PIN delete has accessible label'],
 
-  ['src/sklad-app.js', 'showDeletePinModal(\'PIN для видалення фото\'', 'sklad photo delete asks for PIN'],
+  ['src/sklad-photo-controller.js', "requestDeletePin('PIN для видалення фото'", 'sklad photo delete asks for PIN'],
   ['src/sklad-auth.js', "db.rpc('verify_pin'", 'sklad verifies login PIN via RPC'],
   ['src/sklad-app.js', 'deleteLightboxPhoto', 'sklad lightbox has delete handler'],
   ['sklad/index.html', "scopePath.startsWith('/Osbb/sklad/')", 'sklad SW cleanup is scoped'],
@@ -2560,7 +2561,7 @@ ${sharedSelectText}`;
     "findItemForAction(id,'видача')",
     "findItemForAction(id,'прихід')",
     "findItemForAction(id,'видалення')",
-    "findItemForAction(id,'фото')",
+    "getItem(id, 'фото')",
     "findItemForAction(itemId,'історія')",
   ];
   const missing = required.filter(needle => !text.includes(needle));
