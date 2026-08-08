@@ -62,6 +62,7 @@
         normalizeTicketPriority,
         ticketSortComparator,
     } from './osbb-tickets.js';
+    import { createOsbbMonthState } from './osbb-state.js';
 
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
@@ -501,7 +502,11 @@
     let currentTab = 'dispatcher';
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
-    let gData = {};          // { "1": {time,worker,types:{plastic:N,glass:N,bins:N}}, "2": {...}, ... }
+    let {
+        garbage: gData,
+        attendance: attData,
+        dispatcher: dispData,
+    } = createOsbbMonthState();
     let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
     let gSaveTimer = null;
     let gLoaded = false;
@@ -952,7 +957,6 @@
     // перевіряє це серверно (verify_staff_pin), не тільки на клієнті.
     // Автопідрахунок годин/днів рахується локально з checkIn/checkOut.
     // ==========================================
-    let attData = {};
 
     function attKey() { return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`; }
     function attOfflineKey() { return `att_${currentYear}_${currentMonth}`; }
@@ -2377,7 +2381,6 @@
     // ==========================================
     // ДИСПЕТЧЕР
     // ==========================================
-    let dispData = {};
     let dispSaveTimer = null;
     let dispSearchQuery = '';
     let dispFilter = 'all';
