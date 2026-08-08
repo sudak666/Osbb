@@ -26,8 +26,9 @@ import { createSkladAuditController } from './sklad-audit-controller.js';
 import { createSkladSupplierController } from './sklad-supplier-controller.js';
 import { createSkladItemMenuController } from './sklad-item-menu-controller.js';
 import { createSkladPhotoController } from './sklad-photo-controller.js';
+import { createSkladItemCrudController } from './sklad-item-crud-controller.js';
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
-let curCat='',logCat='',quickId=null,editItemId=null,deleteItemId=null,stockFilter='';
+let curCat='',logCat='',quickId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
@@ -104,6 +105,14 @@ const deletePhoto=()=>photoController.remove();
 const openLightbox=(url,itemId=null)=>photoController.openLightbox(url,itemId);
 const closeLightbox=()=>photoController.closeLightbox();
 const deleteLightboxPhoto=event=>photoController.removeFromLightbox(event);
+
+const itemCrudController=createSkladItemCrudController({db,document,categories:catBadge,getItems:()=>allItems,findItem:findItemForAction,
+  refreshSelect:refreshEnhancedSelect,openModal,closeModal,setButtonLoading:setActionButtonLoading,loadItems,populateSelects:populateSels,
+  renderLowStock:renderAddLow,requestDeletePin:showDeletePinModal,runDeleteRpc:runDeleteInventoryRpc,toast});
+const openEditItem=id=>itemCrudController.openEdit(id);
+const confirmEditItem=button=>itemCrudController.saveEdit(button);
+const openDelete=id=>itemCrudController.openDelete(id);
+const confirmDelete=()=>itemCrudController.confirmDelete();
 
 const itemMenuController=createSkladItemMenuController({document,window,actions:{
   quick:id=>openQuick(id),history:id=>openHistory(id),edit:id=>openEditItem(id),photo:id=>openPhotoModal(id),
@@ -1269,72 +1278,6 @@ function renderAddLow(){
     <span class="add-low-name">${escapeHtml(i.name||'—')}</span>
     <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
   </div>`).join('');
-}
-
-// ===== EDIT ITEM =====
-function openEditItem(id){
-  const item=findItemForAction(id,'редагування');
-  if(!item) return;
-  editItemId=Number(item.id);
-  document.getElementById('editItemName').value=item.name||'';
-  document.getElementById('editItemCategory').value=catBadge[item.category]?item.category:'Інше';
-  document.getElementById('editItemUnit').value=item.unit||'шт';
-  refreshEnhancedSelect(document.getElementById('editItemCategory'));
-  openModal('editItemModal');
-}
-async function confirmEditItem(button){
-  const item=findItemForAction(editItemId,'редагування');
-  if(!item) return closeModal('editItemModal');
-  const name=document.getElementById('editItemName').value.trim();
-  const category=document.getElementById('editItemCategory').value;
-  const unit=document.getElementById('editItemUnit').value.trim()||'шт';
-  if(!name) return toast('Введіть назву товару!','error');
-  if(name.length>160) return toast('Назва задовга — максимум 160 символів','error');
-  if(!catBadge[category]) return toast('Оберіть коректну категорію','error');
-  if(unit.length>24) return toast('Одиниця задовга — максимум 24 символи','error');
-  if(/^\d+([.,]\d+)?$/.test(unit)) return toast('Одиниця має бути словом, а не числом!','error');
-  const duplicate=allItems.find(candidate=>Number(candidate.id)!==Number(item.id)&&normalizeSearchText(candidate.name)===normalizeSearchText(name));
-  if(duplicate) return toast('Товар з такою назвою вже існує','error');
-  const done=setActionButtonLoading(button,'Зберігаю...');
-  if(!done) return;
-  try{
-    const {error}=await db.from('inventory_items').update({name,category,unit}).eq('id',item.id);
-    if(error) return toast('Не вдалося зберегти: '+error.message,'error');
-    editItemId=null;
-    closeModal('editItemModal');
-    await loadItems();
-    populateSels();
-    renderAddLow();
-    toast('Дані товару оновлено','success');
-  }catch(error){
-    console.error('item update failed',error);
-    toast('Не вдалося оновити товар','error');
-  }finally{
-    done();
-  }
-}
-
-// ===== DELETE =====
-function openDelete(id){
-  const item=findItemForAction(id,'видалення');
-  if(!item) return;
-  deleteItemId=id;
-  document.getElementById('delItemName').textContent='«'+item.name+'»';
-  openModal('delModal');
-}
-async function confirmDelete(){
-  if(!deleteItemId) return;
-  const id=deleteItemId;
-  closeModal('delModal');
-  showDeletePinModal('PIN для видалення товару', async (pin)=>{
-    const result=await runDeleteInventoryRpc('delete_inventory_item',{p_item_id:id,attempt:pin});
-    if(result.ok){
-      toast('Товар видалено','info');
-      deleteItemId=null;
-      await loadItems();
-    }
-    return result;
-  });
 }
 
 // ===== STATS =====

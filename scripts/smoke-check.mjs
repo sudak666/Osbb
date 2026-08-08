@@ -22,6 +22,7 @@ function readSkladCombined() {
     'src/sklad-delete-pin-controller.ts',
     'src/sklad-modal-controller.ts',
     'src/sklad-item-menu-controller.js',
+    'src/sklad-item-crud-controller.js',
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-movements.ts',
@@ -2560,7 +2561,7 @@ ${sharedSelectText}`;
     'function findItemForAction',
     "findItemForAction(id,'видача')",
     "findItemForAction(id,'прихід')",
-    "findItemForAction(id,'видалення')",
+    "findItem(id, 'видалення')",
     "getItem(id, 'фото')",
     "findItemForAction(itemId,'історія')",
   ];
@@ -2786,9 +2787,9 @@ ${sharedSelectText}`;
     'id="editItemModal" data-modal-backdrop="editItemModal"',
     'data-item-action="edit" data-item-id="${id}"',
     'edit:id=>openEditItem(id)',
-    "async function confirmEditItem(button)",
-    ".update({name,category,unit}).eq('id',item.id)",
-    "normalizeSearchText(candidate.name)===normalizeSearchText(name)",
+    "async function saveEdit(button)",
+    ".update({ name, category, unit }).eq('id', item.id)",
+    "normalizeSearchText(candidate.name) === normalizeSearchText(name)",
     "'edit-item-confirm':(button)=>confirmEditItem(button)",
   ];
   const missing = required.filter(needle => !text.includes(needle));

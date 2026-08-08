@@ -11,6 +11,7 @@ const skladAuth = normalizeNewlines(readFileSync(new URL('../src/sklad-auth.js',
 const skladAuthController = normalizeNewlines(readFileSync(new URL('../src/sklad-auth-controller.js', import.meta.url), 'utf8'));
 const skladDeletePinController = normalizeNewlines(readFileSync(new URL('../src/sklad-delete-pin-controller.js', import.meta.url), 'utf8'));
 const skladDataController = normalizeNewlines(readFileSync(new URL('../src/sklad-data-controller.js', import.meta.url), 'utf8'));
+const skladItemCrudController = normalizeNewlines(readFileSync(new URL('../src/sklad-item-crud-controller.js', import.meta.url), 'utf8'));
 const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
 const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
 const osbbStaffAuthController = normalizeNewlines(readFileSync(new URL('../src/osbb-staff-auth-controller.js', import.meta.url), 'utf8'));
@@ -89,7 +90,7 @@ test('Sklad delete RPC flow handles returned and thrown transport errors', () =>
   assertIncludes(skladApp, "return {ok:false,reason:'network'};", 'delete RPC transport errors must remain retryable');
   assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_log'", 'log deletion must use the guarded RPC wrapper');
   assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_receipt'", 'receipt deletion must use the guarded RPC wrapper');
-  assertIncludes(skladApp, "runDeleteInventoryRpc('delete_inventory_item'", 'item deletion must use the guarded RPC wrapper');
+  assertIncludes(skladItemCrudController, "runDeleteRpc('delete_inventory_item'", 'item deletion must use the guarded RPC wrapper');
 });
 
 test('Sklad delete PIN flow blocks concurrent actions and catches handler failures', () => {
