@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DEFAULT_AUTO_LOCK_MS, createAutoLockController } from '../src/osbb-auto-lock.js';
+import {
+  DEFAULT_AUTO_LOCK_MS,
+  createAutoLockController,
+  createAutoLockTimerApi,
+} from '../src/osbb-auto-lock.js';
 
 function fakeTimers() {
   let nextId = 0;
@@ -50,6 +54,31 @@ test('auto-lock supports immediate lock and explicit stop', () => {
   controller.lockNow();
   assert.equal(locks, 1);
   assert.equal(timers.callbacks.size, 0);
+});
+
+test('browser timer adapter preserves the host receiver', () => {
+  const callbacks = new Map();
+  const host = {
+    setTimeout(callback, delay) {
+      assert.equal(this, host);
+      callbacks.set(1, { callback, delay });
+      return 1;
+    },
+    clearTimeout(handle) {
+      assert.equal(this, host);
+      callbacks.delete(handle);
+    },
+  };
+  const controller = createAutoLockController(
+    () => {},
+    1_000,
+    createAutoLockTimerApi(host),
+  );
+
+  controller.reset();
+  controller.reset();
+
+  assert.equal(callbacks.size, 1);
 });
 
 test('auto-lock rejects invalid setup', () => {
