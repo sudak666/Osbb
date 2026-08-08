@@ -17,6 +17,7 @@ function readSkladCombined() {
     'src/sklad-auth-controller.ts',
     'src/sklad-auth.ts',
     'src/sklad-client-state.ts',
+    'src/sklad-delete-pin-controller.ts',
     'src/sklad-dates.ts',
     'src/sklad-domain.ts',
     'src/sklad-movements.ts',

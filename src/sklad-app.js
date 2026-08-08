@@ -21,7 +21,7 @@ import { hasSupplierTag, MAX_SUPPLIER_TAGS, mergeSupplierTags, normalizeSupplier
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 import { createInventoryCollectionState, deleteInventoryResultFromRpcResponse, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 import { loadPurchasePriceRpcAvailable, loadStoredSupplierTags, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme, saveStoredSupplierTags } from './sklad-client-state.js';
-import { applyPinKey, isPinComplete } from './pin-entry.js';
+import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
@@ -2327,68 +2327,15 @@ function trapModalFocus(event){
 // PIN, що й на вході — сама перевірка й видалення відбуваються в одній
 // RPC на сервері (delete_inventory_item/log/receipt), а не напряму
 // анонімним ключем, щоб бот з ключем зі сторінки не міг видаляти дані.
-let deletePinBuf = '';
-let deletePinAction = null;
-let deletePinBusy = false;
+const deletePinController = createSkladDeletePinController({
+  document,
+  openModal,
+  closeModal: (id) => closeModal(id),
+});
 
-function showDeletePinModal(title, action) {
-  deletePinBuf = '';
-  deletePinAction = action;
-  document.getElementById('delPinTitle').textContent = title;
-  document.getElementById('delPinErr').textContent = '';
-  updateDeletePinDots();
-  openModal('delPinModal');
-}
-function delPinModalCancel(e) {
-  if (e && e.target !== document.getElementById('delPinModal')) return;
-  closeModal('delPinModal');
-  deletePinBuf = ''; deletePinAction = null;
-  updateDeletePinDots();
-  document.getElementById('delPinErr').textContent = '';
-}
-function updateDeletePinDots() {
-  for (let i = 0; i < 4; i++) document.getElementById('dp' + i).classList.toggle('filled', i < deletePinBuf.length);
-}
-async function deletePinPress(k) {
-  if (deletePinBusy) return;
-  const nextBuffer=applyPinKey(deletePinBuf,k);
-  if(nextBuffer===deletePinBuf && k!=='C') return;
-  deletePinBuf=nextBuffer;
-  updateDeletePinDots();
-  document.getElementById('delPinErr').textContent = '';
-  if (isPinComplete(deletePinBuf)) {
-    const pin = deletePinBuf;
-    const action = deletePinAction;
-    deletePinBuf = '';
-    updateDeletePinDots();
-    if (!action) return;
-    let result;
-    deletePinBusy = true;
-    try {
-      result = await action(pin);
-    } catch (error) {
-      console.warn('delete PIN action failed', error);
-      result = { ok: false, reason: 'network' };
-    } finally {
-      deletePinBusy = false;
-    }
-    if (deletePinAction !== action) return;
-    if (result && result.ok) {
-      closeModal('delPinModal');
-      deletePinAction = null;
-    } else {
-      const reason = result && result.reason;
-      const msg = reason === 'negative_stock' ? 'Видалення призведе до від\'ємного залишку'
-                : reason === 'not_found' ? 'Запис не знайдено'
-                : reason === 'network' ? 'Помилка мережі, спробуйте ще'
-                : 'Невірний PIN, спробуйте ще';
-      document.getElementById('delPinErr').textContent = msg;
-      if (reason && reason !== 'bad_pin') {
-        setTimeout(() => { closeModal('delPinModal'); deletePinAction = null; }, 1600);
-      }
-    }
-  }
-}
+function showDeletePinModal(title, action) { deletePinController.show(title, action); }
+function delPinModalCancel(event) { deletePinController.cancel(event); }
+function deletePinPress(key) { return deletePinController.press(key); }
 
 // ===== TOAST =====
 let toastT;

@@ -8,6 +8,7 @@ const skladApp = normalizeNewlines(readFileSync(new URL('../src/sklad-app.js', i
 const skladClientState = normalizeNewlines(readFileSync(new URL('../src/sklad-client-state.js', import.meta.url), 'utf8'));
 const skladAuth = normalizeNewlines(readFileSync(new URL('../src/sklad-auth.js', import.meta.url), 'utf8'));
 const skladAuthController = normalizeNewlines(readFileSync(new URL('../src/sklad-auth-controller.js', import.meta.url), 'utf8'));
+const skladDeletePinController = normalizeNewlines(readFileSync(new URL('../src/sklad-delete-pin-controller.js', import.meta.url), 'utf8'));
 const osbbHtml = normalizeNewlines(readFileSync(new URL('../osbb/index.html', import.meta.url), 'utf8'));
 const osbbApp = normalizeNewlines(readFileSync(new URL('../src/osbb-app.js', import.meta.url), 'utf8'));
 
@@ -46,8 +47,8 @@ test('Sklad PIN flow keeps server verification and guarded keypad binding', () =
   assertIncludes(skladHtml, '<script type="module" src="../src/sklad-auth.js"></script>', 'typed Sklad auth runtime must be loaded');
   assertIncludes(skladAuthController, "doc.querySelectorAll('[data-auth-pin-key]').forEach", 'runtime PIN keypad binding is missing');
   assertIncludes(skladAuthController, 'if (busy) return;', 'PIN keypad must guard concurrent input');
-  assertIncludes(skladApp, 'const nextBuffer=applyPinKey(deletePinBuf,k);', 'runtime delete PIN must use the shared keypad boundary');
-  assertIncludes(skladApp, 'if (isPinComplete(deletePinBuf))', 'runtime delete PIN must verify complete input');
+  assertIncludes(skladDeletePinController, 'const nextBuffer = applyPinKey(buffer, key);', 'runtime delete PIN must use the shared keypad boundary');
+  assertIncludes(skladDeletePinController, 'if (!isPinComplete(buffer)) return;', 'runtime delete PIN must verify complete input');
 });
 
 test('Sklad date fields use the rounded custom date picker instead of the native popup', () => {
@@ -88,13 +89,13 @@ test('Sklad delete RPC flow handles returned and thrown transport errors', () =>
 });
 
 test('Sklad delete PIN flow blocks concurrent actions and catches handler failures', () => {
-  assertIncludes(skladApp, 'let deletePinBusy = false;', 'delete PIN flow needs a busy state');
-  assertIncludes(skladApp, 'if (deletePinBusy) return;', 'delete PIN keypad must block concurrent actions');
-  assertIncludes(skladApp, 'deletePinBusy = true;', 'delete PIN action must enter busy state');
-  assertIncludes(skladApp, "console.warn('delete PIN action failed', error);", 'delete PIN action failures must be handled');
-  assertIncludes(skladApp, 'deletePinBusy = false;', 'delete PIN action must always leave busy state');
-  assertIncludes(skladApp, 'if (deletePinAction !== action) return;', 'stale delete results must not update a newer modal');
-  assert.doesNotMatch(skladApp, /deletePinAction = action;\s+deletePinBusy = false;/u, 'opening another modal must not unlock a pending request');
+  assertIncludes(skladDeletePinController, 'let busy = false;', 'delete PIN flow needs a busy state');
+  assertIncludes(skladDeletePinController, 'if (busy) return;', 'delete PIN keypad must block concurrent actions');
+  assertIncludes(skladDeletePinController, 'busy = true;', 'delete PIN action must enter busy state');
+  assertIncludes(skladDeletePinController, "warn('delete PIN action failed', caught);", 'delete PIN action failures must be handled');
+  assertIncludes(skladDeletePinController, 'finally { busy = false; }', 'delete PIN action must always leave busy state');
+  assertIncludes(skladDeletePinController, 'if (action !== pendingAction) return;', 'stale delete results must not update a newer modal');
+  assertIncludes(skladApp, 'createSkladDeletePinController({', 'Sklad runtime must use the extracted delete PIN controller');
 });
 
 
