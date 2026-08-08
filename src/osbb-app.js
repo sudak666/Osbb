@@ -11,6 +11,8 @@
     import { createOsbbAttendanceController } from './osbb-attendance-controller.js';
     import { createOsbbGarbageController } from './osbb-garbage-controller.js';
     import { createOsbbDispatcherController } from './osbb-dispatcher-controller.js';
+    import { createOsbbElevatorController } from './osbb-elevator-controller.js';
+    import { createOsbbRuntimeController } from './osbb-runtime-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
@@ -288,12 +290,14 @@
     // Окремий клієнт лише для підписки на зміни — основний REST-шар (db вище)
     // не чіпаємо, щоб не ризикувати вже робочою логікою.
     function realtimeSafeRefresh(tab, fn) {
+        return runtimeController.safeRealtimeRefresh(tab, fn);
         const active = document.activeElement;
         // Не перебивати активне редагування коментаря/поля вводу realtime-рефрешем.
         if (!shouldApplyRealtimeRefresh(currentTab, tab, active?.tagName)) return;
         fn();
     }
     function initRealtime() {
+        return runtimeController.initRealtime();
         if (IS_PREVIEW || typeof supabase === 'undefined') return;
         try {
             const rt = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -313,6 +317,7 @@
 
     let currentYear, currentMonth;
     let currentTab = 'dispatcher';
+    let runtimeController;
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
     let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
@@ -377,6 +382,7 @@
     const ALL_TABS = ['garbage','dispatcher','shifts','tabel','my-tickets'];
 
     function requestTab(tab) {
+        return runtimeController.requestTab(tab);
         if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
         if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }
         if (tab !== 'shifts') { setTab(tab); return; }
@@ -384,6 +390,7 @@
     }
 
     function setTab(tab, { load = true } = {}) {
+        return runtimeController.setTab(tab, { load });
         currentTab = tab;
         document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
         document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
@@ -671,6 +678,7 @@
     // чергувань (schedule), тепер лишає тільки те, що дійсно спільне для
     // всіх табів: рік/місяць, кеш фото на місяць і перерендер активного табу.
     async function initCalendar() {
+        return runtimeController.initCalendar();
         currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
         setSyncStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
         photosCache = null;
@@ -2044,6 +2052,15 @@
     // data — масив {id, day, text, createdAt, createdBy}.
     // ==========================================
 
+    const elevatorController = createOsbbElevatorController({
+        document, storage:localStorage, isPreview:IS_PREVIEW,
+        getMonth:()=>({year:currentYear,month:currentMonth}), getAuthor:()=>staffSession?.name || dispWorkerName,
+        readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue,
+        fetchMonth:async key=>db.from('elevator_visits').select('data').eq('month_key',key).single(),
+        upsertMonth:row=>db.from('elevator_visits').upsert(row), render:elevatorRender, showToast,
+        onEntriesChanged:value=>{elevatorData=value;},
+    });
+
     function elevatorKey() { return zeroBasedMonthKey(currentYear, currentMonth); }
     function elevatorOfflineKey() { return osbbOfflineMonthKey('elevator', currentYear, currentMonth); }
 
@@ -2063,6 +2080,7 @@
     }
 
     async function elevatorInitTab() {
+        return elevatorController.init();
         elevatorSetStatus('loading', '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>');
         const offline = elevatorLoadOffline();
         if (offline) { elevatorData = offline; elevatorRender(); }
@@ -2088,6 +2106,7 @@
     }
 
     async function elevatorSaveCloud() {
+        return elevatorController.saveCloud();
         if (IS_PREVIEW) return;
         try {
             const { error } = await db.from('elevator_visits').upsert({ month_key: elevatorKey(), data: elevatorData });
@@ -2100,6 +2119,7 @@
     }
 
     function elevatorAdd(day, text) {
+        return elevatorController.add(day, text);
         const entry = createElevatorEntry(day, text, staffSession?.name || dispWorkerName);
         if (!entry) { showToast('Опишіть, що зробив ліфтер'); return; }
         elevatorData.push(entry);
@@ -2110,6 +2130,7 @@
     }
 
     function elevatorDelete(id) {
+        return elevatorController.remove(id);
         elevatorData = removeElevatorEntry(elevatorData, id);
         elevatorSaveOffline();
         elevatorSaveCloud();
@@ -2182,6 +2203,7 @@
     // ONLINE / OFFLINE ІНДИКАТОР
     // ============================================================
     function updateNetworkBadge() {
+        return runtimeController.updateNetworkBadge();
         const badge = document.getElementById('network-badge');
         if (!badge) return;
         if (navigator.onLine) {
@@ -2190,10 +2212,6 @@
             badge.style.display = 'flex';
         }
     }
-    window.addEventListener('online',  () => { updateNetworkBadge(); showToast('Мережа відновлена', TOAST_ICON_CHECK); });
-    window.addEventListener('offline', () => { updateNetworkBadge(); showToast('Немає мережі — працюємо офлайн', TOAST_ICON_WARN, 4000); });
-    updateNetworkBadge();
-
     // ============================================================
     // AUTO-LOCK — блокування через 30 хвилин бездіяльності
     // ============================================================
@@ -2216,6 +2234,26 @@
 
     // Запускаємо початкове завантаження лише після ініціалізації всіх
     // lexical state bindings, які читають активні вкладки.
+    runtimeController = createOsbbRuntimeController({
+        document, window, navigator, isPreview:IS_PREVIEW, tabs:ALL_TABS, initialTab:currentTab,
+        isTabAllowed:isTabAllowedForSession, isDispatcher:isDispatcherSession,
+        requestShiftPin:callback=>showPinModal('PIN графіка змін','Введіть окремий PIN для доступу',callback,false,'verify_work_shifts_pin'),
+        getSelectedMonth:()=>({year:Number.parseInt(yearSelect.value,10),month:Number.parseInt(monthSelect.value,10)}),
+        onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;}, onTabChanged:tab=>{currentTab=tab;},
+        loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
+        loadDashboard:gInitDashboard,
+        loaders:{garbage:gInitTab,dispatcher:async()=>{await dispInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
+        setSyncStatus:type=>setSyncStatus(type,type==='loading'?'<span class="status-label">Завантаження...</span>':'<span class="status-label">Синхронізовано</span>'),
+        createRealtimeClient:typeof supabase==='undefined'?null:()=>supabase.createClient(SUPABASE_URL,SUPABASE_KEY),
+        subscriptions:[
+            {tab:'garbage',filter:{event:'*',schema:'public',table:'garbage'},load:gInitTab},
+            {tab:'dispatcher',filter:{event:'*',schema:'public',table:'dispatcher'},load:dispInitTab},
+            {tab:'dispatcher',filter:{event:'*',schema:'public',table:'elevator_visits'},load:elevatorInitTab},
+            {tab:'shifts',filter:{event:'*',schema:'public',table:'work_shifts'},load:shiftLoadMonth},
+            {tab:'shifts',filter:{event:'*',schema:'public',table:'work_shift_settings'},load:shiftLoadSettings},
+        ], showToast, onlineIcon:TOAST_ICON_CHECK, offlineIcon:TOAST_ICON_WARN,
+    });
+    runtimeController.bindNetwork();
     bindOsbbStaticControls();
     bindOsbbPhotoActions();
     bindGarbageEntryActions();
