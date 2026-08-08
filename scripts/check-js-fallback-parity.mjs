@@ -28,6 +28,7 @@ const fallbackPairs = [
   ['src/osbb-staff-auth-controller.ts', 'src/osbb-staff-auth-controller.js'],
   ['src/osbb-tickets.ts', 'src/osbb-tickets.js'],
   ['src/sklad-audit.ts', 'src/sklad-audit.js'],
+  ['src/sklad-audit-controller.ts', 'src/sklad-audit-controller.js'],
   ['src/sklad-auth-controller.ts', 'src/sklad-auth-controller.js'],
   ['src/sklad-auth.ts', 'src/sklad-auth.js'],
   ['src/sklad-client-state.ts', 'src/sklad-client-state.js'],

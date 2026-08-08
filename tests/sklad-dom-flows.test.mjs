@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 const normalizeNewlines = value => value.replace(/\r\n?/g, '\n');
 const skladHtml = normalizeNewlines(readFileSync(new URL('../sklad/index.html', import.meta.url), 'utf8'));
 const skladApp = normalizeNewlines(readFileSync(new URL('../src/sklad-app.js', import.meta.url), 'utf8'));
+const skladAuditController = normalizeNewlines(readFileSync(new URL('../src/sklad-audit-controller.js', import.meta.url), 'utf8'));
 const skladClientState = normalizeNewlines(readFileSync(new URL('../src/sklad-client-state.js', import.meta.url), 'utf8'));
 const skladAuth = normalizeNewlines(readFileSync(new URL('../src/sklad-auth.js', import.meta.url), 'utf8'));
 const skladAuthController = normalizeNewlines(readFileSync(new URL('../src/sklad-auth-controller.js', import.meta.url), 'utf8'));
@@ -36,10 +37,10 @@ test('Sklad refill and new-item submits remain centrally bound actions', () => {
 });
 
 test('Sklad audit flow keeps dynamic controls delegated from the list container', () => {
-  assertIncludes(skladApp, 'data-audit-input data-item-id="${item.id}"', 'audit quantity inputs need delegated hooks');
-  assertIncludes(skladApp, 'name="audit_${item.id}"', 'audit quantity inputs must have names');
-  assertIncludes(skladApp, 'aria-label="Фактичний залишок: ${name}"', 'audit quantity inputs must have accessible labels');
-  assertIncludes(skladApp, 'data-audit-clear data-item-id="${item.id}"', 'audit clear buttons need delegated hooks');
+  assertIncludes(skladAuditController, 'data-audit-input data-item-id="${item.id}"', 'audit quantity inputs need delegated hooks');
+  assertIncludes(skladAuditController, 'name="audit_${item.id}"', 'audit quantity inputs must have names');
+  assertIncludes(skladAuditController, 'aria-label="Фактичний залишок: ${name}"', 'audit quantity inputs must have accessible labels');
+  assertIncludes(skladAuditController, 'data-audit-clear data-item-id="${item.id}"', 'audit clear buttons need delegated hooks');
   assertIncludes(skladApp, "list.addEventListener('input',(event)=>{", 'audit input delegation is missing');
   assertIncludes(skladApp, "list.addEventListener('click',(event)=>{", 'audit clear delegation is missing');
   assertIncludes(skladApp, 'onAuditInput(Number(input.dataset.itemId),input.value);', 'audit input must route through parser boundary');
