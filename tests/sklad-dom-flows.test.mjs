@@ -125,6 +125,14 @@ test('OSBB dispatcher ticket flow stays delegated and routes add/edit actions', 
   assertIncludes(osbbApp, 'dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId', 'dispatcher edit must use save boundary');
 });
 
+test('OSBB dispatcher renderer keeps ticket-controlled attributes and labels safe', () => {
+  assertIncludes(osbbApp, 'priority-${normalizeTicketPriority(t.priority)}', 'ticket priority class must be normalized');
+  assertIncludes(osbbApp, 'id="ticket-edit-text-${escapeAttr(t.id)}"', 'ticket editor id must be escaped');
+  assertIncludes(osbbApp, 'id="ticket-edit-role-${escapeAttr(t.id)}"', 'ticket role editor id must be escaped');
+  assertIncludes(osbbApp, 'id="ticket-edit-priority-${escapeAttr(t.id)}"', 'ticket priority editor id must be escaped');
+  assertIncludes(osbbApp, "${escapeHtml(roleNames[t.role] || t.role || 'Не призначено')}", 'ticket role label must be escaped');
+});
+
 test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
   assert.match(osbbHtml, /id="staff-login-modal"/u);
   assert.match(osbbHtml, /data-staff-pin-digit="1"/u);

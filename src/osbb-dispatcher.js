@@ -1,11 +1,43 @@
-function isDispatcherTicket(value) {
-    return typeof value === 'object' && value !== null && !Array.isArray(value) && typeof value.id === 'string';
+const WORKER_ROLES = new Set(['plumber', 'janitor', 'electrician']);
+const TICKET_PRIORITIES = new Set(['HIGH', 'MEDIUM', 'LOW']);
+
+function boundedText(value, maxLength) {
+    if (typeof value !== 'string') return '';
+    const normalized = value.trim();
+    return normalized.length <= maxLength ? normalized : normalized.slice(0, maxLength);
+}
+
+export function normalizeDispatcherTicket(value) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    const id = boundedText(value.id, 128);
+    if (!id) return null;
+    const priority = TICKET_PRIORITIES.has(value.priority) ? value.priority : 'MEDIUM';
+    const status = value.status === 'done' ? 'done' : 'open';
+    const role = WORKER_ROLES.has(String(value.role)) ? String(value.role) : '';
+    const photos = Array.isArray(value.photos)
+        ? value.photos.filter((photo) => typeof photo === 'string' && photo.trim() !== '').map((photo) => photo.trim())
+        : [];
+    return {
+        id,
+        text: boundedText(value.text, 2_000),
+        role,
+        priority,
+        status,
+        comment: boundedText(value.comment, 4_000),
+        photos,
+        createdAt: boundedText(value.createdAt, 100),
+        closedAt: boundedText(value.closedAt, 100),
+        closedBy: boundedText(value.closedBy, 200),
+    };
 }
 
 export function normalizeDispatcherDay(row) {
     if (typeof row !== 'object' || row === null) return { ticketsList: [] };
     const source = 'ticketsList' in row && Array.isArray(row.ticketsList) ? row.ticketsList : [];
-    const ticketsList = source.every(isDispatcherTicket) ? source : source.filter(isDispatcherTicket);
+    const ticketsList = source.flatMap((ticket) => {
+        const normalized = normalizeDispatcherTicket(ticket);
+        return normalized ? [normalized] : [];
+    });
     return { ticketsList };
 }
 

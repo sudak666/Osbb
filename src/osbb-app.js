@@ -2729,13 +2729,13 @@
             const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
             const isDone = t.status === 'done';
             if (canManage && dispEditingTicketId === t.id) {
-                return `<li class="ticket-item priority-${t.priority}">
+                return `<li class="ticket-item priority-${normalizeTicketPriority(t.priority)}">
                     <div class="ticket-add-form">
-                        <input type="text" id="ticket-edit-text-${t.id}" class="dispatcher-location-input" value="${escapeAttr(t.text)}" aria-label="Текст заявки">
-                        <select id="ticket-edit-role-${t.id}" class="journal-select" aria-label="Виконавець заявки">
+                        <input type="text" id="ticket-edit-text-${escapeAttr(t.id)}" class="dispatcher-location-input" value="${escapeAttr(t.text)}" aria-label="Текст заявки">
+                        <select id="ticket-edit-role-${escapeAttr(t.id)}" class="journal-select" aria-label="Виконавець заявки">
                             ${roles.map(r => `<option value="${r}" ${r === t.role ? 'selected' : ''}>${roleNames[r]}</option>`).join('')}
                         </select>
-                        <select id="ticket-edit-priority-${t.id}" class="journal-select" aria-label="Пріоритет заявки">
+                        <select id="ticket-edit-priority-${escapeAttr(t.id)}" class="journal-select" aria-label="Пріоритет заявки">
                             ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === t.priority ? 'selected' : ''}>${v.label}</option>`).join('')}
                         </select>
                         <div class="my-ticket-close-actions">
@@ -2745,10 +2745,10 @@
                     </div>
                 </li>`;
             }
-            return `<li class="ticket-item priority-${t.priority} ${isDone ? 'is-done' : ''}">
+            return `<li class="ticket-item priority-${normalizeTicketPriority(t.priority)} ${isDone ? 'is-done' : ''}">
                 <div class="ticket-item-head">
                     <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
-                    <span class="ticket-role-badge">${roleNames[t.role] || t.role}</span>
+                    <span class="ticket-role-badge">${escapeHtml(roleNames[t.role] || t.role || 'Не призначено')}</span>
                     ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
                 </div>
                 <div class="ticket-item-text">${escapeHtml(t.text)}</div>

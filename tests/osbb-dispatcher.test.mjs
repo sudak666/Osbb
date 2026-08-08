@@ -7,9 +7,10 @@ import {
     dispatcherDayStatus,
     dispatcherDayStatusLabel,
     matchesDispatcherFilter,
-    matchesDispatcherSearchAndWorker,
+  matchesDispatcherSearchAndWorker,
   normalizeDispatcherDay,
   normalizeDispatcherMonth,
+  normalizeDispatcherTicket,
     reopenDispatcherTicket,
 } from '../src/osbb-dispatcher.js';
 
@@ -18,7 +19,10 @@ test('normalizeDispatcherMonth залишає лише валідні дні т�
     1: { ticketsList: [{ id: 't1', text: 'Аварія' }, null, { text: 'без id' }] },
     invalid: { ticketsList: [{ id: 't2' }] },
     99: { ticketsList: [{ id: 't3' }] },
-  }), { 1: { ticketsList: [{ id: 't1', text: 'Аварія' }] } });
+  }), { 1: { ticketsList: [{
+    id: 't1', text: 'Аварія', role: '', priority: 'MEDIUM', status: 'open',
+    comment: '', photos: [], createdAt: '', closedAt: '', closedBy: '',
+  }] } });
   assert.deepEqual(normalizeDispatcherMonth(null), {});
 });
 
@@ -62,7 +66,31 @@ test('normalizeDispatcherDay повертає безпечний список з
 
     assert.deepEqual(normalizeDispatcherDay(null), { ticketsList: [] });
     assert.deepEqual(normalizeDispatcherDay({ ticketsList: 'invalid' }), { ticketsList: [] });
-    assert.equal(normalizeDispatcherDay({ ticketsList }).ticketsList, ticketsList);
+    assert.notEqual(normalizeDispatcherDay({ ticketsList }).ticketsList, ticketsList);
+});
+
+test('normalizeDispatcherTicket sanitizes untrusted ticket fields', () => {
+    assert.deepEqual(normalizeDispatcherTicket({
+        id: ' ticket-1 ',
+        text: ' <img src=x onerror=alert(1)> ',
+        role: '"><script>alert(1)</script>',
+        priority: 'HIGH evil-class',
+        status: 'deleted',
+        photos: [' https://example.com/a.jpg ', null, ''],
+        comment: 42,
+    }), {
+        id: 'ticket-1',
+        text: '<img src=x onerror=alert(1)>',
+        role: '',
+        priority: 'MEDIUM',
+        status: 'open',
+        comment: '',
+        photos: ['https://example.com/a.jpg'],
+        createdAt: '',
+        closedAt: '',
+        closedBy: '',
+    });
+    assert.equal(normalizeDispatcherTicket({ text: 'missing id' }), null);
 });
 
 test('closeDispatcherTicket зберігає нормалізовані дані закриття', () => {
