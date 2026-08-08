@@ -17,6 +17,7 @@ function readSkladCombined() {
     'src/sklad-auth-controller.ts',
     'src/sklad-auth.ts',
     'src/sklad-client-state.ts',
+    'src/sklad-data-controller.js',
     'src/sklad-delete-pin-controller.ts',
     'src/sklad-modal-controller.ts',
     'src/sklad-dates.ts',
@@ -145,7 +146,7 @@ const checks = [
   ['src/sklad-app.js', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
   ['src/sklad-app.js', "notifyTelegram('📦 Прихід:", 'sklad notifies on receipt'],
   ['src/sklad-app.js', "notifyTelegram('📤 Видача:", 'sklad notifies on issue'],
-  ['src/sklad-app.js', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
+  ['src/sklad-data-controller.js', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
   ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
   ['src/sklad-app.js', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
   ['src/sklad-app.js', 'return true;', 'sklad issueItem reports success to callers'],
@@ -2505,7 +2506,7 @@ ${sharedSelectText}`;
 // added and this function isn't updated to match.
 {
   const text = readSkladCombined();
-  const m = text.match(/async function refreshAll\(\)\s*\{([^}]*)\}/);
+  const m = text.match(/(?:async function refreshAll\(\)|const refreshAll = async \(\) =>)\s*\{([^}]*)\}/);
   const label = 'sklad refreshAll() reloads items, logs and receipts';
   if (!m) {
     failed += 1;
@@ -2530,10 +2531,10 @@ ${sharedSelectText}`;
   const required = [
     'id="pullRefresh" class="pull-refresh" role="status" aria-live="polite"',
     'function initPullToRefresh()',
-    "window.scrollY>0 || refreshBusy",
+    'window.scrollY > 0 || refreshBusy',
     "document.querySelector('.modal-bg.open,.lightbox.open')",
-    "document.addEventListener('touchmove',event=>",
-    "const success=await refreshAll()",
+    "document.addEventListener('touchmove', event =>",
+    'const success = await refreshAll()',
     'initPullToRefresh();',
     '.pull-refresh.is-refreshing .pull-refresh-glyph{animation:pull-refresh-spin .75s linear infinite;}',
   ];
@@ -2836,7 +2837,7 @@ ${sharedSelectText}`;
     'id="supplierTagDeleteModal"',
     'function requestRemoveCustomSupplierTag(tag)',
     "db.from('inventory_supplier_tags').select('name')",
-    "table:'inventory_supplier_tags'",
+    "table: 'inventory_supplier_tags'",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (!migration.includes('add column if not exists purchase_price_unit numeric(12,2)') ||
@@ -2907,8 +2908,8 @@ ${sharedSelectText}`;
   const required = [
     'function skeletonRows(columns=1,rows=3)',
     'function skeletonStack(rows=3)',
-    'tb.innerHTML=skeletonRows(7,3)',
-    'mb.innerHTML=skeletonStack(3)',
+    'table.innerHTML = skeletonRows(7, 3)',
+    'mobile.innerHTML = skeletonStack(3)',
     "document.getElementById('histList').innerHTML=skeletonStack(3)",
     '.skeleton-card{display:grid;',
   ];

@@ -23,7 +23,7 @@ import { createInventoryCollectionState, deleteInventoryResultFromRpcResponse, i
 import { loadPurchasePriceRpcAvailable, loadStoredSupplierTags, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme, saveStoredSupplierTags } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 import { createSkladModalController } from './sklad-modal-controller.js';
-
+import { createSkladDataController } from './sklad-data-controller.js';
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,photoItemId=null,editItemId=null,deleteItemId=null,stockFilter='',cloudSupplierTags=[],supplierTagsCloudAvailable=false,pendingSupplierTagDelete=null;
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -57,7 +57,6 @@ function priceBadge(item){
     <span class="price-badge-source">${src}</span>
   </button>`;
 }
-
 const emptyStateIcons=new Set(['inbox','search_off','inventory_2','history']);
 function emptyState(icon,title,supportingText=''){
   const safeIcon=emptyStateIcons.has(icon)?icon:'inbox';
@@ -87,6 +86,28 @@ function skeletonStack(rows=3){
     </div>`).join('')}</div>`;
 }
 
+const {
+  initPullToRefresh,
+  initRealtime,
+  loadItems,
+  loadLogs,
+  loadReceipts,
+  markDataUpdated,
+  refreshAll,
+  setRefreshStatus,
+}=createSkladDataController({
+  db,
+  document,
+  window,
+  toast,
+  iconHtml:msIcon,
+  skeletonRows,
+  skeletonStack,
+  loadSupplierTags:loadSupplierTagsCloud,
+  onItems(items){ allItems=items; renderItems(); updateStats(); },
+  onLogs(logs){ allLogs=logs; renderLog(); },
+  onReceipts(receipts){ allReceipts=receipts; renderReceipts(); },
+});
 
 // ===== PIN AUTH (визначено вище перед HTML) =====
 if(EMBEDDED_SHELL_AUTH || isAuthSessionValid()) document.getElementById('authScreen').style.display='none';
@@ -313,174 +334,6 @@ async function confirmAudit(){
   toast(`Інвентаризацію завершено! Оновлено ${diffs.length} позицій${updateErrors?', помилок: '+updateErrors:''}`, 'success');
   // Скидаємо стан
   initAudit();
-}
-
-// ===== LOAD =====
-// ==========================================
-// REALTIME: живі оновлення без ручного "Оновити"
-// ==========================================
-function realtimeSafeReload(fn){
-  const active=document.activeElement;
-  // Не перебивати активне редагування (кількість/примітка тощо) фоновим оновленням.
-  if(active && (active.tagName==='TEXTAREA' || active.tagName==='INPUT')) return;
-  fn().catch(e=>console.warn('realtime reload failed:',e));
-}
-function initRealtime(){
-  try{
-    db.channel('sklad-live')
-      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_items'},()=>realtimeSafeReload(loadItems))
-      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_logs'},()=>realtimeSafeReload(loadLogs))
-      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_receipts'},()=>realtimeSafeReload(loadReceipts))
-      .on('postgres_changes',{event:'*',schema:'public',table:'inventory_supplier_tags'},()=>realtimeSafeReload(loadSupplierTagsCloud))
-      .subscribe();
-  }catch(e){ console.warn('sklad realtime init failed:',e); }
-}
-let refreshBusy=false;
-function setRefreshStatus(state,message){
-  const status=document.getElementById('lastUpdate');
-  if(status){
-    status.classList.add('is-visible');
-    status.classList.toggle('is-syncing',state==='syncing');
-    const icon=state==='syncing'?'sync':'check_circle';
-    status.innerHTML=msIcon(icon,'13px')+' '+escapeHtml(message);
-  }
-  const btn=document.getElementById('refreshBtn');
-  if(btn){
-    btn.disabled=state==='syncing';
-    btn.setAttribute('aria-busy',state==='syncing'?'true':'false');
-  }
-}
-function markDataUpdated(){
-  setRefreshStatus('ready','Оновлено '+new Date().toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}));
-}
-async function loadItems(){
-  const {data,error}=await db.from('inventory_items').select('*').order('category').order('name').limit(500);
-  if(error){
-    toast('Товари не завантажились: '+error.message,'error');
-    throw error;
-  }
-  allItems=inventoryItemsFromResponse(data);
-  renderItems();
-  updateStats();
-  markDataUpdated();
-}
-async function loadLogs(){
-  const {data,error}=await db.from('inventory_logs').select('*').order('issued_at',{ascending:false}).limit(100);
-  if(error){
-    toast('Журнал не завантажився: '+error.message,'error');
-    throw error;
-  }
-  allLogs=inventoryLogsFromResponse(data);
-  renderLog();
-}
-async function loadReceipts(){
-  const tb=document.getElementById('recTable');
-  const mb=document.getElementById('recMobileList');
-  if(tb) tb.innerHTML=skeletonRows(7,3);
-  if(mb) mb.innerHTML=skeletonStack(3);
-  const {data,error}=await db.from('inventory_receipts').select('*').order('received_at',{ascending:false}).limit(200);
-  if(error){
-    const msg=msIcon('warning')+' '+escapeHtml(error.message);
-    if(tb) tb.innerHTML=`<tr><td colspan="7"><div class="empty">${msg}</div></td></tr>`;
-    if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--sklad-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
-    toast('Прихід: '+error.message,'error');
-    return;
-  }
-  allReceipts=inventoryReceiptsFromResponse(data);
-  renderReceipts();
-}
-async function refreshAll(){
-  if(refreshBusy) return;
-  refreshBusy=true;
-  setRefreshStatus('syncing','Оновлюю...');
-  try{
-    await loadItems();
-    await loadLogs();
-    await loadReceipts();
-    markDataUpdated();
-    toast('Дані оновлено','success');
-    return true;
-  }catch(e){
-    console.warn('refreshAll failed:',e);
-    setRefreshStatus('ready','Помилка оновлення');
-    return false;
-  }finally{
-    refreshBusy=false;
-    const btn=document.getElementById('refreshBtn');
-    if(btn){
-      btn.disabled=false;
-      btn.setAttribute('aria-busy','false');
-    }
-  }
-}
-
-function initPullToRefresh(){
-  const indicator=document.getElementById('pullRefresh');
-  const label=document.getElementById('pullRefreshLabel');
-  if(!indicator || !label || !window.matchMedia('(max-width: 768px)').matches) return;
-
-  const threshold=72;
-  let startX=0;
-  let startY=0;
-  let distance=0;
-  let tracking=false;
-
-  const reset=()=>{
-    tracking=false;
-    distance=0;
-    indicator.classList.remove('is-visible','is-ready','is-refreshing');
-    indicator.style.removeProperty('--pull-distance');
-    indicator.style.removeProperty('--pull-rotation');
-    label.textContent='';
-  };
-
-  document.addEventListener('touchstart',event=>{
-    if(event.touches.length!==1 || window.scrollY>0 || refreshBusy) return;
-    if(document.querySelector('.modal-bg.open,.lightbox.open')) return;
-    const touch=event.touches[0];
-    startX=touch.clientX;
-    startY=touch.clientY;
-    distance=0;
-    tracking=true;
-  },{passive:true});
-
-  document.addEventListener('touchmove',event=>{
-    if(!tracking || event.touches.length!==1) return;
-    const touch=event.touches[0];
-    const deltaX=touch.clientX-startX;
-    const deltaY=touch.clientY-startY;
-    if(deltaY<=0 || (Math.abs(deltaX)>Math.abs(deltaY) && distance<8)){
-      reset();
-      return;
-    }
-    if(event.cancelable) event.preventDefault();
-    distance=Math.min(112,deltaY*.55);
-    const ready=distance>=threshold;
-    indicator.style.setProperty('--pull-distance',`${distance}px`);
-    indicator.style.setProperty('--pull-rotation',`${Math.min(distance,threshold)*3}deg`);
-    indicator.classList.add('is-visible');
-    indicator.classList.toggle('is-ready',ready);
-    label.textContent=ready?'Відпустіть для оновлення':'Потягніть для оновлення';
-  },{passive:false});
-
-  document.addEventListener('touchend',async()=>{
-    if(!tracking) return;
-    const shouldRefresh=distance>=threshold;
-    tracking=false;
-    if(!shouldRefresh){
-      reset();
-      return;
-    }
-    indicator.classList.remove('is-ready');
-    indicator.classList.add('is-refreshing');
-    indicator.style.setProperty('--pull-distance',`${threshold}px`);
-    label.textContent='Оновлення даних…';
-    const success=await refreshAll();
-    label.textContent=success?'Дані оновлено':'Не вдалося оновити';
-    window.setTimeout(reset,600);
-  },{passive:true});
-
-  document.addEventListener('touchcancel',reset,{passive:true});
 }
 
 // ===== STAT CARD FILTER =====
