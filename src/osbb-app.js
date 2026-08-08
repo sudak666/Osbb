@@ -62,7 +62,7 @@
         normalizeTicketPriority,
         ticketSortComparator,
     } from './osbb-tickets.js';
-    import { createOsbbMonthState } from './osbb-state.js';
+    import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
 
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
@@ -169,7 +169,17 @@
     const STAFF_SESSION_KEY = 'osbb_staff_session';
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
-    let staffLoginList = [];
+    let {
+        staffLoginList,
+        garbage: gData,
+        attendance: attData,
+        dispatcher: dispData,
+        shiftRows,
+        photosCache,
+        lightboxPhotos,
+        jiraIssues,
+        elevatorData,
+    } = createOsbbRuntimeState();
     let staffLoginBuf = '';
     let staffLoginSelected = null;
     let staffLoginBusy = false;
@@ -502,11 +512,6 @@
     let currentTab = 'dispatcher';
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
-    let {
-        garbage: gData,
-        attendance: attData,
-        dispatcher: dispData,
-    } = createOsbbMonthState();
     let gMonthlyTotals = {}; // { "2026-0": 12, "2026-1": 8, ... } для графіку
     let gSaveTimer = null;
     let gLoaded = false;
@@ -626,7 +631,6 @@
         { key:'rest', label:'Вихідний' },
     ];
     let shiftCurrentDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    let shiftRows = {};
     let shiftSelectedDate = '';
     let shiftEditorSelection = { sergiy:new Set(), oleksandr:new Set() };
     let shiftNames = { sergiy:'Сергій', oleksandr:'Олександр' };
@@ -1244,7 +1248,6 @@
         gInitDashboard();
     }
 
-    let photosCache = null;
 
     async function loadAllPhotosForMonth() {
         if (IS_PREVIEW) { photosCache = {}; return; }
@@ -1346,7 +1349,6 @@
         }).join('');
     }
 
-    let lightboxPhotos = [];
     let lightboxIndex = 0;
     let lightboxFocusReturn = null;
 
@@ -2585,7 +2587,6 @@
     // ==========================================
     // МОЇ ЗАЯВКИ — відкриті заявки Jira проєкту MS.
     // ==========================================
-    let jiraIssues = [];
     let jiraAssignmentFilter = 'all';
     let jiraStatusFilter = 'all';
     let jiraCategoryFilter = 'all';
@@ -2615,7 +2616,7 @@
         }
         try {
             const data = await jiraRequest('list');
-            jiraIssues = Array.isArray(data.issues) ? data.issues : [];
+            jiraIssues = jiraIssuesFromResponse(data.issues);
             if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
         } catch (error) {
             console.error('jira issues load error:', error);
@@ -2942,7 +2943,6 @@
     // всередині вкладки "Диспетчер". Один рядок на місяць у elevator_visits,
     // data — масив {id, day, text, createdAt, createdBy}.
     // ==========================================
-    let elevatorData = [];
 
     function elevatorKey() { return `${currentYear}-${currentMonth}`; }
     function elevatorOfflineKey() { return `elevator_${currentYear}_${currentMonth}`; }

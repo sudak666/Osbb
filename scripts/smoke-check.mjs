@@ -3545,7 +3545,7 @@ ${sharedSelectText}`;
   const bootstrap = text.lastIndexOf('setTab(currentTab);');
   const requiredBindings = [
     text.indexOf('dispatcher: dispData,'),
-    text.indexOf('let elevatorData = [];'),
+    text.indexOf('elevatorData,'),
   ];
   if (bootstrap < 0 || requiredBindings.some(index => index < 0 || index > bootstrap)) {
     failed += 1;

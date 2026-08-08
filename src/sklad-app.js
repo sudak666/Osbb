@@ -382,7 +382,7 @@ async function loadReceipts(){
   if(mb) mb.innerHTML=skeletonStack(3);
   const {data,error}=await db.from('inventory_receipts').select('*').order('received_at',{ascending:false}).limit(200);
   if(error){
-    const msg=msIcon('warning')+' '+error.message;
+    const msg=msIcon('warning')+' '+escapeHtml(error.message);
     if(tb) tb.innerHTML=`<tr><td colspan="7"><div class="empty">${msg}</div></td></tr>`;
     if(mb) mb.innerHTML=`<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${msg}<br><br><small style="color:var(--sklad-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
     toast('Прихід: '+error.message,'error');

@@ -69,6 +69,10 @@ test('Sklad movement history distinguishes transport errors from empty results',
   assertIncludes(skladApp, "toast('Не вдалося завантажити історію товару','error');", 'item history must report a load error');
 });
 
+test('Sklad receipt load errors escape transport text before HTML rendering', () => {
+  assertIncludes(skladApp, "const msg=msIcon('warning')+' '+escapeHtml(error.message);", 'receipt error HTML must escape transport text');
+});
+
 test('Sklad delete RPC flow handles returned and thrown transport errors', () => {
   assertIncludes(skladApp, 'async function runDeleteInventoryRpc(name,args){', 'delete RPC wrapper is missing');
   assertIncludes(skladApp, 'return deleteInventoryResultFromRpcResponse(data);', 'delete RPC response must pass the typed boundary');
