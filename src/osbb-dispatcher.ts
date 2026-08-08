@@ -4,16 +4,15 @@ export type DispatcherTicketStatus = 'open' | 'done';
 
 export interface DispatcherTicket {
     id: string;
-    text?: string;
-    role?: string;
-    priority?: TicketPriority | string;
-    status?: DispatcherTicketStatus | string;
+    text: string;
+    role: string;
+    priority: TicketPriority;
+    status: DispatcherTicketStatus;
     comment?: string;
     photos?: string[];
     createdAt?: string;
     closedAt?: string;
     closedBy?: string;
-    [key: string]: unknown;
 }
 
 export interface DispatcherDay {
@@ -37,14 +36,47 @@ export interface DispatcherMonthStats {
 
 export type DispatcherMonth = Record<string, DispatcherDay>;
 
-function isDispatcherTicket(value: unknown): value is DispatcherTicket {
-    return typeof value === 'object' && value !== null && !Array.isArray(value) && typeof (value as Record<string, unknown>).id === 'string';
+const WORKER_ROLES = new Set(['plumber', 'janitor', 'electrician']);
+const TICKET_PRIORITIES = new Set<TicketPriority>(['HIGH', 'MEDIUM', 'LOW']);
+
+function boundedText(value: unknown, maxLength: number): string {
+    if (typeof value !== 'string') return '';
+    const normalized = value.trim();
+    return normalized.length <= maxLength ? normalized : normalized.slice(0, maxLength);
+}
+
+export function normalizeDispatcherTicket(value: unknown): DispatcherTicket | null {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+    const row = value as Record<string, unknown>;
+    const id = boundedText(row.id, 128);
+    if (!id) return null;
+    const priority = TICKET_PRIORITIES.has(row.priority as TicketPriority) ? row.priority as TicketPriority : 'MEDIUM';
+    const status: DispatcherTicketStatus = row.status === 'done' ? 'done' : 'open';
+    const role = WORKER_ROLES.has(String(row.role)) ? String(row.role) : '';
+    const photos = Array.isArray(row.photos)
+        ? row.photos.filter((photo): photo is string => typeof photo === 'string' && photo.trim() !== '').map((photo) => photo.trim())
+        : [];
+    return {
+        id,
+        text: boundedText(row.text, 2_000),
+        role,
+        priority,
+        status,
+        comment: boundedText(row.comment, 4_000),
+        photos,
+        createdAt: boundedText(row.createdAt, 100),
+        closedAt: boundedText(row.closedAt, 100),
+        closedBy: boundedText(row.closedBy, 200),
+    };
 }
 
 export function normalizeDispatcherDay(row: unknown): DispatcherDay {
     if (typeof row !== 'object' || row === null) return { ticketsList: [] };
     const source = 'ticketsList' in row && Array.isArray(row.ticketsList) ? row.ticketsList : [];
-    const ticketsList = source.every(isDispatcherTicket) ? source : source.filter(isDispatcherTicket);
+    const ticketsList = source.flatMap((ticket) => {
+        const normalized = normalizeDispatcherTicket(ticket);
+        return normalized ? [normalized] : [];
+    });
     return { ticketsList };
 }
 
