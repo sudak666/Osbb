@@ -51,6 +51,7 @@ function readOsbbCombined() {
     'src/osbb-lock-controller.ts',
     'src/osbb-pin-modal-controller.ts',
     'src/osbb-photos.ts',
+    'src/osbb-photo-controller.ts',
     'src/osbb-shifts.ts',
     'src/osbb-staff.ts',
     'src/osbb-staff-auth-controller.ts',

@@ -3,6 +3,7 @@
     import { createAutoLockController } from './osbb-auto-lock.js';
     import { createOsbbLockController } from './osbb-lock-controller.js';
     import { createOsbbLightboxController } from './osbb-lightbox-controller.js';
+    import { createOsbbPhotoController } from './osbb-photo-controller.js';
     import { createOsbbPinModalController } from './osbb-pin-modal-controller.js';
     import { createOsbbStaffAuthController } from './osbb-staff-auth-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
@@ -33,7 +34,6 @@
         removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
-    import { appendPhoto, buildPhotoCache, photoIdFromInsertResponse, photosFor, removePhoto } from './osbb-photos.js';
     import {
         garbageMonthBinsTotal,
         garbageMonthKey,
@@ -130,6 +130,45 @@
     const lightboxController = createOsbbLightboxController({
         document,
         getPhotoCache: () => photosCache,
+    });
+
+    const photoController = createOsbbPhotoController({
+        isPreview: IS_PREVIEW,
+        getMonthKey: () => zeroBasedMonthKey(currentYear, currentMonth),
+        loadRows: async monthKey => (await db.from('photos').select('id, url, day, role').eq('month_key', monthKey)).data || [],
+        compress: file => compressImage(file),
+        upload: async (path, blob) => {
+            const { error } = await db.storage.from('photos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+            if (error) throw error;
+        },
+        publicUrl: path => db.storage.from('photos').getPublicUrl(path).data.publicUrl,
+        insertRow: async row => {
+            const { data, error } = await db.from('photos').insert(row);
+            if (error) throw error;
+            return data;
+        },
+        verifyDelete: (id, pin) => db.rpc('delete_photo', { p_photo_id: id, attempt: pin }),
+        removeObject: async path => { await db.storage.from('photos').remove([path]); },
+        requestDeletePin: callback => showPinModal('Видалення фото', 'PIN для видалення фото', callback, true),
+        onCacheChanged: (cache, day, role) => {
+            photosCache = cache;
+            if (day === undefined || !role) return;
+            const photos = photoController.get(day, role);
+            const desktop = document.getElementById(`photos-${day}-${role}`);
+            if (desktop) renderPhotoContainer(desktop, photos, day, role);
+            const mobile = document.getElementById(`mobile-photos-${day}-${role}`);
+            if (mobile) renderPhotoContainer(mobile, photos, day, role, true);
+            if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', day); }
+        },
+        onStatus: (status, error) => {
+            const states = {
+                preview: ['ok', 'Превью'], uploading: ['loading', 'Завантажую...'], uploaded: ['ok', 'Фото збережено'],
+                deleted: ['ok', 'Фото видалено'], bad_pin: ['error', 'PIN не підтверджено'], error: ['error', 'Помилка фото'],
+            };
+            const [kind, label] = states[status];
+            if (error) console.error('photo error:', error);
+            setSyncStatus(kind, `<span class="status-label">${label}</span>`);
+        },
     });
 
     function loadStaffSession() {
@@ -1032,15 +1071,11 @@
 
 
     async function loadAllPhotosForMonth() {
-        if (IS_PREVIEW) { photosCache = {}; return; }
-        try {
-            const { data } = await db.from('photos').select('id, url, day, role').eq('month_key', zeroBasedMonthKey(currentYear, currentMonth));
-            photosCache = buildPhotoCache(data || []);
-        } catch { photosCache = {}; }
+        await photoController.load();
     }
 
     function getPhotosFromCache(day, role) {
-        return photosFor(photosCache, day, role);
+        return photoController.get(day, role);
     }
 
     function compressImage(file, maxWidth = 1200, quality = 0.82) {
@@ -1067,56 +1102,11 @@
     }
 
     async function uploadPhoto(day, role, file) {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>'); return; }
-        setSyncStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">cloud_upload</span>Завантажую...</span>');
-        try {
-            const compressed = await compressImage(file);
-            const ext = 'jpg';
-            const path = `osbb-duty/${zeroBasedMonthKey(currentYear, currentMonth)}/${day}-${role}-${Date.now()}.${ext}`;
-            const { error: upErr } = await db.storage.from('photos').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
-            if (upErr) throw upErr;
-            const { data: urlData } = db.storage.from('photos').getPublicUrl(path);
-            
-            // Отримуємо реальний ID з бази даних завдяки Prefer: return=representation
-            const { data: insertData, error: insErr } = await db.from('photos').insert({ month_key: zeroBasedMonthKey(currentYear, currentMonth), day, role, url: urlData.publicUrl });
-            if (insErr) throw insErr;
-            
-            const realId = photoIdFromInsertResponse(insertData, Date.now());
-
-            photosCache = appendPhoto(photosCache, day, role, { id: realId, url: urlData.publicUrl });
-            setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add_photo_alternate</span>Фото збережено</span>');
-            
-            // Оновлюємо обидва інтерфейси одночасно
-            const desktopCont = document.getElementById(`photos-${day}-${role}`);
-            if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
-            const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
-            if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
-            if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
-        } catch (err) { console.error('photo error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка фото</span>'); }
+        await photoController.upload(Number(day), role, file);
     }
 
     async function deletePhoto(id, url, day, role) {
-        if (IS_PREVIEW) { setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>'); return; }
-        showPinModal('Видалення фото', 'PIN для видалення фото', async (pin) => {
-            try {
-                const ok = await db.rpc('delete_photo', { p_photo_id: id, attempt: pin });
-                if (!ok) {
-                    setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> PIN не підтверджено</span>');
-                    return;
-                }
-                const path = url.split('/photos/')[1];
-                if (path) await db.storage.from('photos').remove([path]);
-
-                photosCache = removePhoto(photosCache, day, role, id);
-                setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">hide_image</span>Фото видалено</span>');
-
-                const desktopCont = document.getElementById(`photos-${day}-${role}`);
-                if (desktopCont) renderPhotoContainer(desktopCont, getPhotosFromCache(day, role), day, role);
-                const mobileCont = document.getElementById(`mobile-photos-${day}-${role}`);
-                if (mobileCont) renderPhotoContainer(mobileCont, getPhotosFromCache(day, role), day, role, true);
-                if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', Number(day)); }
-            } catch (err) { console.error('delete error:', err); setSyncStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span> Помилка видалення</span>'); }
-        }, true);
+        photoController.remove(id, url, Number(day), role);
     }
 
     function renderPhotoContainer(container, photos, day, role, isMobile = false) {
