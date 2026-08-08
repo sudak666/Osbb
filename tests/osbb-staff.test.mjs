@@ -8,6 +8,7 @@ import {
   isWorkerSession,
   normalizeWorkerRole,
   parseStaffList,
+  parseStaffSettingsList,
   parseStaffSession,
 } from '../src/osbb-staff.js';
 
@@ -31,6 +32,15 @@ test('staff list parser removes malformed server rows', () => {
     { id: 'worker-3', full_name: 'Олег', role: 'owner' },
   ]), [{ id: 'worker-1', full_name: 'Іван', role: 'electrician' }]);
   assert.deepEqual(parseStaffList(null), []);
+});
+
+test('staff boundaries reject oversized attributes and coerce no active flags', () => {
+  assert.equal(parseStaffSession({ id: '\" onclick=alert(1)', name: 'x'.repeat(101), role: 'admin' }), null);
+  assert.deepEqual(parseStaffSettingsList([
+    { id: 'admin-1', full_name: '<img onerror=alert(1)>', role: 'admin', active: true, malicious: '<script>alert(1)</script>' },
+    { id: 'admin-2', full_name: 'Другий', role: 'admin', active: 'false' },
+    { id: '__proto__', full_name: 'Третій', role: 'unknown', active: false },
+  ]), [{ id: 'admin-1', full_name: '<img onerror=alert(1)>', role: 'admin', active: true }]);
 });
 
 test('staff role helpers preserve full-access and worker role groups', () => {

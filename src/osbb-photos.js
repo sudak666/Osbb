@@ -1,12 +1,24 @@
 import { safeExternalUrl } from './app-security.js';
 
+const PHOTO_ROLES = new Set(['dispatcher']);
+
+function validPhotoId(value) {
+    return typeof value === 'number' && Number.isFinite(value)
+        || typeof value === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(value);
+}
+
+function validPhotoCoordinates(day, role) {
+    const numericDay = Number(day);
+    return Number.isInteger(numericDay) && numericDay >= 1 && numericDay <= 31
+        && typeof role === 'string' && PHOTO_ROLES.has(role);
+}
+
 export function photoIdFromInsertResponse(value, fallback) {
     if (!Array.isArray(value) || value.length === 0) return fallback;
     const row = value[0];
     if (typeof row !== 'object' || row === null || Array.isArray(row)) return fallback;
     const id = row.id;
-    if (typeof id === 'string' && id.trim()) return id;
-    return typeof id === 'number' && Number.isFinite(id) ? id : fallback;
+    return validPhotoId(id) ? id : fallback;
 }
 
 export function photoCacheKey(day, role) {
@@ -18,22 +30,21 @@ export function buildPhotoCache(records) {
     if (!Array.isArray(records)) return cache;
     for (const photo of records) {
         if (typeof photo !== 'object' || photo === null || Array.isArray(photo)) continue;
-        if (!(typeof photo.id === 'string' || typeof photo.id === 'number' && Number.isFinite(photo.id))) continue;
-        if (photo.day === null || photo.day === undefined || !photo.role) continue;
-        if (typeof photo.day !== 'string' && typeof photo.day !== 'number' || typeof photo.role !== 'string') continue;
+        if (!validPhotoId(photo.id) || !validPhotoCoordinates(photo.day, photo.role)) continue;
         const url = safeExternalUrl(photo.url);
         if (!url) continue;
-        const key = photoCacheKey(photo.day, photo.role);
+        const key = photoCacheKey(Number(photo.day), photo.role);
         (cache[key] ||= []).push({ id: photo.id, url });
     }
     return cache;
 }
 
 export function appendPhoto(cache, day, role, photo) {
+    if (!validPhotoCoordinates(day, role) || !photo || !validPhotoId(photo.id)) return cache || {};
     const url = safeExternalUrl(photo.url);
     if (!url) return cache || {};
     const current = cache || {};
-    const key = photoCacheKey(day, role);
+    const key = photoCacheKey(Number(day), role);
     return { ...current, [key]: [...(current[key] || []), { id: photo.id, url }] };
 }
 

@@ -139,6 +139,7 @@ test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
   assert.match(osbbHtml, /data-staff-pin-delete/u);
   assertIncludes(osbbApp, "db.rpc('list_osbb_staff', {})", 'staff list must load through RPC');
   assertIncludes(osbbApp, 'staffLoginList = parseStaffList(list);', 'staff list must pass parser boundary');
+  assertIncludes(osbbApp, 'renderStaffSettings(parseStaffSettingsList(rows));', 'staff settings must pass parser boundary');
   assertIncludes(osbbApp, "db.rpc('verify_staff_pin', { p_staff_id: staffLoginSelected.id, attempt })", 'staff PIN must verify on server');
   assertIncludes(osbbApp, 'parseStaffSession({', 'verified staff session must pass parser boundary');
 });

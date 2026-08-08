@@ -41,6 +41,17 @@ test('buildPhotoCache безпечно обробляє malformed-відпові
   ]), { '1-dispatcher': [{ id: 5, url: 'https://example.com/good.jpg' }] });
 });
 
+test('photo boundary rejects prototype keys, unknown roles and attribute IDs', () => {
+  assert.deepEqual(buildPhotoCache([
+    { id: '\" onclick=alert(1)', url: 'https://example.com/bad.jpg', day: 1, role: 'dispatcher' },
+    { id: 'prototype', url: 'https://example.com/bad.jpg', day: 1, role: '__proto__' },
+    { id: 'day', url: 'https://example.com/bad.jpg', day: 32, role: 'dispatcher' },
+    { id: 'safe_id', url: 'https://example.com/good.jpg', day: '2', role: 'dispatcher' },
+  ]), { '2-dispatcher': [{ id: 'safe_id', url: 'https://example.com/good.jpg' }] });
+  assert.equal(photoIdFromInsertResponse([{ id: '\" onfocus=alert(1)' }], 100), 100);
+  assert.deepEqual(appendPhoto({}, 1, '__proto__', { id: 'safe', url: 'https://example.com/x.jpg' }), {});
+});
+
 test('appendPhoto та removePhoto оновлюють кеш без мутації', () => {
   const original = buildPhotoCache(records);
   const appended = appendPhoto(original, 3, 'dispatcher', { id: 5, url: 'https://example.com/three.jpg' });

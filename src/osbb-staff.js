@@ -24,13 +24,26 @@ export function parseStaffSession(value) {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
     const validId = typeof value.id === 'string' && value.id.trim() !== ''
         || typeof value.id === 'number' && Number.isFinite(value.id);
-    if (!validId || typeof value.name !== 'string' || value.name.trim() === '') return null;
+    const name = typeof value.name === 'string' ? value.name.trim() : '';
+    const id = typeof value.id === 'string' ? value.id.trim() : value.id;
+    if (!validId || String(id).length > 100 || !name || name.length > 100) return null;
     if (typeof value.role !== 'string' || !STAFF_ROLES.includes(value.role)) return null;
     return {
-        id: typeof value.id === 'string' ? value.id.trim() : value.id,
-        name: value.name.trim(),
+        id,
+        name,
         role: value.role,
     };
+}
+
+export function parseStaffSettingsList(value) {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((entry) => {
+        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
+        const session = parseStaffSession({ id: entry.id, name: entry.full_name, role: entry.role });
+        return session && typeof entry.active === 'boolean'
+            ? [{ id: session.id, full_name: session.name, role: session.role, active: entry.active }]
+            : [];
+    });
 }
 
 export function parseStaffList(value) {
