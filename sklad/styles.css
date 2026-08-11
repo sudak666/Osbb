@@ -670,6 +670,14 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .sidebar:is(:hover,:focus-within) .sb-bottom{display:block!important;}
   .sidebar:is(:hover,:focus-within) .ni{width:calc(100% - 16px);justify-content:flex-start;padding-inline:14px;margin-inline:8px;}
   .sidebar:is(:hover,:focus-within) .ni-badge{position:static;min-width:0;max-width:none;height:auto;margin-left:auto;padding:2px 7px;font-size:10px;}
+  .sidebar.is-hovered{width:var(--sb);}
+  .sidebar.is-hovered + .main{margin-left:var(--sb);}
+  .sidebar.is-hovered .nav-label,
+  .sidebar.is-hovered .sb-logo h1,
+  .sidebar.is-hovered .sb-logo p,
+  .sidebar.is-hovered .sb-bottom{display:block!important;}
+  .sidebar.is-hovered .ni{width:calc(100% - 16px);justify-content:flex-start;padding-inline:14px;margin-inline:8px;}
+  .sidebar.is-hovered .ni-badge{position:static;min-width:0;max-width:none;height:auto;margin-left:auto;padding:2px 7px;font-size:10px;}
 }
 
 /* ===MOBILE === */
