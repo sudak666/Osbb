@@ -386,6 +386,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .garbage-type-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
 .garbage-type-card { display:flex; flex-direction:column; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); overflow:hidden; transition:border-color var(--motion-fast),background var(--motion-fast); }
 .garbage-type-card:has(.garbage-type-input:checked) { border-color:var(--md-sys-color-primary,var(--accent)); background:var(--md-sys-color-primary-container,color-mix(in srgb,var(--accent) 12%,var(--bg-card))); }
+.garbage-type-input { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .garbage-type-select { position:relative; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:10px; min-height:78px; padding:12px; cursor:pointer; overflow:hidden; }
 .garbage-type-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:var(--md-sys-shape-corner-medium,12px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:21px; }
 .garbage-type-input:checked ~ .garbage-type-icon { background:var(--md-sys-color-primary,var(--accent)); color:var(--md-sys-color-on-primary,#fff); }

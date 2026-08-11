@@ -1384,7 +1384,22 @@ function normalizeSkladFieldMetadata(root=document){
 }
 normalizeSkladFieldMetadata();
 
+function initSidebarHoverGrace(){
+  const sidebar=document.querySelector('.sidebar');
+  if(!sidebar || !window.matchMedia('(min-width: 769px) and (hover: hover)').matches) return;
+  let leaveTimer=0;
+  sidebar.addEventListener('pointerenter',()=>{
+    window.clearTimeout(leaveTimer);
+    sidebar.classList.add('is-hovered');
+  });
+  sidebar.addEventListener('pointerleave',()=>{
+    window.clearTimeout(leaveTimer);
+    leaveTimer=window.setTimeout(()=>sidebar.classList.remove('is-hovered'),180);
+  });
+}
+
 // ===== INIT =====
+initSidebarHoverGrace();
 document.getElementById('issueDateI').value=new Date().toISOString().slice(0,10);
 document.getElementById('refillDateI').value=new Date().toISOString().slice(0,10);
 ['issueItemSel','refillSel','newCat','editItemCategory','manualPriceItemSel','valueCatFilter','valueStockFilter','valueInternalFilter','valuePriceFilter'].forEach(id=>enhanceSelect(document.getElementById(id)));
