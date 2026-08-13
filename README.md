@@ -65,8 +65,9 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 19. `019_staff_login_settings.sql` — керування персональним PIN-входом.
 20. `020_allow_board_manage_staff_access.sql` — дозволяє правлінню керувати доступом працівників.
 21. `021_repair_supplier_tags.sql` — безпечно відновлює теги постачальників, права, RLS і Realtime.
+22. `022_add_attendance_breaks.sql` — додає початок/кінець обіду до Табеля, серверну валідацію часу та сумісність зі старими записами приходу/відходу.
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `021_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `022_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
 
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
