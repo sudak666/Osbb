@@ -119,4 +119,7 @@ test('dispatcher tab remains available before staff login but own tickets requir
   assert.equal(isTabAllowedForSession('my-tickets', null), false);
   assert.equal(isTabAllowedForSession('my-tickets', session('board')), true);
   assert.equal(isTabAllowedForSession('garbage', session('dispatcher')), true);
+  assert.equal(isTabAllowedForSession('completed-work', session('board')), true);
+  assert.equal(isTabAllowedForSession('completed-work', session('plumber')), false);
+  assert.equal(isTabAllowedForSession('completed-work', null), false);
 });

@@ -51,6 +51,8 @@ function readOsbbCombined() {
     'src/shell-state.ts',
     'src/osbb-attendance.ts',
     'src/osbb-attendance-controller.js',
+    'src/osbb-completed-work.ts',
+    'src/osbb-completed-work-controller.js',
     'src/osbb-client-state.ts',
     'src/osbb-dispatcher.ts',
     'src/osbb-dispatcher-controller.js',

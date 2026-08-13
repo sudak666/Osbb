@@ -28,6 +28,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="/Osbb/shared/enhance-select.js"></script>
+    <script src="/Osbb/shared/enhance-date.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap&subset=cyrillic" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -266,6 +267,9 @@
             <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="tab-btn md-state-layer active">
                 <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Диспетчер
             </button>
+            <button type="button" data-osbb-tab="completed-work" id="tab-completed-work" role="tab" aria-selected="false" aria-controls="section-completed-work" class="tab-btn md-state-layer">
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">task_alt</span> Виконані роботи
+            </button>
             <button type="button" data-osbb-tab="garbage" id="tab-garbage" role="tab" aria-selected="false" aria-controls="section-garbage" class="tab-btn md-state-layer">
                 <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span> Сміття
             </button>
@@ -287,6 +291,9 @@
         <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="mob-tab md-state-layer mob-active">
             <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Диспетчер
         </button>
+        <button type="button" data-osbb-tab="completed-work" id="tab-completed-work-m" role="tab" aria-selected="false" aria-controls="section-completed-work" class="mob-tab md-state-layer">
+            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">task_alt</span> Роботи
+        </button>
         <button type="button" data-osbb-tab="garbage" id="tab-garbage-m" role="tab" aria-selected="false" aria-controls="section-garbage" class="mob-tab md-state-layer">
             <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span> Сміття
         </button>
@@ -300,6 +307,28 @@
             <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span> Мої заявки
         </button>
     </div>
+
+    <section id="section-completed-work" class="hidden mb-6" role="tabpanel" aria-labelledby="tab-completed-work">
+        <div class="journal-panel completed-work-shell">
+            <div class="journal-list-head">
+                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">task_alt</span>Виконані роботи</span>
+                <span id="completed-work-status" class="journal-status-chip" role="status" aria-live="polite">Готово</span>
+            </div>
+            <form id="completed-work-form" class="completed-work-form">
+                <input type="hidden" id="completed-work-id">
+                <label><span>Дата</span><input id="completed-work-date" type="text" inputmode="numeric" placeholder="РРРР-ММ-ДД" autocomplete="off" required></label>
+                <label><span>Виконавець</span><select id="completed-work-role" required><option value="electrician">Електрик</option><option value="janitor">Двірник</option><option value="plumber">Сантехнік</option></select></label>
+                <label class="is-wide"><span>Що зроблено</span><textarea id="completed-work-description" class="journal-textarea" maxlength="1000" required placeholder="Наприклад: замінив лампу, 3 поверх, 1 секція"></textarea></label>
+                <label class="is-wide"><span>Примітка <small>необов’язково</small></span><input id="completed-work-note" type="text" maxlength="500" placeholder="Додаткові деталі"></label>
+                <div class="completed-work-form-actions is-wide"><button type="button" class="journal-tonal-btn md-state-layer hidden" id="completed-work-cancel">Скасувати</button><button type="submit" class="journal-action-btn md-state-layer"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span><span id="completed-work-submit-label">Зберегти роботу</span></button></div>
+            </form>
+            <div class="completed-work-toolbar">
+                <label class="dispatcher-search-wrap"><span class="material-symbols-rounded" aria-hidden="true">search</span><input id="completed-work-search" type="search" placeholder="Пошук у роботах" aria-label="Пошук у виконаних роботах" class="dispatcher-search-input"></label>
+                <label><span class="sr-only">Фільтр за виконавцем</span><select id="completed-work-filter"><option value="all">Усі виконавці</option><option value="electrician">Електрик</option><option value="janitor">Двірник</option><option value="plumber">Сантехнік</option></select></label>
+            </div>
+            <div id="completed-work-list" class="completed-work-list" aria-live="polite"></div>
+        </div>
+    </section>
 
     <section id="section-shifts" class="hidden mb-6" role="tabpanel" aria-labelledby="tab-shifts">
         <div class="shift-shell">

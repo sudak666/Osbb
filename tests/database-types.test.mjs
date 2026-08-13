@@ -24,12 +24,13 @@ test('database types include critical security-definer RPC contracts', () => {
 });
 
 test('database types model current OSBB staff, attendance and elevator tables', () => {
-  for (const table of ['osbb_staff', 'osbb_staff_pin_attempts', 'osbb_attendance', 'elevator_visits']) {
+  for (const table of ['osbb_staff', 'osbb_staff_pin_attempts', 'osbb_attendance', 'elevator_visits', 'completed_work']) {
     assert.match(source, new RegExp(`${table}: RowOperation<\\{`));
   }
   assert.match(source, /export type OsbbStaffRole = 'plumber' \| 'janitor' \| 'electrician' \| 'dispatcher' \| 'admin' \| 'board';/);
   assert.match(source, /save_attendance_day: \{[\s\S]*p_role: Extract<OsbbStaffRole, 'plumber' \| 'janitor' \| 'electrician'>;/);
   assert.match(source, /save_attendance_day: \{[\s\S]*p_break_start: string;[\s\S]*p_break_end: string;/);
+  assert.match(source, /save_completed_work: \{[\s\S]*delete_completed_work: \{/);
 });
 
 test('Supabase REST transport exposes typed table and RPC boundaries', () => {
