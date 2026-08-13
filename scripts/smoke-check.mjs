@@ -857,19 +857,21 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// The first visual redesign pass should make the Sklad items page feel like a
-// deliberate workflow rather than a loose stack of controls.
+// The compact Sklad items page keeps primary operations visible while moving
+// secondary filters into one outlined disclosure.
 {
   const text = readSkladCombined();
-  const label = 'sklad items screen exposes redesigned hero and filter layout';
+  const label = 'sklad items screen exposes compact inventory workflow';
   const required = [
-    'class="items-hero"',
-    'class="items-hero-kicker"',
+    'class="inventory-overview"',
+    'class="inventory-overview" aria-label="Огляд запасів"',
     'class="items-hero-actions"',
-    'class="items-quick-note"',
+    '<span class="btn-label">Додати / поповнити</span>',
     'class="g4 items-metrics insight-grid inventory-summary"',
     'class="items-filter-bar"',
-    'class="items-filter-row items-search-row"',
+    'class="items-filter-primary-row"',
+    'class="inventory-filters"',
+    'class="inventory-filters-panel"',
     'class="pill items-filter-pill is-success"',
     'class="pill items-filter-pill is-warning"',
     'class="sw items-search-field"',
@@ -880,6 +882,8 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '@media(max-width:1180px)',
     '.items-filter-pill{position:relative;display:inline-grid;',
     '.items-search-field{width:250px;',
+    '.inventory-overview{display:flex;',
+    '.inventory-filters-panel{position:absolute;',
     '.insight-grid .stat-card',
     '.table-modern tbody tr:hover',
   ];
@@ -2076,7 +2080,8 @@ for (const file of ['index.html', 'osbb/index.html']) {
     "target.append(icon,document.createTextNode(title.label));",
     '<nav class="bottom-nav" id="bottomNav" aria-label="Мобільні розділи складу">',
     'data-page="items" aria-current="page" aria-label="Запаси"',
-    'data-page="add" aria-label="Додати або поповнити"',
+    'data-page="log" aria-label="Рух товарів"',
+    'data-page="stats" aria-label="Інші функції складу"',
     'class="ms" aria-hidden="true">fact_check</span>',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
@@ -3385,7 +3390,7 @@ ${sharedSelectText}`;
   const required = [
     'class="btn btn-primary btn-sm items-hero-action"',
     'class="ms hero-action-icon" aria-hidden="true">output</span><span class="btn-label">Видати</span>',
-    'class="ms hero-action-icon" aria-hidden="true">add_circle</span><span class="btn-label">Поповнити</span>',
+    'class="ms hero-action-icon" aria-hidden="true">add_circle</span><span class="btn-label">Додати / поповнити</span>',
     '.items-hero-action{position:relative;display:inline-grid;place-items:center;min-width:116px;',
     '.hero-action-icon{position:absolute;left:14px;top:50%;width:18px;height:18px;',
     'line-height:1.2;text-align:center;vertical-align:middle;',
@@ -3566,9 +3571,10 @@ ${sharedSelectText}`;
   const text = readSkladCombined();
   const label = 'sklad desktop navigation uses native Material 3 buttons';
   const required = [
-    '<button type="button" class="ni active" data-page="items" aria-current="page">',
-    '<button type="button" class="ni" data-page="issue">',
-    '<button type="button" class="ni" data-page="stats">',
+    '<button type="button" class="ni active" data-page="items" aria-current="page" aria-label="Запаси">',
+    '<button type="button" class="ni" data-page="log" aria-label="Рух товарів">',
+    '<button type="button" class="ni" data-page="audit" aria-label="Інвентаризація">',
+    '<button type="button" class="ni" data-page="stats" aria-label="Інші функції складу">',
     '.ni{display:flex;width:calc(100% - 16px);align-items:center;',
     'font:inherit;font-size:14px;font-weight:500;line-height:1.2;text-align:left;',
     "n.setAttribute('aria-current','page')",

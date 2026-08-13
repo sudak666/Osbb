@@ -39,7 +39,7 @@ const catIconName={'Прибирання':'cleaning_services','Ремонт':'bu
 const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
-const pageTitles={items:{icon:'inventory_2',label:'Майно та матеріали'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'receipt_long',label:'Журнал видач'},add:{icon:'add_circle',label:'Додати / Поповнити'},receipts:{icon:'move_to_inbox',label:'Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
+const pageTitles={items:{icon:'inventory_2',label:'Запаси'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'swap_vert',label:'Рух · Видачі'},add:{icon:'add_circle',label:'Додати / поповнити'},receipts:{icon:'swap_vert',label:'Рух · Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'more_horiz',label:'Ще'}};
 let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);
 function disablePurchasePriceRpc(){
   purchasePriceRpcAvailable=false;
@@ -210,6 +210,7 @@ function nav(page,el){
   document.querySelectorAll('.ni,.bn-item').forEach(n=>{n.classList.remove('active');n.removeAttribute('aria-current');});
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.ni[data-page='+page+'],.bn-item[data-page='+page+']').forEach(n=>{n.classList.add('active');n.setAttribute('aria-current','page');});
+  if(page==='receipts') document.querySelectorAll('.ni[data-page="log"],.bn-item[data-page="log"]').forEach(n=>{n.classList.add('active');n.setAttribute('aria-current','page');});
   setPageTitle(page);
   if(page==='issue'){populateSels();loadRecentIssues();}
   if(page==='log'){loadLogs();}
