@@ -13,6 +13,7 @@ const fallbackPairs = [
   ['src/osbb-client-state.ts', 'src/osbb-client-state.js'],
   ['src/osbb-attendance.ts', 'src/osbb-attendance.js'],
   ['src/osbb-attendance-controller.ts', 'src/osbb-attendance-controller.js'],
+  ['src/osbb-completed-work.ts', 'src/osbb-completed-work.js'],
   ['src/osbb-dispatcher.ts', 'src/osbb-dispatcher.js'],
   ['src/osbb-dispatcher-controller.ts', 'src/osbb-dispatcher-controller.js'],
   ['src/osbb-elevator.ts', 'src/osbb-elevator.js'],

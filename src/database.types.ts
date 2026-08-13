@@ -166,6 +166,16 @@ export interface Database {
                 data: Json;
                 updated_at: Timestamp;
             }>;
+            completed_work: RowOperation<{
+                id: Uuid;
+                work_date: string;
+                worker_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'>;
+                description: string;
+                note: string | null;
+                created_by: Uuid | null;
+                created_at: Timestamp;
+                updated_at: Timestamp;
+            }>;
             osbb_telegram_config: RowOperation<{
                 id: number;
                 chat_id: string;
@@ -213,6 +223,14 @@ export interface Database {
                     p_staff_id: Uuid;
                     attempt: string;
                 };
+                Returns: boolean;
+            };
+            save_completed_work: {
+                Args: { p_id: Uuid | null; p_work_date: string; p_worker_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'>; p_description: string; p_note: string; p_staff_id: Uuid; attempt: string };
+                Returns: Uuid | null;
+            };
+            delete_completed_work: {
+                Args: { p_id: Uuid; p_staff_id: Uuid; attempt: string };
                 Returns: boolean;
             };
             reset_month: {

@@ -130,6 +130,7 @@ export function canManageStaffAccess(session: StaffSession | null | undefined): 
 
 export function isTabAllowedForSession(tab: string, session: StaffSession | null | undefined): boolean {
     if (isWorkerSession(session)) return WORKER_ALLOWED_TABS.includes(tab);
+    if (tab === 'completed-work') return isDispatcherSession(session);
     if (tab === 'my-tickets') return isDispatcherSession(session);
     if (tab === 'dispatcher') return isDispatcherSession(session) || !session;
     return true;

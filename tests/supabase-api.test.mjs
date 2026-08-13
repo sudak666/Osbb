@@ -93,6 +93,13 @@ test('createSupabaseRestClient виконує select-фільтри й пове�
   assert.equal(calls[0].init.headers.apikey, 'test-key');
 });
 
+test('createSupabaseRestClient обмежує записи діапазоном дат', async () => {
+  const calls = [];
+  const client = createSupabaseRestClient({ supabaseUrl:'https://example.supabase.co', fetcher:async (url,init)=>{calls.push({url,init});return {ok:true,status:200,statusText:'OK',text:async()=> '[]'};} });
+  await client.from('completed_work').select('id,work_date').gte('work_date','2026-08-01').lte('work_date','2026-08-31');
+  assert.equal(calls[0].url,'https://example.supabase.co/rest/v1/completed_work?work_date=gte.2026-08-01&work_date=lte.2026-08-31&select=id,work_date');
+});
+
 test('createSupabaseRestClient підтримує maybeSingle для необовʼязкових налаштувань', async () => {
   const client = createSupabaseRestClient({
     fetcher: async () => ({ ok: true, status: 200, statusText: 'OK', text: async () => '[]' }),

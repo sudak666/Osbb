@@ -12,6 +12,7 @@
     import { createOsbbGarbageController } from './osbb-garbage-controller.js';
     import { createOsbbDispatcherController } from './osbb-dispatcher-controller.js';
     import { createOsbbElevatorController } from './osbb-elevator-controller.js';
+    import { createOsbbCompletedWorkController } from './osbb-completed-work-controller.js';
     import { createOsbbRuntimeController } from './osbb-runtime-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
@@ -55,6 +56,7 @@
         ticketSortComparator,
     } from './osbb-tickets.js';
     import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
+    import { filterCompletedWork } from './osbb-completed-work.js';
 
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
@@ -355,6 +357,9 @@
     enhanceSelect(yearSelect);
     enhanceSelect(monthSelect);
     enhanceSelect(document.querySelector('[data-disp-worker-filter]'));
+    enhanceSelect(document.getElementById('completed-work-role'));
+    enhanceSelect(document.getElementById('completed-work-filter'));
+    window.enhanceDateInput?.(document.getElementById('completed-work-date'));
 
     function stepMonth(dir) {
         const next = shiftCalendarMonth(parseInt(yearSelect.value), parseInt(monthSelect.value), dir, 2025, 2030);
@@ -379,7 +384,7 @@
         document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
-    const ALL_TABS = ['garbage','dispatcher','shifts','tabel','my-tickets'];
+    const ALL_TABS = ['garbage','dispatcher','completed-work','shifts','tabel','my-tickets'];
 
     function requestTab(tab) {
         return runtimeController.requestTab(tab);
@@ -2209,6 +2214,69 @@
     };
 
     // ============================================================
+    // ВИКОНАНІ РОБОТИ — окремий факт виконання, без Jira та складу
+    // ============================================================
+    const completedWorkRoleLabels = { electrician:'Електрик', janitor:'Двірник', plumber:'Сантехнік' };
+    const completedWorkStatus = type => {
+        const el = document.getElementById('completed-work-status'); if (!el) return;
+        const states = { loading:['is-loading','Синхронізація…'], ok:['is-ok','Синхронізовано'], error:['is-error','Помилка'] };
+        const [className,label] = states[type] || states.ok; el.className = `journal-status-chip ${className}`; el.textContent = label;
+    };
+    function completedWorkMonthEntries(entries) {
+        const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-`;
+        return entries.filter(entry => entry.workDate.startsWith(prefix));
+    }
+    function completedWorkRender(entries = completedWorkController.getEntries()) {
+        const list = document.getElementById('completed-work-list'); if (!list) return;
+        const filtered = filterCompletedWork(completedWorkMonthEntries(entries), document.getElementById('completed-work-search')?.value, document.getElementById('completed-work-filter')?.value || 'all');
+        if (!filtered.length) { list.innerHTML = '<div class="completed-work-empty"><span class="material-symbols-rounded" aria-hidden="true">task_alt</span><p>За цей місяць записів немає</p></div>'; return; }
+        list.innerHTML = filtered.map(entry => `<article class="completed-work-card" data-completed-work-id="${escapeAttr(entry.id)}">
+            <div class="completed-work-meta"><strong>${escapeHtml(new Date(`${entry.workDate}T00:00:00`).toLocaleDateString('uk-UA',{day:'2-digit',month:'short'}))}</strong><span>${escapeHtml(completedWorkRoleLabels[entry.workerRole])}</span></div>
+            <div class="completed-work-copy"><h3>${escapeHtml(entry.description)}</h3>${entry.note ? `<p>${escapeHtml(entry.note)}</p>` : ''}</div>
+            <div class="completed-work-card-actions"><button type="button" class="journal-icon-btn md-state-layer" data-completed-work-action="edit" data-tip="Редагувати" aria-label="Редагувати запис"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button><button type="button" class="journal-icon-btn md-state-layer" data-completed-work-action="delete" data-tip="Видалити" aria-label="Видалити запис"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button></div>
+        </article>`).join('');
+    }
+    const completedWorkController = createOsbbCompletedWorkController({
+        loadRows:()=>{ const first=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-01`; const last=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(calendarMonthDays(currentYear,currentMonth)).padStart(2,'0')}`; return db.from('completed_work').select('id,work_date,worker_role,description,note').gte('work_date',first).lte('work_date',last).order('work_date',{ascending:false}); },
+        saveRow:args=>db.rpc('save_completed_work',args), deleteRow:args=>db.rpc('delete_completed_work',args),
+        getSession:()=>staffSession, getPin:()=>staffPinCache, clearPin:()=>{staffPinCache=null;}, requestReauth:requestStaffReauth,
+        render:completedWorkRender, setStatus:completedWorkStatus, showToast,
+    });
+    const completedWorkInitTab = () => completedWorkController.load();
+    function completedWorkResetForm() {
+        document.getElementById('completed-work-form')?.reset();
+        document.getElementById('completed-work-id').value = '';
+        const selectedMonth = currentYear === todayYear && currentMonth === todayMonth ? todayDay : 1;
+        document.getElementById('completed-work-date').value = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(selectedMonth).padStart(2,'0')}`;
+        document.getElementById('completed-work-submit-label').textContent = 'Зберегти роботу';
+        document.getElementById('completed-work-cancel').classList.add('hidden');
+        refreshEnhancedSelect(document.getElementById('completed-work-role'));
+    }
+    function bindCompletedWorkActions() {
+        const form = document.getElementById('completed-work-form'); if (!form) return;
+        completedWorkResetForm();
+        form.addEventListener('submit', async event => { event.preventDefault(); const saved = await completedWorkController.save({
+            id:document.getElementById('completed-work-id').value || null, workDate:document.getElementById('completed-work-date').value,
+            workerRole:document.getElementById('completed-work-role').value, description:document.getElementById('completed-work-description').value, note:document.getElementById('completed-work-note').value,
+        }); if (saved) { completedWorkResetForm(); showToast('Роботу збережено'); } });
+        document.getElementById('completed-work-cancel').addEventListener('click', completedWorkResetForm);
+        document.getElementById('completed-work-search').addEventListener('input',()=>completedWorkRender());
+        document.getElementById('completed-work-filter').addEventListener('change',()=>completedWorkRender());
+        document.getElementById('completed-work-list').addEventListener('click', async event => {
+            const action = event.target.closest('[data-completed-work-action]'); if (!action) return;
+            const card = action.closest('[data-completed-work-id]'); const entry = completedWorkController.getEntries().find(item=>item.id===card?.dataset.completedWorkId); if (!entry) return;
+            if (action.dataset.completedWorkAction === 'delete') {
+                if (action.dataset.confirmDelete !== '1') { action.dataset.confirmDelete='1'; action.setAttribute('aria-label','Підтвердити видалення'); action.innerHTML='<span class="material-symbols-rounded" aria-hidden="true">delete_forever</span>'; showToast('Натисніть видалити ще раз для підтвердження'); setTimeout(()=>{ if(action.isConnected){delete action.dataset.confirmDelete;action.setAttribute('aria-label','Видалити запис');action.innerHTML='<span class="material-symbols-rounded" aria-hidden="true">delete</span>';} },4000); return; }
+                await completedWorkController.remove(entry.id); return;
+            }
+            document.getElementById('completed-work-id').value=entry.id; document.getElementById('completed-work-date').value=entry.workDate;
+            document.getElementById('completed-work-role').value=entry.workerRole; refreshEnhancedSelect(document.getElementById('completed-work-role'));
+            document.getElementById('completed-work-description').value=entry.description; document.getElementById('completed-work-note').value=entry.note;
+            document.getElementById('completed-work-submit-label').textContent='Зберегти зміни'; document.getElementById('completed-work-cancel').classList.remove('hidden'); form.scrollIntoView({behavior:'smooth',block:'start'});
+        });
+    }
+
+    // ============================================================
     // ONLINE / OFFLINE ІНДИКАТОР
     // ============================================================
     function updateNetworkBadge() {
@@ -2251,13 +2319,14 @@
         onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;}, onTabChanged:tab=>{currentTab=tab;},
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
         loadDashboard:gInitDashboard,
-        loaders:{garbage:gInitTab,dispatcher:async()=>{await dispInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
+        loaders:{garbage:gInitTab,dispatcher:async()=>{await dispInitTab();await elevatorInitTab();},'completed-work':completedWorkInitTab,shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
         setSyncStatus:type=>setSyncStatus(type,type==='loading'?'<span class="status-label">Завантаження...</span>':'<span class="status-label">Синхронізовано</span>'),
         createRealtimeClient:typeof supabase==='undefined'?null:()=>supabase.createClient(SUPABASE_URL,SUPABASE_KEY),
         subscriptions:[
             {tab:'garbage',filter:{event:'*',schema:'public',table:'garbage'},load:gInitTab},
             {tab:'dispatcher',filter:{event:'*',schema:'public',table:'dispatcher'},load:dispInitTab},
             {tab:'dispatcher',filter:{event:'*',schema:'public',table:'elevator_visits'},load:elevatorInitTab},
+            {tab:'completed-work',filter:{event:'*',schema:'public',table:'completed_work'},load:completedWorkInitTab},
             {tab:'shifts',filter:{event:'*',schema:'public',table:'work_shifts'},load:shiftLoadMonth},
             {tab:'shifts',filter:{event:'*',schema:'public',table:'work_shift_settings'},load:shiftLoadSettings},
         ], showToast, onlineIcon:TOAST_ICON_CHECK, offlineIcon:TOAST_ICON_WARN,
@@ -2267,6 +2336,7 @@
     bindOsbbPhotoActions();
     bindGarbageEntryActions();
     bindDispatcherEntryActions();
+    bindCompletedWorkActions();
     bindDayDetailSwipe();
     setTab(currentTab, { load: false });
     initCalendar();

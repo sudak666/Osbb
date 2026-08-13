@@ -80,6 +80,8 @@ export function createSupabaseRestClient(options = {}) {
         const query = {
             select(columns = '*') { state.columns = columns; return query; },
             eq(column, value) { state.filters.push(`${column}=eq.${encodeURIComponent(String(value))}`); return query; },
+            gte(column, value) { state.filters.push(`${column}=gte.${encodeURIComponent(String(value))}`); return query; },
+            lte(column, value) { state.filters.push(`${column}=lte.${encodeURIComponent(String(value))}`); return query; },
             order(column, settings) { state.filters.push(`order=${column}.${settings?.ascending === false ? 'desc' : 'asc'}`); return query; },
             limit(value) { state.filters.push(`limit=${value}`); return query; },
             single() { state.isSingle = true; return query; },

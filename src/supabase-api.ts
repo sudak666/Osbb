@@ -32,6 +32,8 @@ export interface RestResult<T> {
 export interface RestQuery<Row, Insert, Update, Result = Row[]> extends PromiseLike<RestResult<Result>> {
     select(columns?: string): RestQuery<Row, Insert, Update, Result>;
     eq(column: keyof Row & string, value: unknown): RestQuery<Row, Insert, Update, Result>;
+    gte(column: keyof Row & string, value: unknown): RestQuery<Row, Insert, Update, Result>;
+    lte(column: keyof Row & string, value: unknown): RestQuery<Row, Insert, Update, Result>;
     order(column: keyof Row & string, settings?: { ascending?: boolean }): RestQuery<Row, Insert, Update, Result>;
     limit(value: number): RestQuery<Row, Insert, Update, Result>;
     single(): RestQuery<Row, Insert, Update, Row | null>;
@@ -161,6 +163,8 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
         const query = {
             select(columns = '*') { state.columns = columns; return query; },
             eq(column: string, value: unknown) { state.filters.push(`${column}=eq.${encodeURIComponent(String(value))}`); return query; },
+            gte(column: string, value: unknown) { state.filters.push(`${column}=gte.${encodeURIComponent(String(value))}`); return query; },
+            lte(column: string, value: unknown) { state.filters.push(`${column}=lte.${encodeURIComponent(String(value))}`); return query; },
             order(column: string, settings?: { ascending?: boolean }) { state.filters.push(`order=${column}.${settings?.ascending === false ? 'desc' : 'asc'}`); return query; },
             limit(value: number) { state.filters.push(`limit=${value}`); return query; },
             single() { state.isSingle = true; return query; },
