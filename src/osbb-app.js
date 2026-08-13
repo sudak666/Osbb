@@ -532,8 +532,8 @@
         return attendanceController.dayState(d, visibleRoles);
     }
 
-    async function attSaveDay(d, role, checkIn, checkOut) {
-        return attendanceController.saveDay(d, role, checkIn, checkOut);
+    async function attSaveDay(d, role, cell) {
+        return attendanceController.saveDay(d, role, cell);
     }
 
     function attRenderStats() {
@@ -577,23 +577,32 @@
                 const cellState = attCellState(cell);
                 if (editable) {
                     html += `<td class="is-${role} ${cellState}" data-att-cell="${d}-${role}">
-                        <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
-                        <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                        <div class="att-table-times">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Відхід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід з" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Початок обіду ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід до" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Кінець обіду ${roleNames[role]} ${d}">
+                        </div>
                     </td>`;
                     mobileRolesHtml += `<div class="att-mobile-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
                         <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
+                        <label><span>Обід з</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Початок обіду ${roleNames[role]} ${d}"></label>
+                        <label><span>Обід до</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Кінець обіду ${roleNames[role]} ${d}"></label>
                     </div>`;
                     calendarRolesHtml += `<div class="att-calendar-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <div class="att-calendar-times">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Відхід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід з" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Початок обіду ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід до" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Кінець обіду ${roleNames[role]} ${d}">
                         </div>
                     </div>`;
                 } else {
-                    const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}` : '—';
+                    const breakText = cell.breakStart || cell.breakEnd ? ` · обід ${cell.breakStart || '—'}–${cell.breakEnd || '—'}` : '';
+                    const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}${breakText}` : '—';
                     html += `<td class="is-${role} att-readonly ${cellState}" data-att-cell="${d}-${role}">${text}</td>`;
                     mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
@@ -624,7 +633,7 @@
                     const d = input.dataset.attDay, role = input.dataset.attRole;
                     const rowCell = attGetCell(d, role);
                     const next = { ...rowCell, [input.dataset.attField]: input.value };
-                    attSaveDay(d, role, next.checkIn, next.checkOut);
+                    attSaveDay(d, role, next);
                 });
             });
         }

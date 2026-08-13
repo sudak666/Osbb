@@ -20,7 +20,7 @@ test('attendance controller loads cloud month and persists the established offli
   const source = { 8:{ plumber:{ checkIn:'08:00', checkOut:'17:00' } } };
   const { controller, values, status } = fixture({ loadCloud: async key => { assert.equal(key, '2026-08'); return { data:{ data:source }, error:null }; } });
   await controller.init();
-  assert.deepEqual(controller.getCell(8, 'plumber'), source[8].plumber);
+  assert.deepEqual(controller.getCell(8, 'plumber'), { checkIn:'08:00', breakStart:undefined, breakEnd:undefined, checkOut:'17:00' });
   assert.ok(values.has('att_2026_7'));
   assert.match(status.innerHTML, /Синхронізовано/);
 });
@@ -28,7 +28,16 @@ test('attendance controller loads cloud month and persists the established offli
 test('attendance controller reauthenticates and saves through guarded RPC boundary', async () => {
   let pin = null; let reauths = 0; let payload = null;
   const { controller } = fixture({ getPin: () => pin, requestReauth: async () => { reauths++; pin = '9876'; return true; }, saveCloud: async args => { payload = args; return true; } });
-  await controller.saveDay(5, 'janitor', '07:30', '16:00');
+  await controller.saveDay(5, 'janitor', { checkIn:'07:30', breakStart:'12:00', breakEnd:'12:30', checkOut:'16:00' });
   assert.equal(reauths, 1);
-  assert.deepEqual(payload, { p_month_key:'2026-08', p_day:5, p_role:'janitor', p_check_in:'07:30', p_check_out:'16:00', p_staff_id:'staff-1', attempt:'9876' });
+  assert.deepEqual(payload, { p_month_key:'2026-08', p_day:5, p_role:'janitor', p_check_in:'07:30', p_break_start:'12:00', p_break_end:'12:30', p_check_out:'16:00', p_staff_id:'staff-1', attempt:'9876' });
+});
+
+test('attendance controller rejects lunch outside the shift before persistence', async () => {
+  let saves = 0;
+  const { controller, values } = fixture({ saveCloud: async () => { saves++; return true; } });
+  const saved = await controller.saveDay(5, 'janitor', { checkIn:'07:30', breakStart:'17:00', breakEnd:'17:30', checkOut:'16:00' });
+  assert.equal(saved, false);
+  assert.equal(saves, 0);
+  assert.equal(values.has('att_2026_7'), false);
 });

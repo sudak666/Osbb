@@ -29,6 +29,7 @@ test('database types model current OSBB staff, attendance and elevator tables', 
   }
   assert.match(source, /export type OsbbStaffRole = 'plumber' \| 'janitor' \| 'electrician' \| 'dispatcher' \| 'admin' \| 'board';/);
   assert.match(source, /save_attendance_day: \{[\s\S]*p_role: Extract<OsbbStaffRole, 'plumber' \| 'janitor' \| 'electrician'>;/);
+  assert.match(source, /save_attendance_day: \{[\s\S]*p_break_start: string;[\s\S]*p_break_end: string;/);
 });
 
 test('Supabase REST transport exposes typed table and RPC boundaries', () => {

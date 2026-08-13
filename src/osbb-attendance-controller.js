@@ -1,4 +1,4 @@
-import { attendanceCellState, attendanceDayState, calculateAttendanceTotals, normalizeAttendanceMonth } from './osbb-attendance.js';
+import { attendanceCellError, attendanceCellState, attendanceDayState, calculateAttendanceTotals, formatAttendanceDuration, normalizeAttendanceMonth } from './osbb-attendance.js';
 
 export function createOsbbAttendanceController(options) {
     const { document, storage, isPreview, getMonth, getSession, getPin, clearPin, isDispatcher, isWorker,
@@ -28,7 +28,7 @@ export function createOsbbAttendanceController(options) {
         }
         render();
     }
-    function getCell(day, role) { return data[day]?.[role] || { checkIn:'', checkOut:'' }; }
+    function getCell(day, role) { return data[day]?.[role] || { checkIn:'', breakStart:'', breakEnd:'', checkOut:'' }; }
     function visibleRoles() { const session = getSession(); return isWorker() && session ? [session.role] : roles; }
     function dayState(day, visible = visibleRoles()) { return attendanceDayState(visible.map(role => getCell(day, role))); }
     function updateDayVisuals(day) {
@@ -39,9 +39,12 @@ export function createOsbbAttendanceController(options) {
             document.querySelectorAll(`[data-att-cell="${day}-${role}"]`).forEach(cell => { cell.classList.remove('is-empty-cell','is-partial-cell','is-complete-cell'); cell.classList.add(state); });
         });
     }
-    async function saveDay(day, role, checkIn, checkOut) {
+    async function saveDay(day, role, cell) {
         if (!isDispatcher()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
-        data[day] = data[day] || {}; data[day][role] = { checkIn, checkOut }; saveOffline(); renderStats(); updateDayVisuals(day);
+        const next = normalizeAttendanceMonth({ [day]:{ [role]:cell } })[day]?.[role] || { checkIn:'', breakStart:'', breakEnd:'', checkOut:'' };
+        const error = attendanceCellError(next);
+        if (error && !error.includes('обидва поля обіду')) { showToast(error); render(); return false; }
+        data[day] = data[day] || {}; data[day][role] = next; saveOffline(); renderStats(); updateDayVisuals(day);
         if (isPreview) return;
         if (!getPin()) {
             setStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>Підтвердіть PIN</span>');
@@ -49,7 +52,7 @@ export function createOsbbAttendanceController(options) {
         }
         try {
             const session = getSession();
-            const ok = await saveCloud({ p_month_key:key(), p_day:Number(day), p_role:role, p_check_in:checkIn, p_check_out:checkOut, p_staff_id:session.id, attempt:getPin() });
+            const ok = await saveCloud({ p_month_key:key(), p_day:Number(day), p_role:role, p_check_in:next.checkIn || '', p_break_start:next.breakStart || '', p_break_end:next.breakEnd || '', p_check_out:next.checkOut || '', p_staff_id:session.id, attempt:getPin() });
             if (!ok) throw new Error('Сервер відхилив запис (перевірте роль/PIN)');
             setStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
         } catch (error) { warn('attendance save error:', error); clearPin(); setStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>'); showToast('Не вдалося зберегти. Спробуйте увійти в сесію Диспетчера ще раз.'); }
@@ -58,7 +61,7 @@ export function createOsbbAttendanceController(options) {
         const grid = document.getElementById('att-stats-grid'); if (!grid) return;
         const visible = visibleRoles(); const { year, month, days } = getMonth(); void year; void month;
         const totals = calculateAttendanceTotals(data, visible, days);
-        grid.innerHTML = visible.map(role => `<article class="att-stat-card role-${role}"><span class="att-stat-role">${roleNames[role]}</span><strong class="att-stat-value">${totals[role].days}</strong><span class="att-stat-label">змін відпрацьовано</span><small>${totals[role].hours.toFixed(1)} год. загалом</small></article>`).join('');
+        grid.innerHTML = visible.map(role => `<article class="att-stat-card role-${role}"><span class="att-stat-role">${roleNames[role]}</span><strong class="att-stat-value">${totals[role].days}</strong><span class="att-stat-label">днів завершено</span><small>${formatAttendanceDuration(totals[role].hours)} загалом</small></article>`).join('');
     }
     return { cellState: attendanceCellState, dayState, getCell, getData: () => data, init, renderStats, saveDay, setStatus, updateDayVisuals, visibleRoles };
 }

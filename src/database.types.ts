@@ -207,6 +207,8 @@ export interface Database {
                     p_day: number;
                     p_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'>;
                     p_check_in: string;
+                    p_break_start: string;
+                    p_break_end: string;
                     p_check_out: string;
                     p_staff_id: Uuid;
                     attempt: string;
