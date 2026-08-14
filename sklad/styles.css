@@ -267,8 +267,9 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 
 /* RECEIPTS & AUDIT WORKFLOWS */
 .receipts-toolbar,.audit-toolbar{position:sticky;top:74px;z-index:8;margin-bottom:16px;padding:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-xl);background:var(--md-sys-color-surface-container-high,var(--surface-2));box-shadow:none;}
-.receipts-toolbar-row,.audit-toolbar-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.audit-toolbar-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
 .receipts-search-row,.audit-search-row{display:grid;grid-template-columns:minmax(220px,320px) minmax(160px,1fr) auto;gap:10px;align-items:center;margin-top:12px;}
+.receipts-search-row{margin-top:0;}
 .audit-progress-wrap{display:flex;align-items:center;gap:10px;min-width:220px;}
 .audit-progress-wrap .pbar{flex:1;margin-top:0;}
 .audit-legend{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
@@ -815,7 +816,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   #page-receipts .card table{display:none;}
   #recMobileList{display:block;}
   .receipts-toolbar,.audit-toolbar{display:contents;}
-  .receipts-toolbar-row,.audit-toolbar-row{padding:12px;margin-bottom:12px;border:1px solid var(--border-subtle);border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-surface-container-high,var(--surface-2));}
+  .audit-toolbar-row{padding:12px;margin-bottom:12px;border:1px solid var(--border-subtle);border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-surface-container-high,var(--surface-2));}
   .receipts-search-row,.audit-search-row{position:sticky;top:64px;z-index:9;grid-template-columns:1fr;padding:10px;margin:0 0 12px;border:1px solid var(--border-subtle);border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-surface-container-high,var(--surface-2));box-shadow:var(--md-sys-elevation-level1);}
   .audit-toolbar-row{align-items:flex-start;}
   .audit-progress-wrap{min-width:0;width:100%;}

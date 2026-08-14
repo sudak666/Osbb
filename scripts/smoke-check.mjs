@@ -1830,14 +1830,17 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.receipts-toolbar,.audit-toolbar{position:sticky;',
     '.receipts-toolbar,.audit-toolbar{display:contents;',
     '.receipts-search-row,.audit-search-row{position:sticky;top:64px;z-index:9;',
-    '.receipts-toolbar-row,.audit-toolbar-row{padding:12px;margin-bottom:12px;border:1px solid var(--border-subtle);',
+    '.audit-toolbar-row{padding:12px;margin-bottom:12px;border:1px solid var(--border-subtle);',
+    '.receipts-search-row{margin-top:0;}',
     '.audit-item{',
     '.receipt-mobile-item{',
   ];
   const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
+  const hasDuplicateReceiptHero = text.includes('Швидко перевіряйте останні надходження, постачальників і примітки.');
+  if (missing.length || hasDuplicateReceiptHero) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    const details = [missing.length ? `missing: ${missing.join(', ')}` : '', hasDuplicateReceiptHero ? 'duplicate receipt hero' : ''].filter(Boolean).join('; ');
+    console.error(`not ok - ${label} (${details})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
