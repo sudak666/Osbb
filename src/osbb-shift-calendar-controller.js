@@ -137,7 +137,7 @@ export function createOsbbShiftCalendarController(options) {
         if (!selectedDate) return;
         const button = document.querySelector('[data-shift-action="save-day"]'); if (!button) return;
         const date = selectedDate; const first = [...editorSelection.sergiy]; const second = [...editorSelection.oleksandr];
-        requestPin('PIN журналу', 'Підтвердьте збереження загальним PIN', async attempt => {
+        requestPin('PIN розділу «Зміни»', 'Підтвердьте збереження окремим PIN', async attempt => {
             button.disabled = true;
             try {
                 const ok = await saveDay(date, first, second, attempt); if (!ok) throw new Error('Сервер відхилив операцію');

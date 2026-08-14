@@ -153,13 +153,13 @@ test('ShellController notifies embedded modules after unlock', () => {
     };
   }
 
-  controller.unlockShell();
+  controller.unlockShell('3535');
 
   assert.equal(messages.length, 3);
   assert.equal(embeddedLocks.every(lock => lock.style.display === 'none'), true);
   assert.deepEqual(messages[0], {
     id: 'frame-journal',
-    message: { type: 'osbb:shell-unlocked' },
+    message: { type: 'osbb:shell-unlocked', mainPin: '3535' },
     origin: 'https://example.test',
   });
 });

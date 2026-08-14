@@ -99,7 +99,18 @@
         sessionStorage.removeItem('auth_at');
     }
     window.addEventListener('message', event => {
-        if (event.origin === window.location.origin && event.data?.type === 'osbb:shell-unlocked') hideEmbeddedLockScreen();
+        if (event.origin !== window.location.origin) return;
+        if (event.data?.type === 'osbb:shell-unlocked') {
+            hideEmbeddedLockScreen();
+            if (/^\d{4}$/.test(event.data.mainPin || '')) {
+                window.__osbbShellPin = event.data.mainPin;
+                window.dispatchEvent(new CustomEvent('osbb:shell-pin', { detail: event.data.mainPin }));
+            }
+        }
+        if (event.data?.type === 'osbb:shell-locked') {
+            window.__osbbShellPin = null;
+            window.dispatchEvent(new CustomEvent('osbb:shell-pin-cleared'));
+        }
     });
 </script>
 
@@ -353,7 +364,7 @@
             <div class="shift-editor-sheet" tabindex="-1">
                 <div class="shift-sheet-handle" aria-hidden="true"></div>
                 <h3 id="shift-name-editor-title" class="shift-editor-title">Імена працівників</h3>
-                <p class="shift-copy">Зміна імен захищена загальним PIN журналу.</p>
+                <p class="shift-copy">Зміна імен захищена окремим PIN розділу «Зміни».</p>
                 <label class="shift-name-field"><span>Перший працівник</span><input id="shift-name-sergiy" type="text" maxlength="40" autocomplete="off"></label>
                 <label class="shift-name-field"><span>Другий працівник</span><input id="shift-name-oleksandr" type="text" maxlength="40" autocomplete="off"></label>
                 <div class="shift-editor-actions"><button type="button" class="shift-secondary-btn md-state-layer" data-shift-action="close-names">Скасувати</button><button type="button" class="shift-primary-btn md-state-layer" data-shift-action="save-names"><span class="material-symbols-rounded" aria-hidden="true">save</span>Зберегти</button></div>
