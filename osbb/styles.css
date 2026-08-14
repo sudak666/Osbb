@@ -799,6 +799,11 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-time-input:focus-visible { border-color:var(--md-sys-color-primary,var(--accent)); box-shadow:0 0 0 1px var(--md-sys-color-primary,var(--accent)); outline:none; }
 .att-readonly { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
 .att-mobile-list { display:none; }
+@media (max-width:480px) {
+  .att-stats-grid { grid-template-columns:1fr; }
+  .att-stat-card { min-height:104px; padding:14px 18px; }
+  .att-stat-label,.att-stat-card small { white-space:nowrap; }
+}
 @media (max-width:900px) {
   .att-calendar-scroll { display:none; }
   .att-mobile-list { display:flex; flex-direction:column; gap:10px; }
