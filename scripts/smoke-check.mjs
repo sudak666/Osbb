@@ -1789,6 +1789,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="audit-item ${state}"',
     'class="audit-qty-input"',
     '.receipts-toolbar,.audit-toolbar{position:sticky;',
+    '.receipts-toolbar,.audit-toolbar{display:contents;',
+    '.receipts-search-row,.audit-search-row{position:sticky;top:64px;z-index:9;',
+    '.receipts-toolbar-row,.audit-toolbar-row{padding:12px;margin-bottom:12px;border:1px solid var(--border-subtle);',
     '.audit-item{',
     '.receipt-mobile-item{',
   ];
