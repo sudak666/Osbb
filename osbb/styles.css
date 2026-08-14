@@ -758,7 +758,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-stat-card.role-plumber { --att-role-accent:var(--md-ref-role-plumber,#3b82f6); border-color:color-mix(in srgb,var(--att-role-accent) 30%,transparent); }
 .att-table-scroll { display:none; }
 .att-calendar-scroll { overflow-x:auto; padding:4px 0 8px; scrollbar-width:thin; }
-.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7,minmax(210px,1fr)); min-width:1518px; gap:8px; }
+.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7,minmax(152px,1fr)); min-width:1112px; gap:8px; }
 .att-calendar-weekdays { margin-bottom:8px; }
 .att-calendar-weekdays span { padding:0 10px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; line-height:24px; font-weight:700; text-align:right; text-transform:uppercase; letter-spacing:.06em; }
 .att-calendar-spacer { min-height:1px; }
