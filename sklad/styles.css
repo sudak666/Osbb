@@ -803,8 +803,9 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   #logMobileList{}
   #page-receipts .card table{display:none;}
   #recMobileList{display:block;}
-  .receipts-toolbar,.audit-toolbar{position:relative;top:auto;padding:12px;margin-bottom:12px;border-radius:var(--md-sys-shape-corner-large,16px);}
-  .receipts-search-row,.audit-search-row{grid-template-columns:1fr;}
+  .receipts-toolbar,.audit-toolbar{display:contents;}
+  .receipts-toolbar-row,.audit-toolbar-row{padding:12px;margin-bottom:12px;border:1px solid var(--border-subtle);border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-surface-container-high,var(--surface-2));}
+  .receipts-search-row,.audit-search-row{position:sticky;top:64px;z-index:9;grid-template-columns:1fr;padding:10px;margin:0 0 12px;border:1px solid var(--border-subtle);border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-surface-container-high,var(--surface-2));box-shadow:var(--md-sys-elevation-level1);}
   .audit-toolbar-row{align-items:flex-start;}
   .audit-progress-wrap{min-width:0;width:100%;}
   .audit-item{align-items:flex-start;gap:9px;}
