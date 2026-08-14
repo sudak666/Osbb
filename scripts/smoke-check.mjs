@@ -140,6 +140,7 @@ const checks = [
   ['osbb/index.html', '${escapeHtml(msg)}', 'journal toast messages escape dynamic text'],
   ['osbb/index.html', 'id="ios-toast" role="status" aria-live="polite"', 'journal toast exposes live status semantics'],
   ['sklad/index.html', 'id="toast" role="status" aria-live="polite"', 'sklad toast exposes live status semantics'],
+  ['src/sklad-app.js', "button.closest('details.item-more')?.removeAttribute('open')", 'sklad topbar menu closes after selecting an action'],
   ['index.html', 'id="lock-err" class="lock-error-text" role="alert" aria-live="assertive"', 'shell lock errors expose alert semantics'],
   ['index.html', 'role="tablist" aria-label="Розділи застосунку"', 'shell tabs expose tablist semantics'],
   ['index.html', 'class="shell-more-trigger md-state-layer" aria-label="Інші дії"', 'shell mobile secondary actions use an accessible overflow menu'],
@@ -3397,6 +3398,8 @@ ${sharedSelectText}`;
     'stats.totalUnits',
     'stats.estimatedValue',
     '.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));}',
+    '.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}',
+    '.items-metrics.inventory-summary .summary-card .stat-icon{display:none;}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const hasLegacyCounters = ['id="st-zero"','id="st-low"','id="st-ok"','id="sb-alert"','id="bn-alert"','id="alertBanner"'].some(needle=>text.includes(needle));
