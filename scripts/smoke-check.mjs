@@ -970,6 +970,9 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="log-mobile-actions"',
     'class="icon-action danger"',
     '.list-toolbar{',
+    '.list-toolbar{position:sticky;top:64px;z-index:9;',
+    '.list-toolbar .pills-wrap{flex-wrap:nowrap;overflow-x:auto;',
+    '.list-toolbar .pills-wrap .pill{flex:0 0 auto;',
     '.log-mobile-item{',
   ];
   const missing = required.filter(needle => !text.includes(needle));
