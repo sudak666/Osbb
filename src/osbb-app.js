@@ -1300,7 +1300,6 @@
             list.querySelector('[data-jira-retry]')?.addEventListener('click', myTicketsInitTab);
             return;
         }
-        const statuses = [...new Set(jiraIssues.map(issue => issue.status).filter(Boolean))].sort();
         const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
         const statusCounts = jiraIssues.reduce((counts, issue) => {
             const status = issue.status || 'Без статусу';
@@ -1321,9 +1320,6 @@
         const filtersHtml = countersHtml + `<div class="dispatcher-filter-chips jira-ticket-filters" aria-label="Фільтри Jira-заявок">
             <select class="journal-select" data-jira-filter="assignment" aria-label="Фільтр за призначенням">
                 <option value="all">Усі призначення</option><option value="assigned" ${jiraAssignmentFilter === 'assigned' ? 'selected' : ''}>Призначені</option><option value="unassigned" ${jiraAssignmentFilter === 'unassigned' ? 'selected' : ''}>Непризначені</option>
-            </select>
-            <select class="journal-select" data-jira-filter="status" aria-label="Фільтр за статусом">
-                <option value="all">Усі статуси</option>${statuses.map(status => `<option value="${escapeAttr(status)}" ${jiraStatusFilter === status ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}
             </select>
             <select class="journal-select" data-jira-filter="category" aria-label="Фільтр за категорією">
                 <option value="all">Усі категорії</option>${categories.map(category => `<option value="${escapeAttr(category)}" ${jiraCategoryFilter === category ? 'selected' : ''}>${escapeHtml(category)}</option>`).join('')}
@@ -1351,7 +1347,6 @@
         list.querySelectorAll('[data-jira-filter]').forEach(select => {
             select.addEventListener('change', () => {
                 if (select.dataset.jiraFilter === 'assignment') jiraAssignmentFilter = select.value;
-                if (select.dataset.jiraFilter === 'status') jiraStatusFilter = select.value;
                 if (select.dataset.jiraFilter === 'category') jiraCategoryFilter = select.value;
                 myTicketsRender();
             });
