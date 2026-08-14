@@ -26,6 +26,7 @@ export const STAFF_SESSION_KEY = 'osbb_staff_session';
 
 const STAFF_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES: readonly StaffRole[] = ['plumber', 'janitor', 'electrician'];
+export const OPERATOR_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board'];
 export const WORKER_ALLOWED_TABS: readonly string[] = ['tabel', 'my-tickets'];
 
 export const STAFF_ROLE_ICONS: Readonly<Record<StaffRole, string>> = {
@@ -38,7 +39,7 @@ export const STAFF_ROLE_ICONS: Readonly<Record<StaffRole, string>> = {
 };
 
 export const STAFF_ROLE_LABELS: Readonly<Record<StaffRole, string>> = {
-    dispatcher: 'Диспетчер',
+    dispatcher: 'Керування',
     admin: 'Адмін',
     board: 'Правління',
     plumber: 'Сантехнік',
@@ -113,7 +114,7 @@ export function parseStaffList(value: unknown): StaffListEntry[] {
 }
 
 export function isDispatcherSession(session: StaffSession | null | undefined): boolean {
-    return Boolean(session) && ['dispatcher', 'admin', 'board'].includes(session?.role ?? '');
+    return Boolean(session) && OPERATOR_ROLES.includes(session?.role as StaffRole);
 }
 
 export function isWorkerSession(session: StaffSession | null | undefined): boolean {

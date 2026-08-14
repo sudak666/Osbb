@@ -1,5 +1,6 @@
 const STAFF_ROLES = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES = ['plumber', 'janitor', 'electrician'];
+export const OPERATOR_ROLES = ['dispatcher', 'admin', 'board'];
 export const WORKER_ALLOWED_TABS = ['tabel', 'my-tickets'];
 export const STAFF_SESSION_KEY = 'osbb_staff_session';
 
@@ -13,7 +14,7 @@ export const STAFF_ROLE_ICONS = {
 };
 
 export const STAFF_ROLE_LABELS = {
-    dispatcher: 'Диспетчер',
+    dispatcher: 'Керування',
     admin: 'Адмін',
     board: 'Правління',
     plumber: 'Сантехнік',
@@ -85,7 +86,7 @@ export function parseStaffList(value) {
 }
 
 export function isDispatcherSession(session) {
-    return Boolean(session) && ['dispatcher', 'admin', 'board'].includes(session?.role ?? '');
+    return Boolean(session) && OPERATOR_ROLES.includes(session?.role ?? '');
 }
 
 export function isWorkerSession(session) {

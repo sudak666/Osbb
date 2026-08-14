@@ -120,7 +120,7 @@ const checks = [
   ['supabase/functions/jira-issues/index.ts', 'parent IS NOT EMPTY', 'Jira counters exclude parent category items'],
   ['supabase/functions/jira-issues/index.ts', '/rest/agile/1.0/board/', 'Jira issues use the board filter'],
   ['supabase/functions/jira-issues/index.ts', "return json({ error: 'Invalid action' }, 400)", 'Jira Edge Function rejects write actions'],
-  ['osbb/index.html', "db.rpc('set_osbb_staff_active'", 'admin can toggle staff PIN access'],
+  ['osbb/index.html', 'aria-label="Профілі керування"', 'journal login exposes operator profiles instead of worker access management'],
   ['supabase/migrations/20260719001900_staff_login_settings.sql', "verify_result.role not in ('board', 'admin')", 'staff access settings require board or admin PIN'],
   ['supabase/migrations/20260719002000_allow_board_manage_staff_access.sql', "verify_result.role not in ('board', 'admin')", 'deployed databases receive board staff-access permissions'],
   ['osbb/index.html', "db.rpc('delete_photo'", 'journal deletes photos through RPC'],

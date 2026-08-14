@@ -1,20 +1,14 @@
 import { appendPinDigit, deletePinDigit, isPinComplete, pinLockoutDelay } from './pin-entry.ts';
-import { canManageStaffAccess, parseStaffList, parseStaffSession, parseStaffSettingsList, type StaffListEntry, type StaffSession, type StaffSettingsEntry } from './osbb-staff.ts';
+import { parseStaffList, parseStaffSession, type StaffListEntry, type StaffSession } from './osbb-staff.ts';
 
 export interface OsbbStaffAuthControllerDeps {
     document: Document;
     isPreview: boolean;
     loadStaff: () => Promise<unknown>;
+    filterStaff?: (person: StaffListEntry) => boolean;
     verifyPin: (staffId: string | number, pin: string) => Promise<unknown>;
     renderStaffList: (rows: StaffListEntry[]) => string;
-    renderStaffSettings: (rows: StaffSettingsEntry[], currentStaffId: string | number) => string;
-    getSession: () => StaffSession | null;
-    getPin: () => string | null;
-    loadStaffSettings: (session: StaffSession, pin: string) => Promise<unknown>;
-    setStaffActive: (session: StaffSession, pin: string, targetStaffId: string, active: boolean) => Promise<unknown>;
     onAuthenticated: (session: StaffSession, pin: string) => void;
-    onAccessUpdated: () => void;
-    onError: (message: string, error?: unknown) => void;
     setTimeout?: Window['setTimeout'];
 }
 
@@ -25,9 +19,6 @@ export interface OsbbStaffAuthController {
     back(): void;
     deleteDigit(): void;
     press(digit: unknown): Promise<void>;
-    openSettings(): Promise<void>;
-    closeSettings(): void;
-    toggleAccess(button: HTMLButtonElement): Promise<void>;
 }
 
 const PREVIEW_STAFF: StaffListEntry[] = [
@@ -44,8 +35,6 @@ export function createOsbbStaffAuthController(deps: OsbbStaffAuthControllerDeps)
     let busy = false;
     let failures = 0;
     let reauthResolve: ((confirmed: boolean) => void) | null = null;
-    let settingsLoadId = 0;
-    let settingsBusy = false;
 
     const element = (id: string): HTMLElement | null => doc.getElementById(id);
     const showPinStep = (subtitle: string): void => {
@@ -82,9 +71,11 @@ export function createOsbbStaffAuthController(deps: OsbbStaffAuthControllerDeps)
             try { list = parseStaffList(await deps.loadStaff()); }
             catch { list = []; }
         }
+        if (deps.filterStaff) list = list.filter(deps.filterStaff);
         listElement.innerHTML = list.length
             ? deps.renderStaffList(list)
-            : '<div class="staff-login-loading">Список співробітників порожній. Зверніться до адміністратора.</div>';
+            : '<div class="staff-login-loading">Профілі керування не налаштовані.</div>';
+        if (list.length === 1) select(list[0].id);
     }
 
     function select(staffId: unknown): void {
@@ -167,57 +158,5 @@ export function createOsbbStaffAuthController(deps: OsbbStaffAuthControllerDeps)
         setTimer(() => { if (selected === pendingSelection) busy = false; }, pinLockoutDelay(failures));
     }
 
-    async function openSettings(): Promise<void> {
-        const session = deps.getSession();
-        if (!session || !canManageStaffAccess(session)) return;
-        let pin = deps.getPin();
-        if (!pin) {
-            if (!await requestReauth(session)) return;
-            pin = deps.getPin();
-        }
-        if (!pin) return;
-        const modal = element('staff-settings-modal');
-        const settingsList = element('staff-settings-list');
-        if (!modal || !settingsList) return;
-        modal.style.display = 'flex';
-        settingsList.innerHTML = '<div class="staff-login-loading">Завантаження...</div>';
-        const loadId = ++settingsLoadId;
-        try {
-            const rows = parseStaffSettingsList(await deps.loadStaffSettings(session, pin));
-            if (loadId !== settingsLoadId) return;
-            settingsList.innerHTML = rows.length
-                ? deps.renderStaffSettings(rows, session.id)
-                : '<div class="staff-login-loading">Налаштування доступу ще не оновлено в базі даних</div>';
-        } catch (error) {
-            if (loadId !== settingsLoadId) return;
-            settingsList.innerHTML = '<div class="staff-login-loading">Не вдалося завантажити користувачів</div>';
-            deps.onError('Не вдалося завантажити користувачів', error);
-        }
-    }
-
-    function closeSettings(): void {
-        settingsLoadId++;
-        const modal = element('staff-settings-modal');
-        if (modal) modal.style.display = 'none';
-    }
-
-    async function toggleAccess(button: HTMLButtonElement): Promise<void> {
-        const session = deps.getSession();
-        const pin = deps.getPin();
-        const targetStaffId = button.dataset.staffActive;
-        if (settingsBusy || !session || !canManageStaffAccess(session) || !pin || !targetStaffId) return;
-        settingsBusy = true;
-        button.disabled = true;
-        try {
-            const result = await deps.setStaffActive(session, pin, targetStaffId, button.dataset.nextActive === 'true');
-            if (result !== true) throw new Error('Зміну відхилено');
-            deps.onAccessUpdated();
-            await openSettings();
-        } catch (error) {
-            button.disabled = false;
-            deps.onError(error instanceof Error ? error.message : 'Не вдалося змінити доступ', error);
-        } finally { settingsBusy = false; }
-    }
-
-    return { open, requestReauth, select, back, deleteDigit, press, openSettings, closeSettings, toggleAccess };
+    return { open, requestReauth, select, back, deleteDigit, press };
 }

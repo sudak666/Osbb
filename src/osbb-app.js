@@ -39,7 +39,6 @@
         STAFF_ROLE_ICONS,
         STAFF_ROLE_LABELS,
         WORKER_ROLES,
-        canManageStaffAccess as canManageStaffAccessForSession,
         clearStoredStaffSession,
         isDispatcherSession as isDispatcherStaffSession,
         isTabAllowedForSession as isStaffTabAllowed,
@@ -157,6 +156,10 @@
 
     function loadStaffSession() {
         staffSession = loadStoredStaffSession(sessionStorage);
+        if (staffSession && !isDispatcherStaffSession(staffSession)) {
+            clearStoredStaffSession(sessionStorage);
+            staffSession = null;
+        }
     }
 
     function saveStaffSession() {
@@ -175,6 +178,7 @@
         document,
         isPreview: IS_PREVIEW,
         loadStaff: () => db.rpc('list_osbb_staff', {}),
+        filterStaff: person => isDispatcherStaffSession({ id: person.id, name: person.full_name, role: person.role }),
         verifyPin: (staffId, attempt) => db.rpc('verify_staff_pin', { p_staff_id: staffId, attempt }),
         renderStaffList: rows => rows.map(s => `
             <button type="button" class="staff-login-item md-state-layer" data-staff-select="${escapeAttr(s.id)}">
@@ -183,32 +187,11 @@
                 <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[s.role] || s.role)}</span>
             </button>
         `).join(''),
-        renderStaffSettings: (rows, currentStaffId) => rows.map(person => `
-            <div class="staff-login-item">
-                <span class="staff-login-item-name">${escapeHtml(person.full_name)}</span>
-                <span class="staff-login-item-role">${escapeHtml(STAFF_ROLE_LABELS[person.role] || person.role)}</span>
-                <button type="button" class="journal-tonal-btn md-state-layer" data-staff-active="${escapeAttr(person.id)}" data-next-active="${person.active ? 'false' : 'true'}" ${String(person.id) === String(currentStaffId) ? 'disabled' : ''}>${person.active ? 'Вимкнути' : 'Увімкнути'}</button>
-            </div>
-        `).join(''),
-        getSession: () => staffSession,
-        getPin: () => staffPinCache,
-        loadStaffSettings: (session, pin) => db.rpc('list_osbb_staff_settings', { p_staff_id: session.id, attempt: pin }),
-        setStaffActive: (session, pin, targetStaffId, active) => db.rpc('set_osbb_staff_active', {
-            p_staff_id: session.id,
-            attempt: pin,
-            p_target_staff_id: targetStaffId,
-            p_active: active,
-        }),
         onAuthenticated: (session, pin) => {
             staffSession = session;
             staffPinCache = pin;
             saveStaffSession();
             applyRoleGating();
-        },
-        onAccessUpdated: () => showToast('Доступ користувача оновлено'),
-        onError: (message, error) => {
-            console.error('staff access error:', error);
-            showToast(message);
         },
     });
 
@@ -280,8 +263,7 @@
                 badge.classList.add('hidden');
             }
         }
-        document.getElementById('staff-settings-button')?.classList.toggle('hidden', !canManageStaffAccessForSession(staffSession));
-        if (!isTabAllowedForSession(currentTab)) setTab(isWorkerSession() ? 'my-tickets' : 'journal');
+        if (!isTabAllowedForSession(currentTab)) setTab('my-tickets');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
         if (currentTab === 'tabel') attRender();
@@ -875,12 +857,6 @@
 
         document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
         document.querySelector('[data-staff-switch]')?.addEventListener('click', staffLogout);
-        document.querySelector('[data-staff-settings-open]')?.addEventListener('click', staffAuthController.openSettings);
-        document.querySelector('[data-staff-settings-close]')?.addEventListener('click', staffAuthController.closeSettings);
-        document.getElementById('staff-settings-list')?.addEventListener('click', event => {
-            const button = event.target.closest('[data-staff-active]');
-            if (button) staffAuthController.toggleAccess(button);
-        });
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
             select.addEventListener('change', initCalendar);
         });

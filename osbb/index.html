@@ -146,15 +146,13 @@
     </div>
 </div>
 
-<!-- МОДАЛКА "ХТО ВИ?" — персональний вхід поверх спільного PIN журналу.
-     Показується один раз за сесію: вибір співробітника зі списку + його
-     особистий PIN. Роль з цієї сесії керує доступом до Табеля/заявок. -->
+<!-- ОПЕРАТОРСЬКИЙ ВХІД — особистий PIN поверх спільного PIN журналу. -->
 <div id="staff-login-modal" class="pin-modal-overlay">
     <div class="pin-modal-dialog staff-login-dialog" role="dialog" aria-modal="true" aria-labelledby="staff-login-title" tabindex="-1">
         <div class="pin-modal-icon"><span class="pin-modal-icon-wrap is-green-soft"><span class="material-symbols-rounded" aria-hidden="true">how_to_reg</span></span></div>
-        <div class="pin-modal-title" id="staff-login-title">Хто ви?</div>
-        <div class="pin-modal-sub">Оберіть себе зі списку</div>
-        <div id="staff-login-list" class="staff-login-list" role="listbox" aria-label="Список співробітників"></div>
+        <div class="pin-modal-title" id="staff-login-title">Вхід до керування</div>
+        <div class="pin-modal-sub">Оберіть профіль керування та введіть особистий PIN</div>
+        <div id="staff-login-list" class="staff-login-list" role="listbox" aria-label="Профілі керування"></div>
 
         <div id="staff-login-pin-step" class="hidden">
             <div class="pin-modal-sub" id="staff-login-pin-sub">Введіть особистий PIN</div>
@@ -175,7 +173,7 @@
                 <button type="button" class="pin-mb-btn" data-staff-pin-digit="7">7</button>
                 <button type="button" class="pin-mb-btn" data-staff-pin-digit="8">8</button>
                 <button type="button" class="pin-mb-btn" data-staff-pin-digit="9">9</button>
-                <button type="button" data-staff-pin-back aria-label="Назад до вибору" class="pin-key-action pin-key-cancel">Назад</button>
+                <button type="button" data-staff-pin-back aria-label="Назад до вибору профілю" class="pin-key-action pin-key-cancel">Назад</button>
                 <button type="button" class="pin-mb-btn" data-staff-pin-digit="0">0</button>
                 <button type="button" data-staff-pin-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру">⌫</button>
             </div>
@@ -218,17 +216,6 @@
     </div>
 </div>
 
-<div id="staff-settings-modal" class="pin-modal-overlay">
-    <div class="pin-modal-dialog staff-login-dialog" role="dialog" aria-modal="true" aria-labelledby="staff-settings-title" tabindex="-1">
-        <div class="pin-modal-title" id="staff-settings-title">Доступ користувачів</div>
-        <div class="pin-modal-sub">Увімкніть або вимкніть персональний PIN-вхід</div>
-        <div id="staff-settings-list" class="staff-login-list"></div>
-        <div class="ticket-confirm-actions">
-            <button type="button" class="journal-tonal-btn md-state-layer" data-staff-settings-close>Закрити</button>
-        </div>
-    </div>
-</div>
-
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
@@ -241,8 +228,7 @@
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>
                 <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span></span>
-                <button type="button" id="staff-settings-button" class="journal-theme-toggle md-state-layer hidden" data-staff-settings-open data-tip="Доступ користувачів" aria-label="Налаштувати доступ користувачів"><span class="material-symbols-rounded" aria-hidden="true">manage_accounts</span></button>
-                <button type="button" id="staff-session-badge" class="journal-status-chip staff-session-chip hidden md-state-layer" data-tip="Змінити користувача" aria-label="Поточний співробітник, натисніть щоб змінити" data-staff-switch></button>
+                <button type="button" id="staff-session-badge" class="journal-status-chip staff-session-chip hidden md-state-layer" data-tip="Змінити профіль" aria-label="Поточний профіль керування, натисніть щоб змінити" data-staff-switch></button>
                 <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
             </div>
         </div>
