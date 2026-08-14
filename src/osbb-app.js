@@ -57,8 +57,7 @@
     } from './osbb-tickets.js';
     import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
     import { filterCompletedWork } from './osbb-completed-work.js';
-
-    const { enhanceSelect, refreshEnhancedSelect } = window;
+    import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';
 
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має

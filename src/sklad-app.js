@@ -27,7 +27,7 @@ import { createSkladItemMenuController } from './sklad-item-menu-controller.js';
 import { createSkladPhotoController } from './sklad-photo-controller.js';
 import { createSkladItemCrudController } from './sklad-item-crud-controller.js';
 import { createSkladMovementsController } from './sklad-movements-controller.js';
-const { enhanceSelect, refreshEnhancedSelect } = window;
+import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};

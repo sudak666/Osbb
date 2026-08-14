@@ -1825,7 +1825,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="status-label"',
     'class="status-label is-tight"',
     '<link rel="stylesheet" href="/Osbb/shared/ui.css">',
-    '<script src="/Osbb/shared/enhance-select.js"></script>',
+    '<script type="module" src="../shared/enhance-select.js"></script>',
     '// Кастомний select підключено зі shared/enhance-select.js.',
     'class="stat-card journal-stat-card journal-mini-stat role-garbage',
     '.journal-panel {',
@@ -2704,17 +2704,17 @@ ${sharedSelectText}`;
   if (!existsSync('shared/enhance-select.js')) missing.push('shared/enhance-select.js');
   for (const file of ['osbb/index.html', 'sklad/index.html']) {
     const text = readFileSync(file, 'utf8');
-    if (!text.includes('src="/Osbb/shared/enhance-select.js"')) missing.push(`${file}:script`);
+    if (!text.includes('type="module" src="../shared/enhance-select.js"')) missing.push(`${file}:module script`);
     if (text.includes('function enhanceSelect(')) missing.push(`${file}:inline enhanceSelect`);
   }
   const helper = existsSync('shared/enhance-select.js') ? readFileSync('shared/enhance-select.js', 'utf8') : '';
-  for (const marker of ['window.enhanceSelect = enhanceSelect;', 'window.refreshEnhancedSelect = refreshEnhancedSelect;', 'custom-select-arrow', 'custom-select-empty']) {
+  for (const marker of ['window.enhanceSelect = enhanceSelect;', 'window.refreshEnhancedSelect = refreshEnhancedSelect;', 'export const enhanceSelect', 'export const refreshEnhancedSelect', 'custom-select-arrow', 'custom-select-empty']) {
     if (!helper.includes(marker)) missing.push(`shared/enhance-select.js:${marker}`);
   }
   for (const file of ['src/osbb-app.js', 'src/sklad-app.js']) {
     const text = readFileSync(file, 'utf8');
-    if (!text.includes('const { enhanceSelect, refreshEnhancedSelect } = window;')) {
-      missing.push(`${file}:module global bindings`);
+    if (!text.includes("import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';")) {
+      missing.push(`${file}:module imports`);
     }
   }
   if (missing.length) {
