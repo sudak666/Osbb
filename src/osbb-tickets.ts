@@ -40,6 +40,18 @@ export function jiraPriorityClass(priority: unknown): TicketPriority {
     return 'MEDIUM';
 }
 
+export function formatJiraShareText(issue: { summary?: unknown; key?: unknown; category?: unknown; url?: unknown } | null | undefined): string {
+    const summary = String(issue?.summary ?? '').trim() || 'Без назви';
+    const key = String(issue?.key ?? '').trim();
+    const category = String(issue?.category ?? '').trim();
+    const url = String(issue?.url ?? '').trim();
+    return [
+        `Завдання: ${summary}`,
+        category ? `Категорія: ${category}` : '',
+        key ? `Jira: ${key}${url ? ` — ${url}` : ''}` : url,
+    ].filter(Boolean).join('\n');
+}
+
 export function matchesDispatcherDateFilter(
     year: number,
     month: number,

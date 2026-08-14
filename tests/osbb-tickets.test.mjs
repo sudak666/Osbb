@@ -2,11 +2,22 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  formatJiraShareText,
   jiraPriorityClass,
   matchesDispatcherDateFilter,
   normalizeTicketPriority,
   ticketSortComparator,
 } from '../src/osbb-tickets.js';
+
+test('Jira task share text is concise and keeps the source link', () => {
+  assert.equal(formatJiraShareText({
+    summary: 'Замінити лампу, 3 поверх, 1 секція',
+    key: 'MS-42',
+    category: 'Електрика',
+    url: 'https://jira.example/browse/MS-42',
+  }), 'Завдання: Замінити лампу, 3 поверх, 1 секція\nКатегорія: Електрика\nJira: MS-42 — https://jira.example/browse/MS-42');
+  assert.equal(formatJiraShareText({ summary: 'Полагодити замок' }), 'Завдання: Полагодити замок');
+});
 
 test('ticket priorities normalize unknown values and sort urgent tickets first', () => {
   assert.equal(normalizeTicketPriority('HIGH'), 'HIGH');
