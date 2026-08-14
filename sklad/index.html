@@ -180,11 +180,11 @@ window.addEventListener('message',event=>{
     <div class="items-filter-bar">
       <div class="items-filter-primary-row">
         <div class="sw items-search-field"><span class="si ms" aria-hidden="true">search</span><input class="inp" id="searchInp" aria-label="Пошук складських найменувань" placeholder="Пошук матеріалу..." data-render-items-input></div>
+        <button type="button" class="pill items-filter-pill items-availability-toggle is-success md-state-layer" id="inStockPill" data-filter-toggle="in-stock" aria-pressed="false"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">У наявності</span></button>
         <details class="inventory-filters">
           <summary class="btn btn-ghost btn-sm md-state-layer"><span class="ms" aria-hidden="true">tune</span> Фільтри</summary>
           <div class="inventory-filters-panel">
             <div class="items-filter-row">
-              <button type="button" class="pill items-filter-pill is-success" id="inStockPill" data-filter-toggle="in-stock" aria-pressed="false"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки в наявності</span></button>
               <button type="button" class="pill items-filter-pill is-warning" id="hideInternalPill" data-filter-toggle="hide-internal" aria-pressed="false" data-tip="Приховати товари для внутрішнього використання (хознужди), що не входять у баланс"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Без внутрішніх</span></button>
               <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" aria-pressed="false" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки внутрішні</span></button>
             </div>

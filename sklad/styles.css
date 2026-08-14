@@ -173,6 +173,7 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-filter-pill.is-success{border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--sklad-green)) 48%,var(--md-sys-color-outline));color:var(--md-sys-color-primary,var(--sklad-green));}
 .items-filter-pill.is-warning{border-color:color-mix(in srgb,var(--md-sys-color-tertiary,var(--sklad-orange)) 48%,var(--md-sys-color-outline));color:var(--md-sys-color-tertiary,var(--sklad-orange));}
 .items-filter-pill.is-success.active{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);}
+.items-availability-toggle{flex:0 0 auto;min-width:142px;}
 .items-filter-pill.is-warning.active{background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container);}
 .items-filter-icon{position:absolute;left:14px;top:50%;width:18px;height:18px;margin:0;font-size:18px;line-height:1;opacity:0;overflow:visible;transform:translateY(-50%) scale(.8);pointer-events:none;transition:opacity var(--motion-fast),transform var(--motion-fast);}
 .items-filter-pill.active .items-filter-icon{opacity:1;transform:translateY(-50%) scale(1);}
@@ -487,6 +488,10 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
   .inventory-overview .items-hero-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;}
   .inventory-overview .items-hero-action{min-width:0;width:100%;padding-inline:12px;}
   .items-filter-primary-row{display:grid;grid-template-columns:minmax(0,1fr) auto;}
+  .items-filter-primary-row .items-search-field{grid-column:1/-1;width:100%;}
+  .items-filter-primary-row .items-availability-toggle{grid-column:1;width:100%;min-width:0;}
+  .items-filter-primary-row .inventory-filters{grid-column:2;}
+  .items-filter-primary-row .inventory-filters summary{width:100%;}
   .items-filter-primary-row .items-summary{grid-column:1/-1;}
   .items-filter-primary-row .items-reset-btn{grid-column:1/-1;justify-self:start;}
   .inventory-filters-panel{position:fixed;left:12px;right:12px;top:auto;bottom:calc(96px + env(safe-area-inset-bottom));width:auto;max-height:60dvh;overflow:auto;}
