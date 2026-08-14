@@ -419,7 +419,10 @@ function bindSkladStaticControls(){
   };
   document.querySelectorAll('[data-sklad-action]').forEach(button=>{
     const handler=actionHandlers[button.dataset.skladAction];
-    if(handler) button.addEventListener('click',(event)=>handler(button,event));
+    if(handler) button.addEventListener('click',(event)=>{
+      button.closest('details.item-more')?.removeAttribute('open');
+      handler(button,event);
+    });
   });
   const filterHandlers={
     'in-stock':toggleInStock,

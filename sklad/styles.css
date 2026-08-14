@@ -743,6 +743,17 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .items-metrics:not(.stats-grid) .stat-card:not(.stat-hero) .stat-icon .ms{font-size:21px;}
   .items-metrics:not(.stats-grid) .stat-card:not(.stat-hero) .lbl .ms{display:none;}
   .items-metrics:not(.stats-grid) .stat-card.stat-hero .stat-icon{width:40px;height:40px;right:12px;top:12px;}
+  .items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .inventory-summary .summary-card{
+    min-height:96px;
+    padding:12px 8px;
+    padding-right:8px!important;
+    justify-content:center;
+  }
+  .inventory-summary .summary-card .big{font-size:20px;letter-spacing:-.04em;}
+  .inventory-summary .summary-card .summary-money{font-size:16px;line-height:1.1;}
+  .inventory-summary .summary-card .lbl{font-size:10px;line-height:1.15;}
+  .items-metrics.inventory-summary .summary-card .stat-icon{display:none;}
   .split{grid-template-columns:1fr!important;}
   .desktop-table{display:none!important;}
   .mobile-cards{display:block!important;}
