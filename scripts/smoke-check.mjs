@@ -303,8 +303,8 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
 
 
 // The shell's <style> block was extracted the same way, but unlike
-// osbb/sw.js and sklad/sw.js, the root sw.js IS the one actively registered
-// service worker (from index.html) and it precaches the shell for offline
+// the root sw.js is the actively registered service worker (from index.html)
+// and it precaches the shell for offline
 // use — so it must precache and cache-first serve the new styles.css, or
 // an offline user gets an unstyled shell.
 {
@@ -318,6 +318,31 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
   if (missing.length) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const sw = readFileSync('sw.js', 'utf8');
+  const shellTs = readFileSync('src/shell.ts', 'utf8');
+  const shellJs = readFileSync('src/shell.js', 'utf8');
+  const label = 'shell service worker prevents stale Vite asset 404s';
+  const required = [
+    "const CACHE_NAME = 'osbb-shell-v9';",
+    "event.request.mode === 'navigate'",
+    "url.pathname.startsWith('/Osbb/osbb/')",
+    "url.pathname.startsWith('/Osbb/sklad/')",
+    "url.pathname.startsWith('/Osbb/assets/')",
+    "fetch(request, { cache: 'no-store' })",
+    'event.respondWith(cacheFirst(event.request));',
+  ];
+  const missing = required.filter(needle => !sw.includes(needle));
+  const registrationCurrent = shellTs.includes("register('sw.js?v=9'") && shellJs.includes("register('sw.js?v=9'");
+  if (missing.length || !registrationCurrent) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; registration: ${registrationCurrent})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
