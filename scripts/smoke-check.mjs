@@ -3428,6 +3428,7 @@ ${sharedSelectText}`;
     "p_break_end:next.breakEnd || ''",
     'formatAttendanceDuration(totals[role].hours)',
     '.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7',
+    'grid-template-columns:repeat(7,minmax(152px,1fr)); min-width:1112px;',
     '.month-grid-cell.is-today,.shift-day.is-today {',
     'border-width:1px;',
     'box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent)',
