@@ -754,7 +754,10 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .items-metrics{margin-bottom:12px;}
   .items-filter-bar{position:sticky;top:64px;z-index:9;padding:10px;margin-bottom:12px;border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level1);}
   .items-search-row{grid-template-columns:1fr;}
-  .list-toolbar{position:relative;top:auto;padding:10px;margin-bottom:12px;border-radius:var(--md-sys-shape-corner-large,16px);}
+  .list-toolbar{position:sticky;top:64px;z-index:9;padding:10px;margin-bottom:12px;border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level1);}
+  .list-toolbar .pills-wrap{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-inline:contain;}
+  .list-toolbar .pills-wrap::-webkit-scrollbar{display:none;}
+  .list-toolbar .pills-wrap .pill{flex:0 0 auto;}
   .list-search-row{grid-template-columns:1fr;}
   .workflow-card{padding:18px;}
   .workflow-heading{gap:10px;margin-bottom:16px;}
