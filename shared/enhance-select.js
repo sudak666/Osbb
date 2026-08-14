@@ -173,3 +173,6 @@
   window.enhanceSelect = enhanceSelect;
   window.refreshEnhancedSelect = refreshEnhancedSelect;
 })();
+
+export const enhanceSelect = window.enhanceSelect;
+export const refreshEnhancedSelect = window.refreshEnhancedSelect;
