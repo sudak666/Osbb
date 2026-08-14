@@ -14,6 +14,7 @@ export interface OsbbStaffAuthControllerDeps {
 
 export interface OsbbStaffAuthController {
     open(): Promise<void>;
+    authenticateSingle(pin: string): Promise<boolean>;
     requestReauth(session: StaffSession): Promise<boolean>;
     select(staffId: unknown): void;
     back(): void;
@@ -76,6 +77,32 @@ export function createOsbbStaffAuthController(deps: OsbbStaffAuthControllerDeps)
             ? deps.renderStaffList(list)
             : '<div class="staff-login-loading">Профілі керування не налаштовані.</div>';
         if (list.length === 1) select(list[0].id);
+    }
+
+    async function authenticateSingle(pin: string): Promise<boolean> {
+        if (!isPinComplete(pin)) return false;
+        try { list = deps.isPreview ? PREVIEW_STAFF.map(person => ({ ...person })) : parseStaffList(await deps.loadStaff()); }
+        catch { list = []; }
+        if (deps.filterStaff) list = list.filter(deps.filterStaff);
+        if (list.length !== 1) return false;
+        const person = list[0];
+        let session: StaffSession | null = null;
+        if (deps.isPreview) session = parseStaffSession({ id: person.id, name: person.full_name, role: person.role });
+        else {
+            try {
+                const response = await deps.verifyPin(person.id, pin);
+                const result = Array.isArray(response) ? response[0] : response;
+                session = result && typeof result === 'object' && (result as Record<string, unknown>).ok
+                    ? parseStaffSession({ id: person.id, name: (result as Record<string, unknown>).full_name || person.full_name, role: (result as Record<string, unknown>).role })
+                    : null;
+            } catch { session = null; }
+        }
+        if (!session) return false;
+        const modal = element('staff-login-modal');
+        if (modal) modal.style.display = 'none';
+        deps.onAuthenticated(session, pin);
+        finishReauth(true);
+        return true;
     }
 
     function select(staffId: unknown): void {
@@ -158,5 +185,5 @@ export function createOsbbStaffAuthController(deps: OsbbStaffAuthControllerDeps)
         setTimer(() => { if (selected === pendingSelection) busy = false; }, pinLockoutDelay(failures));
     }
 
-    return { open, requestReauth, select, back, deleteDigit, press };
+    return { open, authenticateSingle, requestReauth, select, back, deleteDigit, press };
 }

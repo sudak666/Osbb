@@ -53,6 +53,32 @@ export function createOsbbStaffAuthController(deps) {
         listElement.innerHTML = list.length ? deps.renderStaffList(list) : '<div class="staff-login-loading">Профілі керування не налаштовані.</div>';
         if (list.length === 1) select(list[0].id);
     }
+
+    async function authenticateSingle(pin) {
+        if (!isPinComplete(pin)) return false;
+        try { list = deps.isPreview ? PREVIEW_STAFF.map(person => ({ ...person })) : parseStaffList(await deps.loadStaff()); }
+        catch { list = []; }
+        if (deps.filterStaff) list = list.filter(deps.filterStaff);
+        if (list.length !== 1) return false;
+        const person = list[0];
+        let session = null;
+        if (deps.isPreview) session = parseStaffSession({ id: person.id, name: person.full_name, role: person.role });
+        else {
+            try {
+                const response = await deps.verifyPin(person.id, pin);
+                const result = Array.isArray(response) ? response[0] : response;
+                session = result && typeof result === 'object' && result.ok
+                    ? parseStaffSession({ id: person.id, name: result.full_name || person.full_name, role: result.role })
+                    : null;
+            } catch { session = null; }
+        }
+        if (!session) return false;
+        const modal = element('staff-login-modal');
+        if (modal) modal.style.display = 'none';
+        deps.onAuthenticated(session, pin);
+        finishReauth(true);
+        return true;
+    }
     function select(staffId) {
         selected = list.find(person => String(person.id) === String(staffId)) ?? null;
         if (selected) showPinStep(`PIN для «${selected.full_name}»`);
@@ -121,5 +147,5 @@ export function createOsbbStaffAuthController(deps) {
         if (error) error.textContent = 'Невірний PIN, спробуйте ще';
         setTimer(() => { if (selected === pendingSelection) busy = false; }, pinLockoutDelay(failures));
     }
-    return { open, requestReauth, select, back, deleteDigit, press };
+    return { open, authenticateSingle, requestReauth, select, back, deleteDigit, press };
 }

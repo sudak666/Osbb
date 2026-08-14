@@ -86,6 +86,7 @@
     // ==========================================
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
+    let shellPinCache = /^\d{4}$/.test(window.__osbbShellPin || '') ? window.__osbbShellPin : null;
     let {
         photosCache,
         jiraIssues,
@@ -185,9 +186,38 @@
 
     async function ensureStaffAuth() {
         loadStaffSession();
-        if (staffSession) { applyRoleGating(); return; }
+        if (staffSession) {
+            if (shellPinCache) staffPinCache = shellPinCache;
+            applyRoleGating();
+            if (IS_EMBEDDED_SHELL && !staffPinCache) {
+                window.parent.postMessage({ type: 'osbb:request-shell-pin' }, window.location.origin);
+            }
+            return;
+        }
+        if (shellPinCache && await staffAuthController.authenticateSingle(shellPinCache)) return;
+        if (IS_EMBEDDED_SHELL && !shellPinCache) {
+            window.parent.postMessage({ type: 'osbb:request-shell-pin' }, window.location.origin);
+        }
         await openStaffLogin();
     }
+
+    window.addEventListener('osbb:shell-pin', event => {
+        const pin = event.detail;
+        if (!/^\d{4}$/.test(pin || '')) return;
+        shellPinCache = pin;
+        loadStaffSession();
+        if (staffSession) {
+            staffPinCache = pin;
+            document.getElementById('staff-login-modal')?.style.setProperty('display', 'none');
+            applyRoleGating();
+        } else {
+            void staffAuthController.authenticateSingle(pin);
+        }
+    });
+    window.addEventListener('osbb:shell-pin-cleared', () => {
+        shellPinCache = null;
+        staffPinCache = null;
+    });
 
     function openStaffLogin() {
         return staffAuthController.open();
@@ -351,7 +381,7 @@
         if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
         if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }
         if (tab !== 'shifts') { setTab(tab); return; }
-        showPinModal('PIN журналу', 'Введіть загальний PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
+        showPinModal('PIN розділу «Зміни»', 'Введіть окремий PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
     }
 
     function setTab(tab, { load = true } = {}) {
@@ -1680,7 +1710,7 @@
     runtimeController = createOsbbRuntimeController({
         document, window, navigator, isPreview:IS_PREVIEW, tabs:ALL_TABS, initialTab:currentTab,
         isTabAllowed:isTabAllowedForSession, isDispatcher:isDispatcherSession,
-        requestShiftPin:callback=>showPinModal('PIN журналу','Введіть загальний PIN для доступу',callback,false,'verify_work_shifts_pin'),
+        requestShiftPin:callback=>showPinModal('PIN розділу «Зміни»','Введіть окремий PIN для доступу',callback,false,'verify_work_shifts_pin'),
         getSelectedMonth:()=>({year:Number.parseInt(yearSelect.value,10),month:Number.parseInt(monthSelect.value,10)}),
         onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;},
         onTabChanged:tab=>{currentTab=tab;updateContextualJournalControls(tab);},

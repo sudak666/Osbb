@@ -121,3 +121,22 @@ test('operator filter hides worker profiles and skips selection when only one re
   assert.equal(document.getElementById('staff-login-list').classList.contains('hidden'), true);
   assert.equal(document.getElementById('staff-login-pin-sub').textContent, 'PIN для «Керування»');
 });
+
+test('single operator reuses the PIN already verified by the shell', async () => {
+  const attempts = [];
+  const { controller, authenticated } = makeController({
+    loadStaff: async () => [
+      { id: 9, full_name: 'Правління', role: 'board' },
+      { id: 8, full_name: 'Сантехнік', role: 'plumber' },
+    ],
+    filterStaff: person => ['dispatcher', 'admin', 'board'].includes(person.role),
+    verifyPin: async (staffId, pin) => {
+      attempts.push({ staffId, pin });
+      return [{ ok: true, full_name: 'Правління', role: 'board' }];
+    },
+  });
+
+  assert.equal(await controller.authenticateSingle('3535'), true);
+  assert.deepEqual(attempts, [{ staffId: 9, pin: '3535' }]);
+  assert.deepEqual(authenticated, [{ session: { id: 9, name: 'Правління', role: 'board' }, pin: '3535' }]);
+});

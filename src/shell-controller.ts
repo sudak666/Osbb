@@ -16,7 +16,7 @@ export interface ShellControllerDeps {
 
 export interface ShellController {
     bind(): void;
-    unlockShell(): void;
+    unlockShell(mainPin?: string): void;
     lockShellNow(): void;
     resetIdleLockTimer(): void;
     lockPress(digit: string | undefined): Promise<void>;
@@ -31,6 +31,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     const setTimer = deps.setTimeout ?? win.setTimeout.bind(win);
     const clearTimer = deps.clearTimeout ?? win.clearTimeout.bind(win);
     let idleLockTimer: ReturnType<Window['setTimeout']> | undefined;
+    let mainPinCache: string | null = null;
 
     function requireElement<T extends HTMLElement>(id: string): T {
         const element = doc.getElementById(id);
@@ -38,7 +39,15 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         return element as T;
     }
 
-    function unlockShell(): void {
+    function notifyFrameUnlocked(frame: HTMLIFrameElement): void {
+        const message = frame.id === 'frame-journal'
+            ? { type: 'osbb:shell-unlocked', mainPin: mainPinCache }
+            : { type: 'osbb:shell-unlocked' };
+        frame.contentWindow?.postMessage(message, win.location.origin);
+    }
+
+    function unlockShell(mainPin?: string): void {
+        if (mainPin) mainPinCache = mainPin;
         const lockScreen = doc.getElementById('app-lock-screen');
         if (lockScreen) lockScreen.style.display = 'none';
         requireElement('shell-main').style.display = 'flex';
@@ -48,7 +57,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
             const embeddedLock = frame.contentDocument?.getElementById('app-lock-screen')
                 ?? frame.contentDocument?.getElementById('authScreen');
             if (embeddedLock) embeddedLock.style.display = 'none';
-            frame.contentWindow?.postMessage({ type: 'osbb:shell-unlocked' }, win.location.origin);
+            notifyFrameUnlocked(frame);
         });
     }
 
@@ -88,7 +97,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
                 setAuthSession();
                 resetIdleLockTimer();
                 store.clearPin();
-                unlockShell();
+                unlockShell(attempt);
             } else {
                 const err = doc.getElementById('lock-err');
                 if (err) err.textContent = 'Невірний PIN, спробуйте ще';
@@ -123,6 +132,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     }
 
     function lockShellNow(): void {
+        mainPinCache = null;
         clearAuthSession();
         store.resetLock();
         lockUpdateDots();
@@ -131,6 +141,9 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         requireElement('shell-main').style.display = 'none';
         const lockScreen = doc.getElementById('app-lock-screen');
         if (lockScreen) lockScreen.style.display = 'flex';
+        doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe').forEach(frame => {
+            frame.contentWindow?.postMessage({ type: 'osbb:shell-locked' }, win.location.origin);
+        });
     }
 
     function resetIdleLockTimer(): void {
@@ -150,7 +163,19 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
             const fromShellFrame = [...doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe')]
                 .some((frame) => frame.contentWindow === event.source);
             if (!fromShellFrame) return;
-            if (event.data && event.data.type === 'osbb:user-activity') resetIdleLockTimer();
+            if (event.data?.type === 'osbb:user-activity') resetIdleLockTimer();
+            if (event.data?.type === 'osbb:request-shell-pin') {
+                const sourceFrame = [...doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe')]
+                    .find((frame) => frame.contentWindow === event.source);
+                if (mainPinCache && sourceFrame) notifyFrameUnlocked(sourceFrame);
+                else lockShellNow();
+            }
+        });
+
+        doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe').forEach(frame => {
+            frame.addEventListener('load', () => {
+                if (isAuthSessionValid()) notifyFrameUnlocked(frame);
+            });
         });
 
         doc.querySelectorAll<HTMLButtonElement>('[data-lock-digit]').forEach((button) => {

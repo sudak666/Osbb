@@ -578,7 +578,9 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
     'const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS',
     'if (isAuthSessionValid()) {',
     "frame.contentDocument?.getElementById('app-lock-screen')",
-    "frame.contentWindow?.postMessage({ type: 'osbb:shell-unlocked' }",
+    "? { type: 'osbb:shell-unlocked', mainPin: mainPinCache }",
+    "postMessage({ type: 'osbb:shell-locked' }",
+    "event.data?.type === 'osbb:request-shell-pin'",
   ];
   const forbidden = [
     'function setAuthSession() {\n        setAuthSession();',
@@ -589,6 +591,35 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
   if (missing.length || hasForbidden) {
     failed += 1;
     console.error(`not ok - ${label}${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+// Embedded Journal reuses the PIN just verified by the shell in memory, so a
+// restored operator profile does not immediately ask for the same PIN again.
+{
+  const text = readShellCombined() + '\n' + readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('src/osbb-app.js', 'utf8');
+  const label = 'shell shares the main PIN with Journal only in runtime memory';
+  const required = [
+    "frame.id === 'frame-journal'",
+    "mainPin: mainPinCache",
+    "new CustomEvent('osbb:shell-pin'",
+    "type: 'osbb:request-shell-pin'",
+    "let shellPinCache = /^\\d{4}$/.test(window.__osbbShellPin || '')",
+    "staffPinCache = shellPinCache",
+    "shellPinCache = null",
+  ];
+  const forbidden = [
+    "sessionStorage.setItem('pin'",
+    'sessionStorage.setItem("pin"',
+  ];
+  const missing = required.filter(needle => !text.includes(needle));
+  const hasForbidden = forbidden.some(needle => text.includes(needle));
+  if (missing.length || hasForbidden) {
+    failed += 1;
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; persisted PIN: ${hasForbidden})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -3119,7 +3150,7 @@ ${sharedSelectText}`;
     'id="section-shifts"',
     'function shiftLoadMonth()',
     'function requestTab(tab)',
-    "showPinModal('PIN журналу', 'Введіть загальний PIN для доступу'",
+    "showPinModal('PIN розділу «Зміни»', 'Введіть окремий PIN для доступу'",
     "function appendIndicators(container, person, values)",
     "[Array.isArray(values) && values.includes('night_half2'), 'is-half']",
     '.shift-dot.is-half {',
