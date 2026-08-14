@@ -3036,7 +3036,7 @@ ${sharedSelectText}`;
     'id="section-shifts"',
     'function shiftLoadMonth()',
     'function requestTab(tab)',
-    "showPinModal('PIN графіка змін', 'Введіть окремий PIN для доступу'",
+    "showPinModal('PIN журналу', 'Введіть загальний PIN для доступу'",
     "function appendIndicators(container, person, values)",
     "[Array.isArray(values) && values.includes('night_half2'), 'is-half']",
     '.shift-dot.is-half {',
