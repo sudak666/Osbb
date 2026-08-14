@@ -1,8 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { completedWorkEntriesFromResponse, filterCompletedWork, validateCompletedWorkDraft } from '../src/osbb-completed-work.js';
+import { completedWorkDefaultDate, completedWorkEntriesFromResponse, filterCompletedWork, validateCompletedWorkDraft } from '../src/osbb-completed-work.js';
 
 const id = '123e4567-e89b-12d3-a456-426614174000';
+
+test('completed work default date survives uninitialized calendar state', () => {
+  const today = new Date(2026, 7, 14);
+  assert.equal(completedWorkDefaultDate(undefined, undefined, today), '2026-08-14');
+  assert.equal(completedWorkDefaultDate(2026, 6, today), '2026-07-01');
+});
 
 test('completed work boundary accepts only complete safe rows', () => {
   assert.deepEqual(completedWorkEntriesFromResponse([

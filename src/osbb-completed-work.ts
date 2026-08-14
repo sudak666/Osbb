@@ -2,6 +2,14 @@ export type CompletedWorkRole = 'electrician' | 'janitor' | 'plumber';
 export interface CompletedWorkEntry { id:string; workDate:string; workerRole:CompletedWorkRole; description:string; note:string }
 export interface CompletedWorkDraft { id?:string | null; workDate?:string; workerRole?:string; description?:string; note?:string }
 export const COMPLETED_WORK_ROLES: readonly CompletedWorkRole[] = ['electrician','janitor','plumber'];
+export function completedWorkDefaultDate(year:unknown,month:unknown,today=new Date()):string {
+    const validToday=today instanceof Date&&!Number.isNaN(today.getTime())?today:new Date();
+    const todayYear=validToday.getFullYear(),todayMonth=validToday.getMonth();
+    const safeYear=Number.isInteger(year)&&Number(year)>=2000&&Number(year)<=2100?Number(year):todayYear;
+    const safeMonth=Number.isInteger(month)&&Number(month)>=0&&Number(month)<=11?Number(month):todayMonth;
+    const day=safeYear===todayYear&&safeMonth===todayMonth?validToday.getDate():1;
+    return `${safeYear}-${String(safeMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
 export function normalizeCompletedWorkEntry(value:unknown):CompletedWorkEntry|null {
     if(typeof value!=='object'||value===null||Array.isArray(value))return null;const row=value as Record<string,unknown>;
     const id=typeof row.id==='string'&&/^[0-9a-f-]{36}$/i.test(row.id)?row.id:null;const workDate=typeof row.work_date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(row.work_date)?row.work_date:'';

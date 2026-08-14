@@ -1,5 +1,15 @@
 export const COMPLETED_WORK_ROLES = ['electrician', 'janitor', 'plumber'];
 
+export function completedWorkDefaultDate(year, month, today = new Date()) {
+    const validToday = today instanceof Date && !Number.isNaN(today.getTime()) ? today : new Date();
+    const todayYear = validToday.getFullYear();
+    const todayMonth = validToday.getMonth();
+    const safeYear = Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : todayYear;
+    const safeMonth = Number.isInteger(month) && month >= 0 && month <= 11 ? month : todayMonth;
+    const day = safeYear === todayYear && safeMonth === todayMonth ? validToday.getDate() : 1;
+    return `${safeYear}-${String(safeMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 export function normalizeCompletedWorkEntry(value) {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
     const id = typeof value.id === 'string' && /^[0-9a-f-]{36}$/i.test(value.id) ? value.id : null;

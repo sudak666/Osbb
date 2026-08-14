@@ -168,6 +168,7 @@ button svg.journal-inline-icon { display:block; }
 .completed-work-form label { display:flex; flex-direction:column; gap:7px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:700; }
 .completed-work-form label > span small { font-weight:500; }
 .completed-work-form .is-wide { grid-column:1/-1; }
+.completed-work-form input[type="text"] { width:100%; min-height:56px; padding:12px 16px; border:1px solid var(--md-sys-color-outline,var(--border)); border-radius:var(--md-sys-shape-corner-medium,12px); background:var(--md-sys-color-surface-container-highest,var(--bg-input)); color:var(--md-sys-color-on-surface,var(--text-main)); }
 .completed-work-form .journal-textarea { min-height:96px; }
 .completed-work-form-actions { display:flex; justify-content:flex-end; gap:10px; }
 .completed-work-toolbar { display:grid; grid-template-columns:minmax(240px,1fr) minmax(190px,260px); gap:12px; padding:16px 0; border-top:1px solid var(--md-sys-color-outline-variant,var(--border)); }
