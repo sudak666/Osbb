@@ -9,6 +9,7 @@
     import { createOsbbShiftSettingsController } from './osbb-shift-settings-controller.js';
     import { createOsbbShiftCalendarController } from './osbb-shift-calendar-controller.js';
     import { createOsbbAttendanceController } from './osbb-attendance-controller.js';
+    import { buildAttendanceExportRows, buildAttendanceSummaryRows } from './osbb-attendance.js';
     import { createOsbbGarbageController } from './osbb-garbage-controller.js';
     import { createOsbbElevatorController } from './osbb-elevator-controller.js';
     import { createOsbbCompletedWorkController } from './osbb-completed-work-controller.js';
@@ -533,6 +534,27 @@
         return attendanceController.renderStats();
     }
 
+    function attExportExcel() {
+        if (!window.XLSX) {
+            showToast('Модуль Excel ще не завантажився. Оновіть сторінку.');
+            return;
+        }
+        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
+        const data = attendanceController.getData();
+        const details = buildAttendanceExportRows(data, roles, roleNames, currentYear, currentMonth, daysInMonth);
+        const summary = buildAttendanceSummaryRows(data, roles, roleNames, daysInMonth);
+        const workbook = window.XLSX.utils.book_new();
+        const detailsSheet = window.XLSX.utils.json_to_sheet(details);
+        detailsSheet['!cols'] = [{wch:12},{wch:14},{wch:18},{wch:10},{wch:10},{wch:12},{wch:10},{wch:20},{wch:16}];
+        const summarySheet = window.XLSX.utils.json_to_sheet(summary);
+        summarySheet['!cols'] = [{wch:20},{wch:20},{wch:22}];
+        window.XLSX.utils.book_append_sheet(workbook, detailsSheet, 'Табель');
+        window.XLSX.utils.book_append_sheet(workbook, summarySheet, 'Підсумки');
+        const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+        window.XLSX.writeFile(workbook, `Табель_${monthKey}.xlsx`);
+        showToast('Табель Excel завантажено!', 'success');
+    }
+
     function attRender() {
         const body = document.getElementById('att-body');
         const calendar = document.getElementById('att-calendar');
@@ -902,6 +924,7 @@
         document.querySelectorAll('[data-osbb-tab]').forEach((button) => {
             button.addEventListener('click', () => requestTab(button.dataset.osbbTab));
         });
+        document.querySelector('[data-attendance-export]')?.addEventListener('click', attExportExcel);
         document.querySelectorAll('[data-shift-action]').forEach((button) => {
             const handlers = {
                 'previous-month': () => shiftChangeMonth(-1),

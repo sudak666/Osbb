@@ -379,7 +379,10 @@
         <div class="journal-panel">
             <div class="journal-list-head">
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Табель робочого часу</span>
-                <span id="att-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+                <div class="journal-list-head-actions">
+                    <span id="att-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+                    <button type="button" class="journal-tonal-btn md-state-layer" data-attendance-export><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">download</span>Експорт Excel</button>
+                </div>
             </div>
             <p id="att-view-note" class="shift-copy">Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.</p>
             <div class="att-stats-grid" id="att-stats-grid" aria-label="Відпрацьовано за місяць"></div>

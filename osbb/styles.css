@@ -121,6 +121,7 @@ body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app));
    #g-days-list/#disp-cards нижче. */
 .journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; padding:0!important; }
 .journal-list-head { padding:16px 22px; background:var(--table-header); border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+.journal-list-head-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:10px; }
 /* Табель і блок Ліфтера сидять у .journal-panel без .journal-list-shell (їхній
    вміст нижче потребує звичайного padding панелі, на відміну від календарних
    списків) — той самий "шов" з коментаря вище, лікується локально: голова
