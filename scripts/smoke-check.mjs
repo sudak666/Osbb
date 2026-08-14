@@ -3106,6 +3106,7 @@ ${sharedSelectText}`;
   const migration = readFileSync('sklad/supabase/011_add_work_shifts.sql', 'utf8');
   const fixMigration = readFileSync('sklad/supabase/012_fix_work_shifts_month_key.sql', 'utf8');
   const securityMigration = readFileSync('sklad/supabase/013_secure_work_shifts.sql', 'utf8');
+  const pinSeparationMigration = readFileSync('sklad/supabase/026_unify_main_pin_keep_shifts_separate.sql', 'utf8');
   const readme = readFileSync('README.md', 'utf8');
   const databaseTypes = readFileSync('src/database.types.ts', 'utf8');
   const label = 'journal integrates smena schedule with Material 3 and Supabase';
@@ -3145,11 +3146,14 @@ ${sharedSelectText}`;
     && securityMigration.includes('create or replace function update_work_shift_names')
     && securityMigration.includes('drop policy if exists "work shifts insert"')
     && securityMigration.includes('if not verify_work_shifts_pin(attempt) then return false; end if;');
-  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('012_fix_work_shifts_month_key.sql') && readme.includes('013_secure_work_shifts.sql');
+  const pinSeparationReady = pinSeparationMigration.includes("lock_pin_hash = extensions.crypt(attempt, lock_pin_hash)")
+    && pinSeparationMigration.includes('from public.work_shift_auth')
+    && !pinSeparationMigration.includes('or exists (');
+  const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('012_fix_work_shifts_month_key.sql') && readme.includes('013_secure_work_shifts.sql') && readme.includes('026_unify_main_pin_keep_shifts_separate.sql');
   const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:') && databaseTypes.includes('save_work_shift_day:');
-  if (missing.length || !migrationReady || !directWritesClosed || !docsReady || !typesReady) {
+  if (missing.length || !migrationReady || !pinSeparationReady || !directWritesClosed || !docsReady || !typesReady) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; migration: ${migrationReady}; direct writes closed: ${directWritesClosed}; docs: ${docsReady}; types: ${typesReady})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; migration: ${migrationReady}; PIN separation: ${pinSeparationReady}; direct writes closed: ${directWritesClosed}; docs: ${docsReady}; types: ${typesReady})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);

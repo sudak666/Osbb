@@ -17,7 +17,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `025_unify_work_shifts_pin.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `026_unify_main_pin_keep_shifts_separate.sql`). |
 | `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
 
 ## Як працює авторизація
@@ -38,11 +38,11 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 - RPC: `verify_lock_pin`, `verify_reset_pin`, `list_osbb_staff`, `verify_staff_pin`, `save_attendance_day`, `reset_month`, `reset_work_shifts_month`, `verify_pin`, `issue_item`, `receive_item`, `delete_inventory_item`, `delete_inventory_log`, `delete_inventory_receipt`, `delete_photo`;
 - Storage bucket: `photos` (фото складу без префіксу, фото чергувань журналу — під `osbb-duty/`).
 
-Журнал і склад мають окремі `app_auth`-таблиці (`osbb_app_auth` — два PIN, вхід+скидання; `app_auth` складу — один PIN) — це не помилка, а свідоме рішення: два незалежні PIN-контури, а не єдина авторизація.
+Журнал і склад технічно зберігають окремі auth-таблиці для сумісності, але після `026_unify_main_pin_keep_shifts_separate.sql` використовують один основний PIN для входу й підтверджень. Лише розділ «Зміни» має окремий PIN у `work_shift_auth`.
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `025_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `026_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -68,9 +68,10 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 22. `022_add_attendance_breaks.sql` — додає початок/кінець обіду до Табеля, серверну валідацію часу та сумісність зі старими записами приходу/відходу.
 23. `023_add_completed_work_log.sql` — додає окремий журнал фактично виконаних робіт із захищеним створенням, редагуванням і видаленням.
 24. `024_unify_operator_pin.sql` — дозволяє диспетчеру, адміністратору та Правлінню входити із загальним PIN журналу.
-25. `025_unify_work_shifts_pin.sql` — використовує загальний PIN журналу для доступу й змін у графіку змін.
+25. `025_unify_work_shifts_pin.sql` — історично дозволив загальний PIN журналу для графіка змін.
+26. `026_unify_main_pin_keep_shifts_separate.sql` — встановлює один основний PIN для shell, журналу, складу й підтверджень та повертає окремий PIN для розділу «Зміни».
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `025_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `026_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
 
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
