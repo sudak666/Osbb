@@ -608,6 +608,7 @@ function renderItems(){
   }
   tb.innerHTML=items.map((item,idx)=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
+    const canIssue=Number(item.quantity)>0;
     const id=Number(item.id);
     const name=escapeHtml(item.name||'');
     const category=escapeHtml(item.category||'—');
@@ -625,7 +626,7 @@ function renderItems(){
       <td><span class="${qc}">${escapeHtml(String(item.quantity??0))}</span> <span class="table-qty-unit">${unit}</span></td>
       <td>${priceBadge(item)}</td>
       <td><div class="table-row-actions">
-        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"><span class="ms ic-15-3">output</span> Видати</button>
+        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"${canIssue?'':' disabled aria-disabled="true" aria-label="Немає залишку для видачі"'}><span class="ms ic-15-3">${canIssue?'output':'block'}</span> ${canIssue?'Видати':'Немає'}</button>
         <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
@@ -644,6 +645,7 @@ function renderItems(){
   const mc=document.getElementById('mobileCards');
   if(mc) mc.innerHTML=items.map(item=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
+    const canIssue=Number(item.quantity)>0;
     const id=Number(item.id);
     const name=escapeHtml(item.name||'');
     const category=escapeHtml(item.category||'—');
@@ -668,7 +670,7 @@ function renderItems(){
         </div>
       </div>
       <div class="m-card-actions">
-        <button type="button" class="btn btn-primary" data-item-action="quick" data-item-id="${id}"><span class="ms ic-15-3">output</span> Видати</button>
+        <button type="button" class="btn btn-primary" data-item-action="quick" data-item-id="${id}"${canIssue?'':' disabled aria-disabled="true" aria-label="Немає залишку для видачі"'}><span class="ms ic-15-3">${canIssue?'output':'block'}</span> ${canIssue?'Видати':'Немає'}</button>
         <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Деталі</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
@@ -718,6 +720,7 @@ function setActionButtonLoading(btn,label){
 function openQuick(id){
   const item=findItemForAction(id,'видача');
   if(!item) return;
+  if(Number(item.quantity)<=0){toast('Цього товару немає в залишку','error');return;}
   quickId=id;
   document.getElementById('qmName').textContent=item.name;
   document.getElementById('qmQtyShow').textContent=item.quantity+' '+item.unit;
@@ -1298,8 +1301,12 @@ function renderChart(){
 
 // ===== SELECTS =====
 function populateSels(){
-  const opts=allItems.map(i=>`<option value="${Number(i.id)}">${escapeHtml(i.name||'—')} (${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')})</option>`).join('');
-  ['issueItemSel','refillSel'].forEach(k=>{const el=document.getElementById(k);if(el){el.innerHTML='<option value="">— Оберіть товар —</option>'+opts;refreshEnhancedSelect(el);}});
+  const itemOption=i=>`<option value="${Number(i.id)}">${escapeHtml(i.name||'—')} (${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')})</option>`;
+  const optionsBySelect={
+    issueItemSel:allItems.filter(i=>Number(i.quantity)>0).map(itemOption).join(''),
+    refillSel:allItems.map(itemOption).join(''),
+  };
+  Object.entries(optionsBySelect).forEach(([id,options])=>{const el=document.getElementById(id);if(el){el.innerHTML='<option value="">— Оберіть товар —</option>'+options;refreshEnhancedSelect(el);}});
 }
 
 // Кастомний select підключено зі shared/enhance-select.js.

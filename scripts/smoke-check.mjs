@@ -188,6 +188,9 @@ const checks = [
   ['src/sklad-app.js', "e.key==='Escape' && clearSearchInput", 'sklad Escape shortcut clears active search first'],
   ['src/sklad-movements-controller.js', "import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';", 'sklad uses typed operation-date helpers'],
   ['src/sklad-app.js', "document.getElementById('issueDateI').value", 'sklad issue flow reads selected issue date'],
+  ['src/sklad-app.js', 'disabled aria-disabled="true" aria-label="Немає залишку для видачі"', 'zero-stock issue actions are visibly disabled'],
+  ['src/sklad-app.js', "allItems.filter(i=>Number(i.quantity)>0).map(itemOption)", 'issue selector excludes zero-stock items'],
+  ['src/sklad-app.js', "toast('Цього товару немає в залишку','error')", 'quick issue rejects stale zero-stock actions'],
   ['sklad/index.html', 'id="refillDateI"', 'sklad refill form has receipt date input'],
   ['src/sklad-app.js', "document.getElementById('refillDateI').value", 'sklad refill flow reads selected receipt date'],
   ['sklad/index.html', 'id="editReceiptDate"', 'sklad receipt edit modal has date input'],
@@ -2740,7 +2743,7 @@ ${sharedSelectText}`;
   const text = readSkladCombined();
   const label = 'sklad desktop item row uses the shared item-more kebab menu, not a dense icon row';
   const required = [
-    'data-item-action="quick" data-item-id="${id}"><span class="ms ic-15-3">output</span> Видати',
+    'data-item-action="quick" data-item-id="${id}"${canIssue?',
     'data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія',
     '<details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false">',
     '.table-modern{overflow:visible;}',
