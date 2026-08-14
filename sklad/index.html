@@ -259,11 +259,11 @@ window.addEventListener('message',event=>{
     </div>
     <div class="list-toolbar">
       <div class="list-toolbar-row pills-wrap">
-        <button type="button" class="pill active" data-log-category-filter="">Всі</button>
-        <button type="button" class="pill" data-log-category-filter="Прибирання" aria-label="Фільтр за категорією: Прибирання"><span class="ms ic-15">cleaning_services</span></button>
-        <button type="button" class="pill" data-log-category-filter="Ремонт" aria-label="Фільтр за категорією: Ремонт"><span class="ms ic-15">build</span></button>
-        <button type="button" class="pill" data-log-category-filter="Електрика" aria-label="Фільтр за категорією: Електрика"><span class="ms ic-15">bolt</span></button>
-        <button type="button" class="pill" data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка"><span class="ms ic-15">plumbing</span></button>
+        <button type="button" class="pill active" data-log-category-filter="" aria-pressed="true">Всі</button>
+        <button type="button" class="pill" data-log-category-filter="Прибирання" aria-label="Фільтр за категорією: Прибирання" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">cleaning_services</span> Прибирання</button>
+        <button type="button" class="pill" data-log-category-filter="Ремонт" aria-label="Фільтр за категорією: Ремонт" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">build</span> Ремонт</button>
+        <button type="button" class="pill" data-log-category-filter="Електрика" aria-label="Фільтр за категорією: Електрика" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">bolt</span> Електрика</button>
+        <button type="button" class="pill" data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">plumbing</span> Сантехніка</button>
       </div>
       <div class="list-toolbar-row list-search-row">
         <div class="sw log-search-field"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
