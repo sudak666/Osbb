@@ -3536,6 +3536,8 @@ ${sharedSelectText}`;
     '.att-calendar-role.is-complete-cell,.att-mobile-role.is-complete-cell,.att-table td.is-complete-cell {',
     '.att-calendar-times,.att-table-times { display:grid; grid-template-columns:repeat(2',
     '.att-absence-action {',
+    '@media (max-width:480px) {',
+    '.att-stats-grid { grid-template-columns:1fr; }',
     '.is-complete-cell .att-time-input {',
     '.is-partial-cell .att-time-input:not(:placeholder-shown) {',
     '@media (max-width:900px) {',
