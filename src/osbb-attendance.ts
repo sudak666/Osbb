@@ -13,6 +13,8 @@ export interface AttendanceTotal {
     hours: number;
 }
 
+export type AttendanceExportRow = Record<string, string | number>;
+
 export type AttendanceMonth = Record<string, Record<string, AttendanceCell> | undefined>;
 
 function parseTime(value: unknown): number | null {
@@ -121,4 +123,51 @@ export function calculateAttendanceTotals(
         }
     }
     return totals;
+}
+
+export function buildAttendanceExportRows(
+    data: AttendanceMonth,
+    roles: readonly string[],
+    roleNames: Readonly<Record<string, string>>,
+    year: number,
+    month: number,
+    daysInMonth: number,
+): AttendanceExportRow[] {
+    const rows: AttendanceExportRow[] = [];
+    for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(year, month, day);
+        const dateLabel = date.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const weekday = date.toLocaleDateString('uk-UA', { weekday: 'long' });
+        for (const role of roles) {
+            const cell = data[String(day)]?.[role] ?? {};
+            const hasData = ATTENDANCE_FIELDS.some(field => cell[field]);
+            const hours = attendanceHours(cell);
+            rows.push({
+                'Дата': dateLabel,
+                'День тижня': weekday,
+                'Працівник': roleNames[role] ?? role,
+                'Прихід': cell.checkIn ?? '',
+                'Вийшов': cell.breakStart ?? '',
+                'Повернувся': cell.breakEnd ?? '',
+                'Відхід': cell.checkOut ?? '',
+                'Відпрацьовано, год': hours,
+                'Стан': hours > 0 ? 'Завершено' : hasData ? 'Не завершено' : 'Немає запису',
+            });
+        }
+    }
+    return rows;
+}
+
+export function buildAttendanceSummaryRows(
+    data: AttendanceMonth,
+    roles: readonly string[],
+    roleNames: Readonly<Record<string, string>>,
+    daysInMonth: number,
+): AttendanceExportRow[] {
+    const totals = calculateAttendanceTotals(data, roles, daysInMonth);
+    return roles.map(role => ({
+        'Працівник': roleNames[role] ?? role,
+        'Відпрацьовано днів': totals[role]?.days ?? 0,
+        'Відпрацьовано годин': totals[role]?.hours ?? 0,
+    }));
 }

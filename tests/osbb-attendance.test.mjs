@@ -6,6 +6,8 @@ import {
   attendanceCellError,
   attendanceDayState,
   attendanceHours,
+  buildAttendanceExportRows,
+  buildAttendanceSummaryRows,
   calculateAttendanceTotals,
   formatAttendanceDuration,
   normalizeAttendanceMonth,
@@ -19,6 +21,27 @@ test('normalizeAttendanceMonth відкидає некоректні дні, к�
     2: null,
   }), { 1: { plumber: { checkIn: '08:15', breakStart:undefined, breakEnd:undefined, checkOut: '17:30' } } });
   assert.deepEqual(normalizeAttendanceMonth([]), {});
+});
+
+test('attendance export builds daily rows and monthly summary for Excel', () => {
+  const data = {
+    1: { plumber: { checkIn:'08:00', breakStart:'12:00', breakEnd:'13:00', checkOut:'17:00' } },
+    2: { janitor: { checkIn:'09:00' } },
+  };
+  const roles = ['plumber', 'janitor'];
+  const names = { plumber:'Сантехнік', janitor:'Двірник' };
+  const rows = buildAttendanceExportRows(data, roles, names, 2026, 7, 2);
+  assert.equal(rows.length, 4);
+  assert.deepEqual(rows[0], {
+    'Дата':'01.08.2026', 'День тижня':'субота', 'Працівник':'Сантехнік',
+    'Прихід':'08:00', 'Вийшов':'12:00', 'Повернувся':'13:00', 'Відхід':'17:00',
+    'Відпрацьовано, год':8, 'Стан':'Завершено',
+  });
+  assert.equal(rows[3]['Стан'], 'Не завершено');
+  assert.deepEqual(buildAttendanceSummaryRows(data, roles, names, 2), [
+    { 'Працівник':'Сантехнік', 'Відпрацьовано днів':1, 'Відпрацьовано годин':8 },
+    { 'Працівник':'Двірник', 'Відпрацьовано днів':0, 'Відпрацьовано годин':0 },
+  ]);
 });
 
 test('attendanceHours supports regular and overnight shifts', () => {

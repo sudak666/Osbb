@@ -100,3 +100,38 @@ export function calculateAttendanceTotals(data, roles, daysInMonth) {
     }
     return totals;
 }
+
+export function buildAttendanceExportRows(data, roles, roleNames, year, month, daysInMonth) {
+    const rows = [];
+    for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(year, month, day);
+        const dateLabel = date.toLocaleDateString('uk-UA', { day:'2-digit', month:'2-digit', year:'numeric' });
+        const weekday = date.toLocaleDateString('uk-UA', { weekday:'long' });
+        for (const role of roles) {
+            const cell = data[String(day)]?.[role] ?? {};
+            const hasData = ATTENDANCE_FIELDS.some(field => cell[field]);
+            const hours = attendanceHours(cell);
+            rows.push({
+                'Дата':dateLabel,
+                'День тижня':weekday,
+                'Працівник':roleNames[role] ?? role,
+                'Прихід':cell.checkIn ?? '',
+                'Вийшов':cell.breakStart ?? '',
+                'Повернувся':cell.breakEnd ?? '',
+                'Відхід':cell.checkOut ?? '',
+                'Відпрацьовано, год':hours,
+                'Стан':hours > 0 ? 'Завершено' : hasData ? 'Не завершено' : 'Немає запису',
+            });
+        }
+    }
+    return rows;
+}
+
+export function buildAttendanceSummaryRows(data, roles, roleNames, daysInMonth) {
+    const totals = calculateAttendanceTotals(data, roles, daysInMonth);
+    return roles.map(role => ({
+        'Працівник':roleNames[role] ?? role,
+        'Відпрацьовано днів':totals[role]?.days ?? 0,
+        'Відпрацьовано годин':totals[role]?.hours ?? 0,
+    }));
+}
