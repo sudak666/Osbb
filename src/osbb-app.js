@@ -868,6 +868,7 @@
             'garbage-clear-month': gClearMonth,
             'go-today': goToday,
             'refresh-data': refreshData,
+            'jira-refresh': myTicketsInitTab,
             'elevator-add': () => {
                 const dayEl = document.getElementById('elevator-new-day');
                 const textEl = document.getElementById('elevator-new-text');
@@ -1633,6 +1634,11 @@
     styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
     document.head.appendChild(styleEl);
 
+    function updateContextualJournalControls(tab) {
+        const calendarRow = document.getElementById('journal-calendar-row');
+        if (calendarRow) calendarRow.classList.toggle('hidden', tab === 'my-tickets' || tab === 'shifts');
+    }
+
     // Запускаємо початкове завантаження лише після ініціалізації всіх
     // lexical state bindings, які читають активні вкладки.
     runtimeController = createOsbbRuntimeController({
@@ -1640,7 +1646,8 @@
         isTabAllowed:isTabAllowedForSession, isDispatcher:isDispatcherSession,
         requestShiftPin:callback=>showPinModal('PIN журналу','Введіть загальний PIN для доступу',callback,false,'verify_work_shifts_pin'),
         getSelectedMonth:()=>({year:Number.parseInt(yearSelect.value,10),month:Number.parseInt(monthSelect.value,10)}),
-        onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;}, onTabChanged:tab=>{currentTab=tab;},
+        onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;},
+        onTabChanged:tab=>{currentTab=tab;updateContextualJournalControls(tab);},
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
         loadDashboard:gInitDashboard,
         loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
