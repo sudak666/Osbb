@@ -96,6 +96,10 @@ const checks = [
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
   ['osbb/index.html', '/functions/v1/jira-issues', 'journal loads Jira issues through Edge Function'],
+  ['osbb/index.html', 'id="journal-calendar-row" class="journal-action-row"', 'journal exposes contextual calendar controls'],
+  ['osbb/index.html', 'data-action="jira-refresh" data-tip="Оновити заявки" aria-label="Оновити заявки Jira"', 'Jira exposes a local refresh action'],
+  ['src/osbb-app.js', "calendarRow.classList.toggle('hidden', tab === 'my-tickets' || tab === 'shifts')", 'journal hides irrelevant month controls'],
+  ['src/osbb-app.js', "'jira-refresh': myTicketsInitTab", 'Jira refresh uses the existing guarded loader'],
   ['osbb/index.html', 'Jira — єдине джерело заявок', 'Jira is presented as the single source of requests'],
   ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
   ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],

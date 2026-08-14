@@ -219,7 +219,7 @@
             </div>
         </div>
 
-        <div class="journal-action-row">
+        <div id="journal-calendar-row" class="journal-action-row">
             <div class="journal-calendar-controls">
                 <button type="button" data-month-step="-1" data-tip="Попередній місяць" aria-label="Попередній місяць" class="journal-icon-btn md-state-layer"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
                 <select id="year-select" data-calendar-select aria-label="Рік" class="journal-select"></select>
@@ -444,7 +444,10 @@
         <div class="journal-panel journal-list-shell my-tickets-panel">
             <div class="journal-list-head">
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">assignment</span>Заявки Jira</span>
-                <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+                <div class="flex items-center gap-2">
+                    <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+                    <button type="button" class="journal-icon-btn md-state-layer" data-action="jira-refresh" data-tip="Оновити заявки" aria-label="Оновити заявки Jira"><span class="material-symbols-rounded" aria-hidden="true">refresh</span></button>
+                </div>
             </div>
             <p class="shift-copy">Jira — єдине джерело заявок. Редагування й закриття виконуються безпосередньо в Jira.</p>
             <div class="priority-legend" aria-label="Порядок пріоритетів">
