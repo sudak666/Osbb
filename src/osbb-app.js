@@ -14,7 +14,7 @@
     import { createOsbbCompletedWorkController } from './osbb-completed-work-controller.js';
     import { createOsbbRuntimeController } from './osbb-runtime-controller.js';
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
-    import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
+    import { adjacentCalendarDays, calendarMonthDays, isCalendarMonth, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
     import {
@@ -520,8 +520,15 @@
         let html = '';
         let calendarHtml = '';
         let mobileHtml = '';
-        const firstDayOffset = mondayFirstDayOffset(currentYear, currentMonth);
-        calendarHtml += '<div class="att-calendar-spacer" aria-hidden="true"></div>'.repeat(firstDayOffset);
+        const adjacentDays = adjacentCalendarDays(currentYear, currentMonth);
+        const renderAdjacentDay = ({ year, month, day }) => {
+            const monthName = new Date(year, month, day).toLocaleDateString('uk-UA', { month:'short' });
+            return `<article class="att-calendar-day is-adjacent-month" aria-disabled="true">
+                <header><strong>${day}</strong><span>${monthName}</span></header>
+                <div class="att-calendar-adjacent-copy">Інший місяць</div>
+            </article>`;
+        };
+        calendarHtml += adjacentDays.leading.map(renderAdjacentDay).join('');
         for (let d = 1; d <= daysInMonth; d++) {
             const dateObj = new Date(currentYear, currentMonth, d);
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
@@ -534,33 +541,39 @@
             visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 const cellState = attCellState(cell);
+                const hasAbsence = Boolean(cell.breakStart || cell.breakEnd);
+                const absenceHidden = hasAbsence ? '' : ' hidden';
+                const absenceAction = `<button type="button" class="att-absence-action md-state-layer" data-att-absence-action="${hasAbsence ? 'clear' : 'add'}">${hasAbsence ? 'Прибрати відсутність' : '+ Додати відсутність'}</button>`;
                 if (editable) {
                     html += `<td class="is-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-table-times">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Відхід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
-                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід з" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Початок обіду ${roleNames[role]} ${d}">
-                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід до" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Кінець обіду ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Вийшов" data-time-mask class="att-time-input att-absence-field${absenceHidden}" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Вийшов ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Повернувся" data-time-mask class="att-time-input att-absence-field${absenceHidden}" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Повернувся ${roleNames[role]} ${d}">
                         </div>
+                        ${absenceAction}
                     </td>`;
                     mobileRolesHtml += `<div class="att-mobile-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-mobile-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <label><span>Прихід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}"></label>
                         <label><span>Відхід</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}"></label>
-                        <label><span>Обід з</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Початок обіду ${roleNames[role]} ${d}"></label>
-                        <label><span>Обід до</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Кінець обіду ${roleNames[role]} ${d}"></label>
+                        <label class="att-absence-field${absenceHidden}"><span>Вийшов</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Вийшов ${roleNames[role]} ${d}"></label>
+                        <label class="att-absence-field${absenceHidden}"><span>Повернувся</span><input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Повернувся ${roleNames[role]} ${d}"></label>
+                        ${absenceAction}
                     </div>`;
                     calendarRolesHtml += `<div class="att-calendar-role role-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-calendar-role-name"><span class="att-mobile-role-dot" aria-hidden="true"></span>${roleNames[role]}</div>
                         <div class="att-calendar-times">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Прихід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkIn)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkIn" aria-label="Прихід ${roleNames[role]} ${d}">
                             <input type="text" inputmode="numeric" maxlength="5" placeholder="Відхід" data-time-mask class="att-time-input" value="${escapeAttr(cell.checkOut)}" data-att-day="${d}" data-att-role="${role}" data-att-field="checkOut" aria-label="Відхід ${roleNames[role]} ${d}">
-                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід з" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Початок обіду ${roleNames[role]} ${d}">
-                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Обід до" data-time-mask class="att-time-input" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Кінець обіду ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Вийшов" data-time-mask class="att-time-input att-absence-field${absenceHidden}" value="${escapeAttr(cell.breakStart)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakStart" aria-label="Вийшов ${roleNames[role]} ${d}">
+                            <input type="text" inputmode="numeric" maxlength="5" placeholder="Повернувся" data-time-mask class="att-time-input att-absence-field${absenceHidden}" value="${escapeAttr(cell.breakEnd)}" data-att-day="${d}" data-att-role="${role}" data-att-field="breakEnd" aria-label="Повернувся ${roleNames[role]} ${d}">
                         </div>
+                        ${absenceAction}
                     </div>`;
                 } else {
-                    const breakText = cell.breakStart || cell.breakEnd ? ` · обід ${cell.breakStart || '—'}–${cell.breakEnd || '—'}` : '';
+                    const breakText = cell.breakStart || cell.breakEnd ? ` · відсутність ${cell.breakStart || '—'}–${cell.breakEnd || '—'}` : '';
                     const text = (cell.checkIn || cell.checkOut) ? `${cell.checkIn || '—'}–${cell.checkOut || '—'}${breakText}` : '—';
                     html += `<td class="is-${role} att-readonly ${cellState}" data-att-cell="${d}-${role}">${text}</td>`;
                     mobileRolesHtml += `<div class="att-mobile-role role-${role} is-readonly ${cellState}" data-att-cell="${d}-${role}">
@@ -583,6 +596,7 @@
                 <div class="att-mobile-roles">${mobileRolesHtml}</div>
             </article>`;
         }
+        calendarHtml += adjacentDays.trailing.map(renderAdjacentDay).join('');
         body.innerHTML = html;
         calendar.innerHTML = calendarHtml;
         mobileList.innerHTML = mobileHtml;
@@ -591,8 +605,30 @@
                 input.addEventListener('change', () => {
                     const d = input.dataset.attDay, role = input.dataset.attRole;
                     const rowCell = attGetCell(d, role);
-                    const next = { ...rowCell, [input.dataset.attField]: input.value };
+                    const root = input.closest('[data-att-cell]');
+                    const next = { ...rowCell };
+                    root?.querySelectorAll('[data-att-field]').forEach(field => { next[field.dataset.attField] = field.value; });
+                    if (Boolean(next.breakStart) !== Boolean(next.breakEnd)) return;
                     attSaveDay(d, role, next);
+                });
+            });
+            document.querySelectorAll('[data-att-absence-action]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const root = button.closest('[data-att-cell]');
+                    if (!root) return;
+                    if (button.dataset.attAbsenceAction === 'add') {
+                        root.querySelectorAll('.att-absence-field').forEach(field => field.classList.remove('hidden'));
+                        button.textContent = 'Прибрати відсутність';
+                        button.dataset.attAbsenceAction = 'clear';
+                        root.querySelector('[data-att-field="breakStart"]')?.focus();
+                        return;
+                    }
+                    const first = root.querySelector('[data-att-field="breakStart"]');
+                    const last = root.querySelector('[data-att-field="breakEnd"]');
+                    if (!first || !last) return;
+                    first.value = '';
+                    last.value = '';
+                    attSaveDay(first.dataset.attDay, first.dataset.attRole, { ...attGetCell(first.dataset.attDay, first.dataset.attRole), breakStart:'', breakEnd:'' });
                 });
             });
         }

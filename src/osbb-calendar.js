@@ -24,6 +24,27 @@ export function mondayFirstDayOffset(year, month) {
     return (new Date(year, month, 1).getDay() + 6) % 7;
 }
 
+export function adjacentCalendarDays(year, month) {
+    assertCalendarMonth(year, month);
+    const leadingCount = mondayFirstDayOffset(year, month);
+    const daysInMonth = calendarMonthDays(year, month);
+    const previous = shiftCalendarMonth(year, month, -1);
+    const next = shiftCalendarMonth(year, month, 1);
+    const previousDays = previous ? calendarMonthDays(previous.year, previous.month) : 0;
+    const trailingCount = (7 - ((leadingCount + daysInMonth) % 7)) % 7;
+    return {
+        leading: previous
+            ? Array.from({ length: leadingCount }, (_, index) => ({
+                ...previous,
+                day: previousDays - leadingCount + index + 1,
+            }))
+            : [],
+        trailing: next
+            ? Array.from({ length: trailingCount }, (_, index) => ({ ...next, day: index + 1 }))
+            : [],
+    };
+}
+
 export function sundayFirstDayOffset(year, month) {
     assertCalendarMonth(year, month);
     return new Date(year, month, 1).getDay();

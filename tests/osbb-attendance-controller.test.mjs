@@ -33,7 +33,7 @@ test('attendance controller reauthenticates and saves through guarded RPC bounda
   assert.deepEqual(payload, { p_month_key:'2026-08', p_day:5, p_role:'janitor', p_check_in:'07:30', p_break_start:'12:00', p_break_end:'12:30', p_check_out:'16:00', p_staff_id:'staff-1', attempt:'9876' });
 });
 
-test('attendance controller rejects lunch outside the shift before persistence', async () => {
+test('attendance controller rejects absence outside the shift before persistence', async () => {
   let saves = 0;
   const { controller, values } = fixture({ saveCloud: async () => { saves++; return true; } });
   const saved = await controller.saveDay(5, 'janitor', { checkIn:'07:30', breakStart:'17:00', breakEnd:'17:30', checkOut:'16:00' });

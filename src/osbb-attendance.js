@@ -54,13 +54,13 @@ export function attendanceCellError(cell) {
     const values = Object.fromEntries(ATTENDANCE_FIELDS.map(field => [field, parseTime(cell[field])]));
     const invalidField = ATTENDANCE_FIELDS.find(field => cell[field] && values[field] === null);
     if (invalidField) return 'Введіть час у форматі ГГ:ХХ';
-    if ((values.breakStart === null) !== (values.breakEnd === null)) return 'Заповніть обидва поля обіду';
+    if ((values.breakStart === null) !== (values.breakEnd === null)) return 'Заповніть час виходу і повернення';
     if (values.checkIn === null || values.checkOut === null) return '';
     const shiftMinutes = elapsedMinutes(values.checkIn, values.checkOut);
     if (values.breakStart !== null) {
         const breakStartOffset = elapsedMinutes(values.checkIn, values.breakStart);
         const breakEndOffset = elapsedMinutes(values.checkIn, values.breakEnd);
-        if (breakStartOffset >= breakEndOffset || breakEndOffset > shiftMinutes) return 'Обід має бути між приходом і відходом';
+        if (breakStartOffset >= breakEndOffset || breakEndOffset > shiftMinutes) return 'Відсутність має бути між приходом і відходом';
     }
     return '';
 }
