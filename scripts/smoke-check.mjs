@@ -102,9 +102,10 @@ const checks = [
   ['src/osbb-app.js', "'jira-refresh': myTicketsInitTab", 'Jira refresh uses the existing guarded loader'],
   ['osbb/index.html', 'Jira — єдине джерело заявок', 'Jira is presented as the single source of requests'],
   ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
-  ['osbb/index.html', 'data-jira-filter="status"', 'Jira issues can be filtered by status'],
+  ['osbb/index.html', 'jiraStatusFilter = button.dataset.jiraStatusCounter', 'Jira issues can be filtered by status counters'],
   ['osbb/index.html', 'data-jira-status-counter=', 'Jira statuses show clickable issue counters'],
   ['osbb/index.html', "querySelectorAll('[data-jira-filter]')", 'Jira filters use rounded custom selects'],
+  ['osbb/styles.css', 'grid-template-columns:repeat(2,minmax(180px,240px))', 'Jira select filters use a compact two-column layout'],
   ['osbb/styles.css', '.my-ticket-card .my-ticket-close-actions { grid-template-columns:1fr; }', 'Jira ticket actions fit mobile cards'],
   ['osbb/styles.css', '.att-table td.is-complete-cell { background:color-mix', 'attendance complete cells use tint without color strips'],
   ['shared/enhance-select.js', 'document.body.appendChild(panel)', 'custom select panels escape clipped containers'],
@@ -287,6 +288,16 @@ for (const [file, needle, label] of checks) {
     failed += 1;
     console.error(`not ok - ${label} (${file} missing ${JSON.stringify(needle)})`);
   }
+}
+
+{
+  const text = readOsbbCombined();
+  const label = 'Jira status filtering has one control surface';
+  const valid = text.includes('data-jira-status-counter=')
+    && !text.includes('data-jira-filter="status"')
+    && !text.includes('Усі статуси');
+  if (!valid) { failed += 1; console.error(`not ok - ${label}`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
 }
 
 {

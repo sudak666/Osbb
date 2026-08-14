@@ -881,7 +881,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .my-ticket-close-form { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
 .my-ticket-close-actions { display:flex; gap:8px; align-items:center; }
 .my-tickets-list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-.jira-ticket-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:4px; }
+.jira-ticket-filters { display:grid; grid-template-columns:repeat(2,minmax(180px,240px)); gap:8px; margin-bottom:4px; }
 .jira-status-counters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
 .jira-status-counter { display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:8px 12px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); color:var(--md-sys-color-on-surface,var(--text-main)); font:inherit; font-weight:500; cursor:pointer; }
 .jira-status-counter strong { min-width:24px; padding:2px 7px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-highest,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-muted)); font-size:12px; text-align:center; }
