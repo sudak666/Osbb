@@ -163,12 +163,10 @@ test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
   assertIncludes(osbbApp, "db.rpc('list_osbb_staff', {})", 'staff list must load through RPC');
   assertIncludes(osbbApp, "db.rpc('verify_staff_pin', { p_staff_id: staffId, attempt })", 'staff PIN must verify on server');
   assertIncludes(osbbStaffAuthController, 'list = parseStaffList(await deps.loadStaff());', 'staff list must pass parser boundary');
-  assertIncludes(osbbStaffAuthController, 'parseStaffSettingsList(await deps.loadStaffSettings(session, pin))', 'staff settings must pass parser boundary');
-  assertIncludes(osbbStaffAuthController, 'if (settingsBusy || !session || !canManageStaffAccess(session)', 'staff access updates must be role-gated and single-flight');
+  assertIncludes(osbbStaffAuthController, 'list = list.filter(deps.filterStaff)', 'staff login must filter non-operator profiles');
+  assertIncludes(osbbStaffAuthController, 'if (list.length === 1) select(list[0].id)', 'single operator profile must skip redundant selection');
   assertIncludes(osbbStaffAuthController, '? parseStaffSession({', 'verified staff session must pass parser boundary');
-  assertIncludes(osbbApp, 'canManageStaffAccess as canManageStaffAccessForSession', 'staff settings gating helper must stay imported');
-  assertIncludes(osbbApp, '!canManageStaffAccessForSession(staffSession)', 'role gating must use the imported staff helper');
-  assert.doesNotMatch(osbbApp, /!canManageStaffAccess\(\)/u, 'removed local staff helper must not be called');
+  assertIncludes(osbbApp, 'filterStaff: person => isDispatcherStaffSession', 'app must expose only management profiles');
 });
 
 test('OSBB privileged action PIN modal keeps delegated keypad and server verification', () => {

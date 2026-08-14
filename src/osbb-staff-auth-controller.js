@@ -1,5 +1,5 @@
 import { appendPinDigit, deletePinDigit, isPinComplete, pinLockoutDelay } from './pin-entry.js';
-import { canManageStaffAccess, parseStaffList, parseStaffSession, parseStaffSettingsList } from './osbb-staff.js';
+import { parseStaffList, parseStaffSession } from './osbb-staff.js';
 
 const PREVIEW_STAFF = [
     { id: 'preview-dispatcher', full_name: 'Диспетчер (превʼю)', role: 'dispatcher' },
@@ -15,8 +15,6 @@ export function createOsbbStaffAuthController(deps) {
     let busy = false;
     let failures = 0;
     let reauthResolve = null;
-    let settingsLoadId = 0;
-    let settingsBusy = false;
     const element = id => doc.getElementById(id);
     const updateDots = () => {
         for (let i = 0; i < 4; i++) element('staff-pin-d' + i)?.classList.toggle('is-entered', i < buffer.length);
@@ -51,7 +49,9 @@ export function createOsbbStaffAuthController(deps) {
             try { list = parseStaffList(await deps.loadStaff()); }
             catch { list = []; }
         }
-        listElement.innerHTML = list.length ? deps.renderStaffList(list) : '<div class="staff-login-loading">Список співробітників порожній. Зверніться до адміністратора.</div>';
+        if (deps.filterStaff) list = list.filter(deps.filterStaff);
+        listElement.innerHTML = list.length ? deps.renderStaffList(list) : '<div class="staff-login-loading">Профілі керування не налаштовані.</div>';
+        if (list.length === 1) select(list[0].id);
     }
     function select(staffId) {
         selected = list.find(person => String(person.id) === String(staffId)) ?? null;
@@ -121,52 +121,5 @@ export function createOsbbStaffAuthController(deps) {
         if (error) error.textContent = 'Невірний PIN, спробуйте ще';
         setTimer(() => { if (selected === pendingSelection) busy = false; }, pinLockoutDelay(failures));
     }
-    async function openSettings() {
-        const session = deps.getSession();
-        if (!session || !canManageStaffAccess(session)) return;
-        let pin = deps.getPin();
-        if (!pin) {
-            if (!await requestReauth(session)) return;
-            pin = deps.getPin();
-        }
-        if (!pin) return;
-        const modal = element('staff-settings-modal');
-        const settingsList = element('staff-settings-list');
-        if (!modal || !settingsList) return;
-        modal.style.display = 'flex';
-        settingsList.innerHTML = '<div class="staff-login-loading">Завантаження...</div>';
-        const loadId = ++settingsLoadId;
-        try {
-            const rows = parseStaffSettingsList(await deps.loadStaffSettings(session, pin));
-            if (loadId !== settingsLoadId) return;
-            settingsList.innerHTML = rows.length ? deps.renderStaffSettings(rows, session.id) : '<div class="staff-login-loading">Налаштування доступу ще не оновлено в базі даних</div>';
-        } catch (error) {
-            if (loadId !== settingsLoadId) return;
-            settingsList.innerHTML = '<div class="staff-login-loading">Не вдалося завантажити користувачів</div>';
-            deps.onError('Не вдалося завантажити користувачів', error);
-        }
-    }
-    function closeSettings() {
-        settingsLoadId++;
-        const modal = element('staff-settings-modal');
-        if (modal) modal.style.display = 'none';
-    }
-    async function toggleAccess(button) {
-        const session = deps.getSession();
-        const pin = deps.getPin();
-        const targetStaffId = button.dataset.staffActive;
-        if (settingsBusy || !session || !canManageStaffAccess(session) || !pin || !targetStaffId) return;
-        settingsBusy = true;
-        button.disabled = true;
-        try {
-            const result = await deps.setStaffActive(session, pin, targetStaffId, button.dataset.nextActive === 'true');
-            if (result !== true) throw new Error('Зміну відхилено');
-            deps.onAccessUpdated();
-            await openSettings();
-        } catch (error) {
-            button.disabled = false;
-            deps.onError(error instanceof Error ? error.message : 'Не вдалося змінити доступ', error);
-        } finally { settingsBusy = false; }
-    }
-    return { open, requestReauth, select, back, deleteDigit, press, openSettings, closeSettings, toggleAccess };
+    return { open, requestReauth, select, back, deleteDigit, press };
 }
