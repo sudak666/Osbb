@@ -768,8 +768,12 @@ async function loadRecentIssues(){
 
 // ===== LOG PAGE =====
 function filterLogCat(btn,cat){
-  document.querySelectorAll('#page-log .pill').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');logCat=cat;renderLog();
+  document.querySelectorAll('#page-log [data-log-category-filter]').forEach(b=>{
+    const active=b===btn;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',String(active));
+  });
+  logCat=cat;renderLog();
 }
 function updateResultSummary(id,count,total,query,extraFilter=''){
   const el=document.getElementById(id);

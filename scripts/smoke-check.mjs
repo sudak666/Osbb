@@ -141,6 +141,7 @@ const checks = [
   ['osbb/index.html', 'id="ios-toast" role="status" aria-live="polite"', 'journal toast exposes live status semantics'],
   ['sklad/index.html', 'id="toast" role="status" aria-live="polite"', 'sklad toast exposes live status semantics'],
   ['src/sklad-app.js', "button.closest('details.item-more')?.removeAttribute('open')", 'sklad topbar menu closes after selecting an action'],
+  ['src/sklad-app.js', "b.setAttribute('aria-pressed',String(active))", 'sklad movement category filters expose their selected state'],
   ['index.html', 'id="lock-err" class="lock-error-text" role="alert" aria-live="assertive"', 'shell lock errors expose alert semantics'],
   ['index.html', 'role="tablist" aria-label="Розділи застосунку"', 'shell tabs expose tablist semantics'],
   ['index.html', 'class="shell-more-trigger md-state-layer" aria-label="Інші дії"', 'shell mobile secondary actions use an accessible overflow menu'],
