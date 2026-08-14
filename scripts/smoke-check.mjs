@@ -147,7 +147,7 @@ const checks = [
   ['src/sklad-app.js', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
   ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
   ['osbb/index.html', 'data-pin-modal-cancel aria-label="Скасувати введення PIN"', 'journal PIN cancel has accessible label'],
-  ['src/osbb-app.js', 'WORKER_ROLES,', 'journal imports worker roles used by dispatcher filters'],
+  ['src/osbb-app.js', 'jiraIssues = jiraIssuesFromResponse(data.issues);', 'journal loads Jira without the legacy dispatcher controller'],
   ['sklad/index.html', 'id="authErr" role="alert" aria-live="assertive"', 'sklad auth errors expose alert semantics'],
   ['sklad/index.html', 'id="delPinErr" role="alert" aria-live="assertive"', 'sklad delete PIN errors expose alert semantics'],
   ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],
@@ -615,7 +615,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'data-lightbox-backdrop',
     'data-lightbox-action="prev"',
     'data-action="garbage-clear-month"',
-    'data-action="dispatcher-clear-month"',
     'data-photo-action="open"',
     'data-photo-action="delete"',
     'function bindOsbbPhotoActions',
@@ -683,31 +682,23 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// OSBB garbage/dispatcher dynamic lists should also rely on delegated data
-// hooks now that journal day entries have been centralized.
+// OSBB garbage dynamic lists should rely on delegated data hooks.
 {
   const text = readOsbbCombined();
-  const label = 'journal garbage and dispatcher lists use delegated data bindings';
+  const label = 'journal garbage list uses delegated data bindings';
   const forbidden = [
     'onclick="gToggleDay',
     'onchange="gUpdateRow',
     'onchange="gUpdateType',
-    'onchange="dispToggleShift',
-    'onclick="dispToggleTask',
-    'oninput="dispUpdate',
     'header.onclick =',
   ];
   const required = [
     'function bindGarbageEntryActions',
-    'function bindDispatcherEntryActions',
     'function gOpenDayDetail',
-    'function dispOpenDayDetail',
     'function refreshOpenDayDetail',
     'data-g-action="row-update"',
     'data-g-action="type-toggle"',
     'data-g-action="type-count"',
-    'data-disp-action="ticket-add"',
-    'data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher"',
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));
@@ -731,7 +722,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   ];
   const required = [
     'function escapeHtml',
-    "${escapeHtml(t.text)}",
+    "${escapeHtml(issue.summary)}",
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));
@@ -1293,20 +1284,17 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Dispatcher and garbage also switched from a day-card accordion list to a
-// calendar grid (same pattern as journal): each day is a native <button>
+// Garbage uses a calendar grid: each day is a native <button>
 // that opens the shared day-detail-modal, and edits made inside that modal
 // refresh the still-open modal via refreshOpenDayDetail() so toggled
 // checkboxes/selects don't look stale until the modal is closed and reopened.
 {
   const text = readOsbbCombined();
-  const label = 'osbb dispatcher/garbage calendar grids open an accessible day-detail dialog';
+  const label = 'osbb garbage calendar grid opens an accessible day-detail dialog';
   const required = [
     "cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday2 ? ' is-today' : '') + (hasAny ? ' has-shifts' : '');",
-    "cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (hasEvent ? ' has-shifts' : '');",
     "cell.setAttribute('aria-haspopup', 'dialog');",
     'function gOpenDayDetail(day) {',
-    'function dispOpenDayDetail(d) {',
     "function refreshOpenDayDetail(context, day) {",
     '.month-grid-cell { min-height:82px;',
     '.month-grid-cell { align-items:center; min-height:62px;',
@@ -1823,7 +1811,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="toast-icon-badge"',
     '.status-label { display:inline-flex;',
     'class="status-label"',
-    'class="status-label is-tight"',
     '<link rel="stylesheet" href="/Osbb/shared/ui.css">',
     '<script type="module" src="../shared/enhance-select.js"></script>',
     '// Кастомний select підключено зі shared/enhance-select.js.',
@@ -1842,9 +1829,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-event-sheet {',
     '.journal-textarea {',
     '.journal-photo-action {',
-    'class="journal-event-sheet role-dispatcher"',
-    'class="journal-photo-action md-state-layer"',
-    'class="journal-photo-action is-secondary md-state-layer"',
     '.garbage-chart { height:80px; }',
     'class="journal-panel garbage-chart-panel"',
     'class="journal-panel journal-list-shell"',
@@ -1944,7 +1928,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Dynamic journal/garbage/dispatcher form controls should not rely solely on
+// Dynamic garbage form controls should not rely solely on
 // visual context; generated controls need stable labels for assistive tech.
 {
   const text = readOsbbCombined();
@@ -1953,9 +1937,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'aria-label="Час вивозу сміття за день ${day}"',
     'aria-label="Працівник сміття за день ${day}"',
     'aria-label="Кількість баків за день ${day}"',
-    'aria-label="Текст нової заявки"',
-    'aria-label="Додати фото диспетчера за день ${d}"',
-    'aria-label="Додати фото диспетчера з галереї за день ${d}"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -3123,23 +3104,22 @@ ${sharedSelectText}`;
   }
 }
 
-// Головний фільтр працівників використовує кастомний M3 listbox замість
-// нативного меню браузера з гострими кутами; reset синхронізує його підпис.
+// Старий локальний диспетчерський UI не повинен повертатися в DOM/runtime:
+// Jira залишається єдиним джерелом заявок, історична таблиця не видаляється.
 {
-  const html = readOsbbCombined();
-  const css = readFileSync('osbb/styles.css', 'utf8');
-  const label = 'dispatcher worker filter uses rounded Material 3 listbox';
-  const required = [
-    "enhanceSelect(document.querySelector('[data-disp-worker-filter]'));",
-    'refreshEnhancedSelect(workerFilter);',
-    '.dispatcher-worker-filter .custom-select-wrap,.dispatcher-worker-filter .custom-select-btn { width:100%; }',
-    'border-radius:var(--md-sys-shape-corner-large,16px);',
+  const text = readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('src/osbb-app.js', 'utf8');
+  const label = 'legacy local dispatcher UI stays removed';
+  const forbidden = [
+    'id="section-dispatcher"',
+    'data-disp-worker-filter',
+    'function bindDispatcherEntryActions',
+    'createOsbbDispatcherController(',
+    "db.from('dispatcher')",
   ];
-  const combined = `${html}\n${css}`;
-  const missing = required.filter(needle => !combined.includes(needle));
-  if (missing.length) {
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (present.length) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (found: ${present.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -3191,24 +3171,19 @@ ${sharedSelectText}`;
   }
 }
 
-// Диспетчер може повторно відкрити помилково закриту заявку, очистивши
-// застарілі ознаки виконання та синхронізувавши зміну звичайним save-потоком.
+// Jira інтеграція залишається read-only і не повертає локальні write actions.
 {
   const text = readOsbbCombined();
-  const label = 'dispatcher can reopen an accidentally closed ticket';
-  const required = [
-    'function dispReopenTicket(d, ticketId)',
-    "if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }",
-    "ticket.status = 'open';",
-    'delete ticket.closedAt;',
-    'delete ticket.closedBy;',
+  const label = 'Jira request UI remains read-only';
+  const forbidden = [
     'data-disp-action="ticket-reopen"',
-    "if (action.dataset.dispAction === 'ticket-reopen')",
+    'data-disp-action="ticket-add"',
+    'data-disp-action="ticket-delete"',
   ];
-  const missing = required.filter(needle => !text.includes(needle));
-  if (missing.length) {
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (present.length) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (found: ${present.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -3558,21 +3533,19 @@ ${sharedSelectText}`;
   }
 }
 
-// Стан підтвердження видалення не оголошується top-level lexical binding:
-// iframe може повторно виконати inline-скрипт під час відновлення вкладки.
+// Legacy confirm-modal локальних заявок не повинен повертатися.
 {
   const text = readOsbbCombined();
-  const label = 'journal ticket delete state survives repeated iframe script execution';
-  const required = [
-    'window.osbbTicketDeleteState = window.osbbTicketDeleteState ||',
-    'window.osbbTicketDeleteState.pending',
-    'window.osbbTicketDeleteState.focusReturn',
+  const label = 'legacy local ticket confirmation stays removed';
+  const forbidden = [
+    'id="ticket-delete-confirm"',
+    'window.osbbTicketDeleteState',
+    'openTicketDeleteConfirm(',
   ];
-  const missing = required.filter(needle => !text.includes(needle));
-  const topLevelBinding = /\b(?:let|const)\s+(?:pendingTicketDelete|ticketDeleteFocusReturn)\b/.test(text);
-  if (missing.length || topLevelBinding) {
+  const present = forbidden.filter(needle => text.includes(needle));
+  if (present.length) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; lexical binding: ${topLevelBinding})`);
+    console.error(`not ok - ${label} (found: ${present.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -3604,18 +3577,17 @@ ${sharedSelectText}`;
   }
 }
 
-// Початкове відкриття вкладки запускає async-завантаження диспетчера та
-// ліфтера, тому воно має бути нижче за їхні lexical state bindings.
+// Початкове відкриття вкладки запускає async-завантаження, тому bootstrap
+// має бути нижче за актуальні controller/state bindings.
 {
   const text = readFileSync('src/osbb-app.js', 'utf8');
   const label = 'journal bootstrap runs after tab state initialization';
   const bootstrap = text.lastIndexOf('setTab(currentTab, { load: false });');
   const calendarInit = text.lastIndexOf('initCalendar();');
   const requiredBindings = [
-    text.indexOf('dispatcher: dispData,'),
     text.indexOf('elevatorData,'),
     text.indexOf('const gClearMonth ='),
-    text.indexOf('const dispatcherController ='),
+    text.indexOf('const completedWorkController ='),
   ];
   const staticBinder = text.lastIndexOf('bindOsbbStaticControls();');
   if (bootstrap < 0 || calendarInit < bootstrap || staticBinder < 0 || staticBinder > bootstrap

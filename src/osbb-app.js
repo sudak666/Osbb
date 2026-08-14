@@ -10,7 +10,6 @@
     import { createOsbbShiftCalendarController } from './osbb-shift-calendar-controller.js';
     import { createOsbbAttendanceController } from './osbb-attendance-controller.js';
     import { createOsbbGarbageController } from './osbb-garbage-controller.js';
-    import { createOsbbDispatcherController } from './osbb-dispatcher-controller.js';
     import { createOsbbElevatorController } from './osbb-elevator-controller.js';
     import { createOsbbCompletedWorkController } from './osbb-completed-work-controller.js';
     import { createOsbbRuntimeController } from './osbb-runtime-controller.js';
@@ -18,17 +17,6 @@
     import { calendarMonthDays, isCalendarMonth, mondayFirstDayOffset, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
-    import {
-        calculateDispatcherMonthStats,
-        closeDispatcherTicket,
-        dispatcherDayStatus,
-        dispatcherDayStatusLabel,
-        matchesDispatcherFilter,
-        matchesDispatcherSearchAndWorker,
-        normalizeDispatcherDay,
-        normalizeDispatcherMonth,
-        reopenDispatcherTicket,
-    } from './osbb-dispatcher.js';
     import {
         createElevatorEntry,
         elevatorEntriesFromResponse,
@@ -38,22 +26,16 @@
     import {
         STAFF_ROLE_ICONS,
         STAFF_ROLE_LABELS,
-        WORKER_ROLES,
         clearStoredStaffSession,
         isDispatcherSession as isDispatcherStaffSession,
         isTabAllowedForSession as isStaffTabAllowed,
-        isWorkerSession as isWorkerStaffSession,
         loadStoredStaffSession,
-        normalizeWorkerRole,
         saveStoredStaffSession,
     } from './osbb-staff.js';
     import {
         TICKET_PRIORITIES as ticketPriorities,
         formatJiraShareText,
         jiraPriorityClass,
-        matchesDispatcherDateFilter,
-        normalizeTicketPriority,
-        ticketSortComparator,
     } from './osbb-tickets.js';
     import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
     import { filterCompletedWork } from './osbb-completed-work.js';
@@ -105,7 +87,6 @@
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let {
-        dispatcher: dispData,
         photosCache,
         jiraIssues,
         elevatorData,
@@ -142,7 +123,6 @@
             if (desktop) renderPhotoContainer(desktop, photos, day, role);
             const mobile = document.getElementById(`mobile-photos-${day}-${role}`);
             if (mobile) renderPhotoContainer(mobile, photos, day, role, true);
-            if (role === 'dispatcher') { dispRender(); refreshOpenDayDetail('dispatcher', day); }
         },
         onStatus: (status, error) => {
             const states = {
@@ -231,10 +211,6 @@
         return isDispatcherStaffSession(staffSession);
     }
 
-    function isWorkerSession() {
-        return isWorkerStaffSession(staffSession);
-    }
-
     // Вкладки, доступні сантехніку/двірнику/електрику: тільки власний графік
     // (перегляд) і власні заявки — жодного доступу до журналу, диспетчера,
     // графіків, сміття, чату чи графіка змін інших людей.
@@ -289,8 +265,7 @@
             const rt = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             rt.channel('osbb-live')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'garbage' }, () => realtimeSafeRefresh('garbage', gInitTab))
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'dispatcher' }, () => realtimeSafeRefresh('dispatcher', dispInitTab))
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'elevator_visits' }, () => realtimeSafeRefresh('dispatcher', elevatorInitTab))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'elevator_visits' }, () => realtimeSafeRefresh('completed-work', elevatorInitTab))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shifts' }, () => realtimeSafeRefresh('shifts', shiftLoadMonth))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shift_settings' }, () => realtimeSafeRefresh('shift-settings', shiftLoadSettings))
                 .subscribe();
@@ -340,7 +315,6 @@
     // Кастомний select підключено зі shared/enhance-select.js.
     enhanceSelect(yearSelect);
     enhanceSelect(monthSelect);
-    enhanceSelect(document.querySelector('[data-disp-worker-filter]'));
     enhanceSelect(document.getElementById('completed-work-role'));
     enhanceSelect(document.getElementById('completed-work-filter'));
     window.enhanceDateInput?.(document.getElementById('completed-work-date'));
@@ -382,7 +356,6 @@
         return runtimeController.setTab(tab, { load });
         currentTab = tab;
         document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
-        document.getElementById('section-dispatcher').classList.toggle('hidden', tab !== 'dispatcher');
         document.getElementById('section-shifts').classList.toggle('hidden', tab !== 'shifts');
         document.getElementById('section-tabel').classList.toggle('hidden', tab !== 'tabel');
         document.getElementById('section-my-tickets').classList.toggle('hidden', tab !== 'my-tickets');
@@ -408,7 +381,6 @@
 
         if (!load) return;
         if (tab === 'garbage') gInitTab();
-        if (tab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
         if (tab === 'shifts') shiftInitTab();
         if (tab === 'tabel') attInitTab();
         if (tab === 'my-tickets') myTicketsInitTab();
@@ -495,7 +467,7 @@
         document, storage:localStorage, isPreview:IS_PREVIEW, roles, roleNames,
         getMonth: () => ({ year:currentYear, month:currentMonth, days:calendarMonthDays(currentYear, currentMonth) }),
         getSession: () => staffSession, getPin: () => staffPinCache, clearPin: () => { staffPinCache = null; },
-        isDispatcher:isDispatcherSession, isWorker:isWorkerSession,
+        isDispatcher:isDispatcherSession, isWorker:()=>false,
         readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue,
         loadCloud: monthKey => db.from('osbb_attendance').select('data').eq('month_key', monthKey).single(),
         saveCloud: args => db.rpc('save_attendance_day', args), requestReauth:requestStaffReauth, showToast,
@@ -539,9 +511,7 @@
         const viewNote = document.getElementById('att-view-note');
         if (viewNote) {
             viewNote.classList.toggle('hidden', editable);
-            viewNote.textContent = isWorkerSession()
-                ? `Ви бачите лише власний табель: ${roleNames[staffSession.role]}.`
-                : 'Перегляд графіку. Редагувати час може лише Диспетчер/Адмін.';
+            viewNote.textContent = 'Перегляд графіку. Редагувати час може лише профіль керування.';
         }
         document.querySelectorAll('[data-att-role-header]').forEach(header => {
             header.classList.toggle('hidden', !visibleRoles.includes(header.dataset.attRoleHeader));
@@ -684,7 +654,6 @@
         setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
         updateTodayBtn();
         if (currentTab === 'garbage') gInitTab();
-        if (currentTab === 'dispatcher') { dispInitTab(); elevatorInitTab(); }
         if (currentTab === 'tabel') attInitTab();
         if (currentTab === 'my-tickets') myTicketsInitTab();
         gInitDashboard();
@@ -758,7 +727,6 @@
 
     function closeDayDetail() {
         document.getElementById('day-detail-modal')?.classList.remove('open');
-        dispEditingTicketId = null;
     }
 
     // Спільний хелпер: якщо модалка деталізації дня зараз відкрита саме для цього
@@ -769,7 +737,6 @@
         if (!modal || !modal.classList.contains('open')) return;
         if (modal.dataset.context !== context || modal.dataset.day !== String(day)) return;
         if (context === 'garbage') gOpenDayDetail(day);
-        else if (context === 'dispatcher') dispOpenDayDetail(Number(day));
     }
 
     // СВАЙП-ЗАКРИТТЯ модалки дня — тягнеш за ручку або заголовок вниз, відпускаєш —
@@ -899,7 +866,6 @@
 
         const actionHandlers = {
             'garbage-clear-month': gClearMonth,
-            'dispatcher-clear-month': dispClearMonth,
             'go-today': goToday,
             'refresh-data': refreshData,
             'elevator-add': () => {
@@ -1007,166 +973,6 @@
             });
         });
     }
-
-    function bindDispatcherEntryActions() {
-        ['disp-cards', 'day-detail-body'].forEach((id) => {
-            const container = document.getElementById(id);
-            if (!container) return;
-            container.addEventListener('click', async (event) => {
-                const action = event.target.closest('[data-disp-action]');
-                if (!action) return;
-                if (action.dataset.dispAction === 'ticket-add') {
-                    event.preventDefault();
-                    const d = Number(action.dataset.dispDay);
-                    const textEl = document.getElementById(`ticket-new-text-${d}`);
-                    const roleEl = document.getElementById(`ticket-new-role-${d}`);
-                    const priorityEl = document.getElementById(`ticket-new-priority-${d}`);
-                    const photosEl = document.getElementById(`ticket-new-photos-${d}`);
-                    action.disabled = true;
-                    action.setAttribute('aria-busy', 'true');
-                    await dispAddTicket(d, textEl?.value || '', roleEl?.value || 'plumber', priorityEl?.value || 'MEDIUM', Array.from(photosEl?.files || []));
-                    if (action.isConnected) {
-                        action.disabled = false;
-                        action.removeAttribute('aria-busy');
-                    }
-                }
-                if (action.dataset.dispAction === 'ticket-delete') {
-                    event.preventDefault();
-                    openTicketDeleteConfirm(Number(action.dataset.dispDay), action.dataset.ticketId, action);
-                }
-                if (action.dataset.dispAction === 'ticket-edit-toggle') {
-                    event.preventDefault();
-                    dispToggleTicketEdit(Number(action.dataset.dispDay), action.dataset.ticketId);
-                }
-                if (action.dataset.dispAction === 'ticket-edit-cancel') {
-                    event.preventDefault();
-                    dispEditingTicketId = null;
-                    dispOpenDayDetail(Number(action.dataset.dispDay));
-                }
-                if (action.dataset.dispAction === 'ticket-edit-save') {
-                    event.preventDefault();
-                    const ticketId = action.dataset.ticketId;
-                    const textEl = document.getElementById(`ticket-edit-text-${ticketId}`);
-                    const roleEl = document.getElementById(`ticket-edit-role-${ticketId}`);
-                    const priorityEl = document.getElementById(`ticket-edit-priority-${ticketId}`);
-                    dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId, textEl?.value || '', roleEl?.value, priorityEl?.value);
-                }
-                if (action.dataset.dispAction === 'ticket-reopen') {
-                    event.preventDefault();
-                    dispReopenTicket(Number(action.dataset.dispDay), action.dataset.ticketId);
-                }
-            });
-            container.addEventListener('change', (event) => {
-                const photoInput = event.target.closest('[data-ticket-photo-input]');
-                if (photoInput) {
-                    const label = document.getElementById(`ticket-photo-label-${photoInput.dataset.dispDay}`);
-                    const count = photoInput.files?.length || 0;
-                    if (label) label.textContent = count ? `Вибрано фото: ${count}` : 'Додати фото проблеми';
-                    return;
-                }
-                const filter = event.target.closest('[data-ticket-filter]');
-                if (!filter) return;
-                if (filter.dataset.ticketFilter === 'worker') {
-                    dispWorkerFilter = WORKER_ROLES.includes(filter.value) ? filter.value : 'all';
-                }
-                if (filter.dataset.ticketFilter === 'status') {
-                    dispTicketStatusFilter = ['open', 'done'].includes(filter.value) ? filter.value : 'all';
-                }
-                dispOpenDayDetail(Number(filter.dataset.dispDay));
-            });
-        });
-        document.querySelector('[data-ticket-delete-cancel]')?.addEventListener('click', closeTicketDeleteConfirm);
-        document.querySelector('[data-ticket-delete-confirm]')?.addEventListener('click', () => {
-            if (!window.osbbTicketDeleteState.pending) return;
-            const { day, ticketId } = window.osbbTicketDeleteState.pending;
-            closeTicketDeleteConfirm(false);
-            dispDeleteTicket(day, ticketId);
-        });
-        document.getElementById('ticket-delete-confirm')?.addEventListener('click', (event) => {
-            if (event.target === event.currentTarget) closeTicketDeleteConfirm();
-        });
-        document.getElementById('ticket-delete-confirm')?.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                closeTicketDeleteConfirm();
-            }
-        });
-    }
-
-    // Стан зберігаємо у властивості window, а не в top-level `let`: повторне
-    // виконання inline-скрипту після відновлення iframe не спричинить SyntaxError.
-    window.osbbTicketDeleteState = window.osbbTicketDeleteState || { pending: null, focusReturn: null };
-
-    function openTicketDeleteConfirm(day, ticketId, opener) {
-        const modal = document.getElementById('ticket-delete-confirm');
-        if (!modal || !Number.isInteger(day) || !ticketId) return;
-        window.osbbTicketDeleteState.pending = { day, ticketId };
-        window.osbbTicketDeleteState.focusReturn = opener || document.activeElement;
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden', 'false');
-        requestAnimationFrame(() => modal.querySelector('[data-ticket-delete-cancel]')?.focus());
-    }
-
-    function closeTicketDeleteConfirm(restoreFocus = true) {
-        const modal = document.getElementById('ticket-delete-confirm');
-        if (!modal) return;
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-        window.osbbTicketDeleteState.pending = null;
-        const focusReturn = window.osbbTicketDeleteState.focusReturn;
-        if (restoreFocus && focusReturn?.isConnected) focusReturn.focus();
-        window.osbbTicketDeleteState.focusReturn = null;
-    }
-
-    document.querySelector('[data-disp-search]')?.addEventListener('input', (event) => {
-        dispSearchQuery = event.target.value || '';
-        dispRender();
-    });
-
-    function dispResetSearchAndFilters() {
-        dispSearchQuery = '';
-        dispFilter = 'all';
-        dispWorkerFilter = 'all';
-        const search = document.querySelector('[data-disp-search]');
-        if (search) search.value = '';
-        const workerFilter = document.querySelector('[data-disp-worker-filter]');
-        if (workerFilter) {
-            workerFilter.value = 'all';
-            refreshEnhancedSelect(workerFilter);
-        }
-        document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.dispFilter === 'all'));
-        dispRender();
-    }
-
-    document.querySelector('[data-disp-reset]')?.addEventListener('click', dispResetSearchAndFilters);
-    document.querySelector('[data-disp-worker-filter]')?.addEventListener('change', (event) => {
-        dispWorkerFilter = WORKER_ROLES.includes(event.target.value) ? event.target.value : 'all';
-        dispRender();
-    });
-    document.querySelectorAll('[data-disp-filter]').forEach((button) => {
-        button.addEventListener('click', () => {
-            dispFilter = button.dataset.dispFilter || 'all';
-            document.querySelectorAll('[data-disp-filter]').forEach(btn => btn.classList.toggle('is-active', btn === button));
-            dispRender();
-        });
-    });
-    document.addEventListener('keydown', (event) => {
-        const search = document.querySelector('[data-disp-search]');
-        const section = document.getElementById('section-dispatcher');
-        if (!search || !section || section.classList.contains('hidden')) return;
-        const target = event.target;
-        const isEditing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
-        if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditing) {
-            event.preventDefault();
-            search.focus();
-            search.select();
-        }
-        if (event.key === 'Escape' && document.activeElement === search && (search.value || dispFilter !== 'all' || dispWorkerFilter !== 'all')) {
-            event.preventDefault();
-            dispResetSearchAndFilters();
-            search.focus();
-        }
-    });
 
     const savedTheme = loadOsbbTheme(localStorage);
     changeTheme(savedTheme);
@@ -1438,245 +1244,7 @@
         pinModalController.show(callback, { title, subtitle: sub, danger, verifyRpc });
     }
 
-    // ==========================================
-    // ДИСПЕТЧЕР
-    // ==========================================
-    let dispSaveTimer = null;
-    let dispSearchQuery = '';
-    let dispFilter = 'all';
-    let dispWorkerFilter = 'all';
-    let dispTicketStatusFilter = 'all';
-    const dispWorkerName = 'Диспетчер';
-
-    // Заявки з пріоритетом (нова структурована модель, ticketsList).
-    // Старі текстові дні (поле `tickets` — просто число) лишаються як є для
-    // місяців, збережених до цієї зміни — не мігруємо їх автоматично.
-    let dispNewTicketPriority = 'MEDIUM';
-    let dispNewTicketRole = 'plumber';
-
-    const dispatcherController = createOsbbDispatcherController({
-        document, storage:localStorage, isPreview:IS_PREVIEW,
-        getMonth:() => ({ year:currentYear, month:currentMonth }), getStaffSession:() => staffSession,
-        getStaffPin:() => staffPinCache, isDispatcher:isDispatcherSession, normalizeWorkerRole,
-        readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue,
-        fetchMonth:async key => db.from('dispatcher').select('data').eq('month_key',key).single(),
-        upsertMonth:row => db.from('dispatcher').upsert(row), resetMonth:args => db.rpc('reset_month',args),
-        requestResetPin:callback => showPinModal('Скидання диспетчера','PIN для очищення місяця',callback,true),
-        requestStaffReauth, requestJira:jiraRequest, renderDispatcher:dispRender, renderMyTickets:myTicketsRender,
-        showToast, onDataChanged:value => { dispData=value; },
-    });
-
-    function dispKey() { return zeroBasedMonthKey(currentYear, currentMonth); }
-    function dispOfflineKey() { return osbbOfflineMonthKey('dispatcher', currentYear, currentMonth); }
-
-    function dispSaveOffline() {
-        writeOsbbOfflineValue(localStorage, dispOfflineKey(), dispData);
-    }
-    function dispLoadOffline() {
-        return normalizeDispatcherMonth(readOsbbOfflineValue(localStorage, dispOfflineKey()));
-    }
-
-    function dispSetStatus(type, text) {
-        const el = document.getElementById('disp-sync-status');
-        if (!el) return;
-        const cls = { loading:'is-loading', ok:'is-ok', error:'is-error' };
-        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
-        el.innerHTML = text;
-    }
-
-    async function dispInitTab() {
-        return dispatcherController.init();
-        dispSetStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
-        const offline = dispLoadOffline();
-        if (offline) { dispData = offline; dispRender(); }
-
-        if (IS_PREVIEW) {
-            dispData = offline || {};
-            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>');
-            dispRender();
-            return;
-        }
-        try {
-            const res = await db.from('dispatcher').select('data').eq('month_key', dispKey()).single();
-            const { data, error } = res;
-            if (error && error.code !== 'PGRST116') throw error;
-            const cloudDispatcher = data?.data;
-            dispData = cloudDispatcher && typeof cloudDispatcher === 'object' && !Array.isArray(cloudDispatcher)
-                ? normalizeDispatcherMonth(cloudDispatcher)
-                : offline;
-            dispSaveOffline();
-            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
-        } catch(err) {
-            console.error('dispatcher load error:', err);
-            dispSetStatus('error', offline ? '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>' : '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Немає даних</span>');
-            dispData = offline || {};
-        }
-        dispRender();
-    }
-
-    function dispScheduleSave() {
-        return dispatcherController.scheduleSave();
-        dispSetStatus('loading', '<span class="status-label is-tight"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span>Зберігаю...</span>');
-        dispSaveOffline();
-        clearTimeout(dispSaveTimer);
-        dispSaveTimer = setTimeout(dispSaveCloud, 1200);
-    }
-
-    async function dispSaveCloud() {
-        return dispatcherController.saveCloud();
-        if (IS_PREVIEW) { dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span> Превью</span>'); return; }
-        try {
-            const { error } = await db.from('dispatcher').upsert({ month_key: dispKey(), data: dispData });
-            if (error) throw error;
-            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
-        } catch(err) {
-            console.error('dispatcher save error:', err);
-            dispSetStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>');
-        }
-    }
-
-    function dispNormalizeDay(row = {}) {
-        return normalizeDispatcherDay(row);
-    }
-
-    function dispGetDay(d) {
-        return dispatcherController.getDay(d);
-        dispData[d] = dispNormalizeDay(dispData[d]);
-        return dispData[d];
-    }
-
-
-    // Створити структуровану заявку з пріоритетом — тільки Диспетчер/Адмін.
-    async function dispAddTicket(d, text, role, priority, photoFiles = []) {
-        const controllerTicket = await dispatcherController.addTicket(d, text, role, priority);
-        if (!controllerTicket) return;
-        for (const file of photoFiles) await photoController.upload(Number(d), 'dispatcher', file);
-        dispOpenDayDetail(Number(d));
-        showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
-        return;
-        if (!isDispatcherSession()) { showToast('Створювати заявки може лише Диспетчер/Адмін'); return; }
-        const trimmed = (text || '').trim();
-        if (!trimmed) { showToast('Опишіть заявку'); return; }
-        const row = dispGetDay(d);
-        const ticketId = `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
-        const ticket = {
-            id: ticketId,
-            text: trimmed,
-            role: normalizeWorkerRole(role),
-            priority: normalizeTicketPriority(priority),
-            status: 'open',
-            comment: '',
-            photos: [],
-            createdAt: new Date().toISOString(),
-            createdBy: staffSession?.name || dispWorkerName
-        };
-        row.ticketsList.push(ticket);
-        dispScheduleSave();
-        for (const file of photoFiles) await uploadTicketPhoto(d, ticketId, file);
-        if (!IS_PREVIEW) {
-            try {
-                ticket.jira = await createJiraIssue(ticket, d);
-                dispScheduleSave();
-            } catch (error) {
-                console.error('jira create issue error:', error);
-                showToast('Заявку додано, але Jira недоступна');
-            }
-        }
-        dispOpenDayDetail(Number(d));
-        if (ticket.jira) showToast(`Заявку додано в Jira: ${ticket.jira.key}`);
-        else if (IS_PREVIEW) showToast(photoFiles.length ? 'Заявку з фото додано' : 'Заявку додано');
-    }
-
-    function dispDeleteTicket(d, ticketId) {
-        if (dispatcherController.deleteTicket(d, ticketId)) dispOpenDayDetail(Number(d));
-        return;
-        if (!isDispatcherSession()) return;
-        const row = dispGetDay(d);
-        row.ticketsList = row.ticketsList.filter(t => t.id !== ticketId);
-        dispScheduleSave();
-        dispOpenDayDetail(Number(d));
-    }
-
-    // Id заявки, яка зараз редагується в модалці дня (тільки одна одразу,
-    // локальний UI-стан, не зберігається в даних). Скидається при перевідкритті дня.
-    let dispEditingTicketId = null;
-
-    function dispToggleTicketEdit(d, ticketId) {
-        dispEditingTicketId = dispatcherController.toggleTicketEdit(ticketId);
-        dispOpenDayDetail(Number(d));
-        return;
-        if (!isDispatcherSession()) return;
-        dispEditingTicketId = dispEditingTicketId === ticketId ? null : ticketId;
-        dispOpenDayDetail(Number(d));
-    }
-
-    // Редагувати текст/роль/пріоритет уже створеної заявки — тільки Диспетчер/Адмін.
-    function dispSaveTicketEdit(d, ticketId, text, role, priority) {
-        if (dispatcherController.saveTicketEdit(d, ticketId, text, role, priority)) {
-            dispEditingTicketId = null; dispOpenDayDetail(Number(d)); showToast('Заявку оновлено');
-        }
-        return;
-        if (!isDispatcherSession()) return;
-        const trimmed = (text || '').trim();
-        if (!trimmed) { showToast('Опишіть заявку'); return; }
-        const row = dispGetDay(d);
-        const ticket = row.ticketsList.find(t => t.id === ticketId);
-        if (!ticket) return;
-        ticket.text = trimmed;
-        ticket.role = normalizeWorkerRole(role, ticket.role);
-        ticket.priority = normalizeTicketPriority(priority, normalizeTicketPriority(ticket.priority));
-        dispEditingTicketId = null;
-        dispScheduleSave();
-        dispOpenDayDetail(Number(d));
-        showToast('Заявку оновлено');
-    }
-
-    // Закрити заявку — для будь-кого (диспетчер або сам виконавець), з коментарем.
-    function dispCloseTicket(d, ticketId, comment) {
-        return dispatcherController.closeTicket(d, ticketId, comment);
-        const row = dispGetDay(d);
-        const ticket = row.ticketsList.find(t => t.id === ticketId);
-        if (!ticket) return;
-        closeDispatcherTicket(ticket, comment, staffSession?.name);
-        dispScheduleSave();
-    }
-
-    // Повторно відкрити помилково закриту заявку може лише Диспетчер/Адмін.
-    function dispReopenTicket(d, ticketId) {
-        if (dispatcherController.reopenTicket(d, ticketId)) { dispOpenDayDetail(Number(d)); showToast('Заявку знову відкрито'); }
-        return;
-        if (!isDispatcherSession()) { showToast('Відкрити заявку повторно може лише Диспетчер/Адмін'); return; }
-        const row = dispGetDay(d);
-        const ticket = row.ticketsList.find(t => t.id === ticketId);
-        if (!ticket || !reopenDispatcherTicket(ticket)) return;
-        dispScheduleSave();
-        dispOpenDayDetail(Number(d));
-        showToast('Заявку знову відкрито');
-    }
-
-    function dispAddTicketPhoto(d, ticketId, url) {
-        return dispatcherController.addTicketPhoto(d, ticketId, url);
-        const row = dispGetDay(d);
-        const ticket = row.ticketsList.find(t => t.id === ticketId);
-        if (!ticket) return;
-        ticket.photos = ticket.photos || [];
-        ticket.photos.push(url);
-        dispScheduleSave();
-    }
-
-    function ticketPhotosHtml(ticket) {
-        const photos = Array.isArray(ticket?.photos) ? ticket.photos : [];
-        const items = photos.map((url, index) => {
-            const safeUrl = safeExternalUrl(url);
-            if (!safeUrl) return '';
-            const escapedUrl = escapeAttr(safeUrl);
-            return `<button type="button" class="ticket-photo-thumb md-state-layer" data-photo-action="open" data-photo-url="${escapedUrl}" aria-label="Відкрити фото ${index + 1} до заявки">
-                <img src="${escapedUrl}" alt="Фото проблеми до заявки" loading="lazy">
-            </button>`;
-        }).join('');
-        return items ? `<div class="ticket-photo-list" aria-label="Фото до заявки">${items}</div>` : '';
-    }
-
+    const defaultOperatorName = 'Керування';
     // ==========================================
     // МОЇ ЗАЯВКИ — відкриті заявки Jira проєкту MS.
     // ==========================================
@@ -1701,10 +1269,6 @@
     }
 
     async function myTicketsInitTab() {
-        jiraLoadFailed = !(await dispatcherController.loadJira());
-        jiraIssues = dispatcherController.getJiraIssues();
-        myTicketsRender();
-        return;
         if (!staffSession) return;
         const statusEl = document.getElementById('my-tickets-sync-status');
         if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>';
@@ -1715,10 +1279,12 @@
         try {
             const data = await jiraRequest('list');
             jiraIssues = jiraIssuesFromResponse(data.issues);
+            jiraLoadFailed = false;
             if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
         } catch (error) {
             console.error('jira issues load error:', error);
             jiraIssues = [];
+            jiraLoadFailed = true;
             if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>';
             showToast('Не вдалося завантажити Jira-заявки');
         }
@@ -1819,263 +1385,14 @@
         list.querySelectorAll('[data-jira-filter]').forEach(select => enhanceSelect(select));
     }
 
-    function collectTicketsForRole(role) {
-        return dispatcherController.collectTicketsForRole(role);
-        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
-        const result = [];
-        for (let d = 1; d <= daysInMonth; d++) {
-            const row = dispData[d] ? dispNormalizeDay(dispData[d]) : null;
-            if (!row) continue;
-            row.ticketsList.filter(t => t.role === role).forEach(t => result.push({ ...t, day: d }));
-        }
-        return result.sort((a, b) => {
-            if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
-            return ticketSortComparator(a, b);
-        });
-    }
-
-    function dispMatchesCurrentDateFilter(d, filter) {
-        return matchesDispatcherDateFilter(currentYear, currentMonth, d, filter);
-    }
-
-    function dispMatchesFilter(row, hasEvent, d) {
-        return dispatcherController.matchesFilter(row, hasEvent, d, dispFilter);
-        return matchesDispatcherFilter(row, hasEvent, dispFilter, dispMatchesCurrentDateFilter(d, dispFilter));
-    }
-
-    // Список заявок дня з пріоритетом, відсортований (термінові — вгорі), плюс
-    // форма додавання нової заявки — видима лише staff-сесії dispatcher/admin.
-    function dispBuildTicketsBlockHtml(d, row) {
-        const visibleTickets = row.ticketsList.filter(ticket => {
-            const matchesWorker = dispWorkerFilter === 'all' || ticket.role === dispWorkerFilter;
-            const matchesStatus = dispTicketStatusFilter === 'all' || ticket.status === dispTicketStatusFilter;
-            return matchesWorker && matchesStatus;
-        });
-        const sorted = [...visibleTickets].sort(ticketSortComparator);
-        const canManage = isDispatcherSession();
-        const items = sorted.map(t => {
-            const p = ticketPriorities[t.priority] || ticketPriorities.MEDIUM;
-            const isDone = t.status === 'done';
-            if (canManage && dispEditingTicketId === t.id) {
-                return `<li class="ticket-item priority-${normalizeTicketPriority(t.priority)}">
-                    <div class="ticket-add-form">
-                        <input type="text" id="ticket-edit-text-${escapeAttr(t.id)}" class="dispatcher-location-input" value="${escapeAttr(t.text)}" aria-label="Текст заявки">
-                        <select id="ticket-edit-role-${escapeAttr(t.id)}" class="journal-select" aria-label="Виконавець заявки">
-                            ${roles.map(r => `<option value="${r}" ${r === t.role ? 'selected' : ''}>${roleNames[r]}</option>`).join('')}
-                        </select>
-                        <select id="ticket-edit-priority-${escapeAttr(t.id)}" class="journal-select" aria-label="Пріоритет заявки">
-                            ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === t.priority ? 'selected' : ''}>${v.label}</option>`).join('')}
-                        </select>
-                        <div class="my-ticket-close-actions">
-                            <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-edit-save" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Зберегти</button>
-                            <button type="button" class="dispatcher-copy-btn md-state-layer" data-disp-action="ticket-edit-cancel" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}">Скасувати</button>
-                        </div>
-                    </div>
-                </li>`;
-            }
-            return `<li class="ticket-item priority-${normalizeTicketPriority(t.priority)} ${isDone ? 'is-done' : ''}">
-                <div class="ticket-item-head">
-                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${p.label}</span>
-                    <span class="ticket-role-badge">${escapeHtml(roleNames[t.role] || t.role || 'Не призначено')}</span>
-                    ${isDone ? '<span class="ticket-done-badge"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check</span>Виконано</span>' : ''}
-                </div>
-                <div class="ticket-item-text">${escapeHtml(t.text)}</div>
-                ${ticketPhotosHtml(t)}
-                ${t.comment ? `<div class="ticket-item-comment">${escapeHtml(t.comment)}</div>` : ''}
-                ${canManage && isDone ? `<button type="button" class="dispatcher-copy-btn ticket-reopen-btn md-state-layer" data-disp-action="ticket-reopen" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">refresh</span>Відкрити знову</button>` : ''}
-                ${canManage ? `<button type="button" class="ticket-edit-btn md-state-layer" data-disp-action="ticket-edit-toggle" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Редагувати заявку"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>` : ''}
-                ${canManage ? `<button type="button" class="ticket-delete-btn md-state-layer" data-disp-action="ticket-delete" data-disp-day="${d}" data-ticket-id="${escapeAttr(t.id)}" aria-label="Видалити заявку"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : ''}
-            </li>`;
-        }).join('');
-        const addForm = canManage ? `
-            <div class="ticket-add-form">
-                <input type="text" id="ticket-new-text-${d}" class="dispatcher-location-input" placeholder="Опис нової заявки..." aria-label="Текст нової заявки">
-                <select id="ticket-new-role-${d}" class="journal-select" aria-label="Виконавець заявки">
-                    ${roles.map(r => `<option value="${r}">${roleNames[r]}</option>`).join('')}
-                </select>
-                <select id="ticket-new-priority-${d}" class="journal-select" aria-label="Пріоритет заявки">
-                    ${Object.entries(ticketPriorities).map(([k, v]) => `<option value="${k}" ${k === 'MEDIUM' ? 'selected' : ''}>${v.label}</option>`).join('')}
-                </select>
-                <label class="ticket-photo-picker md-state-layer">
-                    <span class="material-symbols-rounded" aria-hidden="true">add_a_photo</span>
-                    <span id="ticket-photo-label-${d}">Додати фото проблеми</span>
-                    <input id="ticket-new-photos-${d}" type="file" accept="image/*" multiple class="sr-only" data-ticket-photo-input data-disp-day="${d}" aria-label="Додати фото проблеми до нової заявки">
-                </label>
-                <button type="button" class="dispatcher-time-btn md-state-layer" data-disp-action="ticket-add" data-disp-day="${d}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add</span>Додати заявку</button>
-            </div>` : '';
-        return `<div class="dispatcher-tickets-block">
-            <div class="dispatcher-ticket-filters" aria-label="Фільтри заявок">
-                <label class="dispatcher-ticket-filter-field">
-                    <span>Виконавець</span>
-                    <select class="journal-select" data-ticket-filter="worker" data-disp-day="${d}" aria-label="Фільтр заявок за виконавцем">
-                        <option value="all" ${dispWorkerFilter === 'all' ? 'selected' : ''}>Усі працівники</option>
-                        ${roles.map(role => `<option value="${role}" ${dispWorkerFilter === role ? 'selected' : ''}>${roleNames[role]}</option>`).join('')}
-                    </select>
-                </label>
-                <label class="dispatcher-ticket-filter-field">
-                    <span>Статус</span>
-                    <select class="journal-select" data-ticket-filter="status" data-disp-day="${d}" aria-label="Фільтр заявок за статусом">
-                        <option value="all" ${dispTicketStatusFilter === 'all' ? 'selected' : ''}>Усі заявки</option>
-                        <option value="open" ${dispTicketStatusFilter === 'open' ? 'selected' : ''}>Не виконані</option>
-                        <option value="done" ${dispTicketStatusFilter === 'done' ? 'selected' : ''}>Виконані</option>
-                    </select>
-                </label>
-            </div>
-            <div class="journal-field-label">Показано заявок: ${sorted.length} з ${row.ticketsList.length}</div>
-            <ul class="ticket-list">${items || '<li class="ticket-empty">За вибраними фільтрами заявок немає</li>'}</ul>
-            ${addForm}
-        </div>`;
-    }
-
-    function dispBuildDayBodyHtml(d) {
-        const row = dispGetDay(d);
-        return `<div class="journal-event-sheet role-dispatcher">
-            ${dispBuildTicketsBlockHtml(d, row)}
-            <div class="journal-photo-section">
-                <div class="journal-field-label">Фото подій:</div>
-                <div id="mobile-photos-${d}-dispatcher" class="flex gap-2 flex-wrap mb-2"></div>
-                <div class="flex gap-2 flex-wrap">
-                    <label class="journal-photo-action md-state-layer">
-                        <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">photo_camera</span> Камера
-                        <input type="file" accept="image/*" capture="environment" class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера за день ${d}">
-                    </label>
-                    <label class="journal-photo-action is-secondary md-state-layer">
-                        Галерея
-                        <input type="file" accept="image/*" multiple class="hidden" data-journal-action="photo-upload-mobile" data-day="${d}" data-role="dispatcher" aria-label="Додати фото диспетчера з галереї за день ${d}">
-                    </label>
-                </div>
-            </div>
-        </div>`;
-    }
-
-    function dispOpenDayDetail(d) {
-        const modal = document.getElementById('day-detail-modal');
-        const titleEl = document.getElementById('day-detail-title');
-        const bodyEl = document.getElementById('day-detail-body');
-        if (!modal || !titleEl || !bodyEl) return;
-        const dateObj = new Date(currentYear, currentMonth, d);
-        const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-        titleEl.innerHTML = `${String(d).padStart(2,'0')} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
-        bodyEl.innerHTML = dispBuildDayBodyHtml(d);
-        const photosEl = document.getElementById(`mobile-photos-${d}-dispatcher`);
-        if (photosEl) renderPhotoContainer(photosEl, getPhotosFromCache(d, 'dispatcher'), d, 'dispatcher', true);
-        const ticketRoleSel = document.getElementById(`ticket-new-role-${d}`);
-        const ticketPrioritySel = document.getElementById(`ticket-new-priority-${d}`);
-        if (ticketRoleSel) enhanceSelect(ticketRoleSel);
-        if (ticketPrioritySel) enhanceSelect(ticketPrioritySel);
-        bodyEl.querySelectorAll('[data-ticket-filter]').forEach(select => enhanceSelect(select));
-        if (dispEditingTicketId) {
-            const editRoleSel = document.getElementById(`ticket-edit-role-${dispEditingTicketId}`);
-            const editPrioritySel = document.getElementById(`ticket-edit-priority-${dispEditingTicketId}`);
-            if (editRoleSel) enhanceSelect(editRoleSel);
-            if (editPrioritySel) enhanceSelect(editPrioritySel);
-        }
-        modal.dataset.day = String(d);
-        modal.dataset.context = 'dispatcher';
-        modal.classList.add('open');
-    }
-
-    // Календарна сітка диспетчера — той самий вигляд, що й у Журналі: квадрати днів,
-    // клік відкриває day-detail-modal з подіями та фото за цей день.
-    function dispRender() {
-        const container = document.getElementById('disp-cards');
-        if (!container) return;
-        container.innerHTML = '';
-        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
-        const firstDow = sundayFirstDayOffset(currentYear, currentMonth);
-        const leadingBlanks = (firstDow + 6) % 7;
-        dispRenderStats();
-        let visibleMatches = 0;
-
-        const weekdayRow = document.createElement('div');
-        weekdayRow.className = 'month-grid-weekdays';
-        weekdayRow.innerHTML = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map(w => `<span>${w}</span>`).join('');
-        container.appendChild(weekdayRow);
-
-        const grid = document.createElement('div');
-        grid.className = 'month-grid';
-        container.appendChild(grid);
-
-        for (let i = 0; i < leadingBlanks; i++) {
-            const blank = document.createElement('div');
-            blank.className = 'month-grid-cell is-empty';
-            blank.setAttribute('aria-hidden', 'true');
-            grid.appendChild(blank);
-        }
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateObj = new Date(currentYear, currentMonth, d);
-            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-            const isToday = d === todayDay && currentMonth === todayMonth && currentYear === todayYear;
-            const row = dispGetDay(d);
-            const photosCount = getPhotosFromCache(d, 'dispatcher').length;
-            const hasEvent = row.ticketsList.length > 0 || photosCount > 0;
-            const matchesFilter = dispMatchesFilter(row, hasEvent, d);
-            const matchesSearchAndWorker = matchesDispatcherSearchAndWorker(row, dispSearchQuery, dispWorkerFilter);
-            const isDimmed = !matchesSearchAndWorker || !matchesFilter;
-            if (!isDimmed) visibleMatches++;
-            const dowLabel = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
-            const statusKey = dispatcherDayStatus(row);
-            const statusDot = statusKey === 'urgent' ? 'dispatcher-urgent' : statusKey === 'done' ? 'dispatcher-done' : 'dispatcher';
-            const statusLabel = dispatcherDayStatusLabel(statusKey);
-
-            const cell = document.createElement('button');
-            cell.type = 'button';
-            cell.className = 'month-grid-cell' + (isWeekend ? ' is-weekend' : '') + (isToday ? ' is-today' : '') + (hasEvent ? ' has-shifts' : '');
-            cell.className += ' dispatcher-grid-cell' + (isDimmed ? ' is-dimmed' : '') + ` disp-status-${statusKey || 'none'}`;
-            cell.setAttribute('aria-label', `${d} ${dowLabel}, ${statusLabel} — відкрити день`);
-            cell.setAttribute('aria-haspopup', 'dialog');
-            cell.innerHTML = `<span class="month-grid-day">${d}</span><span class="month-grid-dots">${hasEvent ? `<span class="month-grid-dot month-grid-dot-${statusDot}"></span>` : ''}</span>`;
-            cell.addEventListener('click', () => dispOpenDayDetail(d));
-            grid.appendChild(cell);
-        }
-        dispRenderResultSummary(visibleMatches, daysInMonth);
-    }
-
-    function dispRenderResultSummary(visibleMatches, daysInMonth) {
-        const summary = document.getElementById('disp-result-summary');
-        const reset = document.querySelector('[data-disp-reset]');
-        const hasSearch = Boolean(dispSearchQuery.trim());
-        const hasFilter = dispFilter !== 'all';
-        const hasWorkerFilter = dispWorkerFilter !== 'all';
-        if (summary) summary.textContent = (hasSearch || hasFilter || hasWorkerFilter) ? `Знайдено: ${visibleMatches} з ${daysInMonth}` : 'Показано всі дні';
-        if (reset) reset.hidden = !(hasSearch || hasFilter || hasWorkerFilter);
-    }
-
-    function dispRenderStats() {
-        const daysInMonth = calendarMonthDays(currentYear, currentMonth);
-        const entries = [];
-        for (let d = 1; d <= daysInMonth; d++) {
-            entries.push({ row: dispGetDay(d), photosCount: getPhotosFromCache(d, 'dispatcher').length });
-        }
-        const totals = calculateDispatcherMonthStats(entries);
-        const map = { 'disp-stat-events': totals.events, 'disp-stat-tickets': totals.tickets, 'disp-stat-urgent': totals.urgent, 'disp-stat-done': totals.done };
-        Object.entries(map).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
-    }
-
-    async function dispClearMonth() {
-        return dispatcherController.clearMonth();
-        showPinModal('Скидання диспетчера', 'PIN для очищення місяця', async (pin) => {
-            dispData = {};
-            dispSaveOffline();
-            if (!IS_PREVIEW) {
-                try { await db.rpc('reset_month', { table_name: 'dispatcher', p_month_key: dispKey(), attempt: pin }); } catch(e) {}
-            }
-            dispSetStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Скинуто</span>');
-            dispRender();
-        }, true);
-    }
-
-    // ==========================================
-    // ЛІФТЕР: короткий журнал відміток (декілька разів на місяць), живе
-    // всередині вкладки "Диспетчер". Один рядок на місяць у elevator_visits,
+    // ЛІФТЕР: короткий журнал відміток у вкладці «Виконані роботи».
+    // Один рядок на місяць у elevator_visits,
     // data — масив {id, day, text, createdAt, createdBy}.
     // ==========================================
 
     const elevatorController = createOsbbElevatorController({
         document, storage:localStorage, isPreview:IS_PREVIEW,
-        getMonth:()=>({year:currentYear,month:currentMonth}), getAuthor:()=>staffSession?.name || dispWorkerName,
+        getMonth:()=>({year:currentYear,month:currentMonth}), getAuthor:()=>staffSession?.name || defaultOperatorName,
         readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue,
         fetchMonth:async key=>db.from('elevator_visits').select('data').eq('month_key',key).single(),
         upsertMonth:row=>db.from('elevator_visits').upsert(row), render:elevatorRender, showToast,
@@ -2141,7 +1458,7 @@
 
     function elevatorAdd(day, text) {
         return elevatorController.add(day, text);
-        const entry = createElevatorEntry(day, text, staffSession?.name || dispWorkerName);
+        const entry = createElevatorEntry(day, text, staffSession?.name || defaultOperatorName);
         if (!entry) { showToast('Опишіть, що зробив ліфтер'); return; }
         elevatorData.push(entry);
         elevatorSaveOffline();
@@ -2250,8 +1567,6 @@
         render:completedWorkRender, setStatus:completedWorkStatus, showToast,
     });
     const completedWorkInitTab = () => completedWorkController.load();
-    const elevatorPanel = document.querySelector('#section-dispatcher .elevator-panel');
-    if (elevatorPanel) document.getElementById('section-completed-work')?.append(elevatorPanel);
     function completedWorkResetForm() {
         document.getElementById('completed-work-form')?.reset();
         document.getElementById('completed-work-id').value = '';
@@ -2343,7 +1658,6 @@
     bindOsbbStaticControls();
     bindOsbbPhotoActions();
     bindGarbageEntryActions();
-    bindDispatcherEntryActions();
     bindCompletedWorkActions();
     bindDayDetailSwipe();
     setTab(currentTab, { load: false });
