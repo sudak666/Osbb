@@ -226,7 +226,7 @@
 
     // dispatcher/admin/board — рівнозначні "повний доступ" ролі: увесь журнал,
     // редагування Табеля, заявки. "Зміни" сюди не входять навмисно — той таб
-    // і раніше захищений окремим PIN (verify_work_shifts_pin), незалежним від ролей.
+    // захищений серверною перевіркою загального PIN (verify_work_shifts_pin), незалежно від ролей.
     function isDispatcherSession() {
         return isDispatcherStaffSession(staffSession);
     }
@@ -375,7 +375,7 @@
         if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
         if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }
         if (tab !== 'shifts') { setTab(tab); return; }
-        showPinModal('PIN графіка змін', 'Введіть окремий PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
+        showPinModal('PIN журналу', 'Введіть загальний PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
     }
 
     function setTab(tab, { load = true } = {}) {
@@ -2323,7 +2323,7 @@
     runtimeController = createOsbbRuntimeController({
         document, window, navigator, isPreview:IS_PREVIEW, tabs:ALL_TABS, initialTab:currentTab,
         isTabAllowed:isTabAllowedForSession, isDispatcher:isDispatcherSession,
-        requestShiftPin:callback=>showPinModal('PIN графіка змін','Введіть окремий PIN для доступу',callback,false,'verify_work_shifts_pin'),
+        requestShiftPin:callback=>showPinModal('PIN журналу','Введіть загальний PIN для доступу',callback,false,'verify_work_shifts_pin'),
         getSelectedMonth:()=>({year:Number.parseInt(yearSelect.value,10),month:Number.parseInt(monthSelect.value,10)}),
         onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;}, onTabChanged:tab=>{currentTab=tab;},
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,

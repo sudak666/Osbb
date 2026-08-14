@@ -57,7 +57,7 @@ export function createOsbbShiftSettingsController(options) {
         const first = document.getElementById('shift-name-sergiy').value.trim();
         const second = document.getElementById('shift-name-oleksandr').value.trim();
         if (!first || !second) { showToast('Вкажіть обидва імені', 'error'); return; }
-        requestPin('PIN графіка змін', 'Підтвердьте зміну імен окремим PIN', async attempt => {
+        requestPin('PIN журналу', 'Підтвердьте зміну імен загальним PIN', async attempt => {
             try {
                 const ok = await saveNames(first, second, attempt);
                 if (!ok) throw new Error('Сервер відхилив операцію');

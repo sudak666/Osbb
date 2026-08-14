@@ -17,7 +17,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `021_repair_supplier_tags.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `025_unify_work_shifts_pin.sql`). |
 | `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
 
 ## Як працює авторизація
@@ -42,7 +42,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `021_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `025_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -67,8 +67,10 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 21. `021_repair_supplier_tags.sql` — безпечно відновлює теги постачальників, права, RLS і Realtime.
 22. `022_add_attendance_breaks.sql` — додає початок/кінець обіду до Табеля, серверну валідацію часу та сумісність зі старими записами приходу/відходу.
 23. `023_add_completed_work_log.sql` — додає окремий журнал фактично виконаних робіт із захищеним створенням, редагуванням і видаленням.
+24. `024_unify_operator_pin.sql` — дозволяє диспетчеру, адміністратору та Правлінню входити із загальним PIN журналу.
+25. `025_unify_work_shifts_pin.sql` — використовує загальний PIN журналу для доступу й змін у графіку змін.
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `023_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `025_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
 
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
