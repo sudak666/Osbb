@@ -38,7 +38,7 @@
         jiraPriorityClass,
     } from './osbb-tickets.js';
     import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
-    import { filterCompletedWork } from './osbb-completed-work.js';
+    import { completedWorkDefaultDate, filterCompletedWork } from './osbb-completed-work.js';
     import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';
 
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
@@ -1566,8 +1566,7 @@
     function completedWorkResetForm() {
         document.getElementById('completed-work-form')?.reset();
         document.getElementById('completed-work-id').value = '';
-        const selectedMonth = currentYear === todayYear && currentMonth === todayMonth ? todayDay : 1;
-        document.getElementById('completed-work-date').value = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(selectedMonth).padStart(2,'0')}`;
+        document.getElementById('completed-work-date').value = completedWorkDefaultDate(currentYear,currentMonth);
         document.getElementById('completed-work-submit-label').textContent = 'Зберегти роботу';
         document.getElementById('completed-work-cancel').classList.add('hidden');
         refreshEnhancedSelect(document.getElementById('completed-work-role'));

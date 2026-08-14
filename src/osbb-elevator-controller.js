@@ -10,7 +10,11 @@ export function createOsbbElevatorController(options) {
     function setStatus(type, text) {
         const element = document.getElementById('elevator-sync-status'); if (!element) return;
         const classes = { loading:'is-loading', ok:'is-ok', error:'is-error' };
-        element.className = `journal-status-chip ${classes[type] || classes.ok}`; element.innerHTML = text;
+        const icons = new Set(['progress_activity','preview','check_circle','error']);
+        const icon = icons.has(text) ? text : type === 'loading' ? 'progress_activity' : type === 'error' ? 'error' : 'check_circle';
+        const spinning = type === 'loading' ? ' is-spinning' : '';
+        element.className = `journal-status-chip ${classes[type] || classes.ok}`;
+        element.innerHTML = `<span class="material-symbols-rounded journal-inline-icon${spinning}" aria-hidden="true">${icon}</span>`;
     }
     function saveOffline() { writeOffline(storage, offlineKey(), entries); }
     function loadOffline() { return elevatorEntriesFromResponse(readOffline(storage, offlineKey())); }
