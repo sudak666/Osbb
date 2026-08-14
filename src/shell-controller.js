@@ -141,8 +141,14 @@ export function createShellController(deps) {
                 if (isShellTabName(button.dataset.shellTab)) switchTab(button.dataset.shellTab);
             });
         });
-        const lockButton = doc.querySelector('[data-shell-lock]');
-        if (lockButton) lockButton.addEventListener('click', lockShellNow);
+        doc.querySelectorAll('[data-shell-lock]').forEach((lockButton) => {
+            lockButton.addEventListener('click', lockShellNow);
+        });
+        doc.addEventListener('click', (event) => {
+            const details = doc.querySelector('.shell-more');
+            if (!details?.open || details.contains(event.target)) return;
+            details.open = false;
+        });
     }
 
     function switchTab(name) {

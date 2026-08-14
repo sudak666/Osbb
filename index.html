@@ -74,31 +74,49 @@
 
 <div id="shell-main">
     <div id="shell-tabs">
-        <div class="ios-segmented-control md-segmented-button" role="tablist" aria-label="Розділи застосунку">
-            <button type="button" class="shell-tab-btn md-state-layer active" id="shell-tab-journal" data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page">
-                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">assignment</span>
-                Журнал
-            </button>
-            <button type="button" class="shell-tab-btn md-state-layer" id="shell-tab-sklad" data-shell-tab="sklad" role="tab" aria-selected="false" aria-controls="frame-sklad">
-                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">inventory_2</span>
-                Склад
-            </button>
-            <button type="button" class="shell-tab-btn md-state-layer" id="shell-tab-promin" data-shell-tab="promin" role="tab" aria-selected="false" aria-controls="frame-promin">
-                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">elevator</span>
-                Промінь-3
-            </button>
-            <a href="https://www.deyecloud.com/station/new-main?t=1783238196915&id=61184357"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="shell-tab-btn md-state-layer"
-               id="shell-tab-deye">
-                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">solar_power</span>
-                Deye ↗
-            </a>
-            <button type="button" class="shell-tab-btn shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock aria-label="Заблокувати застосунок" title="Заблокувати">
-                <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">lock</span>
-                Блок
-            </button>
+        <div class="ios-segmented-control md-segmented-button">
+            <div class="shell-primary-tabs" role="tablist" aria-label="Розділи застосунку">
+                <button type="button" class="shell-tab-btn md-state-layer active" id="shell-tab-journal" data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page">
+                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">assignment</span>
+                    Журнал
+                </button>
+                <button type="button" class="shell-tab-btn md-state-layer" id="shell-tab-sklad" data-shell-tab="sklad" role="tab" aria-selected="false" aria-controls="frame-sklad">
+                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">inventory_2</span>
+                    Склад
+                </button>
+                <button type="button" class="shell-tab-btn md-state-layer" id="shell-tab-promin" data-shell-tab="promin" role="tab" aria-selected="false" aria-controls="frame-promin">
+                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">elevator</span>
+                    Промінь-3
+                </button>
+            </div>
+            <div class="shell-desktop-actions">
+                <a href="https://www.deyecloud.com/station/new-main?t=1783238196915&id=61184357"
+                   target="_blank" rel="noopener noreferrer" class="shell-tab-btn md-state-layer"
+                   id="shell-tab-deye">
+                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">solar_power</span>
+                    Deye ↗
+                </a>
+                <button type="button" class="shell-tab-btn shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock aria-label="Заблокувати застосунок" title="Заблокувати">
+                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">lock</span>
+                    Блок
+                </button>
+            </div>
+            <details class="shell-more">
+                <summary class="shell-more-trigger md-state-layer" aria-label="Інші дії">
+                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">more_vert</span>
+                </summary>
+                <div class="shell-more-menu">
+                    <a href="https://www.deyecloud.com/station/new-main?t=1783238196915&id=61184357"
+                       target="_blank" rel="noopener noreferrer" class="shell-more-item md-state-layer">
+                        <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">solar_power</span>
+                        Deye
+                    </a>
+                    <button type="button" class="shell-more-item shell-more-lock md-state-layer" data-shell-lock>
+                        <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">lock</span>
+                        Заблокувати
+                    </button>
+                </div>
+            </details>
         </div>
     </div>
     <div id="shell-frames">

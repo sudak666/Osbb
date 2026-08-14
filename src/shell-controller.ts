@@ -164,8 +164,15 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
                 if (isShellTabName(button.dataset.shellTab)) switchTab(button.dataset.shellTab);
             });
         });
-        const lockButton = doc.querySelector<HTMLButtonElement>('[data-shell-lock]');
-        if (lockButton) lockButton.addEventListener('click', lockShellNow);
+        doc.querySelectorAll<HTMLButtonElement>('[data-shell-lock]').forEach((lockButton) => {
+            lockButton.addEventListener('click', lockShellNow);
+        });
+
+        doc.addEventListener('click', (event) => {
+            const details = doc.querySelector<HTMLDetailsElement>('.shell-more');
+            if (!details?.open || details.contains(event.target as Node)) return;
+            details.open = false;
+        });
     }
 
     function switchTab(name: ShellTabName): void {

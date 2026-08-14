@@ -122,6 +122,10 @@
         gap: 3px;
         border: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, 0.10));
     }
+    .shell-primary-tabs,
+    .shell-desktop-actions { display: flex; min-width: 0; gap: 3px; }
+    .shell-primary-tabs { flex: 1; }
+    .shell-desktop-actions { flex: 0 0 auto; }
     .shell-tab-btn {
         flex: 1;
         display: flex;
@@ -158,6 +162,7 @@
     #shell-frames iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; background: var(--md-sys-color-surface, #fff); }
     #shell-frames iframe.active { display: block; }
     .shell-lock-btn { flex: 0 0 auto; min-width: 74px; color: var(--md-sys-color-error, #ff3b30); }
+    .shell-more { display: none; position: relative; flex: 0 0 auto; }
 
     /* Видимий фокус лише для клавіатурної навігації (не заважає кліку мишею/тапу) */
     :focus-visible { outline: 2px solid var(--md-sys-color-primary, #34c759); outline-offset: 2px; }
@@ -165,8 +170,37 @@
 
 
 @media (max-width: 640px) {
-    #shell-tabs { padding-left: 8px; padding-right: 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-    #shell-tabs::-webkit-scrollbar { display: none; }
+    #shell-tabs { padding-left: 8px; padding-right: 8px; }
+    .shell-desktop-actions { display: none; }
+    .shell-more { display: block; }
+    .shell-more-trigger {
+        display: inline-flex; width: 42px; height: 100%; min-height: 40px;
+        align-items: center; justify-content: center;
+        border-radius: var(--md-sys-shape-corner-medium, 12px);
+        color: var(--md-sys-color-on-surface-variant, #6e6e73);
+        cursor: pointer; list-style: none;
+    }
+    .shell-more-trigger::-webkit-details-marker { display: none; }
+    .shell-more[open] .shell-more-trigger {
+        background: var(--md-sys-color-secondary-container, #dbeafe);
+        color: var(--md-sys-color-on-secondary-container, #1e3a8a);
+    }
+    .shell-more-menu {
+        position: absolute; z-index: 30; top: calc(100% + 10px); right: 0;
+        min-width: 190px; padding: 6px;
+        border: 1px solid var(--md-sys-color-outline, rgba(60, 60, 67, 0.35));
+        border-radius: var(--md-sys-shape-corner-large, 16px);
+        background: var(--md-sys-color-surface-container, #fff);
+        box-shadow: var(--md-sys-elevation-level3, 0 4px 12px rgba(0, 0, 0, 0.18));
+    }
+    .shell-more-item {
+        display: flex; width: 100%; min-height: 48px; align-items: center; gap: 12px;
+        padding: 0 14px; border: 0;
+        border-radius: var(--md-sys-shape-corner-medium, 12px);
+        background: transparent; color: var(--md-sys-color-on-surface, #1c1c1e);
+        font: inherit; text-align: left; text-decoration: none; cursor: pointer;
+    }
+    .shell-more-lock { color: var(--md-sys-color-error, #b3261e); }
     .shell-tab-btn { min-width: 0; }
     .shell-symbol-icon { display:inline-flex; align-items:center; justify-content:center; margin:0; line-height:1; }
     #shell-frames { min-height: 0; }
