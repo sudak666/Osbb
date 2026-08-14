@@ -58,6 +58,8 @@
     import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
     import { filterCompletedWork } from './osbb-completed-work.js';
 
+    const { enhanceSelect, refreshEnhancedSelect } = window;
+
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
     // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
