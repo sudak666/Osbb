@@ -100,6 +100,7 @@ const checks = [
   ['osbb/index.html', 'data-action="jira-refresh" data-tip="Оновити заявки" aria-label="Оновити заявки Jira"', 'Jira exposes a local refresh action'],
   ['src/osbb-app.js', "calendarRow.classList.toggle('hidden', tab === 'my-tickets' || tab === 'shifts')", 'journal hides irrelevant month controls'],
   ['src/osbb-app.js', "'jira-refresh': myTicketsInitTab", 'Jira refresh uses the existing guarded loader'],
+  ['src/osbb-app.js', 'if (needsInitialTabLoad && runtimeController) setTab(currentTab);', 'Jira reloads after initial staff authentication'],
   ['osbb/index.html', 'Jira — єдине джерело заявок', 'Jira is presented as the single source of requests'],
   ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
   ['osbb/index.html', 'jiraStatusFilter = button.dataset.jiraStatusCounter', 'Jira issues can be filtered by status counters'],
