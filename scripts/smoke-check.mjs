@@ -2362,6 +2362,25 @@ ${sharedSelectText}`;
   }
 }
 
+// Sklad recipient shortcuts should reflect the confirmed operating team while
+// the free-text field remains available for exceptional recipients.
+{
+  const text = readSkladCombined();
+  const label = 'sklad issue recipient presets match the operating team';
+  const lifterPresetCount = text.split('data-person-preset="Ліфтер"').length - 1;
+  const hasLegacyPreset = text.includes('data-person-preset="Охорона"')
+    || text.includes('data-person-preset="Прибиральниця"');
+  const hasManualRecipientFields = text.includes('id="issuePersonI"')
+    && text.includes('id="qmPersonI"');
+  if (lifterPresetCount !== 2 || hasLegacyPreset || !hasManualRecipientFields) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
 
 // Sklad modal controls should use data attributes and the central binder, including
 // destructive confirmation PIN keys and lightbox controls.
