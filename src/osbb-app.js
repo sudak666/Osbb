@@ -169,10 +169,12 @@
             </button>
         `).join(''),
         onAuthenticated: (session, pin) => {
+            const needsInitialTabLoad = !staffSession;
             staffSession = session;
             staffPinCache = pin;
             saveStaffSession();
             applyRoleGating();
+            if (needsInitialTabLoad && runtimeController) setTab(currentTab);
         },
     });
 
