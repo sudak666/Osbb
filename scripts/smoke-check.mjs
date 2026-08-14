@@ -297,8 +297,10 @@ for (const [file, needle, label] of checks) {
   const label = 'GitHub workflows use Node 24 action runtimes';
   const valid = workflows.includes('actions/checkout@v6')
     && workflows.includes('actions/setup-node@v6')
+    && workflows.includes('timeout: 600000')
     && !workflows.includes('actions/checkout@v4')
-    && !workflows.includes('actions/setup-node@v4');
+    && !workflows.includes('actions/setup-node@v4')
+    && !workflows.includes('timeout: 1200000');
   if (!valid) { failed += 1; console.error(`not ok - ${label}`); }
   else { passed += 1; console.log(`ok - ${label}`); }
 }
@@ -2718,7 +2720,7 @@ ${sharedSelectText}`;
     [pages, 'workflow_dispatch:', '.github/workflows/pages.yml:manual trigger'],
     [pages, 'actions/upload-pages-artifact@v5', '.github/workflows/pages.yml:artifact'],
     [pages, 'actions/deploy-pages@v5', '.github/workflows/pages.yml:deploy'],
-    [pages, 'timeout: 1200000', '.github/workflows/pages.yml:deploy timeout'],
+    [pages, 'timeout: 600000', '.github/workflows/pages.yml:deploy timeout'],
     [copy, "'sw.js'", 'copy-static-assets.mjs:root sw'],
     [copy, "'osbb/sw.js'", 'copy-static-assets.mjs:osbb sw'],
     [copy, "'sklad/sw.js'", 'copy-static-assets.mjs:sklad sw'],
