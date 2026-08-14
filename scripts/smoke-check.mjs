@@ -904,6 +904,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="card desktop-table table-modern"',
     'class="stat-icon" aria-hidden="true"',
     '.items-filter-bar{position:sticky;',
+    '.items-filter-bar{position:sticky;top:64px;z-index:9;',
     '@media(max-width:1180px)',
     '.items-filter-pill{position:relative;display:inline-grid;',
     '.items-availability-toggle{flex:0 0 auto;min-width:142px;}',
