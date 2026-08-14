@@ -886,12 +886,11 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .jira-status-counter { display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:8px 12px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); color:var(--md-sys-color-on-surface,var(--text-main)); font:inherit; font-weight:500; cursor:pointer; }
 .jira-status-counter strong { min-width:24px; padding:2px 7px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-highest,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-muted)); font-size:12px; text-align:center; }
 .jira-status-counter.is-active { border-color:var(--md-sys-color-primary,var(--accent)); background:var(--md-sys-color-primary-container,var(--accent-soft)); color:var(--md-sys-color-on-primary-container,var(--accent)); }
-.my-ticket-card .my-ticket-close-actions { display:grid; grid-template-columns:auto minmax(150px,1fr) auto; gap:8px; align-items:stretch; }
+.my-ticket-card .my-ticket-close-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; align-items:stretch; }
 .my-ticket-card .my-ticket-close-actions :is(.custom-select-wrap,.custom-select-btn) { width:100%; min-width:0; }
 @media(max-width:640px){
   .jira-ticket-filters { grid-template-columns:1fr; }
-  .my-ticket-card .my-ticket-close-actions { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
-  .my-ticket-card .my-ticket-close-actions .custom-select-wrap { grid-column:1 / -1; grid-row:1; }
+  .my-ticket-card .my-ticket-close-actions { grid-template-columns:1fr; }
   .my-ticket-card .my-ticket-close-actions > :is(a,button) { width:100%; justify-content:center; text-align:center; }
 }
 .my-tickets-panel > .shift-copy { margin:16px 22px 0; }

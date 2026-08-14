@@ -50,6 +50,7 @@
     } from './osbb-staff.js';
     import {
         TICKET_PRIORITIES as ticketPriorities,
+        formatJiraShareText,
         jiraPriorityClass,
         matchesDispatcherDateFilter,
         normalizeTicketPriority,
@@ -318,7 +319,7 @@
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
 
     let currentYear, currentMonth;
-    let currentTab = 'dispatcher';
+    let currentTab = 'my-tickets';
     let runtimeController;
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
@@ -384,7 +385,7 @@
         document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
-    const ALL_TABS = ['garbage','dispatcher','completed-work','shifts','tabel','my-tickets'];
+    const ALL_TABS = ['my-tickets','completed-work','garbage','shifts','tabel'];
 
     function requestTab(tab) {
         return runtimeController.requestTab(tab);
@@ -1705,6 +1706,7 @@
     let jiraAssignmentFilter = 'all';
     let jiraStatusFilter = 'all';
     let jiraCategoryFilter = 'all';
+    let jiraLoadFailed = false;
 
     async function jiraRequest(action, extra = {}) {
         const response = await fetch(`${SUPABASE_URL}/functions/v1/jira-issues`, {
@@ -1722,7 +1724,7 @@
     }
 
     async function myTicketsInitTab() {
-        await dispatcherController.loadJira();
+        jiraLoadFailed = !(await dispatcherController.loadJira());
         jiraIssues = dispatcherController.getJiraIssues();
         myTicketsRender();
         return;
@@ -1749,6 +1751,11 @@
     function myTicketsRender() {
         const list = document.getElementById('my-tickets-list');
         if (!list || !staffSession) return;
+        if (jiraLoadFailed) {
+            list.innerHTML = '<div class="completed-work-empty"><span class="material-symbols-rounded" aria-hidden="true">cloud_off</span><p>Не вдалося завантажити заявки з Jira</p><button type="button" class="dispatcher-copy-btn md-state-layer" data-jira-retry><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">refresh</span>Спробувати ще раз</button></div>';
+            list.querySelector('[data-jira-retry]')?.addEventListener('click', myTicketsInitTab);
+            return;
+        }
         const statuses = [...new Set(jiraIssues.map(issue => issue.status).filter(Boolean))].sort();
         const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
         const statusCounts = jiraIssues.reduce((counts, issue) => {
@@ -1790,6 +1797,8 @@
                 <div class="ticket-item-text">${escapeHtml(issue.summary)}</div>
                 <div class="ticket-item-comment">${escapeHtml(issue.key)} · ${escapeHtml(issue.category || 'Без категорії')}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
                 <div class="my-ticket-close-actions">
+                    <button type="button" class="dispatcher-copy-btn md-state-layer" data-jira-action="copy" data-jira-key="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">content_copy</span>Копіювати</button>
+                    <button type="button" class="dispatcher-copy-btn md-state-layer" data-jira-action="share" data-jira-key="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">send</span>Telegram</button>
                     ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
                 </div>
             </div>`;
@@ -1807,6 +1816,27 @@
             button.addEventListener('click', () => {
                 jiraStatusFilter = button.dataset.jiraStatusCounter || 'all';
                 myTicketsRender();
+            });
+        });
+        list.querySelectorAll('[data-jira-action]').forEach(button => {
+            button.addEventListener('click', async () => {
+                const issue = jiraIssues.find(item => item.key === button.dataset.jiraKey);
+                if (!issue) return;
+                const shareText = formatJiraShareText(issue);
+                try {
+                    if (button.dataset.jiraAction === 'copy') {
+                        await navigator.clipboard.writeText(shareText);
+                        showToast('Заявку скопійовано');
+                        return;
+                    }
+                    if (navigator.share) {
+                        await navigator.share({ title: issue.key || 'Заявка Jira', text: shareText });
+                        return;
+                    }
+                    window.open(`https://t.me/share/url?url=${encodeURIComponent(issue.url || '')}&text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
+                } catch (error) {
+                    if (error?.name !== 'AbortError') showToast('Не вдалося поділитися заявкою');
+                }
             });
         });
         list.querySelectorAll('[data-jira-filter]').forEach(select => enhanceSelect(select));
@@ -2243,6 +2273,8 @@
         render:completedWorkRender, setStatus:completedWorkStatus, showToast,
     });
     const completedWorkInitTab = () => completedWorkController.load();
+    const elevatorPanel = document.querySelector('#section-dispatcher .elevator-panel');
+    if (elevatorPanel) document.getElementById('section-completed-work')?.append(elevatorPanel);
     function completedWorkResetForm() {
         document.getElementById('completed-work-form')?.reset();
         document.getElementById('completed-work-id').value = '';
@@ -2319,13 +2351,12 @@
         onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;}, onTabChanged:tab=>{currentTab=tab;},
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
         loadDashboard:gInitDashboard,
-        loaders:{garbage:gInitTab,dispatcher:async()=>{await dispInitTab();await elevatorInitTab();},'completed-work':completedWorkInitTab,shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
+        loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
         setSyncStatus:type=>setSyncStatus(type,type==='loading'?'<span class="status-label">Завантаження...</span>':'<span class="status-label">Синхронізовано</span>'),
         createRealtimeClient:typeof supabase==='undefined'?null:()=>supabase.createClient(SUPABASE_URL,SUPABASE_KEY),
         subscriptions:[
             {tab:'garbage',filter:{event:'*',schema:'public',table:'garbage'},load:gInitTab},
-            {tab:'dispatcher',filter:{event:'*',schema:'public',table:'dispatcher'},load:dispInitTab},
-            {tab:'dispatcher',filter:{event:'*',schema:'public',table:'elevator_visits'},load:elevatorInitTab},
+            {tab:'completed-work',filter:{event:'*',schema:'public',table:'elevator_visits'},load:elevatorInitTab},
             {tab:'completed-work',filter:{event:'*',schema:'public',table:'completed_work'},load:completedWorkInitTab},
             {tab:'shifts',filter:{event:'*',schema:'public',table:'work_shifts'},load:shiftLoadMonth},
             {tab:'shifts',filter:{event:'*',schema:'public',table:'work_shift_settings'},load:shiftLoadSettings},

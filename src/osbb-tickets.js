@@ -26,6 +26,18 @@ export function jiraPriorityClass(priority) {
     return 'MEDIUM';
 }
 
+export function formatJiraShareText(issue) {
+    const summary = String(issue?.summary ?? '').trim() || 'Без назви';
+    const key = String(issue?.key ?? '').trim();
+    const category = String(issue?.category ?? '').trim();
+    const url = String(issue?.url ?? '').trim();
+    return [
+        `Завдання: ${summary}`,
+        category ? `Категорія: ${category}` : '',
+        key ? `Jira: ${key}${url ? ` — ${url}` : ''}` : url,
+    ].filter(Boolean).join('\n');
+}
+
 export function matchesDispatcherDateFilter(year, month, day, filter, now = new Date()) {
     if (filter !== 'today' && filter !== 'current_week') return true;
     if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day) || Number.isNaN(now.getTime())) return false;

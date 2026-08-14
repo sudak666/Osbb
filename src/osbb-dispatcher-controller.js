@@ -68,11 +68,10 @@ export function createOsbbDispatcherController(options) {
     function stats(entries) { return calculateDispatcherMonthStats(entries); }
     async function clearMonth() { requestResetPin(async pin => { data={}; saveOffline(); if (!isPreview) { try { await resetMonth({ table_name:'dispatcher', p_month_key:monthKey(), attempt:pin }); } catch {} } publish(); setStatus('ok','<span class="status-label">Скинуто</span>'); renderDispatcher(); }); }
     async function loadJira() {
-        if (!getStaffSession()) return; const status=document.getElementById('my-tickets-sync-status'); if (status) status.innerHTML='<span class="material-symbols-rounded journal-inline-icon is-spinning">progress_activity</span>';
-        if (!getStaffPin() && !await requestStaffReauth()) { if(status) status.textContent='lock'; return; }
-        try { jiraIssues=jiraIssuesFromResponse((await requestJira('list')).issues); if(status) status.textContent='check_circle'; }
-        catch(error) { warn('jira issues load error:',error); jiraIssues=[]; if(status) status.textContent='error'; showToast('Не вдалося завантажити Jira-заявки'); }
-        renderMyTickets();
+        if (!getStaffSession()) return false; const status=document.getElementById('my-tickets-sync-status'); if (status) status.innerHTML='<span class="material-symbols-rounded journal-inline-icon is-spinning">progress_activity</span>';
+        if (!getStaffPin() && !await requestStaffReauth()) { if(status) status.textContent='lock'; return false; }
+        try { jiraIssues=jiraIssuesFromResponse((await requestJira('list')).issues); if(status) status.textContent='check_circle'; renderMyTickets(); return true; }
+        catch(error) { warn('jira issues load error:',error); jiraIssues=[]; if(status) status.textContent='error'; showToast('Не вдалося завантажити Jira-заявки'); renderMyTickets(); return false; }
     }
     return { addTicket, addTicketPhoto, cancelTicketEdit, clearMonth, closeTicket, collectTicketsForRole, deleteTicket, getData:()=>data,
         getDay, getEditingTicketId:()=>editingTicketId, getJiraIssues:()=>jiraIssues, init, loadJira, matchesFilter, reopenTicket,

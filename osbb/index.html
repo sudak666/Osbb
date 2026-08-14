@@ -264,8 +264,8 @@
 
         <div class="journal-tabs-row">
         <div id="desktop-tabs" class="journal-tabs" role="tablist" aria-label="Розділи журналу">
-            <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="tab-btn md-state-layer active">
-                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Диспетчер
+            <button type="button" data-osbb-tab="my-tickets" id="tab-my-tickets" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page" class="tab-btn md-state-layer active">
+                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">assignment</span> Заявки
             </button>
             <button type="button" data-osbb-tab="completed-work" id="tab-completed-work" role="tab" aria-selected="false" aria-controls="section-completed-work" class="tab-btn md-state-layer">
                 <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">task_alt</span> Виконані роботи
@@ -279,17 +279,14 @@
             <button type="button" data-osbb-tab="tabel" id="tab-tabel" role="tab" aria-selected="false" aria-controls="section-tabel" class="tab-btn md-state-layer">
                 <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span> Табель
             </button>
-            <button type="button" data-osbb-tab="my-tickets" id="tab-my-tickets" role="tab" aria-selected="false" aria-controls="section-my-tickets" class="tab-btn md-state-layer hidden">
-                <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span> Мої заявки
-            </button>
         </div>
     </div>
     </header>
 
     <!-- BOTTOM NAV — тільки на мобілці -->
     <div id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу" class="journal-bottom-nav no-print">
-        <button type="button" data-osbb-tab="dispatcher" id="tab-dispatcher-m" role="tab" aria-selected="true" aria-controls="section-dispatcher" aria-current="page" class="mob-tab md-state-layer mob-active">
-            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Диспетчер
+        <button type="button" data-osbb-tab="my-tickets" id="tab-my-tickets-m" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page" class="mob-tab md-state-layer mob-active">
+            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">assignment</span> Заявки
         </button>
         <button type="button" data-osbb-tab="completed-work" id="tab-completed-work-m" role="tab" aria-selected="false" aria-controls="section-completed-work" class="mob-tab md-state-layer">
             <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">task_alt</span> Роботи
@@ -302,9 +299,6 @@
         </button>
         <button type="button" data-osbb-tab="tabel" id="tab-tabel-m" role="tab" aria-selected="false" aria-controls="section-tabel" class="mob-tab md-state-layer">
             <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span> Табель
-        </button>
-        <button type="button" data-osbb-tab="my-tickets" id="tab-my-tickets-m" role="tab" aria-selected="false" aria-controls="section-my-tickets" class="mob-tab md-state-layer hidden">
-            <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span> Мої заявки
         </button>
     </div>
 
@@ -526,15 +520,14 @@
         </div>
     </div>
 
-    <!-- ===== МОЇ ЗАЯВКИ — для staff-сесій з роллю сантехнік/двірник/електрик:
-         тільки заявки, призначені на їхню роль, відсортовані за пріоритетом. ===== -->
+    <!-- ===== ЗАЯВКИ JIRA — єдиний робочий список заявок ===== -->
     <div id="section-my-tickets" class="hidden mb-6">
         <div class="journal-panel journal-list-shell my-tickets-panel">
             <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">checklist</span>Мої заявки</span>
+                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">assignment</span>Заявки Jira</span>
                 <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
             </div>
-            <p class="shift-copy">Перегляд відкритих Jira-заявок без редагування:</p>
+            <p class="shift-copy">Jira — єдине джерело заявок. Редагування й закриття виконуються безпосередньо в Jira.</p>
             <div class="priority-legend" aria-label="Порядок пріоритетів">
                 <span class="priority-legend-item priority-HIGH"><i class="priority-dot" aria-hidden="true"></i>Терміново</span>
                 <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
