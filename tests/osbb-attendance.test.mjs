@@ -51,9 +51,9 @@ test('normalizeAttendanceMonth ignores injected role and time payloads', () => {
   }), { 1: { plumber: { checkIn: '08:00', breakStart:undefined, breakEnd:undefined, checkOut: undefined } } });
 });
 
-test('attendance validates lunch pairs and their position inside a shift', () => {
+test('attendance validates absence pairs and their position inside a shift', () => {
   assert.equal(attendanceCellError({ checkIn:'08:00', breakStart:'12:00', breakEnd:'12:45', checkOut:'17:00' }), '');
-  assert.match(attendanceCellError({ checkIn:'08:00', breakStart:'12:00', checkOut:'17:00' }), /обидва поля/);
+  assert.match(attendanceCellError({ checkIn:'08:00', breakStart:'12:00', checkOut:'17:00' }), /виходу і повернення/);
   assert.match(attendanceCellError({ checkIn:'08:00', breakStart:'18:00', breakEnd:'18:30', checkOut:'17:00' }), /між приходом/);
   assert.equal(attendanceCellState({ checkIn:'08:00', breakStart:'12:00', checkOut:'17:00' }), 'is-partial-cell');
   assert.equal(formatAttendanceDuration(8.416666), '8 год 25 хв');

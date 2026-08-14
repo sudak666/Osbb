@@ -762,7 +762,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7,minmax(152px,1fr)); min-width:1112px; gap:8px; }
 .att-calendar-weekdays { margin-bottom:8px; }
 .att-calendar-weekdays span { padding:0 10px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; line-height:24px; font-weight:700; text-align:right; text-transform:uppercase; letter-spacing:.06em; }
-.att-calendar-spacer { min-height:1px; }
+.att-calendar-day.is-adjacent-month { border-style:dashed; background:var(--md-sys-color-surface-container-low,var(--surface-soft)); color:var(--md-sys-color-on-surface-variant,var(--muted)); opacity:.58; pointer-events:none; }
+.att-calendar-day.is-adjacent-month > header { border-bottom-color:var(--md-sys-color-outline-variant,var(--border)); }
+.att-calendar-adjacent-copy { display:grid; flex:1; min-height:96px; place-items:center; padding:16px; font-size:12px; font-weight:700; text-align:center; }
 .att-calendar-day { min-height:150px; overflow:hidden; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
 .att-calendar-day.is-weekend { background:var(--md-sys-color-surface-container,var(--bg-input)); }
 .att-calendar-day.is-today,.att-mobile-day.is-today { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 55%,var(--border)); background:var(--md-sys-color-surface-container-low,var(--bg-card)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
@@ -776,6 +778,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-calendar-role-name { display:flex; align-items:center; gap:6px; min-width:0; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:10px; font-weight:700; }
 .att-calendar-role .att-mobile-role-dot { width:8px; height:8px; flex:none; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-primary,var(--accent)); }
 .att-calendar-times,.att-table-times { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+.att-absence-action { width:100%; min-height:32px; margin-top:6px; border:1px dashed var(--md-sys-color-outline,var(--border)); border-radius:var(--md-sys-shape-corner-small,8px); background:transparent; color:var(--md-sys-color-primary,var(--accent)); font:inherit; font-size:11px; font-weight:700; cursor:pointer; }
+.att-absence-action:hover { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 8%,transparent); }
+.att-absence-action:focus-visible { outline:2px solid var(--md-sys-color-primary,var(--accent)); outline-offset:2px; }
+.att-absence-field.hidden { display:none !important; }
 .att-calendar-times .att-time-input { width:100%; min-width:0; height:36px; padding:4px; text-align:center; }
 .att-table-times .att-time-input { width:100%; min-width:64px; }
 .att-calendar-role.is-readonly { grid-template-columns:minmax(0,1fr) auto; align-items:center; }

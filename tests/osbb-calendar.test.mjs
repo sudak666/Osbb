@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  adjacentCalendarDays,
   calendarMonthDays,
   isCalendarMonth,
   mondayFirstDayOffset,
@@ -10,6 +11,26 @@ import {
   sundayFirstDayOffset,
   zeroBasedMonthKey,
 } from '../src/osbb-calendar.js';
+
+test('adjacent calendar days fill incomplete weeks', () => {
+  assert.deepEqual(adjacentCalendarDays(2026, 7), {
+    leading: [
+      { year: 2026, month: 6, day: 27 },
+      { year: 2026, month: 6, day: 28 },
+      { year: 2026, month: 6, day: 29 },
+      { year: 2026, month: 6, day: 30 },
+      { year: 2026, month: 6, day: 31 },
+    ],
+    trailing: [
+      { year: 2026, month: 8, day: 1 },
+      { year: 2026, month: 8, day: 2 },
+      { year: 2026, month: 8, day: 3 },
+      { year: 2026, month: 8, day: 4 },
+      { year: 2026, month: 8, day: 5 },
+      { year: 2026, month: 8, day: 6 },
+    ],
+  });
+});
 
 test('calendar month shifting crosses years and respects UI bounds', () => {
   assert.deepEqual(shiftCalendarMonth(2026, 0, -1, 2025, 2030), { year: 2025, month: 11 });

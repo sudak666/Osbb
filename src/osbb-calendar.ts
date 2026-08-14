@@ -3,6 +3,15 @@ export interface CalendarMonth {
     month: number;
 }
 
+export interface AdjacentCalendarDay extends CalendarMonth {
+    day: number;
+}
+
+export interface AdjacentCalendarDays {
+    leading: AdjacentCalendarDay[];
+    trailing: AdjacentCalendarDay[];
+}
+
 function assertCalendarMonth(year: number, month: number): void {
     if (!Number.isSafeInteger(year) || year < 2000 || year > 2100) throw new TypeError('Invalid calendar year');
     if (!Number.isSafeInteger(month) || month < 0 || month > 11) throw new TypeError('Invalid calendar month');
@@ -33,6 +42,27 @@ export function calendarMonthDays(year: number, month: number): number {
 export function mondayFirstDayOffset(year: number, month: number): number {
     assertCalendarMonth(year, month);
     return (new Date(year, month, 1).getDay() + 6) % 7;
+}
+
+export function adjacentCalendarDays(year: number, month: number): AdjacentCalendarDays {
+    assertCalendarMonth(year, month);
+    const leadingCount = mondayFirstDayOffset(year, month);
+    const daysInMonth = calendarMonthDays(year, month);
+    const previous = shiftCalendarMonth(year, month, -1);
+    const next = shiftCalendarMonth(year, month, 1);
+    const previousDays = previous ? calendarMonthDays(previous.year, previous.month) : 0;
+    const trailingCount = (7 - ((leadingCount + daysInMonth) % 7)) % 7;
+    return {
+        leading: previous
+            ? Array.from({ length: leadingCount }, (_, index) => ({
+                ...previous,
+                day: previousDays - leadingCount + index + 1,
+            }))
+            : [],
+        trailing: next
+            ? Array.from({ length: trailingCount }, (_, index) => ({ ...next, day: index + 1 }))
+            : [],
+    };
 }
 
 export function sundayFirstDayOffset(year: number, month: number): number {
