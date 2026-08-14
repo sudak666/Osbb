@@ -202,20 +202,6 @@
     </div>
 </div>
 
-<div id="ticket-delete-confirm" class="ticket-confirm-overlay no-print" role="dialog" aria-modal="true" aria-labelledby="ticket-delete-confirm-title" aria-hidden="true" tabindex="-1">
-    <div class="ticket-confirm-dialog">
-        <div class="ticket-confirm-icon" aria-hidden="true"><span class="material-symbols-rounded">delete</span></div>
-        <div>
-            <h2 id="ticket-delete-confirm-title" class="ticket-confirm-title">Видалити заявку?</h2>
-            <p class="ticket-confirm-copy">Цю дію неможливо скасувати.</p>
-        </div>
-        <div class="ticket-confirm-actions">
-            <button type="button" class="journal-tonal-btn md-state-layer" data-ticket-delete-cancel>Скасувати</button>
-            <button type="button" class="journal-action-btn journal-action-btn-danger md-state-layer" data-ticket-delete-confirm>Видалити</button>
-        </div>
-    </div>
-</div>
-
 <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
     <header class="no-print journal-shell-header">
@@ -307,6 +293,23 @@
                 <label><span class="sr-only">Фільтр за виконавцем</span><select id="completed-work-filter"><option value="all">Усі виконавці</option><option value="electrician">Електрик</option><option value="janitor">Двірник</option><option value="plumber">Сантехнік</option></select></label>
             </div>
             <div id="completed-work-list" class="completed-work-list" aria-live="polite"></div>
+        </div>
+
+        <div class="journal-panel elevator-panel">
+            <div class="elevator-head">
+                <div class="elevator-title">
+                    <span class="elevator-title-icon material-symbols-rounded" aria-hidden="true">elevator</span>
+                    <span>Ліфтер</span>
+                </div>
+                <span id="elevator-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+            </div>
+            <p class="shift-copy">Відмітки приїзду ліфтера цього місяця та що саме він робив.</p>
+            <div class="elevator-add-form">
+                <select id="elevator-new-day" class="journal-select" aria-label="День приїзду ліфтера"></select>
+                <input type="text" id="elevator-new-text" class="dispatcher-location-input" placeholder="Що зробив ліфтер..." aria-label="Опис виконаних робіт">
+                <button type="button" class="dispatcher-time-btn md-state-layer" data-action="elevator-add"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add</span>Додати запис</button>
+            </div>
+            <div id="elevator-list" class="elevator-list"></div>
         </div>
     </section>
 
@@ -433,76 +436,6 @@
             </div>
 
             <div id="g-days-list"></div>
-        </div>
-    </div>
-
-    <!-- ===== СЕКЦІЯ ДИСПЕТЧЕР ===== -->
-    <div id="section-dispatcher" class="hidden mb-6">
-        <!-- Ліфтер приїжджає лише кілька разів на місяць — окремий короткий
-             журнал відміток, не прив'язаний до щоденного календаря диспетчера. -->
-        <div class="journal-panel elevator-panel">
-            <div class="elevator-head">
-                <div class="elevator-title">
-                    <span class="elevator-title-icon material-symbols-rounded" aria-hidden="true">elevator</span>
-                    <span>Ліфтер</span>
-                </div>
-                <span id="elevator-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
-            </div>
-            <p class="shift-copy">Відмітки приїзду ліфтера цього місяця та що саме він робив.</p>
-            <div class="elevator-add-form">
-                <select id="elevator-new-day" class="journal-select" aria-label="День приїзду ліфтера"></select>
-                <input type="text" id="elevator-new-text" class="dispatcher-location-input" placeholder="Що зробив ліфтер..." aria-label="Опис виконаних робіт">
-                <button type="button" class="dispatcher-time-btn md-state-layer" data-action="elevator-add"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add</span>Додати запис</button>
-            </div>
-            <div id="elevator-list" class="elevator-list"></div>
-        </div>
-
-        <!-- Картки днів диспетчера -->
-        <div class="journal-panel journal-list-shell">
-            <div class="journal-list-head">
-                <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">support_agent</span> Журнал Диспетчера</span></span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span id="disp-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
-                    <button type="button" data-action="dispatcher-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">restart_alt</span> Скинути</span></button>
-                </div>
-            </div>
-            <div class="dispatcher-toolbar no-print">
-                <label class="dispatcher-search-wrap">
-                    <span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">search</span>
-                    <input id="disp-search" type="search" placeholder="Пошук: ліфт, лампа, кв. 45..." aria-label="Пошук по записах диспетчера" aria-keyshortcuts="/ Escape" class="dispatcher-search-input" data-disp-search>
-                </label>
-                <div class="dispatcher-filter-chips" role="group" aria-label="Фільтр записів диспетчера">
-                    <button type="button" class="dispatcher-filter-chip md-state-layer is-active" data-disp-filter="all">Усі</button>
-                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="today">Сьогодні</button>
-                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="current_week">Цей тиждень</button>
-                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="has_event">З подіями</button>
-                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="urgent">Термінові</button>
-                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="unresolved">Невирішені</button>
-                    <button type="button" class="dispatcher-filter-chip md-state-layer" data-disp-filter="done">Виконані</button>
-                </div>
-                <label class="dispatcher-worker-filter">
-                    <span>Виконавець</span>
-                    <select class="journal-select" data-disp-worker-filter aria-label="Фільтр заявок за виконавцем">
-                        <option value="all">Усі працівники</option>
-                        <option value="plumber">Сантехнік</option>
-                        <option value="janitor">Двірник</option>
-                        <option value="electrician">Електрик</option>
-                    </select>
-                </label>
-                <div class="dispatcher-result-row" aria-live="polite">
-                    <span id="disp-result-summary" class="dispatcher-result-summary">Показано всі дні</span>
-                    <button type="button" class="dispatcher-reset-btn md-state-layer" data-disp-reset hidden>Скинути</button>
-                </div>
-            </div>
-            <div class="journal-mini-stats is-four dispatcher-summary" aria-label="Підсумок диспетчера">
-                <div class="stat-card journal-stat-card journal-mini-stat role-dispatcher"><div class="journal-metric-value" id="disp-stat-events">0</div><div class="journal-metric-label">Днів із заявками</div></div>
-                <div class="stat-card journal-stat-card journal-mini-stat role-plumber"><div class="journal-metric-value" id="disp-stat-tickets">0</div><div class="journal-metric-label">Заявок</div></div>
-                <div class="stat-card journal-stat-card journal-mini-stat role-danger"><div class="journal-metric-value" id="disp-stat-urgent">0</div><div class="journal-metric-label">Термінових відкритих</div></div>
-                <div class="stat-card journal-stat-card journal-mini-stat role-janitor"><div class="journal-metric-value" id="disp-stat-done">0</div><div class="journal-metric-label">Виконано заявок</div></div>
-            </div>
-            <div id="disp-cards"></div>
         </div>
     </div>
 

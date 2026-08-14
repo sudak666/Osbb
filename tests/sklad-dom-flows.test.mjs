@@ -139,21 +139,13 @@ test('Sklad controllers initialize only after data loader bindings', () => {
   assert.ok(itemCrudInit > dataBindings, 'item CRUD controller must not read loadItems in its temporal dead zone');
 });
 
-test('OSBB dispatcher ticket flow stays delegated and routes add/edit actions', () => {
-  assert.match(osbbHtml, /data-disp-search/u);
-  assertIncludes(osbbApp, 'function bindDispatcherEntryActions() {', 'dispatcher delegated binder is missing');
-  assertIncludes(osbbApp, "event.target.closest('[data-disp-action]')", 'dispatcher actions must use delegated hooks');
-  assertIncludes(osbbApp, "action.dataset.dispAction === 'ticket-add'", 'dispatcher add action is not routed');
-  assertIncludes(osbbApp, "action.dataset.dispAction === 'ticket-edit-save'", 'dispatcher edit save action is not routed');
-  assertIncludes(osbbApp, 'dispSaveTicketEdit(Number(action.dataset.dispDay), ticketId', 'dispatcher edit must use save boundary');
-});
-
-test('OSBB dispatcher renderer keeps ticket-controlled attributes and labels safe', () => {
-  assertIncludes(osbbApp, 'priority-${normalizeTicketPriority(t.priority)}', 'ticket priority class must be normalized');
-  assertIncludes(osbbApp, 'id="ticket-edit-text-${escapeAttr(t.id)}"', 'ticket editor id must be escaped');
-  assertIncludes(osbbApp, 'id="ticket-edit-role-${escapeAttr(t.id)}"', 'ticket role editor id must be escaped');
-  assertIncludes(osbbApp, 'id="ticket-edit-priority-${escapeAttr(t.id)}"', 'ticket priority editor id must be escaped');
-  assertIncludes(osbbApp, "${escapeHtml(roleNames[t.role] || t.role || 'Не призначено')}", 'ticket role label must be escaped');
+test('OSBB keeps Jira as the only request UI and removes local dispatcher writes', () => {
+  assert.doesNotMatch(osbbHtml, /id="section-dispatcher"|data-disp-search/u);
+  assert.doesNotMatch(osbbApp, /createOsbbDispatcherController|db\.from\('dispatcher'\)|data-disp-action="ticket-(?:add|edit|delete|reopen)/u);
+  assertIncludes(osbbApp, 'jiraIssues = jiraIssuesFromResponse(data.issues);', 'Jira rows must pass the response boundary');
+  assertIncludes(osbbApp, '${escapeHtml(issue.summary)}', 'Jira summary must be escaped');
+  assertIncludes(osbbApp, 'data-jira-action="copy"', 'Jira copy action must remain available');
+  assertIncludes(osbbApp, 'data-jira-action="share"', 'Jira share action must remain available');
 });
 
 test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
