@@ -445,7 +445,7 @@
             <div class="journal-list-head">
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">assignment</span>Заявки Jira</span>
                 <div class="flex items-center gap-2">
-                    <span id="my-tickets-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
+                    <span id="my-tickets-sync-status" class="journal-status-chip" role="status" aria-live="polite"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span><span class="sr-only">Завантаження заявок</span></span>
                     <button type="button" class="journal-icon-btn md-state-layer" data-action="jira-refresh" data-tip="Оновити заявки" aria-label="Оновити заявки Jira"><span class="material-symbols-rounded" aria-hidden="true">refresh</span></button>
                 </div>
             </div>
@@ -457,7 +457,10 @@
                 <span class="material-symbols-rounded priority-legend-arrow" aria-hidden="true">arrow_forward</span>
                 <span class="priority-legend-item priority-LOW"><i class="priority-dot" aria-hidden="true"></i>Нетерміново</span>
             </div>
-            <div id="my-tickets-list" class="my-tickets-list"></div>
+            <div id="my-tickets-list" class="my-tickets-list" aria-busy="true">
+                <article class="my-ticket-card jira-loading-card" aria-hidden="true"><div class="skel skel-bar jira-loading-badge"></div><div class="skel skel-bar jira-loading-title"></div><div class="skel skel-bar jira-loading-meta"></div></article>
+                <article class="my-ticket-card jira-loading-card" aria-hidden="true"><div class="skel skel-bar jira-loading-badge"></div><div class="skel skel-bar jira-loading-title"></div><div class="skel skel-bar jira-loading-meta"></div></article>
+            </div>
         </div>
     </div>
 

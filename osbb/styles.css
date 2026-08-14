@@ -893,6 +893,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .my-ticket-close-form { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
 .my-ticket-close-actions { display:flex; gap:8px; align-items:center; }
 .my-tickets-list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+.jira-loading-card { display:flex; min-height:112px; flex-direction:column; gap:12px; padding-right:14px; pointer-events:none; }
+.jira-loading-badge { width:112px; height:28px; }
+.jira-loading-title { width:min(72%,440px); height:18px; }
+.jira-loading-meta { width:min(46%,280px); height:12px; }
 .jira-ticket-filters { display:grid; grid-template-columns:repeat(2,minmax(180px,240px)); gap:8px; margin-bottom:4px; }
 .jira-status-counters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
 .jira-status-counter { display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:8px 12px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-low,var(--bg-card)); color:var(--md-sys-color-on-surface,var(--text-main)); font:inherit; font-weight:500; cursor:pointer; }
