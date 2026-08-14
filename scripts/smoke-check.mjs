@@ -2711,6 +2711,12 @@ ${sharedSelectText}`;
   for (const marker of ['window.enhanceSelect = enhanceSelect;', 'window.refreshEnhancedSelect = refreshEnhancedSelect;', 'custom-select-arrow', 'custom-select-empty']) {
     if (!helper.includes(marker)) missing.push(`shared/enhance-select.js:${marker}`);
   }
+  for (const file of ['src/osbb-app.js', 'src/sklad-app.js']) {
+    const text = readFileSync(file, 'utf8');
+    if (!text.includes('const { enhanceSelect, refreshEnhancedSelect } = window;')) {
+      missing.push(`${file}:module global bindings`);
+    }
+  }
   if (missing.length) {
     failed += 1;
     console.error(`not ok - shared/enhance-select.js exists, is linked, and not re-duplicated inline (missing: ${missing.join(', ')})`);
