@@ -15,7 +15,7 @@ if (isAuthSessionValid()) {
 }
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js?v=6', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('sw.js?v=9', { updateViaCache: 'none' })
         .then((registration) => registration.update())
         .catch(() => {});
 }

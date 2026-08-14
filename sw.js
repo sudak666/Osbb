@@ -1,4 +1,4 @@
-const CACHE_NAME = 'osbb-shell-v8';
+const CACHE_NAME = 'osbb-shell-v9';
 const urlsToCache = [
   '/Osbb/',
   '/Osbb/index.html',
@@ -30,12 +30,36 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Обробляємо лише запити самої shell-оболонки (корінь сайту). Розділи
-// /Osbb/osbb/ та /Osbb/sklad/ мають власні service worker'и з власним
-// scope і цей файл їх не чіпає.
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request, { cache: 'no-store' });
+    if (response.ok) await cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw error;
+  }
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok) await cache.put(request, response.clone());
+  return response;
+}
+
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   const isShellPath = url.pathname === '/Osbb/' || url.pathname === '/Osbb/index.html';
+  const isAppDocument = event.request.mode === 'navigate' &&
+    (url.pathname.startsWith('/Osbb/osbb/') ||
+     url.pathname.startsWith('/Osbb/sklad/') ||
+     url.pathname.startsWith('/Osbb/promin/'));
+  const isVersionedAsset = url.origin === self.location.origin && url.pathname.startsWith('/Osbb/assets/');
   const isShellStatic = url.pathname === '/Osbb/styles.css' ||
                          url.pathname === '/Osbb/shared/ui.css' ||
                          url.pathname === '/Osbb/shared/material-tokens.css' ||
@@ -46,22 +70,17 @@ self.addEventListener('fetch', event => {
                          url.pathname === '/Osbb/icon-192.png' ||
                          url.pathname === '/Osbb/icon-512.png';
 
-  if (isShellPath) {
-    // HTML — мережа спочатку, кеш лише як офлайн-fallback
-    event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
+  if (isShellPath || isAppDocument) {
+    // HTML завжди звіряємо з мережею, щоб він не посилався на assets минулого деплою.
+    event.respondWith(networkFirst(event.request));
+  } else if (isVersionedAsset) {
+    // Хешовані Vite-assets не змінюються: зберігаємо попередні версії для вкладок
+    // зі старим HTML, які могли залишитися відкритими під час нового деплою.
+    event.respondWith(cacheFirst(event.request));
   } else if (isShellStatic) {
     event.respondWith(
       caches.match(event.request).then(response => response || fetch(event.request))
     );
   }
-  // Все інше (вкладені /Osbb/osbb/*, /Osbb/sklad/*, Supabase, CDN) —
-  // не перехоплюємо, лишаємо звичайній мережі/іншим service worker'ам.
+  // Supabase, CDN та інші запити лишаємо звичайній мережі.
 });
