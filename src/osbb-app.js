@@ -1310,9 +1310,12 @@
     async function myTicketsInitTab() {
         if (!staffSession) return;
         const statusEl = document.getElementById('my-tickets-sync-status');
-        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>';
+        const listEl = document.getElementById('my-tickets-list');
+        listEl?.setAttribute('aria-busy', 'true');
+        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span><span class="sr-only">Завантаження заявок</span>';
         if (!staffPinCache && !await requestStaffReauth()) {
             if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>';
+            listEl?.setAttribute('aria-busy', 'false');
             return;
         }
         try {
@@ -1327,6 +1330,7 @@
             if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>';
             showToast('Не вдалося завантажити Jira-заявки');
         }
+        listEl?.setAttribute('aria-busy', 'false');
         myTicketsRender();
     }
 
