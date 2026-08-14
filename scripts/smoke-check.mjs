@@ -3561,21 +3561,20 @@ ${sharedSelectText}`;
   }
 }
 
-// Множинний вибір типів сміття використовує M3 checkbox, а не круглий radio
-// indicator, який помилково натякав на вибір лише одного типу.
+// Множинний вибір типів сміття лишається checkbox за семантикою, але використовує
+// круглий візуальний індикатор за прямим UX-вибором користувача.
 {
   const css = readFileSync('osbb/styles.css', 'utf8');
-  const label = 'garbage multi-select uses a Material 3 checkbox indicator';
+  const label = 'garbage multi-select uses a round checkbox indicator';
   const required = [
-    '.garbage-type-indicator { display:grid; place-items:center; width:20px; height:20px;',
-    'border-radius:var(--md-sys-shape-corner-extra-small,4px);',
+    '.garbage-type-indicator { display:grid; place-items:center; width:22px; height:22px;',
+    'border-radius:var(--md-sys-shape-corner-full,999px);',
     '.garbage-type-indicator .material-symbols-rounded { font-size:16px;',
   ];
   const missing = required.filter(needle => !css.includes(needle));
-  const circularIndicator = /\.garbage-type-indicator\s*\{[^}]*shape-corner-full/.test(css);
-  if (missing.length || circularIndicator) {
+  if (missing.length) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')}; circular: ${circularIndicator})`);
+    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
