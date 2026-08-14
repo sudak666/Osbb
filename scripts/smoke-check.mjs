@@ -289,6 +289,20 @@ for (const [file, needle, label] of checks) {
   }
 }
 
+{
+  const workflows = [
+    readFileSync('.github/workflows/pages.yml', 'utf8'),
+    readFileSync('.github/workflows/smoke-check.yml', 'utf8'),
+  ].join('\n');
+  const label = 'GitHub workflows use Node 24 action runtimes';
+  const valid = workflows.includes('actions/checkout@v6')
+    && workflows.includes('actions/setup-node@v6')
+    && !workflows.includes('actions/checkout@v4')
+    && !workflows.includes('actions/setup-node@v4');
+  if (!valid) { failed += 1; console.error(`not ok - ${label}`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+
 for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
   const text = readFileSync(file, 'utf8');
   if (text.includes('cdn.tailwindcss.com')) {
