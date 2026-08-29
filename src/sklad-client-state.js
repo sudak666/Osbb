@@ -2,7 +2,7 @@ import { MAX_SUPPLIER_TAGS, mergeSupplierTags } from './sklad-suppliers.js';
 
 export const SUPPLIER_TAGS_STORAGE_KEY = 'sklad_supplier_tags_v1';
 export const PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1';
-export const SKLAD_THEME_STORAGE_KEY = 'sklad_theme';
+export const SKLAD_THEME_STORAGE_KEY = 'selected_theme';
 
 export function loadPurchasePriceRpcAvailable(storage) {
     try { return storage.getItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY) !== '1'; } catch { return true; }

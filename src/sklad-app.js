@@ -17,7 +17,7 @@ import { numericIdFromInsertResponse } from './supabase-api.js';
 import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 import { createInventoryCollectionState, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
-import { loadPurchasePriceRpcAvailable, markPurchasePriceRpcUnavailable, nextSkladTheme, saveSkladTheme } from './sklad-client-state.js';
+import { loadPurchasePriceRpcAvailable, markPurchasePriceRpcUnavailable } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 import { createSkladModalController } from './sklad-modal-controller.js';
 import { createSkladDataController } from './sklad-data-controller.js';
@@ -389,7 +389,6 @@ function bindSkladStaticControls(){
     'receipts':goReceipts,
     'export-excel':exportExcel,
     'refresh':refreshAll,
-    'theme':toggleTheme,
     'reset-item-filters':resetItemFilters,
     'refill-submit':(button)=>doRefill(button),
     'add-new-submit':(button)=>doAddNew(button),
@@ -1377,17 +1376,13 @@ function notifyTelegram(text){
 // ===== ТЕМА (світла/темна) =====
 function applyTheme(theme){
   document.body.className=theme;
-  const icon=document.getElementById('themeToggleIcon');
-  setIcon(icon, theme==='theme-dark' ? 'light_mode' : 'dark_mode');
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta) meta.setAttribute('content', theme==='theme-dark' ? '#121214' : '#F2F2F7');
 }
-function toggleTheme(){
-  const next = nextSkladTheme(document.body.classList.contains('theme-dark')?'theme-dark':'theme-light');
-  saveSkladTheme(localStorage,next);
-  applyTheme(next);
-}
 applyTheme(document.body.className || 'theme-light');
+window.addEventListener('storage', event=>{
+  if(event.key==='selected_theme') applyTheme(event.newValue==='theme-dark'?'theme-dark':'theme-light');
+});
 
 function normalizeSkladFieldMetadata(root=document){
   root.querySelectorAll('input[id],select[id],textarea[id]').forEach((field)=>{

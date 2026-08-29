@@ -36,7 +36,7 @@ const db=createClient('https://vkwkyhjjjmcpmiakxohw.supabase.co','sb_publishable
 <link rel="stylesheet" href="styles.css?v=20260727-search-icons">
 </head>
 <body class="theme-light">
-<script>document.body.className = localStorage.getItem('sklad_theme') || 'theme-light';</script>
+<script>document.body.className = localStorage.getItem('selected_theme') || 'theme-light';</script>
 
 <script>
 function setIcon(el,name){
@@ -155,7 +155,6 @@ window.addEventListener('message',event=>{
         <div class="item-more-menu" role="menu">
           <button type="button" role="menuitem" data-sklad-action="chart"><span class="ms" aria-hidden="true">bar_chart</span> Графік</button>
           <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Надходження</button>
-          <button type="button" role="menuitem" data-sklad-action="theme"><span class="ms" id="themeToggleIcon" aria-hidden="true">dark_mode</span> Тема</button>
         </div>
       </details>
     </div>
