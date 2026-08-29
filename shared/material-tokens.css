@@ -59,7 +59,8 @@
   --app-card-padding: 20px;
   --app-card-shape: var(--md-sys-shape-corner-extra-large);
   --app-item-shape: var(--md-sys-shape-corner-large);
-  --app-card-outline: var(--md-sys-color-outline);
+  --app-card-outline: var(--md-sys-color-outline-variant);
+  --app-field-outline: var(--md-sys-color-outline);
   --app-divider: var(--md-sys-color-outline-variant);
   --app-card-surface: var(--md-sys-color-surface-container-low);
   --app-toolbar-surface: var(--md-sys-color-surface-container-high);
