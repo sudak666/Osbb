@@ -9,6 +9,7 @@ export function createShellController(deps) {
     const clearTimer = deps.clearTimeout ?? win.clearTimeout.bind(win);
     let idleLockTimer;
     let mainPinCache = null;
+    const securityEnabled = key => win.localStorage?.getItem(key) !== '0';
 
     function requireElement(id) {
         const element = doc.getElementById(id);
@@ -109,7 +110,7 @@ export function createShellController(deps) {
     }
 
     function lockShellNow() {
-        if (win.localStorage.getItem('osbb_pin_enabled') === '0') return;
+        if (!securityEnabled('osbb_pin_enabled')) return;
         mainPinCache = null;
         clearAuthSession();
         store.resetLock();
@@ -126,7 +127,7 @@ export function createShellController(deps) {
 
     function resetIdleLockTimer() {
         if (idleLockTimer) clearTimer(idleLockTimer);
-        if (isAuthSessionValid() && win.localStorage.getItem('osbb_pin_enabled') !== '0' && win.localStorage.getItem('osbb_auto_lock_enabled') !== '0') idleLockTimer = setTimer(lockShellNow, IDLE_LOCK_MS);
+        if (isAuthSessionValid() && securityEnabled('osbb_pin_enabled') && securityEnabled('osbb_auto_lock_enabled')) idleLockTimer = setTimer(lockShellNow, IDLE_LOCK_MS);
     }
 
     function handleVisibilityLockTimer() {
@@ -143,7 +144,7 @@ export function createShellController(deps) {
             if (!fromShellFrame) return;
             if (event.data?.type === 'osbb:user-activity') resetIdleLockTimer();
             if (event.data?.type === 'osbb:security-settings-changed') {
-                if (win.localStorage.getItem('osbb_pin_enabled') === '0') unlockShell();
+                if (!securityEnabled('osbb_pin_enabled')) unlockShell();
                 resetIdleLockTimer();
             }
             if (event.data?.type === 'osbb:request-shell-pin') {
