@@ -1066,7 +1066,7 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
 .audit-item,.stat-card,.modal,.custom-select-panel,.custom-date-panel{
   border-color:var(--app-card-outline);
 }
-.card,.audit-item{background:var(--app-card-surface);}
+.topbar,.card,.audit-item{background:var(--app-card-surface);}
 .items-filter-bar,.list-toolbar,.receipts-toolbar,.audit-toolbar{
   background:var(--app-toolbar-surface);
 }
@@ -1081,6 +1081,9 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
 }
 thead th{font-weight:var(--md-sys-typescale-label-weight);border-bottom-color:var(--app-divider);}
 tbody tr{border-bottom-color:var(--app-divider);}
+.table-modern thead th{background:var(--app-toolbar-surface);}
+.theme-dark .table-modern tbody tr{background:var(--app-card-surface);}
+.theme-dark .table-modern tbody tr:hover{background:var(--md-sys-color-surface-container-high);}
 .topbar-title,.items-hero-title,.modal-title,.barcode-modal-title,.qr-modal-title,
 .history-modal-title,.chart-modal-title{font-weight:var(--md-sys-typescale-title-weight);}
 @media(max-width:768px){
