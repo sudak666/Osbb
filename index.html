@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<script>document.body.className = localStorage.getItem('selected_theme') || 'theme-light';</script>
 
 <div id="app-lock-screen">
     <div class="lock-container">
@@ -75,6 +76,10 @@
 <div id="shell-main">
     <div id="shell-tabs">
         <div class="ios-segmented-control md-segmented-button">
+            <div class="shell-brand" aria-label="ОСББ Микитська Слобода">
+                <span class="material-symbols-rounded shell-brand-icon" aria-hidden="true">apartment</span>
+                <span class="shell-brand-copy"><strong>Микитська Слобода</strong><small>Керування ОСББ</small></span>
+            </div>
             <div class="shell-primary-tabs" role="tablist" aria-label="Розділи застосунку">
                 <button type="button" class="shell-tab-btn md-state-layer active" id="shell-tab-journal" data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page">
                     <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">assignment</span>

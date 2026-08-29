@@ -141,7 +141,10 @@ window.addEventListener('message',event=>{
     <span id="pullRefreshLabel" class="pull-refresh-label"></span>
   </div>
   <div class="topbar">
-    <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Запаси</h2>
+    <div class="topbar-title-block app-module-identity">
+      <div class="topbar-eyebrow app-module-kicker">ОСББ «Микитська Слобода»</div>
+      <h2 id="pageTitle" class="topbar-title"><span class="ms topbar-title-icon" aria-hidden="true">inventory_2</span>Запаси</h2>
+    </div>
     <div class="topbar-actions">
       <span id="lastUpdate" class="sync-status topbar-right-excel" aria-live="polite"></span>
       <button type="button" class="btn btn-ghost btn-sm topbar-icon-btn" data-sklad-action="qr" data-tip="Сканер" aria-label="Сканер штрих-коду"><span class="ms" aria-hidden="true">barcode_scanner</span></button>
@@ -153,6 +156,7 @@ window.addEventListener('message',event=>{
       <details class="item-more topbar-more">
         <summary aria-label="Більше дій" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
         <div class="item-more-menu" role="menu">
+          <button type="button" role="menuitem" class="topbar-mobile-only" data-sklad-action="export-excel"><span class="ms" aria-hidden="true">upload_file</span> Excel</button>
           <button type="button" role="menuitem" data-sklad-action="chart"><span class="ms" aria-hidden="true">bar_chart</span> Графік</button>
           <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Надходження</button>
         </div>

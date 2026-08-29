@@ -8,6 +8,16 @@ document.getElementById('frame-promin')?.remove();
 
 const shellController = createShellController({ document, window, navigator, rpc });
 
+const applyShellTheme = value => {
+    const theme = value === 'theme-dark' ? 'theme-dark' : 'theme-light';
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(theme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'theme-dark' ? '#121214' : '#f4f7fb');
+};
+window.addEventListener('storage', event => {
+    if (event.key === 'selected_theme') applyShellTheme(event.newValue);
+});
+
 shellController.bind();
 
 if (isAuthSessionValid()) {
