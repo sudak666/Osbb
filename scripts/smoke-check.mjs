@@ -378,7 +378,7 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
     'event.respondWith(cacheFirst(event.request));',
   ];
   const missing = required.filter(needle => !sw.includes(needle));
-  const registrationCurrent = shellTs.includes("register('sw.js?v=9'") && shellJs.includes("register('sw.js?v=9'");
+  const registrationCurrent = shellTs.includes("register('sw.js?v=10'") && shellJs.includes("register('sw.js?v=10'");
   if (missing.length || !registrationCurrent) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; registration: ${registrationCurrent})`);
