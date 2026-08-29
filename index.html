@@ -63,7 +63,7 @@
     const EARLY_AUTH_TTL_MS = 12 * 60 * 60 * 1000;
     const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
     const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
-    if (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh) {
+    if (localStorage.getItem('osbb_pin_enabled') === '0' || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
         const earlyLockScreen = document.getElementById('app-lock-screen');
         if (earlyLockScreen) earlyLockScreen.style.display = 'none';
     } else if (sessionStorage.getItem('auth') === 'ok') {

@@ -91,7 +91,7 @@
     };
     const earlyAuthAt = Number(sessionStorage.getItem('auth_at') || 0);
     const earlyAuthFresh = earlyAuthAt && Date.now() - earlyAuthAt < EARLY_AUTH_TTL_MS;
-    if (EARLY_EMBEDDED_SHELL || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
+    if (EARLY_EMBEDDED_SHELL || localStorage.getItem('osbb_pin_enabled') === '0' || (sessionStorage.getItem('auth') === 'ok' && earlyAuthFresh)) {
         const earlyLockScreen = document.getElementById('app-lock-screen');
         if (earlyLockScreen) earlyLockScreen.style.display = 'none';
     } else if (sessionStorage.getItem('auth') === 'ok') {
@@ -225,7 +225,13 @@
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>
                 <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span></span>
-                <button type="button" id="staff-session-badge" class="journal-status-chip staff-session-chip hidden md-state-layer" data-tip="Змінити профіль" aria-label="Поточний профіль керування, натисніть щоб змінити" data-staff-switch></button>
+                <details class="journal-security-menu">
+                    <summary class="journal-theme-toggle md-state-layer" data-tip="Безпека" aria-label="Налаштування безпеки"><span class="material-symbols-rounded" aria-hidden="true">security</span></summary>
+                    <div class="journal-security-panel">
+                        <label class="journal-security-row"><span>PIN-код</span><input type="checkbox" data-security-pin><span class="journal-switch" aria-hidden="true"></span></label>
+                        <label class="journal-security-row"><span>Автоблокування</span><input type="checkbox" data-security-auto-lock><span class="journal-switch" aria-hidden="true"></span></label>
+                    </div>
+                </details>
                 <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
             </div>
         </div>
