@@ -1081,3 +1081,35 @@ select { background-image:none; }
 .journal-shell-header{border-color:var(--md-sys-color-outline-variant,var(--border-subtle));background:var(--md-sys-color-surface-container-low,var(--surface-1));}
 .journal-title-heading{display:flex;align-items:center;gap:10px;min-width:0;margin:0;color:var(--text-main);font-size:var(--md-sys-typescale-headline-small-size,24px);font-weight:700;line-height:1.15;letter-spacing:-.025em;}
 .journal-title-eyebrow{color:var(--accent);}
+
+/* Product-system convergence: Journal and Warehouse share the same visual grammar. */
+body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-weight);}
+.journal-shell-header,.shift-shell,.garbage-type-card,.att-stat-card,.att-calendar-day,
+.ticket-item,.my-ticket-card,.elevator-entry,.ticket-confirm-dialog,.pin-modal-dialog,.day-detail-sheet{
+  border-color:var(--app-card-outline);
+}
+.journal-shell-header,.shift-shell,.ticket-item,.my-ticket-card,.elevator-entry{
+  background:var(--app-card-surface);
+}
+.journal-status-chip,.journal-icon-btn,.journal-duty-chip,.journal-work-filter,
+.journal-entrance-filter,.journal-work-reset,.journal-role-template,.journal-entrance-chip,
+.ticket-priority-badge,.ticket-role-badge,.ticket-done-badge{
+  border-color:var(--app-card-outline);
+  font-weight:var(--md-sys-typescale-label-weight);
+}
+.journal-select,.journal-textarea,.completed-work-form input[type='text'],
+.garbage-bin-count input,.att-time-input{
+  border-color:var(--app-card-outline);
+  font-weight:var(--md-sys-typescale-body-weight);
+}
+.pin-modal-dialog,.ticket-confirm-dialog,.day-detail-sheet{
+  background:var(--app-dialog-surface);
+  box-shadow:var(--md-sys-elevation-level3);
+}
+.journal-table-shell,.att-table-wrap{border-color:var(--app-card-outline);}
+.journal-table thead tr,.att-table thead tr{border-bottom-color:var(--app-divider);font-weight:var(--md-sys-typescale-label-weight);}
+.journal-title-heading,.pin-modal-title{font-weight:var(--md-sys-typescale-title-weight);}
+@media(max-width:640px){
+  .journal-shell-header{padding:14px;gap:10px;margin-bottom:var(--app-page-gap);}
+  .shift-shell{padding:14px;gap:12px;}
+}

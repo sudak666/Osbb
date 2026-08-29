@@ -6,10 +6,16 @@
   "scope": "/Osbb/sklad/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#1e1b4b",
-  "theme_color": "#312e81",
+  "background_color": "#f4f7fb",
+  "theme_color": "#08752f",
   "lang": "uk",
   "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",
