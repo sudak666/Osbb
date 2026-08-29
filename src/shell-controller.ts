@@ -32,6 +32,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     const clearTimer = deps.clearTimeout ?? win.clearTimeout.bind(win);
     let idleLockTimer: ReturnType<Window['setTimeout']> | undefined;
     let mainPinCache: string | null = null;
+    const securityEnabled = (key: string): boolean => win.localStorage?.getItem(key) !== '0';
 
     function requireElement<T extends HTMLElement>(id: string): T {
         const element = doc.getElementById(id);
@@ -132,7 +133,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     }
 
     function lockShellNow(): void {
-        if (win.localStorage.getItem('osbb_pin_enabled') === '0') return;
+        if (!securityEnabled('osbb_pin_enabled')) return;
         mainPinCache = null;
         clearAuthSession();
         store.resetLock();
@@ -149,7 +150,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
 
     function resetIdleLockTimer(): void {
         if (idleLockTimer) clearTimer(idleLockTimer);
-        if (isAuthSessionValid() && win.localStorage.getItem('osbb_pin_enabled') !== '0' && win.localStorage.getItem('osbb_auto_lock_enabled') !== '0') idleLockTimer = setTimer(lockShellNow, IDLE_LOCK_MS);
+        if (isAuthSessionValid() && securityEnabled('osbb_pin_enabled') && securityEnabled('osbb_auto_lock_enabled')) idleLockTimer = setTimer(lockShellNow, IDLE_LOCK_MS);
     }
 
     function handleVisibilityLockTimer(): void {
@@ -166,7 +167,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
             if (!fromShellFrame) return;
             if (event.data?.type === 'osbb:user-activity') resetIdleLockTimer();
             if (event.data?.type === 'osbb:security-settings-changed') {
-                if (win.localStorage.getItem('osbb_pin_enabled') === '0') unlockShell();
+                if (!securityEnabled('osbb_pin_enabled')) unlockShell();
                 resetIdleLockTimer();
             }
             if (event.data?.type === 'osbb:request-shell-pin') {
