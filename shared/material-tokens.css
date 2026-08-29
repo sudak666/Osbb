@@ -50,6 +50,21 @@
   --md-sys-typescale-label-medium-tracking: .5px;
   --md-sys-typescale-body-medium-tracking: .25px;
 
+  /* Product UI contract shared by shell, Journal and Warehouse. */
+  --app-font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --app-content-max-width: 1280px;
+  --app-control-height: 48px;
+  --app-field-height: 56px;
+  --app-page-gap: 16px;
+  --app-card-padding: 20px;
+  --app-card-shape: var(--md-sys-shape-corner-extra-large);
+  --app-item-shape: var(--md-sys-shape-corner-large);
+  --app-card-outline: var(--md-sys-color-outline);
+  --app-divider: var(--md-sys-color-outline-variant);
+  --app-card-surface: var(--md-sys-color-surface-container-low);
+  --app-toolbar-surface: var(--md-sys-color-surface-container-high);
+  --app-dialog-surface: var(--md-sys-color-surface-container-high);
+
   /* Motion */
   --md-sys-motion-duration-short2: 120ms;
   --md-sys-motion-duration-short4: 180ms;

@@ -5,9 +5,15 @@
   "start_url": "/Osbb/",
   "scope": "/Osbb/",
   "display": "standalone",
-  "background_color": "#1c1c1e",
-  "theme_color": "#34c759",
+  "background_color": "#f4f7fb",
+  "theme_color": "#08752f",
   "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",

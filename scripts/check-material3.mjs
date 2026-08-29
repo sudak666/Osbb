@@ -73,7 +73,7 @@ const legacyMdiClasses = [...allHtml.matchAll(/class=["']([^"']*)["']/g)]
   .filter(className => className === 'mdi' || className.startsWith('mdi-'));
 assert.deepEqual(legacyMdiClasses, [], `Знайдено legacy MDI класи: ${[...new Set(legacyMdiClasses)].join(', ')}`);
 assert.equal((allHtml.match(/Material\+Symbols\+Rounded/g) || []).length, 3, 'Material Symbols Rounded мають бути підключені у трьох застосунках');
-assert.equal((allHtml.match(/<svg\b/g) || []).length, 4, 'Знайдено інтерфейсні inline SVG замість Material Symbols');
+assert.equal((allHtml.match(/<svg\b/g) || []).length, 1, 'Знайдено інтерфейсні inline SVG замість Material Symbols');
 const syntheticRobotoWeights = [...allCss.matchAll(/font-weight:\s*(300|600|650|750|800|850)\b/g)]
   .map(([, weight]) => weight);
 assert.deepEqual(syntheticRobotoWeights, [], `Знайдено синтетичні ваги Roboto: ${[...new Set(syntheticRobotoWeights)].join(', ')}`);

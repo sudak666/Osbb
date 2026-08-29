@@ -1058,3 +1058,32 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .page{padding-top:18px;}
 .topbar-mobile-only{display:none!important;}
 @media(max-width:768px){.topbar{padding:8px 10px;min-height:60px;height:auto;top:8px;margin:8px 8px 0;border-radius:var(--md-sys-shape-corner-large,16px);gap:6px;}.topbar>.topbar-title-block{flex:1 1 auto;min-width:0;}.topbar h2{font-size:18px;}.topbar .topbar-title-icon,.topbar-actions>.btn-excel{display:none!important;}.topbar-mobile-only{display:flex!important;}}
+
+/* Product-system convergence: Warehouse follows the same type, surface and outline rules. */
+body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-weight);}
+.page{width:100%;max-width:var(--app-content-max-width);margin-inline:auto;}
+.topbar,.card,.items-hero,.items-filter-bar,.list-toolbar,.receipts-toolbar,.audit-toolbar,
+.audit-item,.stat-card,.modal,.custom-select-panel,.custom-date-panel{
+  border-color:var(--app-card-outline);
+}
+.card,.audit-item{background:var(--app-card-surface);}
+.items-filter-bar,.list-toolbar,.receipts-toolbar,.audit-toolbar{
+  background:var(--app-toolbar-surface);
+}
+.modal{border:1px solid var(--app-card-outline);background:var(--app-dialog-surface);}
+.inp,.custom-select-btn,.audit-qty-input{
+  border-color:var(--app-card-outline);
+  font-weight:var(--md-sys-typescale-body-weight);
+}
+.btn,.btn-sm,.ni,.pill,.preset-chip,.stat-card .lbl{
+  font-weight:var(--md-sys-typescale-label-weight)!important;
+  letter-spacing:var(--md-sys-typescale-label-large-tracking);
+}
+thead th{font-weight:var(--md-sys-typescale-label-weight);border-bottom-color:var(--app-divider);}
+tbody tr{border-bottom-color:var(--app-divider);}
+.topbar-title,.items-hero-title,.modal-title,.barcode-modal-title,.qr-modal-title,
+.history-modal-title,.chart-modal-title{font-weight:var(--md-sys-typescale-title-weight);}
+@media(max-width:768px){
+  .page{padding-inline:12px;}
+  .items-hero,.card{border-radius:var(--app-item-shape);}
+}
