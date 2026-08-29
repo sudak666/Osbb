@@ -1378,6 +1378,12 @@
         const listEl = document.getElementById('my-tickets-list');
         listEl?.setAttribute('aria-busy', 'true');
         if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span><span class="sr-only">Завантаження заявок</span>';
+        if (!staffPinCache && localStorage.getItem('osbb_pin_enabled') === '0') {
+            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock_open</span>';
+            if (listEl) listEl.innerHTML = '<div class="completed-work-empty"><span class="material-symbols-rounded" aria-hidden="true">key_off</span><p>Увімкніть PIN-код для завантаження заявок Jira</p></div>';
+            listEl?.setAttribute('aria-busy', 'false');
+            return;
+        }
         if (!staffPinCache && !await requestStaffReauth()) {
             if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>';
             listEl?.setAttribute('aria-busy', 'false');
