@@ -1113,3 +1113,15 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
   .journal-shell-header{padding:14px;gap:10px;margin-bottom:var(--app-page-gap);}
   .shift-shell{padding:14px;gap:12px;}
 }
+
+/* Compact desktop PIN dialog; numeric keys must not inherit the mobile scale. */
+@media(min-width:641px){
+  .pin-modal-dialog{width:300px;max-height:calc(100dvh - 40px);padding:22px 20px;overflow-y:auto;}
+  .pin-modal-dialog .pin-modal-icon{margin-bottom:4px;}
+  .pin-modal-dialog .pin-modal-sub{margin-bottom:12px;}
+  .pin-modal-dialog .pin-dots{gap:12px;margin-bottom:4px;}
+  .pin-modal-dialog .pin-modal-error{min-height:14px;margin-bottom:6px;}
+  .pin-modal-keypad{grid-template-columns:repeat(3,64px);justify-content:center;gap:8px;margin-bottom:0;}
+  .pin-modal-dialog .pin-mb-btn,.pin-modal-dialog .pin-key-action{width:64px;height:64px;font-size:1.2rem;}
+  .pin-modal-dialog .pin-key-cancel{font-size:.75rem;}
+}
