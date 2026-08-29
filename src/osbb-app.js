@@ -1129,6 +1129,8 @@
     // Розреєструвати тільки SW журналу і не чіпати shell/склад.
     if ('serviceWorker' in navigator) {
         try {
+            navigator.serviceWorker.register('/Osbb/sw.js?v=10', { scope: '/Osbb/', updateViaCache: 'none' })
+                .then(registration => registration.update()).catch(() => {});
             navigator.serviceWorker.getRegistrations().then(regs => {
                 regs.forEach(r => {
                     const scopePath = new URL(r.scope).pathname;

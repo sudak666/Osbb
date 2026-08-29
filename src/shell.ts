@@ -27,11 +27,11 @@ if (isAuthSessionValid()) {
 }
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js?v=9', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('sw.js?v=10', { updateViaCache: 'none' })
         .then((registration) => registration.update())
         .catch(() => {});
 }
 
 if ('caches' in window) {
-    void Promise.all(['osbb-shell-v3', 'osbb-shell-v4', 'osbb-shell-v5'].map((name) => window.caches.delete(name)));
+    void Promise.all(['osbb-shell-v3', 'osbb-shell-v4', 'osbb-shell-v5', 'osbb-shell-v9'].map((name) => window.caches.delete(name)));
 }
