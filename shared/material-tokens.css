@@ -141,6 +141,7 @@
   --md-sys-color-on-tertiary-fixed-variant: #624000;
 
   --app-card-outline: rgba(15, 23, 42, .08);
+  --app-divider: rgba(15, 23, 42, .07);
   --app-card-surface: #ffffff;
   --app-toolbar-surface: #f1f5f9;
   --app-dialog-surface: #ffffff;
@@ -204,6 +205,7 @@
   --md-sys-color-on-tertiary-fixed-variant: #624000;
 
   --app-card-outline: rgba(148, 163, 184, .09);
+  --app-divider: rgba(148, 163, 184, .07);
   --app-card-surface: #1e1e21;
   --app-toolbar-surface: #29292c;
   --app-dialog-surface: #29292c;
