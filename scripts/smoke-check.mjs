@@ -369,7 +369,7 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
   const shellJs = readFileSync('src/shell.js', 'utf8');
   const label = 'shell service worker prevents stale Vite asset 404s';
   const required = [
-    "const CACHE_NAME = 'osbb-shell-v9';",
+    "const CACHE_NAME = 'osbb-shell-v10';",
     "event.request.mode === 'navigate'",
     "url.pathname.startsWith('/Osbb/osbb/')",
     "url.pathname.startsWith('/Osbb/sklad/')",
@@ -3762,6 +3762,21 @@ ${sharedSelectText}`;
     js.includes("toast('Не вдалося виконати видачу. Спробуйте ще раз.', 'error');"),
   ];
   if (required.some(value => !value)) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const sw = readFileSync('sw.js', 'utf8');
+  const label = 'shared styles use network-first service worker caching';
+  const valid = sw.includes("const CACHE_NAME = 'osbb-shell-v10';") &&
+    sw.includes('} else if (isShellStatic) {') &&
+    sw.includes('event.respondWith(networkFirst(event.request));');
+  if (!valid) {
     failed += 1;
     console.error(`not ok - ${label}`);
   } else {
