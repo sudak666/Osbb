@@ -1,4 +1,4 @@
-const CACHE_NAME = 'osbb-shell-v9';
+const CACHE_NAME = 'osbb-shell-v10';
 const urlsToCache = [
   '/Osbb/',
   '/Osbb/index.html',
@@ -78,9 +78,9 @@ self.addEventListener('fetch', event => {
     // зі старим HTML, які могли залишитися відкритими під час нового деплою.
     event.respondWith(cacheFirst(event.request));
   } else if (isShellStatic) {
-    event.respondWith(
-      caches.match(event.request).then(response => response || fetch(event.request))
-    );
+    // Shared design tokens change independently from hashed Vite assets.
+    // Prefer the network so an old cached stylesheet cannot invalidate new CSS variables.
+    event.respondWith(networkFirst(event.request));
   }
   // Supabase, CDN та інші запити лишаємо звичайній мережі.
 });
