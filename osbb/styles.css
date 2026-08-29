@@ -1099,7 +1099,7 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
 }
 .journal-select,.journal-textarea,.completed-work-form input[type='text'],
 .garbage-bin-count input,.att-time-input{
-  border-color:var(--app-card-outline);
+  border-color:var(--app-field-outline);
   font-weight:var(--md-sys-typescale-body-weight);
 }
 .pin-modal-dialog,.ticket-confirm-dialog,.day-detail-sheet{

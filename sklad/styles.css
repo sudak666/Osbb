@@ -1072,7 +1072,7 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
 }
 .modal{border:1px solid var(--app-card-outline);background:var(--app-dialog-surface);}
 .inp,.custom-select-btn,.audit-qty-input{
-  border-color:var(--app-card-outline);
+  border-color:var(--app-field-outline);
   font-weight:var(--md-sys-typescale-body-weight);
 }
 .btn,.btn-sm,.ni,.pill,.preset-chip,.stat-card .lbl{

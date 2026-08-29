@@ -99,7 +99,7 @@
 html,body,button,input,select,textarea{font-family:var(--app-font-family);}
 button,input,select,textarea{font-size:var(--md-sys-typescale-body-medium-size);}
 button,[role='button']{font-weight:var(--md-sys-typescale-label-weight);letter-spacing:var(--md-sys-typescale-label-large-tracking);}
-.custom-select-btn{min-height:var(--app-field-height);border-color:var(--app-card-outline);border-radius:var(--md-sys-shape-corner-medium);background:var(--md-sys-color-surface-container-highest);}
+.custom-select-btn{min-height:var(--app-field-height);border-color:var(--app-field-outline);border-radius:var(--md-sys-shape-corner-medium);background:var(--md-sys-color-surface-container-highest);}
 .custom-select-panel{border-color:var(--app-card-outline);background:var(--app-dialog-surface);}
 .custom-select-option{font-weight:var(--md-sys-typescale-label-weight);}
 .custom-date-panel{border-color:var(--app-card-outline);background:var(--app-dialog-surface);}
