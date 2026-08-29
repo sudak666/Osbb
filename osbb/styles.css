@@ -1125,3 +1125,13 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
   .pin-modal-dialog .pin-mb-btn,.pin-modal-dialog .pin-key-action{width:64px;height:64px;font-size:1.2rem;}
   .pin-modal-dialog .pin-key-cancel{font-size:.75rem;}
 }
+
+/* PIN dialogs are solid surfaces above an opaque-enough scrim. */
+.pin-modal-overlay{
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+}
+.theme-light .pin-modal-dialog{background:#fff!important;}
+.theme-dark .pin-modal-dialog{background:#29292c!important;}
+.pin-modal-dialog{opacity:1;isolation:isolate;}
