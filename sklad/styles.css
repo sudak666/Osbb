@@ -1084,6 +1084,11 @@ tbody tr{border-bottom-color:var(--app-divider);}
 .table-modern thead th{background:var(--app-toolbar-surface);}
 .theme-dark .table-modern tbody tr{background:var(--app-card-surface);}
 .theme-dark .table-modern tbody tr:hover{background:var(--md-sys-color-surface-container-high);}
+.topbar,.items-filter-bar,.list-toolbar,.receipts-toolbar,.audit-toolbar,.table-modern{
+  border:0;
+}
+.items-search-field>.inp{border:0;}
+.items-search-field>.inp:focus-visible{outline:2px solid var(--md-sys-color-primary);outline-offset:-2px;}
 .topbar-title,.items-hero-title,.modal-title,.barcode-modal-title,.qr-modal-title,
 .history-modal-title,.chart-modal-title{font-weight:var(--md-sys-typescale-title-weight);}
 @media(max-width:768px){
