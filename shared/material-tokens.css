@@ -140,6 +140,11 @@
   --md-sys-color-on-tertiary-fixed: #281900;
   --md-sys-color-on-tertiary-fixed-variant: #624000;
 
+  --app-card-outline: rgba(15, 23, 42, .08);
+  --app-card-surface: #ffffff;
+  --app-toolbar-surface: #f1f5f9;
+  --app-dialog-surface: #ffffff;
+
   /* Domain role accents */
   --md-ref-role-electrician: #735c00;
   --md-ref-role-janitor: #006d3b;
@@ -197,6 +202,11 @@
   --md-sys-color-tertiary-fixed-dim: #ffba46;
   --md-sys-color-on-tertiary-fixed: #281900;
   --md-sys-color-on-tertiary-fixed-variant: #624000;
+
+  --app-card-outline: rgba(148, 163, 184, .09);
+  --app-card-surface: #1e1e21;
+  --app-toolbar-surface: #29292c;
+  --app-dialog-surface: #29292c;
 
   /* Domain role accents */
   --md-ref-role-electrician: #fbbf24;

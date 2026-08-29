@@ -1091,6 +1091,10 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
 .journal-shell-header,.shift-shell,.ticket-item,.my-ticket-card,.elevator-entry{
   background:var(--app-card-surface);
 }
+.theme-dark .journal-table-shell,.theme-dark .att-table-wrap,
+.theme-dark .ticket-item,.theme-dark .my-ticket-card,.theme-dark .elevator-entry{
+  background:var(--app-card-surface);
+}
 .journal-status-chip,.journal-icon-btn,.journal-duty-chip,.journal-work-filter,
 .journal-entrance-filter,.journal-work-reset,.journal-role-template,.journal-entrance-chip,
 .ticket-priority-badge,.ticket-role-badge,.ticket-done-badge{
