@@ -12,6 +12,8 @@ shellController.bind();
 
 if (isAuthSessionValid()) {
     shellController.unlockShell();
+} else if (localStorage.getItem('osbb_pin_enabled') === '0') {
+    shellController.unlockShell();
 }
 
 if ('serviceWorker' in navigator) {

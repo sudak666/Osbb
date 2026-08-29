@@ -55,6 +55,17 @@ body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app));
 .journal-title-copy { color:var(--text-sub); font-size:13px; font-weight:500; margin-top:6px; max-width:560px; line-height:1.45; }
 .journal-title-eyebrow { color:var(--accent); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; margin-bottom:4px; }
 .journal-title-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
+.journal-security-menu { position:relative; }
+.journal-security-menu > summary { list-style:none; cursor:pointer; }
+.journal-security-menu > summary::-webkit-details-marker { display:none; }
+.journal-security-panel { position:absolute; z-index:60; top:56px; right:0; min-width:230px; padding:8px; border:1px solid var(--md-sys-color-outline,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container-high,var(--surface-1)); box-shadow:var(--md-sys-elevation-level3,0 8px 24px rgba(0,0,0,.18)); }
+.journal-security-row { min-height:48px; padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:16px; border-radius:var(--md-sys-shape-corner-medium,12px); cursor:pointer; }
+.journal-security-row:focus-within { outline:2px solid var(--md-sys-color-primary,var(--accent)); outline-offset:1px; }
+.journal-security-row input { position:absolute; opacity:0; pointer-events:none; }
+.journal-switch { position:relative; width:42px; height:24px; flex:0 0 auto; border:2px solid var(--md-sys-color-outline,var(--text-muted)); border-radius:999px; transition:background .15s,border-color .15s; }
+.journal-switch::after { content:""; position:absolute; width:16px; height:16px; top:2px; left:2px; border-radius:50%; background:var(--md-sys-color-outline,var(--text-muted)); transition:transform .15s,background .15s; }
+.journal-security-row input:checked + .journal-switch { border-color:var(--md-sys-color-primary,var(--accent)); background:var(--md-sys-color-primary,var(--accent)); }
+.journal-security-row input:checked + .journal-switch::after { transform:translateX(18px); background:var(--md-sys-color-on-primary,#fff); }
 .journal-theme-toggle { width:48px; height:48px; padding:0; border-radius:var(--md-sys-shape-corner-large,16px); border:0; background:var(--md-sys-color-surface-container-high,var(--surface-1)); color:var(--text-main); display:inline-flex; align-items:center; justify-content:center; box-shadow:none; transition:transform .15s ease, background .15s ease; }
 .journal-theme-toggle:hover { transform:translateY(-1px); background:color-mix(in srgb,var(--accent) 8%,var(--surface-1)); }
 /* Власний sr-only (не покладаємось на Tailwind CDN) — підпис лишається для скрінрідерів,

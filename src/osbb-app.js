@@ -75,7 +75,7 @@
         },
     });
 
-    if (IS_EMBEDDED_SHELL || isAuthSessionValid()) {
+    if (IS_EMBEDDED_SHELL || localStorage.getItem('osbb_pin_enabled') === '0' || isAuthSessionValid()) {
         lockController.hide();
         setTimeout(() => ensureStaffAuth(), 0);
     }
@@ -264,15 +264,6 @@
                 if (el) el.classList.toggle('hidden', !visible);
             });
         });
-        const badge = document.getElementById('staff-session-badge');
-        if (badge) {
-            if (staffSession) {
-                badge.textContent = `${STAFF_ROLE_LABELS[staffSession.role] || staffSession.role}: ${staffSession.name}`;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
         if (!isTabAllowedForSession(currentTab)) setTab('my-tickets');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
@@ -914,7 +905,28 @@
         document.getElementById('pin-modal')?.addEventListener('keydown', pinModalController.handleKeydown);
 
         document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
-        document.querySelector('[data-staff-switch]')?.addEventListener('click', staffLogout);
+        const pinToggle = document.querySelector('[data-security-pin]');
+        const autoLockToggle = document.querySelector('[data-security-auto-lock]');
+        const readSecurityFlag = key => localStorage.getItem(key) !== '0';
+        const notifySecurityChanged = () => window.parent?.postMessage({ type:'osbb:security-settings-changed' }, window.location.origin);
+        if (pinToggle) {
+            pinToggle.checked = readSecurityFlag('osbb_pin_enabled');
+            pinToggle.addEventListener('change', () => {
+                localStorage.setItem('osbb_pin_enabled', pinToggle.checked ? '1' : '0');
+                if (!pinToggle.checked && autoLockToggle) {
+                    autoLockToggle.checked = false;
+                    localStorage.setItem('osbb_auto_lock_enabled', '0');
+                }
+                notifySecurityChanged();
+            });
+        }
+        if (autoLockToggle) {
+            autoLockToggle.checked = readSecurityFlag('osbb_auto_lock_enabled') && readSecurityFlag('osbb_pin_enabled');
+            autoLockToggle.addEventListener('change', () => {
+                localStorage.setItem('osbb_auto_lock_enabled', autoLockToggle.checked ? '1' : '0');
+                notifySecurityChanged();
+            });
+        }
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
             select.addEventListener('change', initCalendar);
         });
@@ -1714,9 +1726,12 @@
 
     // Скидати таймер на будь-яку активність користувача
     ['click','touchstart','keydown','scroll','mousemove'].forEach(evt =>
-        document.addEventListener(evt, autoLockController.reset, { passive: true })
+        document.addEventListener(evt, () => {
+            if (localStorage.getItem('osbb_pin_enabled') !== '0' && localStorage.getItem('osbb_auto_lock_enabled') !== '0') autoLockController.reset();
+            else autoLockController.stop();
+        }, { passive: true })
     );
-    autoLockController.reset(); // Запустити таймер
+    if (localStorage.getItem('osbb_pin_enabled') !== '0' && localStorage.getItem('osbb_auto_lock_enabled') !== '0') autoLockController.reset();
 
     // CSS для спін-анімації кнопки refresh
     const styleEl = document.createElement('style');
