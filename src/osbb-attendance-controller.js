@@ -40,16 +40,20 @@ export function createOsbbAttendanceController(options) {
         });
     }
     async function saveDay(day, role, cell) {
-        if (!isDispatcher()) { showToast('Редагувати табель може лише Диспетчер/Адмін'); return; }
+        if (!isDispatcher() || !getPin()) {
+            setStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>Підтвердіть PIN</span>');
+            if (!await requestReauth() || !isDispatcher() || !getPin()) {
+                setStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Скасовано</span>');
+                showToast('Збереження скасовано: потрібен PIN керування');
+                render();
+                return false;
+            }
+        }
         const next = normalizeAttendanceMonth({ [day]:{ [role]:cell } })[day]?.[role] || { checkIn:'', breakStart:'', breakEnd:'', checkOut:'' };
         const error = attendanceCellError(next);
         if (error && !error.includes('обидва поля обіду')) { showToast(error); render(); return false; }
         data[day] = data[day] || {}; data[day][role] = next; saveOffline(); renderStats(); updateDayVisuals(day);
         if (isPreview) return;
-        if (!getPin()) {
-            setStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>Підтвердіть PIN</span>');
-            if (!await requestReauth()) { setStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>'); showToast('Збереження скасовано: потрібне підтвердження PIN'); return; }
-        }
         try {
             const session = getSession();
             const ok = await saveCloud({ p_month_key:key(), p_day:Number(day), p_role:role, p_check_in:next.checkIn || '', p_break_start:next.breakStart || '', p_break_end:next.breakEnd || '', p_check_out:next.checkOut || '', p_staff_id:session.id, attempt:getPin() });
