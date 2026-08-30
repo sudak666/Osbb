@@ -10,7 +10,8 @@ const urlsToCache = [
   '/Osbb/shared/enhance-date.js',
   '/Osbb/manifest.json',
   '/Osbb/icon-192.png',
-  '/Osbb/icon-512.png'
+  '/Osbb/icon-512.png',
+  '/Osbb/icon.svg'
 ];
 
 // Встановлення — кешуємо ресурси самої shell-оболонки, старий кеш видаляємо

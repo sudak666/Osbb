@@ -8,6 +8,7 @@ const files = [
   'sw.js',
   'icon-192.png',
   'icon-512.png',
+  'icon.svg',
   'shared/ui.css',
   'shared/material-tokens.css',
   'shared/material-symbols-ready.js',
@@ -17,10 +18,12 @@ const files = [
   'osbb/sw.js',
   'osbb/icon-192.png',
   'osbb/icon-512.png',
+  'osbb/icon.svg',
   'sklad/manifest.json',
   'sklad/sw.js',
   'sklad/icon-192.png',
   'sklad/icon-512.png',
+  'sklad/icon.svg',
 ];
 
 for (const file of files) {
