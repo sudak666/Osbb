@@ -558,6 +558,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 .pin-modal-dialog .pin-dot.is-entered { background:var(--md-sys-color-primary,var(--accent)); transform:scale(1.2); }
 .pin-modal-dialog .pin-key-cancel { background:var(--md-sys-color-error-container); border-color:transparent; color:var(--md-sys-color-on-error-container); }
 .pin-modal-dialog .pin-key-backspace { background:var(--md-sys-color-surface-container-highest,var(--bg-input)); border-color:var(--md-sys-color-outline-variant,var(--border)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
+.staff-login-cancel { width:100%; margin-top:12px; }
 @media (max-width:640px) {
     .pin-modal-overlay { align-items:flex-end; }
     .pin-modal-dialog { width:100%; max-width:360px; max-height:calc(100dvh - 72px); overflow-y:auto; padding:14px 20px calc(14px + env(safe-area-inset-bottom)); border-radius:var(--md-sys-shape-corner-extra-large,28px) var(--md-sys-shape-corner-extra-large,28px) 0 0; border-bottom:0; }

@@ -164,6 +164,7 @@
         <div class="pin-modal-title" id="staff-login-title">Вхід до керування</div>
         <div class="pin-modal-sub">Оберіть профіль керування та введіть особистий PIN</div>
         <div id="staff-login-list" class="staff-login-list" role="listbox" aria-label="Профілі керування"></div>
+        <button type="button" class="journal-tonal-btn md-state-layer staff-login-cancel hidden" data-staff-login-cancel>Скасувати</button>
 
         <div id="staff-login-pin-step" class="hidden">
             <div class="pin-modal-sub" id="staff-login-pin-sub">Введіть особистий PIN</div>
@@ -230,6 +231,7 @@
                     <div class="journal-security-panel">
                         <label class="journal-security-row"><span>PIN-код</span><input type="checkbox" data-security-pin><span class="journal-switch" aria-hidden="true"></span></label>
                         <label class="journal-security-row"><span>Автоблокування</span><input type="checkbox" data-security-auto-lock><span class="journal-switch" aria-hidden="true"></span></label>
+                        <label class="journal-security-row"><span>Заявки Jira</span><input type="checkbox" data-jira-access-toggle><span class="journal-switch" aria-hidden="true"></span></label>
                     </div>
                 </details>
                 <button type="button" class="journal-theme-toggle md-state-layer" data-theme-toggle data-tip="Змінити тему" aria-label="Змінити тему"><span id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span></span><span id="journalThemeLabel" class="sr-only">Світла</span></button>
