@@ -1083,10 +1083,10 @@ select { background-image:none; }
 .journal-title-eyebrow{color:var(--accent);}
 
 /* Product-system convergence: Journal and Warehouse share the same visual grammar. */
-body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-weight);}
+body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe UI',sans-serif);font-weight:var(--md-sys-typescale-body-weight);}
 .journal-shell-header,.shift-shell,.garbage-type-card,.att-stat-card,.att-calendar-day,
 .ticket-item,.my-ticket-card,.elevator-entry,.ticket-confirm-dialog,.pin-modal-dialog,.day-detail-sheet{
-  border-color:var(--app-card-outline);
+  border-color:var(--app-card-outline,var(--md-sys-color-outline-variant));
 }
 .journal-shell-header,.shift-shell,.ticket-item,.my-ticket-card,.elevator-entry{
   background:var(--app-card-surface,var(--md-sys-color-surface-container-low,var(--bg-card)));
@@ -1098,23 +1098,23 @@ body{font-family:var(--app-font-family);font-weight:var(--md-sys-typescale-body-
 .journal-status-chip,.journal-icon-btn,.journal-duty-chip,.journal-work-filter,
 .journal-entrance-filter,.journal-work-reset,.journal-role-template,.journal-entrance-chip,
 .ticket-priority-badge,.ticket-role-badge,.ticket-done-badge{
-  border-color:var(--app-card-outline);
+  border-color:var(--app-card-outline,var(--md-sys-color-outline-variant));
   font-weight:var(--md-sys-typescale-label-weight);
 }
 .journal-select,.journal-textarea,.completed-work-form input[type='text'],
 .garbage-bin-count input,.att-time-input{
-  border-color:var(--app-field-outline);
+  border-color:var(--app-field-outline,var(--md-sys-color-outline));
   font-weight:var(--md-sys-typescale-body-weight);
 }
 .pin-modal-dialog,.ticket-confirm-dialog,.day-detail-sheet{
   background:var(--app-dialog-surface,var(--md-sys-color-surface-container-high,var(--bg-card)));
   box-shadow:var(--md-sys-elevation-level3);
 }
-.journal-table-shell,.att-table-wrap{border-color:var(--app-card-outline);}
-.journal-table thead tr,.att-table thead tr{border-bottom-color:var(--app-divider);font-weight:var(--md-sys-typescale-label-weight);}
+.journal-table-shell,.att-table-wrap{border-color:var(--app-card-outline,var(--md-sys-color-outline-variant));}
+.journal-table thead tr,.att-table thead tr{border-bottom-color:var(--app-divider,var(--md-sys-color-outline-variant));font-weight:var(--md-sys-typescale-label-weight);}
 .journal-title-heading,.pin-modal-title{font-weight:var(--md-sys-typescale-title-weight);}
 @media(max-width:640px){
-  .journal-shell-header{padding:14px;gap:10px;margin-bottom:var(--app-page-gap);}
+  .journal-shell-header{padding:14px;gap:10px;margin-bottom:var(--app-page-gap,16px);}
   .shift-shell{padding:14px;gap:12px;}
 }
 

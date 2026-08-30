@@ -96,11 +96,12 @@
 @media(max-width:640px){.app-module-kicker{font-size:9px;margin-bottom:3px;}.app-module-title-line{gap:8px;font-size:20px;}.app-module-title-icon{width:36px;height:36px;border-radius:var(--md-sys-shape-corner-medium,12px);font-size:20px;}.app-module-supporting{font-size:12px;margin-top:3px;}}
 
 /* Shared product typography and component rhythm. */
-html,body,button,input,select,textarea{font-family:var(--app-font-family);}
+html,body,button,input,select,textarea{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe UI',sans-serif);}
 button,input,select,textarea{font-size:var(--md-sys-typescale-body-medium-size);}
 button,[role='button']{font-weight:var(--md-sys-typescale-label-weight);letter-spacing:var(--md-sys-typescale-label-large-tracking);}
-.custom-select-btn{min-height:var(--app-field-height);border-color:var(--app-field-outline);border-radius:var(--md-sys-shape-corner-medium);background:var(--md-sys-color-surface-container-highest);}
-.custom-select-panel{border-color:var(--app-card-outline);background:var(--app-dialog-surface);}
+.custom-select-btn{min-height:var(--app-field-height,56px);border-color:var(--app-field-outline,var(--md-sys-color-outline));border-radius:var(--md-sys-shape-corner-medium);background:var(--md-sys-color-surface-container-highest);}
+.custom-select-panel{border-color:var(--app-card-outline,var(--md-sys-color-outline-variant));background:var(--app-dialog-surface,var(--md-sys-color-surface-container-high));}
 .custom-select-option{font-weight:var(--md-sys-typescale-label-weight);}
-.custom-date-panel{border-color:var(--app-card-outline);background:var(--app-dialog-surface);}
-.md-empty-state{border:1px solid var(--app-card-outline);background:var(--app-card-surface);}
+.custom-select-option:focus-visible{outline:2px solid var(--md-sys-color-primary)!important;outline-offset:-2px;}
+.custom-date-panel{border-color:var(--app-card-outline,var(--md-sys-color-outline-variant));background:var(--app-dialog-surface,var(--md-sys-color-surface-container-high));}
+.md-empty-state{border:1px solid var(--app-card-outline,var(--md-sys-color-outline-variant));background:var(--app-card-surface,var(--md-sys-color-surface-container-low));}

@@ -2800,6 +2800,12 @@ ${sharedSelectText}`;
     [copy, "'sw.js'", 'copy-static-assets.mjs:root sw'],
     [copy, "'osbb/sw.js'", 'copy-static-assets.mjs:osbb sw'],
     [copy, "'sklad/sw.js'", 'copy-static-assets.mjs:sklad sw'],
+    [copy, "'icon.svg'", 'copy-static-assets.mjs:root SVG icon'],
+    [copy, "'osbb/icon.svg'", 'copy-static-assets.mjs:journal SVG icon'],
+    [copy, "'sklad/icon.svg'", 'copy-static-assets.mjs:warehouse SVG icon'],
+    [readFileSync('manifest.json', 'utf8'), '"src": "icon.svg"', 'root manifest SVG icon'],
+    [readFileSync('osbb/manifest.json', 'utf8'), '"src": "icon.svg"', 'journal manifest SVG icon'],
+    [readFileSync('sklad/manifest.json', 'utf8'), '"src": "icon.svg"', 'warehouse manifest SVG icon'],
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, , name]) => name);
   if (missing.length) {
@@ -3777,6 +3783,26 @@ ${sharedSelectText}`;
     sw.includes('} else if (isShellStatic) {') &&
     sw.includes('event.respondWith(networkFirst(event.request));');
   if (!valid) {
+    failed += 1;
+    console.error(`not ok - ${label}`);
+  } else {
+    passed += 1;
+    console.log(`ok - ${label}`);
+  }
+}
+
+{
+  const css = readFileSync('sklad/styles.css', 'utf8');
+  const label = 'warehouse sticky stack stays opaque and correctly layered';
+  const required = [
+    'background:var(--app-card-surface,var(--md-sys-color-surface-container-low,#1e1e21))',
+    'body{--sklad-sticky-header-height:86px;}',
+    '.topbar{top:0;margin-top:0;z-index:45;}',
+    'top:var(--sklad-sticky-header-height);',
+    'z-index:44;',
+    '.m-card.has-open-menu,.table-modern tr.has-open-menu{z-index:40;}',
+  ];
+  if (required.some(marker => !css.includes(marker))) {
     failed += 1;
     console.error(`not ok - ${label}`);
   } else {
