@@ -93,6 +93,8 @@ const checks = [
   ['shell', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
   ['shell', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
   ['shell', 'navigator.serviceWorker.register', 'shell registers service worker'],
+  ['index.html', 'data-shell-lock data-tip="Заблокувати" aria-label="Заблокувати застосунок"', 'shell lock uses the shared rounded tooltip'],
+  ['styles.css', '.shell-lock-btn {\n        flex: 0 0 auto;\n        min-width: 74px;\n        border-radius: var(--md-sys-shape-corner-large, 16px);', 'shell lock hover follows the outer shell shape'],
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
   ['osbb/index.html', '/functions/v1/jira-issues', 'journal loads Jira issues through Edge Function'],
@@ -124,6 +126,8 @@ const checks = [
   ['src/sklad-app.js', "label.setAttribute('for',field.id);", 'sklad auto-associates labels with fields'],
   ['src/sklad-app.js', "'newCat','editItemCategory'", 'sklad category fields use rounded custom selects'],
   ['sklad/index.html', '/Osbb/shared/enhance-date.js', 'sklad loads rounded custom date picker'],
+  ['sklad/styles.css', '.page{width:100%;max-width:none;margin-inline:0;}', 'warehouse uses available desktop width'],
+  ['sklad/styles.css', '.page{padding-inline:12px;}', 'warehouse preserves compact mobile gutters'],
   ['sklad/index.html', 'inputmode="none" autocomplete="off" pattern="\\d{4}-\\d{2}-\\d{2}" class="inp" id="issueDateI" name="issue_date"', 'sklad date fields avoid native browser picker'],
   ['sklad/index.html', 'label for="issueDateI"', 'sklad date labels are explicitly associated'],
   ['scripts/copy-static-assets.mjs', "'shared/enhance-date.js'", 'build copies rounded custom date picker'],
