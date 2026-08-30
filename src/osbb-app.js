@@ -88,6 +88,7 @@
     let shellPinCache = /^\d{4}$/.test(window.__osbbShellPin || '') ? window.__osbbShellPin : null;
     let jiraAccessEnabled = false;
     let jiraAccessPending = false;
+    let staffTabPending = null;
     let {
         photosCache,
         jiraIssues,
@@ -172,6 +173,8 @@
         `).join(''),
         onAuthenticated: (session, pin) => {
             const needsInitialTabLoad = !staffSession;
+            const requestedStaffTab = staffTabPending;
+            staffTabPending = null;
             staffSession = session;
             staffPinCache = pin;
             saveStaffSession();
@@ -183,7 +186,8 @@
                 document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
             }
             applyRoleGating();
-            if (jiraAccessEnabled && runtimeController) setTab('my-tickets');
+            if (requestedStaffTab && runtimeController) setTab(requestedStaffTab);
+            else if (jiraAccessEnabled && runtimeController) setTab('my-tickets');
             else if (needsInitialTabLoad && runtimeController) setTab(currentTab);
         },
     });
@@ -254,6 +258,24 @@
         await openStaffLogin();
     }
 
+    async function requestStaffTabAccess(tab) {
+        staffTabPending = tab;
+        document.querySelector('[data-staff-login-cancel]')?.classList.remove('hidden');
+        loadStaffSession();
+        if (staffSession) {
+            const confirmed = await requestStaffReauth();
+            if (!confirmed) staffTabPending = null;
+            return;
+        }
+        await openStaffLogin();
+    }
+
+    function cancelPendingStaffAccess() {
+        staffTabPending = null;
+        document.getElementById('staff-login-modal')?.style.setProperty('display', 'none');
+        document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
+    }
+
     function disableJiraAccess() {
         jiraAccessPending = false;
         jiraAccessEnabled = false;
@@ -273,7 +295,12 @@
         if (digitBtn) { staffAuthController.press(digitBtn.dataset.staffPinDigit); return; }
         if (e.target.closest('[data-staff-pin-delete]')) { staffAuthController.deleteDigit(); return; }
         if (e.target.closest('[data-staff-pin-back]')) { staffAuthController.back(); return; }
-        if (e.target.closest('[data-staff-login-cancel]')) { staffAuthController.back(); disableJiraAccess(); return; }
+        if (e.target.closest('[data-staff-login-cancel]')) {
+            staffAuthController.back();
+            if (jiraAccessPending) disableJiraAccess();
+            else cancelPendingStaffAccess();
+            return;
+        }
     });
 
     // dispatcher/admin/board — рівнозначні "повний доступ" ролі: увесь журнал,
@@ -409,6 +436,10 @@
     const ALL_TABS = ['my-tickets','completed-work','garbage','shifts','tabel'];
 
     function requestTab(tab) {
+        if (tab === 'tabel' && (!isDispatcherSession() || !staffPinCache)) {
+            void requestStaffTabAccess(tab);
+            return true;
+        }
         return runtimeController.requestTab(tab);
         if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
         if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }

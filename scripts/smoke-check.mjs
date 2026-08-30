@@ -107,6 +107,8 @@ const checks = [
   ['src/osbb-app.js', "if (tab === 'my-tickets' && !jiraAccessEnabled) return false;", 'hidden Jira requests cannot be opened directly'],
   ['src/osbb-app.js', 'const confirmed = await requestStaffReauth();', 'enabling Jira requires an explicit staff PIN confirmation'],
   ['osbb/index.html', 'data-staff-login-cancel', 'optional Jira authentication can be cancelled'],
+  ['src/osbb-app.js', "if (tab === 'tabel' && (!isDispatcherSession() || !staffPinCache))", 'attendance requests staff authentication before opening edit mode'],
+  ['src/osbb-app.js', 'if (requestedStaffTab && runtimeController) setTab(requestedStaffTab);', 'attendance opens after successful staff authentication'],
   ['src/osbb-app.js', "'jira-refresh': myTicketsInitTab", 'Jira refresh uses the existing guarded loader'],
   ['src/osbb-app.js', 'if (needsInitialTabLoad && runtimeController) setTab(currentTab);', 'Jira reloads after initial staff authentication'],
   ['osbb/index.html', 'class="my-tickets-list" aria-busy="true"', 'Jira exposes an accessible initial loading state'],
