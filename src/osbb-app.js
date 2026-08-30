@@ -71,13 +71,11 @@
         verifyPin: attempt => db.rpc('verify_lock_pin', { attempt }),
         onUnlocked: () => {
             setAuthSession();
-            return ensureStaffAuth();
         },
     });
 
     if (IS_EMBEDDED_SHELL || localStorage.getItem('osbb_pin_enabled') === '0' || isAuthSessionValid()) {
         lockController.hide();
-        setTimeout(() => ensureStaffAuth(), 0);
     }
 
     // ==========================================
@@ -88,6 +86,8 @@
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let shellPinCache = /^\d{4}$/.test(window.__osbbShellPin || '') ? window.__osbbShellPin : null;
+    let jiraAccessEnabled = false;
+    let jiraAccessPending = false;
     let {
         photosCache,
         jiraIssues,
@@ -175,8 +175,16 @@
             staffSession = session;
             staffPinCache = pin;
             saveStaffSession();
+            if (jiraAccessPending) {
+                jiraAccessPending = false;
+                jiraAccessEnabled = true;
+                const toggle = document.querySelector('[data-jira-access-toggle]');
+                if (toggle) { toggle.checked = true; toggle.disabled = false; }
+                document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
+            }
             applyRoleGating();
-            if (needsInitialTabLoad && runtimeController) setTab(currentTab);
+            if (jiraAccessEnabled && runtimeController) setTab('my-tickets');
+            else if (needsInitialTabLoad && runtimeController) setTab(currentTab);
         },
     });
 
@@ -206,6 +214,7 @@
         const pin = event.detail;
         if (!/^\d{4}$/.test(pin || '')) return;
         shellPinCache = pin;
+        if (!jiraAccessEnabled && !jiraAccessPending) return;
         loadStaffSession();
         if (staffSession) {
             staffPinCache = pin;
@@ -228,6 +237,35 @@
         return staffSession ? staffAuthController.requestReauth(staffSession) : Promise.resolve(false);
     }
 
+    async function requestJiraAccess() {
+        jiraAccessPending = true;
+        const toggle = document.querySelector('[data-jira-access-toggle]');
+        if (toggle) toggle.disabled = true;
+        document.querySelector('[data-staff-login-cancel]')?.classList.remove('hidden');
+        loadStaffSession();
+        if (staffSession) {
+            const confirmed = await requestStaffReauth();
+            if (!confirmed) {
+                jiraAccessPending = false;
+                if (toggle) { toggle.checked = false; toggle.disabled = false; }
+            }
+            return;
+        }
+        await openStaffLogin();
+    }
+
+    function disableJiraAccess() {
+        jiraAccessPending = false;
+        jiraAccessEnabled = false;
+        jiraIssues = [];
+        document.getElementById('staff-login-modal')?.style.setProperty('display', 'none');
+        document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
+        const toggle = document.querySelector('[data-jira-access-toggle]');
+        if (toggle) { toggle.checked = false; toggle.disabled = false; }
+        if (currentTab === 'my-tickets') setTab('garbage');
+        applyRoleGating();
+    }
+
     document.addEventListener('click', (e) => {
         const staffButton = e.target.closest('[data-staff-select]');
         if (staffButton) { staffAuthController.select(staffButton.dataset.staffSelect); return; }
@@ -235,6 +273,7 @@
         if (digitBtn) { staffAuthController.press(digitBtn.dataset.staffPinDigit); return; }
         if (e.target.closest('[data-staff-pin-delete]')) { staffAuthController.deleteDigit(); return; }
         if (e.target.closest('[data-staff-pin-back]')) { staffAuthController.back(); return; }
+        if (e.target.closest('[data-staff-login-cancel]')) { staffAuthController.back(); disableJiraAccess(); return; }
     });
 
     // dispatcher/admin/board — рівнозначні "повний доступ" ролі: увесь журнал,
@@ -251,6 +290,7 @@
     // використовується і для приховування кнопок, і для блокування прямого
     // виклику setTab/requestTab (щоб hidden-клас не був єдиним захистом).
     function isTabAllowedForSession(tab) {
+        if (tab === 'my-tickets' && !jiraAccessEnabled) return false;
         return isStaffTabAllowed(tab, staffSession);
     }
 
@@ -264,7 +304,7 @@
                 if (el) el.classList.toggle('hidden', !visible);
             });
         });
-        if (!isTabAllowedForSession(currentTab)) setTab('my-tickets');
+        if (!isTabAllowedForSession(currentTab)) setTab('garbage');
         const attNote = document.getElementById('att-view-note');
         if (attNote) attNote.classList.toggle('hidden', dispatcherOnly);
         if (currentTab === 'tabel') attRender();
@@ -301,7 +341,7 @@
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
 
     let currentYear, currentMonth;
-    let currentTab = 'my-tickets';
+    let currentTab = 'garbage';
     let runtimeController;
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
@@ -907,6 +947,7 @@
         document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
         const pinToggle = document.querySelector('[data-security-pin]');
         const autoLockToggle = document.querySelector('[data-security-auto-lock]');
+        const jiraAccessToggle = document.querySelector('[data-jira-access-toggle]');
         const readSecurityFlag = key => localStorage.getItem(key) !== '0';
         const notifySecurityChanged = () => window.parent?.postMessage({ type:'osbb:security-settings-changed' }, window.location.origin);
         if (pinToggle) {
@@ -925,6 +966,13 @@
             autoLockToggle.addEventListener('change', () => {
                 localStorage.setItem('osbb_auto_lock_enabled', autoLockToggle.checked ? '1' : '0');
                 notifySecurityChanged();
+            });
+        }
+        if (jiraAccessToggle) {
+            jiraAccessToggle.checked = false;
+            jiraAccessToggle.addEventListener('change', () => {
+                if (jiraAccessToggle.checked) void requestJiraAccess();
+                else disableJiraAccess();
             });
         }
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
