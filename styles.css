@@ -161,7 +161,12 @@
     #shell-frames { position: relative; flex: 1; min-height: 0; background: var(--md-sys-color-background, #f2f2f7); }
     #shell-frames iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none; background: var(--md-sys-color-surface, #fff); }
     #shell-frames iframe.active { display: block; }
-    .shell-lock-btn { flex: 0 0 auto; min-width: 74px; color: var(--md-sys-color-error, #ff3b30); }
+    .shell-lock-btn {
+        flex: 0 0 auto;
+        min-width: 74px;
+        border-radius: var(--md-sys-shape-corner-large, 16px);
+        color: var(--md-sys-color-error, #ff3b30);
+    }
     .shell-more { display: none; position: relative; flex: 0 0 auto; }
 
     /* Видимий фокус лише для клавіатурної навігації (не заважає кліку мишею/тапу) */

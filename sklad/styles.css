@@ -1061,7 +1061,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 /* Product-system convergence: Warehouse follows the same type, surface and outline rules. */
 body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe UI',sans-serif);font-weight:var(--md-sys-typescale-body-weight);}
-.page{width:100%;max-width:var(--app-content-max-width,1280px);margin-inline:auto;}
+.page{width:100%;max-width:none;margin-inline:0;}
 .topbar,.card,.items-hero,.items-filter-bar,.list-toolbar,.receipts-toolbar,.audit-toolbar,
 .audit-item,.stat-card,.modal,.custom-select-panel,.custom-date-panel{
   border-color:var(--app-card-outline,var(--md-sys-color-outline-variant));
