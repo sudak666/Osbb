@@ -88,7 +88,7 @@
     let shellPinCache = /^\d{4}$/.test(window.__osbbShellPin || '') ? window.__osbbShellPin : null;
     let jiraAccessEnabled = false;
     let jiraAccessPending = false;
-    let staffTabPending = null;
+    let staffAuthResolve = null;
     let {
         photosCache,
         jiraIssues,
@@ -173,8 +173,6 @@
         `).join(''),
         onAuthenticated: (session, pin) => {
             const needsInitialTabLoad = !staffSession;
-            const requestedStaffTab = staffTabPending;
-            staffTabPending = null;
             staffSession = session;
             staffPinCache = pin;
             saveStaffSession();
@@ -186,8 +184,11 @@
                 document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
             }
             applyRoleGating();
-            if (requestedStaffTab && runtimeController) setTab(requestedStaffTab);
-            else if (jiraAccessEnabled && runtimeController) setTab('my-tickets');
+            const resolveAuth = staffAuthResolve;
+            staffAuthResolve = null;
+            document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
+            resolveAuth?.(true);
+            if (jiraAccessEnabled && runtimeController) setTab('my-tickets');
             else if (needsInitialTabLoad && runtimeController) setTab(currentTab);
         },
     });
@@ -238,7 +239,11 @@
     }
 
     function requestStaffReauth() {
-        return staffSession ? staffAuthController.requestReauth(staffSession) : Promise.resolve(false);
+        if (staffSession) return staffAuthController.requestReauth(staffSession);
+        if (staffAuthResolve) staffAuthResolve(false);
+        document.querySelector('[data-staff-login-cancel]')?.classList.remove('hidden');
+        void openStaffLogin();
+        return new Promise(resolve => { staffAuthResolve = resolve; });
     }
 
     async function requestJiraAccess() {
@@ -258,20 +263,10 @@
         await openStaffLogin();
     }
 
-    async function requestStaffTabAccess(tab) {
-        staffTabPending = tab;
-        document.querySelector('[data-staff-login-cancel]')?.classList.remove('hidden');
-        loadStaffSession();
-        if (staffSession) {
-            const confirmed = await requestStaffReauth();
-            if (!confirmed) staffTabPending = null;
-            return;
-        }
-        await openStaffLogin();
-    }
-
     function cancelPendingStaffAccess() {
-        staffTabPending = null;
+        const resolveAuth = staffAuthResolve;
+        staffAuthResolve = null;
+        resolveAuth?.(false);
         document.getElementById('staff-login-modal')?.style.setProperty('display', 'none');
         document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
     }
@@ -436,10 +431,6 @@
     const ALL_TABS = ['my-tickets','completed-work','garbage','shifts','tabel'];
 
     function requestTab(tab) {
-        if (tab === 'tabel' && (!isDispatcherSession() || !staffPinCache)) {
-            void requestStaffTabAccess(tab);
-            return true;
-        }
         return runtimeController.requestTab(tab);
         if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
         if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }
@@ -622,11 +613,11 @@
         const calendar = document.getElementById('att-calendar');
         const mobileList = document.getElementById('att-mobile-list');
         if (!body || !calendar || !mobileList) return;
-        const editable = isDispatcherSession();
+        const editable = true;
         const visibleRoles = attVisibleRoles();
         const viewNote = document.getElementById('att-view-note');
         if (viewNote) {
-            viewNote.classList.toggle('hidden', editable);
+            viewNote.classList.add('hidden');
             viewNote.textContent = 'Перегляд графіку. Редагувати час може лише профіль керування.';
         }
         document.querySelectorAll('[data-att-role-header]').forEach(header => {
