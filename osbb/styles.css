@@ -322,6 +322,8 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     .journal-mini-stats.is-six { grid-template-columns:repeat(2,minmax(0,1fr)); }
     .journal-title-row, .journal-action-row { flex-direction:column; align-items:stretch; }
     .journal-title-actions, .journal-export-actions, .journal-calendar-controls { justify-content:flex-start; }
+    .journal-security-menu { position:relative; }
+    .journal-security-panel { top:calc(100% + 8px); left:50%; right:auto; width:calc(100vw - 32px); max-width:320px; min-width:0; transform:translateX(-50%); }
     .journal-title-actions select { max-width:160px; }
     .journal-export-actions button { flex:1 1 auto; }
 }

@@ -102,6 +102,8 @@ const checks = [
   ['osbb/index.html', 'data-action="jira-refresh" data-tip="Оновити заявки" aria-label="Оновити заявки Jira"', 'Jira exposes a local refresh action'],
   ['src/osbb-app.js', "calendarRow.classList.toggle('hidden', tab === 'my-tickets' || tab === 'shifts')", 'journal hides irrelevant month controls'],
   ['osbb/index.html', 'data-jira-access-toggle', 'Jira access has an explicit opt-in switch'],
+  ['osbb/styles.css', '.journal-security-menu { position:relative; }', 'journal mobile security menu keeps a stable anchor'],
+  ['osbb/styles.css', '.journal-security-panel { top:calc(100% + 8px); left:50%; right:auto; width:calc(100vw - 32px); max-width:320px; min-width:0; transform:translateX(-50%); }', 'journal mobile security menu stays inside the viewport'],
   ['src/osbb-app.js', 'let jiraAccessEnabled = false;', 'Jira access is off by default for every page load'],
   ['src/osbb-app.js', "let currentTab = 'garbage';", 'journal opens without selecting protected Jira requests'],
   ['src/osbb-app.js', "if (tab === 'my-tickets' && !jiraAccessEnabled) return false;", 'hidden Jira requests cannot be opened directly'],
