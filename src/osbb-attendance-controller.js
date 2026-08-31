@@ -1,8 +1,8 @@
 import { attendanceCellError, attendanceCellState, attendanceDayState, calculateAttendanceTotals, formatAttendanceDuration, normalizeAttendanceMonth } from './osbb-attendance.js';
 
 export function createOsbbAttendanceController(options) {
-    const { document, storage, isPreview, getMonth, getSession, getPin, clearPin, isDispatcher, isWorker,
-        roles, roleNames, readOffline, writeOffline, loadCloud, saveCloud, requestReauth, showToast, render, warn = console.error } = options;
+    const { document, storage, isPreview, getMonth, getSession, isWorker,
+        roles, roleNames, readOffline, writeOffline, loadCloud, saveCloud, showToast, render, warn = console.error } = options;
     let data = {};
     const key = () => { const { year, month } = getMonth(); return `${year}-${String(month + 1).padStart(2, '0')}`; };
     const offlineKey = () => { const { year, month } = getMonth(); return `att_${year}_${month}`; };
@@ -40,26 +40,16 @@ export function createOsbbAttendanceController(options) {
         });
     }
     async function saveDay(day, role, cell) {
-        if (!isDispatcher() || !getPin()) {
-            setStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>Підтвердіть PIN</span>');
-            if (!await requestReauth() || !isDispatcher() || !getPin()) {
-                setStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Скасовано</span>');
-                showToast('Збереження скасовано: потрібен PIN керування');
-                render();
-                return false;
-            }
-        }
         const next = normalizeAttendanceMonth({ [day]:{ [role]:cell } })[day]?.[role] || { checkIn:'', breakStart:'', breakEnd:'', checkOut:'' };
         const error = attendanceCellError(next);
         if (error && !error.includes('обидва поля обіду')) { showToast(error); render(); return false; }
         data[day] = data[day] || {}; data[day][role] = next; saveOffline(); renderStats(); updateDayVisuals(day);
         if (isPreview) return;
         try {
-            const session = getSession();
-            const ok = await saveCloud({ p_month_key:key(), p_day:Number(day), p_role:role, p_check_in:next.checkIn || '', p_break_start:next.breakStart || '', p_break_end:next.breakEnd || '', p_check_out:next.checkOut || '', p_staff_id:session.id, attempt:getPin() });
-            if (!ok) throw new Error('Сервер відхилив запис (перевірте роль/PIN)');
+            const ok = await saveCloud({ p_month_key:key(), p_day:Number(day), p_role:role, p_check_in:next.checkIn || '', p_break_start:next.breakStart || '', p_break_end:next.breakEnd || '', p_check_out:next.checkOut || '' });
+            if (!ok) throw new Error('Сервер відхилив запис');
             setStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Збережено</span>');
-        } catch (error) { warn('attendance save error:', error); clearPin(); setStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>'); showToast('Не вдалося зберегти. Спробуйте увійти в сесію Диспетчера ще раз.'); }
+        } catch (error) { warn('attendance save error:', error); setStatus('error', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>Помилка</span>'); showToast('Не вдалося зберегти. Спробуйте ще раз.'); }
     }
     function renderStats() {
         const grid = document.getElementById('att-stats-grid'); if (!grid) return;

@@ -544,19 +544,18 @@
 
     // ==========================================
     // ТАБЕЛЬ: точний час приходу/відходу для 3 ролей (сантехнік/двірник/електрик).
-    // Редагувати може лише staff-сесія dispatcher/admin — save_attendance_day
-    // перевіряє це серверно (verify_staff_pin), не тільки на клієнті.
+    // На явний запит власника Табель редагується без staff-PIN; серверна RPC
+    // усе одно перевіряє місяць, день, роль і формат кожного значення часу.
     // Автопідрахунок годин/днів рахується локально з checkIn/checkOut.
     // ==========================================
 
     const attendanceController = createOsbbAttendanceController({
         document, storage:localStorage, isPreview:IS_PREVIEW, roles, roleNames,
         getMonth: () => ({ year:currentYear, month:currentMonth, days:calendarMonthDays(currentYear, currentMonth) }),
-        getSession: () => staffSession, getPin: () => staffPinCache, clearPin: () => { staffPinCache = null; },
-        isDispatcher:isDispatcherSession, isWorker:()=>false,
+        getSession: () => staffSession, isWorker:()=>false,
         readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue,
         loadCloud: monthKey => db.from('osbb_attendance').select('data').eq('month_key', monthKey).single(),
-        saveCloud: args => db.rpc('save_attendance_day', args), requestReauth:requestStaffReauth, showToast,
+        saveCloud: args => db.rpc('save_attendance_day', args), showToast,
         render:attRender,
     });
     async function attInitTab() {

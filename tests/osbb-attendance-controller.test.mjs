@@ -25,12 +25,11 @@ test('attendance controller loads cloud month and persists the established offli
   assert.match(status.innerHTML, /Синхронізовано/);
 });
 
-test('attendance controller reauthenticates and saves through guarded RPC boundary', async () => {
-  let pin = null; let reauths = 0; let payload = null;
-  const { controller } = fixture({ getPin: () => pin, requestReauth: async () => { reauths++; pin = '9876'; return true; }, saveCloud: async args => { payload = args; return true; } });
+test('attendance controller saves through the validated PIN-free RPC boundary', async () => {
+  let payload = null;
+  const { controller } = fixture({ saveCloud: async args => { payload = args; return true; } });
   await controller.saveDay(5, 'janitor', { checkIn:'07:30', breakStart:'12:00', breakEnd:'12:30', checkOut:'16:00' });
-  assert.equal(reauths, 1);
-  assert.deepEqual(payload, { p_month_key:'2026-08', p_day:5, p_role:'janitor', p_check_in:'07:30', p_break_start:'12:00', p_break_end:'12:30', p_check_out:'16:00', p_staff_id:'staff-1', attempt:'9876' });
+  assert.deepEqual(payload, { p_month_key:'2026-08', p_day:5, p_role:'janitor', p_check_in:'07:30', p_break_start:'12:00', p_break_end:'12:30', p_check_out:'16:00' });
 });
 
 test('attendance controller rejects absence outside the shift before persistence', async () => {
