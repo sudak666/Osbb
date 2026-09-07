@@ -3,7 +3,7 @@ import { shiftErrorMessage, workShiftNamesFromResponse } from './osbb-shifts.js'
 export function createOsbbShiftSettingsController(options) {
     const { document, loadSettings, saveNames, requestPin, showToast, onNamesChanged,
         requestFrame = callback => requestAnimationFrame(callback), warn = console.warn } = options;
-    let names = { sergiy: 'Сергій', oleksandr: 'Олександр' };
+    let names = { sergiy: 'Сергій', oleksandr: 'Напарник' };
 
     function apply() {
         const pairs = [
@@ -21,6 +21,7 @@ export function createOsbbShiftSettingsController(options) {
             const { data, error } = await loadSettings();
             if (error) throw new Error(error.message || 'Не вдалося завантажити імена');
             names = workShiftNamesFromResponse(data, names);
+            if (['Олександр', 'Олександр Б.'].includes(names.oleksandr)) names.oleksandr = 'Напарник';
             apply();
         } catch (error) {
             warn('shiftLoadSettings failed:', error);

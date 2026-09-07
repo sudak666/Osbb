@@ -373,7 +373,7 @@
     const gWorkerNames = {
         'serhiy':    'Сергій Ш.',
         'maksym':    'Максим А.',
-        'oleksandr': 'Олександр Б.'
+        'oleksandr': 'Напарник'
     };
     // Типи сміття — тепер незалежні один від одного, в один день можна вказати кілька з власною кількістю
     const gTypeLabels = {
@@ -475,7 +475,7 @@
     // ==========================================
     // ГРАФІК ЗМІН (Supabase)
     // ==========================================
-    let shiftNames = { sergiy:'Сергій', oleksandr:'Олександр' };
+    let shiftNames = { sergiy:'Сергій', oleksandr:'Напарник' };
     let shiftCalendarController;
 
     const shiftSettingsController = createOsbbShiftSettingsController({
