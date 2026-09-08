@@ -475,14 +475,14 @@
     // ==========================================
     // ГРАФІК ЗМІН (Supabase)
     // ==========================================
-    let shiftNames = { sergiy:'Сергій', oleksandr:'Напарник' };
+    let shiftNames = { sergiy:'Сергій', oleksandr:'Напарник', third:'Третій співробітник' };
     let shiftCalendarController;
 
     const shiftSettingsController = createOsbbShiftSettingsController({
         document,
-        loadSettings: () => db.from('work_shift_settings').select('employee_one_name,employee_two_name').eq('id', 1).maybeSingle(),
-        saveNames: (first, second, attempt) => db.rpc('update_work_shift_names', {
-            p_employee_one_name:first, p_employee_two_name:second, attempt,
+        loadSettings: () => db.from('work_shift_settings').select('employee_one_name,employee_two_name,employee_three_name').eq('id', 1).maybeSingle(),
+        saveNames: (first, second, third, attempt) => db.rpc('update_work_shift_names_v2', {
+            p_employee_one_name:first, p_employee_two_name:second, p_employee_three_name:third, attempt,
         }),
         requestPin: showPinModal,
         showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
@@ -494,7 +494,7 @@
         getNames: () => shiftNames,
         showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
         requestPin: showPinModal,
-        saveDay: (date, first, second, attempt) => db.rpc('save_work_shift_day', { p_shift_date:date, p_sergiy:first, p_oleksandr:second, attempt }),
+        saveDay: (date, first, second, third, attempt) => db.rpc('save_work_shift_day_v2', { p_shift_date:date, p_sergiy:first, p_oleksandr:second, p_third:third, attempt }),
         resetMonth: (monthKey, attempt) => db.rpc('reset_work_shifts_month', { p_month_key:monthKey, attempt }),
     });
     const shiftLoadSettings = () => shiftSettingsController.load();

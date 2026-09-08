@@ -12,23 +12,23 @@ import {
 } from '../src/osbb-shifts.js';
 
 test('workShiftNamesFromResponse нормалізує налаштування імен', () => {
-  const fallback = { sergiy: 'Сергій', oleksandr: 'Олександр' };
+  const fallback = { sergiy: 'Сергій', oleksandr: 'Олександр', third: 'Третій' };
   assert.deepEqual(workShiftNamesFromResponse({
     employee_one_name: '  Іван  ',
     employee_two_name: '',
-  }, fallback), { sergiy: 'Іван', oleksandr: 'Олександр' });
+  }, fallback), { sergiy: 'Іван', oleksandr: 'Олександр', third: 'Третій' });
   assert.deepEqual(workShiftNamesFromResponse(null, fallback), fallback);
   assert.notEqual(workShiftNamesFromResponse(null, fallback), fallback);
 });
 
 test('workShiftRowsFromResponse індексує лише валідні зміни', () => {
   assert.deepEqual(workShiftRowsFromResponse([
-    { shift_date: '2026-08-03', sergiy: ['day', 'invalid'], oleksandr: ['rest'] },
+    { shift_date: '2026-08-03', sergiy: ['day', 'invalid'], oleksandr: ['rest'], third: [] },
     { shift_date: '03.08.2026', sergiy: ['night'], oleksandr: [] },
     { shift_date: '2026-02-31', sergiy: ['night'], oleksandr: [] },
     null,
   ]), {
-    '2026-08-03': { shift_date: '2026-08-03', sergiy: ['day'], oleksandr: ['rest'] },
+    '2026-08-03': { shift_date: '2026-08-03', sergiy: ['day'], oleksandr: ['rest'], third: [] },
   });
   assert.deepEqual(workShiftRowsFromResponse(null), {});
 });
@@ -37,7 +37,7 @@ test('work shift boundaries do not propagate arbitrary payload properties', () =
   const rows = workShiftRowsFromResponse([{
     shift_date: '2026-08-04', sergiy: ['day', '<img onerror=alert(1)>'], oleksandr: ['rest'], malicious: '<svg onload=alert(1)>',
   }]);
-  assert.deepEqual(rows['2026-08-04'], { shift_date: '2026-08-04', sergiy: ['day'], oleksandr: ['rest'] });
+  assert.deepEqual(rows['2026-08-04'], { shift_date: '2026-08-04', sergiy: ['day'], oleksandr: ['rest'], third: [] });
   assert.equal('malicious' in rows['2026-08-04'], false);
 });
 

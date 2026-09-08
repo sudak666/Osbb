@@ -104,12 +104,14 @@ export interface Database {
                 month_key: string;
                 sergiy: WorkShiftType[];
                 oleksandr: WorkShiftType[];
+                third: WorkShiftType[];
                 updated_at: Timestamp;
             }>;
             work_shift_settings: RowOperation<{
                 id: number;
                 employee_one_name: string;
                 employee_two_name: string;
+                employee_three_name: string;
             }>;
             work_shift_auth: RowOperation<{
                 id: number;
@@ -241,6 +243,14 @@ export interface Database {
             };
             verify_work_shifts_pin: {
                 Args: { attempt: string };
+                Returns: boolean;
+            };
+            save_work_shift_day_v2: {
+                Args: { p_shift_date: string; p_sergiy: WorkShiftType[]; p_oleksandr: WorkShiftType[]; p_third: WorkShiftType[]; attempt: string };
+                Returns: boolean;
+            };
+            update_work_shift_names_v2: {
+                Args: { p_employee_one_name: string; p_employee_two_name: string; p_employee_three_name: string; attempt: string };
                 Returns: boolean;
             };
             save_work_shift_day: {
