@@ -23,6 +23,7 @@ export function workShiftNamesFromResponse(value, fallback) {
     return {
         sergiy: normalizedEmployeeName(value.employee_one_name, fallback.sergiy),
         oleksandr: normalizedEmployeeName(value.employee_two_name, fallback.oleksandr),
+        third: normalizedEmployeeName(value.employee_three_name, fallback.third),
     };
 }
 
@@ -35,6 +36,7 @@ export function workShiftRowsFromResponse(value) {
             shift_date: row.shift_date,
             sergiy: normalizeShiftTypes(row.sergiy),
             oleksandr: normalizeShiftTypes(row.oleksandr),
+            third: normalizeShiftTypes(row.third),
         }]];
     }));
 }

@@ -11,12 +11,12 @@ export function createOsbbShiftCalendarController(options) {
     let initialized = false;
     let loading = false;
     let selectedDate = '';
-    let editorSelection = { sergiy:new Set(), oleksandr:new Set() };
+    let editorSelection = { sergiy:new Set(), oleksandr:new Set(), third:new Set() };
     let editorFocusReturn = null;
 
     function monthKey() { return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`; }
     function todayKey() { const value = now(); return shiftDateKey(value.getFullYear(), value.getMonth(), value.getDate()); }
-    function dayData(dateKey) { return rows[dateKey] || (dateKey <= todayKey() ? { sergiy:['day'], oleksandr:['night'] } : { sergiy:[], oleksandr:[] }); }
+    function dayData(dateKey) { return rows[dateKey] || (dateKey <= todayKey() ? { sergiy:['day'], oleksandr:['night'], third:[] } : { sergiy:[], oleksandr:[], third:[] }); }
     function setStatus(text, state = 'ready') {
         const status = document.getElementById('shift-sync-status');
         if (!status) return;
@@ -46,13 +46,17 @@ export function createOsbbShiftCalendarController(options) {
         return result;
     }
     function renderStats() {
+        const third = count('third');
+        const thirdMoney = calculateShiftMoney(third);
+        document.getElementById('shift-stats-third').textContent = `${third.day} / ${third.night} / ${third.night_half2}`;
+        document.getElementById('shift-money-third').textContent = `${thirdMoney.toLocaleString('uk-UA')} грн`;
         const first = count('sergiy'); const second = count('oleksandr');
         const firstMoney = calculateShiftMoney(first); const secondMoney = calculateShiftMoney(second);
         document.getElementById('shift-stats-sergiy').textContent = `${first.day} / ${first.night} / ${first.night_half2}`;
         document.getElementById('shift-stats-oleksandr').textContent = `${second.day} / ${second.night} / ${second.night_half2}`;
         document.getElementById('shift-money-sergiy').textContent = `${firstMoney.toLocaleString('uk-UA')} грн`;
         document.getElementById('shift-money-oleksandr').textContent = `${secondMoney.toLocaleString('uk-UA')} грн`;
-        document.getElementById('shift-money-total').textContent = `${(firstMoney + secondMoney).toLocaleString('uk-UA')} грн`;
+        document.getElementById('shift-money-total').textContent = `${(firstMoney + secondMoney + thirdMoney).toLocaleString('uk-UA')} грн`;
     }
     function render() {
         const calendar = document.getElementById('shift-calendar'); const title = document.getElementById('shift-month-title');
@@ -70,10 +74,10 @@ export function createOsbbShiftCalendarController(options) {
             button.type = 'button'; button.className = 'shift-day md-state-layer';
             if (key === today) button.classList.add('is-today'); if (!rows[key] && key <= today) button.classList.add('is-auto');
             button.dataset.shiftDate = key;
-            button.setAttribute('aria-label', `${day} ${MONTHS[month]}: ${names.sergiy} — ${shiftTypeDescription(data.sergiy)}, ${names.oleksandr} — ${shiftTypeDescription(data.oleksandr)}`);
+            button.setAttribute('aria-label', `${day} ${MONTHS[month]}: ${names.sergiy} — ${shiftTypeDescription(data.sergiy)}, ${names.oleksandr} — ${shiftTypeDescription(data.oleksandr)}, ${names.third} - ${shiftTypeDescription(data.third)}`);
             const number = document.createElement('span'); number.className = 'shift-day-number'; number.textContent = String(day);
             const indicators = document.createElement('span'); indicators.className = 'shift-day-indicators';
-            appendIndicators(indicators, 'sergiy', data.sergiy); appendIndicators(indicators, 'oleksandr', data.oleksandr);
+            appendIndicators(indicators, 'sergiy', data.sergiy); appendIndicators(indicators, 'oleksandr', data.oleksandr); appendIndicators(indicators, 'third', data.third);
             button.append(number, indicators); calendar.appendChild(button);
         }
         renderStats();
@@ -105,9 +109,9 @@ export function createOsbbShiftCalendarController(options) {
     }
     function openEditor(dateKey) {
         const data = dayData(dateKey); selectedDate = dateKey;
-        editorSelection = { sergiy:new Set(Array.isArray(data.sergiy) ? data.sergiy : []), oleksandr:new Set(Array.isArray(data.oleksandr) ? data.oleksandr : []) };
+        editorSelection = { sergiy:new Set(Array.isArray(data.sergiy) ? data.sergiy : []), oleksandr:new Set(Array.isArray(data.oleksandr) ? data.oleksandr : []), third:new Set(data.third || []) };
         const [year, month, day] = dateKey.split('-'); document.getElementById('shift-editor-title').textContent = `Редагування: ${day}.${month}.${year}`;
-        renderChips('sergiy'); renderChips('oleksandr');
+        renderChips('sergiy'); renderChips('oleksandr'); renderChips('third');
         const editor = document.getElementById('shift-editor'); editorFocusReturn = document.activeElement;
         editor.classList.add('is-open'); editor.setAttribute('aria-hidden', 'false');
         requestFrame(() => editor.querySelector('.shift-editor-sheet')?.focus({ preventScroll:true }));
@@ -136,11 +140,11 @@ export function createOsbbShiftCalendarController(options) {
     function submitDay() {
         if (!selectedDate) return;
         const button = document.querySelector('[data-shift-action="save-day"]'); if (!button) return;
-        const date = selectedDate; const first = [...editorSelection.sergiy]; const second = [...editorSelection.oleksandr];
+        const date = selectedDate; const first = [...editorSelection.sergiy]; const second = [...editorSelection.oleksandr]; const third = [...editorSelection.third];
         requestPin('PIN розділу «Зміни»', 'Підтвердьте збереження окремим PIN', async attempt => {
             button.disabled = true;
             try {
-                const ok = await saveDay(date, first, second, attempt); if (!ok) throw new Error('Сервер відхилив операцію');
+                const ok = await saveDay(date, first, second, third, attempt); if (!ok) throw new Error('Сервер відхилив операцію');
                 closeEditor(); await load(); showToast('Графік зміни збережено', 'check');
             } catch (error) { warn('shiftSaveDay failed:', error); showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), 'error'); }
             finally { button.disabled = false; }

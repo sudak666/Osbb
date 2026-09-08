@@ -13,12 +13,12 @@ test('shift calendar controller loads bounded rows and exposes month state', asy
   const calls = [];
   const controller = createOsbbShiftCalendarController({
     document, now: () => new Date(2026, 7, 8), getNames: () => ({ sergiy: 'Іван', oleksandr: 'Петро' }), showToast() {},
-    loadRows: async monthKey => { calls.push(monthKey); return { data: [{ shift_date: '2026-08-08', sergiy: ['night_half2'], oleksandr: ['rest'] }], error: null }; },
+    loadRows: async monthKey => { calls.push(monthKey); return { data: [{ shift_date: '2026-08-08', sergiy: ['night_half2'], oleksandr: ['rest'], third: [] }], error: null }; },
   });
   await controller.load();
   assert.deepEqual(calls, ['2026-08']);
-  assert.deepEqual(controller.dayData('2026-08-08'), { shift_date: '2026-08-08', sergiy: ['night_half2'], oleksandr: ['rest'] });
-  assert.deepEqual(controller.dayData('2026-08-09'), { sergiy: [], oleksandr: [] });
+  assert.deepEqual(controller.dayData('2026-08-08'), { shift_date: '2026-08-08', sergiy: ['night_half2'], oleksandr: ['rest'], third: [] });
+  assert.deepEqual(controller.dayData('2026-08-09'), { sergiy: [], oleksandr: [], third: [] });
   assert.equal(status.textContent, 'Синхронізовано');
 });
 
@@ -46,7 +46,7 @@ test('shift calendar editor saves selected day through PIN and reloads', async (
     requestPin: (_title, _subtitle, action) => { pinAction = action; }, saveDay: async (...args) => { saved = args; return true; }, resetMonth: async () => true,
     loadRows: async () => { loads++; return { data: [], error: null }; },
   });
-  controller.openEditor('2026-08-08'); controller.toggleChip('sergiy', 'rest'); controller.submitDay(); await pinAction('4321');
-  assert.deepEqual(saved, ['2026-08-08', ['rest'], ['night'], '4321']);
+  controller.openEditor('2026-08-08'); controller.toggleChip('sergiy', 'rest'); controller.toggleChip('third', 'night_half2'); controller.submitDay(); await pinAction('4321');
+  assert.deepEqual(saved, ['2026-08-08', ['rest'], ['night'], ['night_half2'], '4321']);
   assert.equal(loads, 1); assert.equal(saveButton.disabled, false); assert.ok(!classes.has('is-open'));
 });

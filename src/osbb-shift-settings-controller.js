@@ -3,16 +3,17 @@ import { shiftErrorMessage, workShiftNamesFromResponse } from './osbb-shifts.js'
 export function createOsbbShiftSettingsController(options) {
     const { document, loadSettings, saveNames, requestPin, showToast, onNamesChanged,
         requestFrame = callback => requestAnimationFrame(callback), warn = console.warn } = options;
-    let names = { sergiy: 'Сергій', oleksandr: 'Напарник' };
+    let names = { sergiy: 'Сергій', oleksandr: 'Напарник', third:'Третій співробітник' };
 
     function apply() {
         const pairs = [
+            ['shift-legend-third', names.third], ['shift-stat-name-third', names.third], ['shift-editor-name-third', names.third],
             ['shift-legend-sergiy', names.sergiy], ['shift-stat-name-sergiy', names.sergiy], ['shift-editor-name-sergiy', names.sergiy],
             ['shift-legend-oleksandr', names.oleksandr], ['shift-stat-name-oleksandr', names.oleksandr], ['shift-editor-name-oleksandr', names.oleksandr],
         ];
         pairs.forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
         const heading = document.getElementById('shift-heading');
-        if (heading) heading.textContent = `${names.sergiy} та ${names.oleksandr}`;
+        if (heading) heading.textContent = `${names.sergiy}, ${names.oleksandr} та ${names.third}`;
         onNamesChanged({ ...names });
     }
 
@@ -31,6 +32,7 @@ export function createOsbbShiftSettingsController(options) {
     function open() {
         document.getElementById('shift-name-sergiy').value = names.sergiy;
         document.getElementById('shift-name-oleksandr').value = names.oleksandr;
+        document.getElementById('shift-name-third').value = names.third;
         const editor = document.getElementById('shift-name-editor');
         editor.classList.add('is-open');
         editor.setAttribute('aria-hidden', 'false');
@@ -57,12 +59,13 @@ export function createOsbbShiftSettingsController(options) {
     function save() {
         const first = document.getElementById('shift-name-sergiy').value.trim();
         const second = document.getElementById('shift-name-oleksandr').value.trim();
-        if (!first || !second) { showToast('Вкажіть обидва імені', 'error'); return; }
+        const third = document.getElementById('shift-name-third').value.trim();
+        if (!first || !second || !third) { showToast('Вкажіть усі три імені', 'error'); return; }
         requestPin('PIN розділу «Зміни»', 'Підтвердьте зміну імен окремим PIN', async attempt => {
             try {
-                const ok = await saveNames(first, second, attempt);
+                const ok = await saveNames(first, second, third, attempt);
                 if (!ok) throw new Error('Сервер відхилив операцію');
-                names = { sergiy: first, oleksandr: second };
+                names = { sergiy: first, oleksandr: second, third };
                 apply();
                 close();
                 showToast('Імена працівників оновлено', 'check');
