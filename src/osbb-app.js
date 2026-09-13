@@ -476,6 +476,7 @@
     // ГРАФІК ЗМІН (Supabase)
     // ==========================================
     let shiftNames = { sergiy:'Сергій', oleksandr:'Напарник', third:'Третій співробітник' };
+    let shiftPinCache = '';
     let shiftCalendarController;
 
     const shiftSettingsController = createOsbbShiftSettingsController({
@@ -484,7 +485,7 @@
         saveNames: (first, second, third, attempt) => db.rpc('update_work_shift_names_v2', {
             p_employee_one_name:first, p_employee_two_name:second, p_employee_three_name:third, attempt,
         }),
-        requestPin: showPinModal,
+        getPin: () => shiftPinCache,
         showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
         onNamesChanged: names => { shiftNames = names; shiftCalendarController?.render(); },
     });
@@ -493,9 +494,10 @@
         loadRows: monthKey => db.from('work_shifts').select('*').eq('month_key', monthKey).order('shift_date',{ascending:true}),
         getNames: () => shiftNames,
         showToast: (message, icon) => showToast(message, icon === 'error' ? TOAST_ICON_ERROR : TOAST_ICON_CHECK),
-        requestPin: showPinModal,
+        getPin: () => shiftPinCache,
         saveDay: (date, first, second, third, attempt) => db.rpc('save_work_shift_day_v2', { p_shift_date:date, p_sergiy:first, p_oleksandr:second, p_third:third, attempt }),
         resetMonth: (monthKey, attempt) => db.rpc('reset_work_shifts_month', { p_month_key:monthKey, attempt }),
+        confirmReset: () => window.confirm('Очистити всі зміни за вибраний місяць?'),
     });
     const shiftLoadSettings = () => shiftSettingsController.load();
     const shiftOpenNameEditor = () => shiftSettingsController.open();
@@ -1826,9 +1828,10 @@
         document, window, navigator, isPreview:IS_PREVIEW, tabs:ALL_TABS, initialTab:currentTab,
         isTabAllowed:isTabAllowedForSession, isDispatcher:isDispatcherSession,
         requestShiftPin:callback=>showPinModal('PIN розділу «Зміни»','Введіть окремий PIN для доступу',callback,false,'verify_work_shifts_pin'),
+        onShiftAuthorized:attempt=>{shiftPinCache=attempt;},
         getSelectedMonth:()=>({year:Number.parseInt(yearSelect.value,10),month:Number.parseInt(monthSelect.value,10)}),
         onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;},
-        onTabChanged:tab=>{currentTab=tab;updateContextualJournalControls(tab);},
+        onTabChanged:tab=>{if(tab!=='shifts')shiftPinCache='';currentTab=tab;updateContextualJournalControls(tab);},
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
         loadDashboard:gInitDashboard,
         loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},

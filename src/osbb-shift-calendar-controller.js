@@ -4,7 +4,7 @@ const MONTHS = ['Січень','Лютий','Березень','Квітень',
 const TYPES = [{ key:'day', label:'Денна' }, { key:'night', label:'Нічна' }, { key:'night_half2', label:'Пів ночі' }, { key:'rest', label:'Вихідний' }];
 
 export function createOsbbShiftCalendarController(options) {
-    const { document, loadRows, getNames, showToast, requestPin, saveDay, resetMonth,
+    const { document, loadRows, getNames, getPin, showToast, saveDay, resetMonth, confirmReset = () => true,
         requestFrame = callback => requestAnimationFrame(callback), now = () => new Date(), warn = console.warn } = options;
     let currentDate = new Date(now().getFullYear(), now().getMonth(), 1);
     let rows = {};
@@ -16,7 +16,7 @@ export function createOsbbShiftCalendarController(options) {
 
     function monthKey() { return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`; }
     function todayKey() { const value = now(); return shiftDateKey(value.getFullYear(), value.getMonth(), value.getDate()); }
-    function dayData(dateKey) { return rows[dateKey] || (dateKey <= todayKey() ? { sergiy:['day'], oleksandr:['night'], third:[] } : { sergiy:[], oleksandr:[], third:[] }); }
+    function dayData(dateKey) { return rows[dateKey] || { sergiy:[], oleksandr:[], third:[] }; }
     function setStatus(text, state = 'ready') {
         const status = document.getElementById('shift-sync-status');
         if (!status) return;
@@ -72,7 +72,7 @@ export function createOsbbShiftCalendarController(options) {
         for (let day = 1; day <= days; day += 1) {
             const key = shiftDateKey(year, month, day); const data = dayData(key); const button = document.createElement('button');
             button.type = 'button'; button.className = 'shift-day md-state-layer';
-            if (key === today) button.classList.add('is-today'); if (!rows[key] && key <= today) button.classList.add('is-auto');
+            if (key === today) button.classList.add('is-today');
             button.dataset.shiftDate = key;
             button.setAttribute('aria-label', `${day} ${MONTHS[month]}: ${names.sergiy} — ${shiftTypeDescription(data.sergiy)}, ${names.oleksandr} — ${shiftTypeDescription(data.oleksandr)}, ${names.third} - ${shiftTypeDescription(data.third)}`);
             const number = document.createElement('span'); number.className = 'shift-day-number'; number.textContent = String(day);
@@ -137,26 +137,27 @@ export function createOsbbShiftCalendarController(options) {
         else { selection.delete('rest'); if (selection.has(type)) selection.delete(type); else selection.add(type); }
         renderChips(person);
     }
-    function submitDay() {
+    async function submitDay() {
         if (!selectedDate) return;
         const button = document.querySelector('[data-shift-action="save-day"]'); if (!button) return;
         const date = selectedDate; const first = [...editorSelection.sergiy]; const second = [...editorSelection.oleksandr]; const third = [...editorSelection.third];
-        requestPin('PIN розділу «Зміни»', 'Підтвердьте збереження окремим PIN', async attempt => {
-            button.disabled = true;
-            try {
-                const ok = await saveDay(date, first, second, third, attempt); if (!ok) throw new Error('Сервер відхилив операцію');
-                closeEditor(); await load(); showToast('Графік зміни збережено', 'check');
-            } catch (error) { warn('shiftSaveDay failed:', error); showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), 'error'); }
-            finally { button.disabled = false; }
-        }, false, 'verify_work_shifts_pin');
+        const attempt = getPin();
+        if (!attempt) { showToast('Відкрийте розділ «Зміни» повторно', 'error'); return; }
+        button.disabled = true;
+        try {
+            const ok = await saveDay(date, first, second, third, attempt); if (!ok) throw new Error('Сервер відхилив операцію');
+            closeEditor(); await load(); showToast('Графік зміни збережено', 'check');
+        } catch (error) { warn('shiftSaveDay failed:', error); showToast(shiftErrorMessage(error, 'Не вдалося зберегти зміну'), 'error'); }
+        finally { button.disabled = false; }
     }
-    function reset() {
-        requestPin('Скинути графік змін', 'Видалити ручні корекції за вибраний місяць?', async attempt => {
-            try {
-                const ok = await resetMonth(monthKey(), attempt); if (!ok) throw new Error('Сервер відхилив операцію');
-                await load(); showToast('Корекції графіка скинуто', 'trash');
-            } catch (error) { warn('shiftResetMonth failed:', error); showToast(shiftErrorMessage(error, 'Не вдалося скинути графік'), 'error'); }
-        }, true, 'verify_work_shifts_pin');
+    async function reset() {
+        if (!confirmReset()) return;
+        const attempt = getPin();
+        if (!attempt) { showToast('Відкрийте розділ «Зміни» повторно', 'error'); return; }
+        try {
+            const ok = await resetMonth(monthKey(), attempt); if (!ok) throw new Error('Сервер відхилив операцію');
+            await load(); showToast('Зміни місяця очищено', 'trash');
+        } catch (error) { warn('shiftResetMonth failed:', error); showToast(shiftErrorMessage(error, 'Не вдалося очистити зміни'), 'error'); }
     }
 
     return { changeMonth, closeEditor, count, dayData, init, load, monthKey, openEditor, render, renderChips, renderStats, reset, submitDay, toggleChip, trapEditorFocus };

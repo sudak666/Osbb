@@ -651,7 +651,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .shift-day { position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; min-height:82px; padding:10px; border:1px solid var(--md-sys-color-outline-variant,var(--border)); border-radius:var(--md-sys-shape-corner-large,16px); background:var(--md-sys-color-surface-container,var(--surface-2)); color:var(--md-sys-color-on-surface,var(--text-main)); text-align:left; cursor:pointer; }
 .shift-day:hover { background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
 .shift-day.is-today { border-color:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 55%,var(--border)); }
-.shift-day.is-auto::after { content:''; position:absolute; top:7px; right:7px; width:5px; height:5px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-outline); }
 .month-grid-cell.is-today,.shift-day.is-today { border-width:1px; background:var(--md-sys-color-surface-container,var(--surface-2)); box-shadow:0 0 0 3px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 14%,transparent); }
 .month-grid-cell.is-today .month-grid-day,.shift-day.is-today .shift-day-number { min-width:0; height:auto; padding:0; border-radius:0; background:transparent; color:inherit; }
 .shift-day-number { font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; }
@@ -664,7 +663,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .shift-type-mark { display:inline-block; box-sizing:border-box; width:10px; height:10px; border-radius:var(--md-sys-shape-corner-full,999px); border:1px solid var(--md-sys-color-on-surface-variant); }
 .shift-type-mark.is-full { background:var(--md-sys-color-on-surface-variant); }
 .shift-type-mark.is-half { background:linear-gradient(90deg,var(--md-sys-color-on-surface-variant) 50%,transparent 50%); }
-.shift-auto-mark { display:inline-block; width:8px; height:8px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-outline); }
 .shift-legend { display:flex; flex-wrap:wrap; gap:14px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:500; }
 .shift-legend span { display:inline-flex; align-items:center; gap:6px; }
 .shift-stats-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }

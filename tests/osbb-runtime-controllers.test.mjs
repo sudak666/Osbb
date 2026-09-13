@@ -31,3 +31,19 @@ test('runtime calendar publishes a valid month before loading active data', asyn
     updateToday:()=>order.push('today'),loadDashboard:async()=>order.push('dashboard'),loaders:{dispatcher:async()=>order.push('loader')},setSyncStatus(){},showToast(){},subscriptions:[]});
   await runtime.initCalendar(); assert.deepEqual(order,['month','photos','today','loader','dashboard']);
 });
+
+test('runtime verifies the shifts PIN once on entry and publishes it for later actions', () => {
+  const element=()=>({classList:{toggle(){}},toggleAttribute(){},setAttribute(){}});
+  const document={activeElement:null,getElementById:()=>element()};
+  let promptCount=0, authorizedPin='', activeTab='garbage';
+  const runtime=createOsbbRuntimeController({document,window:{addEventListener(){}},navigator:{onLine:true},isPreview:true,
+    tabs:['garbage','shifts'],initialTab:'garbage',isTabAllowed:()=>true,isDispatcher:()=>true,
+    requestShiftPin:callback=>{promptCount++;callback('4321');},onShiftAuthorized:pin=>{authorizedPin=pin;},
+    onTabChanged:tab=>{activeTab=tab;},getSelectedMonth:()=>({year:2026,month:7}),loadPhotos:async()=>{},updateToday(){},
+    loadDashboard:async()=>{},loaders:{},setSyncStatus(){},showToast(){},subscriptions:[]});
+  assert.equal(runtime.requestTab('shifts'),true);
+  assert.equal(runtime.requestTab('shifts'),true);
+  assert.equal(promptCount,1);
+  assert.equal(authorizedPin,'4321');
+  assert.equal(activeTab,'shifts');
+});
