@@ -1,7 +1,7 @@
 import { shiftErrorMessage, workShiftNamesFromResponse } from './osbb-shifts.js';
 
 export function createOsbbShiftSettingsController(options) {
-    const { document, loadSettings, saveNames, requestPin, showToast, onNamesChanged,
+    const { document, loadSettings, saveNames, getPin, showToast, onNamesChanged,
         requestFrame = callback => requestAnimationFrame(callback), warn = console.warn } = options;
     let names = { sergiy: 'Сергій', oleksandr: 'Напарник', third:'Третій співробітник' };
 
@@ -56,24 +56,24 @@ export function createOsbbShiftSettingsController(options) {
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus({ preventScroll: true }); }
     }
 
-    function save() {
+    async function save() {
         const first = document.getElementById('shift-name-sergiy').value.trim();
         const second = document.getElementById('shift-name-oleksandr').value.trim();
         const third = document.getElementById('shift-name-third').value.trim();
         if (!first || !second || !third) { showToast('Вкажіть усі три імені', 'error'); return; }
-        requestPin('PIN розділу «Зміни»', 'Підтвердьте зміну імен окремим PIN', async attempt => {
-            try {
-                const ok = await saveNames(first, second, third, attempt);
-                if (!ok) throw new Error('Сервер відхилив операцію');
-                names = { sergiy: first, oleksandr: second, third };
-                apply();
-                close();
-                showToast('Імена працівників оновлено', 'check');
-            } catch (error) {
-                warn('shiftSaveNames failed:', error);
-                showToast(shiftErrorMessage(error, 'Не вдалося змінити імена'), 'error');
-            }
-        }, false, 'verify_work_shifts_pin');
+        const attempt = getPin();
+        if (!attempt) { showToast('Відкрийте розділ «Зміни» повторно', 'error'); return; }
+        try {
+            const ok = await saveNames(first, second, third, attempt);
+            if (!ok) throw new Error('Сервер відхилив операцію');
+            names = { sergiy: first, oleksandr: second, third };
+            apply();
+            close();
+            showToast('Імена працівників оновлено', 'check');
+        } catch (error) {
+            warn('shiftSaveNames failed:', error);
+            showToast(shiftErrorMessage(error, 'Не вдалося змінити імена'), 'error');
+        }
     }
 
     return { apply, close, getNames: () => ({ ...names }), load, open, save, trapFocus };

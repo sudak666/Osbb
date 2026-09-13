@@ -19,7 +19,11 @@ export function createOsbbRuntimeController(options) {
     function requestTab(tab) {
         if(!isTabAllowed(tab)) { showToast('Цей розділ вам недоступний'); return false; }
         if(tab==='dispatcher'&&!isDispatcher()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return false; }
-        if(tab==='shifts') { requestShiftPin(()=>setTab(tab)); return true; }
+        if(tab==='shifts') {
+            if(currentTab==='shifts') return true;
+            requestShiftPin(attempt=>{ options.onShiftAuthorized?.(attempt); setTab(tab); });
+            return true;
+        }
         return setTab(tab);
     }
     async function initCalendar() {

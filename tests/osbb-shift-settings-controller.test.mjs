@@ -11,17 +11,17 @@ function fixture() {
 
 test('shift settings controller loads normalized names and applies every label', async () => {
   const { document, elements } = fixture(); let changed = null;
-  const controller = createOsbbShiftSettingsController({ document, loadSettings: async () => ({ data: { employee_one_name: '  Іван  ', employee_two_name: 'Петро' }, error: null }), saveNames: async () => true, requestPin() {}, showToast() {}, requestFrame: callback => callback(), onNamesChanged: names => { changed = names; } });
+  const controller = createOsbbShiftSettingsController({ document, loadSettings: async () => ({ data: { employee_one_name: '  Іван  ', employee_two_name: 'Петро' }, error: null }), saveNames: async () => true, getPin: () => '1234', showToast() {}, requestFrame: callback => callback(), onNamesChanged: names => { changed = names; } });
   await controller.load();
   assert.deepEqual(controller.getNames(), { sergiy: 'Іван', oleksandr: 'Петро', third: 'Третій співробітник' });
   assert.deepEqual(changed, { sergiy: 'Іван', oleksandr: 'Петро', third: 'Третій співробітник' });
   assert.equal(elements['shift-heading'].textContent, 'Іван, Петро та Третій співробітник');
 });
 
-test('shift settings controller saves names through guarded PIN flow', async () => {
-  const { classes, document, elements } = fixture(); let pinAction = null; let saved = null; const toasts = [];
-  const controller = createOsbbShiftSettingsController({ document, loadSettings: async () => ({ data: null, error: null }), requestFrame: callback => callback(), onNamesChanged() {}, requestPin: (_title, _subtitle, action) => { pinAction = action; }, saveNames: async (...args) => { saved = args; return true; }, showToast: (...args) => toasts.push(args) });
-  controller.open(); elements['shift-name-sergiy'].value = 'Марко'; elements['shift-name-oleksandr'].value = 'Андрій'; controller.save(); await pinAction('1234');
+test('shift settings controller reuses the PIN verified on tab entry', async () => {
+  const { classes, document, elements } = fixture(); let saved = null; const toasts = [];
+  const controller = createOsbbShiftSettingsController({ document, loadSettings: async () => ({ data: null, error: null }), requestFrame: callback => callback(), onNamesChanged() {}, getPin: () => '1234', saveNames: async (...args) => { saved = args; return true; }, showToast: (...args) => toasts.push(args) });
+  controller.open(); elements['shift-name-sergiy'].value = 'Марко'; elements['shift-name-oleksandr'].value = 'Андрій'; await controller.save();
   assert.deepEqual(saved, ['Марко', 'Андрій', 'Третій співробітник', '1234']);
   assert.deepEqual(controller.getNames(), { sergiy: 'Марко', oleksandr: 'Андрій', third: 'Третій співробітник' });
   assert.ok(!classes.has('is-open'));
