@@ -105,32 +105,22 @@ export interface Database {
                 id: number;
                 pin_hash: string;
             }>;
-            work_shift_pin_attempts: RowOperation<{
-                pin_name: string;
-                failed_count: number;
-                locked_until: Timestamp | null;
-                last_failed_at: Timestamp;
-            }>;
             app_auth: RowOperation<{
                 id: number;
                 pin_hash: string;
-            }>;
-            app_pin_attempts: RowOperation<{
-                pin_name: string;
-                failed_count: number;
-                locked_until: Timestamp | null;
-                last_failed_at: Timestamp;
             }>;
             osbb_app_auth: RowOperation<{
                 id: number;
                 lock_pin_hash: string;
                 reset_pin_hash: string;
             }>;
-            osbb_app_pin_attempts: RowOperation<{
-                pin_name: string;
+            pin_throttle: RowOperation<{
+                scope: string;
+                client: string;
                 failed_count: number;
+                lock_level: number;
                 locked_until: Timestamp | null;
-                last_failed_at: Timestamp;
+                last_failed_at: Timestamp | null;
             }>;
             osbb_staff: RowOperation<{
                 id: Uuid;
@@ -139,12 +129,6 @@ export interface Database {
                 pin_hash: string;
                 active: boolean;
                 created_at: Timestamp;
-            }>;
-            osbb_staff_pin_attempts: RowOperation<{
-                staff_id: Uuid;
-                failed_count: number;
-                locked_until: Timestamp | null;
-                last_failed_at: Timestamp;
             }>;
             osbb_attendance: RowOperation<{
                 month_key: string;
