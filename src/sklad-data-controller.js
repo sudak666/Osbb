@@ -5,6 +5,22 @@ import {
   inventoryLogsFromResponse,
   inventoryReceiptsFromResponse
 } from "./sklad-state.js";
+const PAGE_SIZE = 1e3;
+async function fetchAllPages(buildQuery, pageSize = PAGE_SIZE) {
+  const rows = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await buildQuery().range(from, from + pageSize - 1);
+    if (error) return { data: null, error };
+    const page = Array.isArray(data) ? data : [];
+    rows.push(...page);
+    if (page.length < pageSize) return { data: rows, error: null };
+  }
+}
+function loadErrorMessage(error) {
+  const message = String(error?.message || "");
+  if (!error?.code || error.code === "FETCH_ERROR" || /fetch|network/i.test(message)) return "Немає зʼєднання з сервером";
+  return "Помилка сервера";
+}
 function createSkladDataController(options) {
   const { db, document, window, toast, iconHtml, skeletonRows, skeletonStack, onItems, onLogs, onReceipts, loadSupplierTags } = options;
   let refreshBusy = false;
@@ -24,9 +40,10 @@ function createSkladDataController(options) {
   ;
   const markDataUpdated = () => setRefreshStatus("ready", "Оновлено " + (/* @__PURE__ */ new Date()).toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }));
   async function loadItems() {
-    const { data, error } = await db.from("inventory_items").select("*").order("category").order("name").limit(500);
+    const { data, error } = await fetchAllPages(() => db.from("inventory_items").select("*").order("category").order("name").order("id"));
     if (error) {
-      toast("Товари не завантажились: " + error.message, "error");
+      console.warn("items load failed:", error);
+      toast("Товари не завантажились: " + loadErrorMessage(error).toLowerCase() + ". Спробуйте «Оновити».", "error");
       throw error;
     }
     onItems(inventoryItemsFromResponse(data));
@@ -36,12 +53,18 @@ function createSkladDataController(options) {
   async function loadLogs() {
     const { data, error } = await db.from("inventory_logs").select("*").order("issued_at", { ascending: false }).limit(100);
     if (error) {
-      toast("Журнал не завантажився: " + error.message, "error");
+      console.warn("logs load failed:", error);
+      toast("Журнал не завантажився: " + loadErrorMessage(error).toLowerCase() + ".", "error");
       throw error;
     }
     onLogs(inventoryLogsFromResponse(data));
   }
   ;
+  async function loadAllLogs() {
+    const { data, error } = await fetchAllPages(() => db.from("inventory_logs").select("*").order("issued_at", { ascending: false }).order("id", { ascending: false }));
+    if (error) throw error;
+    return inventoryLogsFromResponse(data);
+  }
   async function loadReceipts() {
     const table = document.getElementById("recTable");
     const mobile = document.getElementById("recMobileList");
@@ -49,10 +72,15 @@ function createSkladDataController(options) {
     if (mobile) mobile.innerHTML = skeletonStack(3);
     const { data, error } = await db.from("inventory_receipts").select("*").order("received_at", { ascending: false }).limit(200);
     if (error) {
-      const message = iconHtml("warning") + " " + escapeHtml(error.message);
-      if (table) table.innerHTML = `<tr><td colspan="7"><div class="empty">${message}</div></td></tr>`;
-      if (mobile) mobile.innerHTML = `<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${message}<br><br><small style="color:var(--sklad-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
-      toast("Прихід: " + error.message, "error");
+      console.warn("receipts load failed:", error);
+      const text = loadErrorMessage(error);
+      const message = iconHtml("warning") + " " + escapeHtml(text) + ' <button type="button" class="btn btn-ghost btn-sm md-state-layer" data-receipts-retry>' + iconHtml("refresh") + " Повторити</button>";
+      if (table) table.innerHTML = `<tr><td colspan="7"><div class="empty load-error-state">${message}</div></td></tr>`;
+      if (mobile) mobile.innerHTML = `<div class="empty load-error-state">${message}</div>`;
+      [table, mobile].forEach((container) => container?.querySelector?.("[data-receipts-retry]")?.addEventListener("click", () => {
+        void loadReceipts();
+      }, { once: true }));
+      toast("Надходження не завантажились: " + text.toLowerCase() + ".", "error");
       return;
     }
     onReceipts(inventoryReceiptsFromResponse(data));
@@ -153,8 +181,11 @@ function createSkladDataController(options) {
     document.addEventListener("touchcancel", reset, { passive: true });
   }
   ;
-  return { initPullToRefresh, initRealtime, loadItems, loadLogs, loadReceipts, markDataUpdated, refreshAll, setRefreshStatus };
+  return { initPullToRefresh, initRealtime, loadAllLogs, loadItems, loadLogs, loadReceipts, markDataUpdated, refreshAll, setRefreshStatus };
 }
 export {
-  createSkladDataController
+  PAGE_SIZE,
+  createSkladDataController,
+  fetchAllPages,
+  loadErrorMessage
 };

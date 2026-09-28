@@ -148,6 +148,7 @@ const {
   markDataUpdated,
   refreshAll,
   setRefreshStatus,
+  loadAllLogs,
 }=createSkladDataController({
   db,
   document,
@@ -1111,8 +1112,11 @@ async function exportExcel(){
   const wsBalance=XLSX.utils.json_to_sheet(buildBalanceExportRows(allItems));
   wsBalance['!cols']=[{wch:50},{wch:12}];
   XLSX.utils.book_append_sheet(wb,wsBalance,'Баланс');
-  if(allLogs.length){
-    const ws2=XLSX.utils.json_to_sheet(buildIssueExportRows(allLogs));
+  let exportLogs=allLogs;
+  try{exportLogs=await loadAllLogs();}
+  catch(e){console.warn('full issue log load failed:',e);toast('Журнал видач у файлі — лише останні записи (немає зʼєднання)','info');}
+  if(exportLogs.length){
+    const ws2=XLSX.utils.json_to_sheet(buildIssueExportRows(exportLogs));
     ws2['!cols']=[{wch:18},{wch:50},{wch:8},{wch:25},{wch:30}];
     XLSX.utils.book_append_sheet(wb,ws2,'Журнал видач');
   }

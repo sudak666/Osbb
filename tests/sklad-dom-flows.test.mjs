@@ -91,7 +91,8 @@ test('Sklad movement history distinguishes transport errors from empty results',
 });
 
 test('Sklad receipt load errors escape transport text before HTML rendering', () => {
-  assertIncludes(skladDataController, "const message = iconHtml('warning') + ' ' + escapeHtml(error.message);", 'receipt error HTML must escape transport text');
+  assertIncludes(skladDataController, "const message = iconHtml('warning') + ' ' + escapeHtml(text) +", 'receipt error HTML must escape its text');
+  assert.equal(skladDataController.includes('escapeHtml(error.message)'), false, 'raw transport text must not be rendered');
 });
 
 test('Sklad delete RPC flow handles returned and thrown transport errors', () => {

@@ -665,6 +665,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 .split{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 .empty{display:grid;justify-items:center;gap:8px;text-align:center;padding:40px 20px;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));border-radius:var(--md-sys-shape-corner-extra-large,28px);background:var(--md-sys-color-surface-container,var(--surface-2));font-size:14px;line-height:1.45;}
+.empty.load-error-state{color:var(--md-sys-color-error,#b3261e);}
 .empty .ms{display:grid;place-items:center;width:56px;height:56px;border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);font-size:28px!important;}
 .ms{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;width:1em;height:1em;font-family:'Material Symbols Rounded';font-size:22px;font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;user-select:none;-webkit-user-select:none;vertical-align:middle;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;-webkit-font-smoothing:antialiased;}
 .ni-icon .ms{font-size:20px;}

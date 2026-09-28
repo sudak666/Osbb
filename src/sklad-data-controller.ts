@@ -6,12 +6,35 @@ import {
 } from './sklad-state.js';
 
 type AsyncLoader = () => Promise<unknown>;
-type QueryResult = { data?: unknown; error?: { message: string } | null };
+type QueryResult = { data?: unknown; error?: { message: string; code?: string } | null };
 type Query = PromiseLike<QueryResult> & {
   select(value: string): Query;
   order(field: string, options?: { ascending: boolean }): Query;
   limit(value: number): Promise<QueryResult>;
+  range(from: number, to: number): Promise<QueryResult>;
 };
+
+// PostgREST на Supabase віддає максимум 1000 рядків за запит.
+export const PAGE_SIZE = 1000;
+
+/** Читає всі сторінки запиту, щоб список/статистика не обрізались мовчки. */
+export async function fetchAllPages(buildQuery: () => Query, pageSize = PAGE_SIZE): Promise<QueryResult> {
+  const rows: unknown[] = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await buildQuery().range(from, from + pageSize - 1);
+    if (error) return { data: null, error };
+    const page = Array.isArray(data) ? data : [];
+    rows.push(...page);
+    if (page.length < pageSize) return { data: rows, error: null };
+  }
+}
+
+/** Людський текст замість сирого error.message (без SQL/transport-деталей). */
+export function loadErrorMessage(error: { message?: string; code?: string } | null | undefined): string {
+  const message = String(error?.message || '');
+  if (!error?.code || error.code === 'FETCH_ERROR' || /fetch|network/i.test(message)) return 'Немає зʼєднання з сервером';
+  return 'Помилка сервера';
+}
 type RealtimeChannel = {
   on(event: string, filter: Record<string, string>, callback: () => void): RealtimeChannel;
   subscribe(): unknown;
@@ -50,24 +73,33 @@ export function createSkladDataController(options: SkladDataControllerOptions) {
   };
   const markDataUpdated = () => setRefreshStatus('ready', 'Оновлено ' + new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }));
   async function loadItems() {
-    const { data, error } = await db.from('inventory_items').select('*').order('category').order('name').limit(500);
-    if (error) { toast('Товари не завантажились: ' + error.message, 'error'); throw error; }
+    const { data, error } = await fetchAllPages(() => db.from('inventory_items').select('*').order('category').order('name').order('id'));
+    if (error) { console.warn('items load failed:', error); toast('Товари не завантажились: ' + loadErrorMessage(error).toLowerCase() + '. Спробуйте «Оновити».', 'error'); throw error; }
     onItems(inventoryItemsFromResponse(data)); markDataUpdated();
   };
   async function loadLogs() {
     const { data, error } = await db.from('inventory_logs').select('*').order('issued_at', { ascending: false }).limit(100);
-    if (error) { toast('Журнал не завантажився: ' + error.message, 'error'); throw error; }
+    if (error) { console.warn('logs load failed:', error); toast('Журнал не завантажився: ' + loadErrorMessage(error).toLowerCase() + '.', 'error'); throw error; }
     onLogs(inventoryLogsFromResponse(data));
   };
+  /** Повний журнал видач (для Excel), а не лише останні записи зі списку. */
+  async function loadAllLogs() {
+    const { data, error } = await fetchAllPages(() => db.from('inventory_logs').select('*').order('issued_at', { ascending: false }).order('id', { ascending: false }));
+    if (error) throw error;
+    return inventoryLogsFromResponse(data);
+  }
   async function loadReceipts() {
     const table = document.getElementById('recTable'); const mobile = document.getElementById('recMobileList');
     if (table) table.innerHTML = skeletonRows(7, 3); if (mobile) mobile.innerHTML = skeletonStack(3);
     const { data, error } = await db.from('inventory_receipts').select('*').order('received_at', { ascending: false }).limit(200);
     if (error) {
-      const message = iconHtml('warning') + ' ' + escapeHtml(error.message);
-      if (table) table.innerHTML = `<tr><td colspan="7"><div class="empty">${message}</div></td></tr>`;
-      if (mobile) mobile.innerHTML = `<div class="empty" style="padding:32px 16px;text-align:center;color:#c2410c;font-size:13px;">${message}<br><br><small style="color:var(--sklad-gray)">Виконайте SQL-скрипт 002_receipts_table.sql в Supabase SQL Editor</small></div>`;
-      toast('Прихід: ' + error.message, 'error'); return;
+      console.warn('receipts load failed:', error);
+      const text = loadErrorMessage(error);
+      const message = iconHtml('warning') + ' ' + escapeHtml(text) + ' <button type="button" class="btn btn-ghost btn-sm md-state-layer" data-receipts-retry>' + iconHtml('refresh') + ' Повторити</button>';
+      if (table) table.innerHTML = `<tr><td colspan="7"><div class="empty load-error-state">${message}</div></td></tr>`;
+      if (mobile) mobile.innerHTML = `<div class="empty load-error-state">${message}</div>`;
+      [table, mobile].forEach(container => container?.querySelector?.('[data-receipts-retry]')?.addEventListener('click', () => { void loadReceipts(); }, { once: true }));
+      toast('Надходження не завантажились: ' + text.toLowerCase() + '.', 'error'); return;
     }
     onReceipts(inventoryReceiptsFromResponse(data));
   };
@@ -90,5 +122,5 @@ export function createSkladDataController(options: SkladDataControllerOptions) {
       label.textContent = success ? 'Дані оновлено' : 'Не вдалося оновити'; window.setTimeout(reset, 600); }, { passive: true });
     document.addEventListener('touchcancel', reset, { passive: true });
   };
-  return { initPullToRefresh, initRealtime, loadItems, loadLogs, loadReceipts, markDataUpdated, refreshAll, setRefreshStatus };
+  return { initPullToRefresh, initRealtime, loadAllLogs, loadItems, loadLogs, loadReceipts, markDataUpdated, refreshAll, setRefreshStatus };
 }

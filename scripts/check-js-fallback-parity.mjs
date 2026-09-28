@@ -66,7 +66,7 @@ function read(relativePath) {
 
 function exportedNames(source) {
   const names = new Set();
-  for (const match of source.matchAll(/^export\s+(?:declare\s+)?(?:const|let|var|function|class|interface|type)\s+([A-Za-z_$][\w$]*)/gm)) {
+  for (const match of source.matchAll(/^export\s+(?:declare\s+)?(?:const|let|var|async\s+function|function|class|interface|type)\s+([A-Za-z_$][\w$]*)/gm)) {
     if (match[0].includes(' interface ') || match[0].includes(' type ')) continue;
     names.add(match[1]);
   }

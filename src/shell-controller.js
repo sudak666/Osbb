@@ -72,6 +72,10 @@ function createShellController(deps) {
       } else {
         const err = doc.getElementById("lock-err");
         if (err) err.textContent = "Невірний PIN, спробуйте ще";
+        try {
+          deps.navigator?.vibrate?.(80);
+        } catch {
+        }
         const lockFails = store.recordFailure();
         store.clearPin();
         lockUpdateDots();
