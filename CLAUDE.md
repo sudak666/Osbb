@@ -15,7 +15,8 @@
 
 - Браузер і unit-тести використовують `src/*.js`; `tsc` перевіряє `src/*.ts`.
 - **TS — джерело істини** для модулів із реалізацією в `.ts`: їхні `.js` **генеруються** `npm run build:js` (`scripts/build-js-fallback.mjs`, esbuild) і мають шапку `// Згенеровано з src/...`. Не редагувати ці `.js` вручну — `test:runtime` вимагає байт-у-байт збіг зі згенерованим.
-- **JS — джерело істини** для контролерів, де `.ts` містить лише `export declare function ...` (shim-контракт), і для `src/osbb-app.js` / `src/sklad-app.js` / `src/osbb-completed-work-controller.js` (без `.ts`). Їх правити руками; перевіряються лише імена експортів/імпортів.
+- **JS — джерело істини** лише для `src/osbb-app.js` / `src/sklad-app.js` (без `.ts`, правити руками). З вересня 2026 усі контролери — повноцінний TS (shim-ів `export declare function` більше нема; не повертати їх). Спільні DI-типи контролерів (`SupabaseLike`, `ToastFn`, `KeyValueStorage`…) — `src/controller-types.ts`.
+- Smoke-check шукає в `.ts`-джерелі точні рядки з анотаціями типів (`function select(button: HTMLElement)`) — при зміні сигнатури оновлювати й голку в `scripts/smoke-check.mjs`.
 - Smoke-check і `tests/sklad-dom-flows.test.mjs` читають для згенерованих `.js` їхнє `.ts`-джерело.
 - Сторонні бібліотеки — npm-залежності з фіксованими версіями (`@supabase/supabase-js`, `xlsx`, `html5-qrcode`, `chart.js`), не CDN. `xlsx`/`html5-qrcode`/`chart.js` вантажаться лениво (`await import(...)`). `xlsx@0.18.5` має CVE лише для **читання** файлів — у проєкті тільки запис; якщо колись з'явиться імпорт Excel, спершу оновити бібліотеку.
 
