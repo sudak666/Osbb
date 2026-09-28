@@ -75,23 +75,9 @@ export interface Database {
                 qty_before: number;
                 qty_actual: number;
             }>;
-            schedule: RowOperation<{
-                month_key: string;
-                data: Json;
-            }>;
             garbage: RowOperation<{
                 month_key: string;
                 data: Json;
-            }>;
-            dispatcher: RowOperation<{
-                month_key: string;
-                data: Json | null;
-            }>;
-            chat: RowOperation<{
-                id: BigIntId;
-                author: string;
-                text: string;
-                created_at: Timestamp | null;
             }>;
             photos: RowOperation<{
                 id: string;
@@ -180,10 +166,6 @@ export interface Database {
                 created_at: Timestamp;
                 updated_at: Timestamp;
             }>;
-            osbb_telegram_config: RowOperation<{
-                id: number;
-                chat_id: string;
-            }>;
             telegram_config: RowOperation<{
                 id: number;
                 bot_token: string;
@@ -236,7 +218,7 @@ export interface Database {
                 Returns: boolean;
             };
             reset_month: {
-                Args: { table_name: 'schedule' | 'garbage' | 'dispatcher'; p_month_key: string; attempt: string };
+                Args: { table_name: 'garbage'; p_month_key: string; attempt: string };
                 Returns: boolean;
             };
             reset_work_shifts_month: {
@@ -299,17 +281,9 @@ export interface Database {
                 Args: { p_receipt_id: BigIntId; attempt: string };
                 Returns: Json;
             };
-            delete_chat_message: {
-                Args: { p_message_id: BigIntId; attempt: string };
-                Returns: boolean;
-            };
             delete_photo: {
                 Args: { p_photo_id: BigIntId; attempt: string };
                 Returns: boolean;
-            };
-            notify_osbb_telegram: {
-                Args: { msg: string };
-                Returns: undefined;
             };
         };
     };

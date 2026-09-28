@@ -1,5 +1,4 @@
 import type { AttendanceMonth } from './osbb-attendance.ts';
-import type { DispatcherMonth } from './osbb-dispatcher.ts';
 import type { ElevatorEntry } from './osbb-elevator.ts';
 import type { GarbageMonthData } from './osbb-garbage.ts';
 import type { PhotoCache } from './osbb-photos.ts';
@@ -20,7 +19,6 @@ export interface OsbbRuntimeState {
     staffLoginList: StaffListEntry[];
     garbage: GarbageMonthData;
     attendance: AttendanceMonth;
-    dispatcher: DispatcherMonth;
     shiftRows: WorkShiftRows;
     photosCache: PhotoCache | null;
     lightboxPhotos: string[];
@@ -33,7 +31,6 @@ export function createOsbbRuntimeState(): OsbbRuntimeState {
         staffLoginList: [],
         garbage: {},
         attendance: {},
-        dispatcher: {},
         shiftRows: {},
         photosCache: null,
         lightboxPhotos: [],

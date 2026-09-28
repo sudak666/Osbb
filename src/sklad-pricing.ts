@@ -20,14 +20,6 @@ export function parseOptionalPrice(value: unknown): number | null {
     return Number.isFinite(price) && price > 0 && price <= 1_000_000_000 ? Math.round(price * 100) / 100 : Number.NaN;
 }
 
-export function isPurchasePriceSchemaError(error: unknown): boolean {
-    const message = typeof error === 'object' && error !== null && 'message' in error
-        ? String(error.message).toLowerCase()
-        : '';
-    return ['purchase_price_unit', 'p_price_unit', 'receive_item']
-        .some((field) => message.includes(field));
-}
-
 export function itemPriceValue(item: PriceFields | null | undefined): number {
     const price = Number(item?.price_unit);
     return Number.isFinite(price) && price > 0 && price <= 1_000_000_000 ? price : 0;

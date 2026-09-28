@@ -6,10 +6,9 @@ const normalizeNewlines = value => value.replace(/\r\n?/g, '\n');
 const source = normalizeNewlines(fs.readFileSync(new URL('../src/database.types.ts', import.meta.url), 'utf8'));
 const apiSource = normalizeNewlines(fs.readFileSync(new URL('../src/supabase-api.ts', import.meta.url), 'utf8'));
 
-test('database types model merged OSBB month-key tables, not the old row schema', () => {
-  assert.match(source, /schedule: RowOperation<\{\n\s+month_key: string;\n\s+data: Json;/);
+test('database types model the garbage month-key table and drop archived journal tables', () => {
   assert.match(source, /garbage: RowOperation<\{\n\s+month_key: string;\n\s+data: Json;/);
-  assert.match(source, /dispatcher: RowOperation<\{\n\s+month_key: string;\n\s+data: Json \| null;/);
+  for (const table of ['schedule', 'dispatcher', 'chat', 'osbb_telegram_config']) assert.doesNotMatch(source, new RegExp(`\\b${table}: RowOperation<`));
 });
 
 test('database types expose Sklad movement column names used by the UI and RPCs', () => {
@@ -18,7 +17,7 @@ test('database types expose Sklad movement column names used by the UI and RPCs'
 });
 
 test('database types include critical security-definer RPC contracts', () => {
-  for (const fn of ['verify_lock_pin', 'verify_reset_pin', 'list_osbb_staff', 'verify_staff_pin', 'list_osbb_staff_settings', 'set_osbb_staff_active', 'save_attendance_day', 'reset_month', 'verify_pin', 'issue_item', 'receive_item', 'delete_inventory_item', 'delete_inventory_log', 'delete_inventory_receipt', 'delete_chat_message', 'delete_photo']) {
+  for (const fn of ['verify_lock_pin', 'verify_reset_pin', 'list_osbb_staff', 'verify_staff_pin', 'list_osbb_staff_settings', 'set_osbb_staff_active', 'save_attendance_day', 'reset_month', 'verify_pin', 'issue_item', 'receive_item', 'delete_inventory_item', 'delete_inventory_log', 'delete_inventory_receipt', 'delete_photo']) {
     assert.match(source, new RegExp(`${fn}: \\{`));
   }
 });

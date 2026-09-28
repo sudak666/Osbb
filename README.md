@@ -16,8 +16,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
-| `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `029_idempotent_stock_movements.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `031_archive_legacy_journal_tables.sql`). |
 | `sklad/supabase/functions/jira-issues` | Supabase Edge Function для вкладки «Мої заявки» (перевіряє staff PIN на сервері). |
 | `sklad/supabase/functions/retired` | Заглушка 410 для вимкнених публічних Edge Functions (`notify-telegram`, `create-jira-issue`, `ai-assistant`, `fetch-item-prices`). |
 
@@ -43,7 +42,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `030_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `031_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -75,10 +74,10 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 28. `028_add_third_shift_employee.sql` — третій співробітник у графіку змін.
 29. `029_idempotent_stock_movements.sql` — ідемпотентні `issue_item`/`receive_item` (`p_client_request_id`), атомарне редагування видач/приходів, Telegram-тригер на новий товар, фіксація storage-політик `photos`. Потребує `009`.
 30. `030_garbage_day_save.sql` — `save_garbage_day`: журнал сміття зберігає один день, а не перезаписує весь місяць.
+31. `031_archive_legacy_journal_tables.sql` — переносить застарілі `chat`/`schedule`/`dispatcher` у закриту схему `archive`, прибирає функції чату, `reset_month` лише для сміття.
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `030_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність, `verify_jwt = false` для `jira-issues` (publishable-key клієнт) і `verify_jwt = true` для заглушки `retired`.
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `031_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність, `verify_jwt = false` для `jira-issues` (publishable-key клієнт) і `verify_jwt = true` для заглушки `retired`.
 
-`supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
 Перед production-використанням замініть прикладові PIN-и у Supabase Dashboard на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), staff-вхід, табель, скидання місяця, видалення фото та складських записів.
 

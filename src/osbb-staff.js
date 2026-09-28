@@ -99,7 +99,6 @@ function isTabAllowedForSession(tab, session) {
   if (isWorkerSession(session)) return WORKER_ALLOWED_TABS.includes(tab);
   if (tab === "completed-work") return isDispatcherSession(session);
   if (tab === "my-tickets") return isDispatcherSession(session);
-  if (tab === "dispatcher") return isDispatcherSession(session) || !session;
   return true;
 }
 export {

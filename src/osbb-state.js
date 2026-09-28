@@ -4,7 +4,6 @@ function createOsbbRuntimeState() {
     staffLoginList: [],
     garbage: {},
     attendance: {},
-    dispatcher: {},
     shiftRows: {},
     photosCache: null,
     lightboxPhotos: [],

@@ -8,13 +8,12 @@ test('createOsbbRuntimeState returns isolated typed runtime collections', () => 
   const second = createOsbbRuntimeState();
 
   assert.deepEqual(first, {
-    staffLoginList: [], garbage: {}, attendance: {}, dispatcher: {}, shiftRows: {},
+    staffLoginList: [], garbage: {}, attendance: {}, shiftRows: {},
     photosCache: null, lightboxPhotos: [], jiraIssues: [], elevatorData: [],
   });
   assert.notEqual(first.staffLoginList, second.staffLoginList);
   assert.notEqual(first.garbage, second.garbage);
   assert.notEqual(first.attendance, second.attendance);
-  assert.notEqual(first.dispatcher, second.dispatcher);
   assert.notEqual(first.shiftRows, second.shiftRows);
   assert.notEqual(first.lightboxPhotos, second.lightboxPhotos);
   assert.notEqual(first.jiraIssues, second.jiraIssues);

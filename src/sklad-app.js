@@ -8,7 +8,6 @@ import {
 } from './sklad-domain.js';
 import {
   formatMoney as money,
-  isPurchasePriceSchemaError,
   itemPriceValue as priceValue,
   parseOptionalPrice as optionalPrice,
 } from './sklad-pricing.js';
@@ -47,9 +46,6 @@ const pageTitles={items:{icon:'inventory_2',label:'Запаси'},issue:{icon:'o
 // Прапорець старого fallback без міграції 009 більше не потрібен (receive_item з
 // p_price_unit є на живій базі) — прибираємо його з пристроїв, де він лишився.
 try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}
-function showPurchasePriceMigrationNotice(){
-  console.info('Історія закупівельних цін стане доступною після міграції 009.');
-}
 function priceBadge(item){
   const id=escapeHtml(String(item?.id||''));
   const price=priceValue(item);
@@ -977,7 +973,6 @@ async function doAddNew(btn){
   if(error) return toast('Помилка: '+error.message,'error');
   const newItemId=numericIdFromInsertResponse(newItemResponse);
   let initialReceiptSaved=quantity<=0;
-  let purchasePriceSchemaUnavailable=false;
   // записуємо початковий прихід якщо кількість > 0
   if(quantity>0 && newItemId!==null){
     try{
@@ -989,12 +984,7 @@ async function doAddNew(btn){
         supplier:supplier||null,
         note:'Початковий залишок при додаванні товару'
       };
-      let {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
-      if(receiptError&&isPurchasePriceSchemaError(receiptError)){
-        purchasePriceSchemaUnavailable=true;
-        delete receiptRow.purchase_price_unit;
-        ({error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]));
-      }
+      const {error:receiptError}=await db.from('inventory_receipts').insert([receiptRow]);
       if(receiptError) console.warn('receipt insert failed',receiptError);
       else initialReceiptSaved=true;
     }catch(e){console.warn('receipt insert failed',e);}
@@ -1004,7 +994,6 @@ async function doAddNew(btn){
   }
   if(!initialReceiptSaved) toast('"'+name+'" додано, але початкове надходження не записано','info');
   else toast('"'+name+'" додано!','success');
-  if(purchasePriceSchemaUnavailable) showPurchasePriceMigrationNotice();
   ['newName','newUnit','newQty','newPrice','newItemSupplier'].forEach(k=>document.getElementById(k).value='');
   syncSupplierTags('newItemSupplier','');
   const matchesBox=document.getElementById('newNameMatches');
