@@ -43,7 +43,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `026_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `030_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -71,8 +71,12 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 24. `024_unify_operator_pin.sql` — дозволяє диспетчеру, адміністратору та Правлінню входити із загальним PIN журналу.
 25. `025_unify_work_shifts_pin.sql` — історично дозволив загальний PIN журналу для графіка змін.
 26. `026_unify_main_pin_keep_shifts_separate.sql` — встановлює один основний PIN для shell, журналу, складу й підтверджень та повертає окремий PIN для розділу «Зміни».
+27. `027_remove_attendance_pin.sql` — прибирає окремий PIN Табеля.
+28. `028_add_third_shift_employee.sql` — третій співробітник у графіку змін.
+29. `029_idempotent_stock_movements.sql` — ідемпотентні `issue_item`/`receive_item` (`p_client_request_id`), атомарне редагування видач/приходів, Telegram-тригер на новий товар, фіксація storage-політик `photos`. Потребує `009`.
+30. `030_garbage_day_save.sql` — `save_garbage_day`: журнал сміття зберігає один день, а не перезаписує весь місяць.
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `026_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` у `supabase/config.toml` для publishable-key клієнта.
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `030_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність, `verify_jwt = false` для `jira-issues` (publishable-key клієнт) і `verify_jwt = true` для заглушки `retired`.
 
 `supabase/*.sql` (без номерів у назві директорії — лише файли всередині пронумеровані) — **історичний архів**, для нового розгортання не потрібен, див. `supabase/README.md`.
 
