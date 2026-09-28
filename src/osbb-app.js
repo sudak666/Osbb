@@ -885,9 +885,10 @@
         const isDark = themeName === 'theme-dark';
         document.getElementById('journalThemeLabel').textContent = isDark ? 'Темна' : 'Світла';
         // Оновлюємо колір рядка стану браузера/PWA
-        const themeColors = { 'theme-light': '#22c55e', 'theme-dark': '#000000' };
+        // Ті самі значення, що --md-sys-color-background у shared/material-tokens.css.
+        const themeColors = { 'theme-light': '#f4f7fb', 'theme-dark': '#121214' };
         const metaColor = document.getElementById('meta-theme-color');
-        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#22c55e');
+        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || themeColors['theme-light']);
     }
     function toggleTheme() {
         changeTheme(nextOsbbTheme(document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light'));

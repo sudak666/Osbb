@@ -1113,7 +1113,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
     '.price-badge-value{font-weight:700;',
-    '.price-badge-source{width:100%;font-size:10px;',
+    '.price-badge-source{width:100%;font-size:var(--md-sys-typescale-label-small-size,11px);',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1173,7 +1173,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="log-person-cell"',
     'class="log-note-cell"',
     '.log-date-cell{font-size:12px;',
-    '.log-qty-out{font-weight:700;color:var(--md-sys-color-secondary,#6366f1);}',
+    '.log-qty-out{font-weight:700;color:var(--md-sys-color-secondary);}',
     '.log-qty-in{font-weight:700;color:var(--sklad-green);}',
   ];
   const forbidden = [

@@ -84,4 +84,26 @@ const nonTokenRadii = [...allCss.matchAll(/border-radius:\s*([^;}]+)/g)]
 assert.deepEqual(nonTokenRadii, [], `Знайдено радіуси поза M3 shape tokens: ${[...new Set(nonTokenRadii)].join(', ')}`);
 assert.match(journalCss, /@media \(pointer:coarse\)[\s\S]*min-height:48px/, 'Немає 48dp touch targets');
 
+// Інтерактивні елементи, які раніше були меншими за 40px (MD3: 40dp візуально, 48dp зона дотику).
+const minInteractive = [
+  [sharedUiCss, /\.custom-date-day\{height:(\d+)px/],
+  [sharedUiCss, /\.custom-date-nav\{width:\d+px;height:(\d+)px/],
+  [skladCss, /\.custom-date-day\{height:(\d+)px/],
+  [skladCss, /\.preset-chip \{ min-height: (\d+)px/],
+  [journalCss, /\.att-absence-action \{[^}]*min-height:(\d+)px/],
+  [journalCss, /\.day-detail-close \{ flex-shrink: 0; width: \d+px; height: (\d+)px/],
+];
+for (const [css, pattern] of minInteractive) {
+  const match = css.match(pattern);
+  assert.ok(match, `Не знайдено правило ${pattern}`);
+  assert.ok(Number(match[1]) >= 40, `${pattern}: ${match[1]}px < 40px`);
+}
+
+// Мінімальний текст — MD3 label-small (11px). Винятки: іконковий утиліт-клас і декоративний uppercase-кікер.
+const tinyText = [...allCss.matchAll(/([^{}]*)\{[^{}]*font-size:\s*(\d+(?:\.\d+)?)px/g)]
+  .filter(([, , size]) => Number(size) < 11)
+  .map(([, selector]) => selector.replace(/\/\*[\s\S]*?\*\//g, '').trim())
+  .filter(selector => !/^\.ic-10$/.test(selector) && !/app-module-kicker/.test(selector));
+assert.deepEqual(tinyText, [], `Текст менший за 11px: ${tinyText.join(' | ')}`);
+
 console.log('Material 3 tokens, contrast, typography, icons and touch targets: OK');

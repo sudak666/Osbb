@@ -1373,7 +1373,7 @@ function toast(msg,type=''){
 function applyTheme(theme){
   document.body.className=theme;
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content', theme==='theme-dark' ? '#121214' : '#F2F2F7');
+  if(meta) meta.setAttribute('content', theme==='theme-dark' ? '#121214' : '#f4f7fb');
 }
 applyTheme(document.body.className || 'theme-light');
 window.addEventListener('storage', event=>{
