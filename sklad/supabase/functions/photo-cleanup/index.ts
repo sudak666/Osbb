@@ -7,6 +7,9 @@
 //
 // Деплой: supabase functions deploy photo-cleanup --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
 
+// Модуль, а не скрипт: інакше tsc у CI бачить CORS_HEADERS/json з jira-issues у тому ж глобальному просторі.
+export {};
+
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
