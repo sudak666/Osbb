@@ -18,7 +18,6 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `031_archive_legacy_journal_tables.sql`). |
 | `sklad/supabase/functions/jira-issues` | Supabase Edge Function для вкладки «Мої заявки» (перевіряє staff PIN на сервері). |
-| `sklad/supabase/functions/retired` | Заглушка 410 для вимкнених публічних Edge Functions (`notify-telegram`, `create-jira-issue`, `ai-assistant`, `fetch-item-prices`). |
 
 ## Як працює авторизація
 
@@ -76,7 +75,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 30. `030_garbage_day_save.sql` — `save_garbage_day`: журнал сміття зберігає один день, а не перезаписує весь місяць.
 31. `031_archive_legacy_journal_tables.sql` — переносить застарілі `chat`/`schedule`/`dispatcher` у закриту схему `archive`, прибирає функції чату, `reset_month` лише для сміття.
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `031_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність, `verify_jwt = false` для `jira-issues` (publishable-key клієнт) і `verify_jwt = true` для заглушки `retired`.
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `031_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `jira-issues` (publishable-key клієнт).
 
 
 Перед production-використанням замініть прикладові PIN-и у Supabase Dashboard на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), staff-вхід, табель, скидання місяця, видалення фото та складських записів.
@@ -94,7 +93,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Telegram-сповіщення про рух товару (Склад)
 
-Сповіщення надсилає сама база даних: тригери `inventory_logs_notify` (видача), `inventory_receipts_notify` (прихід), `inventory_items_new_notify` (новий товар, `029`) і `inventory_items_low_stock_notify` (закінчується) викликають `notify_telegram()` через `pg_net`. Токен бота й chat_id лежать у таблиці `telegram_config` без жодної RLS-policy (default-deny), тому anon-ключем їх не прочитати. Клієнт у Telegram нічого не шле, тож дублів більше немає. Колишня публічна Edge Function `notify-telegram` замінена заглушкою `retired`.
+Сповіщення надсилає сама база даних: тригери `inventory_logs_notify` (видача), `inventory_receipts_notify` (прихід), `inventory_items_new_notify` (новий товар, `029`) і `inventory_items_low_stock_notify` (закінчується) викликають `notify_telegram()` через `pg_net`. Токен бота й chat_id лежать у таблиці `telegram_config` без жодної RLS-policy (default-deny), тому anon-ключем їх не прочитати. Клієнт у Telegram нічого не шле, тож дублів більше немає. Колишню публічну Edge Function `notify-telegram` видалено.
 
 ## Jira-заявки
 

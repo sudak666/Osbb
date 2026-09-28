@@ -40,4 +40,4 @@ jobs:
         run: |
           cd sklad/supabase/functions
           tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
-            _typecheck/deno-shim.d.ts jira-issues/index.ts retired/index.ts
+            _typecheck/deno-shim.d.ts jira-issues/index.ts

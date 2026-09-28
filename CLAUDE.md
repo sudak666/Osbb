@@ -48,7 +48,7 @@
 - `issue_item`/`receive_item` приймають `p_client_request_id uuid`: клієнт (`sklad-movements-controller.js`, `requestIdFor`) тримає той самий id, доки операція з тими ж даними не отримає відповідь сервера. Повтор після мережевого збою не спише товар удруге. Не генерувати новий id на кожен клік.
 - Редагування видачі/приходу — лише через RPC `update_inventory_log`/`update_inventory_receipt` (дельта залишку на сервері). Не повертати клієнтське `update({quantity})` з кешу — це гонка.
 - Telegram шлють **лише DB-тригери** (`trg_notify_log`, `trg_notify_receipt`, `trg_notify_new_item`, `trg_notify_low_stock`). Клієнтського `notifyTelegram` більше немає — не додавати, бо будуть дублі.
-- Публічні Edge Functions `notify-telegram`, `create-jira-issue`, `ai-assistant`, `fetch-item-prices` замінені заглушкою `sklad/supabase/functions/retired` (410, `verify_jwt = true`). Видалити їх зовсім може лише користувач через `supabase functions delete` (MCP не має delete).
+- Edge Functions `notify-telegram`, `create-jira-issue`, `ai-assistant`, `fetch-item-prices` видалені (вересень 2026). На проєкті лишились лише `jira-issues` і `school-push` (останній — окремий шкільний застосунок у тому ж Supabase-проєкті, не чіпати).
 - Storage `photos`: anon має лише select/insert (зафіксовано в `029`). Тому `storage.remove()` з клієнта мовчки нічого не видаляє, і після `delete_photo` файл лишається в бакеті — відома обмеженість, не обхід PIN.
 
 ### Журнал сміття: збереження по днях (`030`)
