@@ -56,8 +56,8 @@ function createSupabaseRestClient(options = {}) {
   const supabaseUrl = (options.supabaseUrl ?? SUPABASE_URL).replace(/\/$/, "");
   const supabaseKey = options.supabaseKey ?? SUPABASE_KEY;
   const auth = { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` };
-  async function request(method, url, headers = {}, body) {
-    const response = await fetcher(url, { method, headers: { ...auth, ...headers }, body });
+  async function request(method, url, headers = {}, body, extra = {}) {
+    const response = await fetcher(url, { method, headers: { ...auth, ...headers }, body, ...extra.keepalive ? { keepalive: true } : {} });
     if (!response.ok) {
       const text = await response.text();
       if (text.length > MAX_RESPONSE_TEXT_LENGTH) throw new RangeError("Supabase response is too large");
@@ -142,12 +142,12 @@ function createSupabaseRestClient(options = {}) {
     };
     return query;
   }
-  async function restRpc(fn, params = {}) {
-    return request("POST", `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { "Content-Type": "application/json" }, JSON.stringify(params));
+  async function restRpc(fn, params = {}, options2 = {}) {
+    return request("POST", `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { "Content-Type": "application/json" }, JSON.stringify(params), options2);
   }
-  async function rpcResult(fn, params = {}) {
+  async function rpcResult(fn, params = {}, options2 = {}) {
     try {
-      const data = await restRpc(fn, params);
+      const data = await restRpc(fn, params, options2);
       return { data, error: null };
     } catch (error) {
       return {

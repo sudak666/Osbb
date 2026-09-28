@@ -18,7 +18,7 @@ import { numericIdFromInsertResponse, SUPABASE_KEY, SUPABASE_URL } from './supab
 import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
 import { createInventoryCollectionState, inventoryLogsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
-import { loadPurchasePriceRpcAvailable, markPurchasePriceRpcUnavailable } from './sklad-client-state.js';
+import { PURCHASE_PRICE_RPC_UNAVAILABLE_KEY } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 import { createSkladModalController } from './sklad-modal-controller.js';
 import { createSkladDataController } from './sklad-data-controller.js';
@@ -44,11 +44,9 @@ const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Запаси'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'swap_vert',label:'Рух · Видачі'},add:{icon:'add_circle',label:'Додати / поповнити'},receipts:{icon:'swap_vert',label:'Рух · Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'more_horiz',label:'Ще'}};
-let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);
-function disablePurchasePriceRpc(){
-  purchasePriceRpcAvailable=false;
-  markPurchasePriceRpcUnavailable(localStorage);
-}
+// Прапорець старого fallback без міграції 009 більше не потрібен (receive_item з
+// p_price_unit є на живій базі) — прибираємо його з пристроїв, де він лишився.
+try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}
 function showPurchasePriceMigrationNotice(){
   console.info('Історія закупівельних цін стане доступною після міграції 009.');
 }
@@ -166,8 +164,7 @@ const {
 
 movementsController=createSkladMovementsController({db,document,getItems:()=>allItems,getLogs:()=>allLogs,getReceipts:()=>allReceipts,
   openModal,closeModal,requestDeletePin:showDeletePinModal,toast,loadItems,loadLogs,loadReceipts,optionalPrice,syncSupplierTags,
-  isPurchasePriceSchemaError,showPurchasePriceMigrationNotice,setButtonLoading:setActionButtonLoading,refreshSelect:refreshEnhancedSelect,
-  notifyTelegram,inventoryUnit:inventoryUnitFromRpcResponse,getPurchasePriceRpcAvailable:()=>purchasePriceRpcAvailable,disablePurchasePriceRpc,
+  setButtonLoading:setActionButtonLoading,refreshSelect:refreshEnhancedSelect,inventoryUnit:inventoryUnitFromRpcResponse,
   populateSelects:populateSels,renderLowStock:renderAddLow,loadRecentIssues,findItem:findItemForAction});
 photoController=createSkladPhotoController({db,document,window,getItem:findItemForAction,loadItems,openModal,closeModal,requestDeletePin:showDeletePinModal,toast});
 itemCrudController=createSkladItemCrudController({db,document,categories:catBadge,getItems:()=>allItems,findItem:findItemForAction,
@@ -1007,7 +1004,6 @@ async function doAddNew(btn){
   if(!initialReceiptSaved) toast('"'+name+'" додано, але початкове надходження не записано','info');
   else toast('"'+name+'" додано!','success');
   if(purchasePriceSchemaUnavailable) showPurchasePriceMigrationNotice();
-  notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty','newPrice','newItemSupplier'].forEach(k=>document.getElementById(k).value='');
   syncSupplierTags('newItemSupplier','');
   const matchesBox=document.getElementById('newNameMatches');
@@ -1367,28 +1363,6 @@ function toast(msg,type=''){
   el.innerHTML=msIcon(toastIcons[t]||'info','16px')+' '+escapeHtml(msg);
   el.className='show '+t;
   clearTimeout(toastT);toastT=setTimeout(()=>el.className='',3200);
-}
-
-// Надсилає текст у Telegram через Supabase Edge Function (токен бота лишається
-// секретом на сервері, ніколи не потрапляє у клієнтський код). Це best-effort
-// сповіщення: складська операція вже збережена, тому мережеві/CORS проблеми
-// Telegram-інтеграції не повинні показувати користувачу червоні помилки в консолі.
-const TELEGRAM_NOTIFY_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notify-telegram';
-function notifyTelegram(text){
-  const payload=JSON.stringify({text});
-  try{
-    if(navigator.sendBeacon){
-      const blob=new Blob([payload],{type:'text/plain;charset=UTF-8'});
-      if(navigator.sendBeacon(TELEGRAM_NOTIFY_URL,blob)) return;
-    }
-  }catch(e){}
-  fetch(TELEGRAM_NOTIFY_URL,{
-    method:'POST',
-    mode:'no-cors',
-    keepalive:true,
-    headers:{'Content-Type':'text/plain;charset=UTF-8'},
-    body:payload
-  }).catch(()=>{});
 }
 
 // ===== ТЕМА (світла/темна) =====

@@ -40,6 +40,7 @@ export interface Database {
                 issued_to: string | null;
                 note: string | null;
                 issued_at: Timestamp;
+                client_request_id?: Uuid | null;
             }>;
             inventory_receipts: RowOperation<{
                 id: BigIntId;
@@ -50,6 +51,7 @@ export interface Database {
                 supplier: string | null;
                 note: string | null;
                 received_at: Timestamp;
+                client_request_id?: Uuid | null;
             }>;
             inventory_supplier_tags: RowOperation<{
                 id: BigIntId;
@@ -266,12 +268,24 @@ export interface Database {
                 Returns: boolean;
             };
             issue_item: {
-                Args: { p_item_id: BigIntId; p_qty: number; p_person: string; p_note?: string | null; p_issued_at?: Timestamp | null };
+                Args: { p_item_id: BigIntId; p_qty: number; p_person: string; p_note?: string | null; p_issued_at?: Timestamp | null; p_client_request_id?: Uuid | null };
                 Returns: Array<{ new_quantity: number; item_name: string; unit: string }>;
             };
             receive_item: {
-                Args: { p_item_id: BigIntId; p_qty: number; p_supplier?: string | null; p_note?: string | null; p_received_at?: Timestamp | null; p_price_unit?: number | null };
+                Args: { p_item_id: BigIntId; p_qty: number; p_supplier?: string | null; p_note?: string | null; p_received_at?: Timestamp | null; p_price_unit?: number | null; p_client_request_id?: Uuid | null };
                 Returns: Array<{ new_quantity: number; item_name: string; unit: string }>;
+            };
+            save_garbage_day: {
+                Args: { p_month_key: string; p_day: string; p_row: Json | null };
+                Returns: boolean;
+            };
+            update_inventory_log: {
+                Args: { p_log_id: BigIntId; p_qty: number; p_person: string | null; p_note?: string | null; p_issued_at?: Timestamp | null };
+                Returns: boolean;
+            };
+            update_inventory_receipt: {
+                Args: { p_receipt_id: BigIntId; p_qty: number; p_supplier?: string | null; p_note?: string | null; p_received_at?: Timestamp | null; p_price_unit?: number | null };
+                Returns: boolean;
             };
             delete_inventory_item: {
                 Args: { p_item_id: BigIntId; attempt: string };

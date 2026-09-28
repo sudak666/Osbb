@@ -74,12 +74,13 @@ test('Sklad date fields use the rounded custom date picker instead of the native
 });
 
 
-test('Sklad receipt flow remembers legacy receive_item fallback when migration 009 is missing', () => {
-  assertIncludes(skladClientState, "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'", 'receipt RPC fallback flag key is missing');
-  assertIncludes(skladApp, 'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);', 'receipt RPC fallback flag must be loaded at startup');
-  assertIncludes(skladApp, 'function disablePurchasePriceRpc(){', 'receipt RPC fallback disabler is missing');
-  assertIncludes(skladMovementsController, 'disablePurchasePriceRpc();', 'schema fallback must be remembered after the first failed price RPC');
-  assertIncludes(skladMovementsController, 'purchasePrice !== null && getPurchasePriceRpcAvailable()', 'price RPC should be skipped after fallback is remembered');
+test('Sklad stock movements are idempotent and no longer use the pre-009 fallback', () => {
+  assertIncludes(skladClientState, "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'", 'legacy fallback key is still needed for cleanup');
+  assertIncludes(skladApp, 'try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}', 'stale fallback flag must be cleared on startup');
+  assert.equal(skladMovementsController.includes('getPurchasePriceRpcAvailable'), false, 'receipts must always send the purchase price');
+  assertIncludes(skladMovementsController, "p_client_request_id: requestIdFor('issue', args)", 'issue must send a retry-stable request id');
+  assertIncludes(skladMovementsController, "p_client_request_id: requestIdFor('receipt', args)", 'receipt must send a retry-stable request id');
+  assert.equal(skladApp.includes('notifyTelegram'), false, 'Telegram notifications are sent by DB triggers, not the client');
 });
 
 test('Sklad movement history distinguishes transport errors from empty results', () => {

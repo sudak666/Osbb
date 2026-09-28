@@ -17,8 +17,9 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
 | `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
 | `supabase/*.sql` | **Історичний архів** — схема окремого проєкту журналу до злиття (див. `supabase/README.md`). Для нового розгортання не потрібні. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `026_unify_main_pin_keep_shifts_separate.sql`). |
-| `sklad/supabase/functions/notify-telegram` | Supabase Edge Function, що шле Telegram-сповіщення при додаванні/приході/видачі товару зі складу. |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `029_idempotent_stock_movements.sql`). |
+| `sklad/supabase/functions/jira-issues` | Supabase Edge Function для вкладки «Мої заявки» (перевіряє staff PIN на сервері). |
+| `sklad/supabase/functions/retired` | Заглушка 410 для вимкнених публічних Edge Functions (`notify-telegram`, `create-jira-issue`, `ai-assistant`, `fetch-item-prices`). |
 
 ## Як працює авторизація
 
@@ -90,29 +91,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Telegram-сповіщення про рух товару (Склад)
 
-`sklad/index.html` викликає Supabase Edge Function `notify-telegram` при додаванні нового товару, приході (поповненні) та видачі. Токен бота ніколи не потрапляє в клієнтський код — він зберігається як секрет на сервері. Після змін у `sklad/supabase/functions/notify-telegram/index.ts` функцію потрібно повторно задеплоїти, інакше GitHub Pages продовжить звертатись до старої серверної версії.
-
-Налаштування (один раз, у проєкті складу `vkwkyhjjjmcpmiakxohw`):
-
-```bash
-supabase functions deploy notify-telegram --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
-supabase secrets set TELEGRAM_BOT_TOKEN=ваш_токен_від_BotFather --project-ref vkwkyhjjjmcpmiakxohw
-supabase secrets set TELEGRAM_CHAT_ID=ваш_chat_id --project-ref vkwkyhjjjmcpmiakxohw
-```
-
-`--no-verify-jwt` потрібен тому, що клієнт авторизується новим форматом ключів Supabase (`sb_publishable_...`), який не є JWT. Після деплою перевірте, що додавання/прихід/видача товару в Складі надсилають повідомлення у ваш Telegram-чат.
-
-Швидка перевірка після деплою з Windows PowerShell:
-
-```powershell
-npx.cmd supabase@latest secrets list --project-ref vkwkyhjjjmcpmiakxohw
-
-curl.exe -i -X POST "https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notify-telegram" `
-  -H "Content-Type: text/plain;charset=UTF-8" `
-  --data-raw "Test Telegram zi skladu OSBB"
-```
-
-У списку secrets мають бути `TELEGRAM_BOT_TOKEN` і `TELEGRAM_CHAT_ID`. Успішний тест повертає `{"ok":true}` і надсилає повідомлення в Telegram.
+Сповіщення надсилає сама база даних: тригери `inventory_logs_notify` (видача), `inventory_receipts_notify` (прихід), `inventory_items_new_notify` (новий товар, `029`) і `inventory_items_low_stock_notify` (закінчується) викликають `notify_telegram()` через `pg_net`. Токен бота й chat_id лежать у таблиці `telegram_config` без жодної RLS-policy (default-deny), тому anon-ключем їх не прочитати. Клієнт у Telegram нічого не шле, тож дублів більше немає. Колишня публічна Edge Function `notify-telegram` замінена заглушкою `retired`.
 
 ## Jira-заявки
 

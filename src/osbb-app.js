@@ -1168,11 +1168,18 @@
         readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue, removeOffline:removeOsbbOfflineValue,
         fetchMonth:async monthKey => db.from('garbage').select('data').eq('month_key', monthKey).single(),
         upsertMonth:row => db.from('garbage').upsert(row), fetchYear:() => db.from('garbage').select('month_key,data'),
+        saveDay:(args, requestOptions) => db.rpcResult('save_garbage_day', args, requestOptions),
         resetMonth:args => db.rpc('reset_month', args),
         requestResetPin:callback => showPinModal('Скидання сміття', 'PIN для очищення місяця', callback, true),
         render:() => { gData = garbageController.getData(); gRender(); },
     });
     let gData = garbageController.getData();
+    // Незбережені дні сміття дописуємо на сервер, коли сторінку згортають/закривають
+    // або коли повертається мережа (див. flush у osbb-garbage-controller).
+    const flushGarbage = () => { garbageController.flush().catch(error => console.warn('garbage flush failed:', error)); };
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushGarbage(); });
+    window.addEventListener('pagehide', flushGarbage);
+    window.addEventListener('online', () => { garbageController.flush({ keepalive:false }).catch(error => console.warn('garbage flush failed:', error)); });
     const gInitTab = () => garbageController.init();
     const gUpdateRow = (day, field, value) => garbageController.updateRow(day, field, value);
     const gUpdateType = (day, type, value) => garbageController.updateType(day, type, value);

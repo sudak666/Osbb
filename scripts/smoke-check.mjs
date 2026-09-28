@@ -202,10 +202,13 @@ const checks = [
   ['src/sklad-auth.js', "db.rpc('verify_pin'", 'sklad verifies login PIN via RPC'],
   ['src/sklad-app.js', 'deleteLightboxPhoto', 'sklad lightbox has delete handler'],
   ['sklad/index.html', "scopePath.startsWith('/Osbb/sklad/')", 'sklad SW cleanup is scoped'],
-  ['src/sklad-app.js', 'function notifyTelegram', 'sklad has Telegram notify helper'],
-  ['src/sklad-app.js', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
-  ['src/sklad-movements-controller.js', '📦 Прихід:', 'sklad notifies on receipt'],
-  ['src/sklad-movements-controller.js', '📤 Видача:', 'sklad notifies on issue'],
+  ['sklad/supabase/029_idempotent_stock_movements.sql', "'🆕 Новий товар: '", 'sklad notifies on new item via DB trigger'],
+  ['sklad/supabase/029_idempotent_stock_movements.sql', 'create trigger inventory_items_new_notify', 'sklad new-item notification trigger is created'],
+  ['sklad/supabase/008_document_undocumented_functions.sql', 'create or replace function trg_notify_receipt()', 'sklad notifies on receipt via DB trigger'],
+  ['sklad/supabase/008_document_undocumented_functions.sql', 'create or replace function trg_notify_log()', 'sklad notifies on issue via DB trigger'],
+  ['src/sklad-movements-controller.js', "p_client_request_id: requestIdFor('issue', args)", 'sklad issue RPC is idempotent across retries'],
+  ['src/sklad-movements-controller.js', "p_client_request_id: requestIdFor('receipt', args)", 'sklad receipt RPC is idempotent across retries'],
+  ['src/sklad-movements-controller.js', "db.rpc('update_inventory_log'", 'sklad issue edits adjust stock atomically on the server'],
   ['src/sklad-data-controller.js', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
   ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
   ['src/sklad-app.js', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
@@ -238,8 +241,6 @@ const checks = [
   ['sklad/index.html', 'id="editLogDate"', 'sklad issue edit modal has date input'],
   ['src/sklad-dates.ts', 'export function dateToInputValue', 'sklad can format dates for date inputs'],
 
-  ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
-  ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
 
   ['supabase/001_setup_pin_auth.sql', 'app_pin_attempts', 'OSBB PIN attempts table exists (historical archive)'],
   ['supabase/001_setup_pin_auth.sql', 'locked_until', 'OSBB PIN lockout is present (historical archive)'],
@@ -2301,13 +2302,11 @@ for (const file of ['index.html', 'osbb/index.html']) {
 }
 
 
-// notify-telegram must accept raw/text payloads because the GitHub Pages client
-// sends best-effort no-cors requests and Windows PowerShell tests often use raw
-// text to avoid JSON quoting issues.
+// Невикористані публічні Edge Functions замінені заглушкою 410 з verify_jwt.
 {
-  const text = readFileSync('sklad/supabase/functions/notify-telegram/index.ts', 'utf8');
-  const label = 'notify-telegram accepts raw text payload fallback';
-  if (text.includes("raw.startsWith('text=')") && text.includes('text = raw;')) {
+  const text = readFileSync('sklad/supabase/functions/retired/index.ts', 'utf8');
+  const label = 'retired Edge Functions answer 410 without forwarding requests';
+  if (text.includes('status: 410') && !text.includes('fetch(')) {
     passed += 1;
     console.log(`ok - ${label}`);
   } else {
@@ -2315,8 +2314,6 @@ for (const file of ['index.html', 'osbb/index.html']) {
     console.error(`not ok - ${label}`);
   }
 }
-
-
 
 // Sklad static controls should use centralized data-attribute bindings for auth,
 // navigation, topbar actions, stock/category filters, and common search controls.
@@ -2992,9 +2989,9 @@ ${sharedSelectText}`;
     "showPurchasePriceMigrationNotice()",
     "console.info('Історія закупівельних цін стане доступною після міграції 009.')",
     "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'",
-    'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);',
-    'disablePurchasePriceRpc();',
-    'purchasePrice !== null && getPurchasePriceRpcAvailable()',
+    'try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}',
+    "p_price_unit: purchasePrice || null",
+    "db.rpc('update_inventory_receipt'",
     "delete receiptRow.purchase_price_unit",
     'data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI"',
     'data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier"',

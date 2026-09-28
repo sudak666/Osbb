@@ -42,7 +42,7 @@
             <div id="lock-d2" class="pin-dot"></div>
             <div id="lock-d3" class="pin-dot"></div>
         </div>
-        <div id="lock-err" class="lock-error"></div>
+        <div id="lock-err" class="lock-error" role="alert" aria-live="assertive"></div>
 
         <!-- Клавіатура — 3 колонки по 80px -->
         <div class="pin-keypad">
@@ -57,7 +57,7 @@
             <button type="button" class="pin-mb-btn" data-lock-digit="9"><span class="pin-key-number">9</span></button>
             <div></div>
             <button type="button" class="pin-mb-btn" data-lock-digit="0"><span class="pin-key-number">0</span></button>
-            <button type="button" data-lock-delete class="pin-key-action pin-key-delete">Видалити</button>
+            <button type="button" data-lock-delete class="pin-key-action pin-key-delete" aria-label="Видалити цифру PIN"><span class="material-symbols-rounded" aria-hidden="true">backspace</span></button>
         </div>
     </div>
 </div>
