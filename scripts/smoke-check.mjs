@@ -2296,6 +2296,19 @@ for (const file of ['index.html', 'osbb/index.html']) {
 }
 
 
+// PIN-ліміт має рахувати спроби за неспуфленим IP (cf-connecting-ip), а не за
+// X-Forwarded-For, який клієнт може підробити.
+{
+  const sql = readFileSync('sklad/supabase/033_pin_throttle_per_ip.sql', 'utf8');
+  const label = 'PIN throttle keys attempts by cf-connecting-ip, never by X-Forwarded-For';
+  const valid = sql.includes("headers->>'cf-connecting-ip'")
+    && !/headers->>'x-forwarded-for'/i.test(sql)
+    && ['verify_lock_pin', 'verify_reset_pin', 'verify_pin', 'verify_work_shifts_pin', 'verify_staff_pin']
+      .every(fn => new RegExp(`create or replace function ${fn}\\(`).test(sql));
+  if (valid) { passed += 1; console.log(`ok - ${label}`); }
+  else { failed += 1; console.error(`not ok - ${label}`); }
+}
+
 // Sklad static controls should use centralized data-attribute bindings for auth,
 // navigation, topbar actions, stock/category filters, and common search controls.
 {

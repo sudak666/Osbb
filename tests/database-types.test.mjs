@@ -23,7 +23,7 @@ test('database types include critical security-definer RPC contracts', () => {
 });
 
 test('database types model current OSBB staff, attendance and elevator tables', () => {
-  for (const table of ['osbb_staff', 'osbb_staff_pin_attempts', 'osbb_attendance', 'elevator_visits', 'completed_work']) {
+  for (const table of ['osbb_staff', 'pin_throttle', 'osbb_attendance', 'elevator_visits', 'completed_work']) {
     assert.match(source, new RegExp(`${table}: RowOperation<\\{`));
   }
   assert.match(source, /export type OsbbStaffRole = 'plumber' \| 'janitor' \| 'electrician' \| 'dispatcher' \| 'admin' \| 'board';/);
