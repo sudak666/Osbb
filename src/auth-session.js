@@ -1,25 +1,27 @@
-import { AUTH_TTL_MS } from './shell-state.js';
-
-const AUTH_KEY = 'auth';
-const AUTH_AT_KEY = 'auth_at';
-
-export function setAuthSession(storage = sessionStorage, now = Date.now()) {
-    if (!Number.isSafeInteger(now) || now <= 0) throw new TypeError('Invalid auth timestamp');
-    storage.setItem(AUTH_KEY, 'ok');
-    storage.setItem(AUTH_AT_KEY, String(now));
+// Згенеровано з src/auth-session.ts (scripts/build-js-fallback.mjs). Не редагувати вручну.
+import { AUTH_TTL_MS } from "./shell-state.js";
+const AUTH_KEY = "auth";
+const AUTH_AT_KEY = "auth_at";
+function setAuthSession(storage = sessionStorage, now = Date.now()) {
+  if (!Number.isSafeInteger(now) || now <= 0) throw new TypeError("Invalid auth timestamp");
+  storage.setItem(AUTH_KEY, "ok");
+  storage.setItem(AUTH_AT_KEY, String(now));
 }
-
-export function clearAuthSession(storage = sessionStorage) {
-    storage.removeItem(AUTH_KEY);
-    storage.removeItem(AUTH_AT_KEY);
+function clearAuthSession(storage = sessionStorage) {
+  storage.removeItem(AUTH_KEY);
+  storage.removeItem(AUTH_AT_KEY);
 }
-
-export function isAuthSessionValid(storage = sessionStorage, now = Date.now()) {
-    if (storage.getItem(AUTH_KEY) !== 'ok') return false;
-    const authAt = Number(storage.getItem(AUTH_AT_KEY) || 0);
-    if (!Number.isSafeInteger(now) || now <= 0 || !Number.isSafeInteger(authAt) || authAt <= 0 || authAt > now || now - authAt >= AUTH_TTL_MS) {
-        clearAuthSession(storage);
-        return false;
-    }
-    return true;
+function isAuthSessionValid(storage = sessionStorage, now = Date.now()) {
+  if (storage.getItem(AUTH_KEY) !== "ok") return false;
+  const authAt = Number(storage.getItem(AUTH_AT_KEY) || 0);
+  if (!Number.isSafeInteger(now) || now <= 0 || !Number.isSafeInteger(authAt) || authAt <= 0 || authAt > now || now - authAt >= AUTH_TTL_MS) {
+    clearAuthSession(storage);
+    return false;
+  }
+  return true;
 }
+export {
+  clearAuthSession,
+  isAuthSessionValid,
+  setAuthSession
+};

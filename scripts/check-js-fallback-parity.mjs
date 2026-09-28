@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { generateJs, tsSourceModules } from './build-js-fallback.mjs';
 
 const root = process.cwd();
 const fallbackPairs = [
@@ -103,5 +104,15 @@ for (const [tsPath, jsPath] of fallbackPairs) {
   assertEqual(localImports(jsSource), expectedJsImports, `${jsPath} local imports mirror ${tsPath}`);
 }
 
+const generated = tsSourceModules();
+for (const tsFile of generated) {
+  const jsPath = `src/${tsFile.replace(/\.ts$/, '.js')}`;
+  if (!fs.existsSync(path.join(root, jsPath)) || read(jsPath) !== generateJs(tsFile)) {
+    console.error(`Stale: ${jsPath} не збігається з src/${tsFile}. Запустіть: node scripts/build-js-fallback.mjs`);
+    process.exitCode = 1;
+  }
+}
+
 if (process.exitCode) process.exit(process.exitCode);
+console.log(`ok - ${generated.length} JS modules byte-identical to generated TypeScript output`);
 console.log(`ok - ${fallbackPairs.length} JS fallback modules mirror TypeScript export/import contracts`);

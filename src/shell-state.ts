@@ -35,7 +35,7 @@ export class ShellStore {
     }
 
     pushDigit(digit: string): void {
-        if (this.#lockBusy || this.#lockBuf.length >= 4 || !/^\d$/.test(digit)) return;
+        if (this.#lockBusy || this.#lockBuf.length >= 4 || typeof digit !== 'string' || !/^\d$/.test(digit)) return;
         this.#lockBuf += digit;
     }
 

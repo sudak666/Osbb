@@ -1,5 +1,17 @@
 #!/usr/bin/env node
-import { readFileSync } from 'node:fs';
+import { readFileSync as readRawFile } from 'node:fs';
+
+// Згенеровані з TypeScript src/*.js перевіряємо за їх джерелом (src/*.ts):
+// точну відповідність .js ↔ .ts гарантує scripts/check-js-fallback-parity.mjs.
+const GENERATED_JS_HEADER = '// Згенеровано з src/';
+function readFileSync(file, encoding) {
+  const text = readRawFile(file, encoding);
+  if (typeof file === 'string' && /^src\/[^/]+\.js$/.test(file) && text.startsWith(GENERATED_JS_HEADER)) {
+    const tsFile = file.replace(/\.js$/, '.ts');
+    if (existsSync(tsFile)) return readRawFile(tsFile, encoding);
+  }
+  return text;
+}
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -2975,7 +2987,7 @@ ${sharedSelectText}`;
     'hasReceiptPrice?r.purchase_price_unit:item?.price_unit',
     'class="price-origin-note">поточна</span>',
     "receipt.purchase_price_unit || item?.price_unit || ''",
-    'function isPurchasePriceSchemaError(error)',
+    'function isPurchasePriceSchemaError(error',
     "showPurchasePriceMigrationNotice()",
     "console.info('Історія закупівельних цін стане доступною після міграції 009.')",
     "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'",

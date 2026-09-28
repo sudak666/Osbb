@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync as readRawFile } from 'node:fs';
+
+// Згенеровані з TypeScript src/*.js перевіряємо за їх джерелом src/*.ts.
+function readFileSync(url, encoding) {
+  const text = readRawFile(url, encoding);
+  if (!text.startsWith('// Згенеровано з src/')) return text;
+  const tsUrl = new URL(String(url).replace(/\.js$/, '.ts'));
+  return existsSync(tsUrl) ? readRawFile(tsUrl, encoding) : text;
+}
 
 const normalizeNewlines = value => value.replace(/\r\n?/g, '\n');
 const skladHtml = normalizeNewlines(readFileSync(new URL('../sklad/index.html', import.meta.url), 'utf8'));
@@ -51,7 +59,7 @@ test('Sklad audit flow keeps dynamic controls delegated from the list container'
 test('Sklad PIN flow keeps server verification and guarded keypad binding', () => {
   assertIncludes(skladAuth, "db.rpc('verify_pin', { attempt })", 'Sklad PIN check must use server RPC');
   assertIncludes(skladHtml, '<script type="module" src="../src/sklad-auth.js"></script>', 'typed Sklad auth runtime must be loaded');
-  assertIncludes(skladAuthController, "doc.querySelectorAll('[data-auth-pin-key]').forEach", 'runtime PIN keypad binding is missing');
+  assert.match(skladAuthController, /doc\.querySelectorAll(<[^>]+>)?\('\[data-auth-pin-key\]'\)\.forEach/u, 'runtime PIN keypad binding is missing');
   assertIncludes(skladAuthController, 'if (busy) return;', 'PIN keypad must guard concurrent input');
   assertIncludes(skladDeletePinController, 'const nextBuffer = applyPinKey(buffer, key);', 'runtime delete PIN must use the shared keypad boundary');
   assertIncludes(skladDeletePinController, 'if (!isPinComplete(buffer)) return;', 'runtime delete PIN must verify complete input');

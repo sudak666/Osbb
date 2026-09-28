@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 import {
   calculateInventoryHeaderStats,
   filterInventoryByValue,
@@ -13,10 +14,10 @@ import {
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { isAuthSessionValid } from './auth-session.js';
-import { numericIdFromInsertResponse } from './supabase-api.js';
+import { numericIdFromInsertResponse, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
 import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { createInventoryCollectionState, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
+import { createInventoryCollectionState, inventoryLogsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 import { loadPurchasePriceRpcAvailable, markPurchasePriceRpcUnavailable } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 import { createSkladModalController } from './sklad-modal-controller.js';
@@ -28,6 +29,8 @@ import { createSkladPhotoController } from './sklad-photo-controller.js';
 import { createSkladItemCrudController } from './sklad-item-crud-controller.js';
 import { createSkladMovementsController } from './sklad-movements-controller.js';
 import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';
+
+const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -1100,8 +1103,11 @@ function renderStats(){
   }).join('')||'<div class="empty" style="padding:16px;">Журнал порожній</div>';
 }
 // ===== EXCEL =====
-function exportExcel(){
+async function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');
+  let XLSX;
+  try{XLSX=await import('xlsx');}
+  catch(e){console.warn('xlsx load failed:',e);return toast('Не вдалося завантажити модуль Excel. Перевірте зʼєднання.','error');}
   const ws=XLSX.utils.json_to_sheet(buildInventoryExportRows(allItems));
   ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:14},{wch:18},{wch:28},{wch:18},{wch:20}];
   const wb=XLSX.utils.book_new();
@@ -1182,7 +1188,9 @@ let barcodeAddScanner=null,lastScannedCode='';
 function openBarcodeAddScanner(){
   openModal('barcodeAddModal');
   resetBarcodeScanner();
-  setTimeout(()=>{
+  setTimeout(async()=>{
+    const Html5Qrcode=await loadHtml5Qrcode();
+    if(!Html5Qrcode||!document.getElementById('barcodeAddModal')?.classList.contains('open')||barcodeAddScanner) return;
     barcodeAddScanner=new Html5Qrcode('barcodeAddReader');
     barcodeAddScanner.start(
       {facingMode:'environment'},
@@ -1219,11 +1227,17 @@ function stopBarcodeAdd(){
 }
 
 // ===== QR SCANNER =====
+async function loadHtml5Qrcode(){
+  try{return (await import('html5-qrcode')).Html5Qrcode;}
+  catch(e){console.warn('html5-qrcode load failed:',e);toast('Не вдалося завантажити сканер. Перевірте зʼєднання.','error');return null;}
+}
 let qrScanner=null;
 function openQR(){
   openModal('qrModal');
   document.getElementById('qrResult').style.display='none';
-  setTimeout(()=>{
+  setTimeout(async()=>{
+    const Html5Qrcode=await loadHtml5Qrcode();
+    if(!Html5Qrcode||!document.getElementById('qrModal')?.classList.contains('open')||qrScanner) return;
     qrScanner=new Html5Qrcode('qrReader');
     qrScanner.start(
       {facingMode:'environment'},
@@ -1289,7 +1303,11 @@ function openChartModal(){
   openModal('chartModal');
   setTimeout(renderChart,100);
 }
-function renderChart(){
+async function renderChart(){
+  let Chart;
+  try{Chart=(await import('chart.js/auto')).default;}
+  catch(e){console.warn('chart.js load failed:',e);return toast('Не вдалося завантажити графік. Перевірте зʼєднання.','error');}
+  if(!document.getElementById('chartModal')?.classList.contains('open')) return;
   const ctx=document.getElementById('stockChart').getContext('2d');
   if(chartInst){chartInst.destroy();chartInst=null;}
   const cats=[...new Set(allItems.map(i=>i.category))];

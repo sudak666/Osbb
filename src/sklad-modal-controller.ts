@@ -46,7 +46,7 @@ export function createSkladModalController(deps: SkladModalControllerDeps): Skla
     function restoreFocus(id: string): void {
         const opener = focusReturn.get(id);
         focusReturn.delete(id);
-        if (opener && doc.contains(opener) && 'focus' in opener) {
+        if (opener && doc.contains(opener) && typeof (opener as HTMLElement).focus === 'function') {
             (opener as HTMLElement).focus({ preventScroll: true });
         }
     }

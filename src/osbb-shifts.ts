@@ -10,6 +10,7 @@ export interface WorkShiftRow {
     shift_date: string;
     sergiy: WorkShiftType[];
     oleksandr: WorkShiftType[];
+    third: WorkShiftType[];
     [key: string]: unknown;
 }
 
@@ -18,6 +19,7 @@ export type WorkShiftRows = Record<string, WorkShiftRow>;
 export interface WorkShiftNames {
     sergiy: string;
     oleksandr: string;
+    third: string;
 }
 
 const WORK_SHIFT_TYPES: readonly WorkShiftType[] = ['day', 'night', 'night_half2', 'rest'];
@@ -46,6 +48,7 @@ export function workShiftNamesFromResponse(value: unknown, fallback: WorkShiftNa
     return {
         sergiy: normalizedEmployeeName(row.employee_one_name, fallback.sergiy),
         oleksandr: normalizedEmployeeName(row.employee_two_name, fallback.oleksandr),
+        third: normalizedEmployeeName(row.employee_three_name, fallback.third),
     };
 }
 
@@ -59,6 +62,7 @@ export function workShiftRowsFromResponse(value: unknown): WorkShiftRows {
             shift_date: source.shift_date,
             sergiy: normalizeShiftTypes(source.sergiy),
             oleksandr: normalizeShiftTypes(source.oleksandr),
+            third: normalizeShiftTypes(source.third),
         }]];
     }));
 }
