@@ -183,8 +183,8 @@ const checks = [
   ['osbb/index.html', 'id="tab-my-tickets" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page"', 'Jira desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-my-tickets-m" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page"', 'Jira mobile active tab exposes tab semantics'],
-  ['osbb/index.html', "el.toggleAttribute('aria-current', t === tab)", 'journal tab switch updates aria-current'],
-  ['osbb/index.html', "el.setAttribute('aria-selected', String(t === tab))", 'journal tab switch updates aria-selected'],
+  ['osbb/index.html', "element.toggleAttribute('aria-current',name===tab)", 'journal tab switch updates aria-current'],
+  ['osbb/index.html', "element.setAttribute('aria-selected',String(name===tab))", 'journal tab switch updates aria-selected'],
   ['sklad/index.html', '<nav aria-label="Розділи складу">', 'sklad sidebar exposes navigation label'],
   ['sklad/index.html', 'id="bottomNav" aria-label="Мобільні розділи складу"', 'sklad bottom nav exposes navigation label'],
   ['sklad/index.html', 'class="ni active" data-page="items" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
@@ -299,7 +299,8 @@ let passed = 0;
   const html = readFileSync('sklad/index.html', 'utf8');
   const runtime = readSkladCombined();
   const label = 'sklad uses native Supabase RPC results';
-  const valid = html.includes('const db=createClient(')
+  const valid = runtime.includes('const db=createClient(SUPABASE_URL,SUPABASE_KEY);')
+    && !html.includes('window.supabase')
     && runtime.includes("await db.rpc('issue_item'")
     && runtime.includes("await db.rpc('receive_item'")
     && !runtime.includes('db.rpcResult(');
@@ -3184,7 +3185,7 @@ ${sharedSelectText}`;
     'id="section-shifts"',
     'function shiftLoadMonth()',
     'function requestTab(tab)',
-    "showPinModal('PIN розділу «Зміни»', 'Введіть окремий PIN для доступу'",
+    "showPinModal('PIN розділу «Зміни»','Введіть окремий PIN для доступу'",
     "function appendIndicators(container, person, values)",
     "[Array.isArray(values) && values.includes('night_half2'), 'is-half']",
     '.shift-dot.is-half {',
@@ -3193,7 +3194,7 @@ ${sharedSelectText}`;
     "db.rpc('update_work_shift_names_v2'",
     "'verify_work_shifts_pin'",
     "db.rpc('reset_work_shifts_month'",
-    "table: 'work_shifts'",
+    "table:'work_shifts'",
     "addEventListener('keydown', shiftTrapEditorFocus)",
     "details.includes('23514')",
     '.shift-shell { display:grid;',

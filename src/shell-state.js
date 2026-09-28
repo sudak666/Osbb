@@ -1,8 +1,7 @@
 // Згенеровано з src/shell-state.ts (scripts/build-js-fallback.mjs). Не редагувати вручну.
 const TAB_SRC = {
   journal: "osbb/index.html?embed=1",
-  sklad: "sklad/index.html?embed=1",
-  promin: "promin/index.html?embed=1"
+  sklad: "sklad/index.html?embed=1"
 };
 const AUTH_TTL_MS = 12 * 60 * 60 * 1e3;
 const IDLE_LOCK_MS = 15 * 60 * 1e3;
@@ -61,7 +60,7 @@ class ShellStore {
   }
 }
 function isShellTabName(name) {
-  return name === "journal" || name === "sklad" || name === "promin";
+  return name === "journal" || name === "sklad";
 }
 export {
   AUTH_TTL_MS,
