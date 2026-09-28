@@ -71,8 +71,7 @@ self.addEventListener('fetch', event => {
   const isShellPath = url.pathname === '/Osbb/' || url.pathname === '/Osbb/index.html';
   const isAppDocument = event.request.mode === 'navigate' &&
     (url.pathname.startsWith('/Osbb/osbb/') ||
-     url.pathname.startsWith('/Osbb/sklad/') ||
-     url.pathname.startsWith('/Osbb/promin/'));
+     url.pathname.startsWith('/Osbb/sklad/'));
   const isVersionedAsset = url.origin === self.location.origin && url.pathname.startsWith('/Osbb/assets/');
   const isShellStatic = url.pathname === '/Osbb/styles.css' ||
                          url.pathname === '/Osbb/shared/ui.css' ||

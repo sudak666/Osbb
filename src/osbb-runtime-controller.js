@@ -1,7 +1,7 @@
 import { shouldApplyRealtimeRefresh } from './osbb-client-state.js';
 
 export function createOsbbRuntimeController(options) {
-    const { document, window, navigator, isPreview, tabs, initialTab, isTabAllowed, isDispatcher, requestShiftPin,
+    const { document, window, navigator, isPreview, tabs, initialTab, isTabAllowed, requestShiftPin,
         getSelectedMonth, loadPhotos, updateToday, loadDashboard, loaders, setSyncStatus, createRealtimeClient,
         showToast, onlineIcon, offlineIcon, warn = console.warn } = options;
     let currentTab=initialTab, realtimeChannel=null;
@@ -18,7 +18,6 @@ export function createOsbbRuntimeController(options) {
     }
     function requestTab(tab) {
         if(!isTabAllowed(tab)) { showToast('Цей розділ вам недоступний'); return false; }
-        if(tab==='dispatcher'&&!isDispatcher()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return false; }
         if(tab==='shifts') {
             if(currentTab==='shifts') return true;
             requestShiftPin(attempt=>{ options.onShiftAuthorized?.(attempt); setTab(tab); });

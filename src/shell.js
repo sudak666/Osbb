@@ -2,8 +2,6 @@
 import { isAuthSessionValid } from "./auth-session.js";
 import { createShellController } from "./shell-controller.js";
 import { rpc } from "./supabase-api.js";
-document.getElementById("shell-tab-promin")?.remove();
-document.getElementById("frame-promin")?.remove();
 const shellController = createShellController({ document, window, navigator, rpc });
 const applyShellTheme = (value) => {
   const theme = value === "theme-dark" ? "theme-dark" : "theme-light";

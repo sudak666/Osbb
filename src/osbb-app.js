@@ -1716,7 +1716,7 @@
     // lexical state bindings, які читають активні вкладки.
     runtimeController = createOsbbRuntimeController({
         document, window, navigator, isPreview:IS_PREVIEW, tabs:ALL_TABS, initialTab:currentTab,
-        isTabAllowed:isTabAllowedForSession, isDispatcher:isDispatcherSession,
+        isTabAllowed:isTabAllowedForSession,
         requestShiftPin:callback=>showPinModal('PIN розділу «Зміни»','Введіть окремий PIN для доступу',callback,false,'verify_work_shifts_pin'),
         onShiftAuthorized:attempt=>{shiftPinCache=attempt;},
         getSelectedMonth:()=>({year:Number.parseInt(yearSelect.value,10),month:Number.parseInt(monthSelect.value,10)}),

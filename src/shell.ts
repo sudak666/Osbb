@@ -2,10 +2,6 @@ import { isAuthSessionValid } from './auth-session.ts';
 import { createShellController } from './shell-controller.ts';
 import { rpc } from './supabase-api.ts';
 
-// Захисне очищення для клієнтів, які встигли закешувати тимчасову вкладку.
-document.getElementById('shell-tab-promin')?.remove();
-document.getElementById('frame-promin')?.remove();
-
 const shellController = createShellController({ document, window, navigator, rpc });
 
 const applyShellTheme = (value: string | null): void => {

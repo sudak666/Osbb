@@ -14,10 +14,6 @@ function parseOptionalPrice(value) {
   const price = Number(raw);
   return Number.isFinite(price) && price > 0 && price <= 1e9 ? Math.round(price * 100) / 100 : Number.NaN;
 }
-function isPurchasePriceSchemaError(error) {
-  const message = typeof error === "object" && error !== null && "message" in error ? String(error.message).toLowerCase() : "";
-  return ["purchase_price_unit", "p_price_unit", "receive_item"].some((field) => message.includes(field));
-}
 function itemPriceValue(item) {
   const price = Number(item?.price_unit);
   return Number.isFinite(price) && price > 0 && price <= 1e9 ? price : 0;
@@ -29,7 +25,6 @@ function itemStockValue(item) {
 }
 export {
   formatMoney,
-  isPurchasePriceSchemaError,
   itemPriceValue,
   itemStockValue,
   parseOptionalPrice

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 
 import {
   formatMoney,
-  isPurchasePriceSchemaError,
   itemPriceValue,
   itemStockValue,
   parseOptionalPrice,
@@ -28,13 +27,6 @@ test('formatMoney preserves the Sklad empty-price marker and UAH formatting', ()
   assert.equal(formatMoney(-5), '—');
   assert.match(formatMoney(120.5), /121\s*₴/u);
   assert.match(formatMoney(12.5), /12,50\s*₴/u);
-});
-
-test('schema error detection only accepts known purchase-price failures', () => {
-  assert.equal(isPurchasePriceSchemaError({ message: 'column purchase_price_unit does not exist' }), true);
-  assert.equal(isPurchasePriceSchemaError({ message: 'RPC receive_item was not found' }), true);
-  assert.equal(isPurchasePriceSchemaError({ message: 'network unavailable' }), false);
-  assert.equal(isPurchasePriceSchemaError(null), false);
 });
 
 test('price boundaries reject overflow-scale payloads', () => {
