@@ -1,7 +1,4 @@
 project_id = "vkwkyhjjjmcpmiakxohw"
 
-[functions.retired]
-verify_jwt = true
-
 [functions.jira-issues]
 verify_jwt = false

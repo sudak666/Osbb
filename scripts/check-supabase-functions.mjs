@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const functions = ['jira-issues', 'retired'];
+const functions = ['jira-issues'];
 
 for (const name of functions) {
   const sourcePath = path.join(root, 'sklad/supabase/functions', name, 'index.ts');
@@ -40,11 +40,6 @@ for (const name of ['jira-issues']) {
     console.error(`supabase/config.toml must disable JWT verification for ${name}`);
     process.exitCode = 1;
   }
-}
-
-if (!/\[functions\.retired\][\s\S]*?verify_jwt\s*=\s*true/.test(config)) {
-  console.error('supabase/config.toml must keep JWT verification on for the retired stub');
-  process.exitCode = 1;
 }
 
 if (process.exitCode) process.exit(process.exitCode);

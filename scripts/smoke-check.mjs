@@ -2296,19 +2296,6 @@ for (const file of ['index.html', 'osbb/index.html']) {
 }
 
 
-// Невикористані публічні Edge Functions замінені заглушкою 410 з verify_jwt.
-{
-  const text = readFileSync('sklad/supabase/functions/retired/index.ts', 'utf8');
-  const label = 'retired Edge Functions answer 410 without forwarding requests';
-  if (text.includes('status: 410') && !text.includes('fetch(')) {
-    passed += 1;
-    console.log(`ok - ${label}`);
-  } else {
-    failed += 1;
-    console.error(`not ok - ${label}`);
-  }
-}
-
 // Sklad static controls should use centralized data-attribute bindings for auth,
 // navigation, topbar actions, stock/category filters, and common search controls.
 {
