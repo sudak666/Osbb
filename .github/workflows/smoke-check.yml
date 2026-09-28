@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - run: npm install -g typescript@5.8.3
+      - run: npm install --no-audit --no-fund
       - run: npm run typecheck
       - run: npm run test:runtime
       - run: npm run test:m3
@@ -40,4 +40,4 @@ jobs:
         run: |
           cd sklad/supabase/functions
           tsc --noEmit --strict --target es2022 --lib es2022,dom --skipLibCheck \
-            _typecheck/deno-shim.d.ts notify-telegram/index.ts
+            _typecheck/deno-shim.d.ts jira-issues/index.ts retired/index.ts

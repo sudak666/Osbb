@@ -1,5 +1,17 @@
 #!/usr/bin/env node
-import { readFileSync } from 'node:fs';
+import { readFileSync as readRawFile } from 'node:fs';
+
+// Згенеровані з TypeScript src/*.js перевіряємо за їх джерелом (src/*.ts):
+// точну відповідність .js ↔ .ts гарантує scripts/check-js-fallback-parity.mjs.
+const GENERATED_JS_HEADER = '// Згенеровано з src/';
+function readFileSync(file, encoding) {
+  const text = readRawFile(file, encoding);
+  if (typeof file === 'string' && /^src\/[^/]+\.js$/.test(file) && text.startsWith(GENERATED_JS_HEADER)) {
+    const tsFile = file.replace(/\.js$/, '.ts');
+    if (existsSync(tsFile)) return readRawFile(tsFile, encoding);
+  }
+  return text;
+}
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -171,8 +183,8 @@ const checks = [
   ['osbb/index.html', 'id="tab-my-tickets" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page"', 'Jira desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
   ['osbb/index.html', 'id="tab-my-tickets-m" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page"', 'Jira mobile active tab exposes tab semantics'],
-  ['osbb/index.html', "el.toggleAttribute('aria-current', t === tab)", 'journal tab switch updates aria-current'],
-  ['osbb/index.html', "el.setAttribute('aria-selected', String(t === tab))", 'journal tab switch updates aria-selected'],
+  ['osbb/index.html', "element.toggleAttribute('aria-current',name===tab)", 'journal tab switch updates aria-current'],
+  ['osbb/index.html', "element.setAttribute('aria-selected',String(name===tab))", 'journal tab switch updates aria-selected'],
   ['sklad/index.html', '<nav aria-label="Розділи складу">', 'sklad sidebar exposes navigation label'],
   ['sklad/index.html', 'id="bottomNav" aria-label="Мобільні розділи складу"', 'sklad bottom nav exposes navigation label'],
   ['sklad/index.html', 'class="ni active" data-page="items" aria-current="page"', 'sklad sidebar active page exposes aria-current'],
@@ -190,10 +202,13 @@ const checks = [
   ['src/sklad-auth.js', "db.rpc('verify_pin'", 'sklad verifies login PIN via RPC'],
   ['src/sklad-app.js', 'deleteLightboxPhoto', 'sklad lightbox has delete handler'],
   ['sklad/index.html', "scopePath.startsWith('/Osbb/sklad/')", 'sklad SW cleanup is scoped'],
-  ['src/sklad-app.js', 'function notifyTelegram', 'sklad has Telegram notify helper'],
-  ['src/sklad-app.js', "notifyTelegram('🆕 Новий товар:", 'sklad notifies on new item'],
-  ['src/sklad-movements-controller.js', '📦 Прихід:', 'sklad notifies on receipt'],
-  ['src/sklad-movements-controller.js', '📤 Видача:', 'sklad notifies on issue'],
+  ['sklad/supabase/029_idempotent_stock_movements.sql', "'🆕 Новий товар: '", 'sklad notifies on new item via DB trigger'],
+  ['sklad/supabase/029_idempotent_stock_movements.sql', 'create trigger inventory_items_new_notify', 'sklad new-item notification trigger is created'],
+  ['sklad/supabase/008_document_undocumented_functions.sql', 'create or replace function trg_notify_receipt()', 'sklad notifies on receipt via DB trigger'],
+  ['sklad/supabase/008_document_undocumented_functions.sql', 'create or replace function trg_notify_log()', 'sklad notifies on issue via DB trigger'],
+  ['src/sklad-movements-controller.js', "p_client_request_id: requestIdFor('issue', args)", 'sklad issue RPC is idempotent across retries'],
+  ['src/sklad-movements-controller.js', "p_client_request_id: requestIdFor('receipt', args)", 'sklad receipt RPC is idempotent across retries'],
+  ['src/sklad-movements-controller.js', "db.rpc('update_inventory_log'", 'sklad issue edits adjust stock atomically on the server'],
   ['src/sklad-data-controller.js', 'function setRefreshStatus', 'sklad shows refresh status in the topbar'],
   ['sklad/index.html', 'id="refreshBtn"', 'sklad refresh button can be disabled while loading'],
   ['src/sklad-app.js', 'function setActionButtonLoading', 'sklad submit buttons show loading state'],
@@ -226,8 +241,6 @@ const checks = [
   ['sklad/index.html', 'id="editLogDate"', 'sklad issue edit modal has date input'],
   ['src/sklad-dates.ts', 'export function dateToInputValue', 'sklad can format dates for date inputs'],
 
-  ['sklad/supabase/functions/notify-telegram/index.ts', 'TELEGRAM_BOT_TOKEN', 'notify-telegram function reads bot token from secrets'],
-  ['sklad/supabase/functions/notify-telegram/index.ts', 'api.telegram.org', 'notify-telegram function calls Telegram Bot API'],
 
   ['supabase/001_setup_pin_auth.sql', 'app_pin_attempts', 'OSBB PIN attempts table exists (historical archive)'],
   ['supabase/001_setup_pin_auth.sql', 'locked_until', 'OSBB PIN lockout is present (historical archive)'],
@@ -287,7 +300,8 @@ let passed = 0;
   const html = readFileSync('sklad/index.html', 'utf8');
   const runtime = readSkladCombined();
   const label = 'sklad uses native Supabase RPC results';
-  const valid = html.includes('const db=createClient(')
+  const valid = runtime.includes('const db=createClient(SUPABASE_URL,SUPABASE_KEY);')
+    && !html.includes('window.supabase')
     && runtime.includes("await db.rpc('issue_item'")
     && runtime.includes("await db.rpc('receive_item'")
     && !runtime.includes('db.rpcResult(');
@@ -1099,7 +1113,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.price-badge-btn{padding:6px 12px;',
     '.price-badge-btn.has-price{display:flex;',
     '.price-badge-value{font-weight:700;',
-    '.price-badge-source{width:100%;font-size:10px;',
+    '.price-badge-source{width:100%;font-size:var(--md-sys-typescale-label-small-size,11px);',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -1159,7 +1173,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="log-person-cell"',
     'class="log-note-cell"',
     '.log-date-cell{font-size:12px;',
-    '.log-qty-out{font-weight:700;color:var(--md-sys-color-secondary,#6366f1);}',
+    '.log-qty-out{font-weight:700;color:var(--md-sys-color-secondary);}',
     '.log-qty-in{font-weight:700;color:var(--sklad-green);}',
   ];
   const forbidden = [
@@ -2288,13 +2302,11 @@ for (const file of ['index.html', 'osbb/index.html']) {
 }
 
 
-// notify-telegram must accept raw/text payloads because the GitHub Pages client
-// sends best-effort no-cors requests and Windows PowerShell tests often use raw
-// text to avoid JSON quoting issues.
+// Невикористані публічні Edge Functions замінені заглушкою 410 з verify_jwt.
 {
-  const text = readFileSync('sklad/supabase/functions/notify-telegram/index.ts', 'utf8');
-  const label = 'notify-telegram accepts raw text payload fallback';
-  if (text.includes("raw.startsWith('text=')") && text.includes('text = raw;')) {
+  const text = readFileSync('sklad/supabase/functions/retired/index.ts', 'utf8');
+  const label = 'retired Edge Functions answer 410 without forwarding requests';
+  if (text.includes('status: 410') && !text.includes('fetch(')) {
     passed += 1;
     console.log(`ok - ${label}`);
   } else {
@@ -2302,8 +2314,6 @@ for (const file of ['index.html', 'osbb/index.html']) {
     console.error(`not ok - ${label}`);
   }
 }
-
-
 
 // Sklad static controls should use centralized data-attribute bindings for auth,
 // navigation, topbar actions, stock/category filters, and common search controls.
@@ -2975,13 +2985,13 @@ ${sharedSelectText}`;
     'hasReceiptPrice?r.purchase_price_unit:item?.price_unit',
     'class="price-origin-note">поточна</span>',
     "receipt.purchase_price_unit || item?.price_unit || ''",
-    'function isPurchasePriceSchemaError(error)',
+    'function isPurchasePriceSchemaError(error',
     "showPurchasePriceMigrationNotice()",
     "console.info('Історія закупівельних цін стане доступною після міграції 009.')",
     "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'",
-    'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);',
-    'disablePurchasePriceRpc();',
-    'purchasePrice !== null && getPurchasePriceRpcAvailable()',
+    'try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}',
+    "p_price_unit: purchasePrice || null",
+    "db.rpc('update_inventory_receipt'",
     "delete receiptRow.purchase_price_unit",
     'data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI"',
     'data-supplier-preset="Епіцентр" data-supplier-target="editReceiptSupplier"',
@@ -3172,7 +3182,7 @@ ${sharedSelectText}`;
     'id="section-shifts"',
     'function shiftLoadMonth()',
     'function requestTab(tab)',
-    "showPinModal('PIN розділу «Зміни»', 'Введіть окремий PIN для доступу'",
+    "showPinModal('PIN розділу «Зміни»','Введіть окремий PIN для доступу'",
     "function appendIndicators(container, person, values)",
     "[Array.isArray(values) && values.includes('night_half2'), 'is-half']",
     '.shift-dot.is-half {',
@@ -3181,7 +3191,7 @@ ${sharedSelectText}`;
     "db.rpc('update_work_shift_names_v2'",
     "'verify_work_shifts_pin'",
     "db.rpc('reset_work_shifts_month'",
-    "table: 'work_shifts'",
+    "table:'work_shifts'",
     "addEventListener('keydown', shiftTrapEditorFocus)",
     "details.includes('23514')",
     '.shift-shell { display:grid;',

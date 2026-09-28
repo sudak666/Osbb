@@ -31,7 +31,3 @@ if ('serviceWorker' in navigator) {
         .then((registration) => registration.update())
         .catch(() => {});
 }
-
-if ('caches' in window) {
-    void Promise.all(['osbb-shell-v3', 'osbb-shell-v4', 'osbb-shell-v5', 'osbb-shell-v9'].map((name) => window.caches.delete(name)));
-}

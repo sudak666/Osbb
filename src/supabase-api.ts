@@ -19,6 +19,11 @@ export interface RpcClientOptions {
 
 export interface SupabaseRestClientOptions extends RpcClientOptions {}
 
+/** keepalive: запит доживає до кінця навіть після закриття/згортання сторінки. */
+export interface RpcRequestOptions {
+    keepalive?: boolean;
+}
+
 export interface RestError {
     code: string;
     message?: string;
@@ -47,8 +52,8 @@ export interface RestQuery<Row, Insert, Update, Result = Row[]> extends PromiseL
 export interface SupabaseRestClient {
     rpc<Fn extends PublicFunctionName>(fn: Fn, params: PublicFunctionArgs<Fn>): Promise<PublicFunctionReturns<Fn> | null>;
     rpc<T = unknown>(fn: string, params?: RpcParams): Promise<T | null>;
-    rpcResult<Fn extends PublicFunctionName>(fn: Fn, params: PublicFunctionArgs<Fn>): Promise<RestResult<PublicFunctionReturns<Fn>>>;
-    rpcResult<T = unknown>(fn: string, params?: RpcParams): Promise<RestResult<T>>;
+    rpcResult<Fn extends PublicFunctionName>(fn: Fn, params: PublicFunctionArgs<Fn>, options?: RpcRequestOptions): Promise<RestResult<PublicFunctionReturns<Fn>>>;
+    rpcResult<T = unknown>(fn: string, params?: RpcParams, options?: RpcRequestOptions): Promise<RestResult<T>>;
     from<Table extends PublicTableName>(table: Table): RestQuery<
         PublicTableRow<Table>,
         PublicTableInsert<Table>,
@@ -147,8 +152,8 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
     const supabaseKey = options.supabaseKey ?? SUPABASE_KEY;
     const auth = { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` };
 
-    async function request(method: string, url: string, headers: Record<string, string> = {}, body?: BodyInit) {
-        const response = await fetcher(url, { method, headers: { ...auth, ...headers }, body });
+    async function request(method: string, url: string, headers: Record<string, string> = {}, body?: BodyInit, extra: RpcRequestOptions = {}) {
+        const response = await fetcher(url, { method, headers: { ...auth, ...headers }, body, ...(extra.keepalive ? { keepalive: true } : {}) });
         if (!response.ok) {
             const text = await response.text();
             if (text.length > MAX_RESPONSE_TEXT_LENGTH) throw new RangeError('Supabase response is too large');
@@ -198,19 +203,20 @@ export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}
         fn: Fn,
         params: PublicFunctionArgs<Fn>,
     ): Promise<PublicFunctionReturns<Fn> | null>;
-    async function restRpc<T = unknown>(fn: string, params?: RpcParams): Promise<T | null>;
-    async function restRpc<T = unknown>(fn: string, params: RpcParams = {}): Promise<T | null> {
-        return request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params)) as Promise<T | null>;
+    async function restRpc<T = unknown>(fn: string, params?: RpcParams, options?: RpcRequestOptions): Promise<T | null>;
+    async function restRpc<T = unknown>(fn: string, params: RpcParams = {}, options: RpcRequestOptions = {}): Promise<T | null> {
+        return request('POST', `${supabaseUrl}/rest/v1/rpc/${encodeURIComponent(fn)}`, { 'Content-Type': 'application/json' }, JSON.stringify(params), options) as Promise<T | null>;
     }
 
     async function rpcResult<Fn extends PublicFunctionName>(
         fn: Fn,
         params: PublicFunctionArgs<Fn>,
+        options?: RpcRequestOptions,
     ): Promise<RestResult<PublicFunctionReturns<Fn>>>;
-    async function rpcResult<T = unknown>(fn: string, params?: RpcParams): Promise<RestResult<T>>;
-    async function rpcResult<T = unknown>(fn: string, params: RpcParams = {}): Promise<RestResult<T>> {
+    async function rpcResult<T = unknown>(fn: string, params?: RpcParams, options?: RpcRequestOptions): Promise<RestResult<T>>;
+    async function rpcResult<T = unknown>(fn: string, params: RpcParams = {}, options: RpcRequestOptions = {}): Promise<RestResult<T>> {
         try {
-            const data = await restRpc<T>(fn, params);
+            const data = await restRpc<T>(fn, params, options);
             return { data, error: null };
         } catch (error) {
             return {

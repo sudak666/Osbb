@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const functions = ['notify-telegram', 'jira-issues'];
+const functions = ['jira-issues', 'retired'];
 
 for (const name of functions) {
   const sourcePath = path.join(root, 'sklad/supabase/functions', name, 'index.ts');
@@ -35,11 +35,16 @@ if (!jiraSource.includes("Deno.env.get('JIRA_ISSUE_TYPE')") || !jiraSource.inclu
 
 const configPath = path.join(root, 'supabase/config.toml');
 const config = fs.readFileSync(configPath, 'utf8');
-for (const name of functions) {
+for (const name of ['jira-issues']) {
   if (!config.includes(`[functions.${name}]`) || !config.match(new RegExp(`\\[functions\\.${name}\\][\\s\\S]*?verify_jwt\\s*=\\s*false`))) {
     console.error(`supabase/config.toml must disable JWT verification for ${name}`);
     process.exitCode = 1;
   }
+}
+
+if (!/\[functions\.retired\][\s\S]*?verify_jwt\s*=\s*true/.test(config)) {
+  console.error('supabase/config.toml must keep JWT verification on for the retired stub');
+  process.exitCode = 1;
 }
 
 if (process.exitCode) process.exit(process.exitCode);

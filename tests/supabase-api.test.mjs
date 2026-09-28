@@ -210,3 +210,15 @@ test('default Supabase constants stay browser-safe publishable values', () => {
   assert.equal(SUPABASE_URL, 'https://vkwkyhjjjmcpmiakxohw.supabase.co');
   assert.equal(SUPABASE_KEY.startsWith('sb_publishable_'), true);
 });
+
+test('REST rpcResult forwards keepalive only when requested', async () => {
+  const inits = [];
+  const client = createSupabaseRestClient({
+    supabaseUrl: 'https://example.test', supabaseKey: 'key',
+    fetcher: async (_url, init) => { inits.push(init); return new Response('true', { status: 200 }); },
+  });
+  assert.deepEqual(await client.rpcResult('save_garbage_day', { p_month_key: '2026-7', p_day: '1', p_row: null }, { keepalive: true }), { data: true, error: null });
+  await client.rpcResult('save_garbage_day', { p_month_key: '2026-7', p_day: '1', p_row: null });
+  assert.equal(inits[0].keepalive, true);
+  assert.equal('keepalive' in inits[1], false);
+});

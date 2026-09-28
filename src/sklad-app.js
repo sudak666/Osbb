@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 import {
   calculateInventoryHeaderStats,
   filterInventoryByValue,
@@ -13,11 +14,11 @@ import {
 } from './sklad-pricing.js';
 import { escapeHtml, safeExternalUrl } from './app-security.js';
 import { isAuthSessionValid } from './auth-session.js';
-import { numericIdFromInsertResponse } from './supabase-api.js';
+import { numericIdFromInsertResponse, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
 import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { createInventoryCollectionState, inventoryItemsFromResponse, inventoryLogsFromResponse, inventoryReceiptsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
-import { loadPurchasePriceRpcAvailable, markPurchasePriceRpcUnavailable } from './sklad-client-state.js';
+import { createInventoryCollectionState, inventoryLogsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
+import { PURCHASE_PRICE_RPC_UNAVAILABLE_KEY } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
 import { createSkladModalController } from './sklad-modal-controller.js';
 import { createSkladDataController } from './sklad-data-controller.js';
@@ -28,6 +29,8 @@ import { createSkladPhotoController } from './sklad-photo-controller.js';
 import { createSkladItemCrudController } from './sklad-item-crud-controller.js';
 import { createSkladMovementsController } from './sklad-movements-controller.js';
 import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';
+
+const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
@@ -41,11 +44,9 @@ const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
 const pageTitles={items:{icon:'inventory_2',label:'Запаси'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'swap_vert',label:'Рух · Видачі'},add:{icon:'add_circle',label:'Додати / поповнити'},receipts:{icon:'swap_vert',label:'Рух · Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'more_horiz',label:'Ще'}};
-let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);
-function disablePurchasePriceRpc(){
-  purchasePriceRpcAvailable=false;
-  markPurchasePriceRpcUnavailable(localStorage);
-}
+// Прапорець старого fallback без міграції 009 більше не потрібен (receive_item з
+// p_price_unit є на живій базі) — прибираємо його з пристроїв, де він лишився.
+try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}
 function showPurchasePriceMigrationNotice(){
   console.info('Історія закупівельних цін стане доступною після міграції 009.');
 }
@@ -147,6 +148,7 @@ const {
   markDataUpdated,
   refreshAll,
   setRefreshStatus,
+  loadAllLogs,
 }=createSkladDataController({
   db,
   document,
@@ -163,8 +165,7 @@ const {
 
 movementsController=createSkladMovementsController({db,document,getItems:()=>allItems,getLogs:()=>allLogs,getReceipts:()=>allReceipts,
   openModal,closeModal,requestDeletePin:showDeletePinModal,toast,loadItems,loadLogs,loadReceipts,optionalPrice,syncSupplierTags,
-  isPurchasePriceSchemaError,showPurchasePriceMigrationNotice,setButtonLoading:setActionButtonLoading,refreshSelect:refreshEnhancedSelect,
-  notifyTelegram,inventoryUnit:inventoryUnitFromRpcResponse,getPurchasePriceRpcAvailable:()=>purchasePriceRpcAvailable,disablePurchasePriceRpc,
+  setButtonLoading:setActionButtonLoading,refreshSelect:refreshEnhancedSelect,inventoryUnit:inventoryUnitFromRpcResponse,
   populateSelects:populateSels,renderLowStock:renderAddLow,loadRecentIssues,findItem:findItemForAction});
 photoController=createSkladPhotoController({db,document,window,getItem:findItemForAction,loadItems,openModal,closeModal,requestDeletePin:showDeletePinModal,toast});
 itemCrudController=createSkladItemCrudController({db,document,categories:catBadge,getItems:()=>allItems,findItem:findItemForAction,
@@ -1004,7 +1005,6 @@ async function doAddNew(btn){
   if(!initialReceiptSaved) toast('"'+name+'" додано, але початкове надходження не записано','info');
   else toast('"'+name+'" додано!','success');
   if(purchasePriceSchemaUnavailable) showPurchasePriceMigrationNotice();
-  notifyTelegram('🆕 Новий товар: '+name+' — '+quantity+' '+unit+(is_internal?' (внутрішнє використання)':''));
   ['newName','newUnit','newQty','newPrice','newItemSupplier'].forEach(k=>document.getElementById(k).value='');
   syncSupplierTags('newItemSupplier','');
   const matchesBox=document.getElementById('newNameMatches');
@@ -1100,8 +1100,11 @@ function renderStats(){
   }).join('')||'<div class="empty" style="padding:16px;">Журнал порожній</div>';
 }
 // ===== EXCEL =====
-function exportExcel(){
+async function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');
+  let XLSX;
+  try{XLSX=await import('xlsx');}
+  catch(e){console.warn('xlsx load failed:',e);return toast('Не вдалося завантажити модуль Excel. Перевірте зʼєднання.','error');}
   const ws=XLSX.utils.json_to_sheet(buildInventoryExportRows(allItems));
   ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:14},{wch:18},{wch:28},{wch:18},{wch:20}];
   const wb=XLSX.utils.book_new();
@@ -1109,8 +1112,11 @@ function exportExcel(){
   const wsBalance=XLSX.utils.json_to_sheet(buildBalanceExportRows(allItems));
   wsBalance['!cols']=[{wch:50},{wch:12}];
   XLSX.utils.book_append_sheet(wb,wsBalance,'Баланс');
-  if(allLogs.length){
-    const ws2=XLSX.utils.json_to_sheet(buildIssueExportRows(allLogs));
+  let exportLogs=allLogs;
+  try{exportLogs=await loadAllLogs();}
+  catch(e){console.warn('full issue log load failed:',e);toast('Журнал видач у файлі — лише останні записи (немає зʼєднання)','info');}
+  if(exportLogs.length){
+    const ws2=XLSX.utils.json_to_sheet(buildIssueExportRows(exportLogs));
     ws2['!cols']=[{wch:18},{wch:50},{wch:8},{wch:25},{wch:30}];
     XLSX.utils.book_append_sheet(wb,ws2,'Журнал видач');
   }
@@ -1182,7 +1188,9 @@ let barcodeAddScanner=null,lastScannedCode='';
 function openBarcodeAddScanner(){
   openModal('barcodeAddModal');
   resetBarcodeScanner();
-  setTimeout(()=>{
+  setTimeout(async()=>{
+    const Html5Qrcode=await loadHtml5Qrcode();
+    if(!Html5Qrcode||!document.getElementById('barcodeAddModal')?.classList.contains('open')||barcodeAddScanner) return;
     barcodeAddScanner=new Html5Qrcode('barcodeAddReader');
     barcodeAddScanner.start(
       {facingMode:'environment'},
@@ -1219,11 +1227,17 @@ function stopBarcodeAdd(){
 }
 
 // ===== QR SCANNER =====
+async function loadHtml5Qrcode(){
+  try{return (await import('html5-qrcode')).Html5Qrcode;}
+  catch(e){console.warn('html5-qrcode load failed:',e);toast('Не вдалося завантажити сканер. Перевірте зʼєднання.','error');return null;}
+}
 let qrScanner=null;
 function openQR(){
   openModal('qrModal');
   document.getElementById('qrResult').style.display='none';
-  setTimeout(()=>{
+  setTimeout(async()=>{
+    const Html5Qrcode=await loadHtml5Qrcode();
+    if(!Html5Qrcode||!document.getElementById('qrModal')?.classList.contains('open')||qrScanner) return;
     qrScanner=new Html5Qrcode('qrReader');
     qrScanner.start(
       {facingMode:'environment'},
@@ -1289,7 +1303,11 @@ function openChartModal(){
   openModal('chartModal');
   setTimeout(renderChart,100);
 }
-function renderChart(){
+async function renderChart(){
+  let Chart;
+  try{Chart=(await import('chart.js/auto')).default;}
+  catch(e){console.warn('chart.js load failed:',e);return toast('Не вдалося завантажити графік. Перевірте зʼєднання.','error');}
+  if(!document.getElementById('chartModal')?.classList.contains('open')) return;
   const ctx=document.getElementById('stockChart').getContext('2d');
   if(chartInst){chartInst.destroy();chartInst=null;}
   const cats=[...new Set(allItems.map(i=>i.category))];
@@ -1351,33 +1369,11 @@ function toast(msg,type=''){
   clearTimeout(toastT);toastT=setTimeout(()=>el.className='',3200);
 }
 
-// Надсилає текст у Telegram через Supabase Edge Function (токен бота лишається
-// секретом на сервері, ніколи не потрапляє у клієнтський код). Це best-effort
-// сповіщення: складська операція вже збережена, тому мережеві/CORS проблеми
-// Telegram-інтеграції не повинні показувати користувачу червоні помилки в консолі.
-const TELEGRAM_NOTIFY_URL='https://vkwkyhjjjmcpmiakxohw.supabase.co/functions/v1/notify-telegram';
-function notifyTelegram(text){
-  const payload=JSON.stringify({text});
-  try{
-    if(navigator.sendBeacon){
-      const blob=new Blob([payload],{type:'text/plain;charset=UTF-8'});
-      if(navigator.sendBeacon(TELEGRAM_NOTIFY_URL,blob)) return;
-    }
-  }catch(e){}
-  fetch(TELEGRAM_NOTIFY_URL,{
-    method:'POST',
-    mode:'no-cors',
-    keepalive:true,
-    headers:{'Content-Type':'text/plain;charset=UTF-8'},
-    body:payload
-  }).catch(()=>{});
-}
-
 // ===== ТЕМА (світла/темна) =====
 function applyTheme(theme){
   document.body.className=theme;
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content', theme==='theme-dark' ? '#121214' : '#F2F2F7');
+  if(meta) meta.setAttribute('content', theme==='theme-dark' ? '#121214' : '#f4f7fb');
 }
 applyTheme(document.body.className || 'theme-light');
 window.addEventListener('storage', event=>{

@@ -1,7 +1,7 @@
 project_id = "vkwkyhjjjmcpmiakxohw"
 
-[functions.notify-telegram]
-verify_jwt = false
+[functions.retired]
+verify_jwt = true
 
 [functions.jira-issues]
 verify_jwt = false

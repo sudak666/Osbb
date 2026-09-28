@@ -38,3 +38,42 @@ test('movements controller opens and completes guarded log deletion', async () =
   assert.equal(loads, 2);
   assert.equal(controller.pending('deletingLogId'), null);
 });
+
+test('issue reuses the request id after a transport failure and rotates it after a server answer', async () => {
+  const calls = [];
+  const replies = [
+    { data: null, error: { message: 'TypeError: Failed to fetch', code: '' } },
+    { data: [{ new_quantity: 4, item_name: 'Лампа', unit: 'шт' }], error: null },
+    { data: [{ new_quantity: 3, item_name: 'Лампа', unit: 'шт' }], error: null },
+  ];
+  let seq = 0;
+  const toasts = [];
+  const controller = createSkladMovementsController({
+    db: { rpc: async (name, args) => { calls.push({ name, args }); return replies.shift(); } },
+    getItems: () => [{ id: 2, name: 'Лампа', unit: 'шт', quantity: 5 }],
+    toast: (message, type) => toasts.push({ message, type }),
+    createRequestId: () => `req-${++seq}`,
+  });
+  assert.equal(await controller.issueItem(2, 1, 'Іван', '', null), false);
+  assert.match(toasts[0].message, /дубля не буде/);
+  assert.equal(await controller.issueItem(2, 1, 'Іван', '', null), true);
+  assert.equal(await controller.issueItem(2, 1, 'Іван', '', null), true);
+  assert.deepEqual(calls.map(call => call.args.p_client_request_id), ['req-1', 'req-1', 'req-2']);
+  assert.equal(calls.every(call => call.name === 'issue_item'), true);
+});
+
+test('issue maps server errors to readable messages and drops the request id', async () => {
+  const calls = [];
+  const toasts = [];
+  let seq = 0;
+  const controller = createSkladMovementsController({
+    db: { rpc: async (_name, args) => { calls.push(args); return { data: null, error: { message: 'item_not_found', code: 'P0001' } }; } },
+    getItems: () => [{ id: 2, name: 'Лампа', unit: 'шт', quantity: 5 }],
+    toast: message => toasts.push(message),
+    createRequestId: () => `req-${++seq}`,
+  });
+  assert.equal(await controller.issueItem(2, 1, 'Іван', '', null), false);
+  assert.equal(await controller.issueItem(2, 1, 'Іван', '', null), false);
+  assert.deepEqual(toasts, ['Товар не знайдено — оновіть список.', 'Товар не знайдено — оновіть список.']);
+  assert.deepEqual(calls.map(args => args.p_client_request_id), ['req-1', 'req-2']);
+});

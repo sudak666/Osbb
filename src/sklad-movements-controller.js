@@ -2,14 +2,50 @@ import { deleteInventoryResultFromRpcResponse } from './sklad-state.js';
 import { adjustedStockAfterMovementEdit, buildIssueEditPatch, buildIssuePayload, buildReceiptEditPatch, buildReceiptPayload } from './sklad-movements.js';
 import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';
 
+// Помилки fetch у supabase-js приходять без SQLSTATE-коду; серверні — з кодом.
+export function isTransportError(error) {
+  return Boolean(error) && !error.code;
+}
+
+const MOVEMENT_ERROR_MESSAGES = {
+  item_not_found: 'Товар не знайдено — оновіть список.',
+  log_not_found: 'Запис видачі не знайдено — оновіть журнал.',
+  receipt_not_found: 'Запис приходу не знайдено — оновіть журнал.',
+  invalid_quantity: 'Вкажіть коректну кількість.',
+  invalid_purchase_price: 'Вкажіть коректну ціну закупівлі.',
+};
+
+export function movementErrorMessage(error) {
+  if (isTransportError(error)) return 'Немає зʼєднання з сервером. Перевірте інтернет і повторіть — дубля не буде.';
+  const message = String(error?.message || '');
+  const known = Object.keys(MOVEMENT_ERROR_MESSAGES).find(key => message.includes(key));
+  return known ? MOVEMENT_ERROR_MESSAGES[known] : 'Помилка сервера. Спробуйте ще раз.';
+}
+
 export function createSkladMovementsController(options) {
   const { db, warn = console.warn, document, getItems = () => [], getLogs = () => [], getReceipts = () => [],
     openModal = () => {}, closeModal = () => {}, requestDeletePin = () => {}, toast = () => {},
     loadItems = async () => {}, loadLogs = async () => {}, loadReceipts = async () => {}, optionalPrice = value => value,
-    syncSupplierTags = () => {}, isPurchasePriceSchemaError = () => false, showPurchasePriceMigrationNotice = () => {},
-    setButtonLoading = () => () => {}, refreshSelect = () => {}, notifyTelegram = () => {}, inventoryUnit = (_data, fallback) => fallback,
-    getPurchasePriceRpcAvailable = () => true, disablePurchasePriceRpc = () => {}, populateSelects = () => {}, renderLowStock = () => {},
-    loadRecentIssues = async () => {}, nowDate = () => new Date().toISOString().slice(0, 10), findItem = id => getItems().find(item => item.id === id) } = options;
+    syncSupplierTags = () => {}, setButtonLoading = () => () => {}, refreshSelect = () => {}, inventoryUnit = (_data, fallback) => fallback,
+    populateSelects = () => {}, renderLowStock = () => {}, loadRecentIssues = async () => {},
+    nowDate = () => new Date().toISOString().slice(0, 10), findItem = id => getItems().find(item => item.id === id),
+    createRequestId = () => globalThis.crypto.randomUUID() } = options;
+  // Ідемпотентність видачі/приходу: той самий id повторюється, доки операція з
+  // тими самими даними не завершиться відповіддю сервера (після мережевого збою
+  // повторне натискання не спише/не додасть товар удруге — див. міграцію 029).
+  const pendingRequests = new Map();
+  function requestIdFor(kind, payload) {
+    const key = JSON.stringify(payload);
+    const current = pendingRequests.get(kind);
+    if (current && current.key === key) return current.id;
+    const id = createRequestId();
+    pendingRequests.set(kind, { key, id });
+    return id;
+  }
+  function settleRequest(kind, error) {
+    if (!error || !isTransportError(error)) pendingRequests.delete(kind);
+  }
+
   const state = {
     deletingLogId: null,
     editingLogId: null,
@@ -44,17 +80,16 @@ export function createSkladMovementsController(options) {
   async function issueItem(itemId, quantity, person, note, occurredAt) {
     const item = findItem(itemId, 'видача');
     if (!item) return false;
-    const { data, error } = await db.rpc('issue_item', {
-      p_item_id: itemId, p_qty: quantity, p_person: person, p_note: note || null, p_issued_at: occurredAt || null,
-    });
+    const args = { p_item_id: itemId, p_qty: quantity, p_person: person, p_note: note || null, p_issued_at: occurredAt || null };
+    const { data, error } = await db.rpc('issue_item', { ...args, p_client_request_id: requestIdFor('issue', args) });
+    settleRequest('issue', error);
     if (error) {
       if ((error.message || '').includes('insufficient_stock')) toast(`Недостатньо! Залишок: ${item.quantity} ${item.unit}`, 'error');
-      else toast('Помилка: ' + error.message, 'error');
+      else toast(movementErrorMessage(error), 'error');
       return false;
     }
     const unit = inventoryUnit(data, item.unit);
     toast(`Видано: ${quantity} ${unit} → ${person}`, 'success');
-    notifyTelegram(`📤 Видача: ${item.name} −${quantity} ${unit} → ${person}${note ? ' (' + note + ')' : ''}`);
     await loadItems();
     return true;
   }
@@ -67,6 +102,9 @@ export function createSkladMovementsController(options) {
     try {
       const { quantity, person } = payload.value;
       if (await issueItem(payload.value.itemId, quantity, person, '', null)) closeModal('qModal');
+    } catch (error) {
+      warn('quick issue failed', error);
+      toast('Не вдалося виконати видачу. Спробуйте ще раз.', 'error');
     } finally { done(); }
   }
 
@@ -112,30 +150,20 @@ export function createSkladMovementsController(options) {
     const done = setButtonLoading(button, 'Поповнюю...');
     if (!done) return;
     try {
-      const args = { p_item_id: itemId, p_qty: quantity, p_supplier: supplier || null, p_note: note || null, p_received_at: occurredAt || null };
-      let { data, error } = purchasePrice !== null && getPurchasePriceRpcAvailable()
-        ? await db.rpc('receive_item', { ...args, p_price_unit: purchasePrice })
-        : await db.rpc('receive_item', args);
-      let priceHistorySaved = true;
-      if (error && purchasePrice !== null && isPurchasePriceSchemaError(error)) {
-        priceHistorySaved = false;
-        disablePurchasePriceRpc();
-        ({ data, error } = await db.rpc('receive_item', args));
-        if (!error) {
-          const priceResult = await db.from('inventory_items').update({ price_unit: purchasePrice, price_source: 'Закупівля', price_confidence: 'manual', price_checked_at: new Date().toISOString() }).eq('id', itemId);
-          if (priceResult.error) return toast('Прихід збережено, але ціну не оновлено: ' + priceResult.error.message, 'error');
-        }
-      }
-      if (error) return toast('Помилка: ' + error.message, 'error');
+      const args = { p_item_id: itemId, p_qty: quantity, p_supplier: supplier || null, p_note: note || null, p_received_at: occurredAt || null, p_price_unit: purchasePrice || null };
+      const { data, error } = await db.rpc('receive_item', { ...args, p_client_request_id: requestIdFor('receipt', args) });
+      settleRequest('receipt', error);
+      if (error) return toast(movementErrorMessage(error), 'error');
       const unit = inventoryUnit(data, item.unit);
       toast(`Поповнено +${quantity} ${unit}`, 'success');
-      notifyTelegram(`📦 Прихід: ${item.name} +${quantity} ${item.unit}${supplier ? ' від ' + supplier : ''}${note ? ' (' + note + ')' : ''}`);
       ['refillQtyI', 'refillPriceI', 'refillSupplierI', 'refillNoteI', 'refillSel'].forEach(id => { document.getElementById(id).value = ''; });
       syncSupplierTags('refillSupplierI', '');
       document.getElementById('refillDateI').value = nowDate();
       document.getElementById('refillInfo').style.display = 'none';
       await loadItems(); populateSelects(); renderLowStock();
-      if (!priceHistorySaved) showPurchasePriceMigrationNotice();
+    } catch (error) {
+      warn('receipt submit failed', error);
+      toast('Не вдалося зберегти прихід. Спробуйте ще раз.', 'error');
     } finally { done(); }
   }
 
@@ -196,14 +224,16 @@ export function createSkladMovementsController(options) {
       note: document.getElementById('editLogNote').value, occurredAt: dateInputToTimestamp(document.getElementById('editLogDate').value) });
     if (!built.ok) return toast('Введіть коректну кількість', 'error');
     const item = getItems().find(row => row.id === log.item_id);
-    if (item) {
-      const quantity = adjustedStockAfterMovementEdit(item.quantity, log.quantity, built.value.quantity, 'issue');
-      if (quantity === null) return toast('Недостатньо товару на складі для такої кількості', 'error');
-      const result = await db.from('inventory_items').update({ quantity }).eq('id', item.id);
-      if (result.error) return toast('Не вдалося оновити товар: ' + result.error.message, 'error');
+    if (item && adjustedStockAfterMovementEdit(item.quantity, log.quantity, built.value.quantity, 'issue') === null) {
+      return toast('Недостатньо товару на складі для такої кількості', 'error');
     }
-    const { error } = await db.from('inventory_logs').update(built.value).eq('id', id);
-    if (error) return toast('Помилка: ' + error.message, 'error');
+    const { error } = await db.rpc('update_inventory_log', {
+      p_log_id: id, p_qty: built.value.quantity, p_person: built.value.issued_to, p_note: built.value.note, p_issued_at: built.value.issued_at || null,
+    });
+    if (error) {
+      if ((error.message || '').includes('insufficient_stock')) return toast('Недостатньо товару на складі для такої кількості', 'error');
+      return toast(movementErrorMessage(error), 'error');
+    }
     toast('Запис оновлено', 'success'); closeModal('editLogModal'); setPending('editingLogId', null); await loadItems(); await loadLogs();
   }
   function openEditReceipt(id) {
@@ -229,20 +259,18 @@ export function createSkladMovementsController(options) {
       occurredAt: dateInputToTimestamp(document.getElementById('editReceiptDate').value) });
     if (!built.ok) return toast(built.error === 'price' ? 'Введіть коректну ціну закупівлі' : 'Введіть коректну кількість', 'error');
     const item = getItems().find(row => row.id === receipt.item_id);
-    if (item) {
-      const quantity = adjustedStockAfterMovementEdit(item.quantity, receipt.quantity, built.value.quantity, 'receipt');
-      if (quantity === null) return toast("Це призведе до від'ємного залишку", 'error');
-      const itemPatch = { quantity };
-      if (built.value.purchase_price_unit !== null) Object.assign(itemPatch, { price_unit: built.value.purchase_price_unit, price_source: 'Закупівля', price_confidence: 'manual', price_checked_at: new Date().toISOString() });
-      const result = await db.from('inventory_items').update(itemPatch).eq('id', item.id);
-      if (result.error) return toast('Не вдалося оновити товар: ' + result.error.message, 'error');
+    if (item && adjustedStockAfterMovementEdit(item.quantity, receipt.quantity, built.value.quantity, 'receipt') === null) {
+      return toast("Це призведе до від'ємного залишку", 'error');
     }
-    let { error } = await db.from('inventory_receipts').update(built.value).eq('id', id);
-    let priceHistorySaved = true;
-    if (error && isPurchasePriceSchemaError(error)) { priceHistorySaved = false; const legacy = { ...built.value }; delete legacy.purchase_price_unit; ({ error } = await db.from('inventory_receipts').update(legacy).eq('id', id)); }
-    if (error) return toast('Помилка: ' + error.message, 'error');
+    const { error } = await db.rpc('update_inventory_receipt', {
+      p_receipt_id: id, p_qty: built.value.quantity, p_supplier: built.value.supplier, p_note: built.value.note,
+      p_received_at: built.value.received_at || null, p_price_unit: built.value.purchase_price_unit || null,
+    });
+    if (error) {
+      if ((error.message || '').includes('negative_stock')) return toast("Це призведе до від'ємного залишку", 'error');
+      return toast(movementErrorMessage(error), 'error');
+    }
     toast('Прихід оновлено', 'success'); closeModal('editReceiptModal'); setPending('editingReceiptId', null); await loadItems(); await loadReceipts();
-    if (!priceHistorySaved) showPurchasePriceMigrationNotice();
   }
 
   return { confirmDeleteLog, confirmDeleteReceipt, issueItem, openDeleteLog, openDeleteReceipt, openEditLog, openEditReceipt, pending, runDelete,

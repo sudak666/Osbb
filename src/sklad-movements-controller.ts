@@ -4,6 +4,8 @@ import { dateInputToTimestamp, dateToInputValue } from './sklad-dates.js';
 void deleteInventoryResultFromRpcResponse;
 void adjustedStockAfterMovementEdit; void buildIssueEditPatch; void buildIssuePayload; void buildReceiptEditPatch; void buildReceiptPayload; void dateInputToTimestamp; void dateToInputValue;
 export type MovementPendingKey = 'deletingLogId' | 'editingLogId' | 'deletingReceiptId' | 'editingReceiptId';
+export declare function isTransportError(error: unknown): boolean;
+export declare function movementErrorMessage(error: unknown): string;
 export declare function createSkladMovementsController(options: Record<string, unknown>): {
   confirmDeleteLog(): Promise<void>;
   confirmDeleteReceipt(): Promise<void>;

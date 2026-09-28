@@ -14,14 +14,12 @@
     import { createOsbbElevatorController } from './osbb-elevator-controller.js';
     import { createOsbbCompletedWorkController } from './osbb-completed-work-controller.js';
     import { createOsbbRuntimeController } from './osbb-runtime-controller.js';
-    import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme, shouldApplyRealtimeRefresh } from './osbb-client-state.js';
-    import { adjacentCalendarDays, calendarMonthDays, isCalendarMonth, oneBasedMonthKey, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
+    import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme } from './osbb-client-state.js';
+    import { adjacentCalendarDays, calendarMonthDays, isCalendarMonth, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
     import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
     import {
-        createElevatorEntry,
         elevatorEntriesFromResponse,
-        removeElevatorEntry,
         sortElevatorEntries,
     } from './osbb-elevator.js';
     import {
@@ -34,13 +32,13 @@
         saveStoredStaffSession,
     } from './osbb-staff.js';
     import {
-        TICKET_PRIORITIES as ticketPriorities,
         formatJiraShareText,
         jiraPriorityClass,
     } from './osbb-tickets.js';
     import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
     import { completedWorkDefaultDate, filterCompletedWork } from './osbb-completed-work.js';
     import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';
+    import { createClient } from '@supabase/supabase-js';
 
     // Вкладка "Журнал" у shell-оболонці (index.html в корені) вантажить цю
     // сторінку в iframe з ?embed=1 — це НЕ прев'ю, і синк з Supabase має
@@ -339,23 +337,9 @@
     // не чіпаємо, щоб не ризикувати вже робочою логікою.
     function realtimeSafeRefresh(tab, fn) {
         return runtimeController.safeRealtimeRefresh(tab, fn);
-        const active = document.activeElement;
-        // Не перебивати активне редагування коментаря/поля вводу realtime-рефрешем.
-        if (!shouldApplyRealtimeRefresh(currentTab, tab, active?.tagName)) return;
-        fn();
     }
     function initRealtime() {
         return runtimeController.initRealtime();
-        if (IS_PREVIEW || typeof supabase === 'undefined') return;
-        try {
-            const rt = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            rt.channel('osbb-live')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'garbage' }, () => realtimeSafeRefresh('garbage', gInitTab))
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'elevator_visits' }, () => realtimeSafeRefresh('completed-work', elevatorInitTab))
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shifts' }, () => realtimeSafeRefresh('shifts', shiftLoadMonth))
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'work_shift_settings' }, () => realtimeSafeRefresh('shift-settings', shiftLoadSettings))
-                .subscribe();
-        } catch (e) { console.warn('osbb realtime init failed:', e); }
     }
 
     const monthNames = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
@@ -432,44 +416,10 @@
 
     function requestTab(tab) {
         return runtimeController.requestTab(tab);
-        if (!isTabAllowedForSession(tab)) { showToast('Цей розділ вам недоступний'); return; }
-        if (tab === 'dispatcher' && !isDispatcherSession()) { showToast('Цей розділ доступний лише Диспетчеру/Адміну'); return; }
-        if (tab !== 'shifts') { setTab(tab); return; }
-        showPinModal('PIN розділу «Зміни»', 'Введіть окремий PIN для доступу', () => setTab('shifts'), false, 'verify_work_shifts_pin');
     }
 
     function setTab(tab, { load = true } = {}) {
         return runtimeController.setTab(tab, { load });
-        currentTab = tab;
-        document.getElementById('section-garbage').classList.toggle('hidden', tab !== 'garbage');
-        document.getElementById('section-shifts').classList.toggle('hidden', tab !== 'shifts');
-        document.getElementById('section-tabel').classList.toggle('hidden', tab !== 'tabel');
-        document.getElementById('section-my-tickets').classList.toggle('hidden', tab !== 'my-tickets');
-
-        // Десктоп таби
-        ALL_TABS.forEach(t => {
-            const el = document.getElementById('tab-' + t);
-            if (el) {
-                el.classList.toggle('active', t === tab);
-                el.toggleAttribute('aria-current', t === tab);
-                el.setAttribute('aria-selected', String(t === tab));
-            }
-        });
-        // Мобільний bottom nav
-        ALL_TABS.forEach(t => {
-            const el = document.getElementById('tab-' + t + '-m');
-            if (el) {
-                el.classList.toggle('mob-active', t === tab);
-                el.toggleAttribute('aria-current', t === tab);
-                el.setAttribute('aria-selected', String(t === tab));
-            }
-        });
-
-        if (!load) return;
-        if (tab === 'garbage') gInitTab();
-        if (tab === 'shifts') shiftInitTab();
-        if (tab === 'tabel') attInitTab();
-        if (tab === 'my-tickets') myTicketsInitTab();
     }
 
     // ==========================================
@@ -588,24 +538,23 @@
         return attendanceController.renderStats();
     }
 
-    function attExportExcel() {
-        if (!window.XLSX) {
-            showToast('Модуль Excel ще не завантажився. Оновіть сторінку.');
-            return;
-        }
+    async function attExportExcel() {
+        let XLSX;
+        try { XLSX = await import('xlsx'); }
+        catch (error) { console.warn('xlsx load failed:', error); showToast('Не вдалося завантажити модуль Excel. Перевірте зʼєднання.'); return; }
         const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         const data = attendanceController.getData();
         const details = buildAttendanceExportRows(data, roles, roleNames, currentYear, currentMonth, daysInMonth);
         const summary = buildAttendanceSummaryRows(data, roles, roleNames, daysInMonth);
-        const workbook = window.XLSX.utils.book_new();
-        const detailsSheet = window.XLSX.utils.json_to_sheet(details);
+        const workbook = XLSX.utils.book_new();
+        const detailsSheet = XLSX.utils.json_to_sheet(details);
         detailsSheet['!cols'] = [{wch:12},{wch:14},{wch:18},{wch:10},{wch:10},{wch:12},{wch:10},{wch:20},{wch:16}];
-        const summarySheet = window.XLSX.utils.json_to_sheet(summary);
+        const summarySheet = XLSX.utils.json_to_sheet(summary);
         summarySheet['!cols'] = [{wch:20},{wch:20},{wch:22}];
-        window.XLSX.utils.book_append_sheet(workbook, detailsSheet, 'Табель');
-        window.XLSX.utils.book_append_sheet(workbook, summarySheet, 'Підсумки');
+        XLSX.utils.book_append_sheet(workbook, detailsSheet, 'Табель');
+        XLSX.utils.book_append_sheet(workbook, summarySheet, 'Підсумки');
         const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-        window.XLSX.writeFile(workbook, `Табель_${monthKey}.xlsx`);
+        XLSX.writeFile(workbook, `Табель_${monthKey}.xlsx`);
         showToast('Табель Excel завантажено!', 'success');
     }
 
@@ -791,16 +740,6 @@
     // всіх табів: рік/місяць, кеш фото на місяць і перерендер активного табу.
     async function initCalendar() {
         return runtimeController.initCalendar();
-        currentYear = parseInt(yearSelect.value); currentMonth = parseInt(monthSelect.value);
-        setSyncStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
-        photosCache = null;
-        if (!IS_PREVIEW) await loadAllPhotosForMonth();
-        setSyncStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>Синхронізовано</span>');
-        updateTodayBtn();
-        if (currentTab === 'garbage') gInitTab();
-        if (currentTab === 'tabel') attInitTab();
-        if (currentTab === 'my-tickets') myTicketsInitTab();
-        gInitDashboard();
     }
 
 
@@ -946,9 +885,10 @@
         const isDark = themeName === 'theme-dark';
         document.getElementById('journalThemeLabel').textContent = isDark ? 'Темна' : 'Світла';
         // Оновлюємо колір рядка стану браузера/PWA
-        const themeColors = { 'theme-light': '#22c55e', 'theme-dark': '#000000' };
+        // Ті самі значення, що --md-sys-color-background у shared/material-tokens.css.
+        const themeColors = { 'theme-light': '#f4f7fb', 'theme-dark': '#121214' };
         const metaColor = document.getElementById('meta-theme-color');
-        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || '#22c55e');
+        if (metaColor) metaColor.setAttribute('content', themeColors[themeName] || themeColors['theme-light']);
     }
     function toggleTheme() {
         changeTheme(nextOsbbTheme(document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light'));
@@ -1229,11 +1169,18 @@
         readOffline:readOsbbOfflineValue, writeOffline:writeOsbbOfflineValue, removeOffline:removeOsbbOfflineValue,
         fetchMonth:async monthKey => db.from('garbage').select('data').eq('month_key', monthKey).single(),
         upsertMonth:row => db.from('garbage').upsert(row), fetchYear:() => db.from('garbage').select('month_key,data'),
+        saveDay:(args, requestOptions) => db.rpcResult('save_garbage_day', args, requestOptions),
         resetMonth:args => db.rpc('reset_month', args),
         requestResetPin:callback => showPinModal('Скидання сміття', 'PIN для очищення місяця', callback, true),
         render:() => { gData = garbageController.getData(); gRender(); },
     });
     let gData = garbageController.getData();
+    // Незбережені дні сміття дописуємо на сервер, коли сторінку згортають/закривають
+    // або коли повертається мережа (див. flush у osbb-garbage-controller).
+    const flushGarbage = () => { garbageController.flush().catch(error => console.warn('garbage flush failed:', error)); };
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushGarbage(); });
+    window.addEventListener('pagehide', flushGarbage);
+    window.addEventListener('online', () => { garbageController.flush({ keepalive:false }).catch(error => console.warn('garbage flush failed:', error)); });
     const gInitTab = () => garbageController.init();
     const gUpdateRow = (day, field, value) => garbageController.updateRow(day, field, value);
     const gUpdateType = (day, type, value) => garbageController.updateType(day, type, value);
@@ -1591,70 +1538,20 @@
         return elevatorEntriesFromResponse(readOsbbOfflineValue(localStorage, elevatorOfflineKey()));
     }
 
-    function elevatorSetStatus(type, text) {
-        const el = document.getElementById('elevator-sync-status');
-        if (!el) return;
-        const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
-        el.className = `journal-status-chip ${cls[type] || cls.ok}`;
-        el.innerHTML = text;
-    }
-
     async function elevatorInitTab() {
         return elevatorController.init();
-        elevatorSetStatus('loading', '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span>');
-        const offline = elevatorLoadOffline();
-        if (offline) { elevatorData = offline; elevatorRender(); }
-        if (IS_PREVIEW) {
-            elevatorData = offline || [];
-            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>');
-            elevatorRender();
-            return;
-        }
-        try {
-            const res = await db.from('elevator_visits').select('data').eq('month_key', elevatorKey()).single();
-            const { data, error } = res;
-            if (error && error.code !== 'PGRST116') throw error;
-            elevatorData = Array.isArray(data?.data) ? elevatorEntriesFromResponse(data.data) : offline;
-            elevatorSaveOffline();
-            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>');
-        } catch(err) {
-            console.error('elevator load error:', err);
-            elevatorSetStatus('error', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>');
-            elevatorData = offline || [];
-        }
-        elevatorRender();
     }
 
     async function elevatorSaveCloud() {
         return elevatorController.saveCloud();
-        if (IS_PREVIEW) return;
-        try {
-            const { error } = await db.from('elevator_visits').upsert({ month_key: elevatorKey(), data: elevatorData });
-            if (error) throw error;
-            elevatorSetStatus('ok', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>');
-        } catch(err) {
-            console.error('elevator save error:', err);
-            elevatorSetStatus('error', '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>');
-        }
     }
 
     function elevatorAdd(day, text) {
         return elevatorController.add(day, text);
-        const entry = createElevatorEntry(day, text, staffSession?.name || defaultOperatorName);
-        if (!entry) { showToast('Опишіть, що зробив ліфтер'); return; }
-        elevatorData.push(entry);
-        elevatorSaveOffline();
-        elevatorSaveCloud();
-        elevatorRender();
-        showToast('Запис додано');
     }
 
     function elevatorDelete(id) {
         return elevatorController.remove(id);
-        elevatorData = removeElevatorEntry(elevatorData, id);
-        elevatorSaveOffline();
-        elevatorSaveCloud();
-        elevatorRender();
     }
 
     function elevatorRender() {
@@ -1786,13 +1683,6 @@
     // ============================================================
     function updateNetworkBadge() {
         return runtimeController.updateNetworkBadge();
-        const badge = document.getElementById('network-badge');
-        if (!badge) return;
-        if (navigator.onLine) {
-            badge.style.display = 'none';
-        } else {
-            badge.style.display = 'flex';
-        }
     }
     // ============================================================
     // AUTO-LOCK — блокування через 30 хвилин бездіяльності
@@ -1836,7 +1726,7 @@
         loadDashboard:gInitDashboard,
         loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
         setSyncStatus:type=>setSyncStatus(type,type==='loading'?'<span class="status-label">Завантаження...</span>':'<span class="status-label">Синхронізовано</span>'),
-        createRealtimeClient:typeof supabase==='undefined'?null:()=>supabase.createClient(SUPABASE_URL,SUPABASE_KEY),
+        createRealtimeClient:()=>createClient(SUPABASE_URL,SUPABASE_KEY),
         subscriptions:[
             {tab:'garbage',filter:{event:'*',schema:'public',table:'garbage'},load:gInitTab},
             {tab:'completed-work',filter:{event:'*',schema:'public',table:'elevator_visits'},load:elevatorInitTab},

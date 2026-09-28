@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync as readRawFile } from 'node:fs';
+
+// Згенеровані з TypeScript src/*.js перевіряємо за їх джерелом src/*.ts.
+function readFileSync(url, encoding) {
+  const text = readRawFile(url, encoding);
+  if (!text.startsWith('// Згенеровано з src/')) return text;
+  const tsUrl = new URL(String(url).replace(/\.js$/, '.ts'));
+  return existsSync(tsUrl) ? readRawFile(tsUrl, encoding) : text;
+}
 
 const normalizeNewlines = value => value.replace(/\r\n?/g, '\n');
 const skladHtml = normalizeNewlines(readFileSync(new URL('../sklad/index.html', import.meta.url), 'utf8'));
@@ -51,7 +59,7 @@ test('Sklad audit flow keeps dynamic controls delegated from the list container'
 test('Sklad PIN flow keeps server verification and guarded keypad binding', () => {
   assertIncludes(skladAuth, "db.rpc('verify_pin', { attempt })", 'Sklad PIN check must use server RPC');
   assertIncludes(skladHtml, '<script type="module" src="../src/sklad-auth.js"></script>', 'typed Sklad auth runtime must be loaded');
-  assertIncludes(skladAuthController, "doc.querySelectorAll('[data-auth-pin-key]').forEach", 'runtime PIN keypad binding is missing');
+  assert.match(skladAuthController, /doc\.querySelectorAll(<[^>]+>)?\('\[data-auth-pin-key\]'\)\.forEach/u, 'runtime PIN keypad binding is missing');
   assertIncludes(skladAuthController, 'if (busy) return;', 'PIN keypad must guard concurrent input');
   assertIncludes(skladDeletePinController, 'const nextBuffer = applyPinKey(buffer, key);', 'runtime delete PIN must use the shared keypad boundary');
   assertIncludes(skladDeletePinController, 'if (!isPinComplete(buffer)) return;', 'runtime delete PIN must verify complete input');
@@ -66,12 +74,13 @@ test('Sklad date fields use the rounded custom date picker instead of the native
 });
 
 
-test('Sklad receipt flow remembers legacy receive_item fallback when migration 009 is missing', () => {
-  assertIncludes(skladClientState, "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'", 'receipt RPC fallback flag key is missing');
-  assertIncludes(skladApp, 'let purchasePriceRpcAvailable=loadPurchasePriceRpcAvailable(localStorage);', 'receipt RPC fallback flag must be loaded at startup');
-  assertIncludes(skladApp, 'function disablePurchasePriceRpc(){', 'receipt RPC fallback disabler is missing');
-  assertIncludes(skladMovementsController, 'disablePurchasePriceRpc();', 'schema fallback must be remembered after the first failed price RPC');
-  assertIncludes(skladMovementsController, 'purchasePrice !== null && getPurchasePriceRpcAvailable()', 'price RPC should be skipped after fallback is remembered');
+test('Sklad stock movements are idempotent and no longer use the pre-009 fallback', () => {
+  assertIncludes(skladClientState, "PURCHASE_PRICE_RPC_UNAVAILABLE_KEY = 'sklad_purchase_price_rpc_unavailable_v1'", 'legacy fallback key is still needed for cleanup');
+  assertIncludes(skladApp, 'try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}', 'stale fallback flag must be cleared on startup');
+  assert.equal(skladMovementsController.includes('getPurchasePriceRpcAvailable'), false, 'receipts must always send the purchase price');
+  assertIncludes(skladMovementsController, "p_client_request_id: requestIdFor('issue', args)", 'issue must send a retry-stable request id');
+  assertIncludes(skladMovementsController, "p_client_request_id: requestIdFor('receipt', args)", 'receipt must send a retry-stable request id');
+  assert.equal(skladApp.includes('notifyTelegram'), false, 'Telegram notifications are sent by DB triggers, not the client');
 });
 
 test('Sklad movement history distinguishes transport errors from empty results', () => {
@@ -82,7 +91,8 @@ test('Sklad movement history distinguishes transport errors from empty results',
 });
 
 test('Sklad receipt load errors escape transport text before HTML rendering', () => {
-  assertIncludes(skladDataController, "const message = iconHtml('warning') + ' ' + escapeHtml(error.message);", 'receipt error HTML must escape transport text');
+  assertIncludes(skladDataController, "const message = iconHtml('warning') + ' ' + escapeHtml(text) +", 'receipt error HTML must escape its text');
+  assert.equal(skladDataController.includes('escapeHtml(error.message)'), false, 'raw transport text must not be rendered');
 });
 
 test('Sklad delete RPC flow handles returned and thrown transport errors', () => {

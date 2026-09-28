@@ -44,12 +44,25 @@ async function networkFirst(request) {
   }
 }
 
+// Хешовані assets кожного деплою накопичуються в одному кеші — тримаємо лише
+// останні MAX_ASSET_ENTRIES (Cache API зберігає ключі в порядку додавання).
+const MAX_ASSET_ENTRIES = 80;
+
+async function trimAssetCache(cache) {
+  const assetKeys = (await cache.keys()).filter(req => new URL(req.url).pathname.startsWith('/Osbb/assets/'));
+  const excess = assetKeys.length - MAX_ASSET_ENTRIES;
+  if (excess > 0) await Promise.all(assetKeys.slice(0, excess).map(req => cache.delete(req)));
+}
+
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(request);
   if (cached) return cached;
   const response = await fetch(request);
-  if (response.ok) await cache.put(request, response.clone());
+  if (response.ok) {
+    await cache.put(request, response.clone());
+    trimAssetCache(cache).catch(() => {});
+  }
   return response;
 }
 

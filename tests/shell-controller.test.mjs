@@ -72,10 +72,8 @@ function makeShellDom() {
   for (let i = 0; i < 4; i++) doc.add(new FakeElement(`lock-d${i}`));
   doc.add(new FakeElement('shell-tab-journal', { classes: ['shell-tab-btn'], role: true }));
   doc.add(new FakeElement('shell-tab-sklad', { classes: ['shell-tab-btn'], role: true }));
-  doc.add(new FakeElement('shell-tab-promin', { classes: ['shell-tab-btn'], role: true }));
   doc.add(new FakeElement('frame-journal'));
   doc.add(new FakeElement('frame-sklad'));
-  doc.add(new FakeElement('frame-promin'));
   return doc;
 }
 
@@ -120,7 +118,6 @@ test('ShellController ignores unknown tab payloads', () => {
   controller.switchTab('<img onerror=alert(1)>');
   assert.equal(doc.getElementById('frame-journal').src, '');
   assert.equal(doc.getElementById('frame-sklad').src, '');
-  assert.equal(doc.getElementById('frame-promin').src, '');
 });
 
 test('ShellController verifies a complete PIN through Supabase RPC and unlocks shell on success', async () => {
@@ -141,7 +138,7 @@ test('ShellController notifies embedded modules after unlock', () => {
   const { controller, doc } = makeController();
   const messages = [];
   const embeddedLocks = [];
-  for (const id of ['frame-journal', 'frame-sklad', 'frame-promin']) {
+  for (const id of ['frame-journal', 'frame-sklad']) {
     const frame = doc.getElementById(id);
     const embeddedLock = new FakeElement(id === 'frame-sklad' ? 'authScreen' : 'app-lock-screen');
     embeddedLocks.push(embeddedLock);
@@ -155,7 +152,7 @@ test('ShellController notifies embedded modules after unlock', () => {
 
   controller.unlockShell('3535');
 
-  assert.equal(messages.length, 3);
+  assert.equal(messages.length, 2);
   assert.equal(embeddedLocks.every(lock => lock.style.display === 'none'), true);
   assert.deepEqual(messages[0], {
     id: 'frame-journal',
