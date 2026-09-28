@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const functions = ['jira-issues'];
+const functions = ['jira-issues', 'photo-cleanup'];
 
 for (const name of functions) {
   const sourcePath = path.join(root, 'sklad/supabase/functions', name, 'index.ts');

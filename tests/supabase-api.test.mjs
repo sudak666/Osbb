@@ -222,3 +222,15 @@ test('REST rpcResult forwards keepalive only when requested', async () => {
   assert.equal(inits[0].keepalive, true);
   assert.equal('keepalive' in inits[1], false);
 });
+
+test('requestPhotoCleanup posts a keepalive request to the photo-cleanup function and swallows failures', async () => {
+  const { requestPhotoCleanup } = await import('../src/supabase-api.js');
+  const calls = [];
+  requestPhotoCleanup(async (url, init) => { calls.push({ url, init }); throw new Error('offline'); }, 'https://example.test/', 'key');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, 'https://example.test/functions/v1/photo-cleanup');
+  assert.equal(calls[0].init.method, 'POST');
+  assert.equal(calls[0].init.keepalive, true);
+  assert.equal(calls[0].init.headers.apikey, 'key');
+});

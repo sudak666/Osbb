@@ -51,6 +51,18 @@ function createRpcClient(options = {}) {
   return typedRpc;
 }
 const rpc = createRpcClient();
+function requestPhotoCleanup(fetcher = fetch, supabaseUrl = SUPABASE_URL, supabaseKey = SUPABASE_KEY) {
+  try {
+    void fetcher(`${supabaseUrl.replace(/\/$/, "")}/functions/v1/photo-cleanup`, {
+      method: "POST",
+      headers: { "apikey": supabaseKey, "Content-Type": "application/json" },
+      body: "{}",
+      keepalive: true
+    }).catch(() => {
+    });
+  } catch {
+  }
+}
 function createSupabaseRestClient(options = {}) {
   const fetcher = options.fetcher ?? fetch;
   const supabaseUrl = (options.supabaseUrl ?? SUPABASE_URL).replace(/\/$/, "");
@@ -205,5 +217,6 @@ export {
   createSupabaseRestClient,
   numericIdFromInsertResponse,
   parseRpcResponseText,
+  requestPhotoCleanup,
   rpc
 };
