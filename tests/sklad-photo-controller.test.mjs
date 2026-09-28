@@ -30,3 +30,25 @@ test('photo controller rejects unsafe lightbox URLs', () => {
   assert.equal(elements.get('lightbox').classList.values.has('open'), true);
   assert.equal(elements.get('lbImg').src, 'https://example.com/photo.jpg');
 });
+
+test('photo removal clears the row and asks the server to clean up orphaned files', async () => {
+  const elements = new Map(['photoItemName','photoStatus','photoFileI','photoCurrent','delPhotoBtn','lbImg','lbDelBtn','lightbox'].map(id => [id, element()]));
+  let pinAction = null;
+  let cleanups = 0;
+  const updates = [];
+  const db = {
+    rpc: async () => ({ data: true, error: null }),
+    from: () => ({ update: patch => ({ eq: async () => { updates.push(patch); return { error: null }; } }) }),
+  };
+  const controller = createSkladPhotoController({
+    db, document: { activeElement: null, getElementById: id => elements.get(id), contains: () => false },
+    window: { requestAnimationFrame: fn => fn() }, getItem: () => ({ id: 4, name: 'Кабель', photo_url: 'https://x/storage/v1/object/public/photos/items/4_1.jpg' }),
+    loadItems: async () => {}, openModal() {}, closeModal() {}, requestDeletePin: (_title, action) => { pinAction = action; }, toast() {},
+    cleanupPhotos: () => { cleanups++; },
+  });
+  controller.open(4);
+  await controller.remove();
+  assert.deepEqual(await pinAction('1234'), { ok: true });
+  assert.deepEqual(updates, [{ photo_url: null }]);
+  assert.equal(cleanups, 1);
+});

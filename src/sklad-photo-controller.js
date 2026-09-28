@@ -1,7 +1,8 @@
 import { escapeHtml, safeExternalUrl } from './app-security.js';
+import { requestPhotoCleanup } from './supabase-api.js';
 
 export function createSkladPhotoController(options) {
-  const { db, document, window, getItem, loadItems, openModal, closeModal, requestDeletePin, toast } = options;
+  const { db, document, window, getItem, loadItems, openModal, closeModal, requestDeletePin, toast, cleanupPhotos = requestPhotoCleanup } = options;
   let photoItemId = null;
   let lightboxItemId = null;
   let focusReturn = null;
@@ -48,6 +49,7 @@ export function createSkladPhotoController(options) {
         const { data: { publicUrl } } = db.storage.from('photos').getPublicUrl(path);
         const { error } = await db.from('inventory_items').update({ photo_url: publicUrl }).eq('id', photoItemId);
         if (error) { status.textContent = 'Помилка: ' + error.message; return; }
+        cleanupPhotos();
         status.innerHTML = '<span class="ms ic-14-2">check_circle</span> Збережено!';
         await loadItems(); open(photoItemId);
       }, 'image/jpeg', .82);
@@ -62,6 +64,7 @@ export function createSkladPhotoController(options) {
       if (valid !== true) return { ok: false, reason: 'bad_pin' };
       const { error } = await db.from('inventory_items').update({ photo_url: null }).eq('id', photoItemId);
       if (error) { toast('Помилка: ' + error.message, 'error'); return { ok: false, reason: 'network' }; }
+      cleanupPhotos();
       toast('Фото видалено', 'info'); closeModal('photoModal'); await loadItems();
       return { ok: true };
     });

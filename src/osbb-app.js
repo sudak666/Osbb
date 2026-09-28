@@ -17,7 +17,7 @@
     import { formatTimeMaskValue, isCompleteTimeValue, loadOsbbTheme, nextOsbbTheme, saveOsbbTheme } from './osbb-client-state.js';
     import { adjacentCalendarDays, calendarMonthDays, isCalendarMonth, shiftCalendarMonth, sundayFirstDayOffset, zeroBasedMonthKey } from './osbb-calendar.js';
     import { osbbOfflineMonthKey, readOsbbOfflineValue, removeOsbbOfflineValue, writeOsbbOfflineValue } from './osbb-offline.js';
-    import { createSupabaseRestClient, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
+    import { createSupabaseRestClient, requestPhotoCleanup, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
     import {
         elevatorEntriesFromResponse,
         sortElevatorEntries,
@@ -114,7 +114,8 @@
             return data;
         },
         verifyDelete: (id, pin) => db.rpc('delete_photo', { p_photo_id: id, attempt: pin }),
-        removeObject: async path => { await db.storage.from('photos').remove([path]); },
+        // Файл прибирає Edge Function photo-cleanup (у anon немає прав на видалення зі Storage).
+        removeObject: async () => { requestPhotoCleanup(); },
         requestDeletePin: callback => showPinModal('Видалення фото', 'PIN для видалення фото', callback, true),
         onCacheChanged: (cache, day, role) => {
             photosCache = cache;

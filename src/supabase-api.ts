@@ -146,6 +146,24 @@ export function createRpcClient(options: RpcClientOptions = {}) {
 
 export const rpc = createRpcClient();
 
+/**
+ * Просить Edge Function photo-cleanup прибрати з бакета photos файли, на які
+ * вже ніщо не посилається (після видалення/заміни фото). Fire-and-forget:
+ * помилка не впливає на дію користувача, наступний виклик прибере залишки.
+ */
+export function requestPhotoCleanup(fetcher: RpcFetch = fetch, supabaseUrl = SUPABASE_URL, supabaseKey = SUPABASE_KEY): void {
+    try {
+        void fetcher(`${supabaseUrl.replace(/\/$/, '')}/functions/v1/photo-cleanup`, {
+            method: 'POST',
+            headers: { 'apikey': supabaseKey, 'Content-Type': 'application/json' },
+            body: '{}',
+            keepalive: true,
+        }).catch(() => {});
+    } catch {
+        /* best-effort */
+    }
+}
+
 export function createSupabaseRestClient(options: SupabaseRestClientOptions = {}): SupabaseRestClient {
     const fetcher = options.fetcher ?? fetch;
     const supabaseUrl = (options.supabaseUrl ?? SUPABASE_URL).replace(/\/$/, '');
