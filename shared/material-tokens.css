@@ -237,6 +237,8 @@
 
 .md-state-layer > * { position: relative; z-index: 1; }
 
-.md-state-layer:hover::before { opacity: var(--md-sys-state-hover-opacity); }
+@media (hover: hover) and (pointer: fine) {
+  .md-state-layer:hover::before { opacity: var(--md-sys-state-hover-opacity); }
+}
 .md-state-layer:focus-visible::before { opacity: var(--md-sys-state-focus-opacity); }
 .md-state-layer:active::before { opacity: var(--md-sys-state-pressed-opacity); }

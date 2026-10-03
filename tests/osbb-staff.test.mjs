@@ -110,16 +110,17 @@ test('tab gating keeps workers inside attendance and own tickets', () => {
   const worker = session('plumber');
   assert.equal(isTabAllowedForSession('tabel', worker), true);
   assert.equal(isTabAllowedForSession('my-tickets', worker), true);
-  assert.equal(isTabAllowedForSession('dispatcher', worker), false);
-  assert.equal(isTabAllowedForSession('garbage', worker), false);
+  assert.equal(isTabAllowedForSession('shifts', worker), false);
+  assert.equal(isTabAllowedForSession('garbage', worker), true);
 });
 
-test('dispatcher tab remains available before staff login but own tickets require full access', () => {
+test('all tabs except shifts are available to every session', () => {
   assert.equal(isTabAllowedForSession('dispatcher', null), true);
-  assert.equal(isTabAllowedForSession('my-tickets', null), false);
+  assert.equal(isTabAllowedForSession('my-tickets', null), true);
   assert.equal(isTabAllowedForSession('my-tickets', session('board')), true);
   assert.equal(isTabAllowedForSession('garbage', session('dispatcher')), true);
   assert.equal(isTabAllowedForSession('completed-work', session('board')), true);
-  assert.equal(isTabAllowedForSession('completed-work', session('plumber')), false);
-  assert.equal(isTabAllowedForSession('completed-work', null), false);
+  assert.equal(isTabAllowedForSession('completed-work', session('plumber')), true);
+  assert.equal(isTabAllowedForSession('completed-work', null), true);
+  assert.equal(isTabAllowedForSession('shifts', session('dispatcher')), true);
 });
