@@ -213,7 +213,7 @@
             <div class="journal-title-block app-module-identity">
                 <div class="journal-title-eyebrow app-module-kicker">ОСББ «Микитська Слобода»</div>
                 <h1 class="journal-title-heading"><span class="material-symbols-rounded app-module-title-icon" aria-hidden="true">assignment</span><span>Журнал</span></h1>
-                <div class="journal-title-copy">Заявки, табель персоналу та облік будинку.</div>
+                <div class="journal-title-copy">Виконані роботи, табель персоналу та облік будинку.</div>
             </div>
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>
@@ -287,14 +287,14 @@
             <form id="completed-work-form" class="completed-work-form">
                 <input type="hidden" id="completed-work-id">
                 <label><span>Дата</span><input id="completed-work-date" type="text" inputmode="numeric" placeholder="РРРР-ММ-ДД" autocomplete="off" required></label>
-                <label><span>Виконавець</span><select id="completed-work-role" required><option value="electrician">Електрик</option><option value="janitor">Двірник</option><option value="plumber">Сантехнік</option></select></label>
+                <label><span>Виконавець</span><select id="completed-work-role" class="journal-select" required><option value="electrician">Електрик</option><option value="janitor">Двірник</option><option value="plumber">Сантехнік</option></select></label>
                 <label class="is-wide"><span>Що зроблено</span><textarea id="completed-work-description" class="journal-textarea" maxlength="1000" required placeholder="Наприклад: замінив лампу, 3 поверх, 1 секція"></textarea></label>
                 <label class="is-wide"><span>Примітка <small>необов’язково</small></span><input id="completed-work-note" type="text" maxlength="500" placeholder="Додаткові деталі"></label>
                 <div class="completed-work-form-actions is-wide"><button type="button" class="journal-tonal-btn md-state-layer hidden" id="completed-work-cancel">Скасувати</button><button type="submit" class="journal-action-btn md-state-layer"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">save</span><span id="completed-work-submit-label">Зберегти роботу</span></button></div>
             </form>
             <div class="completed-work-toolbar">
                 <label class="dispatcher-search-wrap"><span class="material-symbols-rounded" aria-hidden="true">search</span><input id="completed-work-search" type="search" placeholder="Пошук у роботах" aria-label="Пошук у виконаних роботах" class="dispatcher-search-input"></label>
-                <label><span class="sr-only">Фільтр за виконавцем</span><select id="completed-work-filter"><option value="all">Усі виконавці</option><option value="electrician">Електрик</option><option value="janitor">Двірник</option><option value="plumber">Сантехнік</option></select></label>
+                <label><span class="sr-only">Фільтр за виконавцем</span><select id="completed-work-filter" class="journal-select"><option value="all">Усі виконавці</option><option value="electrician">Електрик</option><option value="janitor">Двірник</option><option value="plumber">Сантехнік</option></select></label>
             </div>
             <div id="completed-work-list" class="completed-work-list" aria-live="polite"></div>
         </div>
