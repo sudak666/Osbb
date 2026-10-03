@@ -31,11 +31,7 @@
         loadStoredStaffSession,
         saveStoredStaffSession,
     } from './osbb-staff.js';
-    import {
-        formatJiraShareText,
-        jiraPriorityClass,
-    } from './osbb-tickets.js';
-    import { createOsbbRuntimeState, jiraIssuesFromResponse } from './osbb-state.js';
+    import { createOsbbRuntimeState } from './osbb-state.js';
     import { completedWorkDefaultDate, filterCompletedWork } from './osbb-completed-work.js';
     import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.js';
     import { createClient } from '@supabase/supabase-js';
@@ -84,12 +80,9 @@
     let staffSession = null;   // { id, name, role }
     let staffPinCache = null;  // особистий PIN сесії — тримається лише в пам'яті, не в storage
     let shellPinCache = /^\d{4}$/.test(window.__osbbShellPin || '') ? window.__osbbShellPin : null;
-    let jiraAccessEnabled = false;
-    let jiraAccessPending = false;
     let staffAuthResolve = null;
     let {
         photosCache,
-        jiraIssues,
         elevatorData,
     } = createOsbbRuntimeState();
 
@@ -175,20 +168,12 @@
             staffSession = session;
             staffPinCache = pin;
             saveStaffSession();
-            if (jiraAccessPending) {
-                jiraAccessPending = false;
-                jiraAccessEnabled = true;
-                const toggle = document.querySelector('[data-jira-access-toggle]');
-                if (toggle) { toggle.checked = true; toggle.disabled = false; }
-                document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
-            }
             applyRoleGating();
             const resolveAuth = staffAuthResolve;
             staffAuthResolve = null;
             document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
             resolveAuth?.(true);
-            if (jiraAccessEnabled && runtimeController) setTab('my-tickets');
-            else if (needsInitialTabLoad && runtimeController) setTab(currentTab);
+            if (needsInitialTabLoad && runtimeController) setTab(currentTab);
         },
     });
 
@@ -218,15 +203,6 @@
         const pin = event.detail;
         if (!/^\d{4}$/.test(pin || '')) return;
         shellPinCache = pin;
-        if (!jiraAccessEnabled && !jiraAccessPending) return;
-        loadStaffSession();
-        if (staffSession) {
-            staffPinCache = pin;
-            document.getElementById('staff-login-modal')?.style.setProperty('display', 'none');
-            applyRoleGating();
-        } else {
-            void staffAuthController.authenticateSingle(pin);
-        }
     });
     window.addEventListener('osbb:shell-pin-cleared', () => {
         shellPinCache = null;
@@ -245,41 +221,12 @@
         return new Promise(resolve => { staffAuthResolve = resolve; });
     }
 
-    async function requestJiraAccess() {
-        jiraAccessPending = true;
-        const toggle = document.querySelector('[data-jira-access-toggle]');
-        if (toggle) toggle.disabled = true;
-        document.querySelector('[data-staff-login-cancel]')?.classList.remove('hidden');
-        loadStaffSession();
-        if (staffSession) {
-            const confirmed = await requestStaffReauth();
-            if (!confirmed) {
-                jiraAccessPending = false;
-                if (toggle) { toggle.checked = false; toggle.disabled = false; }
-            }
-            return;
-        }
-        await openStaffLogin();
-    }
-
     function cancelPendingStaffAccess() {
         const resolveAuth = staffAuthResolve;
         staffAuthResolve = null;
         resolveAuth?.(false);
         document.getElementById('staff-login-modal')?.style.setProperty('display', 'none');
         document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
-    }
-
-    function disableJiraAccess() {
-        jiraAccessPending = false;
-        jiraAccessEnabled = false;
-        jiraIssues = [];
-        document.getElementById('staff-login-modal')?.style.setProperty('display', 'none');
-        document.querySelector('[data-staff-login-cancel]')?.classList.add('hidden');
-        const toggle = document.querySelector('[data-jira-access-toggle]');
-        if (toggle) { toggle.checked = false; toggle.disabled = false; }
-        if (currentTab === 'my-tickets') setTab('garbage');
-        applyRoleGating();
     }
 
     document.addEventListener('click', (e) => {
@@ -291,8 +238,7 @@
         if (e.target.closest('[data-staff-pin-back]')) { staffAuthController.back(); return; }
         if (e.target.closest('[data-staff-login-cancel]')) {
             staffAuthController.back();
-            if (jiraAccessPending) disableJiraAccess();
-            else cancelPendingStaffAccess();
+            cancelPendingStaffAccess();
             return;
         }
     });
@@ -311,7 +257,6 @@
     // використовується і для приховування кнопок, і для блокування прямого
     // виклику setTab/requestTab (щоб hidden-клас не був єдиним захистом).
     function isTabAllowedForSession(tab) {
-        if (tab === 'my-tickets' && !jiraAccessEnabled) return false;
         return isStaffTabAllowed(tab, staffSession);
     }
 
@@ -413,7 +358,7 @@
         document.getElementById('btn-today').classList.toggle('hidden', onTodayMonth);
     }
 
-    const ALL_TABS = ['my-tickets','completed-work','garbage','shifts','tabel'];
+    const ALL_TABS = ['completed-work','garbage','shifts','tabel'];
 
     function requestTab(tab) {
         return runtimeController.requestTab(tab);
@@ -911,7 +856,6 @@
         document.querySelector('[data-theme-toggle]')?.addEventListener('click', toggleTheme);
         const pinToggle = document.querySelector('[data-security-pin]');
         const autoLockToggle = document.querySelector('[data-security-auto-lock]');
-        const jiraAccessToggle = document.querySelector('[data-jira-access-toggle]');
         const readSecurityFlag = key => localStorage.getItem(key) !== '0';
         const notifySecurityChanged = () => window.parent?.postMessage({ type:'osbb:security-settings-changed' }, window.location.origin);
         if (pinToggle) {
@@ -930,13 +874,6 @@
             autoLockToggle.addEventListener('change', () => {
                 localStorage.setItem('osbb_auto_lock_enabled', autoLockToggle.checked ? '1' : '0');
                 notifySecurityChanged();
-            });
-        }
-        if (jiraAccessToggle) {
-            jiraAccessToggle.checked = false;
-            jiraAccessToggle.addEventListener('change', () => {
-                if (jiraAccessToggle.checked) void requestJiraAccess();
-                else disableJiraAccess();
             });
         }
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
@@ -983,7 +920,6 @@
             'garbage-clear-month': gClearMonth,
             'go-today': goToday,
             'refresh-data': refreshData,
-            'jira-refresh': myTicketsInitTab,
             'elevator-add': () => {
                 const dayEl = document.getElementById('elevator-new-day');
                 const textEl = document.getElementById('elevator-new-text');
@@ -1370,151 +1306,6 @@
     }
 
     const defaultOperatorName = 'Керування';
-    // ==========================================
-    // МОЇ ЗАЯВКИ — відкриті заявки Jira проєкту MS.
-    // ==========================================
-    let jiraAssignmentFilter = 'all';
-    let jiraStatusFilter = 'all';
-    let jiraCategoryFilter = 'all';
-    let jiraLoadFailed = false;
-
-    async function jiraRequest(action, extra = {}) {
-        const response = await fetch(`${SUPABASE_URL}/functions/v1/jira-issues`, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ action, staffId: staffSession?.id, pin: staffPinCache, ...extra })
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data?.error || `Jira HTTP ${response.status}`);
-        return data;
-    }
-
-    async function myTicketsInitTab() {
-        if (!staffSession) return;
-        const statusEl = document.getElementById('my-tickets-sync-status');
-        const listEl = document.getElementById('my-tickets-list');
-        listEl?.setAttribute('aria-busy', 'true');
-        if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span><span class="sr-only">Завантаження заявок</span>';
-        if (!staffPinCache && localStorage.getItem('osbb_pin_enabled') === '0') {
-            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock_open</span>';
-            if (listEl) listEl.innerHTML = '<div class="completed-work-empty"><span class="material-symbols-rounded" aria-hidden="true">key_off</span><p>Увімкніть PIN-код для завантаження заявок Jira</p></div>';
-            listEl?.setAttribute('aria-busy', 'false');
-            return;
-        }
-        if (!staffPinCache && !await requestStaffReauth()) {
-            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">lock</span>';
-            listEl?.setAttribute('aria-busy', 'false');
-            return;
-        }
-        try {
-            const data = await jiraRequest('list');
-            jiraIssues = jiraIssuesFromResponse(data.issues);
-            jiraLoadFailed = false;
-            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">check_circle</span>';
-        } catch (error) {
-            console.error('jira issues load error:', error);
-            jiraIssues = [];
-            jiraLoadFailed = true;
-            if (statusEl) statusEl.innerHTML = '<span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">error</span>';
-            showToast('Не вдалося завантажити Jira-заявки');
-        }
-        listEl?.setAttribute('aria-busy', 'false');
-        myTicketsRender();
-    }
-
-    function myTicketsRender() {
-        const list = document.getElementById('my-tickets-list');
-        if (!list || !staffSession) return;
-        if (jiraLoadFailed) {
-            list.innerHTML = '<div class="completed-work-empty"><span class="material-symbols-rounded" aria-hidden="true">cloud_off</span><p>Не вдалося завантажити заявки з Jira</p><button type="button" class="dispatcher-copy-btn md-state-layer" data-jira-retry><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">refresh</span>Спробувати ще раз</button></div>';
-            list.querySelector('[data-jira-retry]')?.addEventListener('click', myTicketsInitTab);
-            return;
-        }
-        const categories = [...new Set(jiraIssues.map(issue => issue.category || 'Без категорії'))].sort();
-        const statusCounts = jiraIssues.reduce((counts, issue) => {
-            const status = issue.status || 'Без статусу';
-            counts[status] = (counts[status] || 0) + 1;
-            return counts;
-        }, {});
-        const filteredIssues = jiraIssues.filter(issue => {
-            const assignmentMatches = jiraAssignmentFilter === 'all'
-                || (jiraAssignmentFilter === 'assigned' ? Boolean(issue.assignedRole) : !issue.assignedRole);
-            return assignmentMatches
-                && (jiraStatusFilter === 'all' || issue.status === jiraStatusFilter)
-                && (jiraCategoryFilter === 'all' || (issue.category || 'Без категорії') === jiraCategoryFilter);
-        });
-        const countersHtml = `<div class="jira-status-counters" aria-label="Кількість Jira-заявок за статусом">
-            <button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === 'all' ? 'is-active' : ''}" data-jira-status-counter="all"><span>Усі</span><strong>${jiraIssues.length}</strong></button>
-            ${Object.entries(statusCounts).map(([status, count]) => `<button type="button" class="jira-status-counter md-state-layer ${jiraStatusFilter === status ? 'is-active' : ''}" data-jira-status-counter="${escapeAttr(status)}"><span>${escapeHtml(status)}</span><strong>${count}</strong></button>`).join('')}
-        </div>`;
-        const filtersHtml = countersHtml + `<div class="dispatcher-filter-chips jira-ticket-filters" aria-label="Фільтри Jira-заявок">
-            <select class="journal-select" data-jira-filter="assignment" aria-label="Фільтр за призначенням">
-                <option value="all">Усі призначення</option><option value="assigned" ${jiraAssignmentFilter === 'assigned' ? 'selected' : ''}>Призначені</option><option value="unassigned" ${jiraAssignmentFilter === 'unassigned' ? 'selected' : ''}>Непризначені</option>
-            </select>
-            <select class="journal-select" data-jira-filter="category" aria-label="Фільтр за категорією">
-                <option value="all">Усі категорії</option>${categories.map(category => `<option value="${escapeAttr(category)}" ${jiraCategoryFilter === category ? 'selected' : ''}>${escapeHtml(category)}</option>`).join('')}
-            </select>
-        </div>`;
-        if (!jiraIssues.length) { list.innerHTML = '<div class="staff-login-loading">Відкритих Jira-заявок немає</div>'; return; }
-        list.innerHTML = filtersHtml + (filteredIssues.length ? filteredIssues.map(issue => {
-            const priority = jiraPriorityClass(issue.priority);
-            const safeUrl = safeExternalUrl(issue.url);
-            return `<div class="my-ticket-card priority-${priority}">
-                <div class="ticket-item-head">
-                    <span class="ticket-priority-badge"><i class="priority-dot" aria-hidden="true"></i>${escapeHtml(issue.priority || 'Без пріоритету')}</span>
-                    <span class="ticket-role-badge">${escapeHtml(issue.status || 'Відкрита')}</span>
-                </div>
-                <div class="ticket-item-text">${escapeHtml(issue.summary)}</div>
-                <div class="ticket-item-comment">${escapeHtml(issue.key)} · ${escapeHtml(issue.category || 'Без категорії')}${issue.assignedRole ? ` · ${escapeHtml(roleNames[issue.assignedRole] || issue.assignedRole)}` : ' · Не призначено'}</div>
-                <div class="my-ticket-close-actions">
-                    <button type="button" class="dispatcher-copy-btn md-state-layer" data-jira-action="copy" data-jira-key="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">content_copy</span>Копіювати</button>
-                    <button type="button" class="dispatcher-copy-btn md-state-layer" data-jira-action="share" data-jira-key="${escapeAttr(issue.key)}"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">send</span>Telegram</button>
-                    ${safeUrl ? `<a class="dispatcher-copy-btn md-state-layer" href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">Відкрити в Jira</a>` : ''}
-                </div>
-            </div>`;
-        }).join('') : '<div class="staff-login-loading">За вибраними фільтрами заявок немає</div>');
-
-        list.querySelectorAll('[data-jira-filter]').forEach(select => {
-            select.addEventListener('change', () => {
-                if (select.dataset.jiraFilter === 'assignment') jiraAssignmentFilter = select.value;
-                if (select.dataset.jiraFilter === 'category') jiraCategoryFilter = select.value;
-                myTicketsRender();
-            });
-        });
-        list.querySelectorAll('[data-jira-status-counter]').forEach(button => {
-            button.addEventListener('click', () => {
-                jiraStatusFilter = button.dataset.jiraStatusCounter || 'all';
-                myTicketsRender();
-            });
-        });
-        list.querySelectorAll('[data-jira-action]').forEach(button => {
-            button.addEventListener('click', async () => {
-                const issue = jiraIssues.find(item => item.key === button.dataset.jiraKey);
-                if (!issue) return;
-                const shareText = formatJiraShareText(issue);
-                try {
-                    if (button.dataset.jiraAction === 'copy') {
-                        await navigator.clipboard.writeText(shareText);
-                        showToast('Заявку скопійовано');
-                        return;
-                    }
-                    if (navigator.share) {
-                        await navigator.share({ title: issue.key || 'Заявка Jira', text: shareText });
-                        return;
-                    }
-                    window.open(`https://t.me/share/url?url=${encodeURIComponent(issue.url || '')}&text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
-                } catch (error) {
-                    if (error?.name !== 'AbortError') showToast('Не вдалося поділитися заявкою');
-                }
-            });
-        });
-        list.querySelectorAll('[data-jira-filter]').forEach(select => enhanceSelect(select));
-    }
-
     // ЛІФТЕР: короткий журнал відміток у вкладці «Виконані роботи».
     // Один рядок на місяць у elevator_visits,
     // data — масив {id, day, text, createdAt, createdBy}.
@@ -1600,7 +1391,10 @@
     function showToast(msg, icon = TOAST_ICON_CHECK, duration = 2500) {
         const el = document.getElementById('ios-toast');
         if (!el) return;
-        el.innerHTML = `<span class="toast-icon-badge">${icon}</span>${escapeHtml(msg)}`;
+        const isError = icon === TOAST_ICON_ERROR || icon === TOAST_ICON_WARN
+            || (icon === TOAST_ICON_CHECK && /(^|\s)(не\s|немає|помилк|недоступн)/iu.test(msg));
+        if (isError && icon === TOAST_ICON_CHECK) icon = TOAST_ICON_ERROR;
+        el.innerHTML = `<span class="toast-icon-badge"${isError ? ' data-error' : ''}>${icon}</span>${escapeHtml(msg)}`;
         el.style.opacity = '1';
         el.style.transform = 'translateX(-50%) translateY(0)';
         clearTimeout(toastTimer);
@@ -1710,7 +1504,7 @@
 
     function updateContextualJournalControls(tab) {
         const calendarRow = document.getElementById('journal-calendar-row');
-        if (calendarRow) calendarRow.classList.toggle('hidden', tab === 'my-tickets' || tab === 'shifts');
+        if (calendarRow) calendarRow.classList.toggle('hidden', tab === 'shifts');
     }
 
     // Запускаємо початкове завантаження лише після ініціалізації всіх
@@ -1725,7 +1519,7 @@
         onTabChanged:tab=>{if(tab!=='shifts')shiftPinCache='';currentTab=tab;updateContextualJournalControls(tab);},
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
         loadDashboard:gInitDashboard,
-        loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab,'my-tickets':myTicketsInitTab},
+        loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab},
         setSyncStatus:type=>setSyncStatus(type,type==='loading'?'<span class="status-label">Завантаження...</span>':'<span class="status-label">Синхронізовано</span>'),
         createRealtimeClient:()=>createClient(SUPABASE_URL,SUPABASE_KEY),
         subscriptions:[

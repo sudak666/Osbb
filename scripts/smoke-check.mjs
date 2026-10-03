@@ -107,34 +107,13 @@ const checks = [
   ['styles.css', '.shell-lock-btn {\n        flex: 0 0 auto;\n        min-width: 74px;\n        border-radius: var(--md-sys-shape-corner-large, 16px);', 'shell lock hover follows the outer shell shape'],
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
-  ['osbb/index.html', '/functions/v1/jira-issues', 'journal loads Jira issues through Edge Function'],
   ['osbb/index.html', 'id="journal-calendar-row" class="journal-action-row"', 'journal exposes contextual calendar controls'],
-  ['osbb/index.html', 'data-action="jira-refresh" data-tip="Оновити заявки" aria-label="Оновити заявки Jira"', 'Jira exposes a local refresh action'],
-  ['src/osbb-app.js', "calendarRow.classList.toggle('hidden', tab === 'my-tickets' || tab === 'shifts')", 'journal hides irrelevant month controls'],
-  ['osbb/index.html', 'data-jira-access-toggle', 'Jira access has an explicit opt-in switch'],
   ['osbb/styles.css', '.journal-security-menu { position:relative; }', 'journal mobile security menu keeps a stable anchor'],
   ['osbb/styles.css', '.journal-security-panel { top:calc(100% + 8px); left:50%; right:auto; width:calc(100vw - 32px); max-width:320px; min-width:0; transform:translateX(-50%); }', 'journal mobile security menu stays inside the viewport'],
-  ['src/osbb-app.js', 'let jiraAccessEnabled = false;', 'Jira access is off by default for every page load'],
-  ['src/osbb-app.js', "let currentTab = 'garbage';", 'journal opens without selecting protected Jira requests'],
-  ['src/osbb-app.js', "if (tab === 'my-tickets' && !jiraAccessEnabled) return false;", 'hidden Jira requests cannot be opened directly'],
-  ['src/osbb-app.js', 'const confirmed = await requestStaffReauth();', 'enabling Jira requires an explicit staff PIN confirmation'],
-  ['osbb/index.html', 'data-staff-login-cancel', 'optional Jira authentication can be cancelled'],
   ['src/osbb-app.js', 'const editable = true;', 'attendance always renders the full-size editable calendar'],
   ['src/osbb-attendance-controller.js', "p_check_out:next.checkOut || '' });", 'attendance saves without staff PIN arguments'],
   ['sklad/supabase/027_remove_attendance_pin.sql', 'drop function if exists public.save_attendance_day(text, integer, text, text, text, text, text, uuid, text);', 'attendance migration removes the PIN-protected RPC signature'],
   ['sklad/supabase/027_remove_attendance_pin.sql', 'grant execute on function public.save_attendance_day(text, integer, text, text, text, text, text) to anon', 'attendance migration exposes the validated PIN-free RPC'],
-  ['src/osbb-app.js', "'jira-refresh': myTicketsInitTab", 'Jira refresh uses the existing guarded loader'],
-  ['src/osbb-app.js', 'if (needsInitialTabLoad && runtimeController) setTab(currentTab);', 'Jira reloads after initial staff authentication'],
-  ['osbb/index.html', 'class="my-tickets-list" aria-busy="true"', 'Jira exposes an accessible initial loading state'],
-  ['osbb/index.html', 'class="my-ticket-card jira-loading-card" aria-hidden="true"', 'Jira uses skeleton cards while initially loading'],
-  ['src/osbb-app.js', "listEl?.setAttribute('aria-busy', 'false');", 'Jira clears its busy state after loading'],
-  ['osbb/index.html', 'Jira — єдине джерело заявок', 'Jira is presented as the single source of requests'],
-  ['osbb/index.html', 'data-jira-filter="category"', 'Jira issues can be filtered by category'],
-  ['osbb/index.html', 'jiraStatusFilter = button.dataset.jiraStatusCounter', 'Jira issues can be filtered by status counters'],
-  ['osbb/index.html', 'data-jira-status-counter=', 'Jira statuses show clickable issue counters'],
-  ['osbb/index.html', "querySelectorAll('[data-jira-filter]')", 'Jira filters use rounded custom selects'],
-  ['osbb/styles.css', 'grid-template-columns:repeat(2,minmax(180px,240px))', 'Jira select filters use a compact two-column layout'],
-  ['osbb/styles.css', '.my-ticket-card .my-ticket-close-actions { grid-template-columns:1fr; }', 'Jira ticket actions fit mobile cards'],
   ['src/osbb-app.js', 'completedWorkDefaultDate(currentYear,currentMonth)', 'completed work date survives early form initialization'],
   ['osbb/styles.css', '.completed-work-form input[type="text"] { width:100%; min-height:56px;', 'completed work text fields use Material 3 sizing'],
   ['src/osbb-elevator-controller.js', 'element.innerHTML = `<span class="material-symbols-rounded journal-inline-icon${spinning}"', 'elevator sync status renders Material Symbols'],
@@ -154,10 +133,6 @@ const checks = [
   ['sklad/index.html', 'label for="issueDateI"', 'sklad date labels are explicitly associated'],
   ['scripts/copy-static-assets.mjs', "'shared/enhance-date.js'", 'build copies rounded custom date picker'],
   ['shared/enhance-date.js', "className = 'custom-date-panel'", 'custom date picker uses a rounded panel'],
-  ['supabase/functions/jira-issues/index.ts', 'verify_staff_pin', 'Jira operations verify staff PIN server-side'],
-  ['supabase/functions/jira-issues/index.ts', 'parent IS NOT EMPTY', 'Jira counters exclude parent category items'],
-  ['supabase/functions/jira-issues/index.ts', '/rest/agile/1.0/board/', 'Jira issues use the board filter'],
-  ['supabase/functions/jira-issues/index.ts', "return json({ error: 'Invalid action' }, 400)", 'Jira Edge Function rejects write actions'],
   ['osbb/index.html', 'aria-label="Профілі керування"', 'journal login exposes operator profiles instead of worker access management'],
   ['supabase/migrations/20260719001900_staff_login_settings.sql', "verify_result.role not in ('board', 'admin')", 'staff access settings require board or admin PIN'],
   ['supabase/migrations/20260719002000_allow_board_manage_staff_access.sql', "verify_result.role not in ('board', 'admin')", 'deployed databases receive board staff-access permissions'],
@@ -178,9 +153,7 @@ const checks = [
   ['shell', "targetTab.setAttribute('aria-current', 'page')", 'shell tab switch updates aria-current'],
   ['shell', "targetTab.setAttribute('aria-selected', 'true')", 'shell tab switch updates aria-selected'],
   ['osbb/index.html', 'id="desktop-tabs" class="journal-tabs" role="tablist" aria-label="Розділи журналу"', 'journal desktop tabs expose tablist semantics'],
-  ['osbb/index.html', 'id="tab-my-tickets" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page"', 'Jira desktop active tab exposes tab semantics'],
   ['osbb/index.html', 'id="bottom-nav" role="tablist" aria-label="Мобільні розділи журналу"', 'journal mobile tabs expose tablist semantics'],
-  ['osbb/index.html', 'id="tab-my-tickets-m" role="tab" aria-selected="true" aria-controls="section-my-tickets" aria-current="page"', 'Jira mobile active tab exposes tab semantics'],
   ['osbb/index.html', "element.toggleAttribute('aria-current',name===tab)", 'journal tab switch updates aria-current'],
   ['osbb/index.html', "element.setAttribute('aria-selected',String(name===tab))", 'journal tab switch updates aria-selected'],
   ['sklad/index.html', '<nav aria-label="Розділи складу">', 'sklad sidebar exposes navigation label'],
@@ -190,7 +163,6 @@ const checks = [
   ['src/sklad-app.js', "n.setAttribute('aria-current','page')", 'sklad navigation updates aria-current'],
   ['osbb/index.html', 'id="pin-err" role="alert" aria-live="assertive"', 'journal PIN errors expose alert semantics'],
   ['osbb/index.html', 'data-pin-modal-cancel aria-label="Скасувати введення PIN"', 'journal PIN cancel has accessible label'],
-  ['src/osbb-app.js', 'jiraIssues = jiraIssuesFromResponse(data.issues);', 'journal loads Jira without the legacy dispatcher controller'],
   ['sklad/index.html', 'id="authErr" role="alert" aria-live="assertive"', 'sklad auth errors expose alert semantics'],
   ['sklad/index.html', 'id="delPinErr" role="alert" aria-live="assertive"', 'sklad delete PIN errors expose alert semantics'],
   ['sklad/index.html', 'data-auth-pin-key="DEL" aria-label="Видалити цифру PIN"', 'sklad auth PIN delete has accessible label'],
@@ -326,15 +298,6 @@ for (const [file, needle, label] of checks) {
   }
 }
 
-{
-  const text = readOsbbCombined();
-  const label = 'Jira status filtering has one control surface';
-  const valid = text.includes('data-jira-status-counter=')
-    && !text.includes('data-jira-filter="status"')
-    && !text.includes('Усі статуси');
-  if (!valid) { failed += 1; console.error(`not ok - ${label}`); }
-  else { passed += 1; console.log(`ok - ${label}`); }
-}
 
 {
   const workflows = [
@@ -706,7 +669,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'function bindOsbbStaticControls',
     'data-lock-digit="0"',
     'data-pin-modal-digit="0"',
-    'data-osbb-tab="my-tickets"',
+    'data-osbb-tab="garbage"',
     'data-calendar-select',
     'data-theme-toggle',
   ];
@@ -848,7 +811,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   ];
   const required = [
     'function escapeHtml',
-    "${escapeHtml(issue.summary)}",
   ];
   const hasForbidden = forbidden.some(needle => text.includes(needle));
   const missing = required.filter(needle => !text.includes(needle));

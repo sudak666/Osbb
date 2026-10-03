@@ -149,13 +149,9 @@ test('Sklad controllers initialize only after data loader bindings', () => {
   assert.ok(itemCrudInit > dataBindings, 'item CRUD controller must not read loadItems in its temporal dead zone');
 });
 
-test('OSBB keeps Jira as the only request UI and removes local dispatcher writes', () => {
-  assert.doesNotMatch(osbbHtml, /id="section-dispatcher"|data-disp-search/u);
-  assert.doesNotMatch(osbbApp, /createOsbbDispatcherController|db\.from\('dispatcher'\)|data-disp-action="ticket-(?:add|edit|delete|reopen)/u);
-  assertIncludes(osbbApp, 'jiraIssues = jiraIssuesFromResponse(data.issues);', 'Jira rows must pass the response boundary');
-  assertIncludes(osbbApp, '${escapeHtml(issue.summary)}', 'Jira summary must be escaped');
-  assertIncludes(osbbApp, 'data-jira-action="copy"', 'Jira copy action must remain available');
-  assertIncludes(osbbApp, 'data-jira-action="share"', 'Jira share action must remain available');
+test('OSBB has no request UI: Jira tab and local dispatcher are removed', () => {
+  assert.doesNotMatch(osbbHtml, /id="section-dispatcher"|data-disp-search|section-my-tickets|data-osbb-tab="my-tickets"|data-jira-access-toggle/u);
+  assert.doesNotMatch(osbbApp, /createOsbbDispatcherController|db\.from\('dispatcher'\)|jira-issues|myTicketsInitTab/u);
 });
 
 test('OSBB staff login flow validates staff list and PIN RPC responses', () => {
