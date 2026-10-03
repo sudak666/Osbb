@@ -27,7 +27,6 @@ export const STAFF_SESSION_KEY = 'osbb_staff_session';
 const STAFF_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board', 'plumber', 'janitor', 'electrician'];
 export const WORKER_ROLES: readonly StaffRole[] = ['plumber', 'janitor', 'electrician'];
 export const OPERATOR_ROLES: readonly StaffRole[] = ['dispatcher', 'admin', 'board'];
-export const WORKER_ALLOWED_TABS: readonly string[] = ['tabel', 'my-tickets'];
 
 export const STAFF_ROLE_ICONS: Readonly<Record<StaffRole, string>> = {
     dispatcher: 'support_agent',
@@ -130,8 +129,6 @@ export function canManageStaffAccess(session: StaffSession | null | undefined): 
 }
 
 export function isTabAllowedForSession(tab: string, session: StaffSession | null | undefined): boolean {
-    if (isWorkerSession(session)) return WORKER_ALLOWED_TABS.includes(tab);
-    if (tab === 'completed-work') return isDispatcherSession(session);
-    if (tab === 'my-tickets') return isDispatcherSession(session);
+    if (tab === 'shifts') return !isWorkerSession(session);
     return true;
 }

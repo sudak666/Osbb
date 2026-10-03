@@ -3,7 +3,6 @@ const STAFF_SESSION_KEY = "osbb_staff_session";
 const STAFF_ROLES = ["dispatcher", "admin", "board", "plumber", "janitor", "electrician"];
 const WORKER_ROLES = ["plumber", "janitor", "electrician"];
 const OPERATOR_ROLES = ["dispatcher", "admin", "board"];
-const WORKER_ALLOWED_TABS = ["tabel", "my-tickets"];
 const STAFF_ROLE_ICONS = {
   dispatcher: "support_agent",
   admin: "admin_panel_settings",
@@ -96,9 +95,7 @@ function canManageStaffAccess(session) {
   return session?.role === "board" || session?.role === "admin";
 }
 function isTabAllowedForSession(tab, session) {
-  if (isWorkerSession(session)) return WORKER_ALLOWED_TABS.includes(tab);
-  if (tab === "completed-work") return isDispatcherSession(session);
-  if (tab === "my-tickets") return isDispatcherSession(session);
+  if (tab === "shifts") return !isWorkerSession(session);
   return true;
 }
 export {
@@ -106,7 +103,6 @@ export {
   STAFF_ROLE_ICONS,
   STAFF_ROLE_LABELS,
   STAFF_SESSION_KEY,
-  WORKER_ALLOWED_TABS,
   WORKER_ROLES,
   canManageStaffAccess,
   clearStoredStaffSession,
