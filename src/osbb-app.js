@@ -504,6 +504,10 @@
         showToast('Табель Excel завантажено!', 'success');
     }
 
+    // Мобільний табель: розгорнутий лише сьогоднішній день + ті, що користувач відкрив вручну.
+    const attMobileOpenDays = new Set();
+    let attMobileOpenMonth = '';
+
     function attRender() {
         const body = document.getElementById('att-body');
         const calendar = document.getElementById('att-calendar');
@@ -520,6 +524,8 @@
             header.classList.toggle('hidden', !visibleRoles.includes(header.dataset.attRoleHeader));
         });
         const daysInMonth = calendarMonthDays(currentYear, currentMonth);
+        const openMonthKey = `${currentYear}-${currentMonth}`;
+        if (attMobileOpenMonth !== openMonthKey) { attMobileOpenMonth = openMonthKey; attMobileOpenDays.clear(); }
         let html = '';
         let calendarHtml = '';
         let mobileHtml = '';
@@ -594,15 +600,25 @@
                 <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
                 <div class="att-calendar-roles">${calendarRolesHtml}</div>
             </article>`;
-            mobileHtml += `<article class="att-mobile-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
-                <header><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span></header>
-                <div class="att-mobile-roles">${mobileRolesHtml}</div>
+            const mobileOpen = isToday || attMobileOpenDays.has(d);
+            mobileHtml += `<article class="att-mobile-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''} ${mobileOpen ? '' : 'is-collapsed'}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
+                <header><button type="button" class="att-mobile-day-toggle md-state-layer" data-att-mobile-toggle="${d}" aria-expanded="${mobileOpen}" aria-controls="att-mobile-roles-${d}"><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span><span class="material-symbols-rounded att-mobile-day-chevron" aria-hidden="true">expand_more</span></button></header>
+                <div class="att-mobile-roles" id="att-mobile-roles-${d}">${mobileRolesHtml}</div>
             </article>`;
         }
         calendarHtml += adjacentDays.trailing.map(renderAdjacentDay).join('');
         body.innerHTML = html;
         calendar.innerHTML = calendarHtml;
         mobileList.innerHTML = mobileHtml;
+        mobileList.querySelectorAll('[data-att-mobile-toggle]').forEach(button => {
+            button.addEventListener('click', () => {
+                const day = Number(button.dataset.attMobileToggle);
+                const card = button.closest('.att-mobile-day');
+                const open = card.classList.toggle('is-collapsed') === false;
+                button.setAttribute('aria-expanded', String(open));
+                if (open) attMobileOpenDays.add(day); else attMobileOpenDays.delete(day);
+            });
+        });
         if (editable) {
             document.querySelectorAll('#att-body [data-att-day], #att-calendar [data-att-day], #att-mobile-list [data-att-day]').forEach(input => {
                 input.addEventListener('change', () => {
