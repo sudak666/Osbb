@@ -3265,7 +3265,7 @@ ${sharedSelectText}`;
     [journalCss, '.theme-dark .mob-tab.mob-active .material-symbols-rounded'],
     [skladCss, '.theme-dark :is(.m-card,.stat-card)'],
     [skladCss, '.theme-dark :is(.btn-primary,.btn-ghost,.ni,.bottom-nav button)'],
-    [skladCss, '.theme-dark .bottom-nav button.active'],
+    [skladCss, '.theme-dark .bn-item.active .bn-icon-wrap'],
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
   if (missing.length) {
