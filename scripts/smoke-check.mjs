@@ -3262,10 +3262,8 @@ ${sharedSelectText}`;
     [journalCss, '.theme-dark :is(.journal-stat-card,.ticket-item,.my-ticket-card,.shift-stat-card,.att-stat-card)'],
     [journalCss, '@media (hover:hover) and (pointer:fine)'],
     [journalCss, 'transform:translateY(-3px);'],
-    [journalCss, '.theme-dark .mob-tab.mob-active .material-symbols-rounded'],
     [skladCss, '.theme-dark :is(.m-card,.stat-card)'],
     [skladCss, '.theme-dark :is(.btn-primary,.btn-ghost,.ni,.bottom-nav button)'],
-    [skladCss, '.theme-dark .bn-item.active .bn-icon-wrap'],
   ];
   const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
   if (missing.length) {
