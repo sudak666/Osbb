@@ -736,7 +736,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   }
 }
 .theme-dark :is(.dispatcher-time-btn,.dispatcher-copy-btn,.journal-photo-action,.mob-tab):active { transform:scale(.97); }
-.theme-dark .mob-tab.mob-active .material-symbols-rounded { box-shadow:0 0 18px color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 24%,transparent); }
 
 /* ===== ЛІФТЕР (короткий журнал відміток у вкладці Диспетчер) ===== */
 .elevator-panel { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }

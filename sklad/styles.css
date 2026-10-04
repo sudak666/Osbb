@@ -852,7 +852,6 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 .bn-item,.bn-item.active { background:transparent; box-shadow:none; }
 .bn-item::before { display:none; }
 .bn-item:not(.active):active .bn-icon-wrap { background:color-mix(in srgb,currentColor 12%,transparent); }
-.theme-dark .bn-item.active .bn-icon-wrap { box-shadow:0 0 18px color-mix(in srgb,var(--md-sys-color-primary,var(--brand)) 24%,transparent); }
 .m-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;}
 .m-card-main{flex:1;min-width:0;}
 .m-card-title{font-size:14px;font-weight:700;color:var(--sklad-label);line-height:1.32;margin-bottom:7px;letter-spacing:-.02em;}
