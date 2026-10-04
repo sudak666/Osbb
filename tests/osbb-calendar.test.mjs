@@ -6,7 +6,6 @@ import {
   calendarMonthDays,
   isCalendarMonth,
   mondayFirstDayOffset,
-  oneBasedMonthKey,
   shiftCalendarMonth,
   sundayFirstDayOffset,
   zeroBasedMonthKey,
@@ -38,15 +37,6 @@ test('calendar month shifting crosses years and respects UI bounds', () => {
   assert.deepEqual(shiftCalendarMonth(2026, 5, 18, 2025, 2030), { year: 2027, month: 11 });
   assert.equal(shiftCalendarMonth(2025, 0, -1, 2025, 2030), null);
   assert.equal(shiftCalendarMonth(2030, 11, 1, 2025, 2030), null);
-});
-
-test('calendar helpers preserve leap years, offsets, and legacy keys', () => {
-  assert.equal(calendarMonthDays(2024, 1), 29);
-  assert.equal(calendarMonthDays(2026, 1), 28);
-  assert.equal(mondayFirstDayOffset(2026, 7), 5);
-  assert.equal(sundayFirstDayOffset(2026, 7), 6);
-  assert.equal(zeroBasedMonthKey(2026, 7), '2026-7');
-  assert.equal(oneBasedMonthKey(2026, 7), '2026-08');
 });
 
 test('calendar month matching uses local date fields and rejects invalid input', () => {

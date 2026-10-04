@@ -72,11 +72,6 @@ function inventoryItemsFromResponse(value) {
     }];
   });
 }
-function inventoryItemIdFromInsertResponse(value) {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
-  const id = value.id;
-  return isFiniteNumber(id) ? id : null;
-}
 function inventoryLogsFromResponse(value) {
   return rows(value).flatMap((row) => {
     const itemName = boundedText(row.item_name, 200);
@@ -111,7 +106,6 @@ function inventoryReceiptsFromResponse(value) {
 export {
   createInventoryCollectionState,
   deleteInventoryResultFromRpcResponse,
-  inventoryItemIdFromInsertResponse,
   inventoryItemsFromResponse,
   inventoryLogsFromResponse,
   inventoryReceiptsFromResponse,

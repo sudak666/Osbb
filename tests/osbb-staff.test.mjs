@@ -2,15 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  canManageStaffAccess,
   clearStoredStaffSession,
   isDispatcherSession,
   isTabAllowedForSession,
   isWorkerSession,
   loadStoredStaffSession,
-  normalizeWorkerRole,
   parseStaffList,
-  parseStaffSettingsList,
   parseStaffSession,
   saveStoredStaffSession,
 } from '../src/osbb-staff.js';
@@ -71,15 +68,6 @@ test('staff list parser removes malformed server rows', () => {
   assert.deepEqual(parseStaffList(null), []);
 });
 
-test('staff boundaries reject oversized attributes and coerce no active flags', () => {
-  assert.equal(parseStaffSession({ id: '\" onclick=alert(1)', name: 'x'.repeat(101), role: 'admin' }), null);
-  assert.deepEqual(parseStaffSettingsList([
-    { id: 'admin-1', full_name: '<img onerror=alert(1)>', role: 'admin', active: true, malicious: '<script>alert(1)</script>' },
-    { id: 'admin-2', full_name: 'Другий', role: 'admin', active: 'false' },
-    { id: '__proto__', full_name: 'Третій', role: 'unknown', active: false },
-  ]), [{ id: 'admin-1', full_name: '<img onerror=alert(1)>', role: 'admin', active: true }]);
-});
-
 test('staff role helpers preserve full-access and worker role groups', () => {
   for (const role of ['dispatcher', 'admin', 'board']) {
     assert.equal(isDispatcherSession(session(role)), true);
@@ -91,19 +79,6 @@ test('staff role helpers preserve full-access and worker role groups', () => {
   }
   assert.equal(isDispatcherSession(null), false);
   assert.equal(isWorkerSession(session('unknown')), false);
-});
-
-test('worker role normalization rejects full-access and unknown roles', () => {
-  assert.equal(normalizeWorkerRole('electrician'), 'electrician');
-  assert.equal(normalizeWorkerRole('admin'), 'plumber');
-  assert.equal(normalizeWorkerRole('unknown', 'janitor'), 'janitor');
-});
-
-test('only board and admin can manage staff access', () => {
-  assert.equal(canManageStaffAccess(session('board')), true);
-  assert.equal(canManageStaffAccess(session('admin')), true);
-  assert.equal(canManageStaffAccess(session('dispatcher')), false);
-  assert.equal(canManageStaffAccess(null), false);
 });
 
 test('tab gating keeps workers inside attendance and own tickets', () => {

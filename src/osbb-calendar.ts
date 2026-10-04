@@ -80,7 +80,3 @@ export function zeroBasedMonthKey(year: number, month: number): string {
     return `${year}-${month}`;
 }
 
-export function oneBasedMonthKey(year: number, month: number): string {
-    assertCalendarMonth(year, month);
-    return `${year}-${String(month + 1).padStart(2, '0')}`;
-}

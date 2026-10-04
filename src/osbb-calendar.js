@@ -49,16 +49,11 @@ function zeroBasedMonthKey(year, month) {
   assertCalendarMonth(year, month);
   return `${year}-${month}`;
 }
-function oneBasedMonthKey(year, month) {
-  assertCalendarMonth(year, month);
-  return `${year}-${String(month + 1).padStart(2, "0")}`;
-}
 export {
   adjacentCalendarDays,
   calendarMonthDays,
   isCalendarMonth,
   mondayFirstDayOffset,
-  oneBasedMonthKey,
   shiftCalendarMonth,
   sundayFirstDayOffset,
   zeroBasedMonthKey

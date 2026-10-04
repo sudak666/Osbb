@@ -64,15 +64,6 @@ function clearStoredStaffSession(storage) {
   } catch {
   }
 }
-function parseStaffSettingsList(value) {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((entry) => {
-    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) return [];
-    const row = entry;
-    const session = parseStaffSession({ id: row.id, name: row.full_name, role: row.role });
-    return session && typeof row.active === "boolean" ? [{ id: session.id, full_name: session.name, role: session.role, active: row.active }] : [];
-  });
-}
 function parseStaffList(value) {
   if (!Array.isArray(value)) return [];
   return value.flatMap((entry) => {
@@ -88,12 +79,6 @@ function isDispatcherSession(session) {
 function isWorkerSession(session) {
   return Boolean(session) && WORKER_ROLES.includes(session?.role);
 }
-function normalizeWorkerRole(value, fallback = "plumber") {
-  return typeof value === "string" && WORKER_ROLES.includes(value) ? value : fallback;
-}
-function canManageStaffAccess(session) {
-  return session?.role === "board" || session?.role === "admin";
-}
 function isTabAllowedForSession(tab, session) {
   if (tab === "shifts") return !isWorkerSession(session);
   return true;
@@ -104,15 +89,12 @@ export {
   STAFF_ROLE_LABELS,
   STAFF_SESSION_KEY,
   WORKER_ROLES,
-  canManageStaffAccess,
   clearStoredStaffSession,
   isDispatcherSession,
   isTabAllowedForSession,
   isWorkerSession,
   loadStoredStaffSession,
-  normalizeWorkerRole,
   parseStaffList,
   parseStaffSession,
-  parseStaffSettingsList,
   saveStoredStaffSession
 };

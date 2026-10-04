@@ -90,18 +90,6 @@ export function clearStoredStaffSession(storage: StaffSessionStorage): void {
     try { storage.removeItem(STAFF_SESSION_KEY); } catch {}
 }
 
-export function parseStaffSettingsList(value: unknown): StaffSettingsEntry[] {
-    if (!Array.isArray(value)) return [];
-    return value.flatMap((entry) => {
-        if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return [];
-        const row = entry as Record<string, unknown>;
-        const session = parseStaffSession({ id: row.id, name: row.full_name, role: row.role });
-        return session && typeof row.active === 'boolean'
-            ? [{ id: session.id, full_name: session.name, role: session.role, active: row.active }]
-            : [];
-    });
-}
-
 export function parseStaffList(value: unknown): StaffListEntry[] {
     if (!Array.isArray(value)) return [];
     return value.flatMap((entry) => {
@@ -118,14 +106,6 @@ export function isDispatcherSession(session: StaffSession | null | undefined): b
 
 export function isWorkerSession(session: StaffSession | null | undefined): boolean {
     return Boolean(session) && WORKER_ROLES.includes(session?.role as StaffRole);
-}
-
-export function normalizeWorkerRole(value: unknown, fallback: StaffRole = 'plumber'): StaffRole {
-    return typeof value === 'string' && WORKER_ROLES.includes(value as StaffRole) ? value as StaffRole : fallback;
-}
-
-export function canManageStaffAccess(session: StaffSession | null | undefined): boolean {
-    return session?.role === 'board' || session?.role === 'admin';
 }
 
 export function isTabAllowedForSession(tab: string, session: StaffSession | null | undefined): boolean {

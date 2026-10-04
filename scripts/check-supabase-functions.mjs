@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const functions = ['jira-issues', 'photo-cleanup'];
+const functions = ['photo-cleanup'];
 
 for (const name of functions) {
   const sourcePath = path.join(root, 'sklad/supabase/functions', name, 'index.ts');
@@ -27,15 +27,9 @@ for (const name of functions) {
   }
 }
 
-const jiraSource = fs.readFileSync(path.join(root, 'supabase/functions/jira-issues/index.ts'), 'utf8');
-if (!jiraSource.includes("Deno.env.get('JIRA_ISSUE_TYPE')") || !jiraSource.includes('issuetype =')) {
-  console.error('jira-issues must filter the list by JIRA_ISSUE_TYPE to match the Jira board');
-  process.exitCode = 1;
-}
-
 const configPath = path.join(root, 'supabase/config.toml');
 const config = fs.readFileSync(configPath, 'utf8');
-for (const name of ['jira-issues']) {
+for (const name of ['photo-cleanup']) {
   if (!config.includes(`[functions.${name}]`) || !config.match(new RegExp(`\\[functions\\.${name}\\][\\s\\S]*?verify_jwt\\s*=\\s*false`))) {
     console.error(`supabase/config.toml must disable JWT verification for ${name}`);
     process.exitCode = 1;

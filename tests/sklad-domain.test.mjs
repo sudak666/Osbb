@@ -2,11 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  calculateInventoryStats,
   calculateInventoryHeaderStats,
   estimatedItemValue,
   filterInventoryByValue,
-  filterInventoryItems,
   filterSkladItems,
   isLowStockItem,
   normalizeSearchText,
@@ -25,13 +23,6 @@ test('normalizeSearchText collapses whitespace and handles Ukrainian case-insens
   assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'лампа'), true);
   assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'електрика led'), true);
   assert.equal(valuesMatchSearch(['Електрика', 'Лампа LED'], 'сантехніка'), false);
-});
-
-test('filterInventoryItems combines internal-use flags, category and text search', () => {
-  assert.deepEqual(filterInventoryItems(items, { hideInternal: true }).map((item) => item.id), [4, 1, 2]);
-  assert.deepEqual(filterInventoryItems(items, { onlyInternal: true }).map((item) => item.id), [3]);
-  assert.deepEqual(filterInventoryItems(items, { category: 'Електрика', query: 'кабель' }).map((item) => item.id), [4]);
-  assert.deepEqual(filterInventoryItems(items, { query: 'постачальник' }).map((item) => item.id), [1]);
 });
 
 test('filterSkladItems preserves UI order and combines stock filters', () => {
@@ -57,18 +48,6 @@ test('estimatedItemValue rounds money and ignores invalid values', () => {
   assert.equal(estimatedItemValue(items[0]), 241);
   assert.equal(estimatedItemValue(items[3]), 136.65);
   assert.equal(estimatedItemValue({ quantity: -1, price_unit: 100 }), 0);
-});
-
-test('calculateInventoryStats summarizes quantity, value, categories and low stock', () => {
-  assert.deepEqual(calculateInventoryStats(items), {
-    totalItems: 4,
-    externalItems: 3,
-    internalItems: 1,
-    lowStockItems: 1,
-    totalQuantity: 17.56,
-    estimatedValue: 15377.65,
-    categories: ['Електрика', 'Оргтехніка', 'Прибирання'],
-  });
 });
 
 test('calculateInventoryHeaderStats matches header card semantics', () => {

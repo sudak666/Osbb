@@ -30,17 +30,6 @@ function sortItemsByCategoryName(items) {
     return normalizeSearchText(a.name).localeCompare(normalizeSearchText(b.name), "uk-UA");
   });
 }
-function filterInventoryItems(items, options = {}) {
-  const query = options.query || "";
-  const category = options.category || "";
-  const filtered = items.filter((item) => {
-    if (options.onlyInternal && !isInternalItem(item)) return false;
-    if (options.hideInternal && isInternalItem(item)) return false;
-    if (category && item.category !== category) return false;
-    return valuesMatchSearch([item.name, item.category, item.unit, item.price_source], query);
-  });
-  return sortItemsByCategoryName(filtered);
-}
 function filterSkladItems(items, options = {}) {
   return items.filter((item) => {
     const quantity = Number(item.quantity);
@@ -78,35 +67,10 @@ function calculateInventoryHeaderStats(items) {
     return stats;
   }, { availableItems: 0, totalUnits: 0, estimatedValue: 0 });
 }
-function calculateInventoryStats(items) {
-  const categories = /* @__PURE__ */ new Set();
-  let totalQuantity = 0;
-  let estimatedValue = 0;
-  let internalItems = 0;
-  let lowStockItems = 0;
-  for (const item of items) {
-    if (item.category) categories.add(item.category);
-    totalQuantity += Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 0;
-    estimatedValue += estimatedItemValue(item);
-    if (isInternalItem(item)) internalItems += 1;
-    if (isLowStockItem(item)) lowStockItems += 1;
-  }
-  return {
-    totalItems: items.length,
-    externalItems: items.length - internalItems,
-    internalItems,
-    lowStockItems,
-    totalQuantity: Math.round(totalQuantity * 100) / 100,
-    estimatedValue: Math.round(estimatedValue * 100) / 100,
-    categories: [...categories].sort((a, b) => normalizeSearchText(a).localeCompare(normalizeSearchText(b), "uk-UA"))
-  };
-}
 export {
   calculateInventoryHeaderStats,
-  calculateInventoryStats,
   estimatedItemValue,
   filterInventoryByValue,
-  filterInventoryItems,
   filterSkladItems,
   isInternalItem,
   isLowStockItem,
