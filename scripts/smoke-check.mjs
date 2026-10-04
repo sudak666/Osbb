@@ -81,7 +81,6 @@ function readOsbbCombined() {
     'src/osbb-shift-calendar-controller.js',
     'src/osbb-staff.ts',
     'src/osbb-staff-auth-controller.ts',
-    'src/osbb-tickets.ts',
   ].map(file => readFileSync(file, 'utf8')).join('\n') + SHARED_JS_CSS;
 }
 
@@ -1290,7 +1289,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.ic-18{font-size:18px;}',
     '.ic-15{font-size:15px;}',
     '.ic-48{font-size:48px;}',
-    '.ic-40{font-size:40px;}',
     '.ic-20{font-size:20px;}',
     'class="stat-log-row"',
     'class="stat-log-name"',
@@ -1479,10 +1477,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'osbb journal status/icon spans use class-based helpers';
   const required = [
-    '.journal-status-icon-row { display:inline-flex; align-items:center; gap:5px; }',
-    '.journal-status-icon-row-tight { display:inline-flex; align-items:center; gap:4px; }',
-    '.journal-joke-icon { display:inline-block; vertical-align:-2px; }',
-    '.journal-daytype-icon { display:inline-block; vertical-align:middle; margin-right:3px; }',
   ];
   const forbidden = [
     'style="display:inline-flex;align-items:center;gap:5px;"',
@@ -1887,8 +1881,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-theme-toggle {',
     'class="journal-theme-toggle md-state-layer" data-theme-toggle',
     'function toggleTheme()',
-    '.journal-dashboard-panel {',
-    '.journal-stats-grid {',
     '.journal-stat-card {',
     '.journal-mini-stats {',
     '.journal-mini-stat {',
@@ -1896,7 +1888,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-metric-label {',
     'class="journal-metric-value" id="g-total-month"',
     'Баків без пластику/скла',
-    '.skel-w-date { width: 70px; }',
     '.lock-screen { position:fixed;',
     'class="lock-screen"',
     'class="pin-keypad"',
@@ -1915,7 +1906,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '// Кастомний select підключено зі shared/enhance-select.js.',
     'class="stat-card journal-stat-card journal-mini-stat role-garbage',
     '.journal-panel {',
-    '.journal-table-shell {',
     '.garbage-chart-panel { padding:16px;',
     '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; padding:0!important; }',
     '.journal-list-head { padding:16px 22px;',
@@ -1925,9 +1915,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-select {',
     'class="journal-status-chip"',
     'class="journal-select"',
-    '.journal-event-sheet {',
     '.journal-textarea {',
-    '.journal-photo-action {',
     '.garbage-chart { height:80px; }',
     'class="journal-panel garbage-chart-panel"',
     'class="journal-panel journal-list-shell"',
@@ -3104,8 +3092,6 @@ ${sharedSelectText}`;
     '.sidebar:is(:hover,:focus-within) + .main{margin-left:var(--sb);}',
     '.sidebar:is(:hover,:focus-within) .nav-label,',
     'transition:margin-left var(--md-sys-motion-duration-medium2',
-    '.sidebar .ni-badge{position:absolute;top:5px;right:3px;min-width:22px;max-width:30px;',
-    '.sidebar:is(:hover,:focus-within) .ni-badge{position:static;min-width:0;max-width:none;',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -3225,7 +3211,7 @@ ${sharedSelectText}`;
 }
 
 // Старий локальний диспетчерський UI не повинен повертатися в DOM/runtime:
-// Jira залишається єдиним джерелом заявок, історична таблиця не видаляється.
+// Історична таблиця dispatcher не використовується клієнтом.
 {
   const text = readFileSync('osbb/index.html', 'utf8') + '\n' + readFileSync('src/osbb-app.js', 'utf8');
   const label = 'legacy local dispatcher UI stays removed';
@@ -3291,10 +3277,10 @@ ${sharedSelectText}`;
   }
 }
 
-// Jira інтеграція залишається read-only і не повертає локальні write actions.
+// Локальні write actions заявок не повертаються.
 {
   const text = readOsbbCombined();
-  const label = 'Jira request UI remains read-only';
+  const label = 'legacy ticket write actions stay removed';
   const forbidden = [
     'data-disp-action="ticket-reopen"',
     'data-disp-action="ticket-add"',

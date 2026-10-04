@@ -94,21 +94,6 @@ export function sortItemsByCategoryName<T extends Pick<InventoryItem, 'category'
     });
 }
 
-export function filterInventoryItems<T extends InventoryItem>(
-    items: readonly T[],
-    options: InventoryFilterOptions = {}
-): T[] {
-    const query = options.query || '';
-    const category = options.category || '';
-    const filtered = items.filter((item) => {
-        if (options.onlyInternal && !isInternalItem(item)) return false;
-        if (options.hideInternal && isInternalItem(item)) return false;
-        if (category && item.category !== category) return false;
-        return valuesMatchSearch([item.name, item.category, item.unit, item.price_source], query);
-    });
-    return sortItemsByCategoryName(filtered);
-}
-
 export function filterSkladItems<T extends InventoryItem>(
     items: readonly T[],
     options: SkladItemFilterOptions = {},
@@ -155,28 +140,3 @@ export function calculateInventoryHeaderStats(items: readonly InventoryItem[]): 
     }, { availableItems: 0, totalUnits: 0, estimatedValue: 0 });
 }
 
-export function calculateInventoryStats(items: readonly InventoryItem[]): InventoryStats {
-    const categories = new Set<string>();
-    let totalQuantity = 0;
-    let estimatedValue = 0;
-    let internalItems = 0;
-    let lowStockItems = 0;
-
-    for (const item of items) {
-        if (item.category) categories.add(item.category);
-        totalQuantity += Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 0;
-        estimatedValue += estimatedItemValue(item);
-        if (isInternalItem(item)) internalItems += 1;
-        if (isLowStockItem(item)) lowStockItems += 1;
-    }
-
-    return {
-        totalItems: items.length,
-        externalItems: items.length - internalItems,
-        internalItems,
-        lowStockItems,
-        totalQuantity: Math.round(totalQuantity * 100) / 100,
-        estimatedValue: Math.round(estimatedValue * 100) / 100,
-        categories: [...categories].sort((a, b) => normalizeSearchText(a).localeCompare(normalizeSearchText(b), 'uk-UA')),
-    };
-}

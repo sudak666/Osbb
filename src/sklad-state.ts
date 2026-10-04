@@ -106,12 +106,6 @@ export function inventoryItemsFromResponse(value: unknown): InventoryItemRow[] {
     });
 }
 
-export function inventoryItemIdFromInsertResponse(value: unknown): number | null {
-    if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
-    const id = (value as UnknownRow).id;
-    return isFiniteNumber(id) ? id : null;
-}
-
 export function inventoryLogsFromResponse(value: unknown): InventoryLogRow[] {
     return rows(value).flatMap((row) => {
         const itemName = boundedText(row.item_name, 200);
