@@ -72,7 +72,8 @@ const legacyMdiClasses = [...allHtml.matchAll(/class=["']([^"']*)["']/g)]
   .flatMap(([, classNames]) => classNames.split(/\s+/))
   .filter(className => className === 'mdi' || className.startsWith('mdi-'));
 assert.deepEqual(legacyMdiClasses, [], `Знайдено legacy MDI класи: ${[...new Set(legacyMdiClasses)].join(', ')}`);
-assert.equal((allHtml.match(/Material\+Symbols\+Rounded/g) || []).length, 3, 'Material Symbols Rounded мають бути підключені у трьох застосунках');
+assert.equal((allHtml.match(/href="\/Osbb\/shared\/material-symbols\.css"/g) || []).length, 3, 'Material Symbols Rounded мають бути підключені у трьох застосунках');
+assert.ok((await readFile(new URL('../shared/fonts/material-symbols-rounded.woff2', import.meta.url))).length > 0, 'Local icon font must be shipped');
 assert.equal((allHtml.match(/<svg\b/g) || []).length, 1, 'Знайдено інтерфейсні inline SVG замість Material Symbols');
 const syntheticRobotoWeights = [...allCss.matchAll(/font-weight:\s*(300|600|650|750|800|850)\b/g)]
   .map(([, weight]) => weight);

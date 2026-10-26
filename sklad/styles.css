@@ -1091,3 +1091,15 @@ body{--sklad-sticky-header-height:86px;}
   body{--sklad-sticky-header-height:60px;}
   .topbar{top:0;margin-top:0;}
 }
+
+.add-mode-switch { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+#add-new-panel[hidden], #add-refill-panel[hidden] { display:none!important; }
+#add-new-panel { margin:0; padding:0; border:0; }
+@media(max-width:768px) {
+  .topbar .topbar-actions > .btn-excel, .topbar .topbar-actions > .topbar-refresh { display:none!important; }
+  .topbar-actions { gap:4px; }
+  .add-mode-switch > button { flex:1; padding-inline:10px; }
+}
+
+.receipt-options > summary { cursor:pointer; min-height:44px; padding:12px 0; color:var(--text2); }
+.receipt-options[open] > div { margin-bottom:14px; }

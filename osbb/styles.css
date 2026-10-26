@@ -912,3 +912,26 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
 .theme-light .pin-modal-dialog{background:#fff!important;}
 .theme-dark .pin-modal-dialog{background:#29292c!important;}
 .pin-modal-dialog{opacity:1;isolation:isolate;}
+
+/* Keep the daily workflow above secondary analytics on phones. */
+#section-garbage:not(.hidden) { display:flex; flex-direction:column; gap:16px; }
+#section-garbage > .journal-list-shell { order:-1; }
+.garbage-chart-panel > summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
+@media(max-width:640px) {
+  .journal-title-copy { display:none; }
+  .journal-shell-header .journal-title-row { gap:8px; }
+  .journal-title-heading { font-size:22px; }
+  .journal-calendar-controls { display:grid!important; grid-template-columns:40px minmax(72px,.8fr) minmax(100px,1fr) 40px; gap:6px!important; width:100%; }
+  .journal-calendar-controls > .custom-select-wrap { min-width:0; width:100%; }
+  .journal-calendar-controls .custom-select-btn { min-width:0; padding-inline:8px; }
+  .journal-calendar-controls > [data-month-step] { width:40px; height:44px; min-width:40px; }
+  .journal-calendar-controls > #btn-refresh { grid-column:4; width:40px; height:44px; }
+  .journal-calendar-controls > #btn-today { grid-column:1 / 4; }
+  .journal-tabs-row { display:none; }
+  .journal-mini-stats.is-four { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .journal-mini-stat { padding:10px 4px; }
+  .journal-mini-stat .journal-metric-value { font-size:24px; }
+  .journal-mini-stat .journal-metric-label { font-size:11px; }
+}
+
+.garbage-today { margin:12px 16px; min-height:44px; display:inline-flex; align-items:center; gap:8px; }

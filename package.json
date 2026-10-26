@@ -18,16 +18,17 @@
     "build:js": "node scripts/build-js-fallback.mjs"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.11",
     "@tailwindcss/vite": "^4.1.14",
     "esbuild": "0.25.12",
     "tailwindcss": "^4.1.14",
     "typescript": "5.8.3",
-    "vite": "6.4.3"
+    "vite": "6.4.5"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.2",
     "chart.js": "4.5.1",
     "html5-qrcode": "2.3.8",
-    "xlsx": "0.18.5"
+    "write-excel-file": "4.1.1"
   }
 }

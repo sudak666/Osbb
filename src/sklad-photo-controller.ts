@@ -44,6 +44,7 @@ export function createSkladPhotoController(options: SkladPhotoControllerOptions)
   async function upload() {
     const file = (document.getElementById('photoFileI') as HTMLInputElement).files![0];
     if (!file || !photoItemId) return;
+    const itemId = photoItemId;
     const status = document.getElementById('photoStatus')!;
     status.textContent = 'Завантаження...';
     const canvas = document.createElement('canvas');
@@ -54,7 +55,7 @@ export function createSkladPhotoController(options: SkladPhotoControllerOptions)
       canvas.width = width; canvas.height = height;
       canvas.getContext('2d')!.drawImage(image, 0, 0, width, height);
       canvas.toBlob(async blob => {
-        const path = `items/${photoItemId}_${Date.now()}.jpg`;
+        const path = `items/${itemId}_${Date.now()}.jpg`;
         const { error: uploadError } = await db.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg', upsert: true });
         if (uploadError) {
           status.innerHTML = /bucket/i.test(uploadError.message)
@@ -63,22 +64,29 @@ export function createSkladPhotoController(options: SkladPhotoControllerOptions)
           return;
         }
         const { data: { publicUrl } } = db.storage.from('photos').getPublicUrl(path);
-        const { error } = await db.from('inventory_items').update({ photo_url: publicUrl }).eq('id', photoItemId);
+        const { error } = await db.from('inventory_items').update({ photo_url: publicUrl }).eq('id', itemId);
         if (error) { status.textContent = 'Помилка: ' + error.message; return; }
         cleanupPhotos();
-        status.innerHTML = '<span class="ms ic-14-2">check_circle</span> Збережено!';
-        await loadItems(); open(photoItemId!);
+        await loadItems();
+        if (photoItemId === itemId) {
+          status.innerHTML = '<span class="ms ic-14-2">check_circle</span> Збережено!';
+          open(itemId);
+        }
       }, 'image/jpeg', .82);
     };
-    image.src = window.URL.createObjectURL(file);
+    const objectUrl = window.URL.createObjectURL(file);
+    image.addEventListener?.('load', () => window.URL.revokeObjectURL(objectUrl), { once: true });
+    image.onerror = () => { window.URL.revokeObjectURL(objectUrl); status.textContent = 'Не вдалося прочитати фото'; };
+    image.src = objectUrl;
   }
   async function remove() {
     if (!photoItemId) return;
+    const itemId = photoItemId;
     requestDeletePin('PIN для видалення фото', async pin => {
       const { data: valid, error: pinError } = await db.rpc('verify_pin', { attempt: pin });
       if (pinError) return { ok: false, reason: 'network' };
       if (valid !== true) return { ok: false, reason: 'bad_pin' };
-      const { error } = await db.from('inventory_items').update({ photo_url: null }).eq('id', photoItemId);
+      const { error } = await db.from('inventory_items').update({ photo_url: null }).eq('id', itemId);
       if (error) { toast('Помилка: ' + error.message, 'error'); return { ok: false, reason: 'network' }; }
       cleanupPhotos();
       toast('Фото видалено', 'info'); closeModal('photoModal'); await loadItems();

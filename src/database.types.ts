@@ -64,6 +64,8 @@ export interface Database {
                 note: string | null;
                 total_items: number;
                 items_with_diff: number;
+                client_request_id: Uuid | null;
+                request_payload: Json | null;
             }>;
             inventory_audit_items: RowOperation<{
                 id: BigIntId;
@@ -157,6 +159,10 @@ export interface Database {
             }>;
         };
         Functions: {
+            complete_inventory_audit: {
+                Args: { p_rows: Json; p_note: string | null; p_client_request_id: Uuid };
+                Returns: BigIntId;
+            };
             verify_lock_pin: {
                 Args: { attempt: string };
                 Returns: boolean;

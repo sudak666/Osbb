@@ -355,7 +355,7 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
   const shellJs = readFileSync('src/shell.js', 'utf8');
   const label = 'shell service worker prevents stale Vite asset 404s';
   const required = [
-    "const CACHE_NAME = 'osbb-shell-v10';",
+    "const CACHE_NAME = 'osbb-shell-v11';",
     "event.request.mode === 'navigate'",
     "url.pathname.startsWith('/Osbb/osbb/')",
     "url.pathname.startsWith('/Osbb/sklad/')",
@@ -1412,7 +1412,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     "cell.setAttribute('aria-haspopup', 'dialog');",
     'id="day-detail-modal" class="day-detail-overlay no-print" data-day-detail-backdrop role="dialog" aria-modal="true"',
     'function closeDayDetail() {',
-    "if (event.key === 'Escape' && document.getElementById('day-detail-modal')?.classList.contains('open')) closeDayDetail();",
+    "if (event.key === 'Escape') { event.preventDefault(); closeDayDetail(); }",
   ];
   const missing = required.filter(needle => !text.includes(needle));
   if (missing.length) {
@@ -3391,13 +3391,13 @@ ${sharedSelectText}`;
 // лічильники дефіциту та дубльовані червоні badges у навігації.
 {
   const text = readSkladCombined();
-  const label = 'sklad inventory summary prioritizes availability quantity and value';
+  const label = 'sklad inventory summary prioritizes availability replenishment and value';
   const required = [
     'class="g4 items-metrics insight-grid inventory-summary"',
     'id="st-available"',
     'Найменувань у наявності',
     'id="st-units"',
-    'Одиниць на складі',
+    'Потребують поповнення',
     'id="st-value"',
     'Орієнтовна вартість',
     'const stats=calculateInventoryHeaderStats(allItems)',
@@ -3741,7 +3741,7 @@ ${sharedSelectText}`;
 {
   const sw = readFileSync('sw.js', 'utf8');
   const label = 'shared styles use network-first service worker caching';
-  const valid = sw.includes("const CACHE_NAME = 'osbb-shell-v10';") &&
+  const valid = sw.includes("const CACHE_NAME = 'osbb-shell-v11';") &&
     sw.includes('} else if (isShellStatic) {') &&
     sw.includes('event.respondWith(networkFirst(event.request));');
   if (!valid) {

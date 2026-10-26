@@ -1,7 +1,6 @@
 // Згенеровано з src/sklad-audit-controller.ts (scripts/build-js-fallback.mjs). Не редагувати вручну.
 import { escapeHtml } from "./app-security.js";
 import { calculateAuditSummary, createAuditData, parseAuditQuantity } from "./sklad-audit.js";
-import { numericIdFromInsertResponse } from "./supabase-api.js";
 function createSkladAuditController(options) {
   const {
     db,
@@ -18,7 +17,30 @@ function createSkladAuditController(options) {
     loadItems
   } = options;
   let auditData = {};
+  let initialized = false;
+  let busy = false;
+  let startedAt = (/* @__PURE__ */ new Date()).toISOString();
+  let baseline = {};
+  let request = null;
+  const draftKey = "sklad_audit_draft_v1";
   const items = () => getItems();
+  function persist() {
+    try {
+      options.storage?.setItem(draftKey, JSON.stringify({ data: auditData, baseline, startedAt, request, note: document.getElementById("auditNote")?.value || "" }));
+    } catch {
+      toast("Не вдалося зберегти чернетку на пристрої. Не закривайте вкладку.", "error");
+    }
+  }
+  function reset() {
+    auditData = createAuditData(items());
+    baseline = {};
+    request = null;
+    startedAt = (/* @__PURE__ */ new Date()).toISOString();
+    const note = document.getElementById("auditNote");
+    if (note) note.value = "";
+    persist();
+    render();
+  }
   function updateStats() {
     const current = items();
     const { counted, surplus, shortage, progress } = calculateAuditSummary(current, auditData);
@@ -43,7 +65,7 @@ function createSkladAuditController(options) {
     }
     list.innerHTML = visible.map((item) => {
       const actual = auditData[item.id];
-      const counted = actual !== null;
+      const counted = actual !== null && actual !== void 0;
       const diff = counted ? actual - item.quantity : null;
       const state = !counted ? "is-pending" : diff > 0 ? "is-surplus" : diff < 0 ? "is-shortage" : "is-match";
       const diffHtml = !counted ? "" : diff > 0 ? `<span class="audit-diff good">▲ +${diff}</span>` : diff < 0 ? `<span class="audit-diff bad">▼ ${diff}</span>` : '<span class="audit-diff good"><span class="ms ic-13-2">check</span> Збігається</span>';
@@ -64,19 +86,43 @@ function createSkladAuditController(options) {
     }).join("");
   }
   function init() {
-    auditData = createAuditData(items());
+    if (!initialized) {
+      auditData = createAuditData(items());
+      try {
+        const saved = JSON.parse(options.storage?.getItem(draftKey) || "null");
+        if (saved && saved.data && saved.baseline) {
+          for (const [id, value] of Object.entries(saved.data)) {
+            const parsed = parseAuditQuantity(value);
+            if (parsed !== null && Number.isFinite(saved.baseline[id])) {
+              auditData[id] = parsed;
+              baseline[id] = saved.baseline[id];
+            }
+          }
+          if (typeof saved.startedAt === "string" && Number.isFinite(Date.parse(saved.startedAt))) startedAt = saved.startedAt;
+          if (saved.request && typeof saved.request.key === "string" && typeof saved.request.id === "string") request = saved.request;
+          const note = document.getElementById("auditNote");
+          if (note) note.value = typeof saved.note === "string" ? saved.note : "";
+        }
+      } catch {
+      }
+      initialized = true;
+      document.getElementById("auditNote")?.addEventListener?.("input", persist);
+    }
+    for (const item of items()) if (!(item.id in auditData)) auditData[item.id] = null;
     const date = document.getElementById("auditDate");
-    if (date) date.textContent = "Розпочато: " + (/* @__PURE__ */ new Date()).toLocaleString("uk-UA", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-    const search = document.getElementById("auditSearch");
-    if (search) search.value = "";
+    if (date) date.textContent = "Розпочато: " + new Date(startedAt).toLocaleString("uk-UA", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
     render();
   }
   function input(itemId, value) {
+    if (busy) return;
     auditData[itemId] = parseAuditQuantity(value);
     const item = items().find((candidate) => String(candidate.id) === String(itemId));
     if (!item) return updateStats();
+    baseline[itemId] = item.quantity;
+    if (auditData[itemId] === null) delete baseline[itemId];
+    persist();
     const actual = auditData[itemId];
-    const counted = actual !== null;
+    const counted = actual !== null && actual !== void 0;
     const diff = counted ? actual - item.quantity : null;
     const row = document.getElementById("audit_" + itemId)?.closest?.(".audit-item");
     if (row) {
@@ -96,17 +142,22 @@ function createSkladAuditController(options) {
     updateStats();
   }
   function clear(itemId) {
+    if (busy) return;
     auditData[itemId] = null;
+    delete baseline[itemId];
+    persist();
     render();
   }
   function fillCurrent() {
+    if (busy) return;
     auditData = createAuditData(items(), true);
+    baseline = Object.fromEntries(items().map((item) => [item.id, item.quantity]));
+    persist();
     render();
     toast("Підставлено поточні залишки", "success");
   }
   function fillZeros() {
-    auditData = createAuditData(items());
-    render();
+    if (!busy) reset();
   }
   function openConfirm() {
     const summary = calculateAuditSummary(items(), auditData);
@@ -120,25 +171,45 @@ function createSkladAuditController(options) {
     openModal("auditModal");
   }
   async function confirm() {
+    if (busy) return;
     const current = items();
+    const { countedItems } = calculateAuditSummary(current, auditData);
+    if (!countedItems.length) return toast("Спочатку перерахуйте хоча б один товар", "error");
+    const rows = countedItems.map((item) => ({ item_id: item.id, qty_before: baseline[item.id] ?? item.quantity, qty_actual: auditData[item.id] }));
     const note = document.getElementById("auditNote")?.value.trim() || "";
-    const { countedItems, differenceItems } = calculateAuditSummary(current, auditData);
-    const { data: row, error } = await db.from("inventory_audits").insert([{ note: note || null, total_items: countedItems.length, items_with_diff: differenceItems.length }]).select().single();
-    if (error) return toast("Помилка збереження: " + error.message, "error");
-    const auditId = numericIdFromInsertResponse(row);
-    if (auditId === null) return toast("Помилка збереження: сервер не повернув ID інвентаризації", "error");
-    const rows = countedItems.map((item) => ({ audit_id: auditId, item_id: item.id, item_name: item.name, category: item.category || "", unit: item.unit || "", qty_before: item.quantity, qty_actual: auditData[item.id] }));
-    const { error: rowsError } = await db.from("inventory_audit_items").insert(rows);
-    if (rowsError) return toast("Помилка збереження рядків: " + rowsError.message, "error");
-    let updateErrors = 0;
-    for (const item of differenceItems) {
-      const result = await db.from("inventory_items").update({ quantity: auditData[item.id] }).eq("id", item.id);
-      if (result.error) updateErrors++;
+    const key = JSON.stringify({ rows, note });
+    if (request?.key !== key) request = { key, id: (options.createRequestId || (() => crypto.randomUUID()))() };
+    persist();
+    busy = true;
+    const button = document.querySelector?.('[data-sklad-action="audit-confirm-save"]');
+    if (button) {
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
     }
-    closeModal("auditModal");
-    await loadItems();
-    toast(`Інвентаризацію завершено! Оновлено ${differenceItems.length} позицій${updateErrors ? ", помилок: " + updateErrors : ""}`, "success");
-    init();
+    try {
+      const { data, error } = await db.rpc("complete_inventory_audit", { p_rows: rows, p_note: note || null, p_client_request_id: request.id });
+      if (error || !data) {
+        const conflict = error?.message?.includes("inventory_changed");
+        toast(conflict ? "Залишки змінилися. Чернетку збережено. Оновіть дані й повторно перерахуйте змінені товари." : "Інвентаризацію не підтверджено. Чернетку збережено — спробуйте ще раз.", "error");
+        return;
+      }
+      closeModal("auditModal");
+      reset();
+      toast("Інвентаризацію збережено. Усі залишки оновлено.", "success");
+      try {
+        await loadItems();
+      } catch {
+        toast("Запис збережено, але список не оновився. Натисніть «Оновити».", "error");
+      }
+    } catch {
+      toast("Немає підтвердження сервера. Чернетку збережено — повторіть операцію.", "error");
+    } finally {
+      busy = false;
+      if (button) {
+        button.disabled = false;
+        button.setAttribute("aria-busy", "false");
+      }
+    }
   }
   return { clear, confirm, fillCurrent, fillZeros, init, input, openConfirm, render };
 }
