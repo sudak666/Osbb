@@ -67,21 +67,30 @@ function createOsbbGarbageController(options) {
     if (error) throw error;
   }
   const hasContent = (row) => Boolean(row && (row.time || row.worker || Object.keys(row.types || {}).length || row.count || row.note));
-  async function syncDay(day, keepalive) {
-    const row = hasContent(data[day]) ? data[day] : null;
-    const { error } = await saveDay({ p_month_key: monthKey(), p_day: day, p_row: row }, { keepalive });
+  async function syncDay(day, keepalive, year, month) {
+    const cacheKey = offlineKey(year, month);
+    const pendingKey = dirtyKey(year, month);
+    const snapshot = readOffline(storage, cacheKey);
+    const row = hasContent(snapshot?.[day]) ? snapshot[day] : null;
+    const revision = JSON.stringify(row);
+    const { error } = await saveDay({ p_month_key: monthKey(year, month), p_day: day, p_row: row }, { keepalive });
     if (error) throw error;
-    const remaining = loadDirty();
+    const latest = readOffline(storage, cacheKey);
+    if (JSON.stringify(hasContent(latest?.[day]) ? latest[day] : null) !== revision) return;
+    const pending = readOffline(storage, pendingKey);
+    const remaining = new Set(Array.isArray(pending) ? pending.map(String) : []);
     remaining.delete(day);
-    saveDirty(remaining);
+    if (remaining.size) writeOffline(storage, pendingKey, [...remaining]);
+    else removeOffline(storage, pendingKey);
   }
   async function syncDirtyDays({ keepalive = false } = {}) {
+    const { year, month } = getMonth();
     const days = [...loadDirty()];
     if (keepalive) {
-      await Promise.all(days.map((day) => syncDay(day, true)));
+      await Promise.all(days.map((day) => syncDay(day, true, year, month)));
       return;
     }
-    for (const day of days) await syncDay(day, false);
+    for (const day of days) await syncDay(day, false, year, month);
   }
   async function saveCloud(options2 = {}) {
     if (isPreview) {
@@ -96,7 +105,8 @@ function createOsbbGarbageController(options) {
     saving = syncDirtyDays(options2);
     try {
       await saving;
-      setStatus("ok", '<span class="status-label">Збережено</span>');
+      if (loadDirty().size) setStatus("loading", '<span class="status-label">Є незбережені зміни</span>');
+      else setStatus("ok", '<span class="status-label">Збережено</span>');
     } catch (error) {
       warn("garbage save error:", error);
       setStatus("error", `<span class="status-label">${globalThis.navigator?.onLine === false ? "Офлайн — збережеться пізніше" : "Помилка"}</span>`);

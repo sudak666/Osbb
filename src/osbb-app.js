@@ -350,7 +350,7 @@
         monthSelect.value = now.getMonth();
         refreshEnhancedSelect(yearSelect);
         refreshEnhancedSelect(monthSelect);
-        initCalendar();
+        return initCalendar();
     }
 
     function updateTodayBtn() {
@@ -485,22 +485,18 @@
     }
 
     async function attExportExcel() {
-        let XLSX;
-        try { XLSX = await import('xlsx'); }
-        catch (error) { console.warn('xlsx load failed:', error); showToast('Не вдалося завантажити модуль Excel. Перевірте зʼєднання.'); return; }
         const daysInMonth = calendarMonthDays(currentYear, currentMonth);
         const data = attendanceController.getData();
         const details = buildAttendanceExportRows(data, roles, roleNames, currentYear, currentMonth, daysInMonth);
         const summary = buildAttendanceSummaryRows(data, roles, roleNames, daysInMonth);
-        const workbook = XLSX.utils.book_new();
-        const detailsSheet = XLSX.utils.json_to_sheet(details);
-        detailsSheet['!cols'] = [{wch:12},{wch:14},{wch:18},{wch:10},{wch:10},{wch:12},{wch:10},{wch:20},{wch:16}];
-        const summarySheet = XLSX.utils.json_to_sheet(summary);
-        summarySheet['!cols'] = [{wch:20},{wch:20},{wch:22}];
-        XLSX.utils.book_append_sheet(workbook, detailsSheet, 'Табель');
-        XLSX.utils.book_append_sheet(workbook, summarySheet, 'Підсумки');
         const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-        XLSX.writeFile(workbook, `Табель_${monthKey}.xlsx`);
+        try {
+            const { downloadWorkbook } = await import('./excel-export.js');
+            await downloadWorkbook([
+                { name:'Табель', rows:details, widths:[12,14,18,10,10,12,10,20,16] },
+                { name:'Підсумки', rows:summary, widths:[20,20,22] },
+            ], `Табель_${monthKey}.xlsx`);
+        } catch (error) { console.warn('Excel export failed:', error); showToast('Не вдалося створити Excel. Спробуйте ще раз.'); return; }
         showToast('Табель Excel завантажено!', 'success');
     }
 
@@ -770,8 +766,14 @@
     }
     lightboxController.bind();
 
+    let dayDetailOpener = null;
+    const dayDetailBackground = new Map();
     function closeDayDetail() {
         document.getElementById('day-detail-modal')?.classList.remove('open');
+        dayDetailBackground.forEach((inert, element) => { element.inert = inert; });
+        dayDetailBackground.clear();
+        if (dayDetailOpener?.isConnected) dayDetailOpener.focus({ preventScroll: true });
+        dayDetailOpener = null;
     }
 
     // Спільний хелпер: якщо модалка деталізації дня зараз відкрита саме для цього
@@ -934,6 +936,7 @@
 
         const actionHandlers = {
             'garbage-clear-month': gClearMonth,
+            'garbage-today': async () => { await goToday(); gOpenDayDetail(String(new Date().getDate())); },
             'go-today': goToday,
             'refresh-data': refreshData,
             'elevator-add': () => {
@@ -966,7 +969,17 @@
         });
         document.querySelector('[data-day-detail-close]')?.addEventListener('click', closeDayDetail);
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && document.getElementById('day-detail-modal')?.classList.contains('open')) closeDayDetail();
+            const dayModal = document.getElementById('day-detail-modal');
+            if (dayModal?.classList.contains('open')) {
+                if (event.key === 'Escape') { event.preventDefault(); closeDayDetail(); }
+                if (event.key === 'Tab') {
+                    const focusable = [...dayModal.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex="0"]')].filter(el => el.getClientRects().length);
+                    const first = focusable[0] || dayModal, last = focusable.at(-1) || dayModal;
+                    if (!dayModal.contains(document.activeElement) || (event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last)) {
+                        event.preventDefault(); (event.shiftKey ? last : first).focus();
+                    }
+                }
+            }
             if (event.key === 'Escape' && document.getElementById('shift-editor')?.classList.contains('is-open')) shiftCloseEditor();
         });
     }
@@ -1206,6 +1219,8 @@
         const titleEl = document.getElementById('day-detail-title');
         const bodyEl = document.getElementById('day-detail-body');
         if (!modal || !titleEl || !bodyEl) return;
+        const wasOpen = modal.classList.contains('open');
+        const focusedField = document.activeElement?.dataset?.gField;
         const d = parseInt(day, 10);
         const dateObj = new Date(currentYear, currentMonth, d);
         const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
@@ -1216,6 +1231,14 @@
         modal.dataset.day = day;
         modal.dataset.context = 'garbage';
         modal.classList.add('open');
+        if (!wasOpen) {
+            dayDetailOpener = document.activeElement;
+            for (const element of document.body.children) {
+                if (element === modal || element.tagName === 'SCRIPT' || element.id === 'ios-toast') continue;
+                dayDetailBackground.set(element, element.inert); element.inert = true;
+            }
+            modal.querySelector('input')?.focus({ preventScroll: true });
+        } else if (focusedField) bodyEl.querySelector(`[data-g-field="${focusedField}"]`)?.focus({ preventScroll: true });
     }
 
     // Календарна сітка сміття — той самий вигляд, що й у Журналі: квадрати днів,
@@ -1424,7 +1447,7 @@
     const _origSetSyncStatus = setSyncStatus;
     setSyncStatus = function(type, text) {
         _origSetSyncStatus(type, text);
-        if (type === 'ok' && text.includes('Синхронізовано')) showToast('Збережено', TOAST_ICON_CHECK);
+        if (type === 'ok' && text.includes('Синхронізовано')) showToast('Дані оновлено', TOAST_ICON_CHECK);
     };
 
     // ============================================================

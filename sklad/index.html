@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="/Osbb/shared/ui.css">
     <link rel="stylesheet" href="/Osbb/shared/material-tokens.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" href="/Osbb/shared/material-symbols.css">
     <script src="/Osbb/shared/material-symbols-ready.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Склад ОСББ</title>
@@ -144,6 +144,7 @@ window.addEventListener('message',event=>{
       <details class="item-more topbar-more">
         <summary aria-label="Більше дій" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
         <div class="item-more-menu" role="menu">
+          <button type="button" role="menuitem" class="topbar-mobile-only" data-sklad-action="refresh"><span class="ms" aria-hidden="true">sync</span> Оновити</button>
           <button type="button" role="menuitem" class="topbar-mobile-only" data-sklad-action="export-excel"><span class="ms" aria-hidden="true">upload_file</span> Excel</button>
           <button type="button" role="menuitem" data-sklad-action="chart"><span class="ms" aria-hidden="true">bar_chart</span> Графік</button>
           <button type="button" role="menuitem" data-sklad-action="receipts"><span class="ms" aria-hidden="true">move_to_inbox</span> Надходження</button>
@@ -165,7 +166,7 @@ window.addEventListener('message',event=>{
     </section>
     <div class="g4 items-metrics insight-grid inventory-summary" aria-label="Підсумок складських запасів">
       <article class="stat-card summary-card sc-green"><span class="big" id="st-available">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> Найменувань у наявності</span><span class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></span></article>
-      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> Одиниць на складі</span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
+      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> Потребують поповнення</span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
       <article class="stat-card summary-card sc-orange"><span class="big summary-money" id="st-value">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">payments</span> Орієнтовна вартість</span><span class="stat-icon" aria-hidden="true"><span class="ms">payments</span></span></article>
     </div>
     <div class="items-filter-bar">
@@ -276,8 +277,13 @@ window.addEventListener('message',event=>{
 
   <!-- ADD -->
   <div id="page-add" class="page">
+    <div class="add-mode-switch" role="group" aria-label="Операція з товаром">
+      <button type="button" class="btn btn-primary" data-add-mode="refill" aria-pressed="true" aria-controls="add-refill-panel">Поповнити наявний</button>
+      <button type="button" class="btn btn-ghost" data-add-mode="new" aria-pressed="false" aria-controls="add-new-panel">Створити новий</button>
+    </div>
     <div class="split">
       <div class="card add-card">
+        <section id="add-refill-panel">
         <h3 class="add-section-title is-refill"><span class="ms" aria-hidden="true">add_circle</span>Поповнити залишок</h3>
         <div class="add-form-stack">
           <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для поповнення..."><option value="">— Оберіть товар —</option></select></div>
@@ -286,12 +292,15 @@ window.addEventListener('message',event=>{
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label for="refillDateI">Дата приходу</label><input type="text" inputmode="none" autocomplete="off" pattern="\d{4}-\d{2}-\d{2}" class="inp" id="refillDateI" name="receipt_date"></div>
           </div>
+          <details class="receipt-options"><summary>Додатково: ціна, постачальник, примітка</summary>
           <div><label>Ціна закупівлі за одиницю <span class="form-note">(необов'язково)</span></label><input type="number" class="inp" id="refillPriceI" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
           <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="refillSupplierI">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="refillSupplierI">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="refillSupplierI">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="refillSupplierI">Місцевий</button></div><div class="supplier-tag-create"><input type="text" class="inp" id="newSupplierTag" maxlength="40" placeholder="Новий тег постачальника"><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="supplier-tag-add"><span class="ms" aria-hidden="true">add</span> Додати тег</button></div></div>
           <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
+          </details>
           <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
         </div>
-        <div class="add-new-section">
+        </section>
+        <div class="add-new-section" id="add-new-panel" hidden>
           <h3 class="add-section-title"><span class="ms" aria-hidden="true">fiber_new</span> Новий товар</h3>
           <div class="add-new-stack">
             <div><label>Назва / артикул</label><input type="text" class="inp" id="newName" placeholder="Напр.: Лампа LED 10W E27" data-new-product-input><div id="newNameMatches" class="new-name-matches"></div><button type="button" class="btn btn-ghost add-scanner-btn" data-sklad-action="barcode-add-open"><span class="ms" aria-hidden="true">qr_code_scanner</span> Сканувати штрих-код товару</button></div>

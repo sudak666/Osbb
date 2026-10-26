@@ -86,3 +86,29 @@ test('garbage controller refreshes yearly offline cache and removes absent month
   values.set('garbage_2026_0','stale'); await controller.loadYear(2026);
   assert.equal(JSON.parse(values.get('garbage_2026_7'))['01'].types.bins,4); assert.equal(values.has('garbage_2026_0'),false);
 });
+
+test('an older save cannot acknowledge a newer edit of the same day', async () => {
+  let release; const gate = new Promise(resolve => { release = resolve; });
+  const sent = [];
+  const { controller, values } = fixture({ setTimer:() => 1, saveDay:async args => {
+    sent.push(structuredClone(args)); if (sent.length === 1) await gate; return { error:null };
+  } });
+  await controller.init(); controller.updateRow('10','worker','first');
+  const saving = controller.saveCloud(); controller.updateRow('10','worker','second');
+  release(); await saving;
+  assert.deepEqual(JSON.parse(values.get('garbage_dirty_2026_7')), ['10']);
+  await controller.flush();
+  assert.deepEqual(sent.map(row => row.p_row.worker), ['first','second']);
+  assert.equal(values.has('garbage_dirty_2026_7'), false);
+});
+
+test('save acknowledgement clears only its original month queue', async () => {
+  let month = 7; let release;
+  const gate = new Promise(resolve => { release=resolve; });
+  const {controller,values} = fixture({setTimer:()=>1,getMonth:()=>({year:2026,month}),saveDay:async()=>{await gate;return {error:null}}});
+  await controller.init(); controller.updateRow('10','worker','august'); const save=controller.saveCloud();
+  month=8; values.set('garbage_dirty_2026_8',JSON.stringify(['10']));
+  release();await save;
+  assert.equal(values.has('garbage_dirty_2026_7'),false);
+  assert.deepEqual(JSON.parse(values.get('garbage_dirty_2026_8')),['10']);
+});

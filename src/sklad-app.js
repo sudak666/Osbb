@@ -169,7 +169,7 @@ itemCrudController=createSkladItemCrudController({db,document,categories:catBadg
   renderLowStock:renderAddLow,requestDeletePin:showDeletePinModal,runDeleteRpc:runDeleteInventoryRpc,toast});
 
 const auditController=createSkladAuditController({
-  db,document,
+  db,document,storage:localStorage,
   getItems:()=>allItems,
   itemMatchesSearch,
   updateResultSummary,
@@ -429,6 +429,16 @@ function bindSkladStaticControls(){
     const handler=filterHandlers[button.dataset.filterToggle];
     if(handler) button.addEventListener('click',(event)=>handler(button,event));
   });
+  document.querySelectorAll('[data-add-mode]').forEach(button => button.addEventListener('click', () => {
+    const mode = button.dataset.addMode;
+    document.getElementById('add-refill-panel').hidden = mode !== 'refill';
+    document.getElementById('add-new-panel').hidden = mode !== 'new';
+    document.querySelectorAll('[data-add-mode]').forEach(tab => {
+      const selected = tab.dataset.addMode === mode;
+      tab.setAttribute('aria-pressed', String(selected));
+      tab.classList.toggle('btn-primary', selected); tab.classList.toggle('btn-ghost', !selected);
+    });
+  }));
   document.querySelectorAll('[data-category-filter]').forEach(button=>{
     button.addEventListener('click',()=>filterCat(button,button.dataset.categoryFilter));
   });
@@ -688,7 +698,7 @@ function renderItems(){
 function updateStats(){
   const stats=calculateInventoryHeaderStats(allItems);
   animateNumber(document.getElementById('st-available'),stats.availableItems);
-  animateNumber(document.getElementById('st-units'),stats.totalUnits);
+  animateNumber(document.getElementById('st-units'),allItems.filter(item=>Number(item.quantity)<=3).length);
   const valueElement=document.getElementById('st-value');
   if(valueElement) valueElement.textContent=stats.estimatedValue>0?money(stats.estimatedValue):'0 грн';
 }
@@ -1091,26 +1101,19 @@ function renderStats(){
 // ===== EXCEL =====
 async function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');
-  let XLSX;
-  try{XLSX=await import('xlsx');}
-  catch(e){console.warn('xlsx load failed:',e);return toast('Не вдалося завантажити модуль Excel. Перевірте зʼєднання.','error');}
-  const ws=XLSX.utils.json_to_sheet(buildInventoryExportRows(allItems));
-  ws['!cols']=[{wch:4},{wch:60},{wch:14},{wch:10},{wch:12},{wch:14},{wch:18},{wch:28},{wch:18},{wch:20}];
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Товари');
-  const wsBalance=XLSX.utils.json_to_sheet(buildBalanceExportRows(allItems));
-  wsBalance['!cols']=[{wch:50},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,wsBalance,'Баланс');
+  const sheets = [
+    { name:'Товари', rows:buildInventoryExportRows(allItems), widths:[4,60,14,10,12,14,18,28,18,20] },
+    { name:'Баланс', rows:buildBalanceExportRows(allItems), widths:[50,12] },
+  ];
   let exportLogs=allLogs;
   try{exportLogs=await loadAllLogs();}
   catch(e){console.warn('full issue log load failed:',e);toast('Журнал видач у файлі — лише останні записи (немає зʼєднання)','info');}
-  if(exportLogs.length){
-    const ws2=XLSX.utils.json_to_sheet(buildIssueExportRows(exportLogs));
-    ws2['!cols']=[{wch:18},{wch:50},{wch:8},{wch:25},{wch:30}];
-    XLSX.utils.book_append_sheet(wb,ws2,'Журнал видач');
-  }
+  if(exportLogs.length) sheets.push({ name:'Журнал видач', rows:buildIssueExportRows(exportLogs), widths:[18,50,8,25,30] });
   const date=new Date().toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\./g,'-');
-  XLSX.writeFile(wb,'Склад_ОСББ_'+date+'.xlsx');
+  try {
+    const { downloadWorkbook } = await import('./excel-export.js');
+    await downloadWorkbook(sheets,'Склад_ОСББ_'+date+'.xlsx');
+  } catch(error) { console.warn('Excel export failed:',error); return toast('Не вдалося створити Excel. Спробуйте ще раз.','error'); }
   toast('Excel завантажено!','success');
 }
 

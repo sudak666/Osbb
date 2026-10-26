@@ -1,9 +1,11 @@
-const CACHE_NAME = 'osbb-shell-v10';
+const CACHE_NAME = 'osbb-shell-v11';
 const urlsToCache = [
   '/Osbb/',
   '/Osbb/index.html',
   '/Osbb/styles.css',
   '/Osbb/shared/ui.css',
+  '/Osbb/shared/material-symbols.css',
+  '/Osbb/shared/fonts/material-symbols-rounded.woff2',
   '/Osbb/shared/material-tokens.css',
   '/Osbb/shared/material-symbols-ready.js',
   '/Osbb/shared/enhance-select.js',
@@ -74,6 +76,8 @@ self.addEventListener('fetch', event => {
      url.pathname.startsWith('/Osbb/sklad/'));
   const isVersionedAsset = url.origin === self.location.origin && url.pathname.startsWith('/Osbb/assets/');
   const isShellStatic = url.pathname === '/Osbb/styles.css' ||
+                         url.pathname === '/Osbb/shared/material-symbols.css' ||
+                         url.pathname === '/Osbb/shared/fonts/material-symbols-rounded.woff2' ||
                          url.pathname === '/Osbb/shared/ui.css' ||
                          url.pathname === '/Osbb/shared/material-tokens.css' ||
                          url.pathname === '/Osbb/shared/material-symbols-ready.js' ||

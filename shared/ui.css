@@ -105,3 +105,6 @@ button,[role='button']{font-weight:var(--md-sys-typescale-label-weight);letter-s
 .custom-select-option:focus-visible{outline:2px solid var(--md-sys-color-primary)!important;outline-offset:-2px;}
 .custom-date-panel{border-color:var(--app-card-outline,var(--md-sys-color-outline-variant));background:var(--app-dialog-surface,var(--md-sys-color-surface-container-high));}
 .md-empty-state{border:1px solid var(--app-card-outline,var(--md-sys-color-outline-variant));background:var(--app-card-surface,var(--md-sys-color-surface-container-low));}
+
+.ms { visibility:hidden; }
+.material-symbols-ready .ms { visibility:visible; }

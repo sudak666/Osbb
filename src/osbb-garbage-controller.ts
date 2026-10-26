@@ -67,24 +67,33 @@ export function createOsbbGarbageController(options: OsbbGarbageControllerOption
         const { error } = await upsertMonth({ month_key:monthKey(), data }); if (error) throw error;
     }
     const hasContent = (row: GarbageRow | undefined) => Boolean(row && (row.time || row.worker || Object.keys(row.types || {}).length || row.count || row.note));
-    async function syncDay(day: string, keepalive: boolean) {
-        const row = hasContent(data[day]) ? data[day] : null;
-        const { error } = await saveDay({ p_month_key:monthKey(), p_day:day, p_row:row }, { keepalive });
+    async function syncDay(day: string, keepalive: boolean, year: number, month: number) {
+        const cacheKey = offlineKey(year, month);
+        const pendingKey = dirtyKey(year, month);
+        const snapshot = readOffline(storage, cacheKey) as GarbageMonthData | null;
+        const row = hasContent(snapshot?.[day]) ? snapshot![day] : null;
+        const revision = JSON.stringify(row);
+        const { error } = await saveDay({ p_month_key:monthKey(year, month), p_day:day, p_row:row }, { keepalive });
         if (error) throw error;
-        const remaining = loadDirty(); remaining.delete(day); saveDirty(remaining);
+        const latest = readOffline(storage, cacheKey) as GarbageMonthData | null;
+        if (JSON.stringify(hasContent(latest?.[day]) ? latest![day] : null) !== revision) return;
+        const pending = readOffline(storage, pendingKey);
+        const remaining = new Set<string>(Array.isArray(pending) ? pending.map(String) : []);
+        remaining.delete(day);
+        if (remaining.size) writeOffline(storage, pendingKey, [...remaining]);
+        else removeOffline(storage, pendingKey);
     }
     async function syncDirtyDays({ keepalive = false } = {}) {
+        const { year, month } = getMonth();
         const days = [...loadDirty()];
-        // При закритті сторінки встигає піти лише те, що відправлено одразу, тож
-        // keepalive-запити шлемо паралельно; у звичайному режимі — по черзі.
-        if (keepalive) { await Promise.all(days.map(day => syncDay(day, true))); return; }
-        for (const day of days) await syncDay(day, false);
+        if (keepalive) { await Promise.all(days.map(day => syncDay(day, true, year, month))); return; }
+        for (const day of days) await syncDay(day, false, year, month);
     }
     async function saveCloud(options: { keepalive?: boolean } = {}) {
         if (isPreview) { setStatus('ok', '<span class="status-label">Превʼю</span>'); return; }
         if (saving) { await saving.catch(() => {}); if (!loadDirty().size) return; }
         saving = syncDirtyDays(options);
-        try { await saving; setStatus('ok', '<span class="status-label">Збережено</span>'); }
+        try { await saving; if (loadDirty().size) setStatus('loading', '<span class="status-label">Є незбережені зміни</span>'); else setStatus('ok', '<span class="status-label">Збережено</span>'); }
         catch (error) {
             warn('garbage save error:', error);
             setStatus('error', `<span class="status-label">${globalThis.navigator?.onLine === false ? 'Офлайн — збережеться пізніше' : 'Помилка'}</span>`);

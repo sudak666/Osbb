@@ -52,3 +52,15 @@ test('photo removal clears the row and asks the server to clean up orphaned file
   assert.deepEqual(updates, [{ photo_url: null }]);
   assert.equal(cleanups, 1);
 });
+
+test('switching photo dialogs during upload never changes its target item', async () => {
+  const elements=new Map(); const get=id=>{if(!elements.has(id))elements.set(id,element());return elements.get(id)};
+  let release; const gate=new Promise(resolve=>{release=resolve});let image;let saving;const updates=[];
+  const db={storage:{from:()=>({upload:async()=>{await gate;return {error:null}},getPublicUrl:path=>({data:{publicUrl:'https://example.test/'+path}})})},from:()=>({update:patch=>({eq:async(_,id)=>{updates.push({id,patch});return {error:null}}})})};
+  const controller=createSkladPhotoController({db,document:{getElementById:get,createElement:()=>({getContext:()=>({drawImage(){}}),toBlob:cb=>{saving=cb({})}})},
+    window:{Image:class{constructor(){image=this;this.width=20;this.height=20}},URL:{createObjectURL:()=> 'blob:test',revokeObjectURL(){}}},getItem:id=>({id,name:'Item '+id}),loadItems:async()=>{},openModal(){},closeModal(){},requestDeletePin(){},toast(){},cleanupPhotos(){}});
+  controller.open(1);get('photoFileI').files=[{}];await controller.upload();await image.onload();
+  controller.open(2);release();await saving;
+  assert.equal(updates[0].id,1);assert.match(updates[0].patch.photo_url,/items\/1_/);
+  assert.equal(get('photoItemName').textContent,'Item 2');
+});
