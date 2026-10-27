@@ -141,11 +141,24 @@ export function createOsbbGarbageController(options: OsbbGarbageControllerOption
     }
     async function loadYear(year: number) {
         if (isPreview) return;
+        // Chart responses must never replace the draft used by autosave. Remember
+        // the cache before fetching so even edits saved during the request win.
+        const snapshots = Array.from({ length:12 }, (_, month) => ({
+            value:JSON.stringify(readOffline(storage, offlineKey(year, month))),
+            dirty:readOffline(storage, dirtyKey(year, month)),
+        }));
         try {
             const { data:rowsValue, error } = await fetchYear(); if (error) throw error; const rows = garbageYearRowsFromResponse(rowsValue);
             for (let month = 0; month < 12; month++) {
-                const row = garbageMonthKeyCandidates(year, month).map(key => rows.find(item => item.month_key === key)).find(Boolean);
                 const key = offlineKey(year, month);
+                const current = getMonth();
+                const pending = readOffline(storage, dirtyKey(year, month));
+                const previousPending = snapshots[month].dirty;
+                if (loaded && current.year === year && current.month === month) continue;
+                if (Array.isArray(previousPending) && previousPending.length) continue;
+                if (Array.isArray(pending) && pending.length) continue;
+                if (JSON.stringify(readOffline(storage, key)) !== snapshots[month].value) continue;
+                const row = garbageMonthKeyCandidates(year, month).map(key => rows.find(item => item.month_key === key)).find(Boolean);
                 if (!row?.data) { removeOffline(storage, key); continue; }
                 writeOffline(storage, key, migrate(row.data).data || {});
             }
