@@ -193,13 +193,24 @@ function createOsbbGarbageController(options) {
   }
   async function loadYear(year) {
     if (isPreview) return;
+    const snapshots = Array.from({ length: 12 }, (_, month) => ({
+      value: JSON.stringify(readOffline(storage, offlineKey(year, month))),
+      dirty: readOffline(storage, dirtyKey(year, month))
+    }));
     try {
       const { data: rowsValue, error } = await fetchYear();
       if (error) throw error;
       const rows = garbageYearRowsFromResponse(rowsValue);
       for (let month = 0; month < 12; month++) {
-        const row = garbageMonthKeyCandidates(year, month).map((key2) => rows.find((item) => item.month_key === key2)).find(Boolean);
         const key = offlineKey(year, month);
+        const current = getMonth();
+        const pending = readOffline(storage, dirtyKey(year, month));
+        const previousPending = snapshots[month].dirty;
+        if (loaded && current.year === year && current.month === month) continue;
+        if (Array.isArray(previousPending) && previousPending.length) continue;
+        if (Array.isArray(pending) && pending.length) continue;
+        if (JSON.stringify(readOffline(storage, key)) !== snapshots[month].value) continue;
+        const row = garbageMonthKeyCandidates(year, month).map((key2) => rows.find((item) => item.month_key === key2)).find(Boolean);
         if (!row?.data) {
           removeOffline(storage, key);
           continue;

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readOsbbOfflineValue } from '../src/osbb-offline.js';
 import { createOsbbGarbageController } from '../src/osbb-garbage-controller.js';
 
 function fixture(overrides = {}) {
@@ -8,7 +9,7 @@ function fixture(overrides = {}) {
   const controller = createOsbbGarbageController({
     document:{ getElementById:() => ({ className:'', innerHTML:'' }) }, storage, isPreview:false,
     getMonth:() => ({ year:2026, month:7 }), getCurrentTab:() => 'dispatcher',
-    readOffline:(target,key) => { const raw=target.getItem(key); return raw ? JSON.parse(raw) : null; },
+    readOffline:readOsbbOfflineValue,
     writeOffline:(target,key,value) => target.setItem(key,JSON.stringify(value)), removeOffline:(target,key) => target.removeItem(key),
     fetchMonth:async key => ({ data:key === '2026-7' ? { data:{ '08':{ time:'09:00', worker:'janitor', types:{ bins:2 } } } } : null, error:null }),
     upsertMonth:async row => { saved=row; return { error:null }; }, fetchYear:async () => ({ data:[], error:null }),
@@ -111,4 +112,43 @@ test('save acknowledgement clears only its original month queue', async () => {
   release();await save;
   assert.equal(values.has('garbage_dirty_2026_7'),false);
   assert.deepEqual(JSON.parse(values.get('garbage_dirty_2026_8')),['10']);
+});
+
+test('year chart refresh cannot overwrite a pending day before autosave', async () => {
+  for (const cloudRows of [[], [{ month_key:'2026-7', data:{ '08':{ types:{ bins:2 } } } }]]) {
+    const { controller, days, values } = fixture({ setTimer:() => 1, fetchYear:async () => ({ data:cloudRows, error:null }) });
+    await controller.init();
+    controller.updateType('08','bins','7');
+    controller.updateType('10','bins','3');
+    await controller.loadYear(2026);
+    await controller.flush();
+    assert.deepEqual(days.map(day => [day.p_day, day.p_row?.types.bins]), [['08',7],['10',3]]);
+    assert.equal(values.has('garbage_dirty_2026_7'), false);
+  }
+});
+
+test('year chart preserves pending edits and deletions in another month', async () => {
+  const { controller, values } = fixture({ fetchYear:async () => ({ data:[
+    { month_key:'2026-6', data:{ '01':{ types:{ bins:9 } } } },
+  ], error:null }) });
+  values.set('garbage_2026_6', JSON.stringify({ '02':{ types:{ bins:4 } } }));
+  values.set('garbage_dirty_2026_6', JSON.stringify(['01','02']));
+  await controller.loadYear(2026);
+  assert.deepEqual(JSON.parse(values.get('garbage_2026_6')), { '02':{ types:{ bins:4 } } });
+});
+
+test('late year response cannot replace edits saved while the request was in flight', async () => {
+  let release;
+  const response = new Promise(resolve => { release=resolve; });
+  let month=7;
+  const { controller, values } = fixture({ setTimer:() => 1, getMonth:() => ({ year:2026, month }), fetchYear:() => response });
+  await controller.init();
+  const chart = controller.loadYear(2026);
+  controller.updateType('08','bins','7');
+  await controller.flush();
+  month=8;
+  controller.resetLoaded();
+  release({ data:[], error:null });
+  await chart;
+  assert.equal(JSON.parse(values.get('garbage_2026_7'))['08'].types.bins,7);
 });
