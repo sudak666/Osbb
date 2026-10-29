@@ -1887,7 +1887,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.journal-metric-value {',
     '.journal-metric-label {',
     'class="journal-metric-value" id="g-total-month"',
-    'Баків без пластику/скла',
+    'Баків без пластику й скла',
     '.lock-screen { position:fixed;',
     'class="lock-screen"',
     'class="pin-keypad"',
