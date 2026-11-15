@@ -1,8 +1,26 @@
 // Згенеровано з src/shell.ts (scripts/build-js-fallback.mjs). Не редагувати вручну.
 import { isAuthSessionValid } from "./auth-session.js";
 import { createShellController } from "./shell-controller.js";
-import { rpc } from "./supabase-api.js";
-const shellController = createShellController({ document, window, navigator, rpc });
+import { createShellDashboard } from "./shell-dashboard.js";
+import { createSupabaseRestClient, rpc } from "./supabase-api.js";
+let dashboard = null;
+const shellController = createShellController({
+  document,
+  window,
+  navigator,
+  rpc,
+  onSectionShown: (section) => {
+    if (section === "home") void dashboard?.refresh();
+  }
+});
+const homeContainer = document.getElementById("shell-home");
+if (homeContainer) {
+  dashboard = createShellDashboard({
+    container: homeContainer,
+    client: createSupabaseRestClient(),
+    onNavigate: (section) => shellController.showSection(section)
+  });
+}
 const applyShellTheme = (value) => {
   const theme = value === "theme-dark" ? "theme-dark" : "theme-light";
   document.body.classList.remove("theme-light", "theme-dark");

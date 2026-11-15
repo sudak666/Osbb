@@ -1,6 +1,12 @@
 import { clearAuthSession, isAuthSessionValid, setAuthSession } from './auth-session.ts';
 import { IDLE_LOCK_MS, isShellTabName, ShellStore, type ShellTabName, TAB_SRC } from './shell-state.ts';
 import type { PublicFunctionReturns } from './database.types.ts';
+import {
+    DEFAULT_SECTION, defaultSectionFor, isMobilePrimarySection, isShellSection, sectionForModulePage,
+    sectionModule, type ShellSection,
+} from './shell-nav.ts';
+
+const SECTION_STORAGE_KEY = 'shell_section';
 
 type VerifyLockPinResult = PublicFunctionReturns<'verify_lock_pin'> | null;
 
@@ -12,6 +18,8 @@ export interface ShellControllerDeps {
     store?: ShellStore;
     setTimeout?: Window['setTimeout'];
     clearTimeout?: Window['clearTimeout'];
+    /** Викликається щоразу, коли shell показує розділ (напр., оновити «Головну»). */
+    onSectionShown?: (section: ShellSection) => void;
 }
 
 export interface ShellController {
@@ -22,6 +30,8 @@ export interface ShellController {
     lockPress(digit: string | undefined): Promise<void>;
     lockDel(): void;
     switchTab(name: ShellTabName): void;
+    showSection(section: ShellSection): void;
+    getSection(): ShellSection;
 }
 
 export function createShellController(deps: ShellControllerDeps): ShellController {
@@ -32,6 +42,10 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     const clearTimer = deps.clearTimeout ?? win.clearTimeout.bind(win);
     let idleLockTimer: ReturnType<Window['setTimeout']> | undefined;
     let mainPinCache: string | null = null;
+    let currentSection: ShellSection = DEFAULT_SECTION;
+    const lastModuleSection: Record<ShellTabName, ShellSection> = { journal: defaultSectionFor('journal'), sklad: defaultSectionFor('sklad') };
+    const frameReady: Partial<Record<ShellTabName, boolean>> = {};
+    const pendingSection: Partial<Record<ShellTabName, ShellSection>> = {};
     const securityEnabled = (key: string): boolean => win.localStorage?.getItem(key) !== '0';
 
     function requireElement<T extends HTMLElement>(id: string): T {
@@ -53,7 +67,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         if (lockScreen) lockScreen.style.display = 'none';
         requireElement('shell-main').style.display = 'flex';
         resetIdleLockTimer();
-        switchTab('journal');
+        showSection(restoreSection());
         doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe').forEach(frame => {
             const embeddedLock = frame.contentDocument?.getElementById('app-lock-screen')
                 ?? frame.contentDocument?.getElementById('authScreen');
@@ -125,12 +139,33 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         }
     }
 
-    function loadTab(name: ShellTabName): void {
-        const frame = doc.getElementById('frame-' + name) as HTMLIFrameElement | null;
-        if (frame && !store.isTabLoaded(name)) {
-            frame.src = TAB_SRC[name];
+    function frameFor(name: ShellTabName): HTMLIFrameElement | null {
+        return doc.getElementById('frame-' + name) as HTMLIFrameElement | null;
+    }
+
+    function restoreSection(): ShellSection {
+        try {
+            const saved = win.sessionStorage?.getItem(SECTION_STORAGE_KEY);
+            if (isShellSection(saved)) return saved;
+        } catch { /* sessionStorage може бути недоступний */ }
+        return currentSection;
+    }
+
+    function rememberSection(section: ShellSection): void {
+        try { win.sessionStorage?.setItem(SECTION_STORAGE_KEY, section); } catch { /* best-effort */ }
+    }
+
+    /** Перше відкриття вантажить iframe одразу з потрібним розділом; далі — postMessage. */
+    function loadTab(name: ShellTabName, section: ShellSection = lastModuleSection[name]): void {
+        const frame = frameFor(name);
+        if (!frame) return;
+        if (!store.isTabLoaded(name)) {
+            frame.src = section === defaultSectionFor(name) ? TAB_SRC[name] : `${TAB_SRC[name]}&section=${encodeURIComponent(section)}`;
             store.markTabLoaded(name);
+            return;
         }
+        if (!frameReady[name]) { pendingSection[name] = section; return; }
+        frame.contentWindow?.postMessage({ type: 'osbb:navigate', section }, win.location.origin);
     }
 
     function lockShellNow(): void {
@@ -167,6 +202,20 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
                 .some((frame) => frame.contentWindow === event.source);
             if (!fromShellFrame) return;
             if (event.data?.type === 'osbb:user-activity') resetIdleLockTimer();
+            if (event.data?.type === 'osbb:section-changed') {
+                const sourceFrame = [...doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe')]
+                    .find((frame) => frame.contentWindow === event.source);
+                const module = sourceFrame?.id === 'frame-journal' ? 'journal' : sourceFrame?.id === 'frame-sklad' ? 'sklad' : null;
+                const section = module ? sectionForModulePage(module, event.data.section) : null;
+                if (module && section) {
+                    lastModuleSection[module] = section;
+                    if (sectionModule(currentSection) === module && section !== currentSection) {
+                        currentSection = section;
+                        rememberSection(section);
+                        renderNavState();
+                    }
+                }
+            }
             if (event.data?.type === 'osbb:security-settings-changed') {
                 if (!securityEnabled('osbb_pin_enabled')) unlockShell();
                 resetIdleLockTimer();
@@ -181,6 +230,13 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
 
         doc.querySelectorAll<HTMLIFrameElement>('#shell-frames iframe').forEach(frame => {
             frame.addEventListener('load', () => {
+                const module: ShellTabName | null = frame.id === 'frame-journal' ? 'journal' : frame.id === 'frame-sklad' ? 'sklad' : null;
+                if (module && frame.src) {
+                    frameReady[module] = true;
+                    const pending = pendingSection[module];
+                    delete pendingSection[module];
+                    if (pending) frame.contentWindow?.postMessage({ type: 'osbb:navigate', section: pending }, win.location.origin);
+                }
                 if (isAuthSessionValid()) notifyFrameUnlocked(frame);
             });
         });
@@ -196,35 +252,72 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
                 if (isShellTabName(button.dataset.shellTab)) switchTab(button.dataset.shellTab);
             });
         });
-        doc.querySelectorAll<HTMLButtonElement>('[data-shell-lock]').forEach((lockButton) => {
-            lockButton.addEventListener('click', lockShellNow);
+        doc.querySelectorAll<HTMLElement>('[data-shell-section]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const section = button.dataset.shellSection;
+                if (isShellSection(section)) showSection(section);
+            });
         });
-
-        doc.addEventListener('click', (event) => {
-            const details = doc.querySelector<HTMLDetailsElement>('.shell-more');
-            if (!details?.open || details.contains(event.target as Node)) return;
-            details.open = false;
+        doc.querySelectorAll<HTMLElement>('[data-shell-more]').forEach((button) => {
+            button.addEventListener('click', () => setMoreSheetOpen(!isMoreSheetOpen()));
+        });
+        doc.querySelectorAll<HTMLElement>('[data-shell-more-close]').forEach((button) => {
+            button.addEventListener('click', () => setMoreSheetOpen(false));
+        });
+        doc.addEventListener('keydown', (event) => {
+            if ((event as KeyboardEvent).key === 'Escape' && isMoreSheetOpen()) setMoreSheetOpen(false);
+        });
+        doc.querySelectorAll<HTMLButtonElement>('[data-shell-lock]').forEach((lockButton) => {
+            lockButton.addEventListener('click', () => { setMoreSheetOpen(false); lockShellNow(); });
         });
     }
 
+    function isMoreSheetOpen(): boolean {
+        const sheet = doc.getElementById('shell-more-sheet');
+        return Boolean(sheet && !sheet.hidden);
+    }
+
+    function setMoreSheetOpen(open: boolean): void {
+        const sheet = doc.getElementById('shell-more-sheet');
+        if (!sheet) return;
+        sheet.hidden = !open;
+        doc.querySelectorAll<HTMLElement>('[data-shell-more]').forEach((button) => button.setAttribute('aria-expanded', String(open)));
+        if (open) sheet.querySelector<HTMLElement>('[data-shell-section], [data-shell-lock], a')?.focus();
+    }
+
+    function renderNavState(): void {
+        doc.querySelectorAll<HTMLElement>('[data-shell-section]').forEach((button) => {
+            const active = button.dataset.shellSection === currentSection;
+            button.classList.toggle('active', active);
+            if (active) button.setAttribute('aria-current', 'page');
+            else button.removeAttribute('aria-current');
+        });
+        const inMore = !isMobilePrimarySection(currentSection);
+        doc.querySelectorAll<HTMLElement>('[data-shell-more]').forEach((button) => button.classList.toggle('active', inMore));
+    }
+
+    function showSection(section: ShellSection): void {
+        if (!isShellSection(section)) return;
+        const module = sectionModule(section);
+        currentSection = section;
+        rememberSection(section);
+        setMoreSheetOpen(false);
+        const home = doc.getElementById('shell-home');
+        if (home) home.hidden = module !== null;
+        doc.querySelectorAll('#shell-frames iframe').forEach(f => f.classList.remove('active'));
+        if (module) {
+            lastModuleSection[module] = section;
+            loadTab(module, section);
+            frameFor(module)?.classList.add('active');
+        }
+        renderNavState();
+        deps.onSectionShown?.(section);
+    }
+
+    /** Відкрити модуль на розділі, де користувач був востаннє. */
     function switchTab(name: ShellTabName): void {
         if (!isShellTabName(name)) return;
-        loadTab(name);
-        doc.querySelectorAll('.shell-tab-btn').forEach(b => {
-            b.classList.remove('active');
-            b.removeAttribute('aria-current');
-            if (b.hasAttribute('role')) b.setAttribute('aria-selected', 'false');
-        });
-        const targetTab = doc.getElementById('shell-tab-' + name);
-        if (targetTab) {
-            targetTab.classList.add('active');
-            targetTab.setAttribute('aria-current', 'page');
-            if (targetTab.hasAttribute('role')) targetTab.setAttribute('aria-selected', 'true');
-        }
-
-        doc.querySelectorAll('#shell-frames iframe').forEach(f => f.classList.remove('active'));
-        const targetFrame = doc.getElementById('frame-' + name);
-        if (targetFrame) targetFrame.classList.add('active');
+        showSection(lastModuleSection[name]);
     }
 
     return {
@@ -235,5 +328,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         lockPress,
         lockDel,
         switchTab,
+        showSection,
+        getSection: () => currentSection,
     };
 }

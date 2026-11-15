@@ -77,6 +77,8 @@
         }
     }
     const EARLY_EMBEDDED_SHELL = isEmbeddedShellFrame();
+    // У shell журнал не малює власного меню й шапки бренду — це робить спільна навігація.
+    if (EARLY_EMBEDDED_SHELL) document.documentElement.classList.add('in-shell');
     const hideEmbeddedLockScreen = () => {
         const screen = document.getElementById('app-lock-screen');
         if (screen) screen.style.display = 'none';

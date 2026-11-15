@@ -41,6 +41,29 @@
     // працювати як завжди, тому виключаємо цей випадок з детекції прев'ю.
     const IS_EMBEDDED_SHELL = isEmbeddedShellFrame();
 
+    // Єдина навігація (листопад 2026): у shell розділ вибирають у спільному меню
+    // shell, а журнал лише показує його. ?section=… задає початковий розділ.
+    const URL_SECTION = new URLSearchParams(window.location.search).get('section');
+    const JOURNAL_SECTION_TITLES = {
+        'completed-work': ['task_alt', 'Виконані роботи'],
+        garbage: ['delete', 'Сміття'],
+        shifts: ['calendar_clock', 'Зміни'],
+        tabel: ['schedule', 'Табель'],
+    };
+    function notifyShellSection(tab) {
+        if (!IS_EMBEDDED_SHELL) return;
+        window.parent.postMessage({ type: 'osbb:section-changed', section: tab }, window.location.origin);
+    }
+    function renderEmbeddedSectionTitle(tab) {
+        if (!IS_EMBEDDED_SHELL) return;
+        const [icon, label] = JOURNAL_SECTION_TITLES[tab] || ['assignment', 'Журнал'];
+        const heading = document.querySelector('.journal-title-heading');
+        const iconEl = heading?.querySelector('.app-module-title-icon');
+        const labelEl = heading?.querySelector('span:last-child');
+        if (iconEl) iconEl.textContent = icon;
+        if (labelEl) labelEl.textContent = label;
+    }
+
     // Повідомляємо shell-оболонку про активність усередині iframe, щоб idle-lock
     // не блокував застосунок, поки користувач реально працює в модулі.
     function notifyShellActivity() {
@@ -293,7 +316,8 @@
     const roleNames = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
 
     let currentYear, currentMonth;
-    let currentTab = 'garbage';
+    // «Зміни» захищені окремим PIN, тому через URL туди не пускаємо — лише через requestTab.
+    let currentTab = ['completed-work', 'garbage', 'tabel'].includes(URL_SECTION) ? URL_SECTION : 'garbage';
     let runtimeController;
 
     // Дані журналу сміття (оголошено заздалегідь, щоб уникнути race condition при ранньому виклику gInitDashboard)
@@ -1555,7 +1579,7 @@
         onShiftAuthorized:attempt=>{shiftPinCache=attempt;},
         getSelectedMonth:()=>({year:Number.parseInt(yearSelect.value,10),month:Number.parseInt(monthSelect.value,10)}),
         onMonthChanged:month=>{currentYear=month.year;currentMonth=month.month;},
-        onTabChanged:tab=>{if(tab!=='shifts')shiftPinCache='';currentTab=tab;updateContextualJournalControls(tab);},
+        onTabChanged:tab=>{if(tab!=='shifts')shiftPinCache='';currentTab=tab;updateContextualJournalControls(tab);renderEmbeddedSectionTitle(tab);notifyShellSection(tab);},
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
         loadDashboard:gInitDashboard,
         loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab},
@@ -1576,5 +1600,13 @@
     bindCompletedWorkActions();
     bindDayDetailSwipe();
     setTab(currentTab, { load: false });
+    if (URL_SECTION === 'shifts') requestTab('shifts');
+    window.addEventListener('message', event => {
+        if (event.origin !== window.location.origin || event.source !== window.parent) return;
+        if (event.data?.type !== 'osbb:navigate' || !ALL_TABS.includes(event.data.section)) return;
+        requestTab(event.data.section);
+        // «Зміни» спершу питають PIN: повертаємо shell фактичний розділ, щоб меню не підсвічувало чужий.
+        notifyShellSection(currentTab);
+    });
     initCalendar();
     initRealtime();
