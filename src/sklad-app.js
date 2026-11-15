@@ -34,10 +34,9 @@ const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,stockFilter='';
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
-const catIcon={'Прибирання':'🧹','Ремонт':'🔧','Електрика':'⚡','Сантехніка':'🚿','Відеоспостереження':'📹','Інше':'📦'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
-// HTML-рендер іконок Material Symbols. catIcon (emoji) лишається окремо для Chart.js,
-// оскільки canvas-легенда графіка не вміє рендерити HTML-теги.
+// HTML-рендер іконок Material Symbols. Емодзі в інтерфейсі не використовуємо —
+// підписи графіка Chart.js (canvas) — просто назви категорій.
 function msIcon(name,size){return '<span class="ms" aria-hidden="true" style="font-size:'+(size||'1em')+';vertical-align:-0.15em;">'+name+'</span>';}
 const catIconName={'Прибирання':'cleaning_services','Ремонт':'build','Електрика':'bolt','Сантехніка':'plumbing','Відеоспостереження':'videocam','Інше':'inventory_2'};
 const catIconHtml={};
@@ -1409,7 +1408,7 @@ async function renderChart(){
   chartInst=new Chart(ctx,{
     type:'bar',
     data:{
-      labels:cats.map(c=>(catIcon[c]||'')+' '+c),
+      labels:cats,
       datasets:[{label:'Загальна к-сть',data,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:2,borderRadius:8}]
     },
     options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#f0eeff'}},x:{grid:{display:false}}}}

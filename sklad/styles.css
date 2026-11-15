@@ -972,11 +972,11 @@ canvas#stockChart{width:100%!important;max-height:300px;}
    !important — щоб гарантовано перебити конкретні правила вище
    (той самий підхід, що вже узаконений для bottom-nav у CLAUDE.md).
    ========================================== */
-.btn { min-height: 48px !important; font-size: 15px !important; }
+.btn { min-height: var(--app-control-height) !important; font-size: var(--app-button-font-size) !important; }
 /* .btn-sm звичайно менша навмисно, але кнопки-ярлики (напр. "Видати"/"Поповнити"
    на головному екрані мають class="btn ... btn-sm") — теж часто натискувані,
    тому не опускаємо їх нижче цільового порогу 48px. */
-.btn-sm { min-height: 48px !important; font-size: 14px !important; }
+.btn-sm { min-height: var(--app-control-height) !important; font-size: var(--app-button-font-size) !important; }
 .inp { min-height: 56px !important; }
 .ni { min-height: 48px !important; }
 .bn-item { font-size: 11px !important; min-height: 48px !important; }
@@ -1135,3 +1135,12 @@ html.in-shell .app-module-kicker{display:none;}
 .spend-subtitle{margin:14px 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}
 @media(max-width:640px){.spend-bars{gap:3px;height:150px;}.spend-year{display:none;}}
 .stats-title-row .btn[hidden]{display:none!important;}
+
+/* ===== Узгодженість з рештою застосунку (листопад 2026) =====
+   Розміри з токенів shared/material-tokens.css (--app-*), спільних для shell, журналу й складу. */
+.btn{min-height:var(--app-control-height);border-radius:var(--md-sys-shape-corner-full,999px);font-size:var(--app-button-font-size);font-weight:var(--app-button-font-weight);}
+.btn-sm{min-height:var(--app-control-height);font-size:var(--app-button-font-size);}
+.btn .ms{font-size:var(--app-button-icon-size);}
+.topbar-icon-btn{width:var(--app-icon-button-size);height:var(--app-icon-button-size);min-height:0;padding:0;justify-content:center;border-radius:var(--md-sys-shape-corner-full,999px);}
+.topbar-icon-btn .ms{font-size:var(--app-icon-button-glyph-size);}
+.workflow-heading-icon,.stat-icon{border-radius:var(--app-radius-icon-tile);}

@@ -242,3 +242,21 @@
 }
 .md-state-layer:focus-visible::before { opacity: var(--md-sys-state-focus-opacity); }
 .md-state-layer:active::before { opacity: var(--md-sys-state-pressed-opacity); }
+
+/* Єдині розміри компонентів для shell, журналу й складу (листопад 2026).
+   Кожен модуль у кінці свого styles.css прив'язує свої класи кнопок до цих токенів —
+   змінювати розміри тут, а не в окремих модулях. Кнопки 48px і підпис 15px — свідомо
+   більші за базовий MD3 (40px/14px): це рішення складу «для літньої аудиторії»
+   (більший текст і зона натискання), тепер однакове для всього застосунку. */
+:root {
+  --app-control-height: 48px;
+  --app-icon-button-size: 48px;
+  --app-button-font-size: 15px;
+  --app-button-font-weight: 500;
+  --app-button-icon-size: 20px;
+  --app-icon-button-glyph-size: 24px;
+  --app-nav-icon-size: 24px;
+  --app-radius-container: var(--md-sys-shape-corner-extra-large, 28px); /* панелі, вікна, аркуші */
+  --app-radius-tile: var(--md-sys-shape-corner-large, 16px);            /* вкладені картки й плитки, поля */
+  --app-radius-icon-tile: var(--md-sys-shape-corner-medium, 12px);      /* квадратик з іконкою в заголовку картки */
+}

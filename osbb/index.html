@@ -181,7 +181,7 @@
                 <button type="button" class="pin-mb-btn" data-staff-pin-digit="9">9</button>
                 <button type="button" data-staff-pin-back aria-label="Назад до вибору профілю" class="pin-key-action pin-key-cancel">Назад</button>
                 <button type="button" class="pin-mb-btn" data-staff-pin-digit="0">0</button>
-                <button type="button" data-staff-pin-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру">⌫</button>
+                <button type="button" data-staff-pin-delete class="pin-key-action pin-key-backspace" aria-label="Видалити цифру"><span class="material-symbols-rounded" aria-hidden="true">backspace</span></button>
             </div>
         </div>
     </div>
@@ -190,10 +190,10 @@
 <div id="swipe-hint" class="swipe-hint no-print"></div>
 
 <div id="lightbox" class="lightbox no-print" data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1">
-    <button type="button" data-lightbox-action="prev" aria-label="Попереднє фото" class="absolute left-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">‹</button>
+    <button type="button" data-lightbox-action="prev" aria-label="Попереднє фото" class="absolute left-3 top-1/2 -translate-y-1/2 text-white text-3xl bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
     <img id="lightbox-img" src="" alt="Збільшене фото запису">
-    <button type="button" data-lightbox-action="next" aria-label="Наступне фото" class="absolute right-3 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select">›</button>
-    <button type="button" data-lightbox-action="close" aria-label="Закрити перегляд фото" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-9 h-9 rounded-full flex items-center justify-center transition z-10">✕</button>
+    <button type="button" data-lightbox-action="next" aria-label="Наступне фото" class="absolute right-3 top-1/2 -translate-y-1/2 text-white text-3xl bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
+    <button type="button" data-lightbox-action="close" aria-label="Закрити перегляд фото" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 
 <!-- МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — відкривається з календарної сітки (sm:hidden), показує зміни/завдання/заявки/фото/коментар обраного дня -->
@@ -202,7 +202,7 @@
         <div class="day-detail-sheet-handle" aria-hidden="true"></div>
         <div class="day-detail-header">
             <h3 id="day-detail-title" class="day-detail-title"></h3>
-            <button type="button" data-day-detail-close aria-label="Закрити день" class="day-detail-close md-state-layer">✕</button>
+            <button type="button" data-day-detail-close aria-label="Закрити день" class="day-detail-close md-state-layer"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
         </div>
         <div id="day-detail-body" class="day-detail-body"></div>
     </div>
