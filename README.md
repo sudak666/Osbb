@@ -9,15 +9,14 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | Шлях | Призначення |
 | --- | --- |
 | `index.html` | Головна shell-оболонка з PIN-входом, вкладками та iframe-завантаженням модулів; підключає TypeScript entrypoint `src/shell.ts` через Vite. |
-| `osbb/index.html` | Журнал ОСББ: заявки/диспетчер, сміття, табель, ліфтер і «Мої заявки». Старі журнал чергувань, графіки та чат видалені. |
+| `osbb/index.html` | Журнал ОСББ: виконані роботи (разом із ліфтером), сміття, графік змін і табель. Старі журнал чергувань, графіки, чат, диспетчер і Jira-заявки видалені. |
 | `sklad/index.html` | Склад: товари, видача, приходи, інвентаризація, фото, QR, графіки та Excel-експорт. |
 | `src/*.ts`, `src/*.js` | TypeScript-шар shell, спільний Supabase transport, чисті доменні модулі та browser-runnable JS fallback для журналу і складу. |
-| `src/database.types.ts` | Базові TypeScript-типи Supabase-сутностей і RPC, підготовлені до заміни на автоматично згенеровані типи зі схеми. |
+| `src/database.types.ts` | TypeScript-типи Supabase-сутностей і RPC, які реально викликає клієнт (підтримуються вручну). |
 | `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
-| `manifest.json`, `sw.js` | PWA manifest і service worker для shell-оболонки. |
-| `osbb/sw.js`, `sklad/sw.js` | Service worker-и вкладених модулів. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `034_photo_orphans.sql`). |
-| `sklad/supabase/functions/jira-issues` | Supabase Edge Function для вкладки «Мої заявки» (перевіряє staff PIN на сервері). |
+| `manifest.json`, `sw.js` | PWA manifest і єдиний service worker (scope `/Osbb/`), який обслуговує shell, журнал і склад. |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `038_drop_unused_rpc.sql`). |
+| `sklad/supabase/functions/photo-cleanup` | Supabase Edge Function, що видаляє з бакета `photos` файли, на які більше ніщо не посилається (`034`). |
 
 ## Як працює авторизація
 
@@ -32,16 +31,18 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 Основні сутності, які видно з коду:
 
-- журнал: `schedule`, `photos`, `garbage`, `dispatcher`, `work_shifts`, `osbb_staff`, `osbb_attendance`, `elevator_visits`, `osbb_app_auth`, `osbb_app_pin_attempts`;
-- склад: `inventory_items`, `inventory_logs`, `inventory_receipts`, `inventory_audits`, `inventory_audit_items`, `app_auth`, `app_pin_attempts`, `telegram_config`;
-- RPC: `verify_lock_pin`, `verify_reset_pin`, `list_osbb_staff`, `verify_staff_pin`, `save_attendance_day`, `reset_month`, `reset_work_shifts_month`, `verify_pin`, `issue_item`, `receive_item`, `delete_inventory_item`, `delete_inventory_log`, `delete_inventory_receipt`, `delete_photo`;
+- журнал: `photos`, `garbage`, `completed_work`, `elevator_visits`, `work_shifts`, `work_shift_settings`, `work_shift_auth`, `osbb_staff`, `osbb_attendance`, `osbb_app_auth`;
+- склад: `inventory_items`, `inventory_logs`, `inventory_receipts`, `inventory_audits`, `inventory_audit_items`, `inventory_supplier_tags`, `app_auth`, `telegram_config`;
+- спільне: `pin_throttle` (ліміт спроб PIN по IP, `033`);
+- RPC журналу: `verify_lock_pin`, `verify_reset_pin`, `list_osbb_staff`, `verify_staff_pin`, `save_attendance_day`, `save_completed_work`, `delete_completed_work`, `save_garbage_day`, `reset_month`, `verify_work_shifts_pin`, `save_work_shift_day_v2`, `update_work_shift_names_v2`, `reset_work_shifts_month`, `delete_photo`;
+- RPC складу: `verify_pin`, `issue_item`, `receive_item`, `update_inventory_log`, `update_inventory_receipt`, `complete_inventory_audit`, `delete_inventory_item`, `delete_inventory_log`, `delete_inventory_receipt`;
 - Storage bucket: `photos` (фото складу без префіксу, фото чергувань журналу — під `osbb-duty/`).
 
 Журнал і склад технічно зберігають окремі auth-таблиці для сумісності, але після `026_unify_main_pin_keep_shifts_separate.sql` використовують один основний PIN для входу й підтверджень. Лише розділ «Зміни» має окремий PIN у `work_shift_auth`.
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `034_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `038_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -77,8 +78,12 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 32. `032_drop_archive_schema.sql` — остаточно видаляє схему `archive` з цими таблицями.
 33. `033_pin_throttle_per_ip.sql` — ліміт невдалих спроб PIN окремо для кожного IP (`cf-connecting-ip`) і загальний запобіжник від перебору з багатьох адрес.
 34. `034_photo_orphans.sql` — `photo_orphans()` для Edge Function `photo-cleanup`: прибирання файлів фото, на які більше ніщо не посилається.
+35. `035_remove_inactive_staff.sql` — видаляє вимкнені демо-профілі; лишається один профіль «Правління».
+36. `036_atomic_inventory_audit.sql` — атомарна ідемпотентна інвентаризація (`complete_inventory_audit`).
+37. `037_atomic_attendance_day.sql` — `save_attendance_day` зливає зміни окремих днів/ролей, не перезаписуючи місяць.
+38. `038_drop_unused_rpc.sql` — видаляє RPC, які клієнт більше не викликає (v1 графіка змін і керування доступом співробітників).
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `034_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `jira-issues` та `photo-cleanup` (publishable-key клієнт).
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `038_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `photo-cleanup` (publishable-key клієнт).
 
 
 Перед production-використанням замініть прикладові PIN-и у Supabase Dashboard на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), staff-вхід, табель, скидання місяця, видалення фото та складських записів.
@@ -97,26 +102,6 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 ## Telegram-сповіщення про рух товару (Склад)
 
 Сповіщення надсилає сама база даних: тригери `inventory_logs_notify` (видача), `inventory_receipts_notify` (прихід), `inventory_items_new_notify` (новий товар, `029`) і `inventory_items_low_stock_notify` (закінчується) викликають `notify_telegram()` через `pg_net`. Токен бота й chat_id лежать у таблиці `telegram_config` без жодної RLS-policy (default-deny), тому anon-ключем їх не прочитати. Клієнт у Telegram нічого не шле, тож дублів більше немає. Колишню публічну Edge Function `notify-telegram` видалено.
-
-## Jira-заявки
-
-Вкладка «Мої заявки» читає картки безпосередньо через фільтр Jira-дошки `JIRA_BOARD_ID`, тому список і лічильники відповідають цій дошці. Додатково залишаються лише відкриті картки типу `JIRA_ISSUE_TYPE`, які мають Parent. Інтеграція працює лише для перегляду: змінювати, призначати або закривати заявки із застосунку не можна. Якщо `JIRA_BOARD_ID` не задано і в проєкті одна дошка, функція визначає її автоматично; для кількох дощок ID обов’язковий. API-токен і email зберігаються тільки в Supabase Secrets.
-
-```bash
-supabase functions deploy jira-issues --project-ref vkwkyhjjjmcpmiakxohw --no-verify-jwt
-supabase secrets set \
-  JIRA_API_TOKEN=ваш_токен \
-  JIRA_EMAIL=guard.mykytska.sloboda@gmail.com \
-  JIRA_BASE_URL=https://mykytska-sloboda.atlassian.net \
-  JIRA_PROJECT_KEY=MS \
-  JIRA_ISSUE_TYPE=Task \
-  JIRA_BOARD_ID=ID_ДОШКИ \
-  --project-ref vkwkyhjjjmcpmiakxohw
-```
-
-Після зміни токена достатньо повторно виконати `supabase secrets set JIRA_API_TOKEN=...`; перевипускати фронтенд не потрібно.
-
-Правління або адміністратор можуть відкрити «Доступ користувачів» у шапці журналу та ввімкнути або вимкнути персональний PIN-вхід для інших користувачів. Після попереднього встановлення `019_staff_login_settings.sql` потрібно також застосувати міграцію `020_allow_board_manage_staff_access.sql`; поточний користувач не може вимкнути власний активний обліковий запис.
 
 ## Автоматичні smoke-перевірки
 
@@ -149,7 +134,7 @@ npm run build
 
 Раціональний цільовий стек для такого перепису:
 
-- **Vite + TypeScript** замість Tailwind CDN і inline JavaScript. TypeScript-типи варто генерувати зі схеми Supabase, щоб `inventory_items`, `schedule`, `garbage`, `dispatcher`, `chat` та інші сутності не описувались вручну.
+- **Vite + TypeScript** замість Tailwind CDN і inline JavaScript. TypeScript-типи варто генерувати зі схеми Supabase, щоб `inventory_items`, `garbage`, `osbb_attendance` та інші сутності не описувались вручну.
 - **Компонентний UI** на React/Vue/Svelte. У цьому масштабі Svelte був би достатньо легким варіантом: `CustomSelect`, `Tooltip`, `StatTile`, skeleton-заглушки, нижня навігація та інші патерни стали б компонентами замість повторюваних HTML-шаблонів у `renderX()`.
 - **Явний стан застосунку** замість глобальних змінних на кшталт `allItems`, `currentMonth`, `hideInternal`, `onlyInternal`. Для Svelte це можуть бути вбудовані stores; для React — Zustand або інший малий стор.
 - **Нормальні тести**: Vitest для чистої логіки, Testing Library для компонентів і Playwright для e2e-сценаріїв на кшталт входу по PIN, видачі зі складу, інвентаризації та скидання місяця.

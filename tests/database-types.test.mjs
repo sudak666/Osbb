@@ -17,7 +17,7 @@ test('database types expose Sklad movement column names used by the UI and RPCs'
 });
 
 test('database types include critical security-definer RPC contracts', () => {
-  for (const fn of ['verify_lock_pin', 'verify_reset_pin', 'list_osbb_staff', 'verify_staff_pin', 'list_osbb_staff_settings', 'set_osbb_staff_active', 'save_attendance_day', 'reset_month', 'verify_pin', 'issue_item', 'receive_item', 'delete_inventory_item', 'delete_inventory_log', 'delete_inventory_receipt', 'delete_photo']) {
+  for (const fn of ['verify_lock_pin', 'verify_reset_pin', 'list_osbb_staff', 'verify_staff_pin', 'save_attendance_day', 'reset_month', 'verify_pin', 'issue_item', 'receive_item', 'delete_inventory_item', 'delete_inventory_log', 'delete_inventory_receipt', 'delete_photo']) {
     assert.match(source, new RegExp(`${fn}: \\{`));
   }
 });
