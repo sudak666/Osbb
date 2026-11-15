@@ -3154,7 +3154,7 @@ ${sharedSelectText}`;
     && pinSeparationMigration.includes('from public.work_shift_auth')
     && !pinSeparationMigration.includes('or exists (');
   const docsReady = readme.includes('011_add_work_shifts.sql') && readme.includes('012_fix_work_shifts_month_key.sql') && readme.includes('013_secure_work_shifts.sql') && readme.includes('026_unify_main_pin_keep_shifts_separate.sql');
-  const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:') && databaseTypes.includes('save_work_shift_day:');
+  const typesReady = databaseTypes.includes('work_shifts: RowOperation') && databaseTypes.includes('reset_work_shifts_month:') && databaseTypes.includes('save_work_shift_day_v2:');
   if (missing.length || !migrationReady || !pinSeparationReady || !directWritesClosed || !docsReady || !typesReady) {
     failed += 1;
     console.error(`not ok - ${label} (missing: ${missing.join(', ')}; migration: ${migrationReady}; PIN separation: ${pinSeparationReady}; direct writes closed: ${directWritesClosed}; docs: ${docsReady}; types: ${typesReady})`);

@@ -179,14 +179,6 @@ export interface Database {
                 Args: { p_staff_id: Uuid; attempt: string };
                 Returns: Array<{ ok: boolean; role: OsbbStaffRole | null; full_name: string | null }>;
             };
-            list_osbb_staff_settings: {
-                Args: { p_staff_id: Uuid; attempt: string };
-                Returns: Array<{ id: Uuid; full_name: string; role: OsbbStaffRole; active: boolean }>;
-            };
-            set_osbb_staff_active: {
-                Args: { p_staff_id: Uuid; attempt: string; p_target_staff_id: Uuid; p_active: boolean };
-                Returns: boolean;
-            };
             save_attendance_day: {
                 Args: {
                     p_month_key: string;
@@ -225,14 +217,6 @@ export interface Database {
             };
             update_work_shift_names_v2: {
                 Args: { p_employee_one_name: string; p_employee_two_name: string; p_employee_three_name: string; attempt: string };
-                Returns: boolean;
-            };
-            save_work_shift_day: {
-                Args: { p_shift_date: string; p_sergiy: WorkShiftType[]; p_oleksandr: WorkShiftType[]; attempt: string };
-                Returns: boolean;
-            };
-            update_work_shift_names: {
-                Args: { p_employee_one_name: string; p_employee_two_name: string; attempt: string };
                 Returns: boolean;
             };
             verify_pin: {

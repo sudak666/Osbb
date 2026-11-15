@@ -1,0 +1,8 @@
+# Усі текстові файли — з LF, щоб генеровані src/*.js і smoke-check
+# збігались байт-у-байт на Windows (core.autocrlf=true) так само, як у CI.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.ico binary

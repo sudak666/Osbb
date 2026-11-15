@@ -17,6 +17,22 @@
     return `${y}-${m}-${d}`;
   }
 
+  // Користувач бачить ДД.ММ.РРРР, а код, що читає/пише input.value, і далі
+  // працює з ISO (РРРР-ММ-ДД) — як очікують RPC і решта модулів.
+  function displayDate(value) {
+    const date = parseIso(value);
+    if (!date) return String(value || '');
+    return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
+  }
+
+  function toIso(value) {
+    const raw = String(value ?? '').trim();
+    const dotted = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(raw);
+    return dotted ? `${dotted[3]}-${dotted[2]}-${dotted[1]}` : raw;
+  }
+
+  const nativeValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+
   function closeDatePanel() {
     if (!openPanel) return;
     openPanel.panel.remove();
@@ -50,6 +66,20 @@
     input.readOnly = true;
     input.setAttribute('aria-haspopup', 'dialog');
     input.setAttribute('aria-expanded', 'false');
+    // pattern перевіряв би видимий текст (ДД.ММ.РРРР), а не ISO-значення.
+    input.removeAttribute('pattern');
+    input.placeholder = 'ДД.ММ.РРРР';
+    let isoValue = '';
+    const initialValue = nativeValue.get.call(input);
+    Object.defineProperty(input, 'value', {
+      configurable: true,
+      get() { return isoValue; },
+      set(next) {
+        isoValue = toIso(next);
+        nativeValue.set.call(input, displayDate(isoValue));
+      },
+    });
+    input.value = initialValue;
 
     function open() {
       closeDatePanel();

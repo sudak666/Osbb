@@ -935,3 +935,25 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
 }
 
 .garbage-today { margin:12px 16px; min-height:44px; display:inline-flex; align-items:center; gap:8px; }
+
+/* Аудит листопада 2026: один індикатор синхронізації.
+   Кожен розділ має власний чип стану збереження, тож загальний чип у шапці
+   видно лише під час завантаження або при помилці — не дублює «Синхронізовано». */
+#sync-status.is-ok { display:none; }
+
+/* Компактна шапка журналу на телефоні: назва й дії в один рядок,
+   місяць/рік зі стрілками та «Оновити» — теж в один рядок. */
+@media(max-width:640px) {
+  .journal-shell-header { padding:10px 12px; gap:8px; }
+  .journal-shell-header .journal-title-row { flex-direction:row; align-items:center; padding-bottom:8px; }
+  .journal-title-actions { flex-wrap:nowrap; justify-content:flex-end; gap:6px; }
+  .journal-title-heading { font-size:20px; }
+  .journal-calendar-controls { grid-template-columns:40px minmax(64px,.75fr) minmax(0,1fr) 40px 40px; }
+  .journal-calendar-controls > #btn-refresh { grid-column:5; grid-row:1; }
+  .journal-calendar-controls > #btn-today { grid-column:1 / -1; }
+}
+
+/* Сплеш у кольорах поточної теми — без темно-синього спалаху посеред світлого інтерфейсу. */
+#intro-splash { background:var(--md-sys-color-surface,var(--md-sys-color-background,#f8faf8)); }
+#intro-splash .intro-name { color:var(--md-sys-color-on-surface,var(--text-main)); }
+#intro-splash .intro-sub { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
