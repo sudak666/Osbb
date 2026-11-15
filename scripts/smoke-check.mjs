@@ -143,6 +143,8 @@ const checks = [
   ['src/sklad-app.js', "button.closest('details.item-more')?.removeAttribute('open')", 'sklad topbar menu closes after selecting an action'],
   ['src/sklad-app.js', "b.setAttribute('aria-pressed',String(active))", 'sklad movement category filters expose their selected state'],
   ['index.html', 'id="lock-err" class="lock-error-text" role="alert" aria-live="assertive"', 'shell lock errors expose alert semantics'],
+  ['sklad/supabase/040_daily_telegram_digest.sql', 'revoke all on function public.send_daily_digest(boolean) from public, anon, authenticated;', 'daily Telegram digest cannot be triggered with the public key'],
+  ['sklad/supabase/040_daily_telegram_digest.sql', "extract(hour from now() at time zone 'Europe/Kyiv') <> 18", 'daily Telegram digest follows Kyiv time across DST'],
   ['index.html', '<nav id="shell-nav" class="shell-nav" aria-label="Розділи застосунку">', 'shell exposes one labelled navigation for all sections'],
   ['index.html', 'data-shell-more aria-haspopup="dialog" aria-expanded="false" aria-controls="shell-more-sheet"', 'shell mobile secondary sections use an accessible sheet'],
   ['index.html', 'id="shell-more-sheet" class="shell-more-sheet" role="dialog" aria-modal="true"', 'shell more sheet is a modal dialog'],

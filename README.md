@@ -15,7 +15,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `src/database.types.ts` | TypeScript-типи Supabase-сутностей і RPC, які реально викликає клієнт (підтримуються вручну). |
 | `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
 | `manifest.json`, `sw.js` | PWA manifest і єдиний service worker (scope `/Osbb/`), який обслуговує shell, журнал і склад. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `039_add_min_quantity.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `040_daily_telegram_digest.sql`). |
 | `sklad/supabase/functions/photo-cleanup` | Supabase Edge Function, що видаляє з бакета `photos` файли, на які більше ніщо не посилається (`034`). |
 
 ## Як працює авторизація
@@ -42,7 +42,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `039_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `040_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -83,8 +83,9 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 37. `037_atomic_attendance_day.sql` — `save_attendance_day` зливає зміни окремих днів/ролей, не перезаписуючи місяць.
 38. `038_drop_unused_rpc.sql` — видаляє RPC, які клієнт більше не викликає (v1 графіка змін і керування доступом співробітників).
 39. `039_add_min_quantity.sql` — мінімальний залишок товару (`inventory_items.min_quantity`) для списку закупівлі на сторінці «Статистика» складу.
+40. `040_daily_telegram_digest.sql` — щоденний підсумок у Telegram о 18:00 за Києвом (`build_daily_digest`/`send_daily_digest` + pg_cron `osbb-daily-digest`).
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `039_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `photo-cleanup` (publishable-key клієнт).
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `040_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `photo-cleanup` (publishable-key клієнт).
 
 
 Перед production-використанням замініть прикладові PIN-и у Supabase Dashboard на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), staff-вхід, табель, скидання місяця, видалення фото та складських записів.
@@ -103,6 +104,8 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 ## Telegram-сповіщення про рух товару (Склад)
 
 Сповіщення надсилає сама база даних: тригери `inventory_logs_notify` (видача), `inventory_receipts_notify` (прихід), `inventory_items_new_notify` (новий товар, `029`) і `inventory_items_low_stock_notify` (закінчується) викликають `notify_telegram()` через `pg_net`. Токен бота й chat_id лежать у таблиці `telegram_config` без жодної RLS-policy (default-deny), тому anon-ключем їх не прочитати. Клієнт у Telegram нічого не шле, тож дублів більше немає. Колишню публічну Edge Function `notify-telegram` видалено.
+
+Щодня о 18:00 за Києвом той самий бот надсилає підсумок дня: табель, вивіз сміття, виконані роботи, приїзд ліфтера, видачі зі складу й кількість позицій, що закінчились (`040`). Текст можна подивитися без надсилання: `select public.build_daily_digest();` (або за конкретний день: `select public.build_daily_digest('2026-11-13');`). Надіслати вручну: `select public.send_daily_digest(true);`. Вимкнути: `select cron.unschedule('osbb-daily-digest');`.
 
 ## Автоматичні smoke-перевірки
 
