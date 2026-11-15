@@ -15,7 +15,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `src/database.types.ts` | TypeScript-типи Supabase-сутностей і RPC, які реально викликає клієнт (підтримуються вручну). |
 | `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
 | `manifest.json`, `sw.js` | PWA manifest і єдиний service worker (scope `/Osbb/`), який обслуговує shell, журнал і склад. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `038_drop_unused_rpc.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `039_add_min_quantity.sql`). |
 | `sklad/supabase/functions/photo-cleanup` | Supabase Edge Function, що видаляє з бакета `photos` файли, на які більше ніщо не посилається (`034`). |
 
 ## Як працює авторизація
@@ -42,7 +42,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `038_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `039_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -82,8 +82,9 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 36. `036_atomic_inventory_audit.sql` — атомарна ідемпотентна інвентаризація (`complete_inventory_audit`).
 37. `037_atomic_attendance_day.sql` — `save_attendance_day` зливає зміни окремих днів/ролей, не перезаписуючи місяць.
 38. `038_drop_unused_rpc.sql` — видаляє RPC, які клієнт більше не викликає (v1 графіка змін і керування доступом співробітників).
+39. `039_add_min_quantity.sql` — мінімальний залишок товару (`inventory_items.min_quantity`) для списку закупівлі на сторінці «Статистика» складу.
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `038_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `photo-cleanup` (publishable-key клієнт).
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `039_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `photo-cleanup` (publishable-key клієнт).
 
 
 Перед production-використанням замініть прикладові PIN-и у Supabase Dashboard на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), staff-вхід, табель, скидання місяця, видалення фото та складських записів.

@@ -173,7 +173,7 @@ window.addEventListener('message',event=>{
     </section>
     <div class="g4 items-metrics insight-grid inventory-summary" aria-label="Підсумок складських запасів">
       <article class="stat-card summary-card sc-green"><span class="big" id="st-available">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> Найменувань у наявності</span><span class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></span></article>
-      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> Залишок 3 і менше</span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
+      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> <span id="st-units-label">Залишок 3 і менше</span></span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
       <article class="stat-card summary-card sc-orange"><span class="big summary-money" id="st-value">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">payments</span> Орієнтовна вартість</span><span class="stat-icon" aria-hidden="true"><span class="ms">payments</span></span></article>
     </div>
     <div class="items-filter-bar">
@@ -440,7 +440,18 @@ window.addEventListener('message',event=>{
     </div>
     <div class="stats-grid">
       <div class="card stats-list-card"><div class="stats-panel-title is-purple"><span class="ms" aria-hidden="true">bar_chart</span>По категоріях</div><div id="statCats" class="stats-list-stack"></div></div>
-      <div class="card stats-list-card"><div class="stats-panel-title is-danger"><span class="ms" aria-hidden="true">warning</span>Потребують поповнення</div><div id="statLow"></div></div>
+      <div class="card stats-list-card" id="purchaseCard">
+        <div class="stats-panel-title is-danger stats-title-row"><span class="stats-title-text"><span class="ms" aria-hidden="true">receipt</span><span id="statLowTitle">Закупити</span></span>
+          <button type="button" class="btn btn-ghost btn-sm" data-sklad-action="export-purchase" id="purchaseExportBtn" hidden><span class="ms" aria-hidden="true">upload_file</span> Excel</button></div>
+        <div id="statLow"></div>
+      </div>
+    </div>
+    <div class="card stats-panel" id="spendCard">
+      <div class="stats-panel-title"><span class="ms" aria-hidden="true">payments</span>Гроші: закуплено і використано</div>
+      <div id="statSpend" class="spend-chart" role="img" aria-label="Графік закупівель і видач по місяцях"></div>
+      <p id="statSpendNote" class="stats-filter-summary"></p>
+      <h4 class="spend-subtitle">На що використано матеріали за 12 місяців</h4>
+      <div id="statUsageCats" class="stats-list-stack"></div>
     </div>
     <div class="card stats-panel">
       <div class="stats-panel-title"><span class="ms" aria-hidden="true">filter_alt</span> Фільтр вартості складу</div>
@@ -522,6 +533,11 @@ window.addEventListener('message',event=>{
       <div>
         <label for="editItemUnit">Одиниця виміру</label>
         <input type="text" class="inp" id="editItemUnit" maxlength="24" placeholder="шт, уп., м.п." inputmode="text">
+      </div>
+      <div>
+        <label for="editItemMin">Мінімальний залишок</label>
+        <input type="text" class="inp" id="editItemMin" maxlength="10" placeholder="Не задано" inputmode="decimal" autocomplete="off" aria-describedby="editItemMinHint">
+        <p class="edit-movement-hint" id="editItemMinHint">Коли залишок стане меншим, товар потрапить у список закупівлі. Порожньо — не стежити.</p>
       </div>
     </div>
     <p class="edit-movement-note">Залишок, ціна та історія руху товару не зміняться.</p>
