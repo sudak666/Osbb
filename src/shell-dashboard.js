@@ -2,8 +2,10 @@
 import { escapeHtml } from "./app-security.js";
 import { attendanceHours, formatAttendanceDuration, normalizeAttendanceMonth } from "./osbb-attendance.js";
 import { elevatorEntriesFromResponse } from "./osbb-elevator.js";
-import { garbageBins, garbageMonthKey, normalizeGarbageMonth } from "./osbb-garbage.js";
+import { garbageBins, garbageMonthKey, garbageMonthKeyCandidates, normalizeGarbageMonth } from "./osbb-garbage.js";
+import { buildMonthlyReportSheets, monthlyReportFileName, monthRange } from "./monthly-report.js";
 import { estimatedItemValue } from "./sklad-domain.js";
+import { hasMinimums, isBelowMinimum } from "./sklad-purchasing.js";
 const STAFF_ROLES = ["electrician", "janitor", "plumber"];
 const ROLE_LABELS = { electrician: "Електрик", janitor: "Двірник", plumber: "Сантехнік" };
 const ROLE_ICONS = { electrician: "bolt", janitor: "cleaning_services", plumber: "plumbing" };
@@ -39,12 +41,14 @@ function garbageToday(monthData, day) {
 }
 function stockSummary(items, monthLogs) {
   const priceById = /* @__PURE__ */ new Map();
-  const summary = { available: 0, outOfStock: 0, low: 0, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
+  const minimums = hasMinimums(items.map((item) => ({ ...item, name: item.name ?? "" })));
+  const summary = { available: 0, outOfStock: 0, low: 0, belowMin: minimums ? 0 : null, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
   for (const item of items) {
     const quantity = Number(item.quantity) || 0;
     priceById.set(String(item.id), Number(item.price_unit) || 0);
     if (quantity > 0) summary.available += 1;
     summary.value += estimatedItemValue({ quantity, price_unit: item.price_unit ?? null });
+    if (summary.belowMin !== null && isBelowMinimum({ ...item, name: item.name ?? "" })) summary.belowMin += 1;
     if (item.is_internal === true) continue;
     if (quantity <= 0) summary.outOfStock += 1;
     else if (quantity <= LOW_STOCK_THRESHOLD) summary.low += 1;
@@ -114,7 +118,7 @@ function renderStock(data, monthName) {
   const metrics = `<div class="home-metrics">
         <div class="home-metric"><strong>${s.available}</strong><span>у наявності</span></div>
         <div class="home-metric${s.outOfStock ? " is-warn" : ""}"><strong>${s.outOfStock}</strong><span>закінчились</span></div>
-        <div class="home-metric"><strong>${s.low}</strong><span>мало (1–${LOW_STOCK_THRESHOLD})</span></div>
+        ${s.belowMin !== null ? `<div class="home-metric${s.belowMin ? " is-warn" : ""}"><strong>${s.belowMin}</strong><span>нижче мінімуму</span></div>` : `<div class="home-metric"><strong>${s.low}</strong><span>мало (1–${LOW_STOCK_THRESHOLD})</span></div>`}
     </div>
     <p class="home-muted">Вартість залишків ≈ <strong>${formatMoney(s.value)}</strong>. За ${monthName} видано ${s.monthIssues} ${s.monthIssues === 1 ? "раз" : "разів"}${s.monthSpend ? ` на ≈ ${formatMoney(s.monthSpend)}` : ""}.</p>`;
   const list = recent.length ? `<ul class="home-list home-list--compact">${recent.map((log) => `
@@ -142,8 +146,13 @@ function renderDashboard(data, now) {
   return `<div class="home-wrap">
         <header class="home-head">
             <div><p class="home-date">${escapeHtml(formatLongDate(now))}</p><h1>Сьогодні</h1></div>
-            <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-refresh aria-label="Оновити дані">${icon("refresh")}<span>Оновити</span></button>
+            <div class="home-head-actions">
+                <button type="button" class="home-btn home-btn--tonal md-state-layer" data-dashboard-report="0">${icon("summarize")}<span>Звіт за ${escapeHtml(MONTHS_NOMINATIVE[now.getMonth()] ?? "")}</span></button>
+                <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-report="-1">за ${escapeHtml(MONTHS_NOMINATIVE[(now.getMonth() + 11) % 12] ?? "")}</button>
+                <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-refresh aria-label="Оновити дані">${icon("refresh")}<span>Оновити</span></button>
+            </div>
         </header>
+        <p class="home-report-status" role="status" aria-live="polite"></p>
         <div class="home-grid">
             ${renderAttendance(data.attendance)}
             ${renderGarbage(data.garbage, monthName)}
@@ -163,10 +172,14 @@ function createShellDashboard(options) {
   let lastLoaded = 0;
   let loading = null;
   container.addEventListener("click", (event) => {
-    const target = event.target?.closest("[data-dashboard-go],[data-dashboard-refresh]");
+    const target = event.target?.closest("[data-dashboard-go],[data-dashboard-refresh],[data-dashboard-report]");
     if (!target) return;
     if (target.hasAttribute("data-dashboard-refresh")) {
       void refresh(true);
+      return;
+    }
+    if (target.hasAttribute("data-dashboard-report")) {
+      void downloadReport(Number(target.dataset.dashboardReport) || 0, target);
       return;
     }
     const section = target.dataset.dashboardGo;
@@ -202,7 +215,7 @@ function createShellDashboard(options) {
       }),
       settle("stock", async () => {
         const [items, monthLogs, recent] = await Promise.all([
-          client.from("inventory_items").select("id,name,quantity,unit,price_unit,is_internal"),
+          client.from("inventory_items").select("id,name,quantity,unit,price_unit,is_internal,min_quantity"),
           client.from("inventory_logs").select("item_id,quantity").gte("issued_at", monthStart.toISOString()),
           client.from("inventory_logs").select("item_id,item_name,quantity,issued_to,issued_at").order("issued_at", { ascending: false }).limit(3)
         ]);
@@ -230,6 +243,58 @@ function createShellDashboard(options) {
     container.innerHTML = renderDashboard({ attendance, garbage, stock, works, elevator }, now);
     lastLoaded = Date.now();
   }
+  function setReportStatus(text, isError = false) {
+    const status = container.querySelector(".home-report-status");
+    if (!status) return;
+    status.textContent = text;
+    status.classList.toggle("is-error", isError);
+  }
+  async function downloadReport(offset, button) {
+    const now = clock();
+    const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    const year = target.getFullYear();
+    const month = target.getMonth();
+    const range = monthRange(year, month);
+    if (button) button.disabled = true;
+    setReportStatus("Готую звіт…");
+    try {
+      const garbageRow = async () => {
+        for (const key of garbageMonthKeyCandidates(year, month)) {
+          const row = unwrap(await client.from("garbage").select("data").eq("month_key", key).maybeSingle());
+          if (row) return row.data;
+        }
+        return null;
+      };
+      const [works, attendance, garbage, elevator, issues, receipts, items] = await Promise.all([
+        client.from("completed_work").select("work_date,worker_role,description,note").gte("work_date", range.first).lte("work_date", range.last).order("work_date"),
+        client.from("osbb_attendance").select("data").eq("month_key", `${year}-${pad(month + 1)}`).maybeSingle(),
+        garbageRow(),
+        client.from("elevator_visits").select("data").eq("month_key", `${year}-${month}`).maybeSingle(),
+        client.from("inventory_logs").select("issued_at,item_id,item_name,quantity,issued_to,note").gte("issued_at", range.startIso).lte("issued_at", range.endIso).order("issued_at"),
+        client.from("inventory_receipts").select("received_at,item_id,item_name,quantity,supplier,purchase_price_unit").gte("received_at", range.startIso).lte("received_at", range.endIso).order("received_at"),
+        client.from("inventory_items").select("id,category,price_unit")
+      ]);
+      const sheets = buildMonthlyReportSheets({
+        year,
+        month,
+        works: unwrap(works) || [],
+        attendance: unwrap(attendance)?.data,
+        garbage,
+        elevator: elevatorEntriesFromResponse(unwrap(elevator)?.data),
+        issues: unwrap(issues) || [],
+        receipts: unwrap(receipts) || [],
+        items: unwrap(items) || []
+      });
+      const { downloadWorkbook } = await import("./excel-export.js");
+      await downloadWorkbook(sheets, monthlyReportFileName(year, month));
+      setReportStatus(`Звіт за ${MONTHS_NOMINATIVE[month]} ${year} завантажено.`);
+    } catch (error) {
+      warn("monthly report failed:", error);
+      setReportStatus("Не вдалося підготувати звіт. Перевірте мережу й спробуйте ще раз.", true);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
   function refresh(force = false) {
     if (loading) return loading;
     if (!force && lastLoaded && Date.now() - lastLoaded < REFRESH_AFTER_MS) return Promise.resolve();
@@ -238,7 +303,7 @@ function createShellDashboard(options) {
     });
     return loading;
   }
-  return { refresh };
+  return { refresh, downloadReport };
 }
 export {
   attendanceToday,

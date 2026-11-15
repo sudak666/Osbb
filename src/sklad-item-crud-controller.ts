@@ -1,7 +1,8 @@
 import { normalizeSearchText } from './sklad-domain.ts';
+import { parseMinQuantity } from './sklad-purchasing.ts';
 import type { DeletePinOutcome, RequestDeletePinFn, SetButtonLoadingFn, SupabaseLike, ToastFn } from './controller-types.ts';
 
-interface CrudItem { id: number | string; name: string; category?: string | null; unit?: string | null }
+interface CrudItem { id: number | string; name: string; category?: string | null; unit?: string | null; min_quantity?: number | null }
 
 export interface SkladItemCrudControllerOptions {
   db: SupabaseLike;
@@ -34,6 +35,8 @@ export function createSkladItemCrudController(options: SkladItemCrudControllerOp
     (document.getElementById('editItemName') as HTMLInputElement).value = item.name || '';
     (document.getElementById('editItemCategory') as HTMLSelectElement).value = categories[item.category as string] ? item.category as string : 'Інше';
     (document.getElementById('editItemUnit') as HTMLInputElement).value = item.unit || 'шт';
+    const minInput = document.getElementById('editItemMin') as HTMLInputElement | null;
+    if (minInput) minInput.value = item.min_quantity === null || item.min_quantity === undefined ? '' : String(item.min_quantity);
     refreshSelect(document.getElementById('editItemCategory'));
     openModal('editItemModal');
   }
@@ -48,12 +51,17 @@ export function createSkladItemCrudController(options: SkladItemCrudControllerOp
     if (!categories[category]) return toast('Оберіть коректну категорію', 'error');
     if (unit.length > 24) return toast('Одиниця задовга — максимум 24 символи', 'error');
     if (/^\d+([.,]\d+)?$/.test(unit)) return toast('Одиниця має бути словом, а не числом!', 'error');
+    const minInput = document.getElementById('editItemMin') as HTMLInputElement | null;
+    const minQuantity = minInput ? parseMinQuantity(minInput.value) : undefined;
+    if (minQuantity === 'invalid') return toast('Мінімальний залишок — це число, наприклад 5 або 2,5', 'error');
     const duplicate = getItems().find(candidate => Number(candidate.id) !== Number(item.id) && normalizeSearchText(candidate.name) === normalizeSearchText(name));
     if (duplicate) return toast('Товар з такою назвою вже існує', 'error');
     const done = setButtonLoading(button, 'Зберігаю...');
     if (!done) return;
     try {
-      const { error } = await db.from('inventory_items').update({ name, category, unit }).eq('id', item.id);
+      const payload: Record<string, unknown> = { name, category, unit };
+      if (minQuantity !== undefined) payload.min_quantity = minQuantity;
+      const { error } = await db.from('inventory_items').update(payload).eq('id', item.id);
       if (error) return toast('Не вдалося зберегти: ' + error.message, 'error');
       editingId = null;
       closeModal('editItemModal');

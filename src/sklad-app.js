@@ -16,6 +16,7 @@ import { isAuthSessionValid } from './auth-session.js';
 import { numericIdFromInsertResponse, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
 import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
+import { buildPurchaseExportRows, buildPurchaseList, hasMinimums, isBelowMinimum, purchaseListTotal, spendByMonth, usageByCategory } from './sklad-purchasing.js';
 import { createInventoryCollectionState, inventoryLogsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 import { PURCHASE_PRICE_RPC_UNAVAILABLE_KEY } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
@@ -398,6 +399,7 @@ function bindSkladStaticControls(){
     'qr':openQR,
     'receipts':goReceipts,
     'export-excel':exportExcel,
+    'export-purchase':exportPurchaseList,
     'refresh':refreshAll,
     'reset-item-filters':resetItemFilters,
     'refill-submit':(button)=>doRefill(button),
@@ -711,7 +713,11 @@ function renderItems(){
 function updateStats(){
   const stats=calculateInventoryHeaderStats(allItems);
   animateNumber(document.getElementById('st-available'),stats.availableItems);
-  animateNumber(document.getElementById('st-units'),allItems.filter(item=>Number(item.quantity)<=3).length);
+  // Якщо задано мінімальні залишки — рахуємо товари нижче мінімуму, інакше старий поріг ≤ 3.
+  const useMinimums=hasMinimums(allItems);
+  animateNumber(document.getElementById('st-units'),useMinimums?allItems.filter(isBelowMinimum).length:allItems.filter(item=>Number(item.quantity)<=3).length);
+  const unitsLabel=document.getElementById('st-units-label');
+  if(unitsLabel) unitsLabel.textContent=useMinimums?'Нижче мінімуму':'Залишок 3 і менше';
   const valueElement=document.getElementById('st-value');
   if(valueElement) valueElement.textContent=stats.estimatedValue>0?money(stats.estimatedValue):'0 грн';
 }
@@ -1082,13 +1088,9 @@ function renderStats(){
       <div class="pbar"><div class="pfill" style="width:${pct}%;background:${c};"></div></div>
     </div>`;
   }).join('');
-  const low=sortLowStockItems(allItems);
-  document.getElementById('statLow').innerHTML=low.length
-    ? low.map(i=>`<div class="stat-low-row">
-        <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
-        <span class="${i.quantity==0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
-      </div>`).join('')
-    : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Всі товари в нормі!</div>';
+  renderPurchaseList();
+  void refreshPurchasingData().then(()=>{ if(document.getElementById('page-stats')?.classList.contains('active')){ renderPurchaseList(); renderSpend(); } });
+  renderSpend();
   const unpriced=sortUnpricedItems(allItems);
   const unpricedBox=document.getElementById('statUnpriced');
   if(unpricedBox) unpricedBox.innerHTML=unpriced.length
@@ -1111,6 +1113,92 @@ function renderStats(){
     </div>`;
   }).join('')||'<div class="empty" style="padding:16px;">Журнал порожній</div>';
 }
+// ===== ЗАКУПІВЛЯ ТА ВИТРАТИ (тиждень 4 аудиту) =====
+// Надходження й повний журнал видач потрібні лише для статистики — тягнемо їх
+// не частіше ніж раз на хвилину.
+let purchasingReceipts=[],purchasingIssues=[],purchasingLoadedAt=0,purchasingLoading=null;
+function refreshPurchasingData(){
+  if(purchasingLoading) return purchasingLoading;
+  if(purchasingLoadedAt&&Date.now()-purchasingLoadedAt<60000) return Promise.resolve();
+  purchasingLoading=(async()=>{
+    try{
+      const [{data:receipts,error},issues]=await Promise.all([
+        db.from('inventory_receipts').select('item_id,quantity,supplier,received_at,purchase_price_unit').order('received_at',{ascending:false}),
+        loadAllLogs(),
+      ]);
+      if(error) throw error;
+      purchasingReceipts=receipts||[]; purchasingIssues=issues||[]; purchasingLoadedAt=Date.now();
+    }catch(e){console.warn('purchasing data load failed:',e);}
+    finally{purchasingLoading=null;}
+  })();
+  return purchasingLoading;
+}
+function currentPurchaseRows(){ return buildPurchaseList(allItems,purchasingReceipts); }
+function renderPurchaseList(){
+  const box=document.getElementById('statLow'); if(!box) return;
+  const title=document.getElementById('statLowTitle');
+  const exportBtn=document.getElementById('purchaseExportBtn');
+  if(!hasMinimums(allItems)){
+    if(title) title.textContent='Залишок 3 і менше';
+    if(exportBtn) exportBtn.hidden=true;
+    const low=sortLowStockItems(allItems);
+    box.innerHTML='<p class="purchase-hint"><span class="ms ic-15-3">info</span> Задайте мінімальний залишок у товарі (⋯ → Редагувати) — і тут зʼявиться список закупівлі з кількістю й сумою.</p>'+(low.length
+      ? low.map(i=>`<div class="stat-low-row">
+        <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
+        <span class="${i.quantity==0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
+      </div>`).join('')
+      : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Всі товари в нормі!</div>');
+    return;
+  }
+  const rows=currentPurchaseRows();
+  if(title) title.textContent=rows.length?`Закупити · ${rows.length}`:'Закупити';
+  if(exportBtn) exportBtn.hidden=!rows.length;
+  if(!rows.length){ box.innerHTML='<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Усе вище мінімуму — купувати нічого не треба.</div>'; return; }
+  const total=purchaseListTotal(rows);
+  box.innerHTML=rows.map(r=>`<div class="stat-low-row purchase-row">
+      <span class="stat-low-name">${escapeHtml(r.name)}<small>${escapeHtml(r.category)} · є ${escapeHtml(String(r.quantity))} з ${escapeHtml(String(r.min))}${r.supplier?` · ${escapeHtml(r.supplier)}`:''}</small></span>
+      <span class="stat-low-qty purchase-need">+${escapeHtml(String(r.need))} ${escapeHtml(r.unit)}${r.price?`<small>${money(r.cost)}</small>`:''}</span>
+    </div>`).join('')
+    +`<div class="purchase-total">Разом ≈ <strong>${money(total.cost)}</strong>${total.unpriced?` · без ціни: ${total.unpriced}`:''}</div>`;
+}
+async function exportPurchaseList(){
+  const rows=currentPurchaseRows();
+  if(!rows.length) return toast('Список закупівлі порожній','info');
+  const date=new Date().toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\./g,'-');
+  try{
+    const { downloadWorkbook } = await import('./excel-export.js');
+    await downloadWorkbook([{ name:'Закупівля', rows:buildPurchaseExportRows(rows), widths:[18,50,10,10,10,8,14,12,24] }],'Закупівля_ОСББ_'+date+'.xlsx');
+  }catch(error){ console.warn('purchase export failed:',error); return toast('Не вдалося створити Excel. Спробуйте ще раз.','error'); }
+  toast('Список закупівлі завантажено','success');
+}
+function renderSpend(){
+  const chart=document.getElementById('statSpend'); if(!chart) return;
+  const now=new Date();
+  const months=spendByMonth(purchasingReceipts,purchasingIssues,allItems,now,12);
+  const max=Math.max(1,...months.flatMap(m=>[m.purchased,m.used]));
+  const hasData=months.some(m=>m.purchased||m.used);
+  chart.innerHTML=hasData?`<div class="spend-legend"><span class="spend-key is-purchased">Закуплено</span><span class="spend-key is-used">Використано</span></div>
+    <div class="spend-bars">${months.map(m=>`<div class="spend-month">
+      <div class="spend-pair">
+        <span class="spend-bar is-purchased" style="height:${Math.round(m.purchased/max*100)}%" data-tip="${escapeHtml(m.label)}: закуплено ${money(m.purchased)}"></span>
+        <span class="spend-bar is-used" style="height:${Math.round(m.used/max*100)}%" data-tip="${escapeHtml(m.label)}: використано ${money(m.used)}"></span>
+      </div><span class="spend-label">${escapeHtml(m.label.split(' ')[0])}<span class="spend-year"> ${escapeHtml(m.label.split(' ')[1]||'')}</span></span></div>`).join('')}</div>`
+    :'<div class="stat-low-empty"><span class="ms ic-15-3">info</span> За рік ще немає надходжень чи видач з відомою ціною.</div>';
+  chart.setAttribute('aria-label','Закупівлі й видачі по місяцях: '+months.map(m=>`${m.label} — закуплено ${money(m.purchased)}, використано ${money(m.used)}`).join('; '));
+  const purchased=months.reduce((s,m)=>s+m.purchased,0), used=months.reduce((s,m)=>s+m.used,0);
+  const pricedReceipts=purchasingReceipts.filter(r=>Number(r.purchase_price_unit)>0).length;
+  const note=document.getElementById('statSpendNote');
+  if(note) note.textContent=`За 12 місяців закуплено ≈ ${money(purchased)}, використано ≈ ${money(used)}. `+(pricedReceipts<purchasingReceipts.length?'Де ціну закупівлі не вказано при надходженні, рахуємо за поточною ціною товару — це оцінка.':'Суми — за цінами закупівлі.');
+  const since=new Date(now.getFullYear(),now.getMonth()-11,1);
+  const usage=usageByCategory(purchasingIssues,allItems,since);
+  const usageMax=Math.max(1,...usage.map(u=>u.amount));
+  const usageBox=document.getElementById('statUsageCats');
+  if(usageBox) usageBox.innerHTML=usage.length?usage.map(u=>`<div>
+      <div class="stat-cat-row-head"><span class="stat-cat-name">${catIconHtml[u.category]||catIconHtmlDefault} ${escapeHtml(u.category)}</span><span class="stat-cat-count">${money(u.amount)}</span></div>
+      <div class="pbar"><div class="pfill" style="width:${Math.round(u.amount/usageMax*100)}%;background:${catColor[u.category]||'#64748b'};"></div></div>
+    </div>`).join(''):'<div class="stat-low-empty">Ще немає видач з відомою ціною.</div>';
+}
+
 // ===== EXCEL =====
 async function exportExcel(){
   if(!allItems.length) return toast('Немає даних!','error');

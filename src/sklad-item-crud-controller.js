@@ -1,5 +1,6 @@
 // Згенеровано з src/sklad-item-crud-controller.ts (scripts/build-js-fallback.mjs). Не редагувати вручну.
 import { normalizeSearchText } from "./sklad-domain.js";
+import { parseMinQuantity } from "./sklad-purchasing.js";
 function createSkladItemCrudController(options) {
   const {
     db,
@@ -27,6 +28,8 @@ function createSkladItemCrudController(options) {
     document.getElementById("editItemName").value = item.name || "";
     document.getElementById("editItemCategory").value = categories[item.category] ? item.category : "Інше";
     document.getElementById("editItemUnit").value = item.unit || "шт";
+    const minInput = document.getElementById("editItemMin");
+    if (minInput) minInput.value = item.min_quantity === null || item.min_quantity === void 0 ? "" : String(item.min_quantity);
     refreshSelect(document.getElementById("editItemCategory"));
     openModal("editItemModal");
   }
@@ -41,12 +44,17 @@ function createSkladItemCrudController(options) {
     if (!categories[category]) return toast("Оберіть коректну категорію", "error");
     if (unit.length > 24) return toast("Одиниця задовга — максимум 24 символи", "error");
     if (/^\d+([.,]\d+)?$/.test(unit)) return toast("Одиниця має бути словом, а не числом!", "error");
+    const minInput = document.getElementById("editItemMin");
+    const minQuantity = minInput ? parseMinQuantity(minInput.value) : void 0;
+    if (minQuantity === "invalid") return toast("Мінімальний залишок — це число, наприклад 5 або 2,5", "error");
     const duplicate = getItems().find((candidate) => Number(candidate.id) !== Number(item.id) && normalizeSearchText(candidate.name) === normalizeSearchText(name));
     if (duplicate) return toast("Товар з такою назвою вже існує", "error");
     const done = setButtonLoading(button, "Зберігаю...");
     if (!done) return;
     try {
-      const { error } = await db.from("inventory_items").update({ name, category, unit }).eq("id", item.id);
+      const payload = { name, category, unit };
+      if (minQuantity !== void 0) payload.min_quantity = minQuantity;
+      const { error } = await db.from("inventory_items").update(payload).eq("id", item.id);
       if (error) return toast("Не вдалося зберегти: " + error.message, "error");
       editingId = null;
       closeModal("editItemModal");

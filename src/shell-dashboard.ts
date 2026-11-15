@@ -1,8 +1,10 @@
 import { escapeHtml } from './app-security.ts';
 import { attendanceHours, formatAttendanceDuration, normalizeAttendanceMonth } from './osbb-attendance.ts';
 import { elevatorEntriesFromResponse, type ElevatorEntry } from './osbb-elevator.ts';
-import { garbageBins, garbageMonthKey, normalizeGarbageMonth } from './osbb-garbage.ts';
+import { garbageBins, garbageMonthKey, garbageMonthKeyCandidates, normalizeGarbageMonth } from './osbb-garbage.ts';
+import { buildMonthlyReportSheets, monthlyReportFileName, monthRange, type ReportIssue, type ReportItem, type ReportReceipt, type ReportWork } from './monthly-report.ts';
 import { estimatedItemValue } from './sklad-domain.ts';
+import { hasMinimums, isBelowMinimum } from './sklad-purchasing.ts';
 import type { ShellSection } from './shell-nav.ts';
 import type { SupabaseRestClient } from './supabase-api.ts';
 
@@ -52,18 +54,20 @@ export function garbageToday(monthData: unknown, day: number): GarbageTodaySumma
     return { recorded: isRecorded(row), bins: garbageBins(row?.types), time: typeof row?.time === 'string' ? row.time : '', monthDays, monthBins };
 }
 
-export interface StockItemLike { id: number | string; name?: string; quantity: number; unit?: string | null; price_unit?: number | null; is_internal?: boolean | null }
+export interface StockItemLike { id: number | string; name?: string; quantity: number; unit?: string | null; price_unit?: number | null; is_internal?: boolean | null; min_quantity?: number | null }
 export interface StockLogLike { item_id: number | string | null; item_name?: string; quantity: number; issued_to?: string | null; issued_at?: string | null }
-export interface StockSummary { available: number; outOfStock: number; low: number; value: number; monthIssues: number; monthSpend: number }
+export interface StockSummary { available: number; outOfStock: number; low: number; belowMin: number | null; value: number; monthIssues: number; monthSpend: number }
 
 export function stockSummary(items: readonly StockItemLike[], monthLogs: readonly StockLogLike[]): StockSummary {
     const priceById = new Map<string, number>();
-    const summary: StockSummary = { available: 0, outOfStock: 0, low: 0, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
+    const minimums = hasMinimums(items.map((item) => ({ ...item, name: item.name ?? '' })));
+    const summary: StockSummary = { available: 0, outOfStock: 0, low: 0, belowMin: minimums ? 0 : null, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
     for (const item of items) {
         const quantity = Number(item.quantity) || 0;
         priceById.set(String(item.id), Number(item.price_unit) || 0);
         if (quantity > 0) summary.available += 1;
         summary.value += estimatedItemValue({ quantity, price_unit: item.price_unit ?? null });
+        if (summary.belowMin !== null && isBelowMinimum({ ...item, name: item.name ?? '' })) summary.belowMin += 1;
         if (item.is_internal === true) continue;
         if (quantity <= 0) summary.outOfStock += 1;
         else if (quantity <= LOW_STOCK_THRESHOLD) summary.low += 1;
@@ -162,7 +166,9 @@ function renderStock(data: DashboardData['stock'], monthName: string): string {
     const metrics = `<div class="home-metrics">
         <div class="home-metric"><strong>${s.available}</strong><span>у наявності</span></div>
         <div class="home-metric${s.outOfStock ? ' is-warn' : ''}"><strong>${s.outOfStock}</strong><span>закінчились</span></div>
-        <div class="home-metric"><strong>${s.low}</strong><span>мало (1–${LOW_STOCK_THRESHOLD})</span></div>
+        ${s.belowMin !== null
+        ? `<div class="home-metric${s.belowMin ? ' is-warn' : ''}"><strong>${s.belowMin}</strong><span>нижче мінімуму</span></div>`
+        : `<div class="home-metric"><strong>${s.low}</strong><span>мало (1–${LOW_STOCK_THRESHOLD})</span></div>`}
     </div>
     <p class="home-muted">Вартість залишків ≈ <strong>${formatMoney(s.value)}</strong>. За ${monthName} видано ${s.monthIssues} ${s.monthIssues === 1 ? 'раз' : 'разів'}${s.monthSpend ? ` на ≈ ${formatMoney(s.monthSpend)}` : ''}.</p>`;
     const list = recent.length ? `<ul class="home-list home-list--compact">${recent.map((log) => `
@@ -196,8 +202,13 @@ export function renderDashboard(data: DashboardData, now: Date): string {
     return `<div class="home-wrap">
         <header class="home-head">
             <div><p class="home-date">${escapeHtml(formatLongDate(now))}</p><h1>Сьогодні</h1></div>
-            <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-refresh aria-label="Оновити дані">${icon('refresh')}<span>Оновити</span></button>
+            <div class="home-head-actions">
+                <button type="button" class="home-btn home-btn--tonal md-state-layer" data-dashboard-report="0">${icon('summarize')}<span>Звіт за ${escapeHtml(MONTHS_NOMINATIVE[now.getMonth()] ?? '')}</span></button>
+                <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-report="-1">за ${escapeHtml(MONTHS_NOMINATIVE[(now.getMonth() + 11) % 12] ?? '')}</button>
+                <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-refresh aria-label="Оновити дані">${icon('refresh')}<span>Оновити</span></button>
+            </div>
         </header>
+        <p class="home-report-status" role="status" aria-live="polite"></p>
         <div class="home-grid">
             ${renderAttendance(data.attendance)}
             ${renderGarbage(data.garbage, monthName)}
@@ -230,9 +241,10 @@ export function createShellDashboard(options: ShellDashboardOptions) {
     let loading: Promise<void> | null = null;
 
     container.addEventListener('click', (event) => {
-        const target = (event.target as Element | null)?.closest<HTMLElement>('[data-dashboard-go],[data-dashboard-refresh]');
+        const target = (event.target as Element | null)?.closest<HTMLElement>('[data-dashboard-go],[data-dashboard-refresh],[data-dashboard-report]');
         if (!target) return;
         if (target.hasAttribute('data-dashboard-refresh')) { void refresh(true); return; }
+        if (target.hasAttribute('data-dashboard-report')) { void downloadReport(Number(target.dataset.dashboardReport) || 0, target as HTMLButtonElement); return; }
         const section = target.dataset.dashboardGo as ShellSection | undefined;
         if (section) options.onNavigate(section);
     });
@@ -264,7 +276,7 @@ export function createShellDashboard(options: ShellDashboardOptions) {
             }),
             settle('stock', async () => {
                 const [items, monthLogs, recent] = await Promise.all([
-                    client.from('inventory_items').select('id,name,quantity,unit,price_unit,is_internal'),
+                    client.from('inventory_items').select('id,name,quantity,unit,price_unit,is_internal,min_quantity'),
                     client.from('inventory_logs').select('item_id,quantity').gte('issued_at', monthStart.toISOString()),
                     client.from('inventory_logs').select('item_id,item_name,quantity,issued_to,issued_at').order('issued_at', { ascending: false }).limit(3),
                 ]);
@@ -293,6 +305,60 @@ export function createShellDashboard(options: ShellDashboardOptions) {
         lastLoaded = Date.now();
     }
 
+    function setReportStatus(text: string, isError = false): void {
+        const status = container.querySelector<HTMLElement>('.home-report-status');
+        if (!status) return;
+        status.textContent = text;
+        status.classList.toggle('is-error', isError);
+    }
+
+    /** Місячний звіт Excel: offset 0 — поточний місяць, -1 — попередній. */
+    async function downloadReport(offset: number, button: HTMLButtonElement | null): Promise<void> {
+        const now = clock();
+        const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        const year = target.getFullYear();
+        const month = target.getMonth();
+        const range = monthRange(year, month);
+        if (button) button.disabled = true;
+        setReportStatus('Готую звіт…');
+        try {
+            const garbageRow = async () => {
+                for (const key of garbageMonthKeyCandidates(year, month)) {
+                    const row = unwrap<{ data: unknown } | null>(await client.from('garbage').select('data').eq('month_key', key).maybeSingle());
+                    if (row) return row.data;
+                }
+                return null;
+            };
+            const [works, attendance, garbage, elevator, issues, receipts, items] = await Promise.all([
+                client.from('completed_work').select('work_date,worker_role,description,note').gte('work_date', range.first).lte('work_date', range.last).order('work_date'),
+                client.from('osbb_attendance').select('data').eq('month_key', `${year}-${pad(month + 1)}`).maybeSingle(),
+                garbageRow(),
+                client.from('elevator_visits').select('data').eq('month_key', `${year}-${month}`).maybeSingle(),
+                client.from('inventory_logs').select('issued_at,item_id,item_name,quantity,issued_to,note').gte('issued_at', range.startIso).lte('issued_at', range.endIso).order('issued_at'),
+                client.from('inventory_receipts').select('received_at,item_id,item_name,quantity,supplier,purchase_price_unit').gte('received_at', range.startIso).lte('received_at', range.endIso).order('received_at'),
+                client.from('inventory_items').select('id,category,price_unit'),
+            ]);
+            const sheets = buildMonthlyReportSheets({
+                year, month,
+                works: unwrap<ReportWork[]>(works) || [],
+                attendance: unwrap<{ data: unknown } | null>(attendance)?.data,
+                garbage,
+                elevator: elevatorEntriesFromResponse(unwrap<{ data: unknown } | null>(elevator)?.data),
+                issues: unwrap<ReportIssue[]>(issues) || [],
+                receipts: unwrap<ReportReceipt[]>(receipts) || [],
+                items: unwrap<ReportItem[]>(items) || [],
+            });
+            const { downloadWorkbook } = await import('./excel-export.ts');
+            await downloadWorkbook(sheets, monthlyReportFileName(year, month));
+            setReportStatus(`Звіт за ${MONTHS_NOMINATIVE[month]} ${year} завантажено.`);
+        } catch (error) {
+            warn('monthly report failed:', error);
+            setReportStatus('Не вдалося підготувати звіт. Перевірте мережу й спробуйте ще раз.', true);
+        } finally {
+            if (button) button.disabled = false;
+        }
+    }
+
     /** Оновлює «Головну», але не частіше ніж раз на хвилину, якщо не force. */
     function refresh(force = false): Promise<void> {
         if (loading) return loading;
@@ -301,5 +367,5 @@ export function createShellDashboard(options: ShellDashboardOptions) {
         return loading;
     }
 
-    return { refresh };
+    return { refresh, downloadReport };
 }

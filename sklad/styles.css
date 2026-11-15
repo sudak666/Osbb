@@ -1110,3 +1110,28 @@ html.in-shell .sidebar,
 html.in-shell .bottom-nav{display:none!important;}
 html.in-shell .main{margin-left:auto!important;margin-right:auto!important;max-width:1280px;}
 html.in-shell .app-module-kicker{display:none;}
+.edit-movement-hint{font-size:12px;color:var(--sklad-gray);margin-top:6px;line-height:1.4;}
+
+/* Закупівля за мінімальними залишками й графік витрат (тиждень 4 аудиту). */
+.stats-title-row{justify-content:space-between;}
+.stats-title-text{display:inline-flex;align-items:center;gap:6px;}
+.stats-title-row .btn{text-transform:none;letter-spacing:0;}
+.purchase-hint{display:flex;gap:8px;align-items:flex-start;margin:0 0 10px;font-size:13px;line-height:1.45;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}
+.purchase-row .stat-low-name{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.purchase-row small{font-size:12px;font-weight:400;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}
+.purchase-need{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-weight:700;color:var(--md-sys-color-primary,var(--brand));white-space:nowrap;}
+.purchase-total{display:flex;justify-content:flex-end;gap:4px;padding-top:10px;margin-top:6px;border-top:1px solid var(--md-sys-color-outline-variant,var(--border-subtle));font-size:14px;}
+.spend-chart{display:flex;flex-direction:column;gap:10px;}
+.spend-legend{display:flex;gap:16px;font-size:12px;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}
+.spend-key{display:inline-flex;align-items:center;gap:6px;}
+.spend-key::before{content:"";width:12px;height:12px;border-radius:var(--md-sys-shape-corner-extra-small,4px);background:var(--spend-color);}
+.spend-key.is-purchased,.spend-bar.is-purchased{--spend-color:var(--md-sys-color-primary,#1f7a3d);}
+.spend-key.is-used,.spend-bar.is-used{--spend-color:var(--md-sys-color-tertiary,#8a5a00);}
+.spend-bars{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;align-items:end;height:180px;padding-bottom:4px;border-bottom:1px solid var(--md-sys-color-outline-variant,var(--border-subtle));}
+.spend-month{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;min-width:0;}
+.spend-pair{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;width:100%;}
+.spend-bar{display:block;width:min(14px,45%);min-height:2px;border-radius:var(--md-sys-shape-corner-extra-small,4px) var(--md-sys-shape-corner-extra-small,4px) 0 0;background:var(--spend-color);}
+.spend-label{font-size:11px;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));white-space:nowrap;}
+.spend-subtitle{margin:14px 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}
+@media(max-width:640px){.spend-bars{gap:3px;height:150px;}.spend-year{display:none;}}
+.stats-title-row .btn[hidden]{display:none!important;}

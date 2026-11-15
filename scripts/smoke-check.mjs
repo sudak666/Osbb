@@ -2900,7 +2900,9 @@ ${sharedSelectText}`;
     'data-item-action="edit" data-item-id="${id}"',
     'edit:id=>openEditItem(id)',
     "async function saveEdit(button: HTMLButtonElement)",
-    ".update({ name, category, unit }).eq('id', item.id)",
+    "const payload: Record<string, unknown> = { name, category, unit };",
+    "db.from('inventory_items').update(payload).eq('id', item.id)",
+    "parseMinQuantity(minInput.value)",
     "normalizeSearchText(candidate.name) === normalizeSearchText(name)",
     "'edit-item-confirm':(button)=>confirmEditItem(button)",
   ];
