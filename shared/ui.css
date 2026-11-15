@@ -108,3 +108,9 @@ button,[role='button']{font-weight:var(--md-sys-typescale-label-weight);letter-s
 
 .ms { visibility:hidden; }
 .material-symbols-ready .ms { visibility:visible; }
+
+/* Базове відображення іконок Material Symbols для всіх модулів (склад використовує ще й .ms).
+   Модулі можуть перевизначити розмір у власних стилях. */
+.material-symbols-rounded{display:inline-flex;align-items:center;justify-content:center;flex:none;font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';-webkit-font-smoothing:antialiased;}
+.custom-date-nav{display:inline-flex;align-items:center;justify-content:center;}
+.custom-date-nav .material-symbols-rounded{font-size:22px;}

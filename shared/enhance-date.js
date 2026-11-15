@@ -103,7 +103,7 @@
 
         const head = document.createElement('div');
         head.className = 'custom-date-head';
-        head.innerHTML = `<button type="button" class="custom-date-nav" data-date-step="-1" aria-label="Попередній місяць">‹</button><strong>${MONTHS[viewMonth]} ${viewYear}</strong><button type="button" class="custom-date-nav" data-date-step="1" aria-label="Наступний місяць">›</button>`;
+        head.innerHTML = `<button type="button" class="custom-date-nav" data-date-step="-1" aria-label="Попередній місяць"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button><strong>${MONTHS[viewMonth]} ${viewYear}</strong><button type="button" class="custom-date-nav" data-date-step="1" aria-label="Наступний місяць"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>`;
         panel.appendChild(head);
 
         const grid = document.createElement('div');

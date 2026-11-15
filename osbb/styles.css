@@ -965,3 +965,32 @@ html.in-shell #desktop-tabs,
 html.in-shell #bottom-nav { display:none !important; }
 html.in-shell .app-module-kicker,
 html.in-shell .journal-title-copy { display:none; }
+
+/* ===== Узгодженість з рештою застосунку (листопад 2026) =====
+   Розміри беруться з токенів shared/material-tokens.css (--app-*), спільних для shell,
+   журналу й складу: кнопки 40px (48px на дотик), підпис 14px/500, кнопки-іконки — круглі.
+   !important — бо частина кнопок журналу ще має Tailwind-утиліти. */
+.journal-tonal-btn, .journal-action-btn, .dispatcher-time-btn, .garbage-today,
+.shift-settings-btn, .shift-reset-btn, .shift-secondary-btn, .shift-primary-btn {
+  min-height:var(--app-control-height) !important;
+  border-radius:var(--md-sys-shape-corner-full,999px) !important;
+  font-size:var(--app-button-font-size) !important;
+  font-weight:var(--app-button-font-weight) !important;
+  letter-spacing:.01em;
+}
+.journal-tonal-btn .material-symbols-rounded, .journal-action-btn .material-symbols-rounded, .dispatcher-time-btn .material-symbols-rounded,
+.shift-settings-btn .material-symbols-rounded, .shift-reset-btn .material-symbols-rounded, .shift-secondary-btn .material-symbols-rounded,
+.shift-primary-btn .material-symbols-rounded { font-size:var(--app-button-icon-size) !important; }
+.journal-icon-btn, .journal-theme-toggle, .shift-nav-btn, .day-detail-close {
+  width:var(--app-icon-button-size) !important;
+  height:var(--app-icon-button-size) !important;
+  min-height:0 !important;
+  padding:0 !important;
+  border-radius:var(--md-sys-shape-corner-full,999px) !important;
+}
+.journal-icon-btn .material-symbols-rounded, .journal-theme-toggle .material-symbols-rounded,
+.shift-nav-btn .material-symbols-rounded, .day-detail-close .material-symbols-rounded { font-size:var(--app-icon-button-glyph-size) !important; }
+.journal-theme-toggle:hover { transform:none; }
+/* Вкладені плитки — 16px, як у складі; великі панелі лишаються 28px. */
+.stat-card { border-radius:var(--app-radius-tile) !important; }
+.elevator-title-icon { border-radius:var(--app-radius-icon-tile); }

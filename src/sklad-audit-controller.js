@@ -45,7 +45,7 @@ function createSkladAuditController(options) {
     const current = items();
     const { counted, surplus, shortage, progress } = calculateAuditSummary(current, auditData);
     const stats = document.getElementById("auditStats");
-    if (stats) stats.textContent = `Перераховано: ${counted}/${current.length} · ▲ Надлишок: ${surplus} · ▼ Нестача: ${shortage}`;
+    if (stats) stats.textContent = `Перераховано: ${counted}/${current.length} · Надлишок: ${surplus} · Нестача: ${shortage}`;
     const fill = document.getElementById("auditProgressFill");
     const progressBar = document.getElementById("auditProgress");
     if (fill) fill.style.width = progress + "%";
@@ -68,7 +68,7 @@ function createSkladAuditController(options) {
       const counted = actual !== null && actual !== void 0;
       const diff = counted ? actual - item.quantity : null;
       const state = !counted ? "is-pending" : diff > 0 ? "is-surplus" : diff < 0 ? "is-shortage" : "is-match";
-      const diffHtml = !counted ? "" : diff > 0 ? `<span class="audit-diff good">▲ +${diff}</span>` : diff < 0 ? `<span class="audit-diff bad">▼ ${diff}</span>` : '<span class="audit-diff good"><span class="ms ic-13-2">check</span> Збігається</span>';
+      const diffHtml = !counted ? "" : diff > 0 ? `<span class="audit-diff good">+${diff}</span>` : diff < 0 ? `<span class="audit-diff bad">−${Math.abs(diff)}</span>` : '<span class="audit-diff good"><span class="ms ic-13-2">check</span> Збігається</span>';
       const category = item.category || "";
       const name = escapeHtml(item.name || "");
       const unit = escapeHtml(item.unit || "");
@@ -133,8 +133,8 @@ function createSkladAuditController(options) {
       if (meta && counted) {
         const indicator = document.createElement("span");
         indicator.className = "audit-diff " + (diff < 0 ? "bad" : "good");
-        if (diff > 0) indicator.textContent = `▲ +${diff}`;
-        else if (diff < 0) indicator.textContent = `▼ ${diff}`;
+        if (diff > 0) indicator.textContent = `+${diff}`;
+        else if (diff < 0) indicator.textContent = `−${Math.abs(diff)}`;
         else indicator.innerHTML = '<span class="ms ic-13-2">check</span> Збігається';
         meta.appendChild(indicator);
       }
@@ -165,8 +165,8 @@ function createSkladAuditController(options) {
     if (target) target.innerHTML = `<div class="audit-summary-grid">
       <div class="audit-summary-tile"><div class="audit-summary-value counted">${summary.counted}</div><div class="audit-summary-label">Перераховано</div></div>
       <div class="audit-summary-tile"><div class="audit-summary-value uncounted">${summary.uncounted}</div><div class="audit-summary-label">Не перераховано</div></div>
-      <div class="audit-summary-tile"><div class="audit-summary-value surplus">▲ ${summary.surplus}</div><div class="audit-summary-label">Надлишок</div></div>
-      <div class="audit-summary-tile"><div class="audit-summary-value shortage">▼ ${summary.shortage}</div><div class="audit-summary-label">Нестача</div></div></div>
+      <div class="audit-summary-tile"><div class="audit-summary-value surplus">${summary.surplus}</div><div class="audit-summary-label">Надлишок</div></div>
+      <div class="audit-summary-tile"><div class="audit-summary-value shortage">${summary.shortage}</div><div class="audit-summary-label">Нестача</div></div></div>
       ${summary.uncounted > 0 ? `<div class="audit-summary-warning"><span class="ms ic-14-2">warning</span> ${summary.uncounted} товарів не будуть оновлені (поле порожнє)</div>` : ""}`;
     openModal("auditModal");
   }

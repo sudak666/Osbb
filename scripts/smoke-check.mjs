@@ -3780,6 +3780,39 @@ ${sharedSelectText}`;
   }
 }
 
+// Узгодженість вигляду (листопад 2026): в інтерфейсі лише іконки Material Symbols —
+// без емодзі й текстових значків (✕ ⌫ ↻ ▲▼ ◀▶ ‹› ↗), а кнопки всіх трьох частин
+// прив'язані до спільних токенів розміру з shared/material-tokens.css.
+{
+  const label = 'UI uses Material Symbols instead of emoji and text glyphs';
+  const uiFiles = ['index.html', 'osbb/index.html', 'sklad/index.html', 'src/osbb-app.js', 'src/sklad-app.js',
+    ...readdirSync('src').filter(f => f.endsWith('.ts') && f !== 'database.types.ts').map(f => `src/${f}`),
+    ...readdirSync('shared').filter(f => f.endsWith('.js')).map(f => `shared/${f}`)];
+  const glyphs = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{25A0}-\u{25FF}\u{2B00}-\u{2BFF}\u{2039}\u{203A}\u{232B}]/u;
+  const offenders = [];
+  for (const file of uiFiles) {
+    readRawFile(file, 'utf8').split('\n').forEach((line, index) => {
+      const code = line.trim();
+      if (code.startsWith('//') || code.startsWith('*') || code.startsWith('/*') || code.startsWith('<!--')) return;
+      // Стрілка «→» посеред речення (тост «Видано: 2 шт → Іван») — це текст, не значок.
+      if (glyphs.test(code.replace(/ → /g, ' '))) offenders.push(`${file}:${index + 1}`);
+    });
+  }
+  if (offenders.length) { failed += 1; console.error(`not ok - ${label} (${offenders.slice(0, 8).join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+{
+  const label = 'shell, journal and warehouse buttons share the same size tokens';
+  const tokens = readRawFile('shared/material-tokens.css', 'utf8');
+  const sheets = { 'styles.css': readRawFile('styles.css', 'utf8'), 'osbb/styles.css': readRawFile('osbb/styles.css', 'utf8'), 'sklad/styles.css': readRawFile('sklad/styles.css', 'utf8') };
+  const missing = ['--app-control-height: 48px;', '--app-button-font-size: 15px;', '--app-button-font-weight: 500;', '--app-radius-container:']
+    .filter(needle => !tokens.includes(needle))
+    .concat(Object.entries(sheets).flatMap(([file, css]) => ['var(--app-control-height)', 'var(--app-button-font-size)', 'var(--app-button-font-weight)']
+      .filter(needle => !css.includes(needle)).map(needle => `${file}:${needle}`)));
+  if (missing.length) { failed += 1; console.error(`not ok - ${label} (missing: ${missing.join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+
 if (failed) {
   console.error(`\n${failed} smoke check(s) failed.`);
   process.exit(1);

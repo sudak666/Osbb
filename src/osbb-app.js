@@ -1122,8 +1122,8 @@
             const dx = e.changedTouches[0].clientX - sx;
             const dy = e.changedTouches[0].clientY - sy;
             if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
-            if (dx < 0) { showHint('▶ Наступний місяць'); stepMonth(1); }
-            else         { showHint('◀ Попередній місяць'); stepMonth(-1); }
+            if (dx < 0) { showHint('Наступний місяць'); stepMonth(1); }
+            else         { showHint('Попередній місяць'); stepMonth(-1); }
         }, { passive: true });
     })();
 
