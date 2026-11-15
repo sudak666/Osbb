@@ -71,55 +71,102 @@
 </script>
 
 <div id="shell-main">
-    <div id="shell-tabs">
-        <div class="ios-segmented-control md-segmented-button">
-            <div class="shell-brand" aria-label="ОСББ Микитська Слобода">
-                <span class="material-symbols-rounded shell-brand-icon" aria-hidden="true">apartment</span>
-                <span class="shell-brand-copy"><strong>Микитська Слобода</strong><small>Керування ОСББ</small></span>
-            </div>
-            <div class="shell-primary-tabs" role="tablist" aria-label="Розділи застосунку">
-                <button type="button" class="shell-tab-btn md-state-layer active" id="shell-tab-journal" data-shell-tab="journal" role="tab" aria-selected="true" aria-controls="frame-journal" aria-current="page">
-                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">assignment</span>
-                    Журнал
-                </button>
-                <button type="button" class="shell-tab-btn md-state-layer" id="shell-tab-sklad" data-shell-tab="sklad" role="tab" aria-selected="false" aria-controls="frame-sklad">
-                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">inventory_2</span>
-                    Склад
-                </button>
-            </div>
-            <div class="shell-desktop-actions">
-                <a href="https://www.deyecloud.com/station/new-main?id=61184357"
-                   target="_blank" rel="noopener noreferrer" class="shell-tab-btn md-state-layer"
-                   id="shell-tab-deye">
-                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">solar_power</span>
-                    Deye ↗
-                </a>
-                <button type="button" class="shell-tab-btn shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock data-tip="Заблокувати" aria-label="Заблокувати застосунок">
-                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">lock</span>
-                    Заблокувати
-                </button>
-            </div>
-            <details class="shell-more">
-                <summary class="shell-more-trigger md-state-layer" aria-label="Інші дії">
-                    <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">more_vert</span>
-                </summary>
-                <div class="shell-more-menu">
-                    <a href="https://www.deyecloud.com/station/new-main?id=61184357"
-                       target="_blank" rel="noopener noreferrer" class="shell-more-item md-state-layer">
-                        <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">solar_power</span>
-                        Deye
-                    </a>
-                    <button type="button" class="shell-more-item shell-more-lock md-state-layer" data-shell-lock>
-                        <span class="material-symbols-rounded shell-symbol-icon" aria-hidden="true">lock</span>
-                        Заблокувати
-                    </button>
-                </div>
-            </details>
+    <nav id="shell-nav" class="shell-nav" aria-label="Розділи застосунку">
+        <div class="shell-brand" aria-label="ОСББ Микитська Слобода">
+            <span class="material-symbols-rounded shell-brand-icon" aria-hidden="true">apartment</span>
+            <span class="shell-brand-copy"><strong>Микитська Слобода</strong><small>Керування ОСББ</small></span>
         </div>
-    </div>
+        <div class="shell-nav-list">
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="home">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">home</span><span class="shell-nav-label">Головна</span>
+            </button>
+            <div class="shell-nav-group" role="presentation">Журнал</div>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="completed-work">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">task_alt</span><span class="shell-nav-label">Роботи</span>
+            </button>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="garbage">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">delete</span><span class="shell-nav-label">Сміття</span>
+            </button>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="shifts">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">calendar_clock</span><span class="shell-nav-label">Зміни</span>
+            </button>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="tabel">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">schedule</span><span class="shell-nav-label">Табель</span>
+            </button>
+            <div class="shell-nav-group" role="presentation">Склад</div>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="items">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">inventory_2</span><span class="shell-nav-label">Запаси</span>
+            </button>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="log">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">swap_vert</span><span class="shell-nav-label">Рух</span>
+            </button>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="audit">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">fact_check</span><span class="shell-nav-label">Інвентаризація</span>
+            </button>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-section="stats">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">bar_chart</span><span class="shell-nav-label">Статистика</span>
+            </button>
+        </div>
+        <div class="shell-nav-footer">
+            <a href="https://www.deyecloud.com/station/new-main?id=61184357" target="_blank" rel="noopener noreferrer" class="shell-nav-item md-state-layer" id="shell-tab-deye">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">solar_power</span><span class="shell-nav-label">Deye ↗</span>
+            </a>
+            <button type="button" class="shell-nav-item shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock data-tip="Заблокувати" aria-label="Заблокувати застосунок">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">lock</span><span class="shell-nav-label">Заблокувати</span>
+            </button>
+        </div>
+    </nav>
     <div id="shell-frames">
-        <iframe id="frame-journal" title="Журнал ОСББ" role="tabpanel" aria-labelledby="shell-tab-journal"></iframe>
-        <iframe id="frame-sklad" title="Склад ОСББ" role="tabpanel" aria-labelledby="shell-tab-sklad"></iframe>
+        <section id="shell-home" class="shell-home" aria-label="Головна" hidden></section>
+        <iframe id="frame-journal" title="Журнал ОСББ"></iframe>
+        <iframe id="frame-sklad" title="Склад ОСББ"></iframe>
+    </div>
+    <nav id="shell-bottom-nav" class="shell-bottom-nav" aria-label="Основні розділи">
+        <button type="button" class="shell-bottom-item md-state-layer" data-shell-section="home">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">home</span><span class="shell-nav-label">Головна</span>
+            </button>
+        <button type="button" class="shell-bottom-item md-state-layer" data-shell-section="garbage">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">delete</span><span class="shell-nav-label">Сміття</span>
+            </button>
+        <button type="button" class="shell-bottom-item md-state-layer" data-shell-section="tabel">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">schedule</span><span class="shell-nav-label">Табель</span>
+            </button>
+        <button type="button" class="shell-bottom-item md-state-layer" data-shell-section="items">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">inventory_2</span><span class="shell-nav-label">Склад</span>
+            </button>
+        <button type="button" class="shell-bottom-item md-state-layer" data-shell-more aria-haspopup="dialog" aria-expanded="false" aria-controls="shell-more-sheet">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">menu</span><span class="shell-nav-label">Ще</span>
+        </button>
+    </nav>
+    <div id="shell-more-sheet" class="shell-more-sheet" role="dialog" aria-modal="true" aria-label="Усі розділи" hidden>
+        <button type="button" class="shell-more-scrim" data-shell-more-close aria-label="Закрити меню" tabindex="-1"></button>
+        <div class="shell-more-panel">
+            <div class="shell-more-handle" aria-hidden="true"></div>
+            <div class="shell-nav-group" role="presentation">Журнал</div>
+            <button type="button" class="shell-more-item md-state-layer" data-shell-section="completed-work">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">task_alt</span><span class="shell-nav-label">Виконані роботи</span>
+            </button>
+            <button type="button" class="shell-more-item md-state-layer" data-shell-section="shifts">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">calendar_clock</span><span class="shell-nav-label">Зміни</span>
+            </button>
+            <div class="shell-nav-group" role="presentation">Склад</div>
+            <button type="button" class="shell-more-item md-state-layer" data-shell-section="log">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">swap_vert</span><span class="shell-nav-label">Рух товарів</span>
+            </button>
+            <button type="button" class="shell-more-item md-state-layer" data-shell-section="audit">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">fact_check</span><span class="shell-nav-label">Інвентаризація</span>
+            </button>
+            <button type="button" class="shell-more-item md-state-layer" data-shell-section="stats">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">bar_chart</span><span class="shell-nav-label">Статистика</span>
+            </button>
+            <div class="shell-more-divider" role="presentation"></div>
+            <a href="https://www.deyecloud.com/station/new-main?id=61184357" target="_blank" rel="noopener noreferrer" class="shell-more-item md-state-layer">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">solar_power</span><span class="shell-nav-label">Deye ↗</span>
+            </a>
+            <button type="button" class="shell-more-item shell-more-lock md-state-layer" data-shell-lock>
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">lock</span><span class="shell-nav-label">Заблокувати</span>
+            </button>
+        </div>
     </div>
 </div>
 

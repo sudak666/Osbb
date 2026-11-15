@@ -25,6 +25,13 @@
 </head>
 <body class="theme-light">
 <script>document.body.className = localStorage.getItem('selected_theme') || 'theme-light';</script>
+<script>
+// У shell склад не малює власного меню — це робить спільна навігація застосунку.
+(function(){
+  if(window.self===window.top) return;
+  try{ if(window.parent.location.origin===window.location.origin&&window.parent.document.getElementById('shell-main')) document.documentElement.classList.add('in-shell'); }catch(e){}
+})();
+</script>
 
 <script>
 function setIcon(el,name){
@@ -166,7 +173,7 @@ window.addEventListener('message',event=>{
     </section>
     <div class="g4 items-metrics insight-grid inventory-summary" aria-label="Підсумок складських запасів">
       <article class="stat-card summary-card sc-green"><span class="big" id="st-available">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> Найменувань у наявності</span><span class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></span></article>
-      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> Потребують поповнення</span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
+      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> Залишок 3 і менше</span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
       <article class="stat-card summary-card sc-orange"><span class="big summary-money" id="st-value">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">payments</span> Орієнтовна вартість</span><span class="stat-icon" aria-hidden="true"><span class="ms">payments</span></span></article>
     </div>
     <div class="items-filter-bar">

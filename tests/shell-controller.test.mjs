@@ -8,6 +8,7 @@ class FakeClassList {
   add(value) { this.values.add(value); }
   remove(value) { this.values.delete(value); }
   contains(value) { return this.values.has(value); }
+  toggle(value, force) { const on = force ?? !this.values.has(value); if (on) this.values.add(value); else this.values.delete(value); return on; }
 }
 
 class FakeElement {
@@ -44,6 +45,8 @@ class FakeDocument {
     if (selector === '#shell-frames iframe') return elements.filter((el) => el.id.startsWith('frame-'));
     if (selector === '[data-lock-digit]') return elements.filter((el) => el.dataset.lockDigit !== undefined);
     if (selector === '[data-shell-tab]') return elements.filter((el) => el.dataset.shellTab !== undefined);
+    if (selector === '[data-shell-section]') return elements.filter((el) => el.dataset.shellSection !== undefined);
+    if (selector === '[data-shell-more]') return elements.filter((el) => el.dataset.shellMore !== undefined);
     return [];
   }
   querySelector(selector) {
@@ -70,8 +73,11 @@ function makeShellDom() {
   doc.add(new FakeElement('lock-err'));
   doc.add(new FakeElement('lock-dots-container'));
   for (let i = 0; i < 4; i++) doc.add(new FakeElement(`lock-d${i}`));
-  doc.add(new FakeElement('shell-tab-journal', { classes: ['shell-tab-btn'], role: true }));
-  doc.add(new FakeElement('shell-tab-sklad', { classes: ['shell-tab-btn'], role: true }));
+  doc.add(new FakeElement('shell-home'));
+  for (const section of ['home', 'garbage', 'tabel', 'items', 'log']) {
+    doc.add(new FakeElement(`nav-${section}`)).dataset.shellSection = section;
+  }
+  doc.add(new FakeElement('nav-more')).dataset.shellMore = '';
   doc.add(new FakeElement('frame-journal'));
   doc.add(new FakeElement('frame-sklad'));
   return doc;
@@ -97,25 +103,60 @@ function makeController({ rpcResult = true } = {}) {
   return { controller, doc, calls };
 }
 
-test('ShellController switches tabs with lazy iframe loading and ARIA state', () => {
+test('ShellController opens module sections with lazy iframe loading and nav state', () => {
   globalThis.sessionStorage = memoryStorage();
   const { controller, doc } = makeController();
 
-  controller.switchTab('sklad');
+  controller.showSection('log');
 
-  assert.equal(doc.getElementById('frame-sklad').src, 'sklad/index.html?embed=1');
+  assert.equal(doc.getElementById('frame-sklad').src, 'sklad/index.html?embed=1&section=log');
   assert.equal(doc.getElementById('frame-sklad').classList.contains('active'), true);
-  assert.equal(doc.getElementById('shell-tab-sklad').classList.contains('active'), true);
-  assert.equal(doc.getElementById('shell-tab-sklad').getAttribute('aria-current'), 'page');
-  assert.equal(doc.getElementById('shell-tab-sklad').getAttribute('aria-selected'), 'true');
-  assert.equal(doc.getElementById('shell-tab-journal').getAttribute('aria-selected'), 'false');
+  assert.equal(doc.getElementById('shell-home').hidden, true);
+  assert.equal(doc.getElementById('nav-log').classList.contains('active'), true);
+  assert.equal(doc.getElementById('nav-log').getAttribute('aria-current'), 'page');
+  assert.equal(doc.getElementById('nav-items').getAttribute('aria-current'), null);
+  // «Рух» живе в листі «Ще» на телефоні — кнопка «Ще» підсвічується.
+  assert.equal(doc.getElementById('nav-more').classList.contains('active'), true);
+  assert.equal(controller.getSection(), 'log');
 });
 
-test('ShellController ignores unknown tab payloads', () => {
+test('ShellController sends later sections of a loaded module through postMessage', () => {
+  globalThis.sessionStorage = memoryStorage();
+  const { controller, doc } = makeController();
+  const frame = doc.getElementById('frame-journal');
+  const messages = [];
+  frame.contentWindow = { postMessage(message, origin) { messages.push({ message, origin }); } };
+  controller.bind();
+
+  controller.showSection('garbage');
+  assert.equal(frame.src, 'osbb/index.html?embed=1');
+  frame.listeners.get('load')();
+  controller.showSection('tabel');
+
+  assert.deepEqual(messages.at(-1), { message: { type: 'osbb:navigate', section: 'tabel' }, origin: 'https://example.test' });
+  assert.equal(doc.getElementById('nav-tabel').getAttribute('aria-current'), 'page');
+});
+
+test('ShellController switchTab reopens the last section of a module and home hides frames', () => {
+  globalThis.sessionStorage = memoryStorage();
+  const { controller, doc } = makeController();
+
+  controller.showSection('log');
+  controller.showSection('home');
+  assert.equal(doc.getElementById('shell-home').hidden, false);
+  assert.equal(doc.getElementById('frame-sklad').classList.contains('active'), false);
+
+  controller.switchTab('sklad');
+  assert.equal(controller.getSection(), 'log');
+});
+
+test('ShellController ignores unknown tab and section payloads', () => {
   globalThis.sessionStorage = memoryStorage();
   const { controller, doc } = makeController();
   controller.switchTab('__proto__');
   controller.switchTab('<img onerror=alert(1)>');
+  controller.showSection('constructor');
+  controller.showSection('<img onerror=alert(1)>');
   assert.equal(doc.getElementById('frame-journal').src, '');
   assert.equal(doc.getElementById('frame-sklad').src, '');
 });
@@ -130,7 +171,9 @@ test('ShellController verifies a complete PIN through Supabase RPC and unlocks s
   assert.equal(globalThis.sessionStorage.getItem('auth'), 'ok');
   assert.equal(doc.getElementById('app-lock-screen').style.display, 'none');
   assert.equal(doc.getElementById('shell-main').style.display, 'flex');
-  assert.equal(doc.getElementById('frame-journal').src, 'osbb/index.html?embed=1');
+  // Після входу відкривається «Головна»; модулі вантажаться лише на вимогу.
+  assert.equal(doc.getElementById('shell-home').hidden, false);
+  assert.equal(doc.getElementById('frame-journal').src, '');
 });
 
 test('ShellController notifies embedded modules after unlock', () => {

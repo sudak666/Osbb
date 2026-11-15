@@ -42,7 +42,7 @@ const catIconName={'Прибирання':'cleaning_services','Ремонт':'bu
 const catIconHtml={};
 Object.keys(catIconName).forEach(k=>catIconHtml[k]=msIcon(catIconName[k]));
 const catIconHtmlDefault=msIcon(catIconName['Інше']);
-const pageTitles={items:{icon:'inventory_2',label:'Запаси'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'swap_vert',label:'Рух · Видачі'},add:{icon:'add_circle',label:'Додати / поповнити'},receipts:{icon:'swap_vert',label:'Рух · Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'more_horiz',label:'Ще'}};
+const pageTitles={items:{icon:'inventory_2',label:'Запаси'},issue:{icon:'output',label:'Видача зі складу'},log:{icon:'swap_vert',label:'Рух · Видачі'},add:{icon:'add_circle',label:'Додати / поповнити'},receipts:{icon:'swap_vert',label:'Рух · Надходження'},audit:{icon:'fact_check',label:'Інвентаризація'},stats:{icon:'bar_chart',label:'Статистика'}};
 // Прапорець старого fallback без міграції 009 більше не потрібен (receive_item з
 // p_price_unit є на живій базі) — прибираємо його з пристроїв, де він лишився.
 try{localStorage.removeItem(PURCHASE_PRICE_RPC_UNAVAILABLE_KEY);}catch(e){}
@@ -216,7 +216,20 @@ function nav(page,el){
   if(page==='receipts'){loadReceipts();}
   if(page==='audit'){initAudit();}
   if(page==='stats'){renderStats();}
+  notifyShellSection(page);
 }
+// Єдина навігація (листопад 2026): у shell розділ вибирають у спільному меню,
+// склад лише показує його й повідомляє, на якій сторінці опинився.
+const SKLAD_IN_SHELL=document.documentElement.classList.contains('in-shell');
+const SKLAD_SHELL_PAGES=['items','log','audit','stats'];
+function notifyShellSection(page){
+  if(!SKLAD_IN_SHELL) return;
+  window.parent.postMessage({type:'osbb:section-changed',section:page},window.location.origin);
+}
+window.addEventListener('message',event=>{
+  if(event.origin!==window.location.origin||event.source!==window.parent) return;
+  if(event.data?.type==='osbb:navigate'&&SKLAD_SHELL_PAGES.includes(event.data.section)) nav(event.data.section,null);
+});
 function goReceipts(){nav('receipts',null);}
 
 // ===== STAT CARD FILTER =====
@@ -1463,9 +1476,19 @@ bindNewProductMatchActions();
 bindPhotoCurrentActions();
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindSkladStaticControls,{once:true});
 else bindSkladStaticControls();
+{
+  const urlSection=new URLSearchParams(window.location.search).get('section');
+  if(SKLAD_SHELL_PAGES.includes(urlSection)&&urlSection!=='items') nav(urlSection,null);
+}
 initPullToRefresh();
 setRefreshStatus('syncing','Завантаження...');
 loadItems()
+  .then(()=>{
+    // Склад могли відкрити одразу на інвентаризації/статистиці (з меню shell) ще до
+    // завантаження товарів — домальовуємо сторінку вже з даними.
+    if(document.getElementById('page-audit')?.classList.contains('active')) initAudit();
+    if(document.getElementById('page-stats')?.classList.contains('active')) renderStats();
+  })
   .then(()=>loadLogs())
   .then(()=>markDataUpdated())
   .catch(e=>{

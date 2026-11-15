@@ -957,3 +957,11 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
 #intro-splash { background:var(--md-sys-color-surface,var(--md-sys-color-background,#f8faf8)); }
 #intro-splash .intro-name { color:var(--md-sys-color-on-surface,var(--text-main)); }
 #intro-splash .intro-sub { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); }
+
+/* У shell меню розділів спільне для всього застосунку — власні таби журналу,
+   нижнє меню й бренд-шапку ховаємо (поза shell журнал працює як раніше). */
+html.in-shell .journal-tabs-row,
+html.in-shell #desktop-tabs,
+html.in-shell #bottom-nav { display:none !important; }
+html.in-shell .app-module-kicker,
+html.in-shell .journal-title-copy { display:none; }

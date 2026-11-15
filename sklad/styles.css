@@ -1103,3 +1103,10 @@ body{--sklad-sticky-header-height:86px;}
 
 .receipt-options > summary { cursor:pointer; min-height:44px; padding:12px 0; color:var(--text2); }
 .receipt-options[open] > div { margin-bottom:14px; }
+
+/* У shell меню розділів спільне для всього застосунку: власну бічну панель
+   і нижнє меню складу ховаємо, а ширину контенту вирівнюємо з журналом (1280px). */
+html.in-shell .sidebar,
+html.in-shell .bottom-nav{display:none!important;}
+html.in-shell .main{margin-left:auto!important;margin-right:auto!important;max-width:1280px;}
+html.in-shell .app-module-kicker{display:none;}
