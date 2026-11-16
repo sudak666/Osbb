@@ -749,18 +749,18 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .elevator-add-form select, .elevator-add-form input { min-width:0; min-height:48px; }
 .elevator-add-form .journal-select { border-radius:var(--md-sys-shape-corner-full,999px); text-align:center; text-align-last:center; }
 .elevator-add-form .dispatcher-location-input { border-radius:var(--md-sys-shape-corner-large,16px)!important; }
-.elevator-add-form .dispatcher-time-btn { min-height:48px; padding-inline:18px; white-space:nowrap; }
+.elevator-add-form .elevator-add-btn { min-height:48px; padding-inline:18px; white-space:nowrap; }
 .elevator-list { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
 .elevator-entry { position:relative; display:flex; align-items:flex-start; gap:10px; padding:12px 56px 12px 14px; border-radius:var(--md-sys-shape-corner-large,16px); border:1px solid var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface,var(--bg-card)); }
 .elevator-entry-day { flex:none; min-width:28px; padding:2px 8px; border-radius:var(--md-sys-shape-corner-full,999px); background:var(--md-sys-color-surface-container-high,var(--bg-input)); color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:12px; font-weight:700; text-align:center; }
 .elevator-entry-text { flex:1; font-size:14px; font-weight:500; }
 @media (max-width: 860px) {
     .elevator-add-form { grid-template-columns:minmax(88px,112px) minmax(0,1fr); }
-    .elevator-add-form .dispatcher-time-btn { grid-column:1 / -1; justify-self:end; }
+    .elevator-add-form .elevator-add-btn { grid-column:1 / -1; justify-self:end; }
 }
 @media (max-width: 520px) {
     .elevator-add-form { grid-template-columns:1fr; }
-    .elevator-add-form .dispatcher-time-btn { grid-column:auto; width:100%; justify-content:center; }
+    .elevator-add-form .elevator-add-btn { grid-column:auto; width:100%; justify-content:center; }
 }
 
 /* ===== MATERIAL DESIGN 3 — уніфікований компонентний шар ===== */
@@ -1002,3 +1002,11 @@ html.in-shell .journal-title-copy { display:none; }
 .att-calendar-role { padding:8px; }
 .att-absence-action { white-space:normal; line-height:1.25; padding:4px 6px; text-wrap:balance; }
 #elevator-panel { scroll-margin-top:16px; }
+
+/* Ліфтер у тому ж стилі, що й список виконаних робіт над ним (листопад 2026):
+   «Додати запис» — заповнена основна кнопка, як «Зберегти роботу»; видалення — звичайна
+   кругла кнопка-іконка в рядку, а не червоне коло, що вилазило за межі рядка. */
+.elevator-add-form .elevator-add-btn { background:var(--md-sys-color-primary,var(--accent)); color:var(--md-sys-color-on-primary,#fff); padding:0 24px; }
+.elevator-list .elevator-entry { align-items:center; gap:14px; padding:12px 12px 12px 16px; border:1px solid var(--md-sys-color-outline,var(--border)); border-radius:var(--app-radius-tile); }
+.elevator-list .elevator-entry .journal-icon-btn { position:static; flex:none; }
+.elevator-title-icon { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }
