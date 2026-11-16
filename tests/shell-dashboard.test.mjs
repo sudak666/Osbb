@@ -16,6 +16,10 @@ test('attendanceToday reports who is at work, who finished and who is not marked
   assert.match(rows[1].text, /^06:00–10:30 · /);
   assert.equal(rows[2].text, 'На роботі з 12:00');
   assert.equal(attendanceToday(null, 1).every((row) => row.status === 'none'), true);
+  const withBreak = attendanceToday({ 16: { plumber: { checkIn: '11:00', breakStart: '12:00', breakEnd: '14:00', checkOut: '16:00' } } }, 16);
+  assert.equal(withBreak[2].text, '11:00–16:00 · 3 год');
+  assert.equal(withBreak[2].absence, 'відсутність 12:00–14:00');
+  assert.equal(withBreak[0].absence, '');
 });
 
 test('garbageToday reads zero-padded day keys and month totals', () => {

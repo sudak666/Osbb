@@ -80,6 +80,7 @@ test('attendance validates absence pairs and their position inside a shift', () 
   assert.match(attendanceCellError({ checkIn:'08:00', breakStart:'18:00', breakEnd:'18:30', checkOut:'17:00' }), /між приходом/);
   assert.equal(attendanceCellState({ checkIn:'08:00', breakStart:'12:00', checkOut:'17:00' }), 'is-partial-cell');
   assert.equal(formatAttendanceDuration(8.416666), '8 год 25 хв');
+  assert.equal(formatAttendanceDuration(3), '3 год');
 });
 
 test('calculateAttendanceTotals aggregates days and fractional hours by role', () => {

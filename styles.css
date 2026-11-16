@@ -251,3 +251,5 @@
     .home-head { flex-direction: column; align-items: stretch; }
     .home-head-actions { justify-content: flex-start; }
 }
+.home-absence { display: inline-flex; align-items: center; gap: 4px; color: var(--md-sys-color-tertiary, #8a5a00); }
+.home-absence .material-symbols-rounded { font-size: 14px; }
