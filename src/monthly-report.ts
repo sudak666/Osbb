@@ -9,7 +9,8 @@ import { garbageBins, normalizeGarbageMonth } from './osbb-garbage.ts';
 // Чисті функції: на вході — уже завантажені дані місяця, на виході — аркуші Excel.
 
 const ROLES = ['electrician', 'janitor', 'plumber'] as const;
-const ROLE_NAMES: Record<string, string> = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік' };
+// Табель — лише три штатні ролі (ROLES); «Охорона» буває тільки виконавцем робіт.
+const ROLE_NAMES: Record<string, string> = { electrician: 'Електрик', janitor: 'Двірник', plumber: 'Сантехнік', security: 'Охорона' };
 const MONTHS = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
 
 export interface ReportWork { work_date: string; worker_role: string; description: string; note?: string | null }

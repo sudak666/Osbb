@@ -145,7 +145,7 @@ export interface Database {
             completed_work: RowOperation<{
                 id: Uuid;
                 work_date: string;
-                worker_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'>;
+                worker_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'> | 'security';
                 description: string;
                 note: string | null;
                 created_by: Uuid | null;
@@ -192,7 +192,7 @@ export interface Database {
                 Returns: boolean;
             };
             save_completed_work: {
-                Args: { p_id: Uuid | null; p_work_date: string; p_worker_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'>; p_description: string; p_note: string; p_staff_id: Uuid; attempt: string };
+                Args: { p_id: Uuid | null; p_work_date: string; p_worker_role: Extract<OsbbStaffRole, 'plumber' | 'janitor' | 'electrician'> | 'security'; p_description: string; p_note: string; p_staff_id: Uuid; attempt: string };
                 Returns: Uuid | null;
             };
             delete_completed_work: {

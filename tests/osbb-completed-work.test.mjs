@@ -35,3 +35,12 @@ test('completed work search and worker filter combine', () => {
   assert.deepEqual(filterCompletedWork(entries, 'секція', 'plumber'), [entries[1]]);
   assert.deepEqual(filterCompletedWork(entries, 'лампу', 'plumber'), []);
 });
+
+test('«Охорона» is an accepted completed-work performer', async () => {
+  const { validateCompletedWorkDraft, normalizeCompletedWorkEntry } = await import('../src/osbb-completed-work.js');
+  const draft = validateCompletedWorkDraft({ workDate: '2026-11-16', workerRole: 'security', description: 'Перевірили шлагбаум' });
+  assert.equal(draft.value.workerRole, 'security');
+  const entry = normalizeCompletedWorkEntry({ id: '123e4567-e89b-42d3-a456-426614174000', work_date: '2026-11-16', worker_role: 'security', description: 'Обхід' });
+  assert.equal(entry.workerRole, 'security');
+  assert.equal(validateCompletedWorkDraft({ workDate: '2026-11-16', workerRole: 'guard', description: 'x' }).error, 'Оберіть виконавця');
+});

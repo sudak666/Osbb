@@ -1500,7 +1500,7 @@
     // ============================================================
     // ВИКОНАНІ РОБОТИ — окремий факт виконання, без Jira та складу
     // ============================================================
-    const completedWorkRoleLabels = { electrician:'Електрик', janitor:'Двірник', plumber:'Сантехнік' };
+    const completedWorkRoleLabels = { electrician:'Електрик', janitor:'Двірник', plumber:'Сантехнік', security:'Охорона' };
     const completedWorkStatus = type => {
         const el = document.getElementById('completed-work-status'); if (!el) return;
         const states = { loading:['is-loading','Синхронізація…'], ok:['is-ok','Синхронізовано'], error:['is-error','Помилка'] };

@@ -1,7 +1,7 @@
-export type CompletedWorkRole = 'electrician' | 'janitor' | 'plumber';
+export type CompletedWorkRole = 'electrician' | 'janitor' | 'plumber' | 'security';
 export interface CompletedWorkEntry { id:string; workDate:string; workerRole:CompletedWorkRole; description:string; note:string }
 export interface CompletedWorkDraft { id?:string | null; workDate?:string; workerRole?:string; description?:string; note?:string }
-export const COMPLETED_WORK_ROLES: readonly CompletedWorkRole[] = ['electrician','janitor','plumber'];
+export const COMPLETED_WORK_ROLES: readonly CompletedWorkRole[] = ['electrician','janitor','plumber','security'];
 export function completedWorkDefaultDate(year:unknown,month:unknown,today=new Date()):string {
     const validToday=today instanceof Date&&!Number.isNaN(today.getTime())?today:new Date();
     const todayYear=validToday.getFullYear(),todayMonth=validToday.getMonth();
