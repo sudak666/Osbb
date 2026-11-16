@@ -1010,3 +1010,10 @@ html.in-shell .journal-title-copy { display:none; }
 .elevator-list .elevator-entry { align-items:center; gap:14px; padding:12px 12px 12px 16px; border:1px solid var(--md-sys-color-outline,var(--border)); border-radius:var(--app-radius-tile); }
 .elevator-list .elevator-entry .journal-icon-btn { position:static; flex:none; }
 .elevator-title-icon { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }
+
+/* Табель: другий рядок часу — відсутність. Підпис над ним і пунктирні поля, щоб
+   «12:00 / 14:00» не читались як ще один прихід/відхід (листопад 2026). */
+.att-times-caption { grid-column:1 / -1; display:flex; align-items:center; gap:4px; margin-top:2px; color:var(--md-sys-color-tertiary,var(--text-sub)); font-size:var(--md-sys-typescale-label-small-size,11px); font-weight:500; }
+.att-times-caption .material-symbols-rounded { font-size:14px; }
+.att-times-caption.hidden { display:none; }
+.att-time-input.att-absence-field, .att-mobile-role .att-absence-field .att-time-input { border-style:dashed; }

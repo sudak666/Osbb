@@ -65,7 +65,7 @@ function formatAttendanceDuration(hours) {
   const totalMinutes = Math.max(0, Math.round((Number(hours) || 0) * 60));
   const wholeHours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  return `${wholeHours} год ${String(minutes).padStart(2, "0")} хв`;
+  return minutes ? `${wholeHours} год ${String(minutes).padStart(2, "0")} хв` : `${wholeHours} год`;
 }
 function attendanceCellState(cell) {
   const populated = ATTENDANCE_FIELDS.filter((field) => cell[field]).length;

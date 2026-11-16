@@ -89,7 +89,7 @@ export function formatAttendanceDuration(hours: number): string {
     const totalMinutes = Math.max(0, Math.round((Number(hours) || 0) * 60));
     const wholeHours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    return `${wholeHours} год ${String(minutes).padStart(2, '0')} хв`;
+    return minutes ? `${wholeHours} год ${String(minutes).padStart(2, '0')} хв` : `${wholeHours} год`;
 }
 
 export function attendanceCellState(cell: AttendanceCell): AttendanceCellState {

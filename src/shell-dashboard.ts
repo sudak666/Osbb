@@ -24,19 +24,21 @@ const WEEKDAYS = ['неділя', 'понеділок', 'вівторок', 'с�
 /** Той самий поріг, що й у складі (sortLowStockItems): ≤ 3 одиниць — «мало». */
 const LOW_STOCK_THRESHOLD = 3;
 
-export interface AttendanceTodayRow { role: StaffRole; label: string; status: 'working' | 'done' | 'none'; text: string }
+export interface AttendanceTodayRow { role: StaffRole; label: string; status: 'working' | 'done' | 'none'; text: string; absence: string }
 
 export function attendanceToday(monthData: unknown, day: number): AttendanceTodayRow[] {
     const dayData = normalizeAttendanceMonth(monthData)[String(day)] || {};
     return STAFF_ROLES.map((role) => {
         const cell = dayData[role] || {};
         const label = ROLE_LABELS[role];
+        // Відсутність (вийшов/повернувся) уже вирахувана з годин — показуємо її, щоб «11:00–16:00 · 3 год» не дивувало.
+        const absence = cell.breakStart && cell.breakEnd ? `відсутність ${cell.breakStart}–${cell.breakEnd}` : '';
         if (cell.checkIn && cell.checkOut) {
             const hours = attendanceHours(cell);
-            return { role, label, status: 'done', text: `${cell.checkIn}–${cell.checkOut} · ${formatAttendanceDuration(hours)}` };
+            return { role, label, status: 'done', text: `${cell.checkIn}–${cell.checkOut} · ${formatAttendanceDuration(hours)}`, absence };
         }
-        if (cell.checkIn) return { role, label, status: 'working', text: `На роботі з ${cell.checkIn}` };
-        return { role, label, status: 'none', text: 'Не відмічено' };
+        if (cell.checkIn) return { role, label, status: 'working', text: `На роботі з ${cell.checkIn}`, absence };
+        return { role, label, status: 'none', text: 'Не відмічено', absence: '' };
     });
 }
 
@@ -148,7 +150,7 @@ function card(id: string, title: string, iconName: string, body: string, footer 
 function renderAttendance(data: Loadable<AttendanceTodayRow[]>): string {
     const body = data.state === 'loading' ? skeleton : data.state === 'error' ? failed : `<ul class="home-list">${data.value.map((row) => `
         <li class="home-row"><span class="home-row-icon">${icon(ROLE_ICONS[row.role])}</span>
-        <span class="home-row-main"><strong>${escapeHtml(row.label)}</strong></span>
+        <span class="home-row-main"><strong>${escapeHtml(row.label)}</strong>${row.absence ? `<small class="home-absence">${icon('pause')}${escapeHtml(row.absence)}</small>` : ''}</span>
         <span class="home-chip is-${row.status}">${escapeHtml(row.text)}</span></li>`).join('')}</ul>`;
     return card('attendance', 'Табель сьогодні', 'schedule', body, go('tabel', 'Відкрити табель', 'chevron_right', 'text'));
 }

@@ -20,12 +20,13 @@ function attendanceToday(monthData, day) {
   return STAFF_ROLES.map((role) => {
     const cell = dayData[role] || {};
     const label = ROLE_LABELS[role];
+    const absence = cell.breakStart && cell.breakEnd ? `відсутність ${cell.breakStart}–${cell.breakEnd}` : "";
     if (cell.checkIn && cell.checkOut) {
       const hours = attendanceHours(cell);
-      return { role, label, status: "done", text: `${cell.checkIn}–${cell.checkOut} · ${formatAttendanceDuration(hours)}` };
+      return { role, label, status: "done", text: `${cell.checkIn}–${cell.checkOut} · ${formatAttendanceDuration(hours)}`, absence };
     }
-    if (cell.checkIn) return { role, label, status: "working", text: `На роботі з ${cell.checkIn}` };
-    return { role, label, status: "none", text: "Не відмічено" };
+    if (cell.checkIn) return { role, label, status: "working", text: `На роботі з ${cell.checkIn}`, absence };
+    return { role, label, status: "none", text: "Не відмічено", absence: "" };
   });
 }
 function garbageToday(monthData, day) {
@@ -103,7 +104,7 @@ function card(id, title, iconName, body, footer = "") {
 function renderAttendance(data) {
   const body = data.state === "loading" ? skeleton : data.state === "error" ? failed : `<ul class="home-list">${data.value.map((row) => `
         <li class="home-row"><span class="home-row-icon">${icon(ROLE_ICONS[row.role])}</span>
-        <span class="home-row-main"><strong>${escapeHtml(row.label)}</strong></span>
+        <span class="home-row-main"><strong>${escapeHtml(row.label)}</strong>${row.absence ? `<small class="home-absence">${icon("pause")}${escapeHtml(row.absence)}</small>` : ""}</span>
         <span class="home-chip is-${row.status}">${escapeHtml(row.text)}</span></li>`).join("")}</ul>`;
   return card("attendance", "Табель сьогодні", "schedule", body, go("tabel", "Відкрити табель", "chevron_right", "text"));
 }
