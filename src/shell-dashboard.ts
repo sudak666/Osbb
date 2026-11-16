@@ -130,8 +130,8 @@ interface DashboardData {
 }
 
 const icon = (name: string, extra = '') => `<span class="material-symbols-rounded${extra ? ` ${extra}` : ''}" aria-hidden="true">${name}</span>`;
-const go = (section: ShellSection, label: string, iconName: string, tone: 'tonal' | 'text' = 'tonal') =>
-    `<button type="button" class="home-btn home-btn--${tone} md-state-layer" data-dashboard-go="${section}">${icon(iconName)}<span>${escapeHtml(label)}</span></button>`;
+const go = (section: ShellSection, label: string, iconName: string, tone: 'tonal' | 'text' = 'tonal', focus = '') =>
+    `<button type="button" class="home-btn home-btn--${tone} md-state-layer" data-dashboard-go="${section}"${focus ? ` data-dashboard-focus="${focus}"` : ''}>${icon(iconName)}<span>${escapeHtml(label)}</span></button>`;
 const skeleton = '<div class="home-skel" aria-hidden="true"><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>';
 const failed = '<p class="home-error">' + icon('cloud_off') + 'Не вдалося завантажити. Перевірте мережу й оновіть.</p>';
 
@@ -194,7 +194,7 @@ function renderElevator(data: Loadable<ElevatorVisit | null>, now: Date): string
     const body = visit
         ? `<p class="home-status">${icon('history')}<span>Останній приїзд: <strong>${escapeHtml(formatShortDate(visit.date))}</strong> (${daysAgo(visit.date, now)})</span></p>${visit.text ? `<p class="home-muted">${escapeHtml(visit.text)}</p>` : ''}`
         : '<p class="home-muted">За цей і минулий місяць приїздів не записано.</p>';
-    return card('elevator', 'Ліфтер', 'elevator', body, go('completed-work', 'Журнал ліфтера', 'chevron_right', 'text'));
+    return card('elevator', 'Ліфтер', 'elevator', body, go('completed-work', 'Журнал ліфтера', 'chevron_right', 'text', 'elevator'));
 }
 
 export function renderDashboard(data: DashboardData, now: Date): string {
@@ -225,7 +225,7 @@ export interface ShellDashboardOptions {
     container: HTMLElement;
     client: Pick<SupabaseRestClient, 'from'>;
     now?: () => Date;
-    onNavigate: (section: ShellSection) => void;
+    onNavigate: (section: ShellSection, focus?: string) => void;
     warn?: (...args: unknown[]) => void;
 }
 
@@ -246,7 +246,7 @@ export function createShellDashboard(options: ShellDashboardOptions) {
         if (target.hasAttribute('data-dashboard-refresh')) { void refresh(true); return; }
         if (target.hasAttribute('data-dashboard-report')) { void downloadReport(Number(target.dataset.dashboardReport) || 0, target as HTMLButtonElement); return; }
         const section = target.dataset.dashboardGo as ShellSection | undefined;
-        if (section) options.onNavigate(section);
+        if (section) options.onNavigate(section, target.dataset.dashboardFocus || undefined);
     });
 
     async function settle<T>(label: string, task: () => Promise<T>): Promise<Loadable<T>> {

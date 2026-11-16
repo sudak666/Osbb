@@ -159,7 +159,13 @@
     panel.addEventListener('click', (e) => e.stopPropagation());
     document.addEventListener('click', closePanel);
     window.addEventListener('resize', closePanel);
-    window.addEventListener('scroll', closePanel, true);
+    // Закриваємо при прокрутці сторінки (панель position:fixed відірвалась би від кнопки),
+    // але не коли прокручують сам список — інакше колесо миші в списку місяців/років
+    // одразу закривало панель.
+    window.addEventListener('scroll', (event) => {
+      if (event.target instanceof Node && panel.contains(event.target)) return;
+      closePanel();
+    }, true);
 
     select._syncCustomLabel = syncLabel;
     renderOptions();

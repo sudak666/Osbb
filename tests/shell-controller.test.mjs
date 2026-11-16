@@ -137,6 +137,23 @@ test('ShellController sends later sections of a loaded module through postMessag
   assert.equal(doc.getElementById('nav-tabel').getAttribute('aria-current'), 'page');
 });
 
+test('ShellController passes an allowed focus target to the module and drops unknown ones', () => {
+  globalThis.sessionStorage = memoryStorage();
+  const { controller, doc } = makeController();
+  const frame = doc.getElementById('frame-journal');
+  const messages = [];
+  frame.contentWindow = { postMessage(message) { messages.push(message); } };
+  controller.bind();
+
+  controller.showSection('completed-work', 'elevator');
+  assert.equal(frame.src, 'osbb/index.html?embed=1&section=completed-work&focus=elevator');
+  frame.listeners.get('load')();
+  controller.showSection('completed-work', 'elevator');
+  assert.deepEqual(messages.at(-1), { type: 'osbb:navigate', section: 'completed-work', focus: 'elevator' });
+  controller.showSection('completed-work', '<script>');
+  assert.deepEqual(messages.at(-1), { type: 'osbb:navigate', section: 'completed-work' });
+});
+
 test('ShellController switchTab reopens the last section of a module and home hides frames', () => {
   globalThis.sessionStorage = memoryStorage();
   const { controller, doc } = makeController();

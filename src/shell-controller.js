@@ -5,6 +5,7 @@ import {
   DEFAULT_SECTION,
   defaultSectionFor,
   isMobilePrimarySection,
+  isSectionFocus,
   isShellSection,
   sectionForModulePage,
   sectionModule
@@ -125,19 +126,23 @@ function createShellController(deps) {
     } catch {
     }
   }
-  function loadTab(name, section = lastModuleSection[name]) {
+  function loadTab(name, section = lastModuleSection[name], focus) {
     const frame = frameFor(name);
     if (!frame) return;
     if (!store.isTabLoaded(name)) {
-      frame.src = section === defaultSectionFor(name) ? TAB_SRC[name] : `${TAB_SRC[name]}&section=${encodeURIComponent(section)}`;
+      const params = [
+        section === defaultSectionFor(name) && !focus ? "" : `&section=${encodeURIComponent(section)}`,
+        focus ? `&focus=${encodeURIComponent(focus)}` : ""
+      ].join("");
+      frame.src = `${TAB_SRC[name]}${params}`;
       store.markTabLoaded(name);
       return;
     }
     if (!frameReady[name]) {
-      pendingSection[name] = section;
+      pendingSection[name] = { section, focus };
       return;
     }
-    frame.contentWindow?.postMessage({ type: "osbb:navigate", section }, win.location.origin);
+    frame.contentWindow?.postMessage(focus ? { type: "osbb:navigate", section, focus } : { type: "osbb:navigate", section }, win.location.origin);
   }
   function lockShellNow() {
     if (!securityEnabled("osbb_pin_enabled")) return;
@@ -199,7 +204,7 @@ function createShellController(deps) {
           frameReady[module] = true;
           const pending = pendingSection[module];
           delete pendingSection[module];
-          if (pending) frame.contentWindow?.postMessage({ type: "osbb:navigate", section: pending }, win.location.origin);
+          if (pending) frame.contentWindow?.postMessage({ type: "osbb:navigate", ...pending }, win.location.origin);
         }
         if (isAuthSessionValid()) notifyFrameUnlocked(frame);
       });
@@ -257,8 +262,9 @@ function createShellController(deps) {
     const inMore = !isMobilePrimarySection(currentSection);
     doc.querySelectorAll("[data-shell-more]").forEach((button) => button.classList.toggle("active", inMore));
   }
-  function showSection(section) {
+  function showSection(section, focus) {
     if (!isShellSection(section)) return;
+    const target = isSectionFocus(section, focus) ? focus : void 0;
     const module = sectionModule(section);
     currentSection = section;
     rememberSection(section);
@@ -268,7 +274,7 @@ function createShellController(deps) {
     doc.querySelectorAll("#shell-frames iframe").forEach((f) => f.classList.remove("active"));
     if (module) {
       lastModuleSection[module] = section;
-      loadTab(module, section);
+      loadTab(module, section, target);
       frameFor(module)?.classList.add("active");
     }
     renderNavState();

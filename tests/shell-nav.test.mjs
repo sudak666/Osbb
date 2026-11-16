@@ -34,3 +34,11 @@ test('mobile bottom navigation keeps daily sections, the rest go to «Ще»', (
   assert.equal(isMobilePrimarySection('tabel'), true);
   assert.equal(isMobilePrimarySection('audit'), false);
 });
+
+test('only known in-section targets are accepted as focus', async () => {
+  const { isSectionFocus } = await import('../src/shell-nav.js');
+  assert.equal(isSectionFocus('completed-work', 'elevator'), true);
+  assert.equal(isSectionFocus('garbage', 'elevator'), false);
+  assert.equal(isSectionFocus('completed-work', '<img>'), false);
+  assert.equal(isSectionFocus('completed-work', undefined), false);
+});

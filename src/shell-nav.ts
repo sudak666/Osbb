@@ -56,6 +56,15 @@ export function isMobilePrimarySection(section: ShellSection): boolean {
     return MOBILE_PRIMARY_SECTIONS.includes(section);
 }
 
+/** Місця всередині розділу, до яких можна перейти напряму (напр. блок ліфтера у «Виконаних роботах»). */
+const SECTION_FOCUS_TARGETS: Readonly<Partial<Record<ShellSection, readonly string[]>>> = {
+    'completed-work': ['elevator'],
+};
+
+export function isSectionFocus(section: ShellSection, focus: unknown): focus is string {
+    return typeof focus === 'string' && (SECTION_FOCUS_TARGETS[section] ?? []).includes(focus);
+}
+
 export function defaultSectionFor(module: ShellTabName): ShellSection {
     return module === 'journal' ? 'garbage' : 'items';
 }
