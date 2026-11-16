@@ -623,7 +623,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .att-stat-card.role-plumber { --att-role-accent:var(--md-ref-role-plumber,#3b82f6); border-color:color-mix(in srgb,var(--att-role-accent) 30%,transparent); }
 .att-table-scroll { display:none; }
 .att-calendar-scroll { overflow-x:auto; padding:4px 0 8px; scrollbar-width:thin; }
-.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7,minmax(152px,1fr)); min-width:1112px; gap:8px; }
+.att-calendar-weekdays,.att-calendar { display:grid; grid-template-columns:repeat(7,minmax(112px,1fr)); gap:8px; }
 .att-calendar-weekdays { margin-bottom:8px; }
 .att-calendar-weekdays span { padding:0 10px; color:var(--md-sys-color-on-surface-variant,var(--text-sub)); font-size:11px; line-height:24px; font-weight:700; text-align:right; text-transform:uppercase; letter-spacing:.06em; }
 .att-calendar-day.is-adjacent-month { border-style:dashed; background:var(--md-sys-color-surface-container-low,var(--surface-soft)); color:var(--md-sys-color-on-surface-variant,var(--muted)); opacity:.58; pointer-events:none; }
@@ -994,3 +994,10 @@ html.in-shell .journal-title-copy { display:none; }
 /* Вкладені плитки — 16px, як у складі; великі панелі лишаються 28px. */
 .stat-card { border-radius:var(--app-radius-tile) !important; }
 .elevator-title-icon { border-radius:var(--app-radius-icon-tile); }
+
+/* Табель на ноутбуці (листопад 2026): після появи бічного меню shell сітка з жорсткою
+   шириною 1112px не вміщалась і неділя ховалась за краєм. Колонки тепер стискаються до 112px;
+   прокрутка вбік лишається лише для зовсім вузьких вікон. */
+.att-calendar-day > header { padding:8px; }
+.att-calendar-role { padding:8px; }
+.att-absence-action { white-space:normal; line-height:1.25; padding:4px 6px; text-wrap:balance; }
