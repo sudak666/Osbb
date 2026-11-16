@@ -1448,7 +1448,7 @@
             <div class="elevator-entry">
                 <span class="elevator-entry-day">${String(entry.day).padStart(2, '0')}</span>
                 <span class="elevator-entry-text">${escapeHtml(entry.text)}</span>
-                <button type="button" class="ticket-delete-btn md-state-layer" data-action="elevator-delete" data-elevator-id="${escapeAttr(entry.id)}" aria-label="Видалити запис"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
+                <button type="button" class="journal-icon-btn md-state-layer" data-tip="Видалити" data-action="elevator-delete" data-elevator-id="${escapeAttr(entry.id)}" aria-label="Видалити запис"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>
             </div>
         `).join('') : '<div class="staff-login-loading">Записів цього місяця ще немає</div>';
     }
