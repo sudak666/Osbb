@@ -15,7 +15,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 | `src/database.types.ts` | TypeScript-типи Supabase-сутностей і RPC, які реально викликає клієнт (підтримуються вручну). |
 | `package.json`, `tsconfig.json`, `vite.config.ts` | Мінімальна Vite + TypeScript інфраструктура для поступової міграції shell-оболонки; build збирає shell, journal і sklad як MPA entrypoints. |
 | `manifest.json`, `sw.js` | PWA manifest і єдиний service worker (scope `/Osbb/`), який обслуговує shell, журнал і склад. |
-| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `041_digest_attendance_garbage_only.sql`). |
+| `sklad/supabase/*.sql` | Актуальні SQL-міграції єдиного проєкту, пронумеровані в порядку виконання (`001_...` → `042_completed_work_security.sql`). |
 | `sklad/supabase/functions/photo-cleanup` | Supabase Edge Function, що видаляє з бакета `photos` файли, на які більше ніщо не посилається (`034`). |
 
 ## Як працює авторизація
@@ -42,7 +42,7 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 
 ## Порядок виконання SQL у Supabase
 
-Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `041_...`) — кожен наступний може залежати від попереднього:
+Для нового розгортання виконайте всі файли з `sklad/supabase/` **по порядку номерів** (`001_...` → `042_...`) — кожен наступний може залежати від попереднього:
 
 1. `001_setup_pin_auth.sql` — PIN входу та server-side lockout для складу.
 2. `002_receipts_table.sql` — таблиця `inventory_receipts`. На вже налаштованому проєкті це no-op (`if not exists`).
@@ -85,8 +85,9 @@ PWA-застосунок для ОСББ "Микитська Слобода". Р
 39. `039_add_min_quantity.sql` — мінімальний залишок товару (`inventory_items.min_quantity`) для списку закупівлі на сторінці «Статистика» складу.
 40. `040_daily_telegram_digest.sql` — щоденний підсумок у Telegram о 18:00 за Києвом (`build_daily_digest`/`send_daily_digest` + pg_cron `osbb-daily-digest`).
 41. `041_digest_attendance_garbage_only.sql` — підсумок поки що лише з табелем і сміттям (без видач, робіт і ліфтера).
+42. `042_completed_work_security.sql` — виконавець «Охорона» у журналі виконаних робіт (лише там, не в табелі).
 
-`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `041_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `photo-cleanup` (publishable-key клієнт).
+`supabase/migrations/` містить timestamp-дзеркала всіх `001_...` → `042_...` SQL-файлів у форматі Supabase CLI. `npm run test:migrations` перевіряє їхню парність. `supabase/functions/` так само дзеркалить Edge Functions зі `sklad/supabase/functions/`, а `npm run test:functions` перевіряє парність і `verify_jwt = false` для `photo-cleanup` (publishable-key клієнт).
 
 
 Перед production-використанням замініть прикладові PIN-и у Supabase Dashboard на реальні значення. Після виконання SQL перевірте PIN-вхід (обидва контури — журнал і склад), staff-вхід, табель, скидання місяця, видалення фото та складських записів.

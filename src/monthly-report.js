@@ -7,7 +7,7 @@ import {
 } from "./osbb-attendance.js";
 import { garbageBins, normalizeGarbageMonth } from "./osbb-garbage.js";
 const ROLES = ["electrician", "janitor", "plumber"];
-const ROLE_NAMES = { electrician: "Електрик", janitor: "Двірник", plumber: "Сантехнік" };
+const ROLE_NAMES = { electrician: "Електрик", janitor: "Двірник", plumber: "Сантехнік", security: "Охорона" };
 const MONTHS = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
 function monthTitle(year, month) {
   return `${MONTHS[month] ?? ""} ${year}`;

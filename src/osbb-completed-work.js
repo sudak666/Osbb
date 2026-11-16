@@ -1,5 +1,5 @@
 // Згенеровано з src/osbb-completed-work.ts (scripts/build-js-fallback.mjs). Не редагувати вручну.
-const COMPLETED_WORK_ROLES = ["electrician", "janitor", "plumber"];
+const COMPLETED_WORK_ROLES = ["electrician", "janitor", "plumber", "security"];
 function completedWorkDefaultDate(year, month, today = /* @__PURE__ */ new Date()) {
   const validToday = today instanceof Date && !Number.isNaN(today.getTime()) ? today : /* @__PURE__ */ new Date();
   const todayYear = validToday.getFullYear(), todayMonth = validToday.getMonth();

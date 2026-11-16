@@ -9,6 +9,8 @@ import { hasMinimums, isBelowMinimum } from "./sklad-purchasing.js";
 const STAFF_ROLES = ["electrician", "janitor", "plumber"];
 const ROLE_LABELS = { electrician: "Електрик", janitor: "Двірник", plumber: "Сантехнік" };
 const ROLE_ICONS = { electrician: "bolt", janitor: "cleaning_services", plumber: "plumbing" };
+const WORK_ROLE_LABELS = { ...ROLE_LABELS, security: "Охорона" };
+const WORK_ROLE_ICONS = { ...ROLE_ICONS, security: "security" };
 const MONTHS_GENITIVE = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
 const MONTHS_NOMINATIVE = ["січень", "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"];
 const WEEKDAYS = ["неділя", "понеділок", "вівторок", "середа", "четвер", "пʼятниця", "субота"];
@@ -131,8 +133,8 @@ function renderWorks(data, monthName) {
   const { monthCount, recent } = data.value;
   const head = `<p class="home-muted">За ${monthName}: <strong>${monthCount}</strong> ${monthCount === 1 ? "запис" : monthCount > 1 && monthCount < 5 ? "записи" : "записів"}</p>`;
   const list = recent.length ? `<ul class="home-list home-list--compact">${recent.map((row) => `
-        <li class="home-row"><span class="home-row-icon">${icon(ROLE_ICONS[row.worker_role] || "work")}</span>
-        <span class="home-row-main"><strong>${escapeHtml(row.description)}</strong><small>${escapeHtml(formatShortDate(row.work_date))} · ${escapeHtml(ROLE_LABELS[row.worker_role] || row.worker_role)}</small></span></li>`).join("")}</ul>` : '<p class="home-muted">Записів ще немає.</p>';
+        <li class="home-row"><span class="home-row-icon">${icon(WORK_ROLE_ICONS[row.worker_role] || "work")}</span>
+        <span class="home-row-main"><strong>${escapeHtml(row.description)}</strong><small>${escapeHtml(formatShortDate(row.work_date))} · ${escapeHtml(WORK_ROLE_LABELS[row.worker_role] || row.worker_role)}</small></span></li>`).join("")}</ul>` : '<p class="home-muted">Записів ще немає.</p>';
   return card("works", "Виконані роботи", "task_alt", head + list, go("completed-work", "Додати роботу", "add"));
 }
 function renderElevator(data, now) {
