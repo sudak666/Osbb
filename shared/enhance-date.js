@@ -142,6 +142,18 @@
         if (event.target.closest('[data-date-clear]')) { input.value = ''; input.dispatchEvent(new Event('change', { bubbles: true })); closeDatePanel(); input.focus(); return; }
         if (event.target.closest('[data-date-today]')) { input.value = iso(new Date()); input.dispatchEvent(new Event('change', { bubbles: true })); closeDatePanel(); input.focus(); }
       });
+      // Колесо миші над календарем гортає місяці (вниз — наступний), а не сторінку під ним.
+      let lastWheelAt = 0;
+      panel.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const now = Date.now();
+        if (Math.abs(event.deltaY) < 4 || now - lastWheelAt < 180) return;
+        lastWheelAt = now;
+        viewMonth += event.deltaY > 0 ? 1 : -1;
+        if (viewMonth < 0) { viewMonth = 11; viewYear -= 1; }
+        if (viewMonth > 11) { viewMonth = 0; viewYear += 1; }
+        render();
+      }, { passive: false });
       render();
     }
 
@@ -159,6 +171,12 @@
     closeDatePanel();
   });
   window.addEventListener('resize', () => openPanel && positionPanel(openPanel.input, openPanel.panel), { passive: true });
+  // Прокрутка сторінки відірвала б фіксовану панель від поля — закриваємо, як списки.
+  window.addEventListener('scroll', (event) => {
+    if (!openPanel) return;
+    if (event.target instanceof Node && openPanel.panel.contains(event.target)) return;
+    closeDatePanel();
+  }, true);
   window.enhanceDateInput = enhanceDateInput;
   window.refreshEnhancedDateInput = function refreshEnhancedDateInput(input) { if (input) input.value = input.value; };
 }());

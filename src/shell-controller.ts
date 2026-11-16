@@ -2,7 +2,7 @@ import { clearAuthSession, isAuthSessionValid, setAuthSession } from './auth-ses
 import { IDLE_LOCK_MS, isShellTabName, ShellStore, type ShellTabName, TAB_SRC } from './shell-state.ts';
 import type { PublicFunctionReturns } from './database.types.ts';
 import {
-    DEFAULT_SECTION, defaultSectionFor, isMobilePrimarySection, isShellSection, sectionForModulePage,
+    DEFAULT_SECTION, defaultSectionFor, isMobilePrimarySection, isSectionFocus, isShellSection, sectionForModulePage,
     sectionModule, type ShellSection,
 } from './shell-nav.ts';
 
@@ -30,7 +30,7 @@ export interface ShellController {
     lockPress(digit: string | undefined): Promise<void>;
     lockDel(): void;
     switchTab(name: ShellTabName): void;
-    showSection(section: ShellSection): void;
+    showSection(section: ShellSection, focus?: string): void;
     getSection(): ShellSection;
 }
 
@@ -45,7 +45,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     let currentSection: ShellSection = DEFAULT_SECTION;
     const lastModuleSection: Record<ShellTabName, ShellSection> = { journal: defaultSectionFor('journal'), sklad: defaultSectionFor('sklad') };
     const frameReady: Partial<Record<ShellTabName, boolean>> = {};
-    const pendingSection: Partial<Record<ShellTabName, ShellSection>> = {};
+    const pendingSection: Partial<Record<ShellTabName, { section: ShellSection; focus?: string }>> = {};
     const securityEnabled = (key: string): boolean => win.localStorage?.getItem(key) !== '0';
 
     function requireElement<T extends HTMLElement>(id: string): T {
@@ -156,16 +156,20 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     }
 
     /** Перше відкриття вантажить iframe одразу з потрібним розділом; далі — postMessage. */
-    function loadTab(name: ShellTabName, section: ShellSection = lastModuleSection[name]): void {
+    function loadTab(name: ShellTabName, section: ShellSection = lastModuleSection[name], focus?: string): void {
         const frame = frameFor(name);
         if (!frame) return;
         if (!store.isTabLoaded(name)) {
-            frame.src = section === defaultSectionFor(name) ? TAB_SRC[name] : `${TAB_SRC[name]}&section=${encodeURIComponent(section)}`;
+            const params = [
+                section === defaultSectionFor(name) && !focus ? '' : `&section=${encodeURIComponent(section)}`,
+                focus ? `&focus=${encodeURIComponent(focus)}` : '',
+            ].join('');
+            frame.src = `${TAB_SRC[name]}${params}`;
             store.markTabLoaded(name);
             return;
         }
-        if (!frameReady[name]) { pendingSection[name] = section; return; }
-        frame.contentWindow?.postMessage({ type: 'osbb:navigate', section }, win.location.origin);
+        if (!frameReady[name]) { pendingSection[name] = { section, focus }; return; }
+        frame.contentWindow?.postMessage(focus ? { type: 'osbb:navigate', section, focus } : { type: 'osbb:navigate', section }, win.location.origin);
     }
 
     function lockShellNow(): void {
@@ -235,7 +239,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
                     frameReady[module] = true;
                     const pending = pendingSection[module];
                     delete pendingSection[module];
-                    if (pending) frame.contentWindow?.postMessage({ type: 'osbb:navigate', section: pending }, win.location.origin);
+                    if (pending) frame.contentWindow?.postMessage({ type: 'osbb:navigate', ...pending }, win.location.origin);
                 }
                 if (isAuthSessionValid()) notifyFrameUnlocked(frame);
             });
@@ -296,8 +300,9 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         doc.querySelectorAll<HTMLElement>('[data-shell-more]').forEach((button) => button.classList.toggle('active', inMore));
     }
 
-    function showSection(section: ShellSection): void {
+    function showSection(section: ShellSection, focus?: string): void {
         if (!isShellSection(section)) return;
+        const target = isSectionFocus(section, focus) ? focus : undefined;
         const module = sectionModule(section);
         currentSection = section;
         rememberSection(section);
@@ -307,7 +312,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         doc.querySelectorAll('#shell-frames iframe').forEach(f => f.classList.remove('active'));
         if (module) {
             lastModuleSection[module] = section;
-            loadTab(module, section);
+            loadTab(module, section, target);
             frameFor(module)?.classList.add('active');
         }
         renderNavState();

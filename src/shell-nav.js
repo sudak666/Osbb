@@ -31,6 +31,12 @@ function sectionForModulePage(module, page) {
 function isMobilePrimarySection(section) {
   return MOBILE_PRIMARY_SECTIONS.includes(section);
 }
+const SECTION_FOCUS_TARGETS = {
+  "completed-work": ["elevator"]
+};
+function isSectionFocus(section, focus) {
+  return typeof focus === "string" && (SECTION_FOCUS_TARGETS[section] ?? []).includes(focus);
+}
 function defaultSectionFor(module) {
   return module === "journal" ? "garbage" : "items";
 }
@@ -40,6 +46,7 @@ export {
   SHELL_SECTIONS,
   defaultSectionFor,
   isMobilePrimarySection,
+  isSectionFocus,
   isShellSection,
   sectionForModulePage,
   sectionModule

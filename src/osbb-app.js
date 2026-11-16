@@ -54,6 +54,29 @@
         if (!IS_EMBEDDED_SHELL) return;
         window.parent.postMessage({ type: 'osbb:section-changed', section: tab }, window.location.origin);
     }
+    // Перехід одразу до місця всередині розділу (з «Головної»: «Журнал ліфтера»).
+    const URL_FOCUS = new URLSearchParams(window.location.search).get('focus');
+    const JOURNAL_FOCUS_TARGETS = { elevator: { tab: 'completed-work', selector: '#elevator-panel' } };
+    function focusJournalTarget(focus) {
+        const target = JOURNAL_FOCUS_TARGETS[focus];
+        if (!target || currentTab !== target.tab) return;
+        const element = document.querySelector(target.selector);
+        if (!element) return;
+        const smooth = !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        requestAnimationFrame(() => element.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' }));
+        // Список робіт над ліфтером довантажується з мережі й зсуває блок вниз —
+        // до 4 с доводимо прокрутку, доки користувач сам не почне гортати.
+        let userScrolled = false;
+        const markUserScroll = () => { userScrolled = true; };
+        const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'];
+        events.forEach(name => window.addEventListener(name, markUserScroll, { once: true, passive: true }));
+        const startedAt = Date.now();
+        const timer = setInterval(() => {
+            const done = userScrolled || Date.now() - startedAt > 4000;
+            if (!done && Math.abs(element.getBoundingClientRect().top) > 24) element.scrollIntoView({ behavior: 'auto', block: 'start' });
+            if (done) { clearInterval(timer); events.forEach(name => window.removeEventListener(name, markUserScroll)); }
+        }, 400);
+    }
     function renderEmbeddedSectionTitle(tab) {
         if (!IS_EMBEDDED_SHELL) return;
         const [icon, label] = JOURNAL_SECTION_TITLES[tab] || ['assignment', 'Журнал'];
@@ -1601,12 +1624,14 @@
     bindDayDetailSwipe();
     setTab(currentTab, { load: false });
     if (URL_SECTION === 'shifts') requestTab('shifts');
+    if (URL_FOCUS) setTimeout(() => focusJournalTarget(URL_FOCUS), 300);
     window.addEventListener('message', event => {
         if (event.origin !== window.location.origin || event.source !== window.parent) return;
         if (event.data?.type !== 'osbb:navigate' || !ALL_TABS.includes(event.data.section)) return;
         requestTab(event.data.section);
         // «Зміни» спершу питають PIN: повертаємо shell фактичний розділ, щоб меню не підсвічувало чужий.
         notifyShellSection(currentTab);
+        if (event.data.focus) setTimeout(() => focusJournalTarget(event.data.focus), 150);
     });
     initCalendar();
     initRealtime();

@@ -18,7 +18,7 @@ if (homeContainer) {
   dashboard = createShellDashboard({
     container: homeContainer,
     client: createSupabaseRestClient(),
-    onNavigate: (section) => shellController.showSection(section)
+    onNavigate: (section, focus) => shellController.showSection(section, focus)
   });
 }
 const applyShellTheme = (value) => {

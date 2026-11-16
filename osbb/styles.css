@@ -1001,3 +1001,4 @@ html.in-shell .journal-title-copy { display:none; }
 .att-calendar-day > header { padding:8px; }
 .att-calendar-role { padding:8px; }
 .att-absence-action { white-space:normal; line-height:1.25; padding:4px 6px; text-wrap:balance; }
+#elevator-panel { scroll-margin-top:16px; }

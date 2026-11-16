@@ -89,7 +89,7 @@ function daysAgo(date, now) {
   return `${diff} дн. тому`;
 }
 const icon = (name, extra = "") => `<span class="material-symbols-rounded${extra ? ` ${extra}` : ""}" aria-hidden="true">${name}</span>`;
-const go = (section, label, iconName, tone = "tonal") => `<button type="button" class="home-btn home-btn--${tone} md-state-layer" data-dashboard-go="${section}">${icon(iconName)}<span>${escapeHtml(label)}</span></button>`;
+const go = (section, label, iconName, tone = "tonal", focus = "") => `<button type="button" class="home-btn home-btn--${tone} md-state-layer" data-dashboard-go="${section}"${focus ? ` data-dashboard-focus="${focus}"` : ""}>${icon(iconName)}<span>${escapeHtml(label)}</span></button>`;
 const skeleton = '<div class="home-skel" aria-hidden="true"><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>';
 const failed = '<p class="home-error">' + icon("cloud_off") + "Не вдалося завантажити. Перевірте мережу й оновіть.</p>";
 function card(id, title, iconName, body, footer = "") {
@@ -139,7 +139,7 @@ function renderElevator(data, now) {
   if (data.state !== "ok") return card("elevator", "Ліфтер", "elevator", data.state === "loading" ? skeleton : failed);
   const visit = data.value;
   const body = visit ? `<p class="home-status">${icon("history")}<span>Останній приїзд: <strong>${escapeHtml(formatShortDate(visit.date))}</strong> (${daysAgo(visit.date, now)})</span></p>${visit.text ? `<p class="home-muted">${escapeHtml(visit.text)}</p>` : ""}` : '<p class="home-muted">За цей і минулий місяць приїздів не записано.</p>';
-  return card("elevator", "Ліфтер", "elevator", body, go("completed-work", "Журнал ліфтера", "chevron_right", "text"));
+  return card("elevator", "Ліфтер", "elevator", body, go("completed-work", "Журнал ліфтера", "chevron_right", "text", "elevator"));
 }
 function renderDashboard(data, now) {
   const monthName = MONTHS_NOMINATIVE[now.getMonth()] ?? "";
@@ -183,7 +183,7 @@ function createShellDashboard(options) {
       return;
     }
     const section = target.dataset.dashboardGo;
-    if (section) options.onNavigate(section);
+    if (section) options.onNavigate(section, target.dataset.dashboardFocus || void 0);
   });
   async function settle(label, task) {
     try {
