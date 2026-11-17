@@ -147,6 +147,7 @@ function createShellController(deps) {
   function lockShellNow() {
     if (!securityEnabled("osbb_pin_enabled")) return;
     mainPinCache = null;
+    deps.onLock?.();
     clearAuthSession();
     store.resetLock();
     lockUpdateDots();

@@ -20,6 +20,8 @@ export interface ShellControllerDeps {
     clearTimeout?: Window['clearTimeout'];
     /** Викликається щоразу, коли shell показує розділ (напр., оновити «Головну»). */
     onSectionShown?: (section: ShellSection) => void;
+    /** Викликається при блокуванні — закрити все, що показує дані поверх shell. */
+    onLock?: () => void;
 }
 
 export interface ShellController {
@@ -175,6 +177,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
     function lockShellNow(): void {
         if (!securityEnabled('osbb_pin_enabled')) return;
         mainPinCache = null;
+        deps.onLock?.();
         clearAuthSession();
         store.resetLock();
         lockUpdateDots();

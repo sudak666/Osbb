@@ -1,19 +1,25 @@
 import { isAuthSessionValid } from './auth-session.ts';
 import { createShellController } from './shell-controller.ts';
 import { createShellDashboard } from './shell-dashboard.ts';
+import { createShellReport } from './shell-report.ts';
 import { createSupabaseRestClient, rpc } from './supabase-api.ts';
 
 let dashboard: ReturnType<typeof createShellDashboard> | null = null;
+const restClient = createSupabaseRestClient();
+const reportRoot = document.getElementById('shell-report');
+const report = reportRoot ? createShellReport({ root: reportRoot, client: restClient, window }) : null;
 const shellController = createShellController({
     document, window, navigator, rpc,
     onSectionShown: (section) => { if (section === 'home') void dashboard?.refresh(); },
+    onLock: () => report?.close(),
 });
 const homeContainer = document.getElementById('shell-home');
 if (homeContainer) {
     dashboard = createShellDashboard({
         container: homeContainer,
-        client: createSupabaseRestClient(),
+        client: restClient,
         onNavigate: (section, focus) => shellController.showSection(section, focus),
+        onOpenReport: () => report?.open(),
     });
 }
 

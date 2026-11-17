@@ -208,7 +208,8 @@ export function renderDashboard(data: DashboardData, now: Date): string {
         <header class="home-head">
             <div><p class="home-date">${escapeHtml(formatLongDate(now))}</p><h1>Сьогодні</h1></div>
             <div class="home-head-actions">
-                <button type="button" class="home-btn home-btn--tonal md-state-layer" data-dashboard-report="0">${icon('summarize')}<span>Звіт за ${escapeHtml(MONTHS_NOMINATIVE[now.getMonth()] ?? '')}</span></button>
+                <button type="button" class="home-btn home-btn--filled md-state-layer" data-dashboard-management-report>${icon('article')}<span>Звіт для керівництва</span></button>
+                <button type="button" class="home-btn home-btn--tonal md-state-layer" data-dashboard-report="0">${icon('summarize')}<span>Excel за ${escapeHtml(MONTHS_NOMINATIVE[now.getMonth()] ?? '')}</span></button>
                 <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-report="-1">за ${escapeHtml(MONTHS_NOMINATIVE[(now.getMonth() + 11) % 12] ?? '')}</button>
                 <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-refresh aria-label="Оновити дані">${icon('refresh')}<span>Оновити</span></button>
             </div>
@@ -231,6 +232,7 @@ export interface ShellDashboardOptions {
     client: Pick<SupabaseRestClient, 'from'>;
     now?: () => Date;
     onNavigate: (section: ShellSection, focus?: string) => void;
+    onOpenReport?: () => void;
     warn?: (...args: unknown[]) => void;
 }
 
@@ -246,8 +248,9 @@ export function createShellDashboard(options: ShellDashboardOptions) {
     let loading: Promise<void> | null = null;
 
     container.addEventListener('click', (event) => {
-        const target = (event.target as Element | null)?.closest<HTMLElement>('[data-dashboard-go],[data-dashboard-refresh],[data-dashboard-report]');
+        const target = (event.target as Element | null)?.closest<HTMLElement>('[data-dashboard-go],[data-dashboard-refresh],[data-dashboard-report],[data-dashboard-management-report]');
         if (!target) return;
+        if (target.hasAttribute('data-dashboard-management-report')) { options.onOpenReport?.(); return; }
         if (target.hasAttribute('data-dashboard-refresh')) { void refresh(true); return; }
         if (target.hasAttribute('data-dashboard-report')) { void downloadReport(Number(target.dataset.dashboardReport) || 0, target as HTMLButtonElement); return; }
         const section = target.dataset.dashboardGo as ShellSection | undefined;

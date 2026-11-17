@@ -253,3 +253,119 @@
 }
 .home-absence { display: inline-flex; align-items: center; gap: 4px; color: var(--md-sys-color-tertiary, #8a5a00); }
 .home-absence .material-symbols-rounded { font-size: 14px; }
+.home-btn--filled { background: var(--md-sys-color-primary, #1f7a3d); color: var(--md-sys-color-on-primary, #fff); }
+
+/* ===== Звіт для керівництва (листопад 2026) =====
+   Перегляд поверх shell; сама сторінка — «папір» А4, завжди світлий, як надрукований документ.
+   PDF робить браузер: друк → «Зберегти як PDF». */
+.shell-report { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; background: var(--md-sys-color-surface-container, #eef2f6); color: var(--md-sys-color-on-surface, #1c1b1f); }
+.shell-report[hidden] { display: none; }
+.rpt-toolbar { display: flex; flex-direction: column; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); background: var(--md-sys-color-surface-container-low, #f6f8f5); border-bottom: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, .12)); }
+.rpt-toolbar-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 1040px; width: 100%; margin: 0 auto; }
+.rpt-toolbar-title { flex: 1; margin: 0; font-size: 18px; font-weight: 500; }
+.rpt-toolbar-controls { justify-content: space-between; }
+.rpt-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: var(--app-icon-button-size); height: var(--app-icon-button-size); padding: 0; border: 0; border-radius: var(--md-sys-shape-corner-full, 999px); background: transparent; color: var(--md-sys-color-on-surface-variant, #44474e); cursor: pointer; }
+.rpt-icon-btn:disabled { opacity: .38; cursor: default; }
+.rpt-icon-btn .material-symbols-rounded { font-size: var(--app-icon-button-glyph-size); }
+.rpt-primary { display: inline-flex; align-items: center; gap: 8px; min-height: var(--app-control-height); padding: 0 20px; border: 0; border-radius: var(--md-sys-shape-corner-full, 999px); background: var(--md-sys-color-primary, #1f7a3d); color: var(--md-sys-color-on-primary, #fff); font: inherit; font-size: var(--app-button-font-size); font-weight: var(--app-button-font-weight); cursor: pointer; }
+.rpt-primary .material-symbols-rounded { font-size: var(--app-button-icon-size); }
+.rpt-seg { display: inline-flex; border: 1px solid var(--md-sys-color-outline, rgba(60, 60, 67, .35)); border-radius: var(--md-sys-shape-corner-full, 999px); overflow: hidden; }
+.rpt-seg-btn { min-height: var(--app-control-height); padding: 0 18px; border: 0; border-left: 1px solid var(--md-sys-color-outline, rgba(60, 60, 67, .35)); background: transparent; color: var(--md-sys-color-on-surface, #1c1b1f); font: inherit; font-size: var(--app-button-font-size); font-weight: var(--app-button-font-weight); cursor: pointer; }
+.rpt-seg-btn:first-child { border-left: 0; }
+.rpt-seg-btn[aria-pressed="true"] { background: var(--md-sys-color-secondary-container, #dbeafe); color: var(--md-sys-color-on-secondary-container, #1e3a8a); }
+.rpt-nav { display: inline-flex; align-items: center; gap: 4px; }
+.rpt-nav-label { min-width: 190px; text-align: center; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.rpt-chips { display: flex; flex-wrap: wrap; gap: 8px; max-width: 1040px; width: 100%; margin: 0 auto; }
+.rpt-chip { position: relative; display: inline-flex; cursor: pointer; border-radius: var(--md-sys-shape-corner-small, 8px); }
+.rpt-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.rpt-chip > span { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 1px solid var(--md-sys-color-outline, rgba(60, 60, 67, .35)); border-radius: var(--md-sys-shape-corner-small, 8px); font-size: 14px; font-weight: 500; }
+.rpt-chip > span .material-symbols-rounded { display: none; font-size: 18px; }
+.rpt-chip input:checked + span { background: var(--md-sys-color-secondary-container, #dbeafe); color: var(--md-sys-color-on-secondary-container, #1e3a8a); border-color: transparent; }
+.rpt-chip input:checked + span .material-symbols-rounded { display: inline-flex; }
+.rpt-chip input:focus-visible + span { outline: 2px solid var(--md-sys-color-primary, #34c759); outline-offset: 2px; }
+.rpt-stage { flex: 1; overflow-y: auto; padding: 24px max(16px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+
+/* Сам документ: фіксована світла палітра, бо це «папір». */
+.rpt-page {
+    --rpt-ink: #18201a; --rpt-muted: #56635a; --rpt-accent: #1f7a3d; --rpt-accent-soft: #e3f2e7; --rpt-line: #dfe6df; --rpt-paper: #ffffff;
+    box-sizing: border-box; width: 100%; max-width: 794px; margin: 0 auto; padding: 44px 48px; background: var(--rpt-paper); color: var(--rpt-ink);
+    border-radius: var(--app-radius-tile); box-shadow: var(--md-sys-elevation-level2, 0 2px 8px rgba(0, 0, 0, .14));
+    font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 13.5px; line-height: 1.5;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.rpt-head { display: flex; flex-direction: column; gap: 4px; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 3px solid var(--rpt-accent); }
+.rpt-brand { display: flex; align-items: center; gap: 8px; color: var(--rpt-accent); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.rpt-brand-mark { width: 10px; height: 10px; border-radius: var(--md-sys-shape-corner-full, 999px); background: var(--rpt-accent); }
+.rpt-head h1 { margin: 6px 0 0; font-size: 28px; font-weight: 700; line-height: 1.15; color: var(--rpt-ink); }
+.rpt-period { margin: 0; color: var(--rpt-muted); font-size: 15px; }
+.rpt-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 22px; }
+.rpt-kpi { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: var(--md-sys-shape-corner-medium, 12px); background: var(--rpt-accent-soft); break-inside: avoid; }
+.rpt-kpi strong { font-size: 24px; font-weight: 700; line-height: 1.15; color: var(--rpt-accent); font-variant-numeric: tabular-nums; }
+.rpt-kpi span { color: var(--rpt-muted); font-size: 12px; }
+.rpt-section { margin-top: 20px; break-inside: avoid-page; }
+.rpt-section h2 { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rpt-line); font-size: 16px; font-weight: 700; color: var(--rpt-ink); }
+.rpt-lead { margin: 0 0 10px; color: var(--rpt-ink); }
+.rpt-lead strong { color: var(--rpt-accent); }
+.rpt-note { margin: 6px 0 0; color: var(--rpt-muted); font-size: 11.5px; }
+.rpt-error { color: #b3261e; }
+.rpt-table-wrap { overflow-x: auto; }
+.rpt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rpt-table th, .rpt-table td { padding: 7px 8px; border-bottom: 1px solid var(--rpt-line); text-align: left; vertical-align: top; }
+.rpt-table thead th { color: var(--rpt-muted); font-size: 11.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+.rpt-table tbody th { font-weight: 500; }
+.rpt-table tr { break-inside: avoid; }
+.rpt-num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rpt-date { white-space: nowrap; color: var(--rpt-muted); width: 1%; }
+.rpt-sub { color: var(--rpt-muted); font-size: 12px; }
+.rpt-total th, .rpt-total td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--rpt-ink); }
+.rpt-bars { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 3px; align-items: end; height: 130px; padding-top: 16px; border-bottom: 1px solid var(--rpt-line); }
+.rpt-bar { position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; min-width: 0; }
+.rpt-bar-fill { width: 70%; max-width: 28px; min-height: 0; border-radius: var(--md-sys-shape-corner-extra-small, 4px) var(--md-sys-shape-corner-extra-small, 4px) 0 0; background: var(--rpt-accent); }
+.rpt-bar-value { font-size: 11px; color: var(--rpt-muted); line-height: 1.2; }
+.rpt-bar-label { position: absolute; top: 100%; margin-top: 3px; font-size: 11px; color: var(--rpt-muted); white-space: nowrap; }
+.rpt-bar.is-empty .rpt-bar-label { opacity: .55; }
+.rpt-bars--week { height: 150px; }
+.rpt-bars + * { margin-top: 26px; }
+.rpt-section:has(.rpt-bars) { padding-bottom: 18px; }
+.rpt-foot { margin-top: 28px; padding-top: 10px; border-top: 1px solid var(--rpt-line); color: var(--rpt-muted); font-size: 11px; }
+.rpt-page--loading { display: flex; flex-direction: column; gap: 16px; }
+
+@media (max-width: 640px) {
+    .rpt-toolbar-title { font-size: 16px; }
+    .rpt-primary span:not(.material-symbols-rounded) { display: none; }
+    .rpt-table { font-size: 12px; }
+    .rpt-table th, .rpt-table td { padding: 6px 4px; }
+    .rpt-table thead th { letter-spacing: 0; white-space: normal; }
+    .rpt-primary { width: var(--app-icon-button-size); padding: 0; justify-content: center; }
+    .rpt-nav { width: 100%; justify-content: space-between; }
+    .rpt-nav-label { min-width: 0; }
+    .rpt-seg { width: 100%; }
+    .rpt-seg-btn { flex: 1; padding: 0 8px; }
+    .rpt-stage { padding: 12px 8px 24px; }
+    .rpt-page { padding: 24px 18px; }
+    .rpt-head h1 { font-size: 22px; }
+    .rpt-bars--month .rpt-bar-value { visibility: hidden; }
+    .rpt-bars--month .rpt-bar:not(:nth-child(5n+1)) .rpt-bar-label { visibility: hidden; }
+}
+
+/* Друк / «Зберегти як PDF»: лише сторінка звіту, без меню й панелей. */
+@media print {
+    @page { size: A4; margin: 14mm 12mm; }
+    html.is-report-open, html.is-report-open body { height: auto !important; overflow: visible !important; background: #fff !important; }
+    html.is-report-open body > *:not(#shell-report) { display: none !important; }
+    html.is-report-open .shell-report { position: static; display: block; background: #fff; }
+    html.is-report-open .rpt-toolbar { display: none !important; }
+    html.is-report-open .rpt-stage { overflow: visible; padding: 0; }
+    html.is-report-open .rpt-page { max-width: none; padding: 0; border-radius: 0; box-shadow: none; }
+}
+
+/* Нижнє меню на телефоні: натискання підсвічує лише заокруглену пігулку іконки, а не
+   прямокутник на весь пункт з гострими кутами (Android). Той самий прийом, що в журналі (#656). */
+.shell-bottom-item { -webkit-tap-highlight-color: transparent; outline: none; }
+.shell-bottom-item.md-state-layer::before { display: none; }
+.shell-bottom-item:not(.active):active .shell-nav-icon { background: color-mix(in srgb, currentColor 12%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+    .shell-bottom-item:not(.active):hover .shell-nav-icon { background: color-mix(in srgb, currentColor 8%, transparent); }
+}
+.shell-bottom-item:focus-visible .shell-nav-icon { outline: 2px solid var(--md-sys-color-primary, #34c759); outline-offset: 2px; }
+.shell-more-item, .shell-nav-item { -webkit-tap-highlight-color: transparent; }

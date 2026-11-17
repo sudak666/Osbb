@@ -2,8 +2,12 @@
 import { isAuthSessionValid } from "./auth-session.js";
 import { createShellController } from "./shell-controller.js";
 import { createShellDashboard } from "./shell-dashboard.js";
+import { createShellReport } from "./shell-report.js";
 import { createSupabaseRestClient, rpc } from "./supabase-api.js";
 let dashboard = null;
+const restClient = createSupabaseRestClient();
+const reportRoot = document.getElementById("shell-report");
+const report = reportRoot ? createShellReport({ root: reportRoot, client: restClient, window }) : null;
 const shellController = createShellController({
   document,
   window,
@@ -11,14 +15,16 @@ const shellController = createShellController({
   rpc,
   onSectionShown: (section) => {
     if (section === "home") void dashboard?.refresh();
-  }
+  },
+  onLock: () => report?.close()
 });
 const homeContainer = document.getElementById("shell-home");
 if (homeContainer) {
   dashboard = createShellDashboard({
     container: homeContainer,
-    client: createSupabaseRestClient(),
-    onNavigate: (section, focus) => shellController.showSection(section, focus)
+    client: restClient,
+    onNavigate: (section, focus) => shellController.showSection(section, focus),
+    onOpenReport: () => report?.open()
   });
 }
 const applyShellTheme = (value) => {
