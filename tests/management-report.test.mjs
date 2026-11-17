@@ -59,3 +59,14 @@ test('rendered report escapes text and respects section toggles', () => {
   assert.match(day, /12:00–14:00/);
   assert.match(day, /Вивезено о 05:55, баків: 11/);
 });
+
+test('long report images are cut at section/row boundaries, never mid-text when possible', async () => {
+  const { chooseImageSlices } = await import('../src/management-report.js');
+  assert.deepEqual(chooseImageSlices(900, [100, 400], 1270), [[0, 900]]);
+  assert.deepEqual(chooseImageSlices(3000, [300, 700, 1200, 1300, 2000, 2400], 1270), [[0, 1200], [1200, 2000], [2000, 3000]]);
+  // Трохи задовгий звіт ділиться навпіл, а не на сторінку й «хвостик» з підвалом.
+  assert.deepEqual(chooseImageSlices(1373, [200, 500, 650, 720, 1100, 1300], 1270), [[0, 720], [720, 1373]]);
+  // Немає зручної межі — рівні частини.
+  assert.deepEqual(chooseImageSlices(2600, [50], 1270), [[0, 867], [867, 1733], [1733, 2600]]);
+  for (const [from, to] of chooseImageSlices(5000, [1000, 2500, 4000], 1270)) assert.ok(to - from <= 1270);
+});

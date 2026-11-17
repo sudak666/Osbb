@@ -286,3 +286,30 @@ export function managementReportFileName(period: ReportPeriod): string {
     const kind = { day: 'день', week: 'тиждень', month: 'місяць' }[period.kind];
     return `Звіт ОСББ — ${kind} — ${isoDay(period.from)}`;
 }
+
+/**
+ * Де розрізати високу картинку звіту на сторінки для Telegram (той стискає фото довші
+ * за ~2560 px). Ділимо на рівні частини й ріжемо по найближчій межі розділу чи рядка
+ * таблиці, щоб не розітнути текст і не лишити «хвостик» з одним підвалом.
+ * Повертає пари [від, до] у тих самих одиницях, що й вхідні висоти.
+ */
+export function chooseImageSlices(totalHeight: number, breakpoints: readonly number[], maxHeight: number): [number, number][] {
+    const count = Math.ceil(totalHeight / maxHeight);
+    if (count <= 1) return [[0, totalHeight]];
+    const sorted = [...new Set(breakpoints.filter((y) => y > 0 && y < totalHeight))].sort((a, b) => a - b);
+    const target = totalHeight / count;
+    const slices: [number, number][] = [];
+    let start = 0;
+    for (let i = 1; totalHeight - start > maxHeight || i < count; i += 1) {
+        const ideal = Math.min(i * target, start + maxHeight);
+        const candidates = sorted.filter((y) => y > start + maxHeight / 2 && y <= start + maxHeight);
+        const end = candidates.length
+            ? candidates.reduce((best, y) => (Math.abs(y - ideal) < Math.abs(best - ideal) ? y : best))
+            : Math.round(ideal);
+        slices.push([start, end]);
+        start = end;
+        if (totalHeight - start <= 0) break;
+    }
+    slices.push([start, totalHeight]);
+    return slices;
+}
