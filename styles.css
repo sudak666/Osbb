@@ -271,6 +271,21 @@
 .rpt-icon-btn .material-symbols-rounded { font-size: var(--app-icon-button-glyph-size); }
 .rpt-primary { display: inline-flex; align-items: center; gap: 8px; min-height: var(--app-control-height); padding: 0 20px; border: 0; border-radius: var(--md-sys-shape-corner-full, 999px); background: var(--md-sys-color-primary, #1f7a3d); color: var(--md-sys-color-on-primary, #fff); font: inherit; font-size: var(--app-button-font-size); font-weight: var(--app-button-font-weight); cursor: pointer; }
 .rpt-primary .material-symbols-rounded { font-size: var(--app-button-icon-size); }
+.rpt-primary--tonal { background: var(--md-sys-color-secondary-container, #dbeafe); color: var(--md-sys-color-on-secondary-container, #1e3a8a); }
+.rpt-primary:disabled { opacity: .6; cursor: progress; }
+.rpt-label-short { display: none; }
+.rpt-status { max-width: 1040px; width: 100%; margin: 0 auto; color: var(--md-sys-color-primary, #1f7a3d); font-size: 14px; font-weight: 500; }
+.rpt-status:empty { display: none; }
+.rpt-status.is-error { color: var(--md-sys-color-error, #b3261e); }
+/* Знімок звіту для Telegram малюється поза екраном у ширині А4 — і з телефона теж. */
+.rpt-capture-host { position: fixed; left: -10000px; top: 0; width: 794px; pointer-events: none; }
+.rpt-capture-host .rpt-page { width: 794px; max-width: none; padding: 44px 48px; border-radius: 0; box-shadow: none; font-family: 'Segoe UI', Roboto, Arial, 'Helvetica Neue', sans-serif; }
+/* Картинка не прокручується — таблиці показуємо повністю, без смуг прокрутки. */
+.rpt-capture-host .rpt-table-wrap { overflow: visible; }
+.rpt-capture-host .rpt-head h1 { font-size: 28px; }
+.rpt-capture-host .rpt-table { font-size: 13px; }
+.rpt-capture-host .rpt-table th, .rpt-capture-host .rpt-table td { padding: 7px 8px; }
+.rpt-capture-host .rpt-bar-label, .rpt-capture-host .rpt-bar-value { visibility: visible !important; }
 .rpt-seg { display: inline-flex; border: 1px solid var(--md-sys-color-outline, rgba(60, 60, 67, .35)); border-radius: var(--md-sys-shape-corner-full, 999px); overflow: hidden; }
 .rpt-seg-btn { min-height: var(--app-control-height); padding: 0 18px; border: 0; border-left: 1px solid var(--md-sys-color-outline, rgba(60, 60, 67, .35)); background: transparent; color: var(--md-sys-color-on-surface, #1c1b1f); font: inherit; font-size: var(--app-button-font-size); font-weight: var(--app-button-font-weight); cursor: pointer; }
 .rpt-seg-btn:first-child { border-left: 0; }
@@ -334,11 +349,17 @@
 
 @media (max-width: 640px) {
     .rpt-toolbar-title { font-size: 16px; }
-    .rpt-primary span:not(.material-symbols-rounded) { display: none; }
+    .rpt-toolbar-title { display: none; }
+    .rpt-toolbar-row:first-child { justify-content: space-between; }
+    [data-report-print] span:not(.material-symbols-rounded) { display: none; }
+    [data-report-print] { width: var(--app-icon-button-size); padding: 0; justify-content: center; }
+    .rpt-primary--tonal { flex: 1; justify-content: center; }
+    .rpt-primary--tonal .rpt-label-full { display: none; }
+    .rpt-primary--tonal .rpt-label-short { display: inline; }
+    .rpt-hint { font-size: 12px; }
     .rpt-table { font-size: 12px; }
     .rpt-table th, .rpt-table td { padding: 6px 4px; }
     .rpt-table thead th { letter-spacing: 0; white-space: normal; }
-    .rpt-primary { width: var(--app-icon-button-size); padding: 0; justify-content: center; }
     .rpt-nav { width: 100%; justify-content: space-between; }
     .rpt-nav-label { min-width: 0; }
     .rpt-seg { width: 100%; }

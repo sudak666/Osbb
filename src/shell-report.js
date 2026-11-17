@@ -4,6 +4,7 @@ import { elevatorEntriesFromResponse } from "./osbb-elevator.js";
 import { garbageMonthKeyCandidates } from "./osbb-garbage.js";
 import {
   buildManagementReport,
+  chooseImageSlices,
   DEFAULT_REPORT_SECTIONS,
   isoDay,
   managementReportFileName,
@@ -35,7 +36,8 @@ function createShellReport(options) {
             <div class="rpt-toolbar-row">
                 <button type="button" class="rpt-icon-btn md-state-layer" data-report-close aria-label="Закрити звіт">${icon("close")}</button>
                 <h2 class="rpt-toolbar-title">Звіт для керівництва</h2>
-                <button type="button" class="rpt-primary md-state-layer" data-report-print>${icon("download")}<span>Зберегти PDF</span></button>
+                <button type="button" class="rpt-primary rpt-primary--tonal md-state-layer" data-report-image>${icon("image")}<span class="rpt-label-full" data-report-image-label>Картинка для Telegram</span><span class="rpt-label-short" data-report-image-short>У Telegram</span></button>
+                <button type="button" class="rpt-primary md-state-layer" data-report-print aria-label="Зберегти PDF">${icon("download")}<span>Зберегти PDF</span></button>
             </div>
             <div class="rpt-toolbar-row rpt-toolbar-controls">
                 <div class="rpt-seg" role="group" aria-label="Період звіту">${PERIODS.map((p) => `<button type="button" class="rpt-seg-btn md-state-layer" data-report-kind="${p.id}" aria-pressed="false">${p.label}</button>`).join("")}</div>
@@ -45,11 +47,25 @@ function createShellReport(options) {
                     <button type="button" class="rpt-icon-btn md-state-layer" data-report-step="1" aria-label="Наступний період">${icon("chevron_right")}</button>
                 </div>
             </div>
-            <p class="rpt-hint">${icon("info")}<span>«Зберегти PDF» відкриває вікно друку: у полі «Принтер» виберіть «Зберегти як PDF» — браузер запам'ятає це на наступний раз.</span></p>
+            <p class="rpt-hint">${icon("info")}<span>«Картинка для Telegram» — звіт видно прямо в чаті. «Зберегти PDF» відкриває вікно друку: у полі «Принтер» виберіть «Зберегти як PDF».</span></p>
+            <p class="rpt-status" data-report-status role="status" aria-live="polite"></p>
             <div class="rpt-chips" role="group" aria-label="Розділи звіту">${REPORT_SECTIONS.map((s) => `<label class="rpt-chip md-state-layer"><input type="checkbox" data-report-section="${s.id}"><span>${icon("check")}${escapeHtml(s.label)}</span></label>`).join("")}</div>
         </div>
         <div class="rpt-stage" data-report-stage></div>`;
   const stage = root.querySelector("[data-report-stage]");
+  const status = root.querySelector("[data-report-status]");
+  const imageLabelFull = root.querySelector("[data-report-image-label]");
+  const imageLabelShort = root.querySelector("[data-report-image-short]");
+  const setImageLabel = (ready) => {
+    imageLabelFull.textContent = ready ? "Надіслати в Telegram" : "Картинка для Telegram";
+    imageLabelShort.textContent = ready ? "Надіслати" : "У Telegram";
+  };
+  let readyImages = null;
+  let renderedToken = 0;
+  const setStatus = (text, isError = false) => {
+    status.textContent = text;
+    status.classList.toggle("is-error", isError);
+  };
   const label = root.querySelector("[data-report-label]");
   function syncControls() {
     root.querySelectorAll("[data-report-kind]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.reportKind === kind)));
@@ -118,6 +134,10 @@ function createShellReport(options) {
       const source = await fetchSource();
       if (token !== loadToken) return;
       stage.innerHTML = renderManagementReport(buildManagementReport(reportPeriod(kind, anchor), source, clock()), sections);
+      renderedToken = token;
+      readyImages = null;
+      setImageLabel(false);
+      setStatus("");
     } catch (error) {
       if (token !== loadToken) return;
       warn("management report failed:", error);
@@ -136,6 +156,109 @@ function createShellReport(options) {
     win.addEventListener("afterprint", restore);
     win.print();
     setTimeout(restore, 1500);
+  }
+  async function renderImages() {
+    const page = stage.querySelector(".rpt-page");
+    if (!page) throw new Error("report page is not rendered");
+    const host = doc.createElement("div");
+    host.className = "rpt-capture-host";
+    host.setAttribute("aria-hidden", "true");
+    const clone = page.cloneNode(true);
+    host.appendChild(clone);
+    doc.body.appendChild(host);
+    try {
+      const { toCanvas } = await import("html-to-image");
+      const canvas = await toCanvas(clone, { pixelRatio: 1.6, backgroundColor: "#ffffff", skipFonts: true, cacheBust: false });
+      const cssHeight = clone.offsetHeight;
+      const scale = canvas.height / cssHeight;
+      const top = clone.getBoundingClientRect().top;
+      const breaks = [...clone.querySelectorAll(".rpt-section, .rpt-kpis, .rpt-table tbody tr, .rpt-foot")].map((el) => el.getBoundingClientRect().top - top);
+      const slices = chooseImageSlices(cssHeight, breaks, 1600);
+      const baseName = managementReportFileName(reportPeriod(kind, anchor));
+      const files = [];
+      for (const [index, [from, to]] of slices.entries()) {
+        const padTop = index ? 32 : 0;
+        const part = doc.createElement("canvas");
+        part.width = canvas.width;
+        part.height = Math.round((to - from + padTop) * scale);
+        const ctx = part.getContext("2d");
+        if (!ctx) throw new Error("canvas 2d context unavailable");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, part.width, part.height);
+        ctx.drawImage(canvas, 0, Math.round(from * scale), canvas.width, Math.round((to - from) * scale), 0, Math.round(padTop * scale), canvas.width, Math.round((to - from) * scale));
+        const blob = await new Promise((resolve) => part.toBlob(resolve, "image/png"));
+        if (!blob) throw new Error("canvas export failed");
+        const suffix = slices.length > 1 ? ` (${index + 1} з ${slices.length})` : "";
+        files.push(new File([blob], `${baseName}${suffix}.png`, { type: "image/png" }));
+      }
+      return files;
+    } finally {
+      host.remove();
+    }
+  }
+  function downloadFiles(files) {
+    for (const file of files) {
+      const url = URL.createObjectURL(file);
+      const link = doc.createElement("a");
+      link.href = url;
+      link.download = file.name;
+      doc.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1e4);
+    }
+  }
+  async function shareImage(button) {
+    const nav = win.navigator;
+    const touch = win.matchMedia?.("(pointer: coarse)").matches ?? false;
+    const cached = readyImages && readyImages.token === renderedToken ? readyImages.files : null;
+    if (touch && cached && nav.canShare?.({ files: cached })) {
+      try {
+        await nav.share({ files: cached, title: managementReportFileName(reportPeriod(kind, anchor)) });
+        setStatus("");
+      } catch (error) {
+        if (error?.name !== "AbortError") setStatus("Не вдалося поділитися. Спробуйте ще раз.", true);
+      }
+      return;
+    }
+    button.disabled = true;
+    setStatus("Готую картинку…");
+    const rendering = renderImages();
+    let copying = Promise.resolve(false);
+    if (!touch && nav.clipboard?.write && "ClipboardItem" in win) {
+      const ClipboardItemCtor = win.ClipboardItem;
+      const firstImage = rendering.then((files) => files[0]);
+      copying = nav.clipboard.write([new ClipboardItemCtor({ "image/png": firstImage })]).then(() => true, () => false);
+    }
+    try {
+      const files = await rendering;
+      readyImages = { token: renderedToken, files };
+      if (touch && nav.canShare?.({ files })) {
+        try {
+          await nav.share({ files, title: managementReportFileName(reportPeriod(kind, anchor)) });
+          setStatus("");
+        } catch (error) {
+          const name = error?.name;
+          if (name === "AbortError") {
+            setStatus("");
+            return;
+          }
+          setImageLabel(true);
+          setStatus("Картинка готова — натисніть «Надіслати в Telegram» ще раз.");
+        }
+        return;
+      }
+      const copied = await copying;
+      downloadFiles(files);
+      if (copied && files.length === 1) setStatus("Картинку скопійовано: відкрийте чат у Telegram і натисніть Ctrl+V. Копію також збережено в «Завантаження».");
+      else if (copied) setStatus(`Звіт довгий — збережено ${files.length} картинки в «Завантаження» (перша вже скопійована). Перетягніть їх у чат Telegram — підуть альбомом.`);
+      else setStatus(`Збережено ${files.length === 1 ? "картинку" : `${files.length} картинки`} в «Завантаження» — перетягніть у чат Telegram.`);
+    } catch (error) {
+      warn("report image failed:", error);
+      setStatus("Не вдалося створити картинку. Спробуйте ще раз або збережіть PDF.", true);
+    } finally {
+      button.disabled = false;
+    }
   }
   function open() {
     previousFocus = doc.activeElement instanceof HTMLElement ? doc.activeElement : null;
@@ -169,6 +292,11 @@ function createShellReport(options) {
     }
     if (target?.closest("[data-report-print]")) {
       print();
+      return;
+    }
+    const imageBtn = target?.closest("[data-report-image]");
+    if (imageBtn) {
+      void shareImage(imageBtn);
       return;
     }
     if (target?.closest("[data-report-close]")) close();
