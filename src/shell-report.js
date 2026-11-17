@@ -45,6 +45,7 @@ function createShellReport(options) {
                     <button type="button" class="rpt-icon-btn md-state-layer" data-report-step="1" aria-label="Наступний період">${icon("chevron_right")}</button>
                 </div>
             </div>
+            <p class="rpt-hint">${icon("info")}<span>«Зберегти PDF» відкриває вікно друку: у полі «Принтер» виберіть «Зберегти як PDF» — браузер запам'ятає це на наступний раз.</span></p>
             <div class="rpt-chips" role="group" aria-label="Розділи звіту">${REPORT_SECTIONS.map((s) => `<label class="rpt-chip md-state-layer"><input type="checkbox" data-report-section="${s.id}"><span>${icon("check")}${escapeHtml(s.label)}</span></label>`).join("")}</div>
         </div>
         <div class="rpt-stage" data-report-stage></div>`;
