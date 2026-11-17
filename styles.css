@@ -263,6 +263,8 @@
 .rpt-toolbar { display: flex; flex-direction: column; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); background: var(--md-sys-color-surface-container-low, #f6f8f5); border-bottom: 1px solid var(--md-sys-color-outline-variant, rgba(60, 60, 67, .12)); }
 .rpt-toolbar-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 1040px; width: 100%; margin: 0 auto; }
 .rpt-toolbar-title { flex: 1; margin: 0; font-size: 18px; font-weight: 500; }
+.rpt-hint { display: flex; align-items: center; gap: 6px; max-width: 1040px; width: 100%; margin: 0 auto; color: var(--md-sys-color-on-surface-variant, #44474e); font-size: 13px; }
+.rpt-hint .material-symbols-rounded { font-size: 18px; color: var(--md-sys-color-primary, #1f7a3d); }
 .rpt-toolbar-controls { justify-content: space-between; }
 .rpt-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: var(--app-icon-button-size); height: var(--app-icon-button-size); padding: 0; border: 0; border-radius: var(--md-sys-shape-corner-full, 999px); background: transparent; color: var(--md-sys-color-on-surface-variant, #44474e); cursor: pointer; }
 .rpt-icon-btn:disabled { opacity: .38; cursor: default; }
@@ -350,13 +352,15 @@
 
 /* Друк / «Зберегти як PDF»: лише сторінка звіту, без меню й панелей. */
 @media print {
-    @page { size: A4; margin: 14mm 12mm; }
+    /* Нульові поля сторінки — тоді браузер не друкує свої колонтитули (дата, адреса сайту, «1/1»);
+       відступи дає сама сторінка звіту й повторює їх на кожному аркуші. */
+    @page { size: A4; margin: 0; }
     html.is-report-open, html.is-report-open body { height: auto !important; overflow: visible !important; background: #fff !important; }
     html.is-report-open body > *:not(#shell-report) { display: none !important; }
     html.is-report-open .shell-report { position: static; display: block; background: #fff; }
     html.is-report-open .rpt-toolbar { display: none !important; }
     html.is-report-open .rpt-stage { overflow: visible; padding: 0; }
-    html.is-report-open .rpt-page { max-width: none; padding: 0; border-radius: 0; box-shadow: none; }
+    html.is-report-open .rpt-page { max-width: none; padding: 14mm 12mm; border-radius: 0; box-shadow: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 }
 
 /* Нижнє меню на телефоні: натискання підсвічує лише заокруглену пігулку іконки, а не
