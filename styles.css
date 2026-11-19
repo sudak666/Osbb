@@ -135,7 +135,7 @@
     .shell-home { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .shell-home[hidden] { display: none; }
 
-    /* Заставка при запуску застосунку — та сама вежа на весь екран, поверх екрана PIN. */
+    /* Заставка при запуску застосунку — сцена будинку на весь екран, поверх екрана PIN. */
     .app-splash {
         position: fixed; inset: 0; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
         padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px);
@@ -144,7 +144,7 @@
     }
     .app-splash[hidden] { display: none; }
     .app-splash.is-leaving { opacity: 0; pointer-events: none; }
-    .app-splash-art { width: min(300px, 70vw); height: auto; overflow: visible; }
+    .app-splash-art { width: min(560px, 94vw); max-height: 64vh; height: auto; overflow: visible; }
     .app-splash-title {
         font-size: var(--md-sys-typescale-title-large-size, 22px); line-height: var(--md-sys-typescale-title-large-line-height, 28px);
         font-weight: 500; color: var(--md-sys-color-on-surface, #1a1c19); text-align: center;
@@ -154,7 +154,7 @@
     }
     .app-splash.is-playing .app-splash-title { opacity: 1; transform: none; }
 
-    /* Завантаження модуля: ізометрична вежа (src/shell-loader.ts). Кольори — з токенів, тож тема підхоплюється сама. */
+    /* Завантаження модуля: та сама сцена будинку (src/shell-loader.ts), підпис «Відкриваю …». */
     .shell-loader {
         position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
         background: var(--md-sys-color-background, #f4f7fb); pointer-events: none;
@@ -162,7 +162,7 @@
     }
     .shell-loader[hidden] { display: none; }
     .shell-loader.is-leaving { opacity: 0; }
-    .shell-loader-art { width: min(280px, 66vw); height: auto; overflow: visible; }
+    .shell-loader-art { width: min(440px, 86%); max-height: 60%; height: auto; overflow: visible; }
     .shell-loader-caption {
         margin: 0; font-size: var(--md-sys-typescale-title-medium-size, 16px); font-weight: 500;
         color: var(--md-sys-color-on-surface-variant, #475569);
@@ -170,23 +170,43 @@
     .shell-loader-caption::after { content: ''; display: inline-block; width: 1.2em; text-align: left; animation: shell-loader-dots 1.2s steps(4) infinite; }
     .shell-loader.is-done .shell-loader-caption::after { animation: none; content: ''; }
     @keyframes shell-loader-dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
-    .shell-loader-front { fill: color-mix(in srgb, var(--md-sys-color-primary, #08752f) 14%, var(--md-sys-color-primary-container, #dcfce7)); }
-    .shell-loader-side { fill: color-mix(in srgb, var(--md-sys-color-primary, #08752f) 34%, var(--md-sys-color-primary-container, #dcfce7)); }
-    .shell-loader-top { fill: color-mix(in srgb, var(--md-sys-color-surface, #fff) 45%, var(--md-sys-color-primary-container, #dcfce7)); }
-    .shell-loader-edge { fill: none; stroke: var(--md-sys-color-primary, #08752f); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-    .shell-loader-floor { fill: none; stroke: var(--md-sys-color-primary, #08752f); stroke-width: .6; stroke-opacity: .3; }
-    .shell-loader-window { fill: color-mix(in srgb, var(--md-sys-color-primary, #08752f) 45%, var(--md-sys-color-primary-container, #dcfce7)); }
-    .shell-loader-lit { fill: var(--md-sys-color-tertiary-fixed-dim, #ffba46); stroke: var(--md-sys-color-tertiary-fixed-dim, #ffba46); stroke-opacity: .4; stroke-width: 1.8; }
-    .shell-loader-shadow { fill: var(--md-sys-color-primary, #08752f); opacity: .12; }
-    .shell-loader-pen, .shell-loader-pen-halo { fill: var(--md-sys-color-tertiary-fixed-dim, #ffba46); }
-    .shell-loader-pen-halo { opacity: .3; }
-    .shell-loader-spark { fill: var(--md-sys-color-primary, #08752f); }
-    .shell-loader-shine-stop { stop-color: #ffffff; }
-    /* У темній темі primary яскравий — грані й вимкнені вікна притемнюємо, щоб світилися лише запалені вікна. */
-    .theme-dark .shell-loader-front { fill: var(--md-sys-color-primary-container, #064e24); }
-    .theme-dark .shell-loader-side { fill: color-mix(in srgb, #000000 35%, var(--md-sys-color-primary-container, #064e24)); }
-    .theme-dark .shell-loader-top { fill: color-mix(in srgb, var(--md-sys-color-primary, #30d158) 30%, var(--md-sys-color-primary-container, #064e24)); }
-    .theme-dark .shell-loader-window { fill: color-mix(in srgb, #000000 45%, var(--md-sys-color-primary-container, #064e24)); }
+    /* Сцена будинку (src/house-scene.ts): день у світлій темі, вечір у темній. Контур і «ручка» — з токенів. */
+    .hs-scene {
+        --hs-ground: #d5ebcb; --hs-ground-edge: #b9dcae; --hs-pave: #ece7dc; --hs-walk: #dcd6c9; --hs-road: #6b7076; --hs-road-line: #f4f1e8;
+        --hs-front: #f4e8d0; --hs-side: #dcc8a3; --hs-top: #faf3e4; --hs-terra: #e0974a; --hs-terra-side: #c47d36; --hs-stripe: #f2c55c;
+        --hs-win: #b9c4cc; --hs-win-side: #a3aeb7; --hs-lit: #ffd98a; --hs-glow: #ffd36b;
+        --hs-pond: #9fd0ea; --hs-pond-edge: #7fb9da; --hs-crown: #78c272; --hs-crown-dark: #58a356; --hs-trunk: #8a6a4a; --hs-pole: #5b6168;
+        --hs-court: #3f9a55; --hs-court-edge: #d9503c; --hs-sand: #e9c88f; --hs-car-glass: #5d7488; --hs-car-glass-front: #8fb2cc; --hs-wheel: #22262b;
+        --hs-edge: var(--md-sys-color-primary, #08752f); --hs-pen: var(--md-sys-color-tertiary-fixed-dim, #ffba46);
+    }
+    .theme-dark .hs-scene {
+        --hs-ground: #13261a; --hs-ground-edge: #1b3324; --hs-pave: #2a2a2d; --hs-walk: #323236; --hs-road: #1b1c1f; --hs-road-line: #77736a;
+        --hs-front: #4b4237; --hs-side: #3a3229; --hs-top: #5c5142; --hs-terra: #7a4a22; --hs-terra-side: #633b1a; --hs-stripe: #6b5524;
+        --hs-win: #2a2e35; --hs-win-side: #22262c; --hs-lit: #ffc94d; --hs-glow: #ffe08a;
+        --hs-pond: #173247; --hs-pond-edge: #22445e; --hs-crown: #22502d; --hs-crown-dark: #183b21; --hs-trunk: #4a3a2a; --hs-pole: #6b7280;
+        --hs-court: #1f4a2c; --hs-court-edge: #7a3326; --hs-sand: #5a4a30; --hs-car-glass: #22303c; --hs-car-glass-front: #34495a; --hs-wheel: #0b0d10;
+        --hs-edge: #5fd07c; --hs-pen: #ffd36b;
+    }
+    .hs-ground { fill: var(--hs-ground); stroke: var(--hs-ground-edge); stroke-width: 1; }
+    .hs-pave { fill: var(--hs-pave); } .hs-walk { fill: var(--hs-walk); } .hs-road { fill: var(--hs-road); }
+    .hs-road-line { fill: none; stroke: var(--hs-road-line); stroke-width: 1; stroke-dasharray: 5 5; }
+    .hs-pond { fill: var(--hs-pond); stroke: var(--hs-pond-edge); stroke-width: 1; }
+    .hs-court { fill: var(--hs-court); } .hs-court-edge { fill: var(--hs-court-edge); } .hs-sand { fill: var(--hs-sand); }
+    .hs-court-line { fill: none; stroke: #ffffff; stroke-opacity: .7; stroke-width: .6; }
+    .hs-front { fill: var(--hs-front); } .hs-side { fill: var(--hs-side); } .hs-top { fill: var(--hs-top); }
+    .hs-terra { fill: var(--hs-terra); } .hs-terra-side { fill: var(--hs-terra-side); } .hs-stripe { fill: var(--hs-stripe); }
+    .hs-win { fill: var(--hs-win); } .hs-win-side { fill: var(--hs-win-side); } .hs-lit { fill: var(--hs-lit); }
+    .hs-edge { fill: none; stroke: var(--hs-edge); stroke-width: 1.1; stroke-linejoin: round; stroke-linecap: round; }
+    .hs-roof-edge { fill: none; stroke: var(--hs-edge); stroke-width: .7; stroke-linejoin: round; }
+    .hs-spire { stroke: var(--hs-edge); stroke-width: 1; }
+    .hs-tree { transform-box: fill-box; transform-origin: 50% 100%; }
+    .hs-tshadow { fill: #000000; opacity: .08; } .hs-trunk { stroke: var(--hs-trunk); stroke-width: 1.4; stroke-linecap: round; }
+    .hs-crown { fill: var(--hs-crown); } .hs-crown-dark { fill: var(--hs-crown-dark); }
+    .hs-pole { stroke: var(--hs-pole); stroke-width: 1; }
+    .hs-lamp { fill: var(--hs-glow); } .hs-lamp-halo { fill: var(--hs-glow); opacity: .28; }
+    .hs-wheel { fill: var(--hs-wheel); } .hs-car-glass { fill: var(--hs-car-glass); } .hs-car-glass-front { fill: var(--hs-car-glass-front); } .hs-carlight { fill: #fff6d6; }
+    .hs-pen { fill: var(--hs-pen); } .hs-pen-halo { fill: var(--hs-pen); opacity: .3; }
+    .hs-shine-stop { stop-color: #ffffff; }
     @media (prefers-reduced-motion: reduce) {
         .shell-loader-caption::after { animation: none; content: '...'; }
     }

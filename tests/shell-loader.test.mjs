@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  createModuleLoader, LOADER_FADE_MS, LOADER_FINALE_MS, LOADER_SAFETY_MS, LOADER_SHOW_DELAY_MS, playLaunchSplash, pointAlong, polylineLength,
+  createModuleLoader, LOADER_FADE_MS, LOADER_FINALE_MS, LOADER_SAFETY_MS, LOADER_SHOW_DELAY_MS, playLaunchSplash,
   SPLASH_FADE_MS, SPLASH_PLAY_MS, SPLASH_REDUCED_MS, SPLASH_STORAGE_KEY,
 } from '../src/shell-loader.js';
+import { buildHouseScene, HOUSE_COMPLETE_MS, HOUSE_CYCLE_MS, pointAlong, polylineLength, shadeHex } from '../src/house-scene.js';
 
 class FakeNode {
   constructor(tag) {
@@ -67,6 +68,31 @@ test('polyline helpers measure length and walk along segments', () => {
   assert.deepEqual(pointAlong(pts, 3 / 7), [3, 0]);
   assert.deepEqual(pointAlong(pts, 1), [3, 4]);
   assert.deepEqual(pointAlong(pts, 5 / 7), [3, 2]);
+});
+
+test('house scene draws the five sections, lights every floor and frames the whole yard', () => {
+  const nodes = [];
+  const doc = { createElementNS: (_ns, tag) => { const node = new FakeNode(tag); nodes.push(node); return node; } };
+  const svg = new FakeNode('svg');
+  const { tracks, viewBox } = buildHouseScene(doc, svg, 'test');
+  const [, , width, height] = viewBox.split(' ').map(Number);
+  assert.ok(width > 200 && height > 180, `viewBox ${viewBox}`);
+  const lit = nodes.filter((node) => node.attributes.get('class') === 'hs-lit');
+  assert.ok(lit.length > 400, `lit windows: ${lit.length}`);
+  // Кожен поверх кожної секції загоряється окремо: 23 + 22 + 21 + 22 + 23 груп.
+  const floorGroups = tracks.filter(({ node }) => node.children.some((child) => child.attributes.get('class') === 'hs-lit'));
+  assert.equal(floorGroups.length, 111);
+  assert.ok(nodes.some((node) => node.attributes.get('class') === 'hs-spire'), 'turret spire');
+  assert.ok(tracks.every(({ keyframes }) => keyframes[0].offset === 0 && keyframes.at(-1).offset === 1));
+  assert.ok(HOUSE_COMPLETE_MS < HOUSE_CYCLE_MS);
+  assert.ok(nodes.filter((node) => node.attributes.has('id')).every((node) => node.attributes.get('id').startsWith('test-')));
+});
+
+test('shadeHex lightens and darkens car colors without color-mix', () => {
+  assert.equal(shadeHex('#808080', 0), '#808080');
+  assert.equal(shadeHex('#808080', 100), '#ffffff');
+  assert.equal(shadeHex('#808080', -100), '#000000');
+  assert.equal(shadeHex('#e05a47', -50), '#702d24');
 });
 
 test('module loader appears only after a short delay and skips fast loads', () => {
