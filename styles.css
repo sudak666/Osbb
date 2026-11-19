@@ -135,6 +135,43 @@
     .shell-home { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .shell-home[hidden] { display: none; }
 
+    /* Завантаження модуля: ізометрична вежа (src/shell-loader.ts). Кольори — з токенів, тож тема підхоплюється сама. */
+    .shell-loader {
+        position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+        background: var(--md-sys-color-background, #f4f7fb); pointer-events: none;
+        opacity: 1; transition: opacity var(--md-sys-motion-duration-short4, 200ms) var(--md-sys-motion-easing-standard, ease);
+    }
+    .shell-loader[hidden] { display: none; }
+    .shell-loader.is-leaving { opacity: 0; }
+    .shell-loader-art { width: min(280px, 66vw); height: auto; overflow: visible; }
+    .shell-loader-caption {
+        margin: 0; font-size: var(--md-sys-typescale-title-medium-size, 16px); font-weight: 500;
+        color: var(--md-sys-color-on-surface-variant, #475569);
+    }
+    .shell-loader-caption::after { content: ''; display: inline-block; width: 1.2em; text-align: left; animation: shell-loader-dots 1.2s steps(4) infinite; }
+    .shell-loader.is-done .shell-loader-caption::after { animation: none; content: ''; }
+    @keyframes shell-loader-dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+    .shell-loader-front { fill: color-mix(in srgb, var(--md-sys-color-primary, #08752f) 14%, var(--md-sys-color-primary-container, #dcfce7)); }
+    .shell-loader-side { fill: color-mix(in srgb, var(--md-sys-color-primary, #08752f) 34%, var(--md-sys-color-primary-container, #dcfce7)); }
+    .shell-loader-top { fill: color-mix(in srgb, var(--md-sys-color-surface, #fff) 45%, var(--md-sys-color-primary-container, #dcfce7)); }
+    .shell-loader-edge { fill: none; stroke: var(--md-sys-color-primary, #08752f); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .shell-loader-floor { fill: none; stroke: var(--md-sys-color-primary, #08752f); stroke-width: .6; stroke-opacity: .3; }
+    .shell-loader-window { fill: color-mix(in srgb, var(--md-sys-color-primary, #08752f) 45%, var(--md-sys-color-primary-container, #dcfce7)); }
+    .shell-loader-lit { fill: var(--md-sys-color-tertiary-fixed-dim, #ffba46); stroke: var(--md-sys-color-tertiary-fixed-dim, #ffba46); stroke-opacity: .4; stroke-width: 1.8; }
+    .shell-loader-shadow { fill: var(--md-sys-color-primary, #08752f); opacity: .12; }
+    .shell-loader-pen, .shell-loader-pen-halo { fill: var(--md-sys-color-tertiary-fixed-dim, #ffba46); }
+    .shell-loader-pen-halo { opacity: .3; }
+    .shell-loader-spark { fill: var(--md-sys-color-primary, #08752f); }
+    .shell-loader-shine-stop { stop-color: #ffffff; }
+    /* У темній темі primary яскравий — грані й вимкнені вікна притемнюємо, щоб світилися лише запалені вікна. */
+    .theme-dark .shell-loader-front { fill: var(--md-sys-color-primary-container, #064e24); }
+    .theme-dark .shell-loader-side { fill: color-mix(in srgb, #000000 35%, var(--md-sys-color-primary-container, #064e24)); }
+    .theme-dark .shell-loader-top { fill: color-mix(in srgb, var(--md-sys-color-primary, #30d158) 30%, var(--md-sys-color-primary-container, #064e24)); }
+    .theme-dark .shell-loader-window { fill: color-mix(in srgb, #000000 45%, var(--md-sys-color-primary-container, #064e24)); }
+    @media (prefers-reduced-motion: reduce) {
+        .shell-loader-caption::after { animation: none; content: '...'; }
+    }
+
     .shell-bottom-nav { display: none; }
     .shell-more-sheet[hidden] { display: none; }
     .shell-more-sheet { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; }

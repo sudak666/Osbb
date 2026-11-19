@@ -126,6 +126,11 @@ function createShellController(deps) {
     } catch {
     }
   }
+  function syncModuleLoader(finished) {
+    const module = sectionModule(currentSection);
+    if (module && store.isTabLoaded(module) && !frameReady[module]) deps.moduleLoader?.show(module);
+    else deps.moduleLoader?.hide(finished);
+  }
   function loadTab(name, section = lastModuleSection[name], focus) {
     const frame = frameFor(name);
     if (!frame) return;
@@ -206,6 +211,7 @@ function createShellController(deps) {
           const pending = pendingSection[module];
           delete pendingSection[module];
           if (pending) frame.contentWindow?.postMessage({ type: "osbb:navigate", ...pending }, win.location.origin);
+          syncModuleLoader(true);
         }
         if (isAuthSessionValid()) notifyFrameUnlocked(frame);
       });
@@ -278,6 +284,7 @@ function createShellController(deps) {
       loadTab(module, section, target);
       frameFor(module)?.classList.add("active");
     }
+    syncModuleLoader(false);
     renderNavState();
     deps.onSectionShown?.(section);
   }

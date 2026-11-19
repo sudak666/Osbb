@@ -22,6 +22,8 @@ export interface ShellControllerDeps {
     onSectionShown?: (section: ShellSection) => void;
     /** Викликається при блокуванні — закрити все, що показує дані поверх shell. */
     onLock?: () => void;
+    /** Екран завантаження модуля (вежа) — поки iframe активного модуля ще не готовий. */
+    moduleLoader?: { show(module: ShellTabName): void; hide(finished: boolean): void };
 }
 
 export interface ShellController {
@@ -157,6 +159,13 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
         try { win.sessionStorage?.setItem(SECTION_STORAGE_KEY, section); } catch { /* best-effort */ }
     }
 
+    /** Вежа видна, лише поки вантажиться iframe саме того модуля, що зараз на екрані. */
+    function syncModuleLoader(finished: boolean): void {
+        const module = sectionModule(currentSection);
+        if (module && store.isTabLoaded(module) && !frameReady[module]) deps.moduleLoader?.show(module);
+        else deps.moduleLoader?.hide(finished);
+    }
+
     /** Перше відкриття вантажить iframe одразу з потрібним розділом; далі — postMessage. */
     function loadTab(name: ShellTabName, section: ShellSection = lastModuleSection[name], focus?: string): void {
         const frame = frameFor(name);
@@ -243,6 +252,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
                     const pending = pendingSection[module];
                     delete pendingSection[module];
                     if (pending) frame.contentWindow?.postMessage({ type: 'osbb:navigate', ...pending }, win.location.origin);
+                    syncModuleLoader(true);
                 }
                 if (isAuthSessionValid()) notifyFrameUnlocked(frame);
             });
@@ -318,6 +328,7 @@ export function createShellController(deps: ShellControllerDeps): ShellControlle
             loadTab(module, section, target);
             frameFor(module)?.classList.add('active');
         }
+        syncModuleLoader(false);
         renderNavState();
         deps.onSectionShown?.(section);
     }

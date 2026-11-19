@@ -246,3 +246,28 @@ test('ShellController lockShellNow clears auth and restores lock screen state', 
   assert.equal(doc.getElementById('shell-main').style.display, 'none');
   assert.equal(doc.getElementById('app-lock-screen').style.display, 'flex');
 });
+
+test('ShellController shows the module loader only while the active module iframe loads', () => {
+  globalThis.sessionStorage = memoryStorage();
+  const calls = [];
+  const doc = makeShellDom();
+  const win = { location: { origin: 'https://example.test' }, addEventListener() {}, setTimeout() { return 1; }, clearTimeout() {} };
+  const controller = createShellController({
+    document: doc, window: win, navigator: {}, rpc: async () => true,
+    moduleLoader: { show: (module) => calls.push(['show', module]), hide: (finished) => calls.push(['hide', finished]) },
+  });
+  const journal = doc.getElementById('frame-journal');
+  journal.contentWindow = { postMessage() {} };
+  controller.bind();
+
+  controller.showSection('garbage');
+  assert.deepEqual(calls.at(-1), ['show', 'journal']);
+  controller.showSection('home');
+  assert.deepEqual(calls.at(-1), ['hide', false]);
+  controller.showSection('garbage');
+  assert.deepEqual(calls.at(-1), ['show', 'journal']);
+  journal.listeners.get('load')();
+  assert.deepEqual(calls.at(-1), ['hide', true]);
+  controller.showSection('tabel');
+  assert.deepEqual(calls.at(-1), ['hide', false]);
+});
