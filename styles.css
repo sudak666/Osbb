@@ -148,7 +148,11 @@
     .app-splash-title {
         font-size: var(--md-sys-typescale-title-large-size, 22px); line-height: var(--md-sys-typescale-title-large-line-height, 28px);
         font-weight: 500; color: var(--md-sys-color-on-surface, #1a1c19); text-align: center;
+        /* До старту JS вежі ще нема — назва не має блимати сама й потім стрибати вниз. */
+        opacity: 0; transform: translateY(6px);
+        transition: opacity 500ms var(--md-sys-motion-easing-standard, ease) 900ms, transform 500ms var(--md-sys-motion-easing-standard, ease) 900ms;
     }
+    .app-splash.is-playing .app-splash-title { opacity: 1; transform: none; }
 
     /* Завантаження модуля: ізометрична вежа (src/shell-loader.ts). Кольори — з токенів, тож тема підхоплюється сама. */
     .shell-loader {

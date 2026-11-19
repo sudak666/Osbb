@@ -130,6 +130,7 @@ const checks = [
   ['src/shell-loader.ts', "win.matchMedia?.('(prefers-reduced-motion: reduce)').matches", 'module loader respects reduced motion with a static final frame'],
   ['index.html', "if (sessionStorage.getItem('osbb_splash_shown') === '1') document.getElementById('app-splash').hidden = true;", 'launch splash shows once per app launch from the first paint'],
   ['src/shell.ts', 'if (splashRoot) playLaunchSplash({ document, window, root: splashRoot });', 'shell plays the tower splash on launch'],
+  ['styles.css', '.app-splash.is-playing .app-splash-title { opacity: 1; transform: none; }', 'splash title waits for the tower instead of flashing alone'],
   ['package.json', '"html-to-image": "1.11.13"', 'report image library is pinned to an exact version'],
   ['src/shell-report.ts', "await import('html-to-image')", 'report image library loads lazily only on demand'],
   ['styles.css', '.rpt-capture-host .rpt-table-wrap { overflow: visible; }', 'report image shows full tables without scrollbars'],
