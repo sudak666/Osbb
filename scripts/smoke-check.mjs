@@ -1963,7 +1963,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const text = readOsbbCombined();
   const label = 'journal theme toggle uses monochrome icon';
   const required = [
-    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">contrast</span>',
+    'id="journalThemeIcon" class="journal-theme-icon" aria-hidden="true"><span class="material-symbols-rounded" aria-hidden="true">dark_mode</span>',
     '</span><span id="journalThemeLabel" class="sr-only">Світла</span>',
   ];
   const forbidden = ['☀️', '🌙'];
