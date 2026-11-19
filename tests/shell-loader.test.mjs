@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  createModuleLoader, LOADER_FADE_MS, LOADER_FINALE_MS, LOADER_SAFETY_MS, LOADER_SHOW_DELAY_MS, pointAlong, polylineLength,
+  createModuleLoader, LOADER_FADE_MS, LOADER_FINALE_MS, LOADER_SAFETY_MS, LOADER_SHOW_DELAY_MS, playLaunchSplash, pointAlong, polylineLength,
+  SPLASH_FADE_MS, SPLASH_PLAY_MS, SPLASH_REDUCED_MS, SPLASH_STORAGE_KEY,
 } from '../src/shell-loader.js';
 
 class FakeNode {
@@ -23,6 +24,9 @@ class FakeNode {
   }
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
   append(...nodes) { this.children.push(...nodes); }
+  prepend(node) { this.children.unshift(node); node.parent = this; }
+  remove() { if (this.parent) this.parent.children = this.parent.children.filter((child) => child !== this); }
+  addEventListener(name, handler) { this.listeners = { ...(this.listeners ?? {}), [name]: handler }; }
   animate(keyframes, options) {
     const animation = { keyframes, options, cancelled: false, cancel() { this.cancelled = true; } };
     this.animations.push(animation);
@@ -120,4 +124,65 @@ test('module loader shows a static lit tower when reduced motion is requested', 
   fire(0);
   fire(LOADER_FADE_MS);
   assert.equal(overlay().hidden, true);
+});
+
+function makeSplash({ reduced = false, hidden = false } = {}) {
+  const timers = new Map();
+  let nextId = 1;
+  const all = [];
+  const doc = { createElementNS: (_ns, tag) => { const node = new FakeNode(tag); all.push(node); return node; } };
+  const root = new FakeNode('div');
+  root.hidden = hidden;
+  const stored = new Map();
+  playLaunchSplash({
+    document: doc, root,
+    window: { matchMedia: () => ({ matches: reduced }) },
+    storage: { setItem: (key, value) => stored.set(key, value) },
+    setTimeout: (handler, timeout) => { const id = nextId++; timers.set(id, { handler, timeout }); return id; },
+    clearTimeout: (id) => { timers.delete(id); },
+  });
+  const fire = (timeout) => {
+    const entry = [...timers.entries()].find(([, timer]) => timer.timeout === timeout);
+    assert.ok(entry, `timer ${timeout} is scheduled`);
+    timers.delete(entry[0]);
+    entry[1].handler();
+  };
+  const animations = () => all.flatMap((node) => node.animations);
+  return { root, fire, timers, stored, animations };
+}
+
+test('launch splash plays the tower once, then fades out and remembers this launch', () => {
+  const { root, fire, stored, animations } = makeSplash();
+  assert.equal(stored.get(SPLASH_STORAGE_KEY), '1');
+  assert.ok(animations().length > 50);
+  assert.ok(animations().every((animation) => animation.options.iterations === 1));
+  fire(SPLASH_PLAY_MS);
+  assert.ok(animations().every((animation) => animation.cancelled), 'final frame: fully lit tower');
+  assert.equal(root.classList.contains('is-leaving'), true);
+  fire(SPLASH_FADE_MS);
+  assert.equal(root.hidden, true);
+  assert.equal(root.children.length, 0, 'tower SVG is removed after the splash');
+});
+
+test('launch splash can be skipped with a tap', () => {
+  const { root, fire, timers } = makeSplash();
+  root.listeners.click();
+  assert.equal([...timers.values()].some((timer) => timer.timeout === SPLASH_PLAY_MS), false);
+  fire(SPLASH_FADE_MS);
+  assert.equal(root.hidden, true);
+});
+
+test('launch splash does nothing when this launch already saw it', () => {
+  const { stored, animations, timers } = makeSplash({ hidden: true });
+  assert.equal(stored.size, 0);
+  assert.equal(animations().length, 0);
+  assert.equal(timers.size, 0);
+});
+
+test('launch splash shows a short static tower with reduced motion', () => {
+  const { root, fire, animations } = makeSplash({ reduced: true });
+  assert.equal(animations().length, 0);
+  fire(SPLASH_REDUCED_MS);
+  fire(SPLASH_FADE_MS);
+  assert.equal(root.hidden, true);
 });
