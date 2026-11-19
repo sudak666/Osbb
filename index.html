@@ -23,6 +23,12 @@
 <body>
 <script>document.body.className = localStorage.getItem('selected_theme') || 'theme-light';</script>
 
+<!-- Заставка при запуску: вежа (src/shell-loader.ts, playLaunchSplash). Раз за запуск; дотик — пропустити. -->
+<div id="app-splash" class="app-splash" aria-hidden="true">
+    <div class="app-splash-title">ОСББ "Микитська Слобода"</div>
+</div>
+<script>try { if (sessionStorage.getItem('osbb_splash_shown') === '1') document.getElementById('app-splash').hidden = true; } catch (e) {}</script>
+
 <div id="app-lock-screen">
     <div class="lock-container">
         <div class="app-icon-squircle">

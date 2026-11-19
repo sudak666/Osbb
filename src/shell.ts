@@ -1,7 +1,7 @@
 import { isAuthSessionValid } from './auth-session.ts';
 import { createShellController } from './shell-controller.ts';
 import { createShellDashboard } from './shell-dashboard.ts';
-import { createModuleLoader } from './shell-loader.ts';
+import { createModuleLoader, playLaunchSplash } from './shell-loader.ts';
 import { createShellReport } from './shell-report.ts';
 import { createSupabaseRestClient, rpc } from './supabase-api.ts';
 
@@ -9,6 +9,8 @@ let dashboard: ReturnType<typeof createShellDashboard> | null = null;
 const restClient = createSupabaseRestClient();
 const reportRoot = document.getElementById('shell-report');
 const report = reportRoot ? createShellReport({ root: reportRoot, client: restClient, window }) : null;
+const splashRoot = document.getElementById('app-splash');
+if (splashRoot) playLaunchSplash({ document, window, root: splashRoot });
 const framesHost = document.getElementById('shell-frames');
 const moduleLoader = framesHost ? createModuleLoader({ document, host: framesHost, window }) : undefined;
 const shellController = createShellController({

@@ -36,7 +36,7 @@ export interface ModuleLoaderDeps {
 }
 
 type Point = [number, number];
-type Track = { node: Element; keyframes: Keyframe[] };
+export type Track = { node: Element; keyframes: Keyframe[] };
 
 /* ---------- Геометрія вежі ---------- */
 
@@ -89,7 +89,7 @@ function seededRandom(seed: number): () => number {
     return () => (state = (state * 16807) % 2147483647) / 2147483647;
 }
 
-function buildTower(doc: Document, svg: SVGSVGElement): Track[] {
+export function buildTower(doc: Document, svg: SVGSVGElement, idPrefix = 'shell-loader'): Track[] {
     const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent: Element): SVGElementTagNameMap[K] => {
         const node = doc.createElementNS(SVG_NS, tag);
         for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
@@ -101,9 +101,9 @@ function buildTower(doc: Document, svg: SVGSVGElement): Track[] {
     const track = (node: Element, keyframes: Keyframe[]): void => { tracks.push({ node, keyframes }); };
 
     const defs = el('defs', {}, svg);
-    const shineGradient = el('linearGradient', { id: 'shell-loader-shine', x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+    const shineGradient = el('linearGradient', { id: `${idPrefix}-shine`, x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
     for (const [offset, opacity] of [[0, 0], [0.5, 0.55], [1, 0]]) el('stop', { offset, class: 'shell-loader-shine-stop', 'stop-opacity': opacity }, shineGradient);
-    const bodyClip = el('clipPath', { id: 'shell-loader-body' }, defs);
+    const bodyClip = el('clipPath', { id: `${idPrefix}-body` }, defs);
 
     const root = el('g', {}, svg);
     track(root, [{ offset: 0, opacity: 1 }, { offset: at(4.25), opacity: 1 }, { offset: at(4.75), opacity: 0 }, { offset: 1, opacity: 0 }]);
@@ -138,8 +138,8 @@ function buildTower(doc: Document, svg: SVGSVGElement): Track[] {
     }
     track(el('polygon', { points: points([1.6, D, 0], [2.4, D, 0], [2.4, D, 0.75], [1.6, D, 0.75]), class: 'shell-loader-lit' }, lit), fadeIn(1.3, 1.6));
 
-    const shineGroup = el('g', { 'clip-path': 'url(#shell-loader-body)' }, root);
-    const shine = el('rect', { x: -160, y: -200, width: 60, height: 320, fill: 'url(#shell-loader-shine)', opacity: 0 }, shineGroup);
+    const shineGroup = el('g', { 'clip-path': `url(#${idPrefix}-body)` }, root);
+    const shine = el('rect', { x: -160, y: -200, width: 60, height: 320, fill: `url(#${idPrefix}-shine)`, opacity: 0 }, shineGroup);
     const sweep = (x: number, opacity: number, offset: number): Keyframe => ({ offset, opacity, transform: `translateX(${x}px) skewX(-20deg)` });
     track(shine, [sweep(0, 1, 0), sweep(0, 1, at(2.95)), sweep(300, 1, at(3.65)), sweep(300, 0, at(3.7)), sweep(300, 0, 1)]);
 
@@ -293,4 +293,60 @@ export function createModuleLoader(deps: ModuleLoaderDeps): ModuleLoader {
     }
 
     return { show, hide };
+}
+
+/* ---------- Заставка при запуску застосунку ---------- */
+
+export const SPLASH_STORAGE_KEY = 'osbb_splash_shown';
+/** Скільки грає заставка: вежа намальована, вікна світяться, відблиск пробіг. */
+export const SPLASH_PLAY_MS = 3800;
+export const SPLASH_REDUCED_MS = 1200;
+export const SPLASH_FADE_MS = 400;
+
+export interface LaunchSplashDeps {
+    document: Document;
+    window: Window;
+    /** `#app-splash` з index.html — фон і назва є з першого кадру, щоб до старту JS не блимав екран PIN; вежу малює JS. */
+    root: HTMLElement;
+    storage?: Pick<Storage, 'setItem'>;
+    setTimeout?: Window['setTimeout'];
+    clearTimeout?: Window['clearTimeout'];
+}
+
+/**
+ * Один раз за запуск (sessionStorage) програє вежу поверх усього застосунку,
+ * потім згасає. Дотик пропускає заставку. Якщо inline-скрипт у index.html уже
+ * сховав `#app-splash` (цей запуск її бачив) — нічого не робить.
+ */
+export function playLaunchSplash(deps: LaunchSplashDeps): void {
+    const { document: doc, window: win, root } = deps;
+    if (root.hidden) return;
+    const setTimer = deps.setTimeout ?? win.setTimeout.bind(win);
+    const clearTimer = deps.clearTimeout ?? win.clearTimeout.bind(win);
+    try { (deps.storage ?? win.sessionStorage)?.setItem(SPLASH_STORAGE_KEY, '1'); } catch { /* приватний режим — покажемо ще раз, не страшно */ }
+
+    const reduced = Boolean(win.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+    const svg = doc.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
+    svg.setAttribute('class', 'app-splash-art');
+    svg.setAttribute('viewBox', '-80 -175 170 255');
+    svg.setAttribute('aria-hidden', 'true');
+    root.prepend(svg);
+    const running: Animation[] = [];
+    for (const { node, keyframes } of buildTower(doc, svg, 'app-splash')) {
+        if (reduced || typeof (node as Element & { animate?: unknown }).animate !== 'function') continue;
+        running.push(node.animate(keyframes, { duration: LOADER_CYCLE_MS, iterations: 1 }));
+    }
+
+    let finished = false;
+    let playTimer: ReturnType<Window['setTimeout']> | undefined;
+    const finish = (): void => {
+        if (finished) return;
+        finished = true;
+        if (playTimer !== undefined) clearTimer(playTimer);
+        for (const animation of running) animation.cancel(); // фінальний кадр — усі вікна світяться
+        root.classList.add('is-leaving');
+        setTimer(() => { root.hidden = true; root.classList.remove('is-leaving'); svg.remove(); }, SPLASH_FADE_MS);
+    };
+    root.addEventListener('click', finish, { once: true });
+    playTimer = setTimer(finish, reduced ? SPLASH_REDUCED_MS : SPLASH_PLAY_MS);
 }

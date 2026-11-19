@@ -2,13 +2,15 @@
 import { isAuthSessionValid } from "./auth-session.js";
 import { createShellController } from "./shell-controller.js";
 import { createShellDashboard } from "./shell-dashboard.js";
-import { createModuleLoader } from "./shell-loader.js";
+import { createModuleLoader, playLaunchSplash } from "./shell-loader.js";
 import { createShellReport } from "./shell-report.js";
 import { createSupabaseRestClient, rpc } from "./supabase-api.js";
 let dashboard = null;
 const restClient = createSupabaseRestClient();
 const reportRoot = document.getElementById("shell-report");
 const report = reportRoot ? createShellReport({ root: reportRoot, client: restClient, window }) : null;
+const splashRoot = document.getElementById("app-splash");
+if (splashRoot) playLaunchSplash({ document, window, root: splashRoot });
 const framesHost = document.getElementById("shell-frames");
 const moduleLoader = framesHost ? createModuleLoader({ document, host: framesHost, window }) : void 0;
 const shellController = createShellController({

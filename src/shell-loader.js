@@ -49,7 +49,7 @@ function seededRandom(seed) {
   let state = seed;
   return () => (state = state * 16807 % 2147483647) / 2147483647;
 }
-function buildTower(doc, svg) {
+function buildTower(doc, svg, idPrefix = "shell-loader") {
   const el = (tag, attrs, parent) => {
     const node = doc.createElementNS(SVG_NS, tag);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
@@ -62,9 +62,9 @@ function buildTower(doc, svg) {
     tracks.push({ node, keyframes });
   };
   const defs = el("defs", {}, svg);
-  const shineGradient = el("linearGradient", { id: "shell-loader-shine", x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+  const shineGradient = el("linearGradient", { id: `${idPrefix}-shine`, x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
   for (const [offset, opacity] of [[0, 0], [0.5, 0.55], [1, 0]]) el("stop", { offset, class: "shell-loader-shine-stop", "stop-opacity": opacity }, shineGradient);
-  const bodyClip = el("clipPath", { id: "shell-loader-body" }, defs);
+  const bodyClip = el("clipPath", { id: `${idPrefix}-body` }, defs);
   const root = el("g", {}, svg);
   track(root, [{ offset: 0, opacity: 1 }, { offset: at(4.25), opacity: 1 }, { offset: at(4.75), opacity: 0 }, { offset: 1, opacity: 0 }]);
   const body = el("g", {}, root);
@@ -100,8 +100,8 @@ function buildTower(doc, svg) {
     }
   }
   track(el("polygon", { points: points([1.6, D, 0], [2.4, D, 0], [2.4, D, 0.75], [1.6, D, 0.75]), class: "shell-loader-lit" }, lit), fadeIn(1.3, 1.6));
-  const shineGroup = el("g", { "clip-path": "url(#shell-loader-body)" }, root);
-  const shine = el("rect", { x: -160, y: -200, width: 60, height: 320, fill: "url(#shell-loader-shine)", opacity: 0 }, shineGroup);
+  const shineGroup = el("g", { "clip-path": `url(#${idPrefix}-body)` }, root);
+  const shine = el("rect", { x: -160, y: -200, width: 60, height: 320, fill: `url(#${idPrefix}-shine)`, opacity: 0 }, shineGroup);
   const sweep = (x, opacity, offset) => ({ offset, opacity, transform: `translateX(${x}px) skewX(-20deg)` });
   track(shine, [sweep(0, 1, 0), sweep(0, 1, at(2.95)), sweep(300, 1, at(3.65)), sweep(300, 0, at(3.7)), sweep(300, 0, 1)]);
   const outline = [[0, D, 0], [W, D, 0], [W, 0, 0], [W, 0, H], [0, 0, H], [0, D, H], [0, D, 0]].map((p) => iso(p[0], p[1], p[2]));
@@ -248,13 +248,60 @@ function createModuleLoader(deps) {
   }
   return { show, hide };
 }
+const SPLASH_STORAGE_KEY = "osbb_splash_shown";
+const SPLASH_PLAY_MS = 3800;
+const SPLASH_REDUCED_MS = 1200;
+const SPLASH_FADE_MS = 400;
+function playLaunchSplash(deps) {
+  const { document: doc, window: win, root } = deps;
+  if (root.hidden) return;
+  const setTimer = deps.setTimeout ?? win.setTimeout.bind(win);
+  const clearTimer = deps.clearTimeout ?? win.clearTimeout.bind(win);
+  try {
+    (deps.storage ?? win.sessionStorage)?.setItem(SPLASH_STORAGE_KEY, "1");
+  } catch {
+  }
+  const reduced = Boolean(win.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
+  const svg = doc.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "app-splash-art");
+  svg.setAttribute("viewBox", "-80 -175 170 255");
+  svg.setAttribute("aria-hidden", "true");
+  root.prepend(svg);
+  const running = [];
+  for (const { node, keyframes } of buildTower(doc, svg, "app-splash")) {
+    if (reduced || typeof node.animate !== "function") continue;
+    running.push(node.animate(keyframes, { duration: LOADER_CYCLE_MS, iterations: 1 }));
+  }
+  let finished = false;
+  let playTimer;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    if (playTimer !== void 0) clearTimer(playTimer);
+    for (const animation of running) animation.cancel();
+    root.classList.add("is-leaving");
+    setTimer(() => {
+      root.hidden = true;
+      root.classList.remove("is-leaving");
+      svg.remove();
+    }, SPLASH_FADE_MS);
+  };
+  root.addEventListener("click", finish, { once: true });
+  playTimer = setTimer(finish, reduced ? SPLASH_REDUCED_MS : SPLASH_PLAY_MS);
+}
 export {
   LOADER_CYCLE_MS,
   LOADER_FADE_MS,
   LOADER_FINALE_MS,
   LOADER_SAFETY_MS,
   LOADER_SHOW_DELAY_MS,
+  SPLASH_FADE_MS,
+  SPLASH_PLAY_MS,
+  SPLASH_REDUCED_MS,
+  SPLASH_STORAGE_KEY,
+  buildTower,
   createModuleLoader,
+  playLaunchSplash,
   pointAlong,
   polylineLength
 };
