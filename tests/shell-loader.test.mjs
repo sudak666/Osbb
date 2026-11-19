@@ -154,6 +154,8 @@ function makeSplash({ reduced = false, hidden = false } = {}) {
 test('launch splash plays the tower once, then fades out and remembers this launch', () => {
   const { root, fire, stored, animations } = makeSplash();
   assert.equal(stored.get(SPLASH_STORAGE_KEY), '1');
+  assert.equal(root.classList.contains('is-playing'), true, 'title appears only once the tower exists');
+  assert.equal(root.children[0].tag, 'svg');
   assert.ok(animations().length > 50);
   assert.ok(animations().every((animation) => animation.options.iterations === 1));
   fire(SPLASH_PLAY_MS);

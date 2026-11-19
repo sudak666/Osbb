@@ -267,6 +267,7 @@ function playLaunchSplash(deps) {
   svg.setAttribute("viewBox", "-80 -175 170 255");
   svg.setAttribute("aria-hidden", "true");
   root.prepend(svg);
+  root.classList.add("is-playing");
   const running = [];
   for (const { node, keyframes } of buildTower(doc, svg, "app-splash")) {
     if (reduced || typeof node.animate !== "function") continue;

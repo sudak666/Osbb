@@ -331,6 +331,7 @@ export function playLaunchSplash(deps: LaunchSplashDeps): void {
     svg.setAttribute('viewBox', '-80 -175 170 255');
     svg.setAttribute('aria-hidden', 'true');
     root.prepend(svg);
+    root.classList.add('is-playing'); // назва з'являється під уже наявною вежею (CSS-перехід із затримкою)
     const running: Animation[] = [];
     for (const { node, keyframes } of buildTower(doc, svg, 'app-splash')) {
         if (reduced || typeof (node as Element & { animate?: unknown }).animate !== 'function') continue;
