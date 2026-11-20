@@ -155,7 +155,7 @@
     }
     .app-splash.is-playing .app-splash-title { opacity: 1; transform: none; }
     /* Назва складається з цеглинок (buildBrickTitle у src/shell-loader.ts): кожна літера — три смуги
-       (clip-path), що падають згори знизу вгору кольоровими, клацають і набувають кольору тексту.
+       (clip-path), що падають знизу вгору в акцентному зеленому, клацають і хвилею набувають кольору тексту.
        Базовий стан = складена назва, тож без анімацій (або без clip-path) назва просто видна. */
     .app-splash-title.is-bricks {
         opacity: 1; transform: none; transition: none;
@@ -180,7 +180,7 @@
         100% { opacity: 1; transform: none; }
     }
     @keyframes splash-brick-set {
-        0% { color: var(--brick, currentColor); }
+        0% { color: var(--md-sys-color-primary, #08752f); }
         100% { color: var(--md-sys-color-on-surface, #1a1c19); }
     }
     @keyframes splash-title-click {
