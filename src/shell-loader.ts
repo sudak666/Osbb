@@ -175,12 +175,11 @@ export const BRICK_SLICE_STEP_MS = 90;
 export const BRICK_DROP_MS = 460;
 /** Крок хвилі, якою складені кольорові літери стають кольору тексту. */
 export const BRICK_SET_STEP_MS = 22;
-const BRICK_COLORS = ['primary', 'secondary', 'tertiary', 'error'] as const;
 
 /**
  * Розбиває назву на слова → літери → цеглинки (та сама літера, обрізана clip-path
- * на смугу). Цеглинки падають згори кольоровими, клацають на місце й набувають
- * кольору тексту; коли остання встала — назва легенько «клацає» цілком (CSS).
+ * на смугу). Цеглинки падають згори в акцентному зеленому, клацають на місце, а коли
+ * назва складена — хвилею набувають кольору тексту; коли остання встала — назва легенько «клацає» цілком (CSS).
  * Повертає момент, коли складено останню цеглинку (мс від старту).
  * Сама анімація — CSS (@keyframes у styles.css), тут лише затримки й зсуви.
  */
@@ -205,9 +204,8 @@ export function buildBrickTitle(doc: Document, title: HTMLElement): number {
                 const delay = BRICK_START_MS + index * BRICK_LETTER_STEP_MS + slice * BRICK_SLICE_STEP_MS;
                 const side = (index + slice) % 2 ? 1 : -1;
                 const shiftX = side * (6 + ((index * 7 + slice * 3) % 9));
-                const tilt = side * (5 + ((index + slice) % 3) * 4);
-                const color = BRICK_COLORS[(index + slice) % BRICK_COLORS.length];
-                brick.setAttribute('style', `--d:${delay}ms;--s:${done + index * BRICK_SET_STEP_MS}ms;--bx:${shiftX}px;--br:${tilt}deg;--brick:var(--md-sys-color-${color})`);
+                const tilt = side * (3 + ((index + slice) % 3) * 2);
+                brick.setAttribute('style', `--d:${delay}ms;--s:${done + index * BRICK_SET_STEP_MS}ms;--bx:${shiftX}px;--br:${tilt}deg`);
                 letter.append(brick);
             }
             wordNode.append(letter);

@@ -123,7 +123,6 @@ const BRICK_LETTER_STEP_MS = 65;
 const BRICK_SLICE_STEP_MS = 90;
 const BRICK_DROP_MS = 460;
 const BRICK_SET_STEP_MS = 22;
-const BRICK_COLORS = ["primary", "secondary", "tertiary", "error"];
 function buildBrickTitle(doc, title) {
   const words = (title.textContent ?? "").split(/\s+/).filter(Boolean);
   title.textContent = "";
@@ -144,9 +143,8 @@ function buildBrickTitle(doc, title) {
         const delay = BRICK_START_MS + index * BRICK_LETTER_STEP_MS + slice * BRICK_SLICE_STEP_MS;
         const side = (index + slice) % 2 ? 1 : -1;
         const shiftX = side * (6 + (index * 7 + slice * 3) % 9);
-        const tilt = side * (5 + (index + slice) % 3 * 4);
-        const color = BRICK_COLORS[(index + slice) % BRICK_COLORS.length];
-        brick.setAttribute("style", `--d:${delay}ms;--s:${done + index * BRICK_SET_STEP_MS}ms;--bx:${shiftX}px;--br:${tilt}deg;--brick:var(--md-sys-color-${color})`);
+        const tilt = side * (3 + (index + slice) % 3 * 2);
+        brick.setAttribute("style", `--d:${delay}ms;--s:${done + index * BRICK_SET_STEP_MS}ms;--bx:${shiftX}px;--br:${tilt}deg`);
         letter.append(brick);
       }
       wordNode.append(letter);
