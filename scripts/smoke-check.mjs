@@ -133,6 +133,8 @@ const checks = [
   ['styles.css', '.app-splash.is-playing .app-splash-title { opacity: 1; transform: none; }', 'splash title waits for the house instead of flashing alone'],
   ['src/house-scene.ts', "{ fp: [[-2.6, 0], [0, 0], [0, 5.6], [-2.6, 5.6]], floors: 24, turret: [-1.9, 0.7] },", 'house scene keeps the courtyard wing with the spire on the far side'],
   ['src/shell-loader.ts', "const scene = buildHouseScene(doc, svg, 'app-splash');", 'launch splash plays the house scene'],
+  ['src/shell-loader.ts', 'if (title && !reduced) buildBrickTitle(doc, title);', 'splash title assembles from bricks (plain with reduced motion)'],
+  ['styles.css', '.splash-brick-0 { clip-path: inset(calc(var(--c2) - .02em) 0 0 0); }', 'title bricks are slices of the same letter'],
   ['package.json', '"html-to-image": "1.11.13"', 'report image library is pinned to an exact version'],
   ['src/shell-report.ts', "await import('html-to-image')", 'report image library loads lazily only on demand'],
   ['styles.css', '.rpt-capture-host .rpt-table-wrap { overflow: visible; }', 'report image shows full tables without scrollbars'],

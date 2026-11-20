@@ -164,6 +164,62 @@ export interface LaunchSplashDeps {
     clearTimeout?: Window['clearTimeout'];
 }
 
+/* ---------- Назва заставки складається з «цеглинок» ---------- */
+
+/** Скільки горизонтальних «цеглинок» у кожній літері (знизу вгору, як конструктор). */
+export const BRICK_SLICES = 3;
+export const BRICK_START_MS = 450;
+export const BRICK_LETTER_STEP_MS = 65;
+export const BRICK_SLICE_STEP_MS = 90;
+/** Тривалість падіння однієї цеглинки — має збігатися з `.splash-brick` у styles.css. */
+export const BRICK_DROP_MS = 460;
+/** Крок хвилі, якою складені кольорові літери стають кольору тексту. */
+export const BRICK_SET_STEP_MS = 22;
+const BRICK_COLORS = ['primary', 'secondary', 'tertiary', 'error'] as const;
+
+/**
+ * Розбиває назву на слова → літери → цеглинки (та сама літера, обрізана clip-path
+ * на смугу). Цеглинки падають згори кольоровими, клацають на місце й набувають
+ * кольору тексту; коли остання встала — назва легенько «клацає» цілком (CSS).
+ * Повертає момент, коли складено останню цеглинку (мс від старту).
+ * Сама анімація — CSS (@keyframes у styles.css), тут лише затримки й зсуви.
+ */
+export function buildBrickTitle(doc: Document, title: HTMLElement): number {
+    const words = (title.textContent ?? '').split(/\s+/).filter(Boolean);
+    title.textContent = '';
+    const letters = words.join('').length;
+    // Остання цеглинка останньої літери встала → назва «клацає» й хвилею стає кольору тексту.
+    const done = BRICK_START_MS + (letters - 1) * BRICK_LETTER_STEP_MS + (BRICK_SLICES - 1) * BRICK_SLICE_STEP_MS + BRICK_DROP_MS;
+    let index = 0;
+    words.forEach((word, w) => {
+        if (w > 0) title.append(' ');
+        const wordNode = doc.createElement('span');
+        wordNode.className = 'splash-word';
+        for (const char of word) {
+            const letter = doc.createElement('span');
+            letter.className = char === char.toLowerCase() && char !== char.toUpperCase() ? 'splash-letter is-lower' : 'splash-letter';
+            for (let slice = 0; slice < BRICK_SLICES; slice += 1) {
+                const brick = doc.createElement('span');
+                brick.className = `splash-brick splash-brick-${slice}`;
+                brick.textContent = char;
+                const delay = BRICK_START_MS + index * BRICK_LETTER_STEP_MS + slice * BRICK_SLICE_STEP_MS;
+                const side = (index + slice) % 2 ? 1 : -1;
+                const shiftX = side * (6 + ((index * 7 + slice * 3) % 9));
+                const tilt = side * (5 + ((index + slice) % 3) * 4);
+                const color = BRICK_COLORS[(index + slice) % BRICK_COLORS.length];
+                brick.setAttribute('style', `--d:${delay}ms;--s:${done + index * BRICK_SET_STEP_MS}ms;--bx:${shiftX}px;--br:${tilt}deg;--brick:var(--md-sys-color-${color})`);
+                letter.append(brick);
+            }
+            wordNode.append(letter);
+            index += 1;
+        }
+        title.append(wordNode);
+    });
+    title.setAttribute('style', `--done:${done}ms`);
+    title.classList.add('is-bricks');
+    return done;
+}
+
 /**
  * Один раз за запуск (sessionStorage) програє сцену будинку поверх усього застосунку,
  * потім згасає. Дотик пропускає заставку. Якщо inline-скрипт у index.html уже
@@ -183,7 +239,9 @@ export function playLaunchSplash(deps: LaunchSplashDeps): void {
     root.prepend(svg);
     const scene = buildHouseScene(doc, svg, 'app-splash');
     svg.setAttribute('viewBox', scene.viewBox);
-    root.classList.add('is-playing'); // назва з'являється під уже наявним будинком (CSS-перехід із затримкою)
+    const title = root.querySelector?.<HTMLElement>('.app-splash-title');
+    if (title && !reduced) buildBrickTitle(doc, title);
+    root.classList.add('is-playing'); // назва з'являється під уже наявним будинком (цеглинками або CSS-переходом)
     const running: Animation[] = [];
     for (const { node, keyframes } of scene.tracks) {
         if (reduced || typeof (node as Element & { animate?: unknown }).animate !== 'function') continue;

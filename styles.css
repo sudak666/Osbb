@@ -146,13 +146,50 @@
     .app-splash.is-leaving { opacity: 0; pointer-events: none; }
     .app-splash-art { width: min(560px, 94vw); max-height: 64vh; height: auto; overflow: visible; }
     .app-splash-title {
-        font-size: var(--md-sys-typescale-title-large-size, 22px); line-height: var(--md-sys-typescale-title-large-line-height, 28px);
-        font-weight: 500; color: var(--md-sys-color-on-surface, #1a1c19); text-align: center;
+        /* Крупно й жирно — щоб «цеглинки» літер було видно. */
+        font-size: 26px; line-height: 34px;
+        font-weight: 700; color: var(--md-sys-color-on-surface, #1a1c19); text-align: center;
         /* До старту JS вежі ще нема — назва не має блимати сама й потім стрибати вниз. */
         opacity: 0; transform: translateY(6px);
         transition: opacity 500ms var(--md-sys-motion-easing-standard, ease) 900ms, transform 500ms var(--md-sys-motion-easing-standard, ease) 900ms;
     }
     .app-splash.is-playing .app-splash-title { opacity: 1; transform: none; }
+    /* Назва складається з цеглинок (buildBrickTitle у src/shell-loader.ts): кожна літера — три смуги
+       (clip-path), що падають згори знизу вгору кольоровими, клацають і набувають кольору тексту.
+       Базовий стан = складена назва, тож без анімацій (або без clip-path) назва просто видна. */
+    .app-splash-title.is-bricks {
+        opacity: 1; transform: none; transition: none;
+        animation: splash-title-click 420ms var(--md-sys-motion-easing-standard, ease) var(--done, 0ms) both;
+    }
+    .splash-word { display: inline-block; white-space: nowrap; }
+    .splash-letter { position: relative; display: inline-block; line-height: 1; --c1: .637em; --c2: .874em; }
+    .splash-letter.is-lower { --c1: .777em; --c2: .943em; }
+    .splash-brick {
+        display: block; padding: .25em 0; margin: -.25em 0; transform-origin: 50% 80%;
+        animation: splash-brick-drop 460ms cubic-bezier(.3, .7, .4, 1) var(--d, 0ms) both, splash-brick-set 500ms var(--md-sys-motion-easing-standard, ease) var(--s, 0ms) both;
+    }
+    .splash-brick-1, .splash-brick-2 { position: absolute; top: 0; left: 0; right: 0; margin: -.25em 0 0; }
+    .splash-brick-0 { clip-path: inset(calc(var(--c2) - .02em) 0 0 0); }
+    .splash-brick-1 { clip-path: inset(calc(var(--c1) - .02em) 0 calc(100% - var(--c2)) 0); }
+    .splash-brick-2 { clip-path: inset(0 0 calc(100% - var(--c1)) 0); }
+    @keyframes splash-brick-drop {
+        0% { opacity: 0; transform: translate(var(--bx, 0px), -1.6em) rotate(var(--br, 0deg)); }
+        35% { opacity: 1; }
+        68% { transform: translate(0, .08em) rotate(0deg); }
+        84% { transform: translate(0, -.04em); }
+        100% { opacity: 1; transform: none; }
+    }
+    @keyframes splash-brick-set {
+        0% { color: var(--brick, currentColor); }
+        100% { color: var(--md-sys-color-on-surface, #1a1c19); }
+    }
+    @keyframes splash-title-click {
+        0%, 100% { transform: none; }
+        40% { transform: scale(1.05); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .app-splash-title.is-bricks, .splash-brick { animation: none; }
+    }
 
     /* Завантаження модуля: та сама сцена будинку (src/shell-loader.ts), підпис «Відкриваю …». */
     .shell-loader {

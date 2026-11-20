@@ -117,6 +117,47 @@ const SPLASH_STORAGE_KEY = "osbb_splash_shown";
 const SPLASH_PLAY_MS = HOUSE_COMPLETE_MS;
 const SPLASH_REDUCED_MS = 1200;
 const SPLASH_FADE_MS = 400;
+const BRICK_SLICES = 3;
+const BRICK_START_MS = 450;
+const BRICK_LETTER_STEP_MS = 65;
+const BRICK_SLICE_STEP_MS = 90;
+const BRICK_DROP_MS = 460;
+const BRICK_SET_STEP_MS = 22;
+const BRICK_COLORS = ["primary", "secondary", "tertiary", "error"];
+function buildBrickTitle(doc, title) {
+  const words = (title.textContent ?? "").split(/\s+/).filter(Boolean);
+  title.textContent = "";
+  const letters = words.join("").length;
+  const done = BRICK_START_MS + (letters - 1) * BRICK_LETTER_STEP_MS + (BRICK_SLICES - 1) * BRICK_SLICE_STEP_MS + BRICK_DROP_MS;
+  let index = 0;
+  words.forEach((word, w) => {
+    if (w > 0) title.append(" ");
+    const wordNode = doc.createElement("span");
+    wordNode.className = "splash-word";
+    for (const char of word) {
+      const letter = doc.createElement("span");
+      letter.className = char === char.toLowerCase() && char !== char.toUpperCase() ? "splash-letter is-lower" : "splash-letter";
+      for (let slice = 0; slice < BRICK_SLICES; slice += 1) {
+        const brick = doc.createElement("span");
+        brick.className = `splash-brick splash-brick-${slice}`;
+        brick.textContent = char;
+        const delay = BRICK_START_MS + index * BRICK_LETTER_STEP_MS + slice * BRICK_SLICE_STEP_MS;
+        const side = (index + slice) % 2 ? 1 : -1;
+        const shiftX = side * (6 + (index * 7 + slice * 3) % 9);
+        const tilt = side * (5 + (index + slice) % 3 * 4);
+        const color = BRICK_COLORS[(index + slice) % BRICK_COLORS.length];
+        brick.setAttribute("style", `--d:${delay}ms;--s:${done + index * BRICK_SET_STEP_MS}ms;--bx:${shiftX}px;--br:${tilt}deg;--brick:var(--md-sys-color-${color})`);
+        letter.append(brick);
+      }
+      wordNode.append(letter);
+      index += 1;
+    }
+    title.append(wordNode);
+  });
+  title.setAttribute("style", `--done:${done}ms`);
+  title.classList.add("is-bricks");
+  return done;
+}
 function playLaunchSplash(deps) {
   const { document: doc, window: win, root } = deps;
   if (root.hidden) return;
@@ -133,6 +174,8 @@ function playLaunchSplash(deps) {
   root.prepend(svg);
   const scene = buildHouseScene(doc, svg, "app-splash");
   svg.setAttribute("viewBox", scene.viewBox);
+  const title = root.querySelector?.(".app-splash-title");
+  if (title && !reduced) buildBrickTitle(doc, title);
   root.classList.add("is-playing");
   const running = [];
   for (const { node, keyframes } of scene.tracks) {
@@ -157,6 +200,12 @@ function playLaunchSplash(deps) {
   playTimer = setTimer(finish, reduced ? SPLASH_REDUCED_MS : SPLASH_PLAY_MS);
 }
 export {
+  BRICK_DROP_MS,
+  BRICK_LETTER_STEP_MS,
+  BRICK_SET_STEP_MS,
+  BRICK_SLICES,
+  BRICK_SLICE_STEP_MS,
+  BRICK_START_MS,
   LOADER_CYCLE_MS,
   LOADER_FADE_MS,
   LOADER_FINALE_MS,
@@ -166,6 +215,7 @@ export {
   SPLASH_PLAY_MS,
   SPLASH_REDUCED_MS,
   SPLASH_STORAGE_KEY,
+  buildBrickTitle,
   createModuleLoader,
   playLaunchSplash
 };
