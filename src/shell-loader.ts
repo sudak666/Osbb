@@ -184,7 +184,8 @@ export const BRICK_SET_STEP_MS = 22;
  * Сама анімація — CSS (@keyframes у styles.css), тут лише затримки й зсуви.
  */
 export function buildBrickTitle(doc: Document, title: HTMLElement): number {
-    const words = (title.textContent ?? '').split(/\s+/).filter(Boolean);
+    // Ділимо лише за звичайними пробілами: нерозривний (&nbsp;) тримає «Микитська Слобода» в одному рядку.
+    const words = (title.textContent ?? '').split(/[ \t\r\n]+/).filter(Boolean);
     title.textContent = '';
     const letters = words.join('').length;
     // Остання цеглинка останньої літери встала → назва «клацає» й хвилею стає кольору тексту.
