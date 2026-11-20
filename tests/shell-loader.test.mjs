@@ -202,6 +202,10 @@ test('splash title is built from bricks: every letter in three slices, bottom fi
   assert.equal(title.attributes.get('style'), `--done:${done}ms`);
   assert.ok(title.classList.contains('is-bricks'));
   assert.ok(done < SPLASH_PLAY_MS, 'the title is assembled before the splash fades');
+  const kept = new FakeNode('div');
+  kept.textContent = 'ЖК "А' + String.fromCharCode(160) + 'Б"';
+  buildBrickTitle(doc, kept);
+  assert.equal(kept.children.length, 3, 'a non-breaking space keeps the quoted name in one word');
 });
 
 test('launch splash plays the tower once, then fades out and remembers this launch', () => {

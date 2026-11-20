@@ -156,10 +156,12 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .items-metrics{margin-bottom:18px;}
 .items-filter-bar{position:sticky;top:74px;z-index:8;margin-bottom:16px;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:var(--radius-xl);background:var(--md-sys-color-surface-container-high,var(--surface-2));box-shadow:none;}
 .items-filter-primary-row{display:flex;gap:8px;align-items:center;min-width:0;}
-.inventory-filters{position:relative;flex:0 0 auto;}
+/* Панель фільтрів позиціюється від усієї смуги (.items-filter-bar — sticky), а не від кнопки: від кнопки праворуч вона
+   розкривалась уліво за межі модуля й обрізалась під бічним меню shell. */
+.inventory-filters{position:static;flex:0 0 auto;}
 .inventory-filters summary{list-style:none;min-height:48px;cursor:pointer;}
 .inventory-filters summary::-webkit-details-marker{display:none;}
-.inventory-filters-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(680px,calc(100vw - 40px));padding:12px;background:var(--md-sys-color-surface-container-high,var(--surface-2));border:1px solid var(--md-sys-color-outline,var(--border));border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level3);z-index:20;}
+.inventory-filters-panel{position:absolute;top:calc(100% + 8px);left:0;right:auto;width:min(680px,100%);box-sizing:border-box;padding:12px;background:var(--md-sys-color-surface-container-high,var(--surface-2));border:1px solid var(--md-sys-color-outline,var(--border));border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level3);z-index:20;}
 .movement-switch{display:inline-flex;gap:4px;padding:4px;margin-bottom:14px;border:1px solid var(--md-sys-color-outline,var(--border));border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-surface-container,var(--surface-2));}
 .movement-switch-btn{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:8px 16px;border:0;border-radius:var(--md-sys-shape-corner-medium,12px);background:transparent;color:var(--md-sys-color-on-surface-variant,var(--sklad-label3));font:inherit;font-weight:700;cursor:pointer;}
 .movement-switch-btn.active{background:var(--md-sys-color-secondary-container,var(--brand-soft));color:var(--md-sys-color-on-secondary-container,var(--brand));}

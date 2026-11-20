@@ -124,7 +124,7 @@ const BRICK_SLICE_STEP_MS = 90;
 const BRICK_DROP_MS = 460;
 const BRICK_SET_STEP_MS = 22;
 function buildBrickTitle(doc, title) {
-  const words = (title.textContent ?? "").split(/\s+/).filter(Boolean);
+  const words = (title.textContent ?? "").split(/[ \t\r\n]+/).filter(Boolean);
   title.textContent = "";
   const letters = words.join("").length;
   const done = BRICK_START_MS + (letters - 1) * BRICK_LETTER_STEP_MS + (BRICK_SLICES - 1) * BRICK_SLICE_STEP_MS + BRICK_DROP_MS;
