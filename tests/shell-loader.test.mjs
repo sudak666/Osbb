@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  createModuleLoader, LOADER_FADE_MS, LOADER_FINALE_MS, LOADER_SAFETY_MS, LOADER_SHOW_DELAY_MS, playLaunchSplash,
+  BRICK_DROP_MS, BRICK_SLICES, BRICK_SLICE_STEP_MS, BRICK_START_MS, buildBrickTitle, createModuleLoader, LOADER_FADE_MS, LOADER_FINALE_MS, LOADER_SAFETY_MS, LOADER_SHOW_DELAY_MS, playLaunchSplash,
   SPLASH_FADE_MS, SPLASH_PLAY_MS, SPLASH_REDUCED_MS, SPLASH_STORAGE_KEY,
 } from '../src/shell-loader.js';
 import { buildHouseScene, HOUSE_COMPLETE_MS, HOUSE_CYCLE_MS, pointAlong, polylineLength, shadeHex } from '../src/house-scene.js';
@@ -156,9 +156,14 @@ function makeSplash({ reduced = false, hidden = false } = {}) {
   const timers = new Map();
   let nextId = 1;
   const all = [];
-  const doc = { createElementNS: (_ns, tag) => { const node = new FakeNode(tag); all.push(node); return node; } };
+  const make = (tag) => { const node = new FakeNode(tag); all.push(node); return node; };
+  const doc = { createElement: make, createElementNS: (_ns, tag) => make(tag) };
   const root = new FakeNode('div');
   root.hidden = hidden;
+  const title = new FakeNode('div');
+  title.textContent = 'ОСББ "Сл"';
+  root.append(title);
+  root.querySelector = (selector) => (selector === '.app-splash-title' ? title : null);
   const stored = new Map();
   playLaunchSplash({
     document: doc, root,
@@ -174,12 +179,35 @@ function makeSplash({ reduced = false, hidden = false } = {}) {
     entry[1].handler();
   };
   const animations = () => all.flatMap((node) => node.animations);
-  return { root, fire, timers, stored, animations };
+  return { root, title, fire, timers, stored, animations };
 }
 
+test('splash title is built from bricks: every letter in three slices, bottom first, word by word', () => {
+  const doc = { createElement: (tag) => new FakeNode(tag) };
+  const title = new FakeNode('div');
+  title.textContent = 'ОСББ  "Ми"';
+  const done = buildBrickTitle(doc, title);
+  assert.equal(title.children.length, 3, 'two words with a space between');
+  assert.equal(title.children[1], ' ');
+  const [first, , second] = title.children;
+  assert.equal(first.className, 'splash-word');
+  assert.deepEqual(first.children.map((letter) => letter.children[0].textContent), ['О', 'С', 'Б', 'Б']);
+  assert.equal(second.children[2].className, 'splash-letter is-lower');
+  const bricks = [first, second].flatMap((word) => word.children).flatMap((letter) => letter.children);
+  assert.equal(bricks.length, 8 * BRICK_SLICES);
+  const delay = (brick) => Number(/--d:(\d+)ms/.exec(brick.attributes.get('style'))[1]);
+  assert.equal(delay(bricks[0]), BRICK_START_MS);
+  assert.equal(delay(bricks[1]) - delay(bricks[0]), BRICK_SLICE_STEP_MS, 'bottom slice lands before the one above it');
+  assert.equal(done, Math.max(...bricks.map(delay)) + BRICK_DROP_MS);
+  assert.equal(title.attributes.get('style'), `--done:${done}ms`);
+  assert.ok(title.classList.contains('is-bricks'));
+  assert.ok(done < SPLASH_PLAY_MS, 'the title is assembled before the splash fades');
+});
+
 test('launch splash plays the tower once, then fades out and remembers this launch', () => {
-  const { root, fire, stored, animations } = makeSplash();
+  const { root, title, fire, stored, animations } = makeSplash();
   assert.equal(stored.get(SPLASH_STORAGE_KEY), '1');
+  assert.ok(title.classList.contains('is-bricks'), 'title assembles from bricks');
   assert.equal(root.classList.contains('is-playing'), true, 'title appears only once the tower exists');
   assert.equal(root.children[0].tag, 'svg');
   assert.ok(animations().length > 50);
@@ -189,7 +217,7 @@ test('launch splash plays the tower once, then fades out and remembers this laun
   assert.equal(root.classList.contains('is-leaving'), true);
   fire(SPLASH_FADE_MS);
   assert.equal(root.hidden, true);
-  assert.equal(root.children.length, 0, 'tower SVG is removed after the splash');
+  assert.equal(root.children.some((child) => child.tag === 'svg'), false, 'house SVG is removed after the splash');
 });
 
 test('launch splash can be skipped with a tap', () => {
@@ -208,8 +236,9 @@ test('launch splash does nothing when this launch already saw it', () => {
 });
 
 test('launch splash shows a short static tower with reduced motion', () => {
-  const { root, fire, animations } = makeSplash({ reduced: true });
+  const { root, title, fire, animations } = makeSplash({ reduced: true });
   assert.equal(animations().length, 0);
+  assert.equal(title.classList.contains('is-bricks'), false, 'reduced motion keeps the plain title');
   fire(SPLASH_REDUCED_MS);
   fire(SPLASH_FADE_MS);
   assert.equal(root.hidden, true);
