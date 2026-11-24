@@ -117,11 +117,20 @@
             <a href="https://www.deyecloud.com/station/new-main?id=61184357" target="_blank" rel="noopener noreferrer" class="shell-nav-item md-state-layer" id="shell-tab-deye" aria-label="Deye — відкриється в новій вкладці">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">solar_power</span><span class="shell-nav-label">Deye</span>
             </a>
+            <button type="button" class="shell-nav-item md-state-layer" data-shell-settings aria-haspopup="dialog" aria-expanded="false" aria-controls="shell-settings">
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">settings</span><span class="shell-nav-label">Налаштування</span>
+            </button>
             <button type="button" class="shell-nav-item shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock data-tip="Заблокувати" aria-label="Заблокувати застосунок">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">lock</span><span class="shell-nav-label">Заблокувати</span>
             </button>
         </div>
     </nav>
+    <div id="shell-settings" class="shell-settings" role="dialog" aria-label="Налаштування" hidden>
+        <div class="shell-settings-title">Налаштування</div>
+        <label class="shell-switch-row md-state-layer"><span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">dark_mode</span><span class="shell-nav-label">Темна тема</span><input type="checkbox" role="switch" data-shell-theme><span class="shell-switch" aria-hidden="true"></span></label>
+        <label class="shell-switch-row md-state-layer"><span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">key</span><span class="shell-nav-label">Вхід за PIN</span><input type="checkbox" role="switch" data-shell-pin><span class="shell-switch" aria-hidden="true"></span></label>
+        <label class="shell-switch-row md-state-layer"><span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">lock</span><span class="shell-nav-label">Автоблокування</span><input type="checkbox" role="switch" data-shell-auto-lock><span class="shell-switch" aria-hidden="true"></span></label>
+    </div>
     <div id="shell-frames">
         <section id="shell-home" class="shell-home" aria-label="Головна" hidden></section>
         <iframe id="frame-journal" title="Журнал ОСББ"></iframe>
@@ -165,6 +174,10 @@
             <button type="button" class="shell-more-item md-state-layer" data-shell-section="stats">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">bar_chart</span><span class="shell-nav-label">Статистика</span>
             </button>
+            <div class="shell-nav-group" role="presentation">Налаштування</div>
+            <label class="shell-switch-row md-state-layer"><span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">dark_mode</span><span class="shell-nav-label">Темна тема</span><input type="checkbox" role="switch" data-shell-theme><span class="shell-switch" aria-hidden="true"></span></label>
+            <label class="shell-switch-row md-state-layer"><span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">key</span><span class="shell-nav-label">Вхід за PIN</span><input type="checkbox" role="switch" data-shell-pin><span class="shell-switch" aria-hidden="true"></span></label>
+            <label class="shell-switch-row md-state-layer"><span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">lock</span><span class="shell-nav-label">Автоблокування</span><input type="checkbox" role="switch" data-shell-auto-lock><span class="shell-switch" aria-hidden="true"></span></label>
             <div class="shell-more-divider" role="presentation"></div>
             <a href="https://www.deyecloud.com/station/new-main?id=61184357" target="_blank" rel="noopener noreferrer" class="shell-more-item md-state-layer" aria-label="Deye — відкриється в новій вкладці">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">solar_power</span><span class="shell-nav-label">Deye</span>

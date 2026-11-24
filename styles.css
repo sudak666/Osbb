@@ -127,6 +127,36 @@
     .shell-nav-item.active, .shell-more-item.active { background: var(--md-sys-color-secondary-container, #dbeafe); color: var(--md-sys-color-on-secondary-container, #1e3a8a); font-weight: 500; }
     .shell-nav-item.active .shell-nav-icon, .shell-more-item.active .shell-nav-icon { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
     .shell-lock-btn, .shell-more-lock { color: var(--md-sys-color-error, #b3261e); }
+    .shell-nav-item[hidden], .shell-more-item[hidden] { display: none; }
+
+    /* Налаштування shell (src/shell-settings.ts): тема, вхід за PIN, автоблокування.
+       На комп'ютері — спливна панель біля бічного меню, на телефоні — рядки в листі «Ще». */
+    .shell-settings {
+        position: fixed; z-index: 70; left: calc(248px + 12px + env(safe-area-inset-left)); bottom: 12px;
+        width: 300px; max-width: calc(100vw - 24px); box-sizing: border-box; padding: 8px;
+        background: var(--md-sys-color-surface-container-high, #eceef0); color: var(--md-sys-color-on-surface, #1c1b1f);
+        border: 1px solid var(--md-sys-color-outline, #79747e); border-radius: var(--md-sys-shape-corner-large, 16px);
+        box-shadow: var(--md-sys-elevation-level3, 0 8px 24px rgba(0, 0, 0, .18));
+    }
+    .shell-settings[hidden] { display: none; }
+    .shell-settings-title { padding: 8px 12px 4px; color: var(--md-sys-color-on-surface-variant, #44474e); font-size: var(--md-sys-typescale-label-large-size, 14px); font-weight: 500; }
+    .shell-switch-row {
+        position: relative; display: flex; align-items: center; gap: 12px; min-height: var(--app-control-height, 48px); padding: 0 12px 0 16px;
+        border-radius: var(--md-sys-shape-corner-medium, 12px); color: var(--md-sys-color-on-surface, #1c1b1f); font-size: 14px; font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .shell-more-panel .shell-switch-row { min-height: 52px; }
+    .shell-switch-row .shell-nav-icon { color: var(--md-sys-color-on-surface-variant, #44474e); }
+    .shell-switch-row .shell-nav-label { flex: 1 1 auto; min-width: 0; }
+    .shell-switch-row input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+    .shell-switch-row.is-disabled { opacity: .5; cursor: default; }
+    .shell-switch-row:focus-within { outline: 2px solid var(--md-sys-color-primary, #1f7a3d); outline-offset: -2px; }
+    .shell-switch { position: relative; flex: 0 0 auto; width: 52px; height: 32px; box-sizing: border-box; border: 2px solid var(--md-sys-color-outline, #79747e); border-radius: var(--md-sys-shape-corner-full, 999px); background: var(--md-sys-color-surface-container-highest, #e3e3e3); transition: background var(--md-sys-motion-duration-short4, 200ms), border-color var(--md-sys-motion-duration-short4, 200ms); }
+    .shell-switch::after { content: ''; position: absolute; top: 50%; left: 6px; width: 16px; height: 16px; border-radius: var(--md-sys-shape-corner-full, 999px); background: var(--md-sys-color-outline, #79747e); transform: translateY(-50%); transition: left var(--md-sys-motion-duration-short4, 200ms), width var(--md-sys-motion-duration-short4, 200ms), height var(--md-sys-motion-duration-short4, 200ms), background var(--md-sys-motion-duration-short4, 200ms); }
+    .shell-switch-row input:checked + .shell-switch { border-color: var(--md-sys-color-primary, #1f7a3d); background: var(--md-sys-color-primary, #1f7a3d); }
+    .shell-switch-row input:checked + .shell-switch::after { left: 22px; width: 24px; height: 24px; background: var(--md-sys-color-on-primary, #fff); }
+    @media (prefers-reduced-motion: reduce) {
+        .shell-switch, .shell-switch::after { transition: none; }
+    }
 
     /* Контейнер для розділів: «Головна» в самому shell, модулі — в iframe */
     #shell-frames { position: relative; flex: 1 1 auto; min-width: 0; min-height: 0; height: 100dvh; background: var(--md-sys-color-background, #f2f2f7); }
@@ -268,6 +298,7 @@
         .shell-nav { flex-basis: 88px; align-items: center; padding-left: calc(8px + env(safe-area-inset-left)); padding-right: 8px; gap: 4px; }
         .shell-brand { padding: 4px 0 8px; }
         .shell-brand-copy { display: none; }
+        .shell-settings { left: calc(88px + 12px + env(safe-area-inset-left)); }
         .shell-nav-group { width: 40px; height: 1px; padding: 0; margin: 8px auto; overflow: hidden; color: transparent; background: var(--md-sys-color-outline-variant, rgba(60, 60, 67, .12)); }
         .shell-nav-list, .shell-nav-footer { width: 100%; align-items: center; }
         .shell-nav-item { flex-direction: column; gap: 4px; width: 72px; min-height: 0; padding: 6px 0; border-radius: var(--md-sys-shape-corner-large, 16px); font-size: 11px; text-align: center; }
@@ -279,6 +310,7 @@
 
     @media (max-width: 640px) {
         .shell-nav { display: none; }
+        .shell-settings { display: none; }
         /* Плаваюча картка з відступом 12px, як нижнє меню модулів раніше; модулі вже мають запас знизу. */
         .shell-bottom-nav {
             position: fixed; z-index: 40; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom));
