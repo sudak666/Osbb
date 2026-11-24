@@ -943,6 +943,14 @@
                 notifySecurityChanged();
             });
         }
+        // Тему й безпеку можна змінити й у налаштуваннях shell — підхоплюємо без перезавантаження.
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'selected_theme' && event.newValue) changeTheme(event.newValue);
+            if (event.key === 'osbb_pin_enabled' || event.key === 'osbb_auto_lock_enabled') {
+                if (pinToggle) pinToggle.checked = readSecurityFlag('osbb_pin_enabled');
+                if (autoLockToggle) autoLockToggle.checked = readSecurityFlag('osbb_auto_lock_enabled') && readSecurityFlag('osbb_pin_enabled');
+            }
+        });
         document.querySelectorAll('[data-calendar-select]').forEach((select) => {
             select.addEventListener('change', initCalendar);
         });

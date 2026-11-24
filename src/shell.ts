@@ -3,6 +3,7 @@ import { createShellController } from './shell-controller.ts';
 import { createShellDashboard } from './shell-dashboard.ts';
 import { createModuleLoader, playLaunchSplash } from './shell-loader.ts';
 import { createShellReport } from './shell-report.ts';
+import { createShellSettings } from './shell-settings.ts';
 import { createSupabaseRestClient, rpc } from './supabase-api.ts';
 
 let dashboard: ReturnType<typeof createShellDashboard> | null = null;
@@ -16,7 +17,7 @@ const moduleLoader = framesHost ? createModuleLoader({ document, host: framesHos
 const shellController = createShellController({
     document, window, navigator, rpc, moduleLoader,
     onSectionShown: (section) => { if (section === 'home') void dashboard?.refresh(); },
-    onLock: () => report?.close(),
+    onLock: () => { report?.close(); settings.setPopoverOpen(false); },
 });
 const homeContainer = document.getElementById('shell-home');
 if (homeContainer) {
@@ -28,15 +29,9 @@ if (homeContainer) {
     });
 }
 
-const applyShellTheme = (value: string | null): void => {
-    const theme = value === 'theme-dark' ? 'theme-dark' : 'theme-light';
-    document.body.classList.remove('theme-light', 'theme-dark');
-    document.body.classList.add(theme);
-    document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', theme === 'theme-dark' ? '#121214' : '#f4f7fb');
-};
-window.addEventListener('storage', event => {
-    if (event.key === 'selected_theme') applyShellTheme(event.newValue);
-});
+// Тема, PIN і автоблокування — у бічній панелі («Налаштування») і в листі «Ще».
+const settings = createShellSettings({ document, window, onSecurityChanged: () => shellController.resetIdleLockTimer() });
+settings.bind();
 
 shellController.bind();
 

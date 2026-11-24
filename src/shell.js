@@ -4,6 +4,7 @@ import { createShellController } from "./shell-controller.js";
 import { createShellDashboard } from "./shell-dashboard.js";
 import { createModuleLoader, playLaunchSplash } from "./shell-loader.js";
 import { createShellReport } from "./shell-report.js";
+import { createShellSettings } from "./shell-settings.js";
 import { createSupabaseRestClient, rpc } from "./supabase-api.js";
 let dashboard = null;
 const restClient = createSupabaseRestClient();
@@ -22,7 +23,10 @@ const shellController = createShellController({
   onSectionShown: (section) => {
     if (section === "home") void dashboard?.refresh();
   },
-  onLock: () => report?.close()
+  onLock: () => {
+    report?.close();
+    settings.setPopoverOpen(false);
+  }
 });
 const homeContainer = document.getElementById("shell-home");
 if (homeContainer) {
@@ -33,15 +37,8 @@ if (homeContainer) {
     onOpenReport: () => report?.open()
   });
 }
-const applyShellTheme = (value) => {
-  const theme = value === "theme-dark" ? "theme-dark" : "theme-light";
-  document.body.classList.remove("theme-light", "theme-dark");
-  document.body.classList.add(theme);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "theme-dark" ? "#121214" : "#f4f7fb");
-};
-window.addEventListener("storage", (event) => {
-  if (event.key === "selected_theme") applyShellTheme(event.newValue);
-});
+const settings = createShellSettings({ document, window, onSecurityChanged: () => shellController.resetIdleLockTimer() });
+settings.bind();
 shellController.bind();
 if (isAuthSessionValid()) {
   shellController.unlockShell();
