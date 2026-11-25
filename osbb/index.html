@@ -17,11 +17,9 @@
     <script src="/Osbb/shared/material-symbols-ready.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал ОСББ "Микитська Слобода"</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://vkwkyhjjjmcpmiakxohw.supabase.co" crossorigin>
     <script type="module" src="../shared/enhance-select.js"></script>
     <script src="/Osbb/shared/enhance-date.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap&subset=cyrillic" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-light min-h-screen">
@@ -117,7 +115,7 @@
     <div class="pulse-ring pulse-ring2"></div>
     <div class="intro-logo"><span class="material-symbols-rounded journal-splash-icon" aria-hidden="true">apartment</span></div>
     <div class="intro-name">ОСББ "Микитська Слобода"</div>
-    <div class="intro-sub"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">sync</span> Завантаження...</span></div>
+    <div class="intro-sub"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">sync</span> Завантаження…</span></div>
 </div>
 
 
@@ -196,7 +194,7 @@
     <button type="button" data-lightbox-action="close" aria-label="Закрити перегляд фото" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 
-<!-- МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — відкривається з календарної сітки (sm:hidden), показує зміни/завдання/заявки/фото/коментар обраного дня -->
+<!-- МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — відкривається з календарної сітки (sm:hidden), показує записи обраного дня -->
 <div id="day-detail-modal" class="day-detail-overlay no-print" data-day-detail-backdrop role="dialog" aria-modal="true" aria-labelledby="day-detail-title" tabindex="-1">
     <div class="day-detail-sheet">
         <div class="day-detail-sheet-handle" aria-hidden="true"></div>
@@ -219,7 +217,7 @@
             </div>
             <div class="journal-title-actions">
                 <span id="network-badge" style="display:none;" class="journal-status-chip is-offline"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">wifi_off</span>Офлайн</span>
-                <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span></span>
+                <span id="sync-status" class="journal-status-chip"><span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження…</span></span>
                 <details class="journal-security-menu">
                     <summary class="journal-theme-toggle md-state-layer" data-tip="Безпека" aria-label="Налаштування безпеки"><span class="material-symbols-rounded" aria-hidden="true">lock</span></summary>
                     <div class="journal-security-panel">
@@ -312,7 +310,7 @@
             <p class="shift-copy">Відмітки приїзду ліфтера цього місяця та що саме він робив.</p>
             <div class="elevator-add-form">
                 <select id="elevator-new-day" class="journal-select" aria-label="День приїзду ліфтера"></select>
-                <input type="text" id="elevator-new-text" class="dispatcher-location-input" placeholder="Що зробив ліфтер..." aria-label="Опис виконаних робіт">
+                <input type="text" id="elevator-new-text" class="dispatcher-location-input" placeholder="Що зробив ліфтер…" aria-label="Опис виконаних робіт">
                 <button type="button" class="journal-action-btn elevator-add-btn md-state-layer" data-action="elevator-add"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">add</span>Додати запис</button>
             </div>
             <div id="elevator-list" class="elevator-list"></div>
@@ -437,12 +435,15 @@
                 <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span>Журнал вивозу сміття</span>
                 <div class="flex items-center gap-2">
                     <span id="g-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
-                    <button type="button" data-action="garbage-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">restart_alt</span> Скинути</span></button>
                 </div>
             </div>
 
             <button type="button" class="journal-tonal-btn md-state-layer garbage-today" data-action="garbage-today"><span class="material-symbols-rounded" aria-hidden="true">today</span> Запис за сьогодні</button>
             <div id="g-days-list"></div>
+            <!-- Рідкісна й небезпечна дія — внизу журналу, а не в шапці поруч зі статусом (підтвердження лишається). -->
+            <div class="garbage-list-foot">
+                <button type="button" data-action="garbage-clear-month" class="journal-action-btn journal-action-btn-danger md-state-layer"><span class="journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">restart_alt</span> Скинути місяць</span></button>
+            </div>
         </div>
         <!-- Графік по місяцях -->
         <details class="journal-panel garbage-chart-panel">

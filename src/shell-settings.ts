@@ -105,9 +105,6 @@ export function createShellSettings(deps: ShellSettingsDeps): ShellSettings {
         doc.querySelectorAll<HTMLElement>('[data-shell-settings]').forEach((button) => {
             button.addEventListener('click', () => setPopoverOpen(!isPopoverOpen()));
         });
-        doc.querySelectorAll<HTMLElement>('[data-shell-settings-close]').forEach((button) => {
-            button.addEventListener('click', () => setPopoverOpen(false));
-        });
         doc.addEventListener('keydown', (event) => {
             if ((event as KeyboardEvent).key !== 'Escape' || !isPopoverOpen()) return;
             setPopoverOpen(false);
@@ -118,6 +115,14 @@ export function createShellSettings(deps: ShellSettingsDeps): ShellSettings {
             const target = event.target as Element | null;
             if (target?.closest('#shell-settings, [data-shell-settings]')) return;
             setPopoverOpen(false);
+        });
+        // Клік усередині модуля (iframe) не доходить до pointerdown shell — натомість
+        // вікно shell втрачає фокус на користь iframe. Тоді теж закриваємо панель.
+        win.addEventListener('blur', () => {
+            if (!isPopoverOpen()) return;
+            win.setTimeout(() => {
+                if (doc.activeElement?.tagName === 'IFRAME') setPopoverOpen(false);
+            }, 0);
         });
         // Зміни з журналу (його шапка) чи з іншої вкладки.
         win.addEventListener('storage', (event: StorageEvent) => {

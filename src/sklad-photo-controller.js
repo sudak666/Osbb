@@ -30,7 +30,7 @@ function createSkladPhotoController(options) {
     if (!file || !photoItemId) return;
     const itemId = photoItemId;
     const status = document.getElementById("photoStatus");
-    status.textContent = "Завантаження...";
+    status.textContent = "Завантаження…";
     const canvas = document.createElement("canvas");
     const image = new window.Image();
     image.onload = async () => {
@@ -60,7 +60,7 @@ function createSkladPhotoController(options) {
         cleanupPhotos();
         await loadItems();
         if (photoItemId === itemId) {
-          status.innerHTML = '<span class="ms ic-14-2">check_circle</span> Збережено!';
+          status.innerHTML = '<span class="ms ic-14-2">check_circle</span> Збережено';
           open(itemId);
         }
       }, "image/jpeg", 0.82);

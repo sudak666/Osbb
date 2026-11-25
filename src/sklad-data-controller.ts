@@ -104,7 +104,7 @@ export function createSkladDataController(options: SkladDataControllerOptions) {
     onReceipts(inventoryReceiptsFromResponse(data));
   };
   async function refreshAll() {
-    if (refreshBusy) return false; refreshBusy = true; setRefreshStatus('syncing', 'Оновлюю...');
+    if (refreshBusy) return false; refreshBusy = true; setRefreshStatus('syncing', 'Оновлюю…');
     try { await loadItems(); await loadLogs(); await loadReceipts(); markDataUpdated(); toast('Дані оновлено', 'success'); return true; }
     catch (error) { console.warn('refreshAll failed:', error); setRefreshStatus('ready', 'Помилка оновлення'); return false; }
     finally { refreshBusy = false; const button = document.getElementById('refreshBtn') as HTMLButtonElement | null; if (button) { button.disabled = false; button.setAttribute('aria-busy', 'false'); } }

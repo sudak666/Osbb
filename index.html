@@ -13,7 +13,6 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="/Osbb/shared/ui.css">
 <link rel="stylesheet" href="/Osbb/shared/material-tokens.css">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="/Osbb/shared/material-symbols.css">
 <script src="/Osbb/shared/material-symbols-ready.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -23,7 +22,7 @@
 <body>
 <script>document.body.className = localStorage.getItem('selected_theme') || 'theme-light';</script>
 
-<!-- Заставка при запуску: вежа (src/shell-loader.ts, playLaunchSplash). Раз за запуск; дотик — пропустити. -->
+<!-- Заставка при запуску: назва цеглинками й наш будинок (src/shell-loader.ts, playLaunchSplash). Раз за запуск; дотик — пропустити. -->
 <div id="app-splash" class="app-splash" aria-hidden="true">
     <div class="app-splash-title">ОСББ ЖК "Микитська&nbsp;Слобода"</div>
 </div>
@@ -88,7 +87,7 @@
             </button>
             <div class="shell-nav-group" role="presentation">Журнал</div>
             <button type="button" class="shell-nav-item md-state-layer" data-shell-section="completed-work">
-                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">task_alt</span><span class="shell-nav-label">Роботи</span>
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">task_alt</span><span class="shell-nav-label" data-short="Роботи">Виконані роботи</span>
             </button>
             <button type="button" class="shell-nav-item md-state-layer" data-shell-section="garbage">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">delete</span><span class="shell-nav-label">Сміття</span>
@@ -104,7 +103,7 @@
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">inventory_2</span><span class="shell-nav-label">Запаси</span>
             </button>
             <button type="button" class="shell-nav-item md-state-layer" data-shell-section="log">
-                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">swap_vert</span><span class="shell-nav-label">Рух</span>
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">swap_vert</span><span class="shell-nav-label" data-short="Рух">Рух товарів</span>
             </button>
             <button type="button" class="shell-nav-item md-state-layer" data-shell-section="audit">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">fact_check</span><span class="shell-nav-label">Інвентаризація</span>
@@ -120,7 +119,7 @@
             <button type="button" class="shell-nav-item md-state-layer" data-shell-settings aria-haspopup="dialog" aria-expanded="false" aria-controls="shell-settings">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">settings</span><span class="shell-nav-label">Налаштування</span>
             </button>
-            <button type="button" class="shell-nav-item shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock data-tip="Заблокувати" aria-label="Заблокувати застосунок">
+            <button type="button" class="shell-nav-item shell-lock-btn md-state-layer" id="shell-lock-btn" data-shell-lock aria-label="Заблокувати застосунок">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">lock</span><span class="shell-nav-label">Заблокувати</span>
             </button>
         </div>
@@ -147,7 +146,7 @@
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">schedule</span><span class="shell-nav-label">Табель</span>
             </button>
         <button type="button" class="shell-bottom-item md-state-layer" data-shell-section="items">
-                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">inventory_2</span><span class="shell-nav-label">Склад</span>
+                <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">inventory_2</span><span class="shell-nav-label">Запаси</span>
             </button>
         <button type="button" class="shell-bottom-item md-state-layer" data-shell-more aria-haspopup="dialog" aria-expanded="false" aria-controls="shell-more-sheet">
                 <span class="material-symbols-rounded shell-nav-icon" aria-hidden="true">menu</span><span class="shell-nav-label">Ще</span>

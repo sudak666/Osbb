@@ -92,7 +92,10 @@ function daysAgo(date, now) {
   return `${diff} дн. тому`;
 }
 const icon = (name, extra = "") => `<span class="material-symbols-rounded${extra ? ` ${extra}` : ""}" aria-hidden="true">${name}</span>`;
-const go = (section, label, iconName, tone = "tonal", focus = "") => `<button type="button" class="home-btn home-btn--${tone} md-state-layer" data-dashboard-go="${section}"${focus ? ` data-dashboard-focus="${focus}"` : ""}>${icon(iconName)}<span>${escapeHtml(label)}</span></button>`;
+const go = (section, label, iconName, tone = "tonal", focus = "") => {
+  const trailing = iconName === "chevron_right";
+  return `<button type="button" class="home-btn home-btn--${tone} md-state-layer" data-dashboard-go="${section}"${focus ? ` data-dashboard-focus="${focus}"` : ""}>${trailing ? "" : icon(iconName)}<span>${escapeHtml(label)}</span>${trailing ? icon(iconName) : ""}</button>`;
+};
 const skeleton = '<div class="home-skel" aria-hidden="true"><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>';
 const failed = '<p class="home-error">' + icon("cloud_off") + "Не вдалося завантажити. Перевірте мережу й оновіть.</p>";
 function card(id, title, iconName, body, footer = "") {
@@ -152,7 +155,7 @@ function renderDashboard(data, now) {
             <div class="home-head-actions">
                 <button type="button" class="home-btn home-btn--filled md-state-layer" data-dashboard-management-report>${icon("article")}<span>Звіт для керівництва</span></button>
                 <button type="button" class="home-btn home-btn--tonal md-state-layer" data-dashboard-report="0">${icon("summarize")}<span>Excel за ${escapeHtml(MONTHS_NOMINATIVE[now.getMonth()] ?? "")}</span></button>
-                <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-report="-1">за ${escapeHtml(MONTHS_NOMINATIVE[(now.getMonth() + 11) % 12] ?? "")}</button>
+                <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-report="-1">Excel за ${escapeHtml(MONTHS_NOMINATIVE[(now.getMonth() + 11) % 12] ?? "")}</button>
                 <button type="button" class="home-btn home-btn--text md-state-layer" data-dashboard-refresh aria-label="Оновити дані">${icon("refresh")}<span>Оновити</span></button>
             </div>
         </header>

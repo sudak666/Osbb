@@ -3,7 +3,10 @@ import {
   calculateInventoryHeaderStats,
   filterInventoryByValue,
   filterSkladItems,
+  isNumericUnit,
   normalizeSearchText,
+  NUMERIC_UNIT_MESSAGE,
+  validateItemFields,
   valuesMatchSearch,
 } from './sklad-domain.js';
 import {
@@ -501,7 +504,7 @@ function bindSkladStaticControls(){
 }
 
 function validateUnitWordInput(input){
-  if(/^\d+([.,]\d+)?$/.test(input.value.trim())) toast('Одиниця має бути словом, не числом!','error');
+  if(isNumericUnit(input.value)) toast(NUMERIC_UNIT_MESSAGE,'error');
 }
 function bindPriceBadgeActions(){
   document.addEventListener('click',(event)=>{
@@ -624,7 +627,7 @@ function renderItems(){
       isFiltered?'Товарів не знайдено':'Склад поки порожній',
       isFiltered?'Змініть пошук або скиньте активні фільтри.':'Додайте перший товар, щоб почати облік залишків.'
     );
-    tb.innerHTML=`<tr><td colspan="8">${state}</td></tr>`;
+    tb.innerHTML=`<tr><td colspan="7">${state}</td></tr>`;
     const mc=document.getElementById('mobileCards');
     if(mc) mc.innerHTML=state;
     return;
@@ -644,15 +647,14 @@ function renderItems(){
       <td class="table-idx-cell">${idx+1}</td>
       <td class="table-name-cell">${name}${item.is_internal?' <span class="badge badge-internal">внутрішнє</span>':''}</td>
       <td><span class="badge ${catBadge[item.category]||'bo'}">${catIconHtml[item.category]||catIconHtmlDefault} ${category}</span></td>
-      <td class="table-unit-cell">${unit}</td>
       <td>${photoCell}</td>
       <td><span class="${qc}">${escapeHtml(String(item.quantity??0))}</span> <span class="table-qty-unit">${unit}</span></td>
       <td>${priceBadge(item)}</td>
       <td><div class="table-row-actions">
-        <button type="button" class="btn btn-primary btn-sm" data-item-action="quick" data-item-id="${id}"${canIssue?'':' disabled aria-disabled="true" aria-label="Немає залишку для видачі"'}><span class="ms ic-15-3">${canIssue?'output':'block'}</span> ${canIssue?'Видати':'Немає'}</button>
-        <button type="button" class="btn btn-ghost btn-sm" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія</button>
+        <button type="button" class="btn btn-outlined btn-sm" data-item-action="quick" data-item-id="${id}"${canIssue?'':' disabled aria-disabled="true" aria-label="Немає залишку для видачі"'}><span class="ms ic-15-3">${canIssue?'output':'block'}</span> ${canIssue?'Видати':'Немає'}</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
+            <button type="button" role="menuitem" data-item-action="history" data-item-id="${id}"><span class="ms">history</span> Історія</button>
             <button type="button" role="menuitem" data-item-action="edit" data-item-id="${id}"><span class="ms">edit</span> Редагувати</button>
             <button type="button" role="menuitem" data-item-action="photo" data-item-id="${id}"><span class="ms">photo_camera</span> Фото</button>
             <button type="button" role="menuitem" data-item-action="internal" data-item-id="${id}" data-internal-next="${!item.is_internal}"><span class="ms">swap_horizontal_circle</span> ${item.is_internal?'Повернути в баланс':'Внутрішнє'}</button>
@@ -693,8 +695,8 @@ function renderItems(){
         </div>
       </div>
       <div class="m-card-actions">
-        <button type="button" class="btn btn-primary" data-item-action="quick" data-item-id="${id}"${canIssue?'':' disabled aria-disabled="true" aria-label="Немає залишку для видачі"'}><span class="ms ic-15-3">${canIssue?'output':'block'}</span> ${canIssue?'Видати':'Немає'}</button>
-        <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Деталі</button>
+        <button type="button" class="btn btn-outlined" data-item-action="quick" data-item-id="${id}"${canIssue?'':' disabled aria-disabled="true" aria-label="Немає залишку для видачі"'}><span class="ms ic-15-3">${canIssue?'output':'block'}</span> ${canIssue?'Видати':'Немає'}</button>
+        <button type="button" class="btn btn-ghost" data-item-action="history" data-item-id="${id}"><span class="ms ic-15-3">history</span> Історія</button>
         <details class="item-more"><summary aria-label="Додаткові дії" aria-haspopup="menu" aria-expanded="false"><span class="ms" aria-hidden="true">more_horiz</span></summary>
           <div class="item-more-menu" role="menu">
             <button type="button" role="menuitem" data-item-action="edit" data-item-id="${id}"><span class="ms">edit</span> Редагувати</button>
@@ -714,7 +716,9 @@ function updateStats(){
   animateNumber(document.getElementById('st-available'),stats.availableItems);
   // Якщо задано мінімальні залишки — рахуємо товари нижче мінімуму, інакше старий поріг ≤ 3.
   const useMinimums=hasMinimums(allItems);
-  animateNumber(document.getElementById('st-units'),useMinimums?allItems.filter(isBelowMinimum).length:allItems.filter(item=>Number(item.quantity)<=3).length);
+  const lowCount=useMinimums?allItems.filter(isBelowMinimum).length:allItems.filter(item=>Number(item.quantity)<=3).length;
+  animateNumber(document.getElementById('st-units'),lowCount);
+  document.getElementById('st-units')?.closest('.summary-card')?.classList.toggle('is-alert',lowCount>0);
   const unitsLabel=document.getElementById('st-units-label');
   if(unitsLabel) unitsLabel.textContent=useMinimums?'Нижче мінімуму':'Залишок 3 і менше';
   const valueElement=document.getElementById('st-value');
@@ -990,10 +994,10 @@ async function doAddNew(btn){
   const purchasePrice=optionalPrice(document.getElementById('newPrice').value);
   const supplier=document.getElementById('newItemSupplier').value.trim();
   const is_internal=document.getElementById('newInternal').checked;
-  if(!name) return toast('Введіть назву товару!','error');
+  const invalid=validateItemFields({name,category,unit},catBadge);
+  if(invalid) return toast(invalid,'error');
   if(Number.isNaN(purchasePrice)) return toast('Вкажіть коректну ціну закупівлі','error');
-  if(/^\d+([.,]\d+)?$/.test(unit)) return toast('"Одиниця" має бути словом (напр. "шт", "уп."), а не числом!','error');
-  const done=setActionButtonLoading(btn,'Додаю...');
+  const done=setActionButtonLoading(btn,'Додаю…');
   if(!done) return;
   try{
   const priceFields=purchasePrice===null?{}:{price_unit:purchasePrice,price_source:'Закупівля',price_confidence:'manual',price_checked_at:new Date().toISOString()};
@@ -1035,7 +1039,7 @@ async function doAddNew(btn){
 function renderAddLow(){
   const low=allItems.filter(i=>i.quantity<=3).sort((a,b)=>a.quantity-b.quantity).slice(0,10);
   const el=document.getElementById('addLowList');
-  if(!low.length){el.innerHTML='<div class="add-low-empty"><span class="ms ic-15-3">check_circle</span> Все в нормі!</div>';return;}
+  if(!low.length){el.innerHTML='<div class="add-low-empty"><span class="ms ic-15-3">check_circle</span> Усе в нормі</div>';return;}
   el.innerHTML=low.map(i=>`<div class="add-low-row">
     <span class="add-low-name">${escapeHtml(i.name||'—')}</span>
     <span class="${i.quantity==0?'qty-zero':'qty-low'}">${escapeHtml(String(i.quantity??0))}</span>
@@ -1100,7 +1104,7 @@ function renderStats(){
         </div>
         <button type="button" class="btn btn-ghost btn-sm stat-unpriced-btn" data-price-badge-action="manual-price" data-item-id="${escapeHtml(String(i.id))}">Ціна</button>
       </div>`).join('')+(unpriced.length>12?`<div class="stat-unpriced-more">Ще ${unpriced.length-12} товарів без ціни — увімкніть фільтр “Без ціни”.</div>`:'')
-    : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Усі товари мають ціну!</div>';
+    : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Усі товари мають ціну</div>';
   document.getElementById('statLog').innerHTML=allLogs.slice(0,10).map(l=>{
     const d=new Date(l.issued_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
     const safeName=escapeHtml(l.item_name||'—');
@@ -1146,7 +1150,7 @@ function renderPurchaseList(){
         <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
         <span class="${i.quantity==0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
       </div>`).join('')
-      : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Всі товари в нормі!</div>');
+      : '<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Усі товари в нормі</div>');
     return;
   }
   const rows=currentPurchaseRows();
@@ -1200,7 +1204,7 @@ function renderSpend(){
 
 // ===== EXCEL =====
 async function exportExcel(){
-  if(!allItems.length) return toast('Немає даних!','error');
+  if(!allItems.length) return toast('Немає даних для експорту','error');
   const sheets = [
     { name:'Товари', rows:buildInventoryExportRows(allItems), widths:[4,60,14,10,12,14,18,28,18,20] },
     { name:'Баланс', rows:buildBalanceExportRows(allItems), widths:[50,12] },
@@ -1214,7 +1218,7 @@ async function exportExcel(){
     const { downloadWorkbook } = await import('./excel-export.js');
     await downloadWorkbook(sheets,'Склад_ОСББ_'+date+'.xlsx');
   } catch(error) { console.warn('Excel export failed:',error); return toast('Не вдалося створити Excel. Спробуйте ще раз.','error'); }
-  toast('Excel завантажено!','success');
+  toast('Файл Excel збережено','success');
 }
 
 
@@ -1568,7 +1572,7 @@ else bindSkladStaticControls();
   if(SKLAD_SHELL_PAGES.includes(urlSection)&&urlSection!=='items') nav(urlSection,null);
 }
 initPullToRefresh();
-setRefreshStatus('syncing','Завантаження...');
+setRefreshStatus('syncing','Завантаження…');
 loadItems()
   .then(()=>{
     // Склад могли відкрити одразу на інвентаризації/статистиці (з меню shell) ще до

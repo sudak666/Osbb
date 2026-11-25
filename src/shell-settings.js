@@ -86,9 +86,6 @@ function createShellSettings(deps) {
     doc.querySelectorAll("[data-shell-settings]").forEach((button) => {
       button.addEventListener("click", () => setPopoverOpen(!isPopoverOpen()));
     });
-    doc.querySelectorAll("[data-shell-settings-close]").forEach((button) => {
-      button.addEventListener("click", () => setPopoverOpen(false));
-    });
     doc.addEventListener("keydown", (event) => {
       if (event.key !== "Escape" || !isPopoverOpen()) return;
       setPopoverOpen(false);
@@ -99,6 +96,12 @@ function createShellSettings(deps) {
       const target = event.target;
       if (target?.closest("#shell-settings, [data-shell-settings]")) return;
       setPopoverOpen(false);
+    });
+    win.addEventListener("blur", () => {
+      if (!isPopoverOpen()) return;
+      win.setTimeout(() => {
+        if (doc.activeElement?.tagName === "IFRAME") setPopoverOpen(false);
+      }, 0);
     });
     win.addEventListener("storage", (event) => {
       if (event.key === THEME_KEY) applyTheme(event.newValue);
