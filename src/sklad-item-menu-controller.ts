@@ -9,6 +9,26 @@ export interface SkladItemMenuControllerOptions {
 /** Липкі шари над списками (styles.css: «Sticky stack»), під які меню рядка не повинне заходити. */
 const STICKY_LAYERS = '.topbar, .items-filter-bar, .list-toolbar, .receipts-toolbar, .audit-toolbar';
 
+/**
+ * Верх плаваючого нижнього меню shell у координатах цього iframe (null — меню нема чи воно сховане).
+ * У shell на телефоні меню shell лежить поверх нижньої частини iframe, тож без цього меню рядка
+ * рахувало місце до самого низу екрана й останній пункт («Видалити») ховався під навігацією.
+ */
+export function shellBottomNavTop(win: Window): number | null {
+  try {
+    const frame = win.frameElement as HTMLElement | null;
+    const parent = win.parent;
+    if (!frame || !parent || parent === win) return null;
+    const nav = parent.document.getElementById('shell-bottom-nav');
+    if (!nav || parent.getComputedStyle(nav).display === 'none') return null;
+    const rect = nav.getBoundingClientRect();
+    if (rect.height <= 0) return null;
+    return rect.top - frame.getBoundingClientRect().top;
+  } catch {
+    return null;
+  }
+}
+
 export function createSkladItemMenuController({ document, window, actions }: SkladItemMenuControllerOptions) {
   let repositionFrame = 0;
   function setExpanded(menu: HTMLElement | null | undefined, expanded: boolean) {
@@ -29,16 +49,18 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
     panel.classList.remove('is-viewport-positioned');
     panel.style.left = ''; panel.style.top = ''; panel.style.maxHeight = '';
     const summaryRect = menu.getBoundingClientRect();
+    const padding = 8;
+    const shellNavTop = shellBottomNavTop(window);
+    const screenBottom = shellNavTop === null ? window.innerHeight : Math.min(window.innerHeight, shellNavTop);
     if (menu.classList.contains('topbar-more')) {
       menu.classList.add('opens-down');
-      panel.style.maxHeight = Math.max(120, window.innerHeight - summaryRect.bottom - 16) + 'px';
+      panel.style.maxHeight = Math.max(120, screenBottom - summaryRect.bottom - 16) + 'px';
       return;
     }
     const bottomNav = document.querySelector('.bottom-nav');
-    const padding = 8;
     const bottom = bottomNav && window.getComputedStyle(bottomNav).display !== 'none'
-      ? Math.min(window.innerHeight - padding, bottomNav.getBoundingClientRect().top - padding)
-      : window.innerHeight - padding;
+      ? Math.min(screenBottom - padding, bottomNav.getBoundingClientRect().top - padding)
+      : screenBottom - padding;
     // Липкі шапка й панелі фільтрів лежать шаром вище за рядки (z-index 44/45 проти 40),
     // тож меню, що відкривається вгору, не має залазити під них — рахуємо місце від їхнього низу.
     const topLimit = Array.from(document.querySelectorAll<HTMLElement>(STICKY_LAYERS))

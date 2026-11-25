@@ -1,5 +1,19 @@
 // Згенеровано з src/sklad-item-menu-controller.ts (scripts/build-js-fallback.mjs). Не редагувати вручну.
 const STICKY_LAYERS = ".topbar, .items-filter-bar, .list-toolbar, .receipts-toolbar, .audit-toolbar";
+function shellBottomNavTop(win) {
+  try {
+    const frame = win.frameElement;
+    const parent = win.parent;
+    if (!frame || !parent || parent === win) return null;
+    const nav = parent.document.getElementById("shell-bottom-nav");
+    if (!nav || parent.getComputedStyle(nav).display === "none") return null;
+    const rect = nav.getBoundingClientRect();
+    if (rect.height <= 0) return null;
+    return rect.top - frame.getBoundingClientRect().top;
+  } catch {
+    return null;
+  }
+}
 function createSkladItemMenuController({ document, window, actions }) {
   let repositionFrame = 0;
   function setExpanded(menu, expanded) {
@@ -22,14 +36,16 @@ function createSkladItemMenuController({ document, window, actions }) {
     panel.style.top = "";
     panel.style.maxHeight = "";
     const summaryRect = menu.getBoundingClientRect();
+    const padding = 8;
+    const shellNavTop = shellBottomNavTop(window);
+    const screenBottom = shellNavTop === null ? window.innerHeight : Math.min(window.innerHeight, shellNavTop);
     if (menu.classList.contains("topbar-more")) {
       menu.classList.add("opens-down");
-      panel.style.maxHeight = Math.max(120, window.innerHeight - summaryRect.bottom - 16) + "px";
+      panel.style.maxHeight = Math.max(120, screenBottom - summaryRect.bottom - 16) + "px";
       return;
     }
     const bottomNav = document.querySelector(".bottom-nav");
-    const padding = 8;
-    const bottom = bottomNav && window.getComputedStyle(bottomNav).display !== "none" ? Math.min(window.innerHeight - padding, bottomNav.getBoundingClientRect().top - padding) : window.innerHeight - padding;
+    const bottom = bottomNav && window.getComputedStyle(bottomNav).display !== "none" ? Math.min(screenBottom - padding, bottomNav.getBoundingClientRect().top - padding) : screenBottom - padding;
     const topLimit = Array.from(document.querySelectorAll(STICKY_LAYERS)).map((el) => el.getBoundingClientRect()).filter((rect) => rect.height > 0 && rect.bottom <= summaryRect.top).reduce((limit, rect) => Math.max(limit, rect.bottom + padding), padding);
     const height = panel.offsetHeight;
     const width = panel.offsetWidth;
@@ -102,5 +118,6 @@ function createSkladItemMenuController({ document, window, actions }) {
   return { bind, closeAll, position, reposition, setExpanded };
 }
 export {
-  createSkladItemMenuController
+  createSkladItemMenuController,
+  shellBottomNavTop
 };

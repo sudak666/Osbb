@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSkladItemMenuController } from '../src/sklad-item-menu-controller.js';
+import { createSkladItemMenuController, shellBottomNavTop } from '../src/sklad-item-menu-controller.js';
 
 test('item menu controller routes delegated item actions and closes their menu', () => {
   let called = null;
@@ -29,3 +29,14 @@ test('item menu keyboard activation supports Enter and Space', () => {
   listeners.keydown({ key: 'Enter', target: { closest: () => trigger }, preventDefault() {} });
   assert.equal(clicks, 1);
 });
+
+test('shellBottomNavTop converts the shell bottom nav into iframe coordinates', () => {
+  const nav = { getBoundingClientRect: () => ({ top: 835, height: 68 }) };
+  const parent = { document: { getElementById: id => id === 'shell-bottom-nav' ? nav : null }, getComputedStyle: () => ({ display: 'grid' }) };
+  const win = { parent, frameElement: { getBoundingClientRect: () => ({ top: 0 }) } };
+  assert.equal(shellBottomNavTop(win), 835);
+  assert.equal(shellBottomNavTop({ ...win, parent: { ...parent, getComputedStyle: () => ({ display: 'none' }) } }), null);
+  const standalone = {}; standalone.parent = standalone; standalone.frameElement = null;
+  assert.equal(shellBottomNavTop(standalone), null);
+});
+
