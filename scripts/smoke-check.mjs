@@ -913,7 +913,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'sklad mobile topbar keeps compact actions and flexible title';
   const required = [
     '.topbar{padding:0 8px;height:56px;border-radius:0 0 var(--md-sys-shape-corner-large,16px) var(--md-sys-shape-corner-large,16px);gap:6px;}',
-    '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+    '.topbar h2{font-size:var(--app-font-base);flex:1;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
     '.topbar .btn:not(.topbar-right-excel){display:inline-flex;align-items:center;justify-content:center;width:48px;min-width:48px;height:48px;min-height:48px;padding:0;line-height:1 !important;}',
     '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid;place-items:center;width:1em;height:1em;font-size:21px;line-height:1;margin:0;}',
     '.topbar-more summary{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;min-height:48px;padding:0;line-height:1;}',
@@ -1153,7 +1153,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="log-unit-suffix"',
     'class="log-person-cell"',
     'class="log-note-cell"',
-    '.log-date-cell{font-size:12px;',
+    '.log-date-cell{font-size:var(--app-font-xs);',
     '.log-qty-out{font-weight:700;color:var(--md-sys-color-secondary);}',
     '.log-qty-in{font-weight:700;color:var(--sklad-green);}',
   ];
@@ -1661,7 +1661,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'id="photoStatus" class="photo-status"',
     'class="photo-modal-actions"',
     'class="btn btn-danger btn-sm photo-delete-btn"',
-    '.quick-issue-title{font-size:15px;',
+    '.quick-issue-title{font-size:var(--app-font-base);',
     '.photo-modal{width:420px;',
     '.photo-upload-box{border:2px dashed',
   ];
@@ -1748,7 +1748,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="qr-modal-copy"',
     'class="qr-modal-actions"',
     '.qr-modal-title{display:flex;',
-    '.qr-modal-copy{font-size:12px;',
+    '.qr-modal-copy{font-size:var(--app-font-xs);',
     '.qr-modal-actions{display:flex;',
     'class="chart-modal-title"',
     'class="btn btn-ghost btn-sm chart-modal-close"',
@@ -1805,7 +1805,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.history-modal-state{text-align:center;',
     '.hist-main{flex:1;',
     '.hist-person{font-weight:700;',
-    '.hist-meta{font-size:12px;',
+    '.hist-meta{font-size:var(--app-font-xs);',
     'class="history-modal-state"',
     'class="hist-main"',
   ];
@@ -3201,7 +3201,7 @@ ${sharedSelectText}`;
   const label = 'sklad fields and selects use Material 3 sizing and states';
   const required = [
     '.inp{width:100%;border:1px solid var(--md-sys-color-outline',
-    'min-height:56px;font-size:16px;',
+    'min-height:56px;font-size:var(--app-font-lg);',
     '.inp:focus{border:2px solid var(--md-sys-color-primary',
     'background:var(--md-sys-color-surface-container-highest',
     '.custom-select-panel{position:fixed;',
@@ -3700,7 +3700,7 @@ ${sharedSelectText}`;
     '<button type="button" class="ni" data-page="audit" aria-label="Інвентаризація">',
     '<button type="button" class="ni" data-page="stats" aria-label="Інші функції складу">',
     '.ni{display:flex;width:calc(100% - 16px);align-items:center;',
-    'font:inherit;font-size:14px;font-weight:500;line-height:1.2;text-align:left;',
+    'font:inherit;font-size:var(--app-font-md);font-weight:500;line-height:1.2;text-align:left;',
     "n.setAttribute('aria-current','page')",
   ];
   const missing = required.filter(needle => !text.includes(needle));

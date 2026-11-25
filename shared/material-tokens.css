@@ -265,6 +265,17 @@
   --app-icon-button-size: 48px;
   --app-button-font-size: 15px;
   --app-button-font-weight: 500;
+  /* Єдина шкала тексту (листопад 2026): усі font-size тексту в shell, журналі й складі —
+     лише ці ступені. Іконки мають власні розміри, папір звіту (.rpt-*) — свої. */
+  --app-font-xs: 12px;        /* підписи, мітки, дати */
+  --app-font-sm: 13px;        /* другорядний текст, мета */
+  --app-font-md: 14px;        /* основний текст у списках і формах */
+  --app-font-base: 15px;      /* кнопки, виділений текст */
+  --app-font-lg: 16px;        /* основний текст великим, поля вводу */
+  --app-font-title: 18px;     /* заголовки вікон і карток */
+  --app-font-headline: 22px;  /* заголовки розділів, великі значення */
+  --app-font-display: 28px;   /* заголовок сторінки, цифри PIN */
+  --app-font-metric: 32px;    /* головні числа статистики */
   --app-button-icon-size: 20px;
   --app-icon-button-glyph-size: 24px;
   --app-nav-icon-size: 24px;
