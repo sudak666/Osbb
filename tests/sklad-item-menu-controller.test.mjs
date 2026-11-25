@@ -40,3 +40,14 @@ test('shellBottomNavTop converts the shell bottom nav into iframe coordinates', 
   assert.equal(shellBottomNavTop(standalone), null);
 });
 
+
+test('scrolling inside an open menu does not reposition it', () => {
+  let frames = 0;
+  const document = { getElementById: () => null, addEventListener() {}, querySelectorAll: () => [] };
+  const window = { addEventListener() {}, requestAnimationFrame: () => { frames++; return 1; }, visualViewport: null };
+  const controller = createSkladItemMenuController({ document, window, actions: {} });
+  controller.reposition({ target: { closest: selector => (selector === '.item-more-menu' ? {} : null) } });
+  assert.equal(frames, 0);
+  controller.reposition({ target: { closest: () => null } });
+  assert.equal(frames, 1);
+});

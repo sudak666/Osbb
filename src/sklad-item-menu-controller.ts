@@ -72,14 +72,32 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
     const above = Math.max(0, summaryRect.top - topLimit - 8);
     const below = Math.max(0, bottom - summaryRect.bottom - 8);
     const opensDown = below >= Math.min(height, 360) || below > above;
+    const left = Math.min(window.innerWidth - width - padding, Math.max(padding, summaryRect.right - width));
+    // Ні вгору, ні вниз повністю не вміщується, а між липкою шапкою й низом екрана місця досить —
+    // ставимо меню туди, де видно всі пункти (воно може перекрити свою кнопку ⋯). Інакше на ПК
+    // рядок посередині екрана давав меню на 4 пункти з прокруткою, і «Видалити» ховалось.
+    if (height > above && height > below && height <= bottom - topLimit) {
+        const top = Math.min(Math.max(topLimit, summaryRect.bottom - height), bottom - height);
+        panel.classList.add('is-viewport-positioned');
+        panel.style.left = Math.max(padding, left) + 'px';
+        panel.style.top = top + 'px'; panel.style.maxHeight = height + 'px';
+        return;
+    }
     const available = opensDown ? below : above;
     if (opensDown) menu.classList.add('opens-down');
     const visibleHeight = Math.max(0, Math.min(360, available));
-    const left = Math.min(window.innerWidth - width - padding, Math.max(padding, summaryRect.right - width));
     const top = opensDown ? summaryRect.bottom + 8 : Math.max(topLimit, summaryRect.top - 8 - Math.min(height, visibleHeight));
     panel.classList.add('is-viewport-positioned');
     panel.style.left = Math.max(padding, left) + 'px';
     panel.style.top = top + 'px'; panel.style.maxHeight = visibleHeight + 'px';
+    // Меню все одно не вміщується (рядок унизу, над ним шапка й фільтри) — підкручуємо сторінку,
+    // щоб воно відкрилось донизу повністю. Подія scroll сама викличе reposition().
+    if (height > visibleHeight) {
+      const scroller = document.scrollingElement;
+      const room = scroller ? scroller.scrollHeight - window.innerHeight - window.scrollY : 0;
+      const delta = Math.ceil(height + 8 - below);
+      if (delta > 0 && room >= delta && typeof window.scrollBy === 'function') window.scrollBy({ top: delta, behavior: 'instant' });
+    }
   }
   function activate(event: Event) {
     const trigger = (event.target as HTMLElement).closest<HTMLElement>('[data-item-action]');
@@ -105,7 +123,11 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
     if (menu.open) { closeAll(menu); position(menu); }
   }
   function outsideClick(event: Event) { if (!(event.target as HTMLElement).closest?.('details.item-more')) closeAll(); }
-  function reposition() {
+  function reposition(event?: Event) {
+    // Прокрутка всередині самого меню — не привід його переставляти: position() на мить скидає
+    // max-height, браузер обрізає scrollTop, і меню «відскакувало» — до останніх пунктів не дістатись.
+    const target = event?.target as Element | null | undefined;
+    if (target && typeof target.closest === 'function' && target.closest('.item-more-menu')) return;
     if (repositionFrame) return;
     repositionFrame = window.requestAnimationFrame(() => {
       repositionFrame = 0;
