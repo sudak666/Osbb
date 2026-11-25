@@ -2531,7 +2531,7 @@ ${sharedSelectText}`;
     'const below = Math.max(0, bottom - summaryRect.bottom - 8)',
     "panel.classList.add('is-viewport-positioned')",
     "panel.style.maxHeight = visibleHeight + 'px'",
-    'function reposition()',
+    'function reposition(event?: Event)',
     'repositionFrame = window.requestAnimationFrame',
     "document.addEventListener('scroll', reposition, { passive: true, capture: true })",
     "window.visualViewport?.addEventListener('resize', reposition, { passive: true })",
