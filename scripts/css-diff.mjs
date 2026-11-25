@@ -158,15 +158,18 @@ async function compare(basePage, newPage, label, report) {
 }
 
 async function main() {
-  log(`збираю поточну версію і ${BASE_REF}…`);
-  build(ROOT, path.join(TMP, 'new'));
-  buildBase();
-  const servers = [await serve(path.join(TMP, 'base'), 4290), await serve(path.join(TMP, 'new'), 4291)];
-  const exe = process.env.CSS_DIFF_CHROME;
-  const browser = await chromium.launch(exe ? { executablePath: exe } : { channel: 'chrome' });
+  const servers = [];
+  let browser = null;
   const report = [];
   const wait = ms => new Promise(r => setTimeout(r, ms));
+  // Усе — в одному try: тимчасова тека й сервери прибираються за будь-якої помилки.
   try {
+    log(`збираю поточну версію і ${BASE_REF}…`);
+    build(ROOT, path.join(TMP, 'new'));
+    buildBase();
+    servers.push(await serve(path.join(TMP, 'base'), 4290), await serve(path.join(TMP, 'new'), 4291));
+    const exe = process.env.CSS_DIFF_CHROME;
+    browser = await chromium.launch(exe ? { executablePath: exe } : { channel: 'chrome' });
     const themes = QUICK ? ['theme-light'] : ['theme-light', 'theme-dark'];
     const viewports = [{ width: 1280, height: 860 }, { width: 375, height: 812 }];
     for (const theme of themes) for (const viewport of viewports) {
@@ -215,9 +218,10 @@ async function main() {
       await Promise.all(pages.map(p => p.context().close()));
     }
   } finally {
-    await browser.close();
+    await browser?.close();
     servers.forEach(s => s.kill());
-    fs.rmSync(TMP, { recursive: true, force: true });
+    // buildBase() вже прибрав посилання на node_modules (або зупинився з помилкою до цього кроку).
+    if (!fs.existsSync(path.join(TMP, 'base-src', 'node_modules'))) fs.rmSync(TMP, { recursive: true, force: true });
   }
   const bad = report.filter(r => r.diffs.length || r.structural.length);
   if (!bad.length) { log(`усе однаково: ${report.length} станів без відмінностей.`); return; }

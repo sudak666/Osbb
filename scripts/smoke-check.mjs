@@ -97,7 +97,7 @@ function readShellCombined() {
 }
 
 const checks = [
-  ['osbb/index.html', './tailwind.css', 'journal loads locally built Tailwind CSS'],
+  ['osbb/index.html', './base.css', 'journal loads its own base reset (Tailwind removed)'],
   ['shell', 'verify_lock_pin', 'shell PIN uses server RPC'],
   ['shell', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
   ['shell', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
@@ -1946,7 +1946,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.garbage-chart { height:80px; }',
     'class="journal-panel garbage-chart-panel"',
     'class="journal-panel journal-list-shell"',
-    'class="garbage-chart flex items-end justify-between gap-1"',
+    'id="g-chart" class="garbage-chart"',
     'class="journal-panel"',
     '.journal-title-row {',
     '.journal-action-row {',

@@ -764,9 +764,9 @@
             const safeUrl = safeExternalUrl(p.url);
             if (!safeUrl) return '';
             return `
-            <div class="relative group">
+            <div class="journal-photo-item">
                 <img src="${safeUrl}" alt="Фото запису за день ${day}" loading="lazy" class="photo-thumb tip-up" data-photo-action="open" data-photo-url="${safeUrl}" data-tip="Натисни для збільшення">
-                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full shadow-sm opacity-90 transition-opacity hover:opacity-100 hover:bg-red-600"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+                <button type="button" data-photo-action="delete" data-photo-id="${escapeAttr(p.id)}" data-photo-url="${safeUrl}" data-photo-day="${day}" data-photo-role="${escapeAttr(role)}" data-tip="Видалити фото" aria-label="Видалити фото" class="tip-up journal-photo-delete"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
             </div>`;
         }).join('');
     }
@@ -864,7 +864,7 @@
 
     function changeTheme(themeName) {
         themeName = saveOsbbTheme(localStorage, themeName);
-        document.body.className = themeName + ' min-h-screen py-6 px-4 sm:px-6 lg:px-8';
+        document.body.className = themeName + ' journal-body';
         const isDark = themeName === 'theme-dark';
         document.getElementById('journalThemeLabel').textContent = isDark ? 'Темна' : 'Світла';
         // Оновлюємо колір рядка стану браузера/PWA
@@ -1192,16 +1192,16 @@
         const row = gData[day] || { time:'', worker:'', types:{} };
         const types = row.types || {};
         return `
-            <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="garbage-field-grid">
                 <div>
-                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Час</div>
+                    <div class="garbage-field-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Час</div>
                     <input type="text" inputmode="numeric" maxlength="5" placeholder="ГГ:ХХ" value="${escapeAttr(row.time||'')}" data-g-action="row-update" data-g-day="${day}" data-g-field="time" data-time-mask aria-label="Час вивозу сміття за день ${day}"
-                        class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none focus:ring-1 focus:ring-emerald-300">
+                        class="garbage-field-input">
                 </div>
                 <div>
-                    <div class="text-xs text-[var(--text-sub)] font-semibold mb-1 inline-flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">person</span>Працівник</div>
+                    <div class="garbage-field-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">person</span>Працівник</div>
                     <select data-g-action="row-update" data-g-day="${day}" data-g-field="worker" aria-label="Працівник сміття за день ${day}"
-                        class="w-full text-sm p-2 rounded-lg border bg-[var(--bg-input)] border-[var(--border)] outline-none">
+                        class="garbage-field-input">
                         <option value="">—</option>
                         ${Object.entries(gWorkerNames).map(([k,v]) => `<option value="${k}" ${row.worker===k?'selected':''}>${v}</option>`).join('')}
                     </select>
@@ -1252,7 +1252,7 @@
         const dateObj = new Date(currentYear, currentMonth, d);
         const dayName = dateObj.toLocaleDateString('uk-UA', { weekday: 'long' });
         const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-        titleEl.innerHTML = `${day} <span class="${isWeekend ? 'text-red-500' : ''}">${dayName}</span>`;
+        titleEl.innerHTML = `${day} <span class="${isWeekend ? 'day-detail-weekend' : ''}">${dayName}</span>`;
         bodyEl.innerHTML = gBuildDayBodyHtml(day);
         bodyEl.querySelectorAll('select[data-g-field="worker"]').forEach((sel) => enhanceSelect(sel));
         modal.dataset.day = day;
@@ -1355,10 +1355,10 @@
         container.innerHTML = monthlyTotals.map((val, i) => {
             const h = Math.max(4, Math.round((val / maxVal) * 68));
             const isCur = i === currentMonth;
-            return `<div class="flex flex-col items-center gap-1 flex-1">
-                <div class="text-[10px] font-bold ${isCur ? 'text-amber-500' : 'text-[var(--text-sub)]'}">${val||''}</div>
+            return `<div class="g-chart-col">
+                <div class="g-chart-value${isCur ? ' is-current' : ''}">${val||''}</div>
                 <div class="g-chart-bar${isCur ? ' is-current' : ''}" style="height:${h}px"></div>
-                <div class="text-[9px] text-[var(--text-sub)]">${gMonths[i].slice(0,3)}</div>
+                <div class="g-chart-label">${gMonths[i].slice(0,3)}</div>
             </div>`;
         }).join('');
     }
