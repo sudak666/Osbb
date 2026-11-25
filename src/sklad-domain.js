@@ -67,14 +67,33 @@ function calculateInventoryHeaderStats(items) {
     return stats;
   }, { availableItems: 0, totalUnits: 0, estimatedValue: 0 });
 }
+const ITEM_NAME_MAX_LENGTH = 160;
+const ITEM_UNIT_MAX_LENGTH = 24;
+const NUMERIC_UNIT_MESSAGE = "Одиниця — це слово, напр. «шт» або «уп.», а не число";
+function isNumericUnit(unit) {
+  return /^\d+([.,]\d+)?$/.test(String(unit ?? "").trim());
+}
+function validateItemFields(fields, categories) {
+  if (!fields.name) return "Введіть назву товару";
+  if (fields.name.length > ITEM_NAME_MAX_LENGTH) return `Назва задовга — максимум ${ITEM_NAME_MAX_LENGTH} символів`;
+  if (!Object.prototype.hasOwnProperty.call(categories, fields.category)) return "Оберіть категорію зі списку";
+  if (fields.unit.length > ITEM_UNIT_MAX_LENGTH) return `Одиниця задовга — максимум ${ITEM_UNIT_MAX_LENGTH} символи`;
+  if (isNumericUnit(fields.unit)) return NUMERIC_UNIT_MESSAGE;
+  return null;
+}
 export {
+  ITEM_NAME_MAX_LENGTH,
+  ITEM_UNIT_MAX_LENGTH,
+  NUMERIC_UNIT_MESSAGE,
   calculateInventoryHeaderStats,
   estimatedItemValue,
   filterInventoryByValue,
   filterSkladItems,
   isInternalItem,
   isLowStockItem,
+  isNumericUnit,
   normalizeSearchText,
   sortItemsByCategoryName,
+  validateItemFields,
   valuesMatchSearch
 };

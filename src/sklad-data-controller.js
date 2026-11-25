@@ -89,7 +89,7 @@ function createSkladDataController(options) {
   async function refreshAll() {
     if (refreshBusy) return false;
     refreshBusy = true;
-    setRefreshStatus("syncing", "Оновлюю...");
+    setRefreshStatus("syncing", "Оновлюю…");
     try {
       await loadItems();
       await loadLogs();

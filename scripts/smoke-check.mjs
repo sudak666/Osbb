@@ -102,7 +102,7 @@ const checks = [
   ['shell', "journal: 'osbb/index.html?embed=1'", 'shell loads journal iframe'],
   ['shell', "sklad: 'sklad/index.html?embed=1'", 'shell loads sklad iframe'],
   ['shell', 'navigator.serviceWorker.register', 'shell registers service worker'],
-  ['index.html', 'data-shell-lock data-tip="Заблокувати" aria-label="Заблокувати застосунок"', 'shell lock uses the shared rounded tooltip'],
+  ['index.html', 'data-shell-lock aria-label="Заблокувати застосунок"', 'shell lock has an accessible name without a duplicate tooltip'],
   ['styles.css', '.shell-lock-btn, .shell-more-lock { color: var(--md-sys-color-error, #b3261e); }', 'shell lock action keeps the error colour in rail and sheet'],
 
   ['osbb/index.html', 'lockBusy', 'journal blocks concurrent PIN input'],
@@ -384,7 +384,7 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
   const shellJs = readFileSync('src/shell.js', 'utf8');
   const label = 'shell service worker prevents stale Vite asset 404s';
   const required = [
-    "const CACHE_NAME = 'osbb-shell-v11';",
+    "const CACHE_NAME = 'osbb-shell-v12';",
     "event.request.mode === 'navigate'",
     "url.pathname.startsWith('/Osbb/osbb/')",
     "url.pathname.startsWith('/Osbb/sklad/')",
@@ -986,7 +986,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="sw items-search-field"',
     'class="btn btn-ghost btn-sm items-reset-btn"',
     'class="card desktop-table table-modern"',
-    'class="stat-icon" aria-hidden="true"',
     '.items-filter-bar{position:sticky;',
     '.items-filter-bar{position:sticky;top:64px;z-index:9;',
     '@media(max-width:1180px)',
@@ -1117,7 +1116,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const required = [
     'class="table-idx-cell"',
     'class="table-name-cell"',
-    'class="table-unit-cell"',
     'class="table-qty-unit"',
     'class="table-row-actions"',
     'class="badge badge-internal"',
@@ -1206,18 +1204,19 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   }
 }
 
-// Garbage yearly chart bars should use a class-based gradient with only the
+// Garbage yearly chart bars should use a class-based solid fill (no decorative gradient) with only the
 // per-bar height left inline, instead of a full inline gradient ternary.
 {
   const text = readOsbbCombined();
-  const label = 'osbb garbage chart bars use class-based gradient';
+  const label = 'osbb garbage chart bars use class-based solid fill';
   const required = [
-    '.g-chart-bar { width:100%; border-radius:var(--md-sys-shape-corner-small,8px) var(--md-sys-shape-corner-small,8px) 0 0; background:linear-gradient(var(--md-sys-color-primary,#22c55e),color-mix(in srgb,var(--md-sys-color-primary,#22c55e) 82%,#000)); }',
-    '.g-chart-bar.is-current { background:linear-gradient(var(--md-sys-color-tertiary,#fbbf24),color-mix(in srgb,var(--md-sys-color-tertiary,#f59e0b) 82%,#000)); }',
+    '.g-chart-bar { width:100%; border-radius:var(--md-sys-shape-corner-small,8px) var(--md-sys-shape-corner-small,8px) 0 0; background:var(--md-sys-color-primary);',
+    '.g-chart-bar.is-current { background:var(--md-sys-color-tertiary); }',
     "class=\"g-chart-bar${isCur ? ' is-current' : ''}\" style=\"height:${h}px\"",
   ];
   const forbidden = [
     "style=\"height:${h}px;width:100%;border-radius:6px 6px 0 0;background:${isCur ?",
+    'background:linear-gradient(var(--md-sys-color-primary,#22c55e)',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const present = forbidden.filter(needle => text.includes(needle));
@@ -1807,7 +1806,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     '.history-modal-state{text-align:center;',
     '.hist-main{flex:1;',
     '.hist-person{font-weight:700;',
-    '.hist-meta{font-size:11px;',
+    '.hist-meta{font-size:12px;',
     'class="history-modal-state"',
     'class="hist-main"',
   ];
@@ -2393,12 +2392,12 @@ for (const file of ['index.html', 'osbb/index.html']) {
     'id="issueForm" class="form-stack"',
     "document.getElementById('issueForm')?.addEventListener('submit'",
     'data-issue-select data-searchable="1"',
-    'data-search-placeholder="Пошук товару для видачі..."',
+    'data-search-placeholder="Пошук товару для видачі…"',
     'data-log-category-filter="Ремонт"',
     'data-refill-select data-searchable="1"',
-    'data-search-placeholder="Пошук товару для поповнення..."',
+    'data-search-placeholder="Пошук товару для поповнення…"',
     'id="manualPriceItemSel" data-searchable="1"',
-    'data-search-placeholder="Пошук товару для ручної ціни..."',
+    'data-search-placeholder="Пошук товару для ручної ціни…"',
     "className = 'inp custom-select-search'",
     '.custom-select-search{margin:8px;',
     'data-new-product-input',
@@ -3283,23 +3282,17 @@ ${sharedSelectText}`;
   }
 }
 
-// Темна тема додає контрольовану «живу» глибину лише інтерактивним карткам
-// і кнопкам; hover-lift не запускається на сенсорних екранах.
+// Картки й кнопки реагують на наведення MD3 state layer-ом, без «підйому» й
+// зеленого свічення (раніше було лише в темній темі — типовий декоративний ефект).
 {
   const journalCss = readFileSync('osbb/styles.css', 'utf8');
   const skladCss = readFileSync('sklad/styles.css', 'utf8');
-  const label = 'dark theme uses restrained ambient glow and hover lift';
-  const required = [
-    [journalCss, '.theme-dark :is(.journal-stat-card,.ticket-item,.my-ticket-card,.shift-stat-card,.att-stat-card)'],
-    [journalCss, '@media (hover:hover) and (pointer:fine)'],
-    [journalCss, 'transform:translateY(-3px);'],
-    [skladCss, '.theme-dark :is(.m-card,.stat-card)'],
-    [skladCss, '.theme-dark :is(.btn-primary,.btn-ghost,.ni,.bottom-nav button)'],
-  ];
-  const missing = required.filter(([text, needle]) => !text.includes(needle)).map(([, needle]) => needle);
-  if (missing.length) {
+  const label = 'cards and buttons use state layers, not hover lift or glow';
+  const forbidden = [/translateY\(-[23]px\)/, /0 0 (16|24)px color-mix/];
+  const present = [journalCss, skladCss].flatMap(text => forbidden.filter(re => re.test(text)).map(String));
+  if (present.length) {
     failed += 1;
-    console.error(`not ok - ${label} (missing: ${missing.join(', ')})`);
+    console.error(`not ok - ${label} (found: ${present.join(', ')})`);
   } else {
     passed += 1;
     console.log(`ok - ${label}`);
@@ -3437,7 +3430,7 @@ ${sharedSelectText}`;
     'stats.estimatedValue',
     '.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));}',
     '.items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}',
-    '.items-metrics.inventory-summary .summary-card .stat-icon{display:none;}',
+    '.inventory-summary .summary-card.is-alert .big{color:var(--md-sys-color-error);}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const hasLegacyCounters = ['id="st-zero"','id="st-low"','id="st-ok"','id="sb-alert"','id="bn-alert"','id="alertBanner"'].some(needle=>text.includes(needle));
@@ -3465,7 +3458,6 @@ ${sharedSelectText}`;
     '.sw .inp{padding-left:42px!important;}',
     '.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px!important;}',
     '.si.ms{font-size:18px;}',
-    'href="styles.css?v=20260727-search-icons"',
   ];
   const missing = required.filter(needle => !text.includes(needle));
   const hasInteractiveSummary = /<(button)[^>]*class="[^"]*summary-card/.test(text);
@@ -3772,7 +3764,7 @@ ${sharedSelectText}`;
 {
   const sw = readFileSync('sw.js', 'utf8');
   const label = 'shared styles use network-first service worker caching';
-  const valid = sw.includes("const CACHE_NAME = 'osbb-shell-v11';") &&
+  const valid = sw.includes("const CACHE_NAME = 'osbb-shell-v12';") &&
     sw.includes('} else if (isShellStatic) {') &&
     sw.includes('event.respondWith(networkFirst(event.request));');
   if (!valid) {

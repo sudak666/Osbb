@@ -1,5 +1,14 @@
 /* Material Design 3 token layer shared by shell, journal and sklad.
    Keep these as semantic aliases; feature CSS should consume tokens gradually. */
+/* Roboto постачається локально (shared/fonts, OFL — LICENSE-roboto), як і Material Symbols:
+   однаковий шрифт у shell, журналі й складі незалежно від того, чи є Roboto в системі,
+   і без запитів до Google Fonts. Ваги 400/500/700 — інші браузер синтезує з найближчої. */
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 400; font-display: swap; src: url('./fonts/roboto-cyrillic-400.woff2') format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 400; font-display: swap; src: url('./fonts/roboto-latin-400.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 500; font-display: swap; src: url('./fonts/roboto-cyrillic-500.woff2') format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 500; font-display: swap; src: url('./fonts/roboto-latin-500.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 700; font-display: swap; src: url('./fonts/roboto-cyrillic-700.woff2') format('woff2'); unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+@font-face { font-family: 'Roboto'; font-style: normal; font-weight: 700; font-display: swap; src: url('./fonts/roboto-latin-700.woff2') format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
 :root {
   color-scheme: light;
 
@@ -16,7 +25,7 @@
   --md-sys-typescale-display-large-line-height: 64px;
   --md-sys-typescale-display-medium-size: 45px;
   --md-sys-typescale-display-medium-line-height: 52px;
-  --md-sys-typescale-label-small-size: 11px;
+  --md-sys-typescale-label-small-size: 12px;
   --md-sys-typescale-label-small-line-height: 16px;
   --md-sys-typescale-label-medium-size: 12px;
   --md-sys-typescale-label-medium-line-height: 16px;
@@ -95,10 +104,10 @@
   --md-sys-color-on-primary: #ffffff;
   --md-sys-color-primary-container: #dcfce7;
   --md-sys-color-on-primary-container: #052e16;
-  --md-sys-color-secondary: #2563eb;
+  --md-sys-color-secondary: #4f634f;
   --md-sys-color-on-secondary: #ffffff;
-  --md-sys-color-secondary-container: #dbeafe;
-  --md-sys-color-on-secondary-container: #1e3a8a;
+  --md-sys-color-secondary-container: #d4e8d1;
+  --md-sys-color-on-secondary-container: #0f1f11;
   --md-sys-color-tertiary: #925600;
   --md-sys-color-on-tertiary: #ffffff;
   --md-sys-color-tertiary-container: #fef3c7;
@@ -107,43 +116,43 @@
   --md-sys-color-on-error: #ffffff;
   --md-sys-color-error-container: #fee2e2;
   --md-sys-color-on-error-container: #7f1d1d;
-  --md-sys-color-background: #f4f7fb;
-  --md-sys-color-on-background: #0f172a;
+  --md-sys-color-background: #f5f7f3;
+  --md-sys-color-on-background: #181d18;
   --md-sys-color-surface: #ffffff;
-  --md-sys-color-on-surface: #0f172a;
-  --md-sys-color-surface-variant: #eef2f7;
-  --md-sys-color-on-surface-variant: #475569;
+  --md-sys-color-on-surface: #181d18;
+  --md-sys-color-surface-variant: #eef2ec;
+  --md-sys-color-on-surface-variant: #424a42;
   --md-sys-color-surface-container-low: #ffffff;
   --md-sys-color-surface-container-lowest: #ffffff;
-  --md-sys-color-surface-container: #f8fafc;
-  --md-sys-color-surface-container-high: #f1f5f9;
-  --md-sys-color-surface-container-highest: #e7edf4;
-  --md-sys-color-surface-dim: #d9dbd6;
+  --md-sys-color-surface-container: #f6f8f4;
+  --md-sys-color-surface-container-high: #eff2ed;
+  --md-sys-color-surface-container-highest: #e5e9e3;
+  --md-sys-color-surface-dim: #d8dbd4;
   --md-sys-color-surface-bright: #f8faf5;
-  --md-sys-color-outline: rgba(15, 23, 42, .14);
-  --md-sys-color-outline-variant: rgba(15, 23, 42, .08);
+  --md-sys-color-outline: #8e968d;
+  --md-sys-color-outline-variant: #d3d9d0;
   --md-sys-color-shadow: rgba(15, 23, 42, .16);
   --md-sys-color-scrim: #000000;
   --md-sys-color-inverse-on-surface: #ffffff;
-  --md-sys-color-inverse-surface: #1e293b;
+  --md-sys-color-inverse-surface: #2d322c;
   --md-sys-color-inverse-primary: #54db7e;
   --md-sys-color-primary-fixed: #dcfce7;
   --md-sys-color-primary-fixed-dim: #86efac;
   --md-sys-color-on-primary-fixed: #002109;
   --md-sys-color-on-primary-fixed-variant: #075227;
-  --md-sys-color-secondary-fixed: #dbeafe;
-  --md-sys-color-secondary-fixed-dim: #a9c7ff;
-  --md-sys-color-on-secondary-fixed: #001b3f;
-  --md-sys-color-on-secondary-fixed-variant: #173f7a;
+  --md-sys-color-secondary-fixed: #d4e8d1;
+  --md-sys-color-secondary-fixed-dim: #b8ccb6;
+  --md-sys-color-on-secondary-fixed: #0f1f11;
+  --md-sys-color-on-secondary-fixed-variant: #3a4b3a;
   --md-sys-color-tertiary-fixed: #ffdea6;
   --md-sys-color-tertiary-fixed-dim: #ffba46;
   --md-sys-color-on-tertiary-fixed: #281900;
   --md-sys-color-on-tertiary-fixed-variant: #624000;
 
-  --app-card-outline: rgba(15, 23, 42, .08);
-  --app-divider: rgba(15, 23, 42, .07);
+  --app-card-outline: #d3d9d0;
+  --app-divider: #e3e8e1;
   --app-card-surface: #ffffff;
-  --app-toolbar-surface: #f1f5f9;
+  --app-toolbar-surface: #eff2ed;
   --app-dialog-surface: #ffffff;
 
   /* Domain role accents */
@@ -151,6 +160,8 @@
   --md-ref-role-janitor: #006d3b;
   --md-ref-role-plumber: #245ca8;
   --md-ref-role-dispatcher: #6842a7;
+  /* Категорійний синій (скло, «інфо»-метрики, маркер зміни) — не secondary, той зелений. */
+  --md-ref-color-info: #245ca8;
 }
 
 .theme-dark {
@@ -159,10 +170,10 @@
   --md-sys-color-on-primary: #031b0b;
   --md-sys-color-primary-container: #064e24;
   --md-sys-color-on-primary-container: #dcfce7;
-  --md-sys-color-secondary: #93c5fd;
-  --md-sys-color-on-secondary: #0f172a;
-  --md-sys-color-secondary-container: #1e3a8a;
-  --md-sys-color-on-secondary-container: #dbeafe;
+  --md-sys-color-secondary: #b8ccb6;
+  --md-sys-color-on-secondary: #243424;
+  --md-sys-color-secondary-container: #3a4b3a;
+  --md-sys-color-on-secondary-container: #d4e8d1;
   --md-sys-color-tertiary: #fbbf24;
   --md-sys-color-on-tertiary: #111827;
   --md-sys-color-tertiary-container: #78350f;
@@ -176,7 +187,7 @@
   --md-sys-color-surface: #1e1e21;
   --md-sys-color-on-surface: #ececed;
   --md-sys-color-surface-variant: #29292c;
-  --md-sys-color-on-surface-variant: #cbd5e1;
+  --md-sys-color-on-surface-variant: #c1c9be;
   --md-sys-color-surface-container-low: #17171a;
   --md-sys-color-surface-container-lowest: #101012;
   --md-sys-color-surface-container: #1e1e21;
@@ -184,28 +195,28 @@
   --md-sys-color-surface-container-highest: #343438;
   --md-sys-color-surface-dim: #101012;
   --md-sys-color-surface-bright: #3a3a3e;
-  --md-sys-color-outline: rgba(148, 163, 184, .24);
-  --md-sys-color-outline-variant: rgba(148, 163, 184, .14);
+  --md-sys-color-outline: #6f776e;
+  --md-sys-color-outline-variant: #3d433c;
   --md-sys-color-shadow: rgba(0, 0, 0, .5);
   --md-sys-color-scrim: #000000;
   --md-sys-color-inverse-on-surface: #ffffff;
-  --md-sys-color-inverse-surface: #e2e8f0;
+  --md-sys-color-inverse-surface: #e0e4dc;
   --md-sys-color-inverse-primary: #08752f;
   --md-sys-color-primary-fixed: #86efac;
   --md-sys-color-primary-fixed-dim: #4ade80;
   --md-sys-color-on-primary-fixed: #002109;
   --md-sys-color-on-primary-fixed-variant: #075227;
-  --md-sys-color-secondary-fixed: #dbeafe;
-  --md-sys-color-secondary-fixed-dim: #a9c7ff;
-  --md-sys-color-on-secondary-fixed: #001b3f;
-  --md-sys-color-on-secondary-fixed-variant: #173f7a;
+  --md-sys-color-secondary-fixed: #d4e8d1;
+  --md-sys-color-secondary-fixed-dim: #b8ccb6;
+  --md-sys-color-on-secondary-fixed: #0f1f11;
+  --md-sys-color-on-secondary-fixed-variant: #3a4b3a;
   --md-sys-color-tertiary-fixed: #ffdea6;
   --md-sys-color-tertiary-fixed-dim: #ffba46;
   --md-sys-color-on-tertiary-fixed: #281900;
   --md-sys-color-on-tertiary-fixed-variant: #624000;
 
-  --app-card-outline: rgba(148, 163, 184, .09);
-  --app-divider: rgba(148, 163, 184, .07);
+  --app-card-outline: #33382f;
+  --app-divider: #2c302b;
   --app-card-surface: #1e1e21;
   --app-toolbar-surface: #29292c;
   --app-dialog-surface: #29292c;
@@ -215,6 +226,7 @@
   --md-ref-role-janitor: #34d399;
   --md-ref-role-plumber: #60a5fa;
   --md-ref-role-dispatcher: #a78bfa;
+  --md-ref-color-info: #8ab4f8;
 }
 
 .md-state-layer {

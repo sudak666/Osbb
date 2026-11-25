@@ -101,7 +101,7 @@ export function createOsbbGarbageController(options: OsbbGarbageControllerOption
     }
     function scheduleSave(day: string | number) {
         markDirty(day);
-        setStatus('loading', '<span class="status-label">Зберігаю...</span>'); saveOffline(); clearTimer(saveTimer); saveTimer = setTimer(() => { saveTimer = null; saveCloud(); }, 1200);
+        setStatus('loading', '<span class="status-label">Зберігаю…</span>'); saveOffline(); clearTimer(saveTimer); saveTimer = setTimer(() => { saveTimer = null; saveCloud(); }, 1200);
     }
     // Викликається при згортанні/закритті сторінки й поверненні мережі.
     function flush({ keepalive = true } = {}) {
@@ -117,7 +117,7 @@ export function createOsbbGarbageController(options: OsbbGarbageControllerOption
         return merged;
     }
     async function init() {
-        setStatus('loading', '<span class="status-label">Завантаження...</span>');
+        setStatus('loading', '<span class="status-label">Завантаження…</span>');
         const offlineMigration = migrate(loadOffline()); const offline = offlineMigration.data;
         if (offline) { data = offline; render(); }
         if (isPreview) { data = offline || {}; loaded = true; setStatus('ok', '<span class="status-label">Превʼю</span>'); render(); return; }

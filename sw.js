@@ -1,4 +1,4 @@
-const CACHE_NAME = 'osbb-shell-v11';
+const CACHE_NAME = 'osbb-shell-v12';
 const urlsToCache = [
   '/Osbb/',
   '/Osbb/index.html',
@@ -6,6 +6,12 @@ const urlsToCache = [
   '/Osbb/shared/ui.css',
   '/Osbb/shared/material-symbols.css',
   '/Osbb/shared/fonts/material-symbols-rounded.woff2',
+  '/Osbb/shared/fonts/roboto-cyrillic-400.woff2',
+  '/Osbb/shared/fonts/roboto-cyrillic-500.woff2',
+  '/Osbb/shared/fonts/roboto-cyrillic-700.woff2',
+  '/Osbb/shared/fonts/roboto-latin-400.woff2',
+  '/Osbb/shared/fonts/roboto-latin-500.woff2',
+  '/Osbb/shared/fonts/roboto-latin-700.woff2',
   '/Osbb/shared/material-tokens.css',
   '/Osbb/shared/material-symbols-ready.js',
   '/Osbb/shared/enhance-select.js',
@@ -78,6 +84,7 @@ self.addEventListener('fetch', event => {
   const isShellStatic = url.pathname === '/Osbb/styles.css' ||
                          url.pathname === '/Osbb/shared/material-symbols.css' ||
                          url.pathname === '/Osbb/shared/fonts/material-symbols-rounded.woff2' ||
+                         /^\/Osbb\/shared\/fonts\/roboto-(cyrillic|latin)-(400|500|700)\.woff2$/.test(url.pathname) ||
                          url.pathname === '/Osbb/shared/ui.css' ||
                          url.pathname === '/Osbb/shared/material-tokens.css' ||
                          url.pathname === '/Osbb/shared/material-symbols-ready.js' ||

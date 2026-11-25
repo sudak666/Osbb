@@ -140,3 +140,28 @@ export function calculateInventoryHeaderStats(items: readonly InventoryItem[]): 
     }, { availableItems: 0, totalUnits: 0, estimatedValue: 0 });
 }
 
+
+export const ITEM_NAME_MAX_LENGTH = 160;
+export const ITEM_UNIT_MAX_LENGTH = 24;
+export const NUMERIC_UNIT_MESSAGE = 'Одиниця — це слово, напр. «шт» або «уп.», а не число';
+
+/** Одиниця — це слово («шт», «уп.»), а не число: «5» в цьому полі — типова помилка введення. */
+export function isNumericUnit(unit: unknown): boolean {
+    return /^\d+([.,]\d+)?$/.test(String(unit ?? '').trim());
+}
+
+/**
+ * Спільна перевірка назви, категорії й одиниці товару — однакова для «Додати товар»
+ * і «Редагувати товар». Повертає текст помилки для користувача або null.
+ */
+export function validateItemFields(
+    fields: { name: string; category: string; unit: string },
+    categories: Readonly<Record<string, unknown>>,
+): string | null {
+    if (!fields.name) return 'Введіть назву товару';
+    if (fields.name.length > ITEM_NAME_MAX_LENGTH) return `Назва задовга — максимум ${ITEM_NAME_MAX_LENGTH} символів`;
+    if (!Object.prototype.hasOwnProperty.call(categories, fields.category)) return 'Оберіть категорію зі списку';
+    if (fields.unit.length > ITEM_UNIT_MAX_LENGTH) return `Одиниця задовга — максимум ${ITEM_UNIT_MAX_LENGTH} символи`;
+    if (isNumericUnit(fields.unit)) return NUMERIC_UNIT_MESSAGE;
+    return null;
+}

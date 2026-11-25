@@ -167,7 +167,7 @@
         },
         onStatus: (status, error) => {
             const states = {
-                preview: ['ok', 'Превью'], uploading: ['loading', 'Завантажую...'], uploaded: ['ok', 'Фото збережено'],
+                preview: ['ok', 'Превью'], uploading: ['loading', 'Завантажую…'], uploaded: ['ok', 'Фото збережено'],
                 deleted: ['ok', 'Фото видалено'], bad_pin: ['error', 'PIN не підтверджено'], error: ['error', 'Помилка фото'],
             };
             const [kind, label] = states[status];
@@ -544,7 +544,7 @@
                 { name:'Підсумки', rows:summary, widths:[20,20,22] },
             ], `Табель_${monthKey}.xlsx`);
         } catch (error) { console.warn('Excel export failed:', error); showToast('Не вдалося створити Excel. Спробуйте ще раз.'); return; }
-        showToast('Табель Excel завантажено!', 'success');
+        showToast('Табель Excel збережено', 'success');
     }
 
     // Мобільний табель: розгорнутий лише сьогоднішній день + ті, що користувач відкрив вручну.
@@ -736,7 +736,9 @@
         const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };
         el.className = `journal-status-chip ${cls[type] || cls.ok}`;
         el.innerHTML = text;
-        // Оновлюємо колір favicon при синхронізації
+        // Колір favicon показує стан синхронізації лише при прямому відкритті журналу:
+        // у shell журнал живе в iframe, і його favicon ніхто не бачить.
+        if (document.documentElement.classList.contains('in-shell')) return;
         const faviconColors = { loading: '%23f59e0b', ok: '%2322c55e', error: '%23ef4444' };
         const fLink = document.getElementById('favicon-link');
         if (fLink) fLink.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='${faviconColors[type] || '%2322c55e'}'/><path d='M18 52 L50 24 L82 52' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/><rect x='28' y='50' width='44' height='34' rx='5' fill='white'/><rect x='43' y='64' width='14' height='20' rx='2' fill='${faviconColors[type] || '%2322c55e'}'/></svg>`;
@@ -1508,7 +1510,7 @@
     };
 
     // ============================================================
-    // ВИКОНАНІ РОБОТИ — окремий факт виконання, без Jira та складу
+    // ВИКОНАНІ РОБОТИ — окремий факт виконання
     // ============================================================
     const completedWorkRoleLabels = { electrician:'Електрик', janitor:'Двірник', plumber:'Сантехнік', security:'Охорона' };
     const completedWorkStatus = type => {
@@ -1616,7 +1618,7 @@
         loadPhotos:async()=>{photosCache=null;if(!IS_PREVIEW)await loadAllPhotosForMonth();}, updateToday:updateTodayBtn,
         loadDashboard:gInitDashboard,
         loaders:{garbage:gInitTab,'completed-work':async()=>{await completedWorkInitTab();await elevatorInitTab();},shifts:shiftInitTab,tabel:attInitTab},
-        setSyncStatus:type=>setSyncStatus(type,type==='loading'?'<span class="status-label">Завантаження...</span>':'<span class="status-label">Синхронізовано</span>'),
+        setSyncStatus:type=>setSyncStatus(type,type==='loading'?'<span class="status-label">Завантаження…</span>':'<span class="status-label">Синхронізовано</span>'),
         createRealtimeClient:()=>createClient(SUPABASE_URL,SUPABASE_KEY),
         subscriptions:[
             {tab:'garbage',filter:{event:'*',schema:'public',table:'garbage'},load:gInitTab},

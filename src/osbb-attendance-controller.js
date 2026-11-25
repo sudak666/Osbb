@@ -41,7 +41,7 @@ function createOsbbAttendanceController(options) {
     element.innerHTML = text;
   }
   async function init() {
-    setStatus("loading", '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
+    setStatus("loading", '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження…</span>');
     const offline = loadOffline();
     if (offline) {
       data = offline;

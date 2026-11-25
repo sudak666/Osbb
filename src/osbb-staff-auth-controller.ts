@@ -65,7 +65,7 @@ export function createOsbbStaffAuthController(deps: OsbbStaffAuthControllerDeps)
         buffer = '';
         element('staff-login-pin-step')?.classList.add('hidden');
         listElement.classList.remove('hidden');
-        listElement.innerHTML = '<div class="staff-login-loading">Завантаження списку...</div>';
+        listElement.innerHTML = '<div class="staff-login-loading">Завантаження списку…</div>';
         modal.style.display = 'flex';
         if (deps.isPreview) list = PREVIEW_STAFF.map(person => ({ ...person }));
         else {

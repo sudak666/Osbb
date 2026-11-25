@@ -120,7 +120,7 @@ export function createSkladMovementsController(options: SkladMovementsController
     const { data, error } = await db.rpc('issue_item', { ...args, p_client_request_id: requestIdFor('issue', args) });
     settleRequest('issue', error);
     if (error) {
-      if ((error.message || '').includes('insufficient_stock')) toast(`Недостатньо! Залишок: ${item.quantity} ${item.unit}`, 'error');
+      if ((error.message || '').includes('insufficient_stock')) toast(`Недостатньо на складі — залишок ${item.quantity} ${item.unit}`, 'error');
       else toast(movementErrorMessage(error), 'error');
       return false;
     }
@@ -132,8 +132,8 @@ export function createSkladMovementsController(options: SkladMovementsController
 
   async function submitQuickIssue(button: HTMLElement | null, itemId: number | null) {
     const payload = buildIssuePayload({ itemId, quantity: (document.getElementById('qmQtyI') as HTMLInputElement).value, person: (document.getElementById('qmPersonI') as HTMLInputElement).value });
-    if (!payload.ok) return toast(payload.error === 'person' ? 'Вкажіть кому!' : 'Вкажіть кількість!', 'error');
-    const done = setButtonLoading(button, 'Видаю...');
+    if (!payload.ok) return toast(payload.error === 'person' ? 'Вкажіть, кому видаєте' : 'Вкажіть кількість!', 'error');
+    const done = setButtonLoading(button, 'Видаю…');
     if (!done) return;
     try {
       const { quantity, person } = payload.value;
@@ -151,10 +151,10 @@ export function createSkladMovementsController(options: SkladMovementsController
       occurredAt: dateInputToTimestamp((document.getElementById('issueDateI') as HTMLInputElement).value),
     });
     if (!payload.ok) {
-      const messages: Record<string, string> = { item: 'Оберіть товар!', quantity: 'Вкажіть кількість!', person: 'Вкажіть кому!' };
+      const messages: Record<string, string> = { item: 'Оберіть товар!', quantity: 'Вкажіть кількість!', person: 'Вкажіть, кому видаєте' };
       return toast(messages[payload.error] || 'Перевірте дані видачі', 'error');
     }
-    const done = setButtonLoading(button, 'Видаю...');
+    const done = setButtonLoading(button, 'Видаю…');
     if (!done) return;
     try {
       const { itemId, quantity, person, note, occurredAt } = payload.value;
@@ -183,7 +183,7 @@ export function createSkladMovementsController(options: SkladMovementsController
     const { itemId, quantity, purchasePrice, supplier, note, occurredAt } = payload.value;
     const item = findItem(itemId, 'прихід');
     if (!item) return;
-    const done = setButtonLoading(button, 'Поповнюю...');
+    const done = setButtonLoading(button, 'Поповнюю…');
     if (!done) return;
     try {
       const args = { p_item_id: itemId, p_qty: quantity, p_supplier: supplier || null, p_note: note || null, p_received_at: occurredAt || null, p_price_unit: purchasePrice || null };

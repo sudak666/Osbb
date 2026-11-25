@@ -60,6 +60,16 @@ for (const selector of ['.theme-light', '.theme-dark']) {
     const ratio = contrast(colors[foreground], colors[background]);
     assert.ok(ratio >= 4.5, `${selector}: ${foreground}/${background} має контраст ${ratio.toFixed(2)}:1`);
   }
+  // Outlined-стиль тримається на контурі: межі полів і карток мають бути видимі
+  // (WCAG 1.4.11 — 3:1 для меж елементів керування). Напівпрозорий rgba тут не годиться.
+  assert.match(colors.outline, /^#[\da-f]{6}$/i, `${selector}: outline має бути непрозорим кольором`);
+  const outlineRatio = contrast(colors.outline, colors.surface);
+  assert.ok(outlineRatio >= 3, `${selector}: outline/surface має контраст ${outlineRatio.toFixed(2)}:1`);
+  for (const role of ['secondary', 'secondary-container']) {
+    const hex = colors[role].slice(1);
+    const [r, g, b] = [0, 2, 4].map(i => Number.parseInt(hex.slice(i, i + 2), 16));
+    assert.ok(g >= b, `${selector}: ${role} має бути з зеленої палітри, а не синім (${colors[role]})`);
+  }
 }
 
 const allHtml = [shellHtml, journalHtml, journalRuntime, skladHtml].join('\n');
@@ -74,6 +84,10 @@ const legacyMdiClasses = [...allHtml.matchAll(/class=["']([^"']*)["']/g)]
 assert.deepEqual(legacyMdiClasses, [], `Знайдено legacy MDI класи: ${[...new Set(legacyMdiClasses)].join(', ')}`);
 assert.equal((allHtml.match(/href="\/Osbb\/shared\/material-symbols\.css"/g) || []).length, 3, 'Material Symbols Rounded мають бути підключені у трьох застосунках');
 assert.ok((await readFile(new URL('../shared/fonts/material-symbols-rounded.woff2', import.meta.url))).length > 0, 'Local icon font must be shipped');
+assert.doesNotMatch(allHtml, /fonts.(googleapis|gstatic).com/, 'Шрифти мають бути локальні (shared/fonts), не з Google Fonts');
+for (const subset of ['cyrillic', 'latin']) for (const weight of [400, 500, 700]) {
+  assert.ok((await readFile(new URL(`../shared/fonts/roboto-${subset}-${weight}.woff2`, import.meta.url))).length > 0, `Local Roboto ${subset} ${weight} must be shipped`);
+}
 assert.equal((allHtml.match(/<svg\b/g) || []).length, 1, 'Знайдено інтерфейсні inline SVG замість Material Symbols');
 const syntheticRobotoWeights = [...allCss.matchAll(/font-weight:\s*(300|600|650|750|800|850)\b/g)]
   .map(([, weight]) => weight);

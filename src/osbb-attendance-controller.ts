@@ -34,7 +34,7 @@ export function createOsbbAttendanceController(options: OsbbAttendanceController
         element.className = `journal-status-chip ${classes[type] || classes.ok}`; element.innerHTML = text;
     }
     async function init() {
-        setStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження...</span>');
+        setStatus('loading', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span> Завантаження…</span>');
         const offline = loadOffline(); if (offline) { data = offline; render(); }
         if (isPreview) { data = offline || {}; setStatus('ok', '<span class="status-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">preview</span>Превью</span>'); render(); return; }
         try {

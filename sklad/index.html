@@ -21,7 +21,7 @@
 <script type="module" src="../shared/enhance-select.js"></script>
 <script src="/Osbb/shared/enhance-date.js"></script>
 
-<link rel="stylesheet" href="styles.css?v=20260727-search-icons">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-light">
 <script>document.body.className = localStorage.getItem('selected_theme') || 'theme-light';</script>
@@ -163,22 +163,19 @@ window.addEventListener('message',event=>{
   <!-- ITEMS -->
   <div id="page-items" class="page active">
     <section class="inventory-overview" aria-label="Огляд запасів">
-      <div>
-        <div class="inventory-overview-copy">Наявність, кількість та остання ціна матеріалів.</div>
-      </div>
       <div class="items-hero-actions" aria-label="Швидкі дії складу">
         <button type="button" class="btn btn-primary btn-sm items-hero-action" data-sklad-page="issue"><span class="ms hero-action-icon" aria-hidden="true">output</span><span class="btn-label">Видати</span></button>
         <button type="button" class="btn btn-ghost btn-sm items-hero-action" data-sklad-page="add"><span class="ms hero-action-icon" aria-hidden="true">add_circle</span><span class="btn-label">Додати / поповнити</span></button>
       </div>
     </section>
     <div class="g4 items-metrics insight-grid inventory-summary" aria-label="Підсумок складських запасів">
-      <article class="stat-card summary-card sc-green"><span class="big" id="st-available">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> Найменувань у наявності</span><span class="stat-icon" aria-hidden="true"><span class="ms">inventory_2</span></span></article>
-      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> <span id="st-units-label">Залишок 3 і менше</span></span><span class="stat-icon" aria-hidden="true"><span class="ms">deployed_code</span></span></article>
-      <article class="stat-card summary-card sc-orange"><span class="big summary-money" id="st-value">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">payments</span> Орієнтовна вартість</span><span class="stat-icon" aria-hidden="true"><span class="ms">payments</span></span></article>
+      <article class="stat-card summary-card sc-green"><span class="big" id="st-available">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">check_circle</span> Найменувань у наявності</span></article>
+      <article class="stat-card summary-card sc-purple"><span class="big" id="st-units">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">deployed_code</span> <span id="st-units-label">Залишок 3 і менше</span></span></article>
+      <article class="stat-card summary-card sc-orange"><span class="big summary-money" id="st-value">—</span><span class="lbl"><span class="ms ic-13-2" aria-hidden="true">payments</span> Орієнтовна вартість</span></article>
     </div>
     <div class="items-filter-bar">
       <div class="items-filter-primary-row">
-        <div class="sw items-search-field"><span class="si ms" aria-hidden="true">search</span><input class="inp" id="searchInp" aria-label="Пошук складських найменувань" placeholder="Пошук матеріалу..." data-render-items-input></div>
+        <div class="sw items-search-field"><span class="si ms" aria-hidden="true">search</span><input class="inp" id="searchInp" aria-label="Пошук складських найменувань" placeholder="Пошук матеріалу…" data-render-items-input></div>
         <button type="button" class="pill items-filter-pill items-availability-toggle is-success md-state-layer" id="inStockPill" data-filter-toggle="in-stock" aria-pressed="false"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">У наявності</span></button>
         <details class="inventory-filters">
           <summary class="btn btn-ghost btn-sm md-state-layer"><span class="ms" aria-hidden="true">tune</span> Фільтри</summary>
@@ -188,7 +185,7 @@ window.addEventListener('message',event=>{
               <button type="button" class="pill items-filter-pill is-warning" id="onlyInternalPill" data-filter-toggle="only-internal" aria-pressed="false" data-tip="Показати лише товари для внутрішнього використання (хознужди)"><span class="ms items-filter-icon" aria-hidden="true">check</span><span class="items-filter-label">Тільки внутрішні</span></button>
             </div>
             <div class="items-filter-row pills-wrap" id="catPills" role="group" aria-label="Фільтр за категорією">
-              <button type="button" class="pill active" data-category-filter="" aria-pressed="true">Всі</button>
+              <button type="button" class="pill active" data-category-filter="" aria-pressed="true">Усі</button>
               <button type="button" class="pill" data-category-filter="Прибирання" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">cleaning_services</span> Прибирання</button>
               <button type="button" class="pill" data-category-filter="Ремонт" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">build</span> Ремонт</button>
               <button type="button" class="pill" data-category-filter="Електрика" aria-pressed="false"><span class="ms category-pill-icon" aria-hidden="true">bolt</span> Електрика</button>
@@ -204,12 +201,12 @@ window.addEventListener('message',event=>{
     </div>
     <div class="card desktop-table table-modern">
       <table>
-        <thead><tr><th>#</th><th>Найменування</th><th>Категорія</th><th>Одиниця</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
+        <thead><tr><th>#</th><th>Найменування</th><th>Категорія</th><th>Фото</th><th>Залишок</th><th>Оцінка</th><th>Дії</th></tr></thead>
         <tbody id="itemsTable">
-          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
-          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
-          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
-          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
+          <tr><td><span class="skel skel-xs"></span></td><td><span class="skel skel-fluid-lg"></span></td><td><span class="skel skel-fluid-md"></span></td><td><span class="skel skel-photo"></span></td><td><span class="skel skel-md"></span></td><td><span class="skel skel-xl"></span></td><td><span class="skel skel-lg"></span></td></tr>
         </tbody>
       </table>
     </div>
@@ -226,11 +223,11 @@ window.addEventListener('message',event=>{
           <div>
             <div class="workflow-kicker">Операція складу</div>
             <h3 class="workflow-title">Оформити видачу</h3>
-            <div class="workflow-copy">Обери товар, кількість і відповідального — система одразу оновить залишок та журнал руху.</div>
+            <div class="workflow-copy">Після видачі залишок і журнал руху оновляться одразу.</div>
           </div>
         </div>
         <form id="issueForm" class="form-stack">
-          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для видачі..."><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="issueItemSel" data-issue-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для видачі…"><option value="">— Оберіть товар —</option></select></div>
           <div id="issueInfo" class="info-callout" style="display:none;">
             <div class="info-row"><span>Залишок:</span><strong id="issueInfoQty"></strong></div>
           </div>
@@ -238,7 +235,7 @@ window.addEventListener('message',event=>{
             <div><label>Кількість</label><input type="number" class="inp" id="issueQtyI" min="0.1" step="0.1" placeholder="0"></div>
             <div><label for="issueDateI">Дата</label><input type="text" inputmode="none" autocomplete="off" pattern="\d{4}-\d{2}-\d{2}" class="inp" id="issueDateI" name="issue_date"></div>
           </div>
-          <div><label>Кому видано</label><div class="preset-row"><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Ліфтер">Ліфтер</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну..."></div>
+          <div><label>Кому видано</label><div class="preset-row"><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm preset-chip" data-person-preset="Ліфтер">Ліфтер</button></div><input type="text" class="inp" id="issuePersonI" placeholder="або введіть вручну…"></div>
           <div><label>Примітка</label><input type="text" class="inp" id="issueNoteI" placeholder="Для якого об'єкту або завдання"></div>
           <button type="submit" class="btn btn-primary full-width-action"><span class="ms ic-16-3">check_circle</span> Видати зі складу</button>
         </form>
@@ -258,14 +255,14 @@ window.addEventListener('message',event=>{
     </div>
     <div class="list-toolbar">
       <div class="list-toolbar-row pills-wrap">
-        <button type="button" class="pill active" data-log-category-filter="" aria-pressed="true">Всі</button>
+        <button type="button" class="pill active" data-log-category-filter="" aria-pressed="true">Усі</button>
         <button type="button" class="pill" data-log-category-filter="Прибирання" aria-label="Фільтр за категорією: Прибирання" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">cleaning_services</span> Прибирання</button>
         <button type="button" class="pill" data-log-category-filter="Ремонт" aria-label="Фільтр за категорією: Ремонт" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">build</span> Ремонт</button>
         <button type="button" class="pill" data-log-category-filter="Електрика" aria-label="Фільтр за категорією: Електрика" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">bolt</span> Електрика</button>
         <button type="button" class="pill" data-log-category-filter="Сантехніка" aria-label="Фільтр за категорією: Сантехніка" aria-pressed="false"><span class="ms ic-15" aria-hidden="true">plumbing</span> Сантехніка</button>
       </div>
       <div class="list-toolbar-row list-search-row">
-        <div class="sw log-search-field"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук..." data-render-log-input></div>
+        <div class="sw log-search-field"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="logSearch" aria-label="Пошук у журналі видач" placeholder="Пошук…" data-render-log-input></div>
         <div id="logResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
@@ -293,7 +290,7 @@ window.addEventListener('message',event=>{
         <section id="add-refill-panel">
         <h3 class="add-section-title is-refill"><span class="ms" aria-hidden="true">add_circle</span>Поповнити залишок</h3>
         <div class="add-form-stack">
-          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для поповнення..."><option value="">— Оберіть товар —</option></select></div>
+          <div><label>Товар</label><select class="inp" id="refillSel" data-refill-select data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для поповнення…"><option value="">— Оберіть товар —</option></select></div>
           <div id="refillInfo" class="refill-info">Поточний залишок: <span id="refillCur"></span></div>
           <div class="two-col">
             <div><label>Кількість</label><input type="number" class="inp" id="refillQtyI" min="0.1" step="0.1" placeholder="0"></div>
@@ -302,7 +299,7 @@ window.addEventListener('message',event=>{
           <details class="receipt-options"><summary>Додатково: ціна, постачальник, примітка</summary>
           <div><label>Ціна закупівлі за одиницю <span class="form-note">(необов'язково)</span></label><input type="number" class="inp" id="refillPriceI" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00 грн"></div>
           <div><label>Постачальник <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillSupplierI" placeholder="Оберіть тег або введіть назву"><div class="supplier-tag-row" data-supplier-tags aria-label="Швидкий вибір постачальника"><button type="button" class="supplier-tag" data-supplier-preset="Епіцентр" data-supplier-target="refillSupplierI">Епіцентр</button><button type="button" class="supplier-tag" data-supplier-preset="Нова Лінія" data-supplier-target="refillSupplierI">Нова Лінія</button><button type="button" class="supplier-tag" data-supplier-preset="Rozetka" data-supplier-target="refillSupplierI">Rozetka</button><button type="button" class="supplier-tag" data-supplier-preset="Prom.ua" data-supplier-target="refillSupplierI">Prom.ua</button><button type="button" class="supplier-tag" data-supplier-preset="Місцевий" data-supplier-target="refillSupplierI">Місцевий</button></div><div class="supplier-tag-create"><input type="text" class="inp" id="newSupplierTag" maxlength="40" placeholder="Новий тег постачальника"><button type="button" class="btn btn-ghost btn-sm" data-sklad-action="supplier-tag-add"><span class="ms" aria-hidden="true">add</span> Додати тег</button></div></div>
-          <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар..."></div>
+          <div><label>Примітка <span class="form-note">(необов'язково)</span></label><input type="text" class="inp" id="refillNoteI" placeholder="Накладна, коментар…"></div>
           </details>
           <button type="button" class="btn btn-success full-action" data-sklad-action="refill-submit"><span class="ms" aria-hidden="true">add</span> Поповнити</button>
         </div>
@@ -362,7 +359,7 @@ window.addEventListener('message',event=>{
         </div>
       </div>
       <div class="audit-search-row">
-        <div class="sw"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару..." data-render-audit-input></div>
+        <div class="sw"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="auditSearch" aria-label="Пошук товару для інвентаризації" placeholder="Пошук товару…" data-render-audit-input></div>
         <div id="auditResultSummary" class="list-summary" aria-live="polite"></div>
         <div class="audit-progress-wrap"><div id="auditStats" class="list-summary"></div><div class="pbar" id="auditProgress" role="progressbar" aria-label="Прогрес інвентаризації" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill" id="auditProgressFill" style="width:0%;background:var(--brand);"></div></div></div>
       </div>
@@ -383,7 +380,7 @@ window.addEventListener('message',event=>{
     </div>
     <div class="receipts-toolbar">
       <div class="receipts-search-row">
-        <div class="sw"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук по товару, постачальнику або примітці..." data-render-receipts-input></div>
+        <div class="sw"><span class="si"><span class="ms ic-18">search</span></span><input class="inp" id="recSearch" aria-label="Пошук у приходах" placeholder="Пошук по товару, постачальнику або примітці…" data-render-receipts-input></div>
         <div id="recResultSummary" class="list-summary" aria-live="polite"></div>
       </div>
     </div>
@@ -405,7 +402,6 @@ window.addEventListener('message',event=>{
     <section class="more-tools" aria-labelledby="moreToolsTitle">
       <div>
         <h3 class="workflow-title" id="moreToolsTitle">Інструменти</h3>
-        <p class="workflow-copy">Рідше використовувані дії та звітність складу.</p>
       </div>
       <div class="more-tools-actions">
         <button type="button" class="btn btn-ghost md-state-layer" data-sklad-action="qr"><span class="ms" aria-hidden="true">barcode_scanner</span> Сканер</button>
@@ -477,7 +473,7 @@ window.addEventListener('message',event=>{
     <p class="quick-issue-meta">Залишок: <span id="qmQtyShow"></span></p>
     <div class="quick-issue-form">
       <div><label>Кількість</label><input type="number" class="inp" id="qmQtyI" min="0.1" step="0.1"></div>
-      <div><label>Кому видано</label><div class="quick-person-row"><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Ліфтер">Ліфтер</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну..."></div>
+      <div><label>Кому видано</label><div class="quick-person-row"><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Електрик">Електрик</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Сантехнік">Сантехнік</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Двірник">Двірник</button><button type="button" class="btn btn-ghost btn-sm quick-person-chip" data-person-preset="Ліфтер">Ліфтер</button></div><input type="text" class="inp" id="qmPersonI" placeholder="або введіть вручну…"></div>
       <div class="quick-modal-actions">
         <button type="button" class="btn btn-ghost" data-modal-close="qModal">Скасувати</button>
         <button type="button" class="btn btn-primary" data-sklad-action="quick-issue-submit"><span class="ms" aria-hidden="true">check_circle</span> Видати</button>
@@ -755,9 +751,9 @@ window.addEventListener('message',event=>{
   <div class="modal manual-price-modal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 class="manual-price-title"><span class="ms" aria-hidden="true">edit</span> Ручна ціна</h3>
     <div class="manual-price-form">
-      <div><label>Товар</label><select class="inp" id="manualPriceItemSel" data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для ручної ціни..."><option value="">— Оберіть товар —</option></select></div>
+      <div><label>Товар</label><select class="inp" id="manualPriceItemSel" data-searchable="1" data-search-empty-text="Товар не знайдено" data-search-placeholder="Пошук товару для ручної ціни…"><option value="">— Оберіть товар —</option></select></div>
       <div><label>Ціна за одиницю, грн</label><input class="inp" id="manualPriceValue" type="number" min="0" step="0.01" placeholder="0.00" data-modal-initial-focus></div>
-      <div><label>Джерело / посилання <span class="manual-price-note">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна..."></div>
+      <div><label>Джерело / посилання <span class="manual-price-note">(необов'язково)</span></label><input class="inp" id="manualPriceSource" placeholder="Напр.: Епіцентр, Rozetka, накладна…"></div>
     </div>
     <div class="manual-price-actions">
       <button type="button" class="btn btn-ghost" data-modal-close="manualPriceModal">Скасувати</button>

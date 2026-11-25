@@ -116,7 +116,7 @@ function createOsbbGarbageController(options) {
   }
   function scheduleSave(day) {
     markDirty(day);
-    setStatus("loading", '<span class="status-label">Зберігаю...</span>');
+    setStatus("loading", '<span class="status-label">Зберігаю…</span>');
     saveOffline();
     clearTimer(saveTimer);
     saveTimer = setTimer(() => {
@@ -141,7 +141,7 @@ function createOsbbGarbageController(options) {
     return merged;
   }
   async function init() {
-    setStatus("loading", '<span class="status-label">Завантаження...</span>');
+    setStatus("loading", '<span class="status-label">Завантаження…</span>');
     const offlineMigration = migrate(loadOffline());
     const offline = offlineMigration.data;
     if (offline) {

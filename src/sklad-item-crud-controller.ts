@@ -1,4 +1,4 @@
-import { normalizeSearchText } from './sklad-domain.ts';
+import { normalizeSearchText, validateItemFields } from './sklad-domain.ts';
 import { parseMinQuantity } from './sklad-purchasing.ts';
 import type { DeletePinOutcome, RequestDeletePinFn, SetButtonLoadingFn, SupabaseLike, ToastFn } from './controller-types.ts';
 
@@ -46,17 +46,14 @@ export function createSkladItemCrudController(options: SkladItemCrudControllerOp
     const name = (document.getElementById('editItemName') as HTMLInputElement).value.trim();
     const category = (document.getElementById('editItemCategory') as HTMLSelectElement).value;
     const unit = (document.getElementById('editItemUnit') as HTMLInputElement).value.trim() || 'шт';
-    if (!name) return toast('Введіть назву товару!', 'error');
-    if (name.length > 160) return toast('Назва задовга — максимум 160 символів', 'error');
-    if (!categories[category]) return toast('Оберіть коректну категорію', 'error');
-    if (unit.length > 24) return toast('Одиниця задовга — максимум 24 символи', 'error');
-    if (/^\d+([.,]\d+)?$/.test(unit)) return toast('Одиниця має бути словом, а не числом!', 'error');
+    const invalid = validateItemFields({ name, category, unit }, categories);
+    if (invalid) return toast(invalid, 'error');
     const minInput = document.getElementById('editItemMin') as HTMLInputElement | null;
     const minQuantity = minInput ? parseMinQuantity(minInput.value) : undefined;
     if (minQuantity === 'invalid') return toast('Мінімальний залишок — це число, наприклад 5 або 2,5', 'error');
     const duplicate = getItems().find(candidate => Number(candidate.id) !== Number(item.id) && normalizeSearchText(candidate.name) === normalizeSearchText(name));
     if (duplicate) return toast('Товар з такою назвою вже існує', 'error');
-    const done = setButtonLoading(button, 'Зберігаю...');
+    const done = setButtonLoading(button, 'Зберігаю…');
     if (!done) return;
     try {
       const payload: Record<string, unknown> = { name, category, unit };
