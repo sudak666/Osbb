@@ -699,38 +699,6 @@
         attRenderStats();
     }
 
-    function animateStatCards() {
-        document.querySelectorAll('.stat-card').forEach((el, i) => {
-            setTimeout(() => { el.classList.add('animate-pop'); setTimeout(() => el.classList.remove('animate-pop'), 400); }, i * 100);
-        });
-    }
-
-    const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    // Плавно "перемотує" число від поточного значення до нового замість миттєвої
-    // заміни тексту — і на першому завантаженні (0 → 94), і на маленьких дельтах
-    // (6 → 7 після тогл), однаково коротка (380мс) відчутна анімація.
-    function animateNumber(el, target, { prefix = '', suffix = '' } = {}) {
-        if (!el) return;
-        const targetNum = Number(target) || 0;
-        const startNum = Number(el.dataset.animRaw ?? String(el.textContent || '').replace(/[^\d.-]/g, '')) || 0;
-        if (prefersReducedMotion() || startNum === targetNum) {
-            el.textContent = prefix + targetNum + suffix;
-            el.dataset.animRaw = String(targetNum);
-            return;
-        }
-        const t0 = performance.now();
-        const dur = 380;
-        function step(now) {
-            const p = Math.min(1, (now - t0) / dur);
-            const eased = 1 - Math.pow(1 - p, 3);
-            const val = Math.round(startNum + (targetNum - startNum) * eased);
-            el.textContent = prefix + val + suffix;
-            if (p < 1) requestAnimationFrame(step);
-            else el.dataset.animRaw = String(targetNum);
-        }
-        requestAnimationFrame(step);
-    }
-
     function setSyncStatus(type, text) {
         const el = document.getElementById('sync-status');
         const cls = { loading: 'is-loading', ok: 'is-ok', error: 'is-error' };

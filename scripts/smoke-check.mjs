@@ -1016,7 +1016,6 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="card workflow-card"',
     'class="workflow-heading"',
     'class="workflow-heading-icon"',
-    'class="workflow-kicker"',
     'class="workflow-title"',
     'class="form-stack"',
     'class="field-grid two-col"',
@@ -3826,6 +3825,29 @@ ${sharedSelectText}`;
     .concat(Object.entries(sheets).flatMap(([file, css]) => ['var(--app-control-height)', 'var(--app-button-font-size)', 'var(--app-button-font-weight)']
       .filter(needle => !css.includes(needle)).map(needle => `${file}:${needle}`)));
   if (missing.length) { failed += 1; console.error(`not ok - ${label} (missing: ${missing.join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+
+// Склад малює лише видиму версію списків (таблиця або картки), а числа підсумку
+// не «перемотуються» анімацією; підписи-кікери над заголовками прибрані (листопад 2026).
+{
+  const app = readFileSync('src/sklad-app.js', 'utf8');
+  const journal = readFileSync('src/osbb-app.js', 'utf8');
+  const html = readFileSync('sklad/index.html', 'utf8');
+  const label = 'sklad renders only the visible list layout, without count-up numbers or kickers';
+  const required = [
+    "const mobileLayoutQuery=window.matchMedia('(max-width:768px)');",
+    "mobileLayoutQuery.addEventListener('change',",
+    "tb.innerHTML=mobile?'':items.map(",
+    "if(mc) mc.innerHTML=!mobile?'':items.map(",
+    "tb.innerHTML=mobile?'':logs.map(",
+    "tb.innerHTML=mobile?'':recs.map(",
+  ].filter(needle => !app.includes(needle));
+  const present = [
+    ...['function animateNumber(', 'requestAnimationFrame(step)'].filter(needle => app.includes(needle) || journal.includes(needle)),
+    ...(html.includes('workflow-kicker') ? ['workflow-kicker'] : []),
+  ];
+  if (required.length || present.length) { failed += 1; console.error(`not ok - ${label} (missing: ${required.join(', ')}; leftover: ${present.join(', ')})`); }
   else { passed += 1; console.log(`ok - ${label}`); }
 }
 

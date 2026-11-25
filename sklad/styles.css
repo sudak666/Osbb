@@ -209,7 +209,6 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .workflow-card{padding:26px;}
 .workflow-heading{display:flex;align-items:flex-start;gap:12px;margin-bottom:22px;}
 .workflow-heading-icon{width:40px;height:40px;border-radius:var(--md-sys-shape-corner-large,16px);display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);flex-shrink:0;}
-.workflow-kicker{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:4px;}
 .workflow-title{font-size:20px;font-weight:700;line-height:1.2;letter-spacing:0;color:var(--sklad-label);margin:0;}
 .workflow-copy{font-size:13px;line-height:1.5;color:var(--sklad-label3);font-weight:500;margin-top:5px;}
 .form-stack{display:flex;flex-direction:column;gap:16px;}
@@ -728,6 +727,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .insight-grid .stat-card{min-height:130px;}
 
   .items-metrics:not(.stats-grid) .stat-card{justify-content:center;}
+  .items-metrics:not(.stats-grid) .stat-card .lbl .ms{display:none;}
 
   .items-metrics.g4.inventory-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
   .inventory-summary .summary-card{
