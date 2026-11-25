@@ -590,12 +590,14 @@
             const dayName = dateObj.toLocaleDateString('uk-UA', { weekday:'short' });
             let mobileRolesHtml = '';
             let calendarRolesHtml = '';
+            // Крапки ролей у заголовку згорнутого дня: хто працював, видно без розгортання.
+            const workedRoles = visibleRoles.filter(role => { const c = attGetCell(d, role); return Boolean(c.checkIn || c.checkOut); });
             visibleRoles.forEach(role => {
                 const cell = attGetCell(d, role);
                 const cellState = attCellState(cell);
                 const hasAbsence = Boolean(cell.breakStart || cell.breakEnd);
                 const absenceHidden = hasAbsence ? '' : ' hidden';
-                const absenceAction = `<button type="button" class="att-absence-action md-state-layer" data-att-absence-action="${hasAbsence ? 'clear' : 'add'}">${hasAbsence ? 'Прибрати відсутність' : '+ Додати відсутність'}</button>`;
+                const absenceAction = `<button type="button" class="att-absence-action md-state-layer" data-att-absence-action="${hasAbsence ? 'clear' : 'add'}"><span class="material-symbols-rounded" aria-hidden="true">${hasAbsence ? 'remove' : 'add'}</span>${hasAbsence ? 'Прибрати відсутність' : 'Додати відсутність'}</button>`;
                 if (editable) {
                     html += `<td class="is-${role} ${cellState}" data-att-cell="${d}-${role}">
                         <div class="att-table-times">
@@ -647,7 +649,7 @@
             </article>`;
             const mobileOpen = isToday || attMobileOpenDays.has(d);
             mobileHtml += `<article class="att-mobile-day ${dayState} ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''} ${mobileOpen ? '' : 'is-collapsed'}" data-att-day-card="${d}" ${isToday ? 'aria-current="date"' : ''}>
-                <header><button type="button" class="att-mobile-day-toggle md-state-layer" data-att-mobile-toggle="${d}" aria-expanded="${mobileOpen}" aria-controls="att-mobile-roles-${d}"><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span><span class="material-symbols-rounded att-mobile-day-chevron" aria-hidden="true">expand_more</span></button></header>
+                <header><button type="button" class="att-mobile-day-toggle md-state-layer" data-att-mobile-toggle="${d}" aria-expanded="${mobileOpen}" aria-controls="att-mobile-roles-${d}"><strong>${d}</strong><span>${isToday ? 'Сьогодні' : dayName}</span>${workedRoles.length ? `<span class="att-mobile-day-roles" aria-label="Працювали: ${workedRoles.map(r => roleNames[r]).join(', ')}">${workedRoles.map(r => `<span class="att-mobile-role-dot role-dot-${r}"></span>`).join('')}</span>` : ''}<span class="material-symbols-rounded att-mobile-day-chevron" aria-hidden="true">expand_more</span></button></header>
                 <div class="att-mobile-roles" id="att-mobile-roles-${d}">${mobileRolesHtml}</div>
             </article>`;
         }

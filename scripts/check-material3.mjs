@@ -84,7 +84,7 @@ const legacyMdiClasses = [...allHtml.matchAll(/class=["']([^"']*)["']/g)]
 assert.deepEqual(legacyMdiClasses, [], `Знайдено legacy MDI класи: ${[...new Set(legacyMdiClasses)].join(', ')}`);
 assert.equal((allHtml.match(/href="\/Osbb\/shared\/material-symbols\.css"/g) || []).length, 3, 'Material Symbols Rounded мають бути підключені у трьох застосунках');
 assert.ok((await readFile(new URL('../shared/fonts/material-symbols-rounded.woff2', import.meta.url))).length > 0, 'Local icon font must be shipped');
-assert.doesNotMatch(allHtml, /fonts.(googleapis|gstatic).com/, 'Шрифти мають бути локальні (shared/fonts), не з Google Fonts');
+assert.doesNotMatch(allHtml + allCss, /fonts.(googleapis|gstatic).com/, 'Шрифти мають бути локальні (shared/fonts), не з Google Fonts (і в HTML, і в CSS)');
 for (const subset of ['cyrillic', 'latin']) for (const weight of [400, 500, 700]) {
   assert.ok((await readFile(new URL(`../shared/fonts/roboto-${subset}-${weight}.woff2`, import.meta.url))).length > 0, `Local Roboto ${subset} ${weight} must be shipped`);
 }

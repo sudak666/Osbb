@@ -1026,3 +1026,31 @@ html.in-shell [data-theme-toggle] { display:none; }
 
   .day-detail-weekend { color:var(--md-sys-color-error); }
 }
+
+/* ===== Обхід усіх екранів, листопад 2026 ===== */
+/* Поля вводу — один шрифт і радіус: дата й примітка були 12px з радіусом 12px поруч із 16px-полями. */
+.completed-work-form input[type="text"], .dispatcher-location-input { font-size:var(--app-font-lg); font-weight:400; border-radius:var(--app-radius-tile); }
+.completed-work-form label > span small { font-size:inherit; }
+/* Лист дня в «Смітті»: час і працівник однакової висоти й ширини. */
+.garbage-field-grid .garbage-field-input { min-height:48px; padding:0 12px; border-color:var(--md-sys-color-outline,var(--border)); border-radius:var(--app-radius-tile); font-size:var(--app-font-lg); }
+.garbage-field-grid .custom-select-wrap { display:flex; width:100%; }
+.garbage-field-grid .custom-select-btn { width:100%; justify-content:space-between; font-weight:400; }
+/* Табель: «частковий» день (не всі троє відмічені) — звичайна справа, не попередження.
+   Нейтральний фон замість коричневого на весь місяць; хто працював — крапками в заголовку. */
+.att-calendar-day.is-partial-day,.att-mobile-day.is-partial-day { border-color:var(--md-sys-color-outline-variant,var(--border)); background:var(--md-sys-color-surface-container-low,var(--bg-card)); }
+.att-calendar-day.is-partial-day > header,.att-mobile-day.is-partial-day > header { background:var(--md-sys-color-surface-container-high,var(--bg-input)); }
+.att-mobile-day-roles { display:inline-flex; align-items:center; gap:4px; margin-left:4px; }
+.att-mobile-day-roles .att-mobile-role-dot.role-dot-electrician { background:var(--md-ref-role-electrician,#f59e0b); }
+.att-mobile-day-roles .att-mobile-role-dot.role-dot-janitor { background:var(--md-ref-role-janitor,#10b981); }
+.att-mobile-day-roles .att-mobile-role-dot.role-dot-plumber { background:var(--md-ref-role-plumber,#3b82f6); }
+.att-absence-action { display:inline-flex; align-items:center; justify-content:center; gap:4px; }
+.att-absence-action .material-symbols-rounded { font-size:18px; }
+/* У вузькій клітинці календаря на ПК значок не вміщується поруч із текстом. */
+.att-calendar-role .att-absence-action .material-symbols-rounded { display:none; }
+.att-calendar-day.is-partial-day > header strong,.att-mobile-day.is-partial-day > header strong { background:transparent; }
+/* У shell на телефоні плаваюче меню shell (68px + 12px) лежить поверх iframe: нижні аркуші
+   піднімаються над ним, інакше їхні кнопки ховались під меню. */
+@media (max-width:640px) {
+  html.in-shell .day-detail-overlay, html.in-shell .pin-modal-overlay, html.in-shell .shift-editor-overlay { padding-bottom:calc(88px + env(safe-area-inset-bottom)); }
+  html.in-shell .day-detail-sheet, html.in-shell .pin-modal-dialog, html.in-shell .shift-editor-sheet { max-height:100%; border-radius:var(--md-sys-shape-corner-extra-large,28px); }
+}
