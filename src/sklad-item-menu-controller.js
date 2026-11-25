@@ -19,6 +19,7 @@ function createSkladItemMenuController({ document, window, actions }) {
   function setExpanded(menu, expanded) {
     menu?.querySelector("summary")?.setAttribute("aria-expanded", String(expanded));
     menu?.closest?.(".m-card,tr")?.classList.toggle("has-open-menu", Boolean(expanded));
+    if (!expanded) menu?.querySelector?.(".item-more-menu")?.classList?.remove("is-viewport-positioned");
   }
   function closeAll(except = null) {
     document.querySelectorAll("details.item-more[open]").forEach((menu) => {

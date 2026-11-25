@@ -34,6 +34,9 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
   function setExpanded(menu: HTMLElement | null | undefined, expanded: boolean) {
     menu?.querySelector('summary')?.setAttribute('aria-expanded', String(expanded));
     menu?.closest?.('.m-card,tr')?.classList.toggle('has-open-menu', Boolean(expanded));
+    // Закрите меню забуває своє місце: інакше при наступному відкритті воно на мить
+    // з'являлось на старих координатах, доки position() не переставить.
+    if (!expanded) menu?.querySelector?.('.item-more-menu')?.classList?.remove('is-viewport-positioned');
   }
   function closeAll(except: HTMLElement | null = null) {
     document.querySelectorAll<HTMLDetailsElement>('details.item-more[open]').forEach(menu => {
