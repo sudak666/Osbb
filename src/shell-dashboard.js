@@ -5,7 +5,7 @@ import { elevatorEntriesFromResponse } from "./osbb-elevator.js";
 import { garbageBins, garbageMonthKey, garbageMonthKeyCandidates, normalizeGarbageMonth } from "./osbb-garbage.js";
 import { buildMonthlyReportSheets, monthlyReportFileName, monthRange } from "./monthly-report.js";
 import { estimatedItemValue } from "./sklad-domain.js";
-import { hasMinimums, isBelowMinimum } from "./sklad-purchasing.js";
+import { isLowStock } from "./sklad-purchasing.js";
 const STAFF_ROLES = ["electrician", "janitor", "plumber"];
 const ROLE_LABELS = { electrician: "Електрик", janitor: "Двірник", plumber: "Сантехнік" };
 const ROLE_ICONS = { electrician: "bolt", janitor: "cleaning_services", plumber: "plumbing" };
@@ -14,7 +14,6 @@ const WORK_ROLE_ICONS = { ...ROLE_ICONS, security: "security" };
 const MONTHS_GENITIVE = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
 const MONTHS_NOMINATIVE = ["січень", "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"];
 const WEEKDAYS = ["неділя", "понеділок", "вівторок", "середа", "четвер", "пʼятниця", "субота"];
-const LOW_STOCK_THRESHOLD = 3;
 function attendanceToday(monthData, day) {
   const dayData = normalizeAttendanceMonth(monthData)[String(day)] || {};
   return STAFF_ROLES.map((role) => {
@@ -44,17 +43,15 @@ function garbageToday(monthData, day) {
 }
 function stockSummary(items, monthLogs) {
   const priceById = /* @__PURE__ */ new Map();
-  const minimums = hasMinimums(items.map((item) => ({ ...item, name: item.name ?? "" })));
-  const summary = { available: 0, outOfStock: 0, low: 0, belowMin: minimums ? 0 : null, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
+  const summary = { available: 0, outOfStock: 0, low: 0, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
   for (const item of items) {
     const quantity = Number(item.quantity) || 0;
     priceById.set(String(item.id), Number(item.price_unit) || 0);
     if (quantity > 0) summary.available += 1;
     summary.value += estimatedItemValue({ quantity, price_unit: item.price_unit ?? null });
-    if (summary.belowMin !== null && isBelowMinimum({ ...item, name: item.name ?? "" })) summary.belowMin += 1;
     if (item.is_internal === true) continue;
     if (quantity <= 0) summary.outOfStock += 1;
-    else if (quantity <= LOW_STOCK_THRESHOLD) summary.low += 1;
+    else if (isLowStock({ ...item, name: item.name ?? "" })) summary.low += 1;
   }
   for (const log of monthLogs) {
     const price = priceById.get(String(log.item_id)) ?? 0;
@@ -124,7 +121,7 @@ function renderStock(data, monthName) {
   const metrics = `<div class="home-metrics">
         <div class="home-metric"><strong>${s.available}</strong><span>у наявності</span></div>
         <div class="home-metric${s.outOfStock ? " is-warn" : ""}"><strong>${s.outOfStock}</strong><span>закінчились</span></div>
-        ${s.belowMin !== null ? `<div class="home-metric${s.belowMin ? " is-warn" : ""}"><strong>${s.belowMin}</strong><span>нижче мінімуму</span></div>` : `<div class="home-metric"><strong>${s.low}</strong><span>мало (1–${LOW_STOCK_THRESHOLD})</span></div>`}
+        <div class="home-metric"><strong>${s.low}</strong><span>закінчуються</span></div>
     </div>
     <p class="home-muted">Вартість залишків ≈ <strong>${formatMoney(s.value)}</strong>. За ${monthName} видано ${s.monthIssues} ${s.monthIssues === 1 ? "раз" : "разів"}${s.monthSpend ? ` на ≈ ${formatMoney(s.monthSpend)}` : ""}.</p>`;
   const list = recent.length ? `<ul class="home-list home-list--compact">${recent.map((log) => `

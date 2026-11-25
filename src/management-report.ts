@@ -2,6 +2,7 @@ import { escapeHtml } from './app-security.ts';
 import { attendanceHours, formatAttendanceDuration, normalizeAttendanceMonth } from './osbb-attendance.ts';
 import type { ElevatorEntry } from './osbb-elevator.ts';
 import { garbageBins, normalizeGarbageMonth } from './osbb-garbage.ts';
+import { isLowStock } from './sklad-purchasing.ts';
 
 // Звіт для керівництва (листопад 2026): гарна сторінка А4 за день, тиждень чи місяць,
 // яку власник зберігає в PDF і пересилає. Тут лише чисті функції — без мережі й DOM.
@@ -96,7 +97,7 @@ export interface ManagementReportModel {
     garbageBins: number;
     works: { date: string; role: string; description: string; note: string }[];
     elevator: { date: Date; text: string }[];
-    stock: { issues: number; issuedSum: number; top: { name: string; quantity: number; unit: string }[]; receipts: number; receivedSum: number; outOfStock: number; belowMin: number | null };
+    stock: { issues: number; issuedSum: number; top: { name: string; quantity: number; unit: string }[]; receipts: number; receivedSum: number; outOfStock: number; low: number };
 }
 
 export function buildManagementReport(period: ReportPeriod, data: ReportSourceData, now: Date): ManagementReportModel {
@@ -153,7 +154,6 @@ export function buildManagementReport(period: ReportPeriod, data: ReportSourceDa
         entry.quantity += Number(i.quantity) || 0;
         byItem.set(key, entry);
     }
-    const hasMin = data.items.some((i) => i.min_quantity !== null && i.min_quantity !== undefined && i.is_internal !== true);
     const stock = {
         issues: issues.length,
         issuedSum: Math.round(issues.reduce((s, i) => s + (Number(i.quantity) || 0) * (price.get(String(i.item_id)) ?? 0), 0)),
@@ -161,7 +161,7 @@ export function buildManagementReport(period: ReportPeriod, data: ReportSourceDa
         receipts: receipts.length,
         receivedSum: Math.round(receipts.reduce((s, r) => s + (Number(r.quantity) || 0) * (Number(r.purchase_price_unit) || price.get(String(r.item_id)) || 0), 0)),
         outOfStock: data.items.filter((i) => i.is_internal !== true && Number(i.quantity) <= 0).length,
-        belowMin: hasMin ? data.items.filter((i) => i.is_internal !== true && i.min_quantity != null && Number(i.quantity) < Number(i.min_quantity)).length : null,
+        low: data.items.filter((i) => Number(i.quantity) > 0 && isLowStock({ ...i, name: String(i.name ?? '') })).length,
     };
 
     const garbageRecorded = garbage.filter((g) => g.recorded);
@@ -248,7 +248,7 @@ function renderStock(m: ManagementReportModel): string {
     const top = s.top.length
         ? `<div class="rpt-table-wrap"><table class="rpt-table rpt-table--list"><thead><tr><th>Найбільше видано</th><th class="rpt-num">Кількість</th></tr></thead><tbody>${s.top.map((t) => `<tr><td>${escapeHtml(t.name)}</td><td class="rpt-num">${escapeHtml(String(t.quantity))} ${escapeHtml(t.unit)}</td></tr>`).join('')}</tbody></table></div>`
         : '';
-    const lead = `Видач: <strong>${s.issues}</strong>${s.issuedSum ? ` на ≈ ${escapeHtml(money(s.issuedSum))}` : ''} · надходжень: <strong>${s.receipts}</strong>${s.receivedSum ? ` на ≈ ${escapeHtml(money(s.receivedSum))}` : ''}. Зараз закінчились: ${s.outOfStock}${s.belowMin !== null ? `, нижче мінімуму: ${s.belowMin}` : ''}.`;
+    const lead = `Видач: <strong>${s.issues}</strong>${s.issuedSum ? ` на ≈ ${escapeHtml(money(s.issuedSum))}` : ''} · надходжень: <strong>${s.receipts}</strong>${s.receivedSum ? ` на ≈ ${escapeHtml(money(s.receivedSum))}` : ''}. Зараз закінчились: ${s.outOfStock}, закінчуються: ${s.low}.`;
     return section('Склад', `<p class="rpt-lead">${lead}</p>${top}`, 'Суми зі знаком ≈ — за поточною ціною товару, якщо ціну закупівлі не вказано.');
 }
 

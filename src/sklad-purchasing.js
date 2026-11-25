@@ -18,6 +18,16 @@ function isBelowMinimum(item) {
   if (item.is_internal === true || item.min_quantity === null || item.min_quantity === void 0) return false;
   return num(item.quantity) < num(item.min_quantity);
 }
+const LOW_STOCK_FALLBACK = 3;
+const hasMin = (item) => item.min_quantity !== null && item.min_quantity !== void 0;
+function isLowStock(item) {
+  if (item.is_internal === true) return false;
+  const quantity = num(item.quantity);
+  return hasMin(item) ? quantity < num(item.min_quantity) : quantity <= LOW_STOCK_FALLBACK;
+}
+function lowWithoutMinimum(items) {
+  return items.filter((item) => item.is_internal !== true && !hasMin(item) && num(item.quantity) <= LOW_STOCK_FALLBACK).sort((a, b) => num(a.quantity) - num(b.quantity));
+}
 function buildPurchaseList(items, receipts = []) {
   const lastSupplier = /* @__PURE__ */ new Map();
   for (const receipt of receipts) {
@@ -107,10 +117,13 @@ function usageByCategory(issues, items, since) {
   return [...totals.entries()].map(([category, amount]) => ({ category, amount: Math.round(amount) })).sort((a, b) => b.amount - a.amount);
 }
 export {
+  LOW_STOCK_FALLBACK,
   buildPurchaseExportRows,
   buildPurchaseList,
   hasMinimums,
   isBelowMinimum,
+  isLowStock,
+  lowWithoutMinimum,
   parseMinQuantity,
   purchaseListTotal,
   spendByMonth,

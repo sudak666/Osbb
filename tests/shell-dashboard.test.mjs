@@ -37,9 +37,17 @@ test('stockSummary separates out-of-stock from low stock and skips internal item
     { id: 4, quantity: 0, is_internal: true },
   ];
   const summary = stockSummary(items, [{ item_id: 2, quantity: 3 }, { item_id: 99, quantity: 1 }]);
-  assert.deepEqual(summary, { available: 2, outOfStock: 1, low: 1, belowMin: null, value: 200, monthIssues: 2, monthSpend: 150 });
-  const withMin = stockSummary([{ id: 1, quantity: 2, min_quantity: 5 }, { id: 2, quantity: 9, min_quantity: 5 }], []);
-  assert.equal(withMin.belowMin, 1);
+  assert.deepEqual(summary, { available: 2, outOfStock: 1, low: 1, value: 200, monthIssues: 2, monthSpend: 150 });
+  // Один заданий мінімум не вимикає поріг «≤ 3» для решти товарів (було: 0 при десятках низьких залишків).
+  const mixed = stockSummary([
+    { id: 1, quantity: 2, min_quantity: 5 },
+    { id: 2, quantity: 9, min_quantity: 5 },
+    { id: 3, quantity: 1 },
+    { id: 4, quantity: 7 },
+    { id: 5, quantity: 0 },
+  ], []);
+  assert.equal(mixed.low, 2);
+  assert.equal(mixed.outOfStock, 1);
 });
 
 test('latestElevatorVisit picks the newest past visit across two months', () => {

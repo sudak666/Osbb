@@ -61,6 +61,29 @@ export function isBelowMinimum(item: PurchasingItem): boolean {
     return num(item.quantity) < num(item.min_quantity);
 }
 
+/** Поріг «мало» для товарів без заданого мінімуму — так склад рахував до появи мінімумів. */
+export const LOW_STOCK_FALLBACK = 3;
+
+const hasMin = (item: PurchasingItem) => item.min_quantity !== null && item.min_quantity !== undefined;
+
+/**
+ * Товар закінчується (разом із нульовими залишками): із заданим мінімумом — залишок менший
+ * за нього, без мінімуму — 3 і менше. Внутрішні не рахуються. Єдине правило для «Головної»,
+ * шапки складу й звіту: раніше перший же заданий мінімум вимикав поріг «≤ 3» для решти
+ * товарів, і лічильник показував 0 при десятках товарів, що закінчуються.
+ */
+export function isLowStock(item: PurchasingItem): boolean {
+    if (item.is_internal === true) return false;
+    const quantity = num(item.quantity);
+    return hasMin(item) ? quantity < num(item.min_quantity) : quantity <= LOW_STOCK_FALLBACK;
+}
+
+/** Товари без мінімуму із залишком 3 і менше — від найменшого залишку. */
+export function lowWithoutMinimum<T extends PurchasingItem>(items: readonly T[]): T[] {
+    return items.filter((item) => item.is_internal !== true && !hasMin(item) && num(item.quantity) <= LOW_STOCK_FALLBACK)
+        .sort((a, b) => num(a.quantity) - num(b.quantity));
+}
+
 /** Що докупити, щоб повернутися до мінімуму; постачальник — з останнього надходження. */
 export function buildPurchaseList(items: readonly PurchasingItem[], receipts: readonly ReceiptLike[] = []): PurchaseRow[] {
     const lastSupplier = new Map<string, { at: number; supplier: string }>();

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  buildPurchaseExportRows, buildPurchaseList, hasMinimums, isBelowMinimum, parseMinQuantity, purchaseListTotal, spendByMonth, usageByCategory,
+  buildPurchaseExportRows, buildPurchaseList, hasMinimums, isBelowMinimum, isLowStock, lowWithoutMinimum, parseMinQuantity, purchaseListTotal, spendByMonth, usageByCategory,
 } from '../src/sklad-purchasing.js';
 
 test('parseMinQuantity accepts empty, integers and decimal commas only', () => {
@@ -20,6 +20,22 @@ test('only non-internal items with a minimum and a lower stock need buying', () 
   assert.equal(isBelowMinimum({ id: 3, name: 'c', quantity: 0, min_quantity: null }), false);
   assert.equal(isBelowMinimum({ id: 4, name: 'd', quantity: 0, min_quantity: 2, is_internal: true }), false);
   assert.equal(hasMinimums([{ id: 1, name: 'a', quantity: 0 }]), false);
+});
+
+test('isLowStock uses the minimum when set and the 3-unit fallback otherwise', () => {
+  assert.equal(isLowStock({ id: 1, name: 'a', quantity: 4, min_quantity: 5 }), true);
+  assert.equal(isLowStock({ id: 2, name: 'b', quantity: 2, min_quantity: 1 }), false);
+  assert.equal(isLowStock({ id: 3, name: 'c', quantity: 3 }), true);
+  assert.equal(isLowStock({ id: 4, name: 'd', quantity: 0, min_quantity: null }), true);
+  assert.equal(isLowStock({ id: 5, name: 'e', quantity: 4 }), false);
+  assert.equal(isLowStock({ id: 6, name: 'f', quantity: 0, is_internal: true }), false);
+  const unset = lowWithoutMinimum([
+    { id: 1, name: 'a', quantity: 2 },
+    { id: 2, name: 'b', quantity: 0 },
+    { id: 3, name: 'c', quantity: 1, min_quantity: 5 },
+    { id: 4, name: 'd', quantity: 9 },
+  ]);
+  assert.deepEqual(unset.map((i) => i.id), [2, 1]);
 });
 
 test('purchase list computes need, cost and the latest supplier', () => {
