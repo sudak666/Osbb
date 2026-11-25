@@ -208,7 +208,8 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 /* WORKFLOW FORMS */
 .workflow-card{padding:26px;}
 .workflow-heading{display:flex;align-items:flex-start;gap:12px;margin-bottom:22px;}
-.workflow-heading-icon{width:40px;height:40px;border-radius:var(--md-sys-shape-corner-large,16px);display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);flex-shrink:0;}
+.workflow-heading-icon{display:flex;align-items:center;color:var(--md-sys-color-primary);flex-shrink:0;}
+.workflow-heading-icon .ms{font-size:24px;}
 .workflow-title{font-size:20px;font-weight:700;line-height:1.2;letter-spacing:0;color:var(--sklad-label);margin:0;}
 .workflow-copy{font-size:13px;line-height:1.5;color:var(--sklad-label3);font-weight:500;margin-top:5px;}
 .form-stack{display:flex;flex-direction:column;gap:16px;}
@@ -462,8 +463,6 @@ button[disabled]{opacity:.62;cursor:not-allowed;}
 .insight-grid .stat-card.sc-active{border-color:var(--stat-accent);box-shadow:0 0 0 3px var(--stat-soft);}
 .insight-grid .stat-card .big{color:var(--stat-accent);}
 .insight-grid .stat-card .lbl{display:flex;align-items:center;gap:6px;color:var(--sklad-label2);opacity:1;}
-.stat-icon{position:absolute;right:14px;top:14px;z-index:1;width:42px;height:42px;border-radius:var(--md-sys-shape-corner-large,16px);display:flex;align-items:center;justify-content:center;color:var(--stat-accent);background:var(--stat-soft);}
-.stat-icon .ms{font-size:22px;}
 .insight-grid .sc-purple{--stat-accent:var(--info);--stat-soft:color-mix(in srgb,var(--md-sys-color-secondary,var(--info)) 12%,transparent);}
 
 .insight-grid .sc-orange{--stat-accent:var(--warning);--stat-soft:color-mix(in srgb,var(--md-sys-color-tertiary,var(--warning)) 14%,transparent);}
@@ -755,7 +754,6 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
   .list-search-row{grid-template-columns:1fr;}
   .workflow-card{padding:18px;}
   .workflow-heading{gap:10px;margin-bottom:16px;}
-  .workflow-heading-icon{width:36px;height:36px;border-radius:var(--md-sys-shape-corner-large,16px);}
   .workflow-title{font-size:17px;}
   .workflow-copy{font-size:12px;}
   .field-grid{grid-template-columns:1fr;}
@@ -1020,7 +1018,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .topbar-title-block{min-width:0;}
 .topbar-eyebrow{color:var(--brand);}
 .topbar-title{display:flex;align-items:center;gap:10px;min-width:0;max-width:100%;margin:0;color:var(--md-sys-color-on-surface);font-size:var(--md-sys-typescale-headline-small-size,24px);font-weight:700;line-height:1.15;letter-spacing:-.025em;}
-.topbar-title-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:40px;height:40px;margin-right:0;border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font-size:22px;}
+.topbar-title-icon{display:inline-flex;align-items:center;flex:none;margin-right:0;color:var(--md-sys-color-primary);font-size:26px;}
 .page{padding-top:18px;}
 .topbar-mobile-only{display:none!important;}
 @media(max-width:768px){.topbar{padding:8px 10px;min-height:60px;height:auto;top:8px;margin:8px 8px 0;border-radius:var(--md-sys-shape-corner-large,16px);gap:6px;}.topbar>.topbar-title-block{flex:1 1 auto;min-width:0;}.topbar h2{font-size:18px;}.topbar .topbar-title-icon,.topbar-actions>.btn-excel{display:none!important;}.topbar-mobile-only{display:flex!important;}}
@@ -1127,7 +1125,6 @@ html.in-shell .app-module-kicker{display:none;}
 .btn .ms{font-size:var(--app-button-icon-size);}
 .topbar-icon-btn{width:var(--app-icon-button-size);height:var(--app-icon-button-size);min-height:0;padding:0;justify-content:center;border-radius:var(--md-sys-shape-corner-full,999px);}
 .topbar-icon-btn .ms{font-size:var(--app-icon-button-glyph-size);}
-.workflow-heading-icon,.stat-icon{border-radius:var(--app-radius-icon-tile);}
 
 /* Підсумок «Запасів»: число кольору тексту, без декоративного квадратика з іконкою.
    Колір — лише як сигнал стану: є товари нижче мінімуму. */

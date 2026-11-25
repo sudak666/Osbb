@@ -3452,8 +3452,6 @@ ${sharedSelectText}`;
     '<article class="stat-card summary-card sc-purple">',
     '<article class="stat-card summary-card sc-orange">',
     '.inventory-summary .summary-card{min-height:132px;cursor:default;',
-    '.stat-icon{position:absolute;right:14px;top:14px;z-index:1;',
-    '.stat-icon .ms{font-size:22px;}',
     '.sw .inp{padding-left:42px!important;}',
     '.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px!important;}',
     '.si.ms{font-size:18px;}',
@@ -3848,6 +3846,26 @@ ${sharedSelectText}`;
     ...(html.includes('workflow-kicker') ? ['workflow-kicker'] : []),
   ];
   if (required.length || present.length) { failed += 1; console.error(`not ok - ${label} (missing: ${required.join(', ')}; leftover: ${present.join(', ')})`); }
+  else { passed += 1; console.log(`ok - ${label}`); }
+}
+
+// Іконки біля заголовків карток і модулів — просто гліф, без тонованого квадратика
+// (рішення власника, листопад 2026: квадратик на кожній картці — шаблонний вигляд).
+{
+  const sheets = {
+    'styles.css': readFileSync('styles.css', 'utf8'),
+    'osbb/styles.css': readFileSync('osbb/styles.css', 'utf8'),
+    'sklad/styles.css': readFileSync('sklad/styles.css', 'utf8'),
+    'shared/ui.css': readFileSync('shared/ui.css', 'utf8'),
+    'shared/material-tokens.css': readFileSync('shared/material-tokens.css', 'utf8'),
+  };
+  const label = 'card and module title icons are plain glyphs, not tinted tiles';
+  const selectors = ['.home-card-icon', '.elevator-title-icon', '.workflow-heading-icon', '.app-module-title-icon', '.topbar-title-icon'];
+  const tiled = Object.entries(sheets).flatMap(([file, css]) => [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+    .filter(([, selector, body]) => selectors.some(name => selector.includes(name)) && /background\s*:/.test(body))
+    .map(([, selector]) => `${file}: ${selector.trim()}`));
+  if (Object.values(sheets).some(css => css.includes('--app-radius-icon-tile'))) tiled.push('--app-radius-icon-tile');
+  if (tiled.length) { failed += 1; console.error(`not ok - ${label} (found: ${tiled.join('; ')})`); }
   else { passed += 1; console.log(`ok - ${label}`); }
 }
 
