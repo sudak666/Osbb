@@ -913,10 +913,10 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
   const label = 'sklad mobile topbar keeps compact actions and flexible title';
   const required = [
     '.topbar{padding:0 8px;height:56px;border-radius:0 0 var(--md-sys-shape-corner-large,16px) var(--md-sys-shape-corner-large,16px);gap:6px;}',
-    '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-    '.topbar .btn:not(.topbar-right-excel){display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;padding:0!important;line-height:1!important;}',
-    '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid!important;place-items:center!important;width:1em!important;height:1em!important;font-size:21px!important;line-height:1!important;margin:0!important;}',
-    '.topbar-more summary{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:48px;height:48px;min-height:48px;padding:0;line-height:1!important;}',
+    '.topbar h2{font-size:15px;flex:1;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+    '.topbar .btn:not(.topbar-right-excel){display:inline-flex;align-items:center;justify-content:center;width:48px;min-width:48px;height:48px;min-height:48px;padding:0;line-height:1 !important;}',
+    '.topbar .btn:not(.topbar-right-excel) .ms{display:inline-grid;place-items:center;width:1em;height:1em;font-size:21px;line-height:1;margin:0;}',
+    '.topbar-more summary{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;min-height:48px;padding:0;line-height:1;}',
     // Секондарні дії (графік/оцінка цін/прихід/тема) згорнуті в overflow-меню замість
     // окремих кнопок в ряд — це саме те, що фіксить попередній баг "тема недоступна на мобілці".
     '<details class="item-more topbar-more">',
@@ -1934,7 +1934,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="stat-card journal-stat-card journal-mini-stat role-garbage',
     '.journal-panel {',
     '.garbage-chart-panel { padding:16px;',
-    '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; padding:0!important; }',
+    '.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px); padding:0; }',
     '.journal-list-head { padding:16px 22px;',
     '.journal-status-chip {',
     '.journal-icon-btn {',
@@ -2900,7 +2900,7 @@ ${sharedSelectText}`;
   const css = readFileSync('sklad/styles.css', 'utf8');
   const label = 'sklad inventory cards stay hidden on desktop and appear on mobile';
   const desktopRule = '.mobile-cards{display:none;}';
-  const mobileRule = '.mobile-cards{display:block!important;}';
+  const mobileRule = '.mobile-cards{display:block;}';
   const mobileSectionIndex = css.indexOf('/* ===MOBILE === */');
   const desktopIndex = css.indexOf(desktopRule);
   const mobileMediaIndex = css.indexOf('@media(max-width:768px)', mobileSectionIndex);
@@ -2999,7 +2999,7 @@ ${sharedSelectText}`;
     'create table if not exists inventory_supplier_tags',
     "alter publication supabase_realtime add table inventory_supplier_tags",
     '.journal-stat-card { --role-accent:var(--accent);',
-    'background:var(--md-sys-color-surface-container-low,var(--surface-1))!important;',
+    'background:var(--md-sys-color-surface-container-low,var(--surface-1));',
   ];
   const combined = supplierMigration + '\n' + journalCss;
   const missing = required.filter(needle => !combined.includes(needle));
@@ -3163,7 +3163,7 @@ ${sharedSelectText}`;
     "details.includes('23514')",
     '.shift-shell { display:grid;',
     '.shift-editor-overlay.is-open { display:flex; }',
-    '.hidden { display:none!important; }',
+    '.hidden { display:none !important; }',
   ];
   const combined = html + '\n' + css;
   const missing = required.filter(needle => !combined.includes(needle));
@@ -3453,7 +3453,7 @@ ${sharedSelectText}`;
     '<article class="stat-card summary-card sc-orange">',
     '.inventory-summary .summary-card{min-height:132px;cursor:default;',
     '.sw .inp{padding-left:42px!important;}',
-    '.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px!important;}',
+    '.items-search-field > #searchInp{box-sizing:border-box;padding-inline-start:46px !important;}',
     '.si.ms{font-size:18px;}',
   ];
   const missing = required.filter(needle => !text.includes(needle));
