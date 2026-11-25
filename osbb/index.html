@@ -12,7 +12,7 @@
     <link class="no-print" rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="/Osbb/shared/ui.css">
     <link rel="stylesheet" href="/Osbb/shared/material-tokens.css">
-    <link rel="stylesheet" href="./tailwind.css">
+    <link rel="stylesheet" href="./base.css">
     <link rel="stylesheet" href="/Osbb/shared/material-symbols.css">
     <script src="/Osbb/shared/material-symbols-ready.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +22,7 @@
     <script src="/Osbb/shared/enhance-date.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="theme-light min-h-screen">
+<body class="theme-light journal-body">
 
 
 <!-- ЕКРАН БЛОКУВАННЯ ПРИ ВХОДІ -->
@@ -188,10 +188,10 @@
 <div id="swipe-hint" class="swipe-hint no-print"></div>
 
 <div id="lightbox" class="lightbox no-print" data-lightbox-backdrop role="dialog" aria-modal="true" aria-label="Перегляд фото" tabindex="-1">
-    <button type="button" data-lightbox-action="prev" aria-label="Попереднє фото" class="absolute left-3 top-1/2 -translate-y-1/2 text-white text-3xl bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
+    <button type="button" data-lightbox-action="prev" aria-label="Попереднє фото" class="lightbox-icon-btn is-prev no-select"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
     <img id="lightbox-img" src="" alt="Збільшене фото запису">
-    <button type="button" data-lightbox-action="next" aria-label="Наступне фото" class="absolute right-3 top-1/2 -translate-y-1/2 text-white text-3xl bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10 no-select"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
-    <button type="button" data-lightbox-action="close" aria-label="Закрити перегляд фото" class="absolute top-3 right-3 text-white text-xl bg-black/40 hover:bg-black/70 w-10 h-10 rounded-full flex items-center justify-center transition z-10"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+    <button type="button" data-lightbox-action="next" aria-label="Наступне фото" class="lightbox-icon-btn is-next no-select"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
+    <button type="button" data-lightbox-action="close" aria-label="Закрити перегляд фото" class="lightbox-icon-btn is-close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 
 <!-- МОДАЛКА ДЕТАЛІЗАЦІЇ ДНЯ — відкривається з календарної сітки (sm:hidden), показує записи обраного дня -->
@@ -206,7 +206,7 @@
     </div>
 </div>
 
-<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+<div class="journal-page">
 
     <header class="no-print journal-shell-header">
         <div class="journal-title-row">
@@ -236,7 +236,7 @@
                 <select id="month-select" data-calendar-select aria-label="Місяць" class="journal-select"></select>
                 <button type="button" data-month-step="1" data-tip="Наступний місяць" aria-label="Наступний місяць" class="journal-icon-btn md-state-layer"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
                 <button type="button" data-action="go-today" id="btn-today" class="journal-tonal-btn md-state-layer hidden">
-                    <span class="flex items-center gap-1"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">today</span> Сьогодні</span>
+                    <span class="journal-inline-row"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">today</span> Сьогодні</span>
                 </button>
                 <button type="button" data-action="refresh-data" data-tip="Оновити дані" aria-label="Оновити дані" class="journal-icon-btn md-state-layer is-primary" id="btn-refresh">
                     <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
@@ -278,10 +278,10 @@
         </button>
     </div>
 
-    <section id="section-completed-work" class="hidden mb-6" role="tabpanel" aria-labelledby="tab-completed-work">
+    <section id="section-completed-work" class="hidden journal-section" role="tabpanel" aria-labelledby="tab-completed-work">
         <div class="journal-panel completed-work-shell">
             <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">task_alt</span>Виконані роботи</span>
+                <span class="journal-list-title journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">task_alt</span>Виконані роботи</span>
                 <span id="completed-work-status" class="journal-status-chip" role="status" aria-live="polite">Готово</span>
             </div>
             <form id="completed-work-form" class="completed-work-form">
@@ -317,7 +317,7 @@
         </div>
     </section>
 
-    <section id="section-shifts" class="hidden mb-6" role="tabpanel" aria-labelledby="tab-shifts">
+    <section id="section-shifts" class="hidden journal-section" role="tabpanel" aria-labelledby="tab-shifts">
         <div class="shift-shell">
             <div class="shift-header">
                 <div>
@@ -371,10 +371,10 @@
     <!-- ===== ТАБЕЛЬ: точний час приходу/відходу трьох працівників.
          Редагувати можуть тільки staff-сесії з роллю dispatcher/admin —
          сантехнік/двірник/електрик бачать той самий календар read-only. ===== -->
-    <section id="section-tabel" class="hidden mb-6" role="tabpanel" aria-labelledby="tab-tabel">
+    <section id="section-tabel" class="hidden journal-section" role="tabpanel" aria-labelledby="tab-tabel">
         <div class="journal-panel">
             <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Табель робочого часу</span>
+                <span class="journal-list-title journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">schedule</span>Табель робочого часу</span>
                 <div class="journal-list-head-actions">
                     <span id="att-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
                     <button type="button" class="journal-tonal-btn md-state-layer" data-attendance-export><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">download</span>Експорт Excel</button>
@@ -407,7 +407,7 @@
 
 
     <!-- ===== СЕКЦІЯ ЖУРНАЛ СМІТТЯ ===== -->
-    <div id="section-garbage" class="hidden mb-6">
+    <div id="section-garbage" class="hidden journal-section">
 
         <!-- Статистика зверху -->
         <div class="journal-mini-stats is-four">
@@ -432,8 +432,8 @@
         <!-- Список днів (згорнуто, окрім сьогодні) -->
         <div class="journal-panel journal-list-shell">
             <div class="journal-list-head">
-                <span class="text-sm font-bold journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span>Журнал вивозу сміття</span>
-                <div class="flex items-center gap-2">
+                <span class="journal-list-title journal-action-label"><span class="material-symbols-rounded journal-inline-icon" aria-hidden="true">delete</span>Журнал вивозу сміття</span>
+                <div class="journal-head-actions">
                     <span id="g-sync-status" class="journal-status-chip"><span class="material-symbols-rounded journal-inline-icon is-spinning" aria-hidden="true">progress_activity</span></span>
                 </div>
             </div>
@@ -448,7 +448,7 @@
         <!-- Графік по місяцях -->
         <details class="journal-panel garbage-chart-panel">
             <summary class="journal-section-title">Баки по місяцях</summary>
-            <div id="g-chart" class="garbage-chart flex items-end justify-between gap-1"></div>
+            <div id="g-chart" class="garbage-chart"></div>
         </details>
 
 

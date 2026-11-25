@@ -36,9 +36,12 @@ const files = [
   'sklad/icon.svg',
 ];
 
+// Тека збірки — dist; scripts/css-diff.mjs передає власну через OSBB_OUT_DIR.
+const outDir = process.env.OSBB_OUT_DIR || 'dist';
+
 for (const file of files) {
   if (!existsSync(file)) continue;
-  const dest = join('dist', file);
+  const dest = join(outDir, file);
   mkdirSync(dirname(dest), { recursive: true });
   copyFileSync(file, dest);
 }

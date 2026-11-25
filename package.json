@@ -15,13 +15,13 @@
     "test:migrations": "node scripts/check-supabase-migrations.mjs",
     "test:functions": "node scripts/check-supabase-functions.mjs",
     "test:m3": "node scripts/check-material3.mjs",
-    "build:js": "node scripts/build-js-fallback.mjs"
+    "build:js": "node scripts/build-js-fallback.mjs",
+    "css-diff": "node scripts/css-diff.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.11",
-    "@tailwindcss/vite": "^4.1.14",
     "esbuild": "0.25.12",
-    "tailwindcss": "^4.1.14",
+    "playwright-core": "1.65.1",
     "typescript": "5.8.3",
     "vite": "6.4.5"
   },
