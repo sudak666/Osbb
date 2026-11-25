@@ -1,7 +1,7 @@
 body { font-family:'Roboto',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background: var(--bg-app); color: var(--text-main); transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 html { overflow-x: hidden; }
 *, *::before, *::after { box-sizing: border-box; }
-.hidden { display:none!important; }
+.hidden { display:none !important; }
 :root {
   /* Семантичні aliases повністю відповідають Material 3 shape scale. */
   --radius-xs: var(--md-sys-shape-corner-small,8px);
@@ -42,8 +42,8 @@ html { overflow-x: hidden; }
 
 /* iOS-style polish */
 body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app)); }
-#desktop-tabs { background: transparent !important; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: transparent !important; }
-#bottom-nav { background:var(--md-sys-color-surface-container-high,var(--glass-nav))!important; backdrop-filter:none; -webkit-backdrop-filter:none; border-color:var(--md-sys-color-outline-variant,var(--border))!important; }
+#desktop-tabs { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: transparent; }
+#bottom-nav { background:var(--md-sys-color-surface-container-high,var(--glass-nav)); backdrop-filter:none; -webkit-backdrop-filter:none; border-color:var(--md-sys-color-outline-variant,var(--border)); }
 .journal-shell-header { display:flex; flex-direction:column; gap:12px; margin-bottom:1.5rem; padding:20px; border:1px solid var(--border-subtle); background:var(--md-sys-color-surface-container,var(--surface-2)); border-radius:var(--radius-xl); box-shadow:none; position:relative; z-index:20; overflow:visible; }
 .journal-shell-header::after { content:none; }
 .journal-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle); position:relative; z-index:3; }
@@ -78,7 +78,7 @@ body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app));
 
 .journal-section-title { display:inline-flex; align-items:center; gap:6px; color:var(--text-sub); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.11em; margin-bottom:12px; }
 
-.journal-stat-card { --role-accent:var(--accent); border-radius:var(--md-sys-shape-corner-large,16px)!important; border:1px solid var(--border-subtle)!important; background:var(--md-sys-color-surface-container-low,var(--surface-1))!important; box-shadow:none!important; }
+.journal-stat-card { --role-accent:var(--accent); border-radius:var(--md-sys-shape-corner-large,16px); border:1px solid var(--border-subtle); background:var(--md-sys-color-surface-container-low,var(--surface-1)); box-shadow:none!important; }
 .journal-stat-card.role-electrician { --role-accent:var(--md-ref-role-electrician, #f59e0b); }
 .journal-stat-card.role-janitor { --role-accent:var(--md-ref-role-janitor, #10b981); }
 .journal-stat-card.role-plumber { --role-accent:var(--md-ref-role-plumber, #3b82f6); }
@@ -87,7 +87,7 @@ body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app));
 .journal-stat-card.role-plastic { --role-accent:var(--md-sys-color-tertiary, #f59e0b); }
 .journal-stat-card.role-glass { --role-accent:var(--md-ref-color-info,#3b82f6); }
 
-.journal-panel { padding:22px; border:1px solid var(--border-subtle); background:var(--surface-1); border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; box-shadow:var(--md-sys-elevation-level1, var(--shadow-sm)); }
+.journal-panel { padding:22px; border:1px solid var(--border-subtle); background:var(--surface-1); border-radius:var(--md-sys-shape-corner-extra-large,28px); box-shadow:var(--md-sys-elevation-level1, var(--shadow-sm)); }
 
 .garbage-chart-panel { padding:16px; margin-bottom:16px; }
 /* .journal-list-shell навмисно БЕЗ padding (на відміну від .journal-panel, з яким
@@ -99,7 +99,7 @@ body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app));
    border-radius — його кути заокруглюються самим overflow:hidden шелу, суцільно з
    рештою панелі, без шва. Горизонтальний/нижній відступ під календар перенесено на
    #g-days-list/#disp-cards нижче. */
-.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; padding:0!important; }
+.journal-list-shell { overflow:hidden; border-radius:var(--md-sys-shape-corner-extra-large,28px); padding:0; }
 .journal-list-head { padding:16px 22px; background:var(--table-header); border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
 .journal-list-head-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:10px; }
 /* Табель і блок Ліфтера сидять у .journal-panel без .journal-list-shell (їхній
@@ -134,7 +134,7 @@ button svg.journal-inline-icon { display:block; }
 .journal-icon-btn:hover { background:color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 10%,var(--md-sys-color-surface-container-high,var(--bg-input))); }
 .journal-icon-btn:active { transform:scale(.96); }
 .journal-tonal-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; padding:9px 14px; border-radius:var(--md-sys-shape-corner-full,999px); border:1px solid color-mix(in srgb,var(--md-sys-color-primary,var(--accent)) 24%,transparent); background:var(--md-sys-color-primary-container,#dcfce7); color:var(--md-sys-color-on-primary-container,#052e16); font-size:12px; font-weight:700; }
-.journal-tonal-btn.hidden { display:none!important; }
+.journal-tonal-btn.hidden { display:none !important; }
 .journal-select { min-height:56px; padding:12px 38px 12px 16px; border-radius:var(--md-sys-shape-corner-large,16px); border:1px solid var(--md-sys-color-outline,var(--border)); background-color:var(--md-sys-color-surface-container-highest,var(--bg-card)); color:var(--md-sys-color-on-surface,var(--text-main)); font-size:16px; font-weight:700; outline:none; box-shadow:none; transition:border-color var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease), background var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease); }
 .journal-select:focus { border:2px solid var(--md-sys-color-primary,var(--accent)); padding:11px 37px 11px 15px; box-shadow:none; }
 
@@ -170,7 +170,7 @@ button svg.journal-inline-icon { display:block; }
 /* Дистанціюємо небезпечну дію (Скинути) від нейтральних Excel/PDF, щоб не натиснути її
    помилково поруч — тонкий розділювач + додатковий відступ, без зміни логіки підтвердження. */
 
-.stat-card { border-radius: var(--radius-lg) !important; box-shadow: var(--soft-shadow); }
+.stat-card { border-radius: var(--radius-lg); box-shadow: var(--soft-shadow); }
 
 input, select, textarea { border-radius:var(--md-sys-shape-corner-medium,12px); background-color:var(--md-sys-color-surface-container-highest,var(--bg-input)); }
 button, .tab-btn, .mob-tab { border-radius: var(--md-sys-shape-corner-full,999px); }
@@ -200,13 +200,13 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
     /* Щедрий запас під плаваючою панеллю — попередні 92px і 116px виявились замало на
        реальному пристрої (запас краще з надлишком, ніж контент під панеллю). */
     html { scroll-padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
-    #desktop-tabs { display: none !important; }
-    #bottom-nav { display: flex !important; }
-    .max-w-7xl.mx-auto { padding-left:4px!important; padding-right:4px!important; padding-bottom:calc(112px + env(safe-area-inset-bottom))!important; }
+    #desktop-tabs { display: none; }
+    #bottom-nav { display: flex; }
+    .max-w-7xl.mx-auto { padding-left:4px; padding-right:4px; padding-bottom:calc(112px + env(safe-area-inset-bottom)); }
     .journal-shell-header { padding:14px; border-radius:var(--md-sys-shape-corner-large,16px); gap:10px; }
 
-    .journal-panel { padding:10px; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; }
-    .journal-list-shell { padding:0!important; border-radius:var(--md-sys-shape-corner-extra-large,28px)!important; }
+    .journal-panel { padding:10px; border-radius:var(--md-sys-shape-corner-extra-large,28px); }
+    .journal-list-shell { padding:0; border-radius:var(--md-sys-shape-corner-extra-large,28px); }
     .journal-list-head { padding:14px 12px; }
     .journal-panel:not(.journal-list-shell) > .journal-list-head:first-child { margin:-10px -10px 14px; border-radius:var(--md-sys-shape-corner-extra-large,28px) var(--md-sys-shape-corner-extra-large,28px) 0 0; }
      .journal-mini-stats{ grid-template-columns:1fr; gap:10px; }
@@ -230,7 +230,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 }
 
 .journal-panel { background:var(--md-sys-color-surface-container-low,var(--surface-1)); }
-.journal-stat-card{ background-color:var(--md-sys-color-surface-container,var(--surface-2))!important; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.journal-stat-card{ background-color:var(--md-sys-color-surface-container,var(--surface-2)); backdrop-filter:none; -webkit-backdrop-filter:none; }
 .journal-action-btn,
 .journal-tonal-btn,
 .tab-btn,
@@ -253,23 +253,23 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 
 /* Плаваюча заокруглена нижня панель (як капсула), а не суцільна смуга по краю екрана */
 #bottom-nav {
-    position: fixed !important;
-    left: 12px !important;
-    right: 12px !important;
-    bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
     display: flex;
     align-items: stretch;
     height: 72px;
     max-width: calc(100vw - 24px);
     overflow: hidden;
     box-sizing: border-box;
-    border-radius: var(--md-sys-shape-corner-extra-large,28px) !important;
-    border: 1px solid var(--md-sys-color-outline-variant,var(--border)) !important;
-    box-shadow:var(--md-sys-elevation-level2)!important;
+    border-radius: var(--md-sys-shape-corner-extra-large,28px);
+    border: 1px solid var(--md-sys-color-outline-variant,var(--border));
+    box-shadow:var(--md-sys-elevation-level2);
     padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
 }
 .journal-bottom-nav { z-index:50; }
-.theme-dark #bottom-nav { box-shadow:var(--md-sys-elevation-level2)!important; border-color:transparent!important; }
+.theme-dark #bottom-nav { box-shadow:var(--md-sys-elevation-level2); border-color:transparent; }
 .mob-tab { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; margin:4px 1px; padding:6px 2px; border:0; border-radius:var(--md-sys-shape-corner-large,16px); background:transparent; color:var(--text-sub); font-size:var(--md-sys-typescale-label-small-size,11px); line-height:1.1; font-weight:700; text-align:center; white-space:nowrap; overflow:hidden; }
 #bottom-nav .material-symbols-rounded{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;font-size:24px;line-height:1;font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24;}
 .mob-tab .material-symbols-rounded { border-radius:var(--md-sys-shape-corner-full,999px); transition:width var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease), background var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease); }
@@ -477,11 +477,11 @@ tr[data-today="1"] td { background:transparent!important; box-shadow:inset 0 2px
    піднімаємо загальну підлогу.
    ========================================== */
 .text-xs { font-size: 14px !important; line-height: 1.4 !important; }
-.text-\[10px\] { font-size: 12px !important; }
+.text-\[10px\] { font-size: 12px; }
 .text-\[11px\] { font-size: 13px !important; }
-.text-\[9px\] { font-size: 12px !important; }
-.mob-tab { min-height: 48px !important; }
-.tab-btn { min-height: 44px !important; }
+.text-\[9px\] { font-size: 12px; }
+.mob-tab { min-height: 48px; }
+.tab-btn { min-height: 44px; }
 
 /* Нативні браузерні контроли (спінер числа, календар дати) не йшли в тон
    застосунку — стрілочки спінера ховаємо, кольорову схему пікера ведемо
@@ -768,9 +768,9 @@ input:not([type='checkbox']):not([type='radio']):focus-visible,select:focus-visi
 .dispatcher-search-input {
   border:0!important;
   border-radius:0!important;
-  outline:0!important;
+  outline:0;
   background:transparent!important;
-  box-shadow:none!important;
+  box-shadow:none;
 }
 
 .dispatcher-search-input:focus-visible { outline:0!important; box-shadow:none!important; }
@@ -861,8 +861,8 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
 .pin-modal-overlay{
   background:color-mix(in srgb,var(--md-sys-color-scrim) 72%,transparent);
 }
-.theme-light .pin-modal-dialog{background:var(--md-sys-color-surface)!important;}
-.theme-dark .pin-modal-dialog{background:var(--md-sys-color-surface-container-high)!important;}
+.theme-light .pin-modal-dialog{background:var(--md-sys-color-surface);}
+.theme-dark .pin-modal-dialog{background:var(--md-sys-color-surface-container-high);}
 .pin-modal-dialog{opacity:1;isolation:isolate;}
 
 /* Keep the daily workflow above secondary analytics on phones. */
@@ -873,7 +873,7 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
   .journal-title-copy { display:none; }
   .journal-shell-header .journal-title-row { gap:8px; }
   .journal-title-heading { font-size:22px; }
-  .journal-calendar-controls { display:grid!important; grid-template-columns:40px minmax(72px,.8fr) minmax(100px,1fr) 40px; gap:6px!important; width:100%; }
+  .journal-calendar-controls { display:grid; grid-template-columns:40px minmax(72px,.8fr) minmax(100px,1fr) 40px; gap:6px; width:100%; }
   .journal-calendar-controls > .custom-select-wrap { min-width:0; width:100%; }
   .journal-calendar-controls .custom-select-btn { min-width:0; padding-inline:8px; }
   .journal-calendar-controls > [data-month-step] { width:40px; height:44px; min-width:40px; }
@@ -914,12 +914,12 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
    нижнє меню й бренд-шапку ховаємо (поза shell журнал працює як раніше). */
 html.in-shell .journal-tabs-row,
 html.in-shell #desktop-tabs,
-html.in-shell #bottom-nav { display:none !important; }
+html.in-shell #bottom-nav { display:none; }
 html.in-shell .app-module-kicker,
 html.in-shell .journal-title-copy { display:none; }
 /* У shell тема, PIN і автоблокування — у «Налаштуваннях» shell; власні кнопки журналу лише поза shell. */
 html.in-shell .journal-security-menu,
-html.in-shell [data-theme-toggle] { display:none !important; }
+html.in-shell [data-theme-toggle] { display:none; }
 
 /* ===== Узгодженість з рештою застосунку (листопад 2026) =====
    Розміри беруться з токенів shared/material-tokens.css (--app-*), спільних для shell,
@@ -927,27 +927,27 @@ html.in-shell [data-theme-toggle] { display:none !important; }
    !important — бо частина кнопок журналу ще має Tailwind-утиліти. */
 .journal-tonal-btn, .journal-action-btn, .garbage-today,
 .shift-settings-btn, .shift-reset-btn, .shift-secondary-btn, .shift-primary-btn {
-  min-height:var(--app-control-height) !important;
-  border-radius:var(--md-sys-shape-corner-full,999px) !important;
-  font-size:var(--app-button-font-size) !important;
-  font-weight:var(--app-button-font-weight) !important;
+  min-height:var(--app-control-height);
+  border-radius:var(--md-sys-shape-corner-full,999px);
+  font-size:var(--app-button-font-size);
+  font-weight:var(--app-button-font-weight);
   letter-spacing:.01em;
 }
 .journal-tonal-btn .material-symbols-rounded, .journal-action-btn .material-symbols-rounded,
 .shift-settings-btn .material-symbols-rounded, .shift-reset-btn .material-symbols-rounded, .shift-secondary-btn .material-symbols-rounded,
-.shift-primary-btn .material-symbols-rounded { font-size:var(--app-button-icon-size) !important; }
+.shift-primary-btn .material-symbols-rounded { font-size:var(--app-button-icon-size); }
 .journal-icon-btn, .journal-theme-toggle, .shift-nav-btn, .day-detail-close {
   width:var(--app-icon-button-size) !important;
   height:var(--app-icon-button-size) !important;
-  min-height:0 !important;
-  padding:0 !important;
-  border-radius:var(--md-sys-shape-corner-full,999px) !important;
+  min-height:0;
+  padding:0;
+  border-radius:var(--md-sys-shape-corner-full,999px);
 }
 .journal-icon-btn .material-symbols-rounded, .journal-theme-toggle .material-symbols-rounded,
-.shift-nav-btn .material-symbols-rounded, .day-detail-close .material-symbols-rounded { font-size:var(--app-icon-button-glyph-size) !important; }
+.shift-nav-btn .material-symbols-rounded, .day-detail-close .material-symbols-rounded { font-size:var(--app-icon-button-glyph-size); }
 .journal-theme-toggle:hover { transform:none; }
 /* Вкладені плитки — 16px, як у складі; великі панелі лишаються 28px. */
-.stat-card { border-radius:var(--app-radius-tile) !important; }
+.stat-card { border-radius:var(--app-radius-tile); }
 
 /* Табель на ноутбуці (листопад 2026): після появи бічного меню shell сітка з жорсткою
    шириною 1112px не вміщалась і неділя ховалась за краєм. Колонки тепер стискаються до 112px;
