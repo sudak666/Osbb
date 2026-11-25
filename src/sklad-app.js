@@ -36,6 +36,11 @@ import { enhanceSelect, refreshEnhancedSelect } from '../shared/enhance-select.j
 const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 let { allItems, allLogs, allReceipts } = createInventoryCollectionState();
 let curCat='',logCat='',quickId=null,stockFilter='';
+// Таблиця (комп'ютер) і картки (телефон) взаємовиключні за CSS — @media(max-width:768px) у styles.css.
+// Малюємо лише видиму версію: на ~150 товарах обидві разом давали ~1200 кнопок у DOM.
+const mobileLayoutQuery=window.matchMedia('(max-width:768px)');
+const isMobileLayout=()=>mobileLayoutQuery.matches;
+const renderedLists={items:false,logs:false,receipts:false};
 const catBadge={'Прибирання':'bc','Ремонт':'br','Електрика':'be','Сантехніка':'bp','Відеоспостереження':'bv','Інше':'bo'};
 const catColor={'Прибирання':'#16a34a','Ремонт':'#ea580c','Електрика':'#ca8a04','Сантехніка':'#2563eb','Відеоспостереження':'#7c3aed','Інше':'#64748b'};
 // HTML-рендер іконок Material Symbols. Емодзі в інтерфейсі не використовуємо —
@@ -157,9 +162,15 @@ const {
   skeletonRows,
   skeletonStack,
   loadSupplierTags:loadSupplierTagsCloud,
-  onItems(items){ allItems=items; renderItems(); updateStats(); },
-  onLogs(logs){ allLogs=logs; renderLog(); },
-  onReceipts(receipts){ allReceipts=receipts; renderReceipts(); },
+  onItems(items){ allItems=items; renderedLists.items=true; renderItems(); updateStats(); },
+  onLogs(logs){ allLogs=logs; renderedLists.logs=true; renderLog(); },
+  onReceipts(receipts){ allReceipts=receipts; renderedLists.receipts=true; renderReceipts(); },
+});
+// Поворот телефона / зміна ширини вікна: перемальовуємо вже завантажені списки в потрібній версії.
+mobileLayoutQuery.addEventListener('change',()=>{
+  if(renderedLists.items) renderItems();
+  if(renderedLists.logs) renderLog();
+  if(renderedLists.receipts) renderReceipts();
 });
 
 movementsController=createSkladMovementsController({db,document,getItems:()=>allItems,getLogs:()=>allLogs,getReceipts:()=>allReceipts,
@@ -361,30 +372,8 @@ function debounce(fn,wait){
     timer=setTimeout(()=>fn(...args),wait);
   };
 }
-const prefersReducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-// Плавно "перемотує" число від поточного значення до нового замість миттєвої
-// заміни тексту — і на першому завантаженні, і на маленьких дельтах після
-// одиничної дії, однаково коротка (380мс) відчутна анімація.
-function animateNumber(el,target,{prefix='',suffix=''}={}){
-  if(!el) return;
-  const targetNum=Number(target)||0;
-  const startNum=Number(el.dataset.animRaw??String(el.textContent||'').replace(/[^\d.-]/g,''))||0;
-  if(prefersReducedMotion()||startNum===targetNum){
-    el.textContent=prefix+targetNum+suffix;
-    el.dataset.animRaw=String(targetNum);
-    return;
-  }
-  const t0=performance.now();
-  const dur=380;
-  function step(now){
-    const p=Math.min(1,(now-t0)/dur);
-    const eased=1-Math.pow(1-p,3);
-    const val=Math.round(startNum+(targetNum-startNum)*eased);
-    el.textContent=prefix+val+suffix;
-    if(p<1) requestAnimationFrame(step);
-    else el.dataset.animRaw=String(targetNum);
-  }
-  requestAnimationFrame(step);
+function setNumber(el,value){
+  if(el) el.textContent=String(Number(value)||0);
 }
 function bindSkladStaticControls(){
   document.querySelectorAll('[data-sklad-page], .ni[data-page], .bn-item[data-page]').forEach(trigger=>{
@@ -632,7 +621,8 @@ function renderItems(){
     if(mc) mc.innerHTML=state;
     return;
   }
-  tb.innerHTML=items.map((item,idx)=>{
+  const mobile=isMobileLayout();
+  tb.innerHTML=mobile?'':items.map((item,idx)=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
     const canIssue=Number(item.quantity)>0;
     const id=Number(item.id);
@@ -668,7 +658,7 @@ function renderItems(){
 
   // Mobile cards
   const mc=document.getElementById('mobileCards');
-  if(mc) mc.innerHTML=items.map(item=>{
+  if(mc) mc.innerHTML=!mobile?'':items.map(item=>{
     const qc=item.quantity==0?'qty-zero':item.quantity<=3?'qty-low':'qty-ok';
     const canIssue=Number(item.quantity)>0;
     const id=Number(item.id);
@@ -713,11 +703,11 @@ function renderItems(){
 
 function updateStats(){
   const stats=calculateInventoryHeaderStats(allItems);
-  animateNumber(document.getElementById('st-available'),stats.availableItems);
+  setNumber(document.getElementById('st-available'),stats.availableItems);
   // Якщо задано мінімальні залишки — рахуємо товари нижче мінімуму, інакше старий поріг ≤ 3.
   const useMinimums=hasMinimums(allItems);
   const lowCount=useMinimums?allItems.filter(isBelowMinimum).length:allItems.filter(item=>Number(item.quantity)<=3).length;
-  animateNumber(document.getElementById('st-units'),lowCount);
+  setNumber(document.getElementById('st-units'),lowCount);
   document.getElementById('st-units')?.closest('.summary-card')?.classList.toggle('is-alert',lowCount>0);
   const unitsLabel=document.getElementById('st-units-label');
   if(unitsLabel) unitsLabel.textContent=useMinimums?'Нижче мінімуму':'Залишок 3 і менше';
@@ -823,7 +813,8 @@ function renderLog(){
     mb.innerHTML=state;
     return;
   }
-  tb.innerHTML=logs.map(l=>{
+  const mobile=isMobileLayout();
+  tb.innerHTML=mobile?'':logs.map(l=>{
     const d=new Date(l.issued_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const item=allItems.find(i=>i.id===l.item_id);
@@ -846,7 +837,7 @@ function renderLog(){
     </tr>`;
   }).join('');
   // mobile cards
-  mb.innerHTML=logs.map(l=>{
+  mb.innerHTML=!mobile?'':logs.map(l=>{
     const d=new Date(l.issued_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const item=allItems.find(i=>i.id===l.item_id);
@@ -888,7 +879,8 @@ function renderReceipts(){
     mb.innerHTML=state;
     return;
   }
-  tb.innerHTML=recs.map(r=>{
+  const mobile=isMobileLayout();
+  tb.innerHTML=mobile?'':recs.map(r=>{
     const d=new Date(r.received_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const item=allItems.find(i=>i.id===r.item_id);
@@ -912,7 +904,7 @@ function renderReceipts(){
       </div></td>
     </tr>`;
   }).join('');
-  mb.innerHTML=recs.map(r=>{
+  mb.innerHTML=!mobile?'':recs.map(r=>{
     const d=new Date(r.received_at);
     const dt=d.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
     const item=allItems.find(i=>i.id===r.item_id);
