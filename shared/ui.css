@@ -91,9 +91,10 @@
 .app-module-identity{min-width:0;}
 .app-module-kicker{color:var(--md-sys-color-primary);font-size:11px;font-weight:700;line-height:1.2;text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;}
 
-.app-module-title-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:40px;height:40px;border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font-size:22px;}
+/* Іконка біля назви модуля — лише гліф кольору primary, без тонованого квадратика. */
+.app-module-title-icon{display:inline-flex;align-items:center;flex:none;color:var(--md-sys-color-primary);font-size:26px;}
 
-@media(max-width:640px){.app-module-kicker{display:none;}.app-module-title-icon{width:36px;height:36px;border-radius:var(--md-sys-shape-corner-medium,12px);font-size:20px;}}
+@media(max-width:640px){.app-module-kicker{display:none;}.app-module-title-icon{font-size:24px;}}
 
 /* Shared product typography and component rhythm. */
 html,body,button,input,select,textarea{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe UI',sans-serif);}

@@ -353,7 +353,9 @@
 .home-card { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 20px; box-sizing: border-box; border: 1px solid var(--md-sys-color-outline, rgba(60, 60, 67, .35)); border-radius: var(--app-radius-container); background: var(--md-sys-color-surface-container-low, #f6f8f5); color: var(--md-sys-color-on-surface, #1c1b1f); }
 .home-card-head { display: flex; align-items: center; gap: 10px; }
 .home-card-head h2 { margin: 0; font-size: 16px; font-weight: 500; }
-.home-card-icon { display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: var(--app-radius-icon-tile); background: var(--md-sys-color-primary-container, #dcfce7); color: var(--md-sys-color-on-primary-container, #052e16); }
+/* Іконка біля заголовка — лише гліф, без тонованого квадратика (рішення власника, листопад 2026). */
+.home-card-icon { display: inline-flex; align-items: center; color: var(--md-sys-color-primary, #08752f); }
+.home-card-icon .material-symbols-rounded { font-size: 24px; }
 .home-card-body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .home-card-foot { display: flex; justify-content: flex-start; margin-top: auto; }
 .home-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }

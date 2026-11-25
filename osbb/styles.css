@@ -699,7 +699,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .elevator-panel { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
 .elevator-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px; }
 .elevator-title { display:flex; align-items:center; gap:12px; color:var(--md-sys-color-on-surface,var(--text-main)); font-size:18px; line-height:1.2; font-weight:700; }
-.elevator-title-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:var(--md-sys-shape-corner-medium,12px); background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); font-size:22px; }
+.elevator-title-icon { display:inline-flex; align-items:center; color:var(--md-sys-color-primary); font-size:24px; }
 .elevator-add-form { display:grid; grid-template-columns:minmax(88px,112px) minmax(0,1fr) auto; gap:8px; align-items:center; }
 .elevator-add-form select, .elevator-add-form input { min-width:0; min-height:48px; }
 .elevator-add-form .journal-select { border-radius:var(--md-sys-shape-corner-full,999px); text-align:center; text-align-last:center; }
@@ -948,7 +948,6 @@ html.in-shell [data-theme-toggle] { display:none !important; }
 .journal-theme-toggle:hover { transform:none; }
 /* Вкладені плитки — 16px, як у складі; великі панелі лишаються 28px. */
 .stat-card { border-radius:var(--app-radius-tile) !important; }
-.elevator-title-icon { border-radius:var(--app-radius-icon-tile); }
 
 /* Табель на ноутбуці (листопад 2026): після появи бічного меню shell сітка з жорсткою
    шириною 1112px не вміщалась і неділя ховалась за краєм. Колонки тепер стискаються до 112px;
@@ -964,7 +963,6 @@ html.in-shell [data-theme-toggle] { display:none !important; }
 .elevator-add-form .elevator-add-btn { background:var(--md-sys-color-primary,var(--accent)); color:var(--md-sys-color-on-primary,#fff); padding:0 24px; }
 .elevator-list .elevator-entry { align-items:center; gap:14px; padding:12px 12px 12px 16px; border:1px solid var(--md-sys-color-outline,var(--border)); border-radius:var(--app-radius-tile); }
 .elevator-list .elevator-entry .journal-icon-btn { position:static; flex:none; }
-.elevator-title-icon { background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); }
 
 /* Табель: другий рядок часу — відсутність. Підпис над ним і пунктирні поля, щоб
    «12:00 / 14:00» не читались як ще один прихід/відхід (листопад 2026). */
