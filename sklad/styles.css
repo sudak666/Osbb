@@ -1102,6 +1102,7 @@ html.in-shell .app-module-kicker{display:none;}
 .purchase-row .stat-low-name{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .purchase-row small{font-size:var(--app-font-xs);font-weight:400;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}
 .purchase-need{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-weight:700;color:var(--md-sys-color-primary,var(--brand));white-space:nowrap;}
+.purchase-subhead{margin:16px 0 6px;font-size:var(--app-font-sm);font-weight:500;color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}
 .purchase-total{display:flex;justify-content:flex-end;gap:4px;padding-top:10px;margin-top:6px;border-top:1px solid var(--md-sys-color-outline-variant,var(--border-subtle));font-size:var(--app-font-md);}
 .spend-chart{display:flex;flex-direction:column;gap:10px;}
 .spend-legend{display:flex;gap:16px;font-size:var(--app-font-xs);color:var(--md-sys-color-on-surface-variant,var(--sklad-gray));}

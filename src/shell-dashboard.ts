@@ -4,7 +4,7 @@ import { elevatorEntriesFromResponse, type ElevatorEntry } from './osbb-elevator
 import { garbageBins, garbageMonthKey, garbageMonthKeyCandidates, normalizeGarbageMonth } from './osbb-garbage.ts';
 import { buildMonthlyReportSheets, monthlyReportFileName, monthRange, type ReportIssue, type ReportItem, type ReportReceipt, type ReportWork } from './monthly-report.ts';
 import { estimatedItemValue } from './sklad-domain.ts';
-import { hasMinimums, isBelowMinimum } from './sklad-purchasing.ts';
+import { isLowStock } from './sklad-purchasing.ts';
 import type { ShellSection } from './shell-nav.ts';
 import type { SupabaseRestClient } from './supabase-api.ts';
 
@@ -22,7 +22,6 @@ const MONTHS_GENITIVE = ['січня', 'лютого', 'березня', 'кві
 const MONTHS_NOMINATIVE = ['січень', 'лютий', 'березень', 'квітень', 'травень', 'червень', 'липень', 'серпень', 'вересень', 'жовтень', 'листопад', 'грудень'];
 const WEEKDAYS = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', 'пʼятниця', 'субота'];
 /** Той самий поріг, що й у складі (sortLowStockItems): ≤ 3 одиниць — «мало». */
-const LOW_STOCK_THRESHOLD = 3;
 
 export interface AttendanceTodayRow { role: StaffRole; label: string; status: 'working' | 'done' | 'none'; text: string; absence: string }
 
@@ -61,21 +60,20 @@ export function garbageToday(monthData: unknown, day: number): GarbageTodaySumma
 
 export interface StockItemLike { id: number | string; name?: string; quantity: number; unit?: string | null; price_unit?: number | null; is_internal?: boolean | null; min_quantity?: number | null }
 export interface StockLogLike { item_id: number | string | null; item_name?: string; quantity: number; issued_to?: string | null; issued_at?: string | null }
-export interface StockSummary { available: number; outOfStock: number; low: number; belowMin: number | null; value: number; monthIssues: number; monthSpend: number }
+/** outOfStock — залишок 0; low — ще є, але закінчується (за мінімумом або ≤ 3, див. isLowStock). */
+export interface StockSummary { available: number; outOfStock: number; low: number; value: number; monthIssues: number; monthSpend: number }
 
 export function stockSummary(items: readonly StockItemLike[], monthLogs: readonly StockLogLike[]): StockSummary {
     const priceById = new Map<string, number>();
-    const minimums = hasMinimums(items.map((item) => ({ ...item, name: item.name ?? '' })));
-    const summary: StockSummary = { available: 0, outOfStock: 0, low: 0, belowMin: minimums ? 0 : null, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
+    const summary: StockSummary = { available: 0, outOfStock: 0, low: 0, value: 0, monthIssues: monthLogs.length, monthSpend: 0 };
     for (const item of items) {
         const quantity = Number(item.quantity) || 0;
         priceById.set(String(item.id), Number(item.price_unit) || 0);
         if (quantity > 0) summary.available += 1;
         summary.value += estimatedItemValue({ quantity, price_unit: item.price_unit ?? null });
-        if (summary.belowMin !== null && isBelowMinimum({ ...item, name: item.name ?? '' })) summary.belowMin += 1;
         if (item.is_internal === true) continue;
         if (quantity <= 0) summary.outOfStock += 1;
-        else if (quantity <= LOW_STOCK_THRESHOLD) summary.low += 1;
+        else if (isLowStock({ ...item, name: item.name ?? '' })) summary.low += 1;
     }
     for (const log of monthLogs) {
         const price = priceById.get(String(log.item_id)) ?? 0;
@@ -174,9 +172,7 @@ function renderStock(data: DashboardData['stock'], monthName: string): string {
     const metrics = `<div class="home-metrics">
         <div class="home-metric"><strong>${s.available}</strong><span>у наявності</span></div>
         <div class="home-metric${s.outOfStock ? ' is-warn' : ''}"><strong>${s.outOfStock}</strong><span>закінчились</span></div>
-        ${s.belowMin !== null
-        ? `<div class="home-metric${s.belowMin ? ' is-warn' : ''}"><strong>${s.belowMin}</strong><span>нижче мінімуму</span></div>`
-        : `<div class="home-metric"><strong>${s.low}</strong><span>мало (1–${LOW_STOCK_THRESHOLD})</span></div>`}
+        <div class="home-metric"><strong>${s.low}</strong><span>закінчуються</span></div>
     </div>
     <p class="home-muted">Вартість залишків ≈ <strong>${formatMoney(s.value)}</strong>. За ${monthName} видано ${s.monthIssues} ${s.monthIssues === 1 ? 'раз' : 'разів'}${s.monthSpend ? ` на ≈ ${formatMoney(s.monthSpend)}` : ''}.</p>`;
     const list = recent.length ? `<ul class="home-list home-list--compact">${recent.map((log) => `

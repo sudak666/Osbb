@@ -19,7 +19,7 @@ import { isAuthSessionValid } from './auth-session.js';
 import { numericIdFromInsertResponse, SUPABASE_KEY, SUPABASE_URL } from './supabase-api.js';
 import { filterInventoryLogs, filterInventoryReceipts } from './sklad-movements.js';
 import { buildBalanceExportRows, buildInventoryExportRows, buildIssueExportRows, calculateInventoryValueSummary, sortLowStockItems, sortUnpricedItems, summarizeInventoryCategories } from './sklad-reporting.js';
-import { buildPurchaseExportRows, buildPurchaseList, hasMinimums, isBelowMinimum, purchaseListTotal, spendByMonth, usageByCategory } from './sklad-purchasing.js';
+import { buildPurchaseExportRows, buildPurchaseList, hasMinimums, isLowStock, lowWithoutMinimum, purchaseListTotal, spendByMonth, usageByCategory } from './sklad-purchasing.js';
 import { createInventoryCollectionState, inventoryLogsFromResponse, inventoryUnitFromRpcResponse } from './sklad-state.js';
 import { PURCHASE_PRICE_RPC_UNAVAILABLE_KEY } from './sklad-client-state.js';
 import { createSkladDeletePinController } from './sklad-delete-pin-controller.js';
@@ -704,13 +704,10 @@ function renderItems(){
 function updateStats(){
   const stats=calculateInventoryHeaderStats(allItems);
   setNumber(document.getElementById('st-available'),stats.availableItems);
-  // Якщо задано мінімальні залишки — рахуємо товари нижче мінімуму, інакше старий поріг ≤ 3.
-  const useMinimums=hasMinimums(allItems);
-  const lowCount=useMinimums?allItems.filter(isBelowMinimum).length:allItems.filter(item=>Number(item.quantity)<=3).length;
+  // Одне правило для кожного товару: з мінімумом — нижче нього, без мінімуму — залишок 3 і менше.
+  const lowCount=allItems.filter(isLowStock).length;
   setNumber(document.getElementById('st-units'),lowCount);
   document.getElementById('st-units')?.closest('.summary-card')?.classList.toggle('is-alert',lowCount>0);
-  const unitsLabel=document.getElementById('st-units-label');
-  if(unitsLabel) unitsLabel.textContent=useMinimums?'Нижче мінімуму':'Залишок 3 і менше';
   const valueElement=document.getElementById('st-value');
   if(valueElement) valueElement.textContent=stats.estimatedValue>0?money(stats.estimatedValue):'0 грн';
 }
@@ -1148,13 +1145,21 @@ function renderPurchaseList(){
   const rows=currentPurchaseRows();
   if(title) title.textContent=rows.length?`Закупити · ${rows.length}`:'Закупити';
   if(exportBtn) exportBtn.hidden=!rows.length;
-  if(!rows.length){ box.innerHTML='<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Усе вище мінімуму — купувати нічого не треба.</div>'; return; }
+  // Товари без мінімуму теж можуть закінчуватись — показуємо їх окремо, а не «купувати нічого не треба».
+  const unset=lowWithoutMinimum(allItems);
+  const unsetBlock=unset.length?`<h4 class="purchase-subhead">Без мінімуму, залишок 3 і менше · ${unset.length}</h4>`
+    +unset.map(i=>`<div class="stat-low-row">
+        <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
+        <span class="${Number(i.quantity)<=0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
+      </div>`).join(''):'';
+  if(!rows.length){ box.innerHTML='<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Товари з мінімумом — у нормі.</div>'+unsetBlock; return; }
   const total=purchaseListTotal(rows);
   box.innerHTML=rows.map(r=>`<div class="stat-low-row purchase-row">
       <span class="stat-low-name">${escapeHtml(r.name)}<small>${escapeHtml(r.category)} · є ${escapeHtml(String(r.quantity))} з ${escapeHtml(String(r.min))}${r.supplier?` · ${escapeHtml(r.supplier)}`:''}</small></span>
       <span class="stat-low-qty purchase-need">+${escapeHtml(String(r.need))} ${escapeHtml(r.unit)}${r.price?`<small>${money(r.cost)}</small>`:''}</span>
     </div>`).join('')
-    +`<div class="purchase-total">Разом ≈ <strong>${money(total.cost)}</strong>${total.unpriced?` · без ціни: ${total.unpriced}`:''}</div>`;
+    +`<div class="purchase-total">Разом ≈ <strong>${money(total.cost)}</strong>${total.unpriced?` · без ціни: ${total.unpriced}`:''}</div>`
+    +unsetBlock;
 }
 async function exportPurchaseList(){
   const rows=currentPurchaseRows();
