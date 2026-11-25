@@ -16,7 +16,8 @@
     "test:functions": "node scripts/check-supabase-functions.mjs",
     "test:m3": "node scripts/check-material3.mjs",
     "build:js": "node scripts/build-js-fallback.mjs",
-    "css-diff": "node scripts/css-diff.mjs"
+    "css-diff": "node scripts/css-diff.mjs",
+    "ui-sweep": "node scripts/ui-sweep.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.11",

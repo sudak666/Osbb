@@ -62,7 +62,7 @@ test('latestElevatorVisit picks the newest past visit across two months', () => 
 });
 
 test('dashboard formatting and rendering escape user text', () => {
-  assert.equal(formatMoney(124070.4), '124 070 грн');
+  assert.equal(formatMoney(124070.4), '124 070 грн');
   assert.equal(formatLongDate(new Date(2026, 10, 15)), 'неділя, 15 листопада');
   const html = renderDashboard({
     attendance: { state: 'loading' },

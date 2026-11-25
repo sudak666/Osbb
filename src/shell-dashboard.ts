@@ -98,7 +98,8 @@ export function latestElevatorVisit(current: readonly ElevatorEntry[], previous:
 }
 
 export function formatMoney(value: number): string {
-    return `${Math.round(value).toLocaleString('uk-UA').replace(/ /g, ' ')} грн`;
+    // Нерозривні пробіли: сума не розривається між рядками («5» / «884 грн»).
+    return `${Math.round(value).toLocaleString('uk-UA').replace(/\s/g, ' ')} грн`;
 }
 
 export function formatLongDate(date: Date): string {

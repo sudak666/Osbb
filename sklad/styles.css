@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap&subset=cyrillic');
 *{font-family:'Roboto',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
 button{-webkit-tap-highlight-color:transparent;outline:none;touch-action:manipulation;}
 button:focus{outline:none;}
@@ -71,6 +70,17 @@ button:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
   --sklad-radius-lg:var(--radius-lg);
 }
 .theme-dark{
+  /* Синоніми з :root обчислюються там, де оголошені, — на <html> зі світлими токенами, а клас
+     теми стоїть на <body>. Тому кожен синонім кольору має бути й тут, інакше в темній темі
+     лишався тьмяний світлий відтінок (напр. помаранчеве «34» на «Статистиці»). */
+  --info:var(--md-sys-color-secondary,#3B82F6);
+  --warning:var(--md-sys-color-tertiary,#D89025);
+  --danger:var(--md-sys-color-error,#E05252);
+  --success:var(--md-sys-color-primary,#26B864);
+  --sklad-blue:var(--md-sys-color-secondary,#007AFF);
+  --sklad-green:var(--md-sys-color-primary,#34C759);
+  --sklad-red:var(--md-sys-color-error,#FF3B30);
+  --sklad-orange:var(--md-sys-color-tertiary,#E58B24);
   --brand:var(--md-sys-color-primary,#2ACB64);
   --brand-light:color-mix(in srgb,var(--md-sys-color-primary,#2ACB64) 15%,transparent);
   --brand-dark:color-mix(in srgb,var(--md-sys-color-primary,#2ACB64) 82%,#000);
@@ -1131,3 +1141,26 @@ html.in-shell .app-module-kicker{display:none;}
    Колір — лише як сигнал стану: є товари нижче мінімуму. */
 .inventory-summary .summary-card .big{color:var(--md-sys-color-on-surface);}
 .inventory-summary .summary-card.is-alert .big{color:var(--md-sys-color-error);}
+
+/* ===== Обхід усіх екранів, листопад 2026 ===== */
+/* «Додати / поповнити» на телефоні: картка на всю ширину (була вужча за перемикач над нею). */
+@media(max-width:768px){ #page-add .split{align-items:stretch;} }
+.receipt-options > summary, .purchase-unset > summary { display:flex; align-items:center; justify-content:space-between; gap:8px; list-style:none; }
+.receipt-options > summary::-webkit-details-marker, .purchase-unset > summary::-webkit-details-marker { display:none; }
+.receipt-options-chevron, .purchase-unset-chevron { flex:none; font-size:24px; color:var(--md-sys-color-on-surface-variant,var(--text2)); transition:transform var(--md-sys-motion-duration-short4,.2s) var(--md-sys-motion-easing-standard,ease); }
+.receipt-options[open] .receipt-options-chevron, .purchase-unset[open] .purchase-unset-chevron { transform:rotate(180deg); }
+.purchase-unset > summary { cursor:pointer; min-height:44px; margin:12px 0 0; }
+/* Інвентаризація: одиниця фіксованої ширини, щоб поля «?» стояли в одну колонку. */
+.audit-unit { min-width:36px; font-size:var(--app-font-xs); color:var(--sklad-label3); }
+/* Рух товарів на телефоні: назва у два рядки замість обрізання на півслові. */
+.log-mobile-title { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; }
+/* Таблиця запасів: «Видати» і «Немає» однієї ширини — меню ⋯ в одній колонці. */
+.table-row-actions > .btn-outlined { min-width:116px; justify-content:center; }
+/* «Внутрішнього використання»: темний помаранчевий губився на темному тлі. */
+.stats-metric-value.is-orange { color:var(--md-sys-color-tertiary,var(--sklad-orange)); }
+/* У shell на телефоні плаваюче меню shell (68px + 12px) лежить поверх iframe: аркуші вікон
+   піднімаються над ним. max-height з !important — пара до мобільного правила вище. */
+@media(max-width:640px){
+  html.in-shell .modal-bg{padding-bottom:calc(88px + env(safe-area-inset-bottom));}
+  html.in-shell .modal-bg .modal{max-height:100%!important;border-radius:var(--md-sys-shape-corner-extra-large,28px);}
+}

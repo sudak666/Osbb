@@ -71,7 +71,7 @@ function latestElevatorVisit(current, previous, now) {
   return visits[0] ?? null;
 }
 function formatMoney(value) {
-  return `${Math.round(value).toLocaleString("uk-UA").replace(/ /g, " ")} грн`;
+  return `${Math.round(value).toLocaleString("uk-UA").replace(/\s/g, " ")} грн`;
 }
 function formatLongDate(date) {
   return `${WEEKDAYS[date.getDay()]}, ${date.getDate()} ${MONTHS_GENITIVE[date.getMonth()]}`;

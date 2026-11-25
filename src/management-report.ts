@@ -182,7 +182,7 @@ export function buildManagementReport(period: ReportPeriod, data: ReportSourceDa
 
 // ---------- Рендер сторінки ----------
 
-const money = (v: number) => `${Math.round(v).toLocaleString('uk-UA').replace(/ /g, ' ')} грн`;
+const money = (v: number) => `${Math.round(v).toLocaleString('uk-UA').replace(/\s/g, ' ')} грн`;
 const shortDate = (d: Date) => `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`;
 const isoToDate = (iso: string) => new Date(`${iso}T12:00:00`);
 const hoursText = (h: number) => formatAttendanceDuration(h);

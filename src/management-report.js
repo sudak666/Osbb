@@ -126,7 +126,7 @@ function buildManagementReport(period, data, now) {
     stock
   };
 }
-const money = (v) => `${Math.round(v).toLocaleString("uk-UA").replace(/ /g, " ")} грн`;
+const money = (v) => `${Math.round(v).toLocaleString("uk-UA").replace(/\s/g, " ")} грн`;
 const shortDate = (d) => `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`;
 const isoToDate = (iso) => /* @__PURE__ */ new Date(`${iso}T12:00:00`);
 const hoursText = (h) => formatAttendanceDuration(h);

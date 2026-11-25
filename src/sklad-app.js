@@ -1060,6 +1060,10 @@ function renderStats(){
   document.getElementById('bal-internal').textContent=stats.internalItems;
   document.getElementById('bal-value').textContent=stats.balanceValue?money(stats.balanceValue):'—';
   document.getElementById('bal-priced').textContent=stats.pricedItems;
+  // «За фільтрами» має сенс лише з увімкненим фільтром — інакше та сама сума стояла двічі поруч.
+  const valueFilterIsDefault=!document.getElementById('valueCatFilter')?.value&&(document.getElementById('valueStockFilter')?.value||'all')==='all'&&(document.getElementById('valueInternalFilter')?.value||'balance')==='balance'&&(document.getElementById('valuePriceFilter')?.value||'all')==='all';
+  const filteredBlock=document.getElementById('bal-filtered-block');
+  if(filteredBlock) filteredBlock.hidden=valueFilterIsDefault;
   const filteredValueEl=document.getElementById('bal-filtered-value');
   if(filteredValueEl) filteredValueEl.textContent=stats.filteredValue?money(stats.filteredValue):'—';
   const filteredCountEl=document.getElementById('bal-filtered-count');
@@ -1147,11 +1151,12 @@ function renderPurchaseList(){
   if(exportBtn) exportBtn.hidden=!rows.length;
   // Товари без мінімуму теж можуть закінчуватись — показуємо їх окремо, а не «купувати нічого не треба».
   const unset=lowWithoutMinimum(allItems);
-  const unsetBlock=unset.length?`<h4 class="purchase-subhead">Без мінімуму, залишок 3 і менше · ${unset.length}</h4>`
+  // Згорнуто: таких товарів десятки, відкритий список розтягував сторінку на кілька екранів.
+  const unsetBlock=unset.length?`<details class="purchase-unset"><summary class="purchase-subhead">Без мінімуму, залишок 3 і менше · ${unset.length}<span class="ms purchase-unset-chevron" aria-hidden="true">expand_more</span></summary>`
     +unset.map(i=>`<div class="stat-low-row">
         <span class="stat-low-name">${escapeHtml(i.name||'—')}</span>
         <span class="${Number(i.quantity)<=0?'qty-zero':'qty-low'} stat-low-qty">${escapeHtml(String(i.quantity??0))} ${escapeHtml(i.unit||'')}</span>
-      </div>`).join(''):'';
+      </div>`).join('')+'</details>':'';
   if(!rows.length){ box.innerHTML='<div class="stat-low-empty"><span class="ms ic-15-3">check_circle</span> Товари з мінімумом — у нормі.</div>'+unsetBlock; return; }
   const total=purchaseListTotal(rows);
   box.innerHTML=rows.map(r=>`<div class="stat-low-row purchase-row">

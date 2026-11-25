@@ -80,7 +80,7 @@ function createSkladAuditController(options) {
         <div class="audit-item-control"><div class="audit-input-row">
           <input type="number" id="audit_${item.id}" name="audit_${item.id}" aria-label="Фактичний залишок: ${name}"
             value="${counted ? actual : ""}" placeholder="?" min="0" step="any" class="audit-qty-input" data-audit-input data-item-id="${item.id}">
-          <span style="font-size:var(--app-font-xs);color:var(--sklad-label3);">${unit}</span></div>
+          <span class="audit-unit">${unit}</span></div>
           ${counted ? `<button type="button" class="audit-reset-btn" data-audit-clear data-item-id="${item.id}"><span class="ms ic-12-2">close</span> скинути</button>` : ""}
         </div></div>`;
     }).join("");
