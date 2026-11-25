@@ -116,7 +116,9 @@ body, body.theme-dark { background:var(--md-sys-color-background,var(--bg-app));
 .journal-stat-card.role-info .journal-metric-value, .journal-stat-card.role-info .journal-metric-label { color:var(--md-ref-color-info,#3b82f6); }
 .journal-stat-card.role-plastic .journal-metric-value, .journal-stat-card.role-plastic .journal-metric-label { color:var(--md-sys-color-tertiary,#f59e0b); }
 .journal-stat-card.role-glass .journal-metric-value, .journal-stat-card.role-glass .journal-metric-label { color:var(--md-ref-color-info,#3b82f6); }
-.garbage-chart { height:80px; }
+/* Висота — за вмістом: стовпчик до 68px + число й підпис місяця не влазили в 80px
+   і цифри наїжджали на заголовок «Баки по місяцях». */
+.garbage-chart { min-height:80px; }
 
 .journal-inline-icon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; flex-shrink:0; }
 button .journal-inline-icon, .journal-action-btn .material-symbols-rounded, #btn-refresh .material-symbols-rounded { display:inline-flex; align-items:center; justify-content:center; margin:0; line-height:1; }
@@ -865,16 +867,18 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
 /* Keep the daily workflow above secondary analytics on phones. */
 #section-garbage:not(.hidden) { display:flex; flex-direction:column; gap:16px; }
 #section-garbage > .journal-list-shell { order:-1; }
-.garbage-chart-panel > summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
+.garbage-chart-panel > summary { cursor:pointer; min-height:44px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.garbage-chart-chevron { color:var(--md-sys-color-on-surface-variant,var(--text-sub)); transition:transform var(--md-sys-motion-duration-short4,.18s) var(--md-sys-motion-easing-standard,ease); }
+.garbage-chart-panel[open] .garbage-chart-chevron { transform:rotate(180deg); }
+.garbage-chart-panel:not([open]) > summary { margin-bottom:0; }
 @media(max-width:640px) {
   .journal-title-copy { display:none; }
   .journal-shell-header .journal-title-row { gap:8px; }
   .journal-title-heading { font-size:var(--app-font-headline); }
-  .journal-calendar-controls { display:grid; grid-template-columns:40px minmax(72px,.8fr) minmax(100px,1fr) 40px; gap:6px; width:100%; }
+  .journal-calendar-controls { display:grid; grid-template-columns:var(--app-icon-button-size) minmax(72px,.8fr) minmax(100px,1fr) var(--app-icon-button-size); gap:6px; width:100%; }
   .journal-calendar-controls > .custom-select-wrap { min-width:0; width:100%; }
   .journal-calendar-controls .custom-select-btn { min-width:0; padding-inline:8px; }
-  .journal-calendar-controls > [data-month-step] { width:40px; height:44px; min-width:40px; }
-  .journal-calendar-controls > #btn-refresh { grid-column:4; width:40px; height:44px; }
+  .journal-calendar-controls > #btn-refresh { grid-column:4; }
   .journal-calendar-controls > #btn-today { grid-column:1 / 4; }
   .journal-tabs-row { display:none; }
   .journal-mini-stats.is-four { grid-template-columns:repeat(4,minmax(0,1fr)); }
@@ -897,9 +901,18 @@ body{font-family:var(--app-font-family,'Roboto',system-ui,-apple-system,'Segoe U
   .journal-shell-header .journal-title-row { flex-direction:row; align-items:center; padding-bottom:8px; }
   .journal-title-actions { flex-wrap:nowrap; justify-content:flex-end; gap:6px; }
   .journal-title-heading { font-size:var(--app-font-headline); }
-  .journal-calendar-controls { grid-template-columns:40px minmax(64px,.75fr) minmax(0,1fr) 40px 40px; }
+  /* Колонки під кнопки-іконки — того ж розміру, що й самі кнопки (--app-icon-button-size, 48px):
+     з колонками по 40px кнопки виходили за них і злипались із сусідами. */
+  .journal-calendar-controls { grid-template-columns:var(--app-icon-button-size) minmax(64px,.75fr) minmax(0,1fr) var(--app-icon-button-size) var(--app-icon-button-size); }
   .journal-calendar-controls > #btn-refresh { grid-column:5; grid-row:1; }
   .journal-calendar-controls > #btn-today { grid-column:1 / -1; }
+}
+/* Вузькі телефони (360–400px): три круглі кнопки по 48px лишають полям року й місяця
+   замало місця — «Листопад» залазив під «›». Тут поля без стрілочки й з вужчими відступами. */
+@media(max-width:400px) {
+  .journal-calendar-controls { grid-template-columns:var(--app-icon-button-size) auto minmax(0,1fr) var(--app-icon-button-size) var(--app-icon-button-size); gap:4px; }
+  .journal-calendar-controls .custom-select-btn { padding-inline:6px; justify-content:center; }
+  .journal-calendar-controls .custom-select-arrow { display:none; }
 }
 
 /* Сплеш у кольорах поточної теми — без темно-синього спалаху посеред світлого інтерфейсу. */
@@ -968,7 +981,8 @@ html.in-shell [data-theme-toggle] { display:none; }
 .att-times-caption.hidden { display:none; }
 .att-time-input.att-absence-field, .att-mobile-role .att-absence-field .att-time-input { border-style:dashed; }
 
-.garbage-list-foot { display:flex; justify-content:flex-end; margin-top:16px; padding-top:12px; border-top:1px solid var(--md-sys-color-outline-variant); }
+/* .journal-list-shell без власного padding, тож відступи — тут: інакше кнопка впиралась у рамку картки. */
+.garbage-list-foot { display:flex; justify-content:flex-end; margin-top:8px; padding:12px 16px 16px; border-top:1px solid var(--md-sys-color-outline-variant); }
 
 /* Колишні Tailwind-утиліти журналу (листопад 2026: Tailwind прибрано). Окремий шар —
    як у Tailwind, він нижчий за звичайні правила цього файла, тож каскад не змінився. */
