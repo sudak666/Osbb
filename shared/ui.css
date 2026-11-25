@@ -36,8 +36,8 @@
   color: var(--md-sys-color-on-secondary-container, #0f1f11);
   font-size: 28px;
 }
-.md-empty-state-title { color: var(--md-sys-color-on-surface, #0f172a); font-size: 18px; font-weight: 700; }
-.md-empty-state-supporting { max-width: 34ch; font-size: 14px; line-height: 1.45; }
+.md-empty-state-title { color: var(--md-sys-color-on-surface, #0f172a); font-size: var(--app-font-title); font-weight: 700; }
+.md-empty-state-supporting { max-width: 34ch; font-size: var(--app-font-md); line-height: 1.45; }
 
 .skel{
   background-color: var(--md-sys-color-surface-container-highest, #e7edf4);
@@ -54,7 +54,7 @@
   transform: translateX(-50%) translateY(-4px);
   background: var(--md-sys-color-inverse-surface, #2d322c);
   color: var(--md-sys-color-inverse-on-surface, #fff);
-  font-size: 12px;
+  font-size: var(--app-font-xs);
   font-weight: 500;
   padding: 5px 10px;
   border-radius: var(--md-sys-shape-corner-small,8px);
@@ -76,9 +76,9 @@
 @media (hover: none) { [data-tip]::after { display: none; } }
 
 .custom-date-panel{position:fixed;z-index:10020;padding:14px;border:1px solid var(--md-sys-color-outline,#94a3b8);border-radius:var(--md-sys-shape-corner-extra-large,28px);background:var(--md-sys-color-surface-container-high,#fff);color:var(--md-sys-color-on-surface,#0f172a);box-shadow:var(--md-sys-elevation-level3,0 22px 54px rgba(15,23,42,.2));overflow:hidden;}
-.custom-date-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font-size:14px;}
+.custom-date-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font-size:var(--app-font-md);}
 .custom-date-nav,.custom-date-actions button{border:0;border-radius:var(--md-sys-shape-corner-full,999px);background:var(--md-sys-color-secondary-container,#d8e2ff);color:var(--md-sys-color-on-secondary-container,#102f60);cursor:pointer;}
-.custom-date-nav{width:40px;height:40px;font-size:22px;line-height:1;}.custom-date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}.custom-date-weekday{padding:6px 0;text-align:center;font-size:12px;color:var(--md-sys-color-on-surface-variant,#64748b);}
+.custom-date-nav{width:40px;height:40px;font-size:var(--app-font-headline);line-height:1;}.custom-date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}.custom-date-weekday{padding:6px 0;text-align:center;font-size:var(--app-font-xs);color:var(--md-sys-color-on-surface-variant,#64748b);}
 .custom-date-day{height:40px;border:0;border-radius:var(--md-sys-shape-corner-medium,12px);background:transparent;color:inherit;cursor:pointer;font:inherit;}.custom-date-day:hover,.custom-date-day:focus-visible{outline:2px solid var(--md-sys-color-primary,#2563eb);outline-offset:-2px;background:var(--md-sys-color-surface-container-highest,#eef2f7);}.custom-date-day.is-selected{background:var(--md-sys-color-primary,#2563eb);color:var(--md-sys-color-on-primary,#fff);}.custom-date-actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px;}.custom-date-actions button{padding:8px 12px;font-weight:700;}
 
 @media (prefers-reduced-motion: reduce) {
@@ -89,7 +89,7 @@
   }
 }
 .app-module-identity{min-width:0;}
-.app-module-kicker{color:var(--md-sys-color-primary);font-size:11px;font-weight:700;line-height:1.2;text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;}
+.app-module-kicker{color:var(--md-sys-color-primary);font-size:var(--app-font-xs);font-weight:700;line-height:1.2;text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;}
 
 /* Іконка біля назви модуля — лише гліф кольору primary, без тонованого квадратика. */
 .app-module-title-icon{display:inline-flex;align-items:center;flex:none;color:var(--md-sys-color-primary);font-size:26px;}

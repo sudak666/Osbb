@@ -92,6 +92,21 @@ assert.equal((allHtml.match(/<svg\b/g) || []).length, 1, 'Знайдено ін�
 const syntheticRobotoWeights = [...allCss.matchAll(/font-weight:\s*(300|600|650|750|800|850)\b/g)]
   .map(([, weight]) => weight);
 assert.deepEqual(syntheticRobotoWeights, [], `Знайдено синтетичні ваги Roboto: ${[...new Set(syntheticRobotoWeights)].join(', ')}`);
+// Розміри тексту — лише зі шкали --app-font-* (листопад 2026). Іконки (.ms, *-icon, гліфи)
+// і папір звіту (.rpt-*) мають власні розміри; em/%/clamp/inherit/var — відносні й дозволені.
+{
+  const iconOrPaper = /\.ms\b|material-symbols|icon|glyph|\.si\b|\.ic-\d|logo|\.rpt-|chevron/;
+  const offScale = [];
+  for (const [file, css] of Object.entries({ 'styles.css': shellCss, 'osbb/styles.css': journalCss, 'sklad/styles.css': skladCss, 'shared/ui.css': sharedUiCss })) {
+    for (const [, selector, body] of css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}@;]+)\{([^{}]*)\}/g)) {
+      if (iconOrPaper.test(selector)) continue;
+      for (const [, value] of body.matchAll(/font-size\s*:\s*([^;!}]+)/g)) {
+        if (/^\s*[\d.]+(px|rem)\s*$/.test(value) && Number.parseFloat(value) !== 0) offScale.push(`${file}: ${selector.trim().slice(0, 60)} → ${value.trim()}`);
+      }
+    }
+  }
+  assert.deepEqual(offScale, [], `Розміри тексту поза шкалою --app-font-*:\n${offScale.join('\n')}`);
+}
 const shapeTokenPattern = /var\(--md-sys-shape-corner-(?:extra-small|small|medium|large|extra-large|full),\s*(?:4|8|12|16|28|999)px\)/g;
 const nonTokenRadii = [...allCss.matchAll(/border-radius:\s*([^;}]+)/g)]
   .map(([, value]) => value.replace(shapeTokenPattern, '').trim())
