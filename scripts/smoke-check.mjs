@@ -1945,7 +1945,7 @@ for (const file of ['osbb/index.html', 'sklad/index.html']) {
     'class="journal-status-chip"',
     'class="journal-select"',
     '.journal-textarea {',
-    '.garbage-chart { height:80px; }',
+    '.garbage-chart { min-height:80px; }',
     'class="journal-panel garbage-chart-panel"',
     'class="journal-panel journal-list-shell"',
     'id="g-chart" class="garbage-chart"',
