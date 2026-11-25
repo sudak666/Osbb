@@ -6,6 +6,9 @@ export interface SkladItemMenuControllerOptions {
   actions: Record<string, SkladItemAction>;
 }
 
+/** Липкі шари над списками (styles.css: «Sticky stack»), під які меню рядка не повинне заходити. */
+const STICKY_LAYERS = '.topbar, .items-filter-bar, .list-toolbar, .receipts-toolbar, .audit-toolbar';
+
 export function createSkladItemMenuController({ document, window, actions }: SkladItemMenuControllerOptions) {
   let repositionFrame = 0;
   function setExpanded(menu: HTMLElement | null | undefined, expanded: boolean) {
@@ -36,16 +39,22 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
     const bottom = bottomNav && window.getComputedStyle(bottomNav).display !== 'none'
       ? Math.min(window.innerHeight - padding, bottomNav.getBoundingClientRect().top - padding)
       : window.innerHeight - padding;
+    // Липкі шапка й панелі фільтрів лежать шаром вище за рядки (z-index 44/45 проти 40),
+    // тож меню, що відкривається вгору, не має залазити під них — рахуємо місце від їхнього низу.
+    const topLimit = Array.from(document.querySelectorAll<HTMLElement>(STICKY_LAYERS))
+      .map(el => el.getBoundingClientRect())
+      .filter(rect => rect.height > 0 && rect.bottom <= summaryRect.top)
+      .reduce((limit, rect) => Math.max(limit, rect.bottom + padding), padding);
     const height = panel.offsetHeight;
     const width = panel.offsetWidth;
-    const above = Math.max(0, summaryRect.top - padding - 8);
+    const above = Math.max(0, summaryRect.top - topLimit - 8);
     const below = Math.max(0, bottom - summaryRect.bottom - 8);
     const opensDown = below >= Math.min(height, 360) || below > above;
     const available = opensDown ? below : above;
     if (opensDown) menu.classList.add('opens-down');
     const visibleHeight = Math.max(0, Math.min(360, available));
     const left = Math.min(window.innerWidth - width - padding, Math.max(padding, summaryRect.right - width));
-    const top = opensDown ? summaryRect.bottom + 8 : Math.max(padding, summaryRect.top - 8 - Math.min(height, visibleHeight));
+    const top = opensDown ? summaryRect.bottom + 8 : Math.max(topLimit, summaryRect.top - 8 - Math.min(height, visibleHeight));
     panel.classList.add('is-viewport-positioned');
     panel.style.left = Math.max(padding, left) + 'px';
     panel.style.top = top + 'px'; panel.style.maxHeight = visibleHeight + 'px';
