@@ -925,6 +925,10 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
 .item-more summary::-webkit-details-marker{display:none;}
 .item-more-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:60;min-width:208px;max-height:min(62dvh,360px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--md-sys-color-surface-container-high,var(--sklad-card));border:1px solid var(--md-sys-color-outline-variant,var(--sklad-sep));border-radius:var(--md-sys-shape-corner-large,16px);box-shadow:var(--md-sys-elevation-level3);padding:8px;display:flex;flex-direction:column;gap:2px;}
 .item-more-menu.is-viewport-positioned{position:fixed;right:auto;bottom:auto;}
+/* Доки скрипт не поставив меню рядка на місце, його не видно: інакше воно на мить
+   з'являлось над кнопкою (місце за замовчуванням) і стрибало вниз. Розміри при цьому
+   рахуються — visibility, не display. */
+.item-more:not(.topbar-more)[open] .item-more-menu:not(.is-viewport-positioned){visibility:hidden;}
 .item-more.opens-down .item-more-menu{bottom:auto;top:calc(100% + 8px);}
 .item-more-menu button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;border:0;background:transparent;color:var(--md-sys-color-on-surface,var(--sklad-label));border-radius:var(--md-sys-shape-corner-medium,12px);padding:10px 12px;font-size:var(--app-font-md);font-weight:500;text-align:left;cursor:pointer;}
 .item-more-menu button:active,.item-more-menu button:hover{background:var(--md-sys-color-surface-container-highest,var(--sklad-gray6));}
