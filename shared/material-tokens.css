@@ -255,6 +255,13 @@
 .md-state-layer:focus-visible::before { opacity: var(--md-sys-state-focus-opacity); }
 .md-state-layer:active::before { opacity: var(--md-sys-state-pressed-opacity); }
 
+/* Системне підсвічування дотику на телефоні (Android Chrome/WebView) — сірий прямокутник
+   з гострими кутами поверх елемента, що ігнорує border-radius. Відгук на натискання дають
+   заокруглені state-layer'и й :active, тож вимикаємо його для всього застосунку (властивість
+   успадковується — html достатньо). Раніше вимикали точково, і на summary ⋯, рядках-картках,
+   label'ах і пунктах меню прямокутник лишався. */
+html { -webkit-tap-highlight-color: transparent; }
+
 /* Єдині розміри компонентів для shell, журналу й складу (листопад 2026).
    Кожен модуль у кінці свого styles.css прив'язує свої класи кнопок до цих токенів —
    змінювати розміри тут, а не в окремих модулях. Кнопки 48px і підпис 15px — свідомо
