@@ -929,7 +929,7 @@ label{display:block;font-size:var(--md-sys-typescale-label-large-size,14px);font
    з'являлось над кнопкою (місце за замовчуванням) і стрибало вниз. Розміри при цьому
    рахуються — visibility, не display. */
 .item-more:not(.topbar-more)[open] .item-more-menu:not(.is-viewport-positioned){visibility:hidden;}
-.item-more.opens-down .item-more-menu{bottom:auto;top:calc(100% + 8px);}
+.item-more.opens-down .item-more-menu,.item-more.topbar-more .item-more-menu{bottom:auto;top:calc(100% + 8px);}
 .item-more-menu button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;border:0;background:transparent;color:var(--md-sys-color-on-surface,var(--sklad-label));border-radius:var(--md-sys-shape-corner-medium,12px);padding:10px 12px;font-size:var(--app-font-md);font-weight:500;text-align:left;cursor:pointer;}
 .item-more-menu button:active,.item-more-menu button:hover{background:var(--md-sys-color-surface-container-highest,var(--sklad-gray6));}
 .item-more-menu button.danger{color:var(--sklad-red);}
@@ -1083,6 +1083,9 @@ body{--sklad-sticky-header-height:86px;}
   z-index:44;
 }
 .m-card.has-open-menu,.table-modern tr.has-open-menu{z-index:40;}
+/* Меню рядка перекриває панель фільтрів, що ще не прилипла до шапки (sklad-item-menu-controller):
+   той самий z-index, але рядок пізніше в розмітці — тож він над панеллю й під шапкою (45). */
+.m-card.has-open-menu.menu-over-toolbars,.table-modern tr.has-open-menu.menu-over-toolbars{z-index:44;}
 @media(max-width:768px){
   body{--sklad-sticky-header-height:60px;}
   .topbar{top:0;margin-top:0;}

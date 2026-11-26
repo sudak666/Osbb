@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSkladItemMenuController, shellBottomNavTop } from '../src/sklad-item-menu-controller.js';
+import { createSkladItemMenuController, isStuckLayer, shellBottomNavTop } from '../src/sklad-item-menu-controller.js';
+
+test('isStuckLayer treats only a sticky layer sitting at its top offset as an obstacle', () => {
+  assert.equal(isStuckLayer('sticky', '86px', 86), true);
+  assert.equal(isStuckLayer('sticky', '86px', 314), false);
+  assert.equal(isStuckLayer('fixed', 'auto', 0), true);
+  assert.equal(isStuckLayer('static', '0px', 0), false);
+  assert.equal(isStuckLayer('sticky', 'auto', 0), false);
+});
 
 test('item menu controller routes delegated item actions and closes their menu', () => {
   let called = null;
