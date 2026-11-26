@@ -513,6 +513,8 @@ for (const file of ['index.html', 'osbb/index.html', 'sklad/index.html']) {
     ['osbb/index.html', 'class="tab-btn md-state-layer active'],
     ['osbb/index.html', 'class="mob-tab md-state-layer'],
     ['shared/material-tokens.css', '.md-state-layer:hover::before'],
+    // Гострокутий сірий прямокутник дотику на Android вимкнено для всього застосунку.
+    ['shared/material-tokens.css', 'html { -webkit-tap-highlight-color: transparent; }'],
   ];
   const missing = required.filter(([file, needle]) => !readFileSync(file, 'utf8').includes(needle)).map(([file, needle]) => `${file}:${needle}`);
   if (missing.length) {
