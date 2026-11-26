@@ -29,6 +29,18 @@ export function shellBottomNavTop(win: Window): number | null {
   }
 }
 
+/**
+ * Чи липкий шар зараз справді «прилип» (стоїть на своєму `top`). Панель фільтрів, що ще не дійшла
+ * до шапки, — звичайна частина сторінки: меню може відкритися вгору поверх неї. Раніше вона
+ * вважалась перешкодою, і для рядка під нею меню відкривалось униз, а сторінка підкручувалась — стрибок.
+ */
+export function isStuckLayer(position: string, cssTop: string, rectTop: number): boolean {
+  if (position === 'fixed') return true;
+  if (position !== 'sticky') return false;
+  const top = parseFloat(cssTop);
+  return Number.isFinite(top) && rectTop <= top + 1;
+}
+
 export function createSkladItemMenuController({ document, window, actions }: SkladItemMenuControllerOptions) {
   let repositionFrame = 0;
   function setExpanded(menu: HTMLElement | null | undefined, expanded: boolean) {
@@ -36,7 +48,10 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
     menu?.closest?.('.m-card,tr')?.classList.toggle('has-open-menu', Boolean(expanded));
     // Закрите меню забуває своє місце: інакше при наступному відкритті воно на мить
     // з'являлось на старих координатах, доки position() не переставить.
-    if (!expanded) menu?.querySelector?.('.item-more-menu')?.classList?.remove('is-viewport-positioned');
+    if (!expanded) {
+      menu?.querySelector?.('.item-more-menu')?.classList?.remove('is-viewport-positioned');
+      menu?.closest?.('.m-card,tr')?.classList?.remove('menu-over-toolbars');
+    }
   }
   function closeAll(except: HTMLElement | null = null) {
     document.querySelectorAll<HTMLDetailsElement>('details.item-more[open]').forEach(menu => {
@@ -45,7 +60,7 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
       setExpanded(menu, false);
     });
   }
-  function position(menu: HTMLElement) {
+  function position(menu: HTMLElement, allowScroll = true) {
     const panel = menu.querySelector<HTMLElement>('.item-more-menu');
     if (!panel) return;
     menu.classList.remove('opens-down');
@@ -66,10 +81,23 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
       : screenBottom - padding;
     // Липкі шапка й панелі фільтрів лежать шаром вище за рядки (z-index 44/45 проти 40),
     // тож меню, що відкривається вгору, не має залазити під них — рахуємо місце від їхнього низу.
-    const topLimit = Array.from(document.querySelectorAll<HTMLElement>(STICKY_LAYERS))
-      .map(el => el.getBoundingClientRect())
-      .filter(rect => rect.height > 0 && rect.bottom <= summaryRect.top)
-      .reduce((limit, rect) => Math.max(limit, rect.bottom + padding), padding);
+    // Ще не прилиплі шари (панель фільтрів посеред сторінки) меню може перекрити — тоді рядок
+    // з відкритим меню на цей час піднімається над ними (клас menu-over-toolbars).
+    const layers = Array.from(document.querySelectorAll<HTMLElement>(STICKY_LAYERS))
+      .map(el => {
+        const rect = el.getBoundingClientRect();
+        const style = window.getComputedStyle(el);
+        return { rect, stuck: isStuckLayer(style.position, style.top, rect.top) };
+      })
+      .filter(layer => layer.rect.height > 0 && layer.rect.bottom <= summaryRect.top);
+    const topLimit = layers
+      .filter(layer => layer.stuck)
+      .reduce((limit, layer) => Math.max(limit, layer.rect.bottom + padding), padding);
+    const row = menu.closest?.('.m-card,tr');
+    const markOverlap = (top: number, menuHeight: number) => {
+      const overlaps = layers.some(layer => !layer.stuck && top < layer.rect.bottom && top + menuHeight > layer.rect.top);
+      row?.classList?.toggle('menu-over-toolbars', overlaps);
+    };
     const height = panel.offsetHeight;
     const width = panel.offsetWidth;
     const above = Math.max(0, summaryRect.top - topLimit - 8);
@@ -84,6 +112,7 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
         panel.classList.add('is-viewport-positioned');
         panel.style.left = Math.max(padding, left) + 'px';
         panel.style.top = top + 'px'; panel.style.maxHeight = height + 'px';
+        markOverlap(top, height);
         return;
     }
     const available = opensDown ? below : above;
@@ -93,13 +122,18 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
     panel.classList.add('is-viewport-positioned');
     panel.style.left = Math.max(padding, left) + 'px';
     panel.style.top = top + 'px'; panel.style.maxHeight = visibleHeight + 'px';
-    // Меню все одно не вміщується (рядок унизу, над ним шапка й фільтри) — підкручуємо сторінку,
-    // щоб воно відкрилось донизу повністю. Подія scroll сама викличе reposition().
-    if (height > visibleHeight) {
+    markOverlap(top, Math.min(height, visibleHeight));
+    // Меню все одно не вміщується (рядок унизу, над ним прилиплі шапка й фільтри) — підкручуємо
+    // сторінку, щоб воно відкрилось донизу повністю, і одразу ж ставимо його на нове місце:
+    // якщо чекати події scroll, один кадр меню висить на старих координатах окремо від рядка.
+    if (allowScroll && height > visibleHeight) {
       const scroller = document.scrollingElement;
       const room = scroller ? scroller.scrollHeight - window.innerHeight - window.scrollY : 0;
       const delta = Math.ceil(height + 8 - below);
-      if (delta > 0 && room >= delta && typeof window.scrollBy === 'function') window.scrollBy({ top: delta, behavior: 'instant' });
+      if (delta > 0 && room >= delta && typeof window.scrollBy === 'function') {
+        window.scrollBy({ top: delta, behavior: 'instant' });
+        position(menu, false);
+      }
     }
   }
   function activate(event: Event) {
@@ -134,7 +168,7 @@ export function createSkladItemMenuController({ document, window, actions }: Skl
     if (repositionFrame) return;
     repositionFrame = window.requestAnimationFrame(() => {
       repositionFrame = 0;
-      document.querySelectorAll<HTMLElement>('details.item-more[open]').forEach(position);
+      document.querySelectorAll<HTMLElement>('details.item-more[open]').forEach(menu => position(menu));
     });
   }
   function bind() {

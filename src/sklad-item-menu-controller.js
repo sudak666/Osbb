@@ -14,12 +14,21 @@ function shellBottomNavTop(win) {
     return null;
   }
 }
+function isStuckLayer(position, cssTop, rectTop) {
+  if (position === "fixed") return true;
+  if (position !== "sticky") return false;
+  const top = parseFloat(cssTop);
+  return Number.isFinite(top) && rectTop <= top + 1;
+}
 function createSkladItemMenuController({ document, window, actions }) {
   let repositionFrame = 0;
   function setExpanded(menu, expanded) {
     menu?.querySelector("summary")?.setAttribute("aria-expanded", String(expanded));
     menu?.closest?.(".m-card,tr")?.classList.toggle("has-open-menu", Boolean(expanded));
-    if (!expanded) menu?.querySelector?.(".item-more-menu")?.classList?.remove("is-viewport-positioned");
+    if (!expanded) {
+      menu?.querySelector?.(".item-more-menu")?.classList?.remove("is-viewport-positioned");
+      menu?.closest?.(".m-card,tr")?.classList?.remove("menu-over-toolbars");
+    }
   }
   function closeAll(except = null) {
     document.querySelectorAll("details.item-more[open]").forEach((menu) => {
@@ -28,7 +37,7 @@ function createSkladItemMenuController({ document, window, actions }) {
       setExpanded(menu, false);
     });
   }
-  function position(menu) {
+  function position(menu, allowScroll = true) {
     const panel = menu.querySelector(".item-more-menu");
     if (!panel) return;
     menu.classList.remove("opens-down");
@@ -47,7 +56,17 @@ function createSkladItemMenuController({ document, window, actions }) {
     }
     const bottomNav = document.querySelector(".bottom-nav");
     const bottom = bottomNav && window.getComputedStyle(bottomNav).display !== "none" ? Math.min(screenBottom - padding, bottomNav.getBoundingClientRect().top - padding) : screenBottom - padding;
-    const topLimit = Array.from(document.querySelectorAll(STICKY_LAYERS)).map((el) => el.getBoundingClientRect()).filter((rect) => rect.height > 0 && rect.bottom <= summaryRect.top).reduce((limit, rect) => Math.max(limit, rect.bottom + padding), padding);
+    const layers = Array.from(document.querySelectorAll(STICKY_LAYERS)).map((el) => {
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      return { rect, stuck: isStuckLayer(style.position, style.top, rect.top) };
+    }).filter((layer) => layer.rect.height > 0 && layer.rect.bottom <= summaryRect.top);
+    const topLimit = layers.filter((layer) => layer.stuck).reduce((limit, layer) => Math.max(limit, layer.rect.bottom + padding), padding);
+    const row = menu.closest?.(".m-card,tr");
+    const markOverlap = (top2, menuHeight) => {
+      const overlaps = layers.some((layer) => !layer.stuck && top2 < layer.rect.bottom && top2 + menuHeight > layer.rect.top);
+      row?.classList?.toggle("menu-over-toolbars", overlaps);
+    };
     const height = panel.offsetHeight;
     const width = panel.offsetWidth;
     const above = Math.max(0, summaryRect.top - topLimit - 8);
@@ -60,6 +79,7 @@ function createSkladItemMenuController({ document, window, actions }) {
       panel.style.left = Math.max(padding, left) + "px";
       panel.style.top = top2 + "px";
       panel.style.maxHeight = height + "px";
+      markOverlap(top2, height);
       return;
     }
     const available = opensDown ? below : above;
@@ -70,11 +90,15 @@ function createSkladItemMenuController({ document, window, actions }) {
     panel.style.left = Math.max(padding, left) + "px";
     panel.style.top = top + "px";
     panel.style.maxHeight = visibleHeight + "px";
-    if (height > visibleHeight) {
+    markOverlap(top, Math.min(height, visibleHeight));
+    if (allowScroll && height > visibleHeight) {
       const scroller = document.scrollingElement;
       const room = scroller ? scroller.scrollHeight - window.innerHeight - window.scrollY : 0;
       const delta = Math.ceil(height + 8 - below);
-      if (delta > 0 && room >= delta && typeof window.scrollBy === "function") window.scrollBy({ top: delta, behavior: "instant" });
+      if (delta > 0 && room >= delta && typeof window.scrollBy === "function") {
+        window.scrollBy({ top: delta, behavior: "instant" });
+        position(menu, false);
+      }
     }
   }
   function activate(event) {
@@ -116,7 +140,7 @@ function createSkladItemMenuController({ document, window, actions }) {
     if (repositionFrame) return;
     repositionFrame = window.requestAnimationFrame(() => {
       repositionFrame = 0;
-      document.querySelectorAll("details.item-more[open]").forEach(position);
+      document.querySelectorAll("details.item-more[open]").forEach((menu) => position(menu));
     });
   }
   function bind() {
@@ -136,5 +160,6 @@ function createSkladItemMenuController({ document, window, actions }) {
 }
 export {
   createSkladItemMenuController,
+  isStuckLayer,
   shellBottomNavTop
 };
